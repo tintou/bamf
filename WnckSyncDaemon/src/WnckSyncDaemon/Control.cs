@@ -41,7 +41,7 @@ namespace WnckSyncDaemon
 		
 		public uint [] XidsForDesktopFile (string filename)
 		{
-			return WindowMatcher.WindowListForDesktopFile (filename).Select (w => w.Xid).Cast<uint> ().ToArray ();
+			return WindowMatcher.WindowListForDesktopFile (filename).Select (w => (uint) w.Xid).ToArray ();
 		}
 		#endregion
 		
