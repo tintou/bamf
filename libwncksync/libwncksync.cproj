@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{CF5B3FA6-9351-4256-8FCF-0435F12DEF93}</ProjectGuid>
     <Packages>
-      <Packages xmlns="">
+      <Packages>
         <Package file="/usr/lib/pkgconfig/libwnck-1.0.pc" name="libwnck" IsProject="false" />
         <Package file="/usr/lib/pkgconfig/dbus-1.pc" name="dbus" IsProject="false" />
         <Package file="/usr/lib/pkgconfig/dbus-glib-1.pc" name="dbus-glib" IsProject="false" />
@@ -18,7 +18,7 @@
       </Packages>
     </Packages>
     <Compiler>
-      <Compiler ctype="GccCompiler" xmlns="" />
+      <Compiler ctype="GccCompiler" />
     </Compiler>
     <Language>C</Language>
     <Target>Bin</Target>
@@ -40,9 +40,9 @@
     <CompileTarget>SharedLibrary</CompileTarget>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="main.h" />
+    <None Include="libwncksync.h" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="main.c" />
+    <Compile Include="libwncksync.c" />
   </ItemGroup>
 </Project>

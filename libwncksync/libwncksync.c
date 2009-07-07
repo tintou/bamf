@@ -28,7 +28,7 @@ void wncksync_init ()
 
 void wncksync_end ()
 {
-	
+	//fixme
 }
 
 GArray * wncksync_windows_for_desktop_file (gchar *desktop_file)
@@ -67,4 +67,3 @@ gchar * wncksync_desktop_item_for_wnck_window (WnckWindow *window)
 	
 	return desktop_file;
 }
-/* Add function definitions here */
