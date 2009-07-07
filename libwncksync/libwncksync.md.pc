@@ -1,0 +1,5 @@
+Name: libwncksync
+Description: 
+Version: 
+Libs: -L/home/jason/Projects/WnckSyncDaemon/libwncksync/bin/Debug -llibwncksync
+Cflags: -I/home/jason/Projects/WnckSyncDaemon/libwncksync
