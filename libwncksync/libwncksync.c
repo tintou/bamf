@@ -1,4 +1,4 @@
-#include "main.h"
+#include "libwncksync.h"
 
 extern DBusGConnection *connection;
 extern GError *error;

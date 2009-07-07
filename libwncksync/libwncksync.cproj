@@ -44,5 +44,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="libwncksync.c" />
+    <Compile Include="main.c" />
   </ItemGroup>
 </Project>

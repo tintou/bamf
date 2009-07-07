@@ -1,6 +1,6 @@
 /* project created on 7/7/2009 at 2:02 PM */
-#ifndef __MAIN_H__
-#define __MAIN_H__
+#ifndef __LIBWNCKSYNC_H__
+#define __LIBWNCKSYNC_H__
 
 #define WNCK_I_KNOW_THIS_IS_UNSTABLE
 
