@@ -1,8 +1,8 @@
 #include "libwncksync.h"
 
-extern DBusGConnection *connection;
-extern GError *error;
-extern DBusGProxy *proxy;
+DBusGConnection *connection;
+GError *error;
+DBusGProxy *proxy;
 
 void wncksync_init ()
 {
@@ -16,8 +16,8 @@ void wncksync_init ()
 	
 	proxy = dbus_g_proxy_new_for_name (connection, 
 										"org.wncksync.WnckSync", 
-										"org/wncksync/WnckSync/Control", 
-										"org.wncksync.WnckSync");
+										"/org/wncksync/WnckSync/Control", 
+										"org.wncksync.WnckSync.Control");
 										
 	if (!proxy)
 	{
@@ -35,9 +35,9 @@ GArray * wncksync_windows_for_desktop_file (gchar *desktop_file)
 {
 	GArray *arr;
 	error = NULL;
-	if (!dbus_g_proxy_call (proxy, "XidsForDesktopFile", &error, G_TYPE_STRING, &desktop_file, G_TYPE_INVALID, DBUS_TYPE_G_UINT_ARRAY, arr))
+	if (!dbus_g_proxy_call (proxy, "XidsForDesktopFile", &error, G_TYPE_STRING, &desktop_file, G_TYPE_INVALID, DBUS_TYPE_G_UINT_ARRAY, &arr, G_TYPE_INVALID))
 	{
-		g_printerr ("Failed to fetch desktop file: %s/n", error->message);
+		g_printerr ("Failed to fetch desktop file: %s\n", error->message);
 		g_error_free (error);
 		//Error Handling	
 	}
@@ -55,11 +55,11 @@ GArray * wncksync_windows_for_desktop_file (gchar *desktop_file)
 	return windows;
 }
 
-gchar * wncksync_desktop_item_for_wnck_window (WnckWindow *window)
+gchar * wncksync_desktop_item_for_window_xid (gulong xid)
 {
 	gchar *desktop_file;
 	error = NULL;
-	if (!dbus_g_proxy_call (proxy, "DesktopFileForXid", &error, G_TYPE_UINT, wnck_window_get_xid (window), G_TYPE_INVALID, G_TYPE_STRING, &desktop_file))
+	if (!dbus_g_proxy_call (proxy, "DesktopFileForXid", &error, G_TYPE_UINT, xid, G_TYPE_INVALID, G_TYPE_STRING, &desktop_file, G_TYPE_INVALID))
 	{
 		g_printerr ("Failed to fetch xid array");
 		g_error_free (error);	

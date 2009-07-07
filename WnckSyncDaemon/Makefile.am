@@ -44,11 +44,11 @@ RESGEN=resgen2
 	
 all: $(ASSEMBLY) $(PROGRAMFILES) $(BINARIES) 
 
-FILES = \
-	src/WnckSyncDaemon/WnckSyncDaemon.cs \
-	src/WnckSyncDaemon/IControl.cs \
+FILES =  \
 	src/WnckSyncDaemon/Control.cs \
-	src/WnckSyncDaemon/WindowMatcher.cs 
+	src/WnckSyncDaemon/IControl.cs \
+	src/WnckSyncDaemon/WindowMatcher.cs \
+	src/WnckSyncDaemon/WnckSyncDaemon.cs 
 
 DATA_FILES = 
 
@@ -60,13 +60,13 @@ EXTRAS = \
 	wncksyncdaemon.in 
 
 REFERENCES =  \
+	-pkg:gnome-desktop-sharp-2.0 \
+	-pkg:gtk-sharp-2.0 \
+	-pkg:ndesk-dbus-1.0 \
+	-pkg:ndesk-dbus-glib-1.0 \
+	-pkg:wnck-sharp-1.0 \
 	System \
-	System.Core \
-	$(WNCK_SHARP_10_LIBS) \
-	$(GNOME_DESKTOP_SHARP_20_LIBS) \
-	$(NDESK_DBUS_10_LIBS) \
-	$(NDESK_DBUS_GLIB_10_LIBS) \
-	$(GTK_SHARP_20_LIBS)
+	System.Core
 
 DLL_REFERENCES = 
 
