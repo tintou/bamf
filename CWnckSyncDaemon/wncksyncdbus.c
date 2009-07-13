@@ -21,15 +21,13 @@
 
 G_DEFINE_TYPE (WnckSyncDBus, wncksync_dbus, G_TYPE_OBJECT);
 
-static DBusGObjectInfo dbus_info;
+WindowMatcher *matcher;
 
 static void wncksync_dbus_init (WnckSyncDBus *self)
 {
   /* initialize all public and private members to reasonable default values. */
-
-  /* If you need specific construction properties to complete initialization,
-   * delay initialization completion until the property is set. 
-   */
+  
+  matcher = window_matcher_new ();
 }
 
 static void wncksync_dbus_class_init (WnckSyncDBusClass *klass)
@@ -67,7 +65,7 @@ gboolean wncksync_dbus_desktop_file_for_xid (WnckSyncDBus *dbus, gulong xid, gch
 	WnckWindow *window = wnck_window_get (xid);
 	
 	if (window != NULL) {
-		GString *desktopFile = windowmatcher_desktop_file_for_window (window);
+		GString *desktopFile = window_matcher_desktop_file_for_window (matcher, window);
 		*filename = g_strdup (desktopFile->str);
 		g_string_free (desktopFile, TRUE);
 	}
@@ -77,7 +75,7 @@ gboolean wncksync_dbus_desktop_file_for_xid (WnckSyncDBus *dbus, gulong xid, gch
 gboolean wncksync_dbus_xids_for_desktop_file (WnckSyncDBus *dbus, gchar *filename, GArray **xids, GError **error)
 {
 	GString *desktopFile = g_string_new (filename);
-	GArray *arr = windowmatcher_window_list_for_desktop_file (desktopFile);
+	GArray *arr = window_matcher_window_list_for_desktop_file (matcher, desktopFile);
 	
 	*xids = g_array_new (FALSE, TRUE, sizeof (gulong));
 	

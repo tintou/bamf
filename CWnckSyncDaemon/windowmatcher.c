@@ -17,55 +17,73 @@
 
 #include "windowmatcher.h"
 
-static GHashTable * create_desktop_file_table ();
+static GHashTable * create_desktop_file_table (WindowMatcher *self);
 
-static GArray * prefix_strings ();
-static GArray * xdg_data_dirs ();
-static GArray * list_desktop_file_in_dir (GFile *dir);
+static GArray * prefix_strings (WindowMatcher *self);
+static GArray * xdg_data_dirs (WindowMatcher *self);
+static GArray * list_desktop_file_in_dir (WindowMatcher *self, GFile *dir);
 
-static GString * exec_string_for_window (WnckWindow *window);
-static GString * exec_string_for_desktop_file (GString *desktopFile);
+static GString * exec_string_for_window (WindowMatcher *self, WnckWindow *window);
+static GString * exec_string_for_desktop_file (WindowMatcher *self, GString *desktopFile);
 
-static void process_exec_string (GString *execString);
+static void process_exec_string (WindowMatcher *self, GString *execString);
 static void handle_window_opened (WnckScreen *screen, WnckWindow *window, gpointer data);
 static void handle_window_closed (WnckScreen *screen, WnckWindow *window, gpointer data);
 
-static gboolean INITIALIZED;
+static void window_matcher_class_init (WindowMatcherClass *klass);
+static void window_matcher_init (WindowMatcher *self);
 
-static GArray *bad_prefixes;
-static GHashTable *desktop_file_table;
-static GHashTable *exec_list;
+#define WINDOW_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), WINDOW_MATCHER_TYPE, WindowMatcherPrivate))
 
-void windowmatcher_initialize ()
+struct _WindowMatcherPrivate
 {
-	if (INITIALIZED)
-		return;
+	GArray *bad_prefixes;
+	GHashTable *desktop_file_table;
+	GHashTable *exec_list;
+};
+
+G_DEFINE_TYPE (WindowMatcher, window_matcher, G_TYPE_OBJECT);
+
+static void window_matcher_class_init (WindowMatcherClass *klass)
+{
+	g_type_class_add_private (klass, sizeof (WindowMatcherPrivate));
+}
+
+static void window_matcher_init (WindowMatcher *self)
+{
+	WindowMatcherPrivate *priv;
+
+	self->priv = priv = WINDOW_MATCHER_GET_PRIVATE (self);
+}
+
+WindowMatcher * window_matcher_new ()
+{
+	WindowMatcher *self = (WindowMatcher*) g_object_new (WINDOW_MATCHER_TYPE, NULL);
+	window_matcher_init (self);
 	
-	INITIALIZED = TRUE;
+	self->priv->bad_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex*));
 	
-	glibtop_init ();
-	
-	bad_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex*));
-	
-	GArray* prefixstrings = prefix_strings ();
+	GArray* prefixstrings = prefix_strings (self);
 	
 	int i;
 	for (i = 0; i < prefixstrings->len; i++) {
 		GString *gstr = g_array_index (prefixstrings, GString*, i);
 		GRegex* regex = g_regex_new (gstr->str, G_REGEX_OPTIMIZE, 0, NULL);
-		g_array_append_val (bad_prefixes, regex);
+		g_array_append_val (self->priv->bad_prefixes, regex);
 		g_string_free (gstr, TRUE);
 	}
 	
 	g_array_free (prefixstrings, TRUE);
 	
-	desktop_file_table = create_desktop_file_table ();
+	self->priv->desktop_file_table = create_desktop_file_table (self);
 	
 	// fixme: Get the screen we are actually on somehow? Probably can use $DISPLAY
 	WnckScreen *screen = wnck_screen_get_default ();
 	
-	g_signal_connect (G_OBJECT (screen), "window-opened", (GCallback) handle_window_opened, NULL);
-	g_signal_connect (G_OBJECT (screen), "window-closed", (GCallback) handle_window_closed, NULL);
+	g_signal_connect (G_OBJECT (screen), "window-opened", (GCallback) handle_window_opened, self);
+	g_signal_connect (G_OBJECT (screen), "window-closed", (GCallback) handle_window_closed, self);
+	
+	return self;
 }
 
 // ------------------------------------------------------------------------------
@@ -87,36 +105,32 @@ static void handle_window_closed (WnckScreen *screen, WnckWindow *window, gpoint
 // End Wnck Signal Handlers
 // ------------------------------------------------------------------------------
 
-void windowmatcher_quit ()
-{
-	
-}
-
-void windowmatcher_register_desktop_file_for_pid (GString *desktopFile, gulong pid)
+void window_matcher_register_desktop_file_for_pid (WindowMatcher *self, GString *desktopFile, gulong pid)
 {
 	// FIXME
 	
 	return;
 }
 
-GString * windowmatcher_desktop_file_for_window (WnckWindow *window)
+GString * window_matcher_desktop_file_for_window (WindowMatcher *self, WnckWindow *window)
 {
-	GString *exec = exec_string_for_window (window);
+	WindowMatcherPrivate *priv = self->priv;
+	GString *exec = exec_string_for_window (self, window);
 	
-	process_exec_string (exec);
+	process_exec_string (self, exec);
 	
-	return g_hash_table_lookup (desktop_file_table, exec);
+	return g_hash_table_lookup (priv->desktop_file_table, exec);
 }
 
-GArray * windowmatcher_window_list_for_desktop_file (GString *desktopFile)
+GArray * window_matcher_window_list_for_desktop_file (WindowMatcher *self, GString *desktopFile)
 {
 	GArray *windowList = g_array_new (FALSE, TRUE, sizeof (WnckWindow*));
 	
 	if (desktopFile == NULL || desktopFile->len == 0)
 		return windowList;
 		
-	GString *exec = exec_string_for_desktop_file (desktopFile);
-	process_exec_string (exec);
+	GString *exec = exec_string_for_desktop_file (self, desktopFile);
+	process_exec_string (self, exec);
 	
 	if (exec == NULL || exec->len == 0) {
 		if (exec != NULL)
@@ -129,8 +143,8 @@ GArray * windowmatcher_window_list_for_desktop_file (GString *desktopFile)
 	
 	GList *glist_item = windows;
 	while (glist_item != NULL) {
-		GString *windowExec = exec_string_for_window (glist_item->data);
-		process_exec_string (windowExec);
+		GString *windowExec = exec_string_for_window (self, glist_item->data);
+		process_exec_string (self, windowExec);
 		if (windowExec != NULL && windowExec->len != 0) {
 			if (g_string_equal (exec, windowExec)) {
 				WnckWindow *window = glist_item->data;
@@ -150,7 +164,7 @@ GArray * windowmatcher_window_list_for_desktop_file (GString *desktopFile)
 // Internal methods
 // ------------------------------------------------------------------------------
 
-static GArray * prefix_strings ()
+static GArray * prefix_strings (WindowMatcher *self)
 {
 	GArray *arr = g_array_new (FALSE, TRUE, sizeof (GString*));
 	
@@ -184,7 +198,7 @@ static GArray * prefix_strings ()
 	return arr;
 }
 
-static GArray * xdg_data_dirs ()
+static GArray * xdg_data_dirs (WindowMatcher *self)
 {
 	    char *env = getenv ("XDG_DATA_DIRS");
         gchar **dirs;
@@ -208,11 +222,11 @@ static GArray * xdg_data_dirs ()
         return arr;
 }
 
-static GHashTable * create_desktop_file_table ()
+static GHashTable * create_desktop_file_table (WindowMatcher *self)
 {
 	GHashTable *table = g_hash_table_new ((GHashFunc) g_string_hash, (GEqualFunc) g_string_equal);
 	
-	GArray *data_dirs = xdg_data_dirs ();
+	GArray *data_dirs = xdg_data_dirs (self);
 	
 	GArray *desktop_files = g_array_new (FALSE, TRUE, sizeof (GString*));
 	
@@ -227,7 +241,7 @@ static GHashTable * create_desktop_file_table ()
 			GError *error = NULL;
 			GFileInfo *fileInfo = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_TYPE, 0, NULL, &error); 
 			if (g_file_info_get_file_type (fileInfo) == G_FILE_TYPE_DIRECTORY) {
-				GArray *newFiles = list_desktop_file_in_dir (file);
+				GArray *newFiles = list_desktop_file_in_dir (self, file);
 				if (newFiles->len > 0)
 					g_array_append_vals (desktop_files, newFiles->data, newFiles->len);
 				g_array_free (newFiles, TRUE);
@@ -242,11 +256,11 @@ static GHashTable * create_desktop_file_table ()
 	for (i = 0; i < desktop_files->len; i++) {
 		GString *desktopFile = g_array_index (desktop_files, GString*, i);
 		
-		GString *execLine = exec_string_for_desktop_file (desktopFile);
+		GString *execLine = exec_string_for_desktop_file (self, desktopFile);
 		if (execLine == NULL)
 			continue;
 	
-		process_exec_string (execLine);
+		process_exec_string (self, execLine);
 		
 		g_hash_table_insert (table, execLine, desktopFile);
 	}
@@ -254,7 +268,7 @@ static GHashTable * create_desktop_file_table ()
 	return table;
 }
 
-static GString * exec_string_for_desktop_file (GString *desktopFile)
+static GString * exec_string_for_desktop_file (WindowMatcher *self, GString *desktopFile)
 {
 	GDesktopAppInfo *desktopApp = g_desktop_app_info_new_from_filename (desktopFile->str);
 	
@@ -269,7 +283,7 @@ static GString * exec_string_for_desktop_file (GString *desktopFile)
 	return execLine;
 }
 
-static GArray * list_desktop_file_in_dir (GFile *dir)
+static GArray * list_desktop_file_in_dir (WindowMatcher *self, GFile *dir)
 {
 	GArray *files = g_array_new (FALSE, TRUE, sizeof (GString*));
 	GError *error = NULL;
@@ -307,7 +321,7 @@ static GArray * list_desktop_file_in_dir (GFile *dir)
 		g_string_append (filename, g_file_info_get_name (info));
 		
 		if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY) {
-			GArray *recursFiles = list_desktop_file_in_dir (g_file_new_for_path (filename->str));
+			GArray *recursFiles = list_desktop_file_in_dir (self, g_file_new_for_path (filename->str));
 		} else if (g_file_info_get_file_type (info) == G_FILE_TYPE_REGULAR) {
 			if (g_str_has_suffix (filename->str, ".desktop")) {
 				g_array_append_val (files, filename);
@@ -318,7 +332,7 @@ static GArray * list_desktop_file_in_dir (GFile *dir)
 	return files;
 }
 
-static void process_exec_string (GString *execString)
+static void process_exec_string (WindowMatcher *self, GString *execString)
 {
 	if (execString == NULL || execString->len == 0)
 		return;
@@ -340,8 +354,8 @@ static void process_exec_string (GString *execString)
 		 	
 		 	int j;
 		 	gboolean regexFail = FALSE;
-		 	for (j = 0; j < bad_prefixes->len; j++) {
-				GRegex* regex = g_array_index (bad_prefixes, GRegex*, j);
+		 	for (j = 0; j < self->priv->bad_prefixes->len; j++) {
+				GRegex* regex = g_array_index (self->priv->bad_prefixes, GRegex*, j);
 				if (g_regex_match (regex, part, 0, NULL)) {
 					regexFail = TRUE;
 					break;
@@ -366,7 +380,7 @@ static void process_exec_string (GString *execString)
 	g_free (parts);
 }
 
-static GString * exec_string_for_window (WnckWindow *window)
+static GString * exec_string_for_window (WindowMatcher *self, WnckWindow *window)
 {
 	gint pid = wnck_window_get_pid (window);
 	

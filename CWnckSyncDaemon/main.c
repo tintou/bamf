@@ -24,9 +24,8 @@ WnckSyncDBus *dbus_agent;
 int main (int argc, char **argv)
 {
 	gtk_init (&argc, &argv);
-	
-	windowmatcher_initialize ();
-	
+	glibtop_init ();
+		
 	dbus_agent = wncksync_dbus_new ();
 	
 	gtk_main ();

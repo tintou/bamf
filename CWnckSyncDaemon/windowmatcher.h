@@ -7,22 +7,43 @@
 #include <stdlib.h>
 #include <gdk/gdk.h>
 #include <glib.h>
+#include <glib-object.h>
 #include <gio/gio.h>
 #include <gio/gdesktopappinfo.h>
 #include <libwnck/libwnck.h>
 #include <libgtop-2.0/glibtop.h>
 #include <glibtop/procargs.h>
 
-/* Add function prototypes here */
+#define WINDOW_MATCHER_TYPE				(window_matcher_get_type ())
+#define WINDOW_MATCHER(obj)				(G_TYPE_CHECK_INSTANCE_CAST ((obj), WINDOW_MATCHER_TYPE, WindowMatcher))
+#define IS_WINDOW_MATCHER				(G_TYPE_CHECK_INSTANCE_TYPE ((obj), WINDOW_MATCHER_TYPE))
+#define WINDOW_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), WINDOW_MATCHER_TYPE, WindowMatcherClass))
+#define IS_WINDOW_MATCHER_CLASS(klass)	(G_TYPE_CHECK_CLASA_TYPE ((klass), WINDOW_MATCHER_TYPE))
+#define WINDOW_MATCHER_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), WINDOW_MATCHER_TYPE, WindowMatcherClass))
 
-void windowmatcher_initialize ();
+typedef struct _WindowMatcher			WindowMatcher;
+typedef struct _WindowMatcherClass		WindowMatcherClass;
+typedef struct _WindowMatcherPrivate	WindowMatcherPrivate;
 
-void windowmatcher_quit ();
+typedef struct _WindowMatcher {
+	GObject parent;
+	
+	/*< private >*/
+	WindowMatcherPrivate *priv;
+};
 
-void windowmatcher_register_desktop_file_for_pid (GString *desktopFile, gulong pid);
+typedef struct _WindowMatcherClass {
+	GObjectClass parent;
+};
 
-GString * windowmatcher_desktop_file_for_window (WnckWindow *window);
+GType window_matcher_get_type (void);
 
-GArray * windowmatcher_window_list_for_desktop_file (GString *desktopFile);
+WindowMatcher * window_matcher_new (void);
+
+void window_matcher_register_desktop_file_for_pid (WindowMatcher *self, GString *desktopFile, gulong pid);
+
+GString * window_matcher_desktop_file_for_window (WindowMatcher *self, WnckWindow *window);
+
+GArray * window_matcher_window_list_for_desktop_file (WindowMatcher *self, GString *desktopFile);
 
 #endif

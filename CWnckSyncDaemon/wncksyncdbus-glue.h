@@ -53,27 +53,27 @@ G_BEGIN_DECLS
 #endif /* !G_ENABLE_DEBUG */
 
 
-/* BOOLEAN:UINT,POINTER,POINTER (/tmp/dbus-binding-tool-c-marshallers.TX9ZWU:1) */
-extern void dbus_glib_marshal_wncksync_dbus_BOOLEAN__UINT_POINTER_POINTER (GClosure     *closure,
-                                                                           GValue       *return_value,
-                                                                           guint         n_param_values,
-                                                                           const GValue *param_values,
-                                                                           gpointer      invocation_hint,
-                                                                           gpointer      marshal_data);
+/* BOOLEAN:UINT64,POINTER,POINTER (/tmp/dbus-binding-tool-c-marshallers.L46TWU:1) */
+extern void dbus_glib_marshal_wncksync_dbus_BOOLEAN__UINT64_POINTER_POINTER (GClosure     *closure,
+                                                                             GValue       *return_value,
+                                                                             guint         n_param_values,
+                                                                             const GValue *param_values,
+                                                                             gpointer      invocation_hint,
+                                                                             gpointer      marshal_data);
 void
-dbus_glib_marshal_wncksync_dbus_BOOLEAN__UINT_POINTER_POINTER (GClosure     *closure,
-                                                               GValue       *return_value G_GNUC_UNUSED,
-                                                               guint         n_param_values,
-                                                               const GValue *param_values,
-                                                               gpointer      invocation_hint G_GNUC_UNUSED,
-                                                               gpointer      marshal_data)
+dbus_glib_marshal_wncksync_dbus_BOOLEAN__UINT64_POINTER_POINTER (GClosure     *closure,
+                                                                 GValue       *return_value G_GNUC_UNUSED,
+                                                                 guint         n_param_values,
+                                                                 const GValue *param_values,
+                                                                 gpointer      invocation_hint G_GNUC_UNUSED,
+                                                                 gpointer      marshal_data)
 {
-  typedef gboolean (*GMarshalFunc_BOOLEAN__UINT_POINTER_POINTER) (gpointer     data1,
-                                                                  guint        arg_1,
-                                                                  gpointer     arg_2,
-                                                                  gpointer     arg_3,
-                                                                  gpointer     data2);
-  register GMarshalFunc_BOOLEAN__UINT_POINTER_POINTER callback;
+  typedef gboolean (*GMarshalFunc_BOOLEAN__UINT64_POINTER_POINTER) (gpointer     data1,
+                                                                    guint64      arg_1,
+                                                                    gpointer     arg_2,
+                                                                    gpointer     arg_3,
+                                                                    gpointer     data2);
+  register GMarshalFunc_BOOLEAN__UINT64_POINTER_POINTER callback;
   register GCClosure *cc = (GCClosure*) closure;
   register gpointer data1, data2;
   gboolean v_return;
@@ -91,10 +91,10 @@ dbus_glib_marshal_wncksync_dbus_BOOLEAN__UINT_POINTER_POINTER (GClosure     *clo
       data1 = g_value_peek_pointer (param_values + 0);
       data2 = closure->data;
     }
-  callback = (GMarshalFunc_BOOLEAN__UINT_POINTER_POINTER) (marshal_data ? marshal_data : cc->callback);
+  callback = (GMarshalFunc_BOOLEAN__UINT64_POINTER_POINTER) (marshal_data ? marshal_data : cc->callback);
 
   v_return = callback (data1,
-                       g_marshal_value_peek_uint (param_values + 1),
+                       g_marshal_value_peek_uint64 (param_values + 1),
                        g_marshal_value_peek_pointer (param_values + 2),
                        g_marshal_value_peek_pointer (param_values + 3),
                        data2);
@@ -102,7 +102,7 @@ dbus_glib_marshal_wncksync_dbus_BOOLEAN__UINT_POINTER_POINTER (GClosure     *clo
   g_value_set_boolean (return_value, v_return);
 }
 
-/* BOOLEAN:STRING,POINTER,POINTER (/tmp/dbus-binding-tool-c-marshallers.TX9ZWU:2) */
+/* BOOLEAN:STRING,POINTER,POINTER (/tmp/dbus-binding-tool-c-marshallers.L46TWU:2) */
 extern void dbus_glib_marshal_wncksync_dbus_BOOLEAN__STRING_POINTER_POINTER (GClosure     *closure,
                                                                              GValue       *return_value,
                                                                              guint         n_param_values,
@@ -157,7 +157,7 @@ G_END_DECLS
 
 #include <dbus/dbus-glib.h>
 static const DBusGMethodInfo dbus_glib_wncksync_dbus_methods[] = {
-  { (GCallback) wncksync_dbus_desktop_file_for_xid, dbus_glib_marshal_wncksync_dbus_BOOLEAN__UINT_POINTER_POINTER, 0 },
+  { (GCallback) wncksync_dbus_desktop_file_for_xid, dbus_glib_marshal_wncksync_dbus_BOOLEAN__UINT64_POINTER_POINTER, 0 },
   { (GCallback) wncksync_dbus_xids_for_desktop_file, dbus_glib_marshal_wncksync_dbus_BOOLEAN__STRING_POINTER_POINTER, 78 },
 };
 
@@ -165,7 +165,7 @@ const DBusGObjectInfo dbus_glib_wncksync_dbus_object_info = {
   0,
   dbus_glib_wncksync_dbus_methods,
   2,
-"org.wncksync.matcher.Controller\0DesktopFileForXid\0S\0xid\0I\0u\0filename\0O\0F\0N\0s\0\0org.wncksync.matcher.Controller\0XidsForDesktopFile\0S\0filename\0I\0s\0xids\0O\0F\0N\0au\0\0\0",
+"org.wncksync.matcher.Controller\0DesktopFileForXid\0S\0xid\0I\0t\0filename\0O\0F\0N\0s\0\0org.wncksync.matcher.Controller\0XidsForDesktopFile\0S\0filename\0I\0s\0xids\0O\0F\0N\0at\0\0\0",
 "\0",
 "\0"
 };
