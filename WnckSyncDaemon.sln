@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WnckSyncDaemon", "WnckSyncD
 EndProject
 Project("{2857B73E-F847-4B02-9238-064979017E93}") = "libwncksync", "libwncksync\libwncksync.cproj", "{CF5B3FA6-9351-4256-8FCF-0435F12DEF93}"
 EndProject
+Project("{2857B73E-F847-4B02-9238-064979017E93}") = "CWnckSyncDaemon", "CWnckSyncDaemon\CWnckSyncDaemon.cproj", "{C857143F-57CA-40B3-BF2C-D7B2BB8B6F02}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{20F1E357-23A7-42E4-BEB3-887DC7C5F03E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20F1E357-23A7-42E4-BEB3-887DC7C5F03E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20F1E357-23A7-42E4-BEB3-887DC7C5F03E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C857143F-57CA-40B3-BF2C-D7B2BB8B6F02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C857143F-57CA-40B3-BF2C-D7B2BB8B6F02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C857143F-57CA-40B3-BF2C-D7B2BB8B6F02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C857143F-57CA-40B3-BF2C-D7B2BB8B6F02}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CF5B3FA6-9351-4256-8FCF-0435F12DEF93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CF5B3FA6-9351-4256-8FCF-0435F12DEF93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF5B3FA6-9351-4256-8FCF-0435F12DEF93}.Release|Any CPU.ActiveCfg = Release|Any CPU

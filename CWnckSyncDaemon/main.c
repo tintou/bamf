@@ -15,19 +15,21 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // 
 
-using System;
-using NDesk.DBus;
+#include "main.h"
+#include "windowmatcher.h"
+#include "wncksyncdbus.h"
 
-namespace WnckSyncDaemon
+WnckSyncDBus *dbus_agent;
+
+int main (int argc, char **argv)
 {
+	gtk_init (&argc, &argv);
 	
-	[Interface ("org.wncksync.WnckSync.Control")]
-	public interface IControl
-	{
-		string DesktopFileForXid (uint id);
-		
-		uint [] XidsForDesktopFile (string filename);
-		
-		void RegisterDesktopFileForPid (string filename, int pid);
-	}
+	windowmatcher_initialize ();
+	
+	dbus_agent = wncksync_dbus_new ();
+	
+	gtk_main ();
+	
+	return 0;
 }

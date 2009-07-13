@@ -43,6 +43,11 @@ namespace WnckSyncDaemon
 		{
 			return WindowMatcher.WindowListForDesktopFile (filename).Select (w => (uint) w.Xid).ToArray ();
 		}
+		
+		public void RegisterDesktopFileForPid (string filename, int pid)
+		{
+			
+		}
 		#endregion
 		
 		public Control ()

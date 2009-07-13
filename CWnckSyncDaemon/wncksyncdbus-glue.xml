@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<node name="/org/wncksync/matcher/Controller">
+
+	<interface name="org.wncksync.matcher.Controller">
+
+		<method name="DesktopFileForXid">			
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="wncksync_dbus_desktop_file_for_xid" />
+			<arg type="t" name="xid" direction="in" />
+			<arg type="s" name="filename" direction="out" />
+		</method>
+		
+		<method name="XidsForDesktopFile">			
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="wncksync_dbus_xids_for_desktop_file" />
+			<arg type="s" name="filename" direction="in" />
+			<arg type="at" name="xids" direction="out" />
+		</method>
+	
+	</interface>
+
+</node>

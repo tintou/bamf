@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C857143F-57CA-40B3-BF2C-D7B2BB8B6F02}</ProjectGuid>
+    <Packages>
+      <Packages>
+        <Package file="/usr/lib/pkgconfig/dbus-1.pc" name="dbus" IsProject="false" />
+        <Package file="/usr/lib/pkgconfig/dbus-glib-1.pc" name="dbus-glib" IsProject="false" />
+        <Package file="/usr/lib/pkgconfig/gdk-2.0.pc" name="GDK" IsProject="false" />
+        <Package file="/usr/lib/pkgconfig/gtk+-2.0.pc" name="GTK+" IsProject="false" />
+        <Package file="/usr/lib/pkgconfig/gio-2.0.pc" name="GIO" IsProject="false" />
+        <Package file="/usr/lib/pkgconfig/x11-xcb.pc" name="X11 XCB" IsProject="false" />
+        <Package file="/usr/lib/pkgconfig/x11.pc" name="X11" IsProject="false" />
+        <Package file="/usr/lib/pkgconfig/libwnck-1.0.pc" name="libwnck" IsProject="false" />
+        <Package file="/usr/lib/pkgconfig/glib-2.0.pc" name="GLib" IsProject="false" />
+        <Package file="/usr/lib/pkgconfig/gio-unix-2.0.pc" name="GIO unix specific APIs" IsProject="false" />
+        <Package file="/usr/lib/pkgconfig/libgtop-2.0.pc" name="libgtop" IsProject="false" />
+      </Packages>
+    </Packages>
+    <Compiler>
+      <Compiler ctype="GccCompiler" />
+    </Compiler>
+    <Language>C</Language>
+    <Target>Bin</Target>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineSymbols>DEBUG MONODEVELOP</DefineSymbols>
+    <SourceDirectory>.</SourceDirectory>
+    <OutputName>CWnckSyncDaemon</OutputName>
+    <CompileTarget>Bin</CompileTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release</OutputPath>
+    <DefineSymbols>MONODEVELOP</DefineSymbols>
+    <SourceDirectory>.</SourceDirectory>
+    <OptimizationLevel>3</OptimizationLevel>
+    <OutputName>CWnckSyncDaemon</OutputName>
+    <CompileTarget>Bin</CompileTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="main.c" />
+    <Compile Include="windowmatcher.c" />
+    <Compile Include="wncksyncdbus.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="windowmatcher.h" />
+    <None Include="main.h" />
+    <None Include="wncksyncdbus.h" />
+    <None Include="wncksyncdbus-glue.xml" />
+    <None Include="wncksyncdbus-glue.h" />
+  </ItemGroup>
+</Project>

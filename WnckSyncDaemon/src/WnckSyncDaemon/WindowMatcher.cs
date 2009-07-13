@@ -22,6 +22,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Runtime.InteropServices;
 
 using Wnck;
 
@@ -59,6 +60,7 @@ namespace WnckSyncDaemon
 		static List<Window> window_list;
 		static bool window_list_update_needed;
 		
+		static Dictionary<int, string> registered_pids = new Dictionary<int, string> ();
 		static Dictionary<int, string> exec_lines = new Dictionary<int, string> ();
 		static Dictionary<string, string> desktop_file_table;
 		static DateTime last_update = new DateTime (0);
@@ -79,21 +81,26 @@ namespace WnckSyncDaemon
 			
 			desktop_file_table = CreateDesktopFileTable ();
 			
-			Wnck.Screen.Default.WindowClosed += delegate {
-				window_list_update_needed = true;
-			};
+			Wnck.Screen.Default.WindowOpened += HandleWindowOpened; 
 			
-			Wnck.Screen.Default.WindowOpened += delegate {
-				window_list_update_needed = true;
-			};
+			Wnck.Screen.Default.WindowClosed += HandleWindowClosed; 
+		}
+
+		static void HandleWindowClosed(object o, WindowClosedArgs args)
+		{
+			window_list_update_needed = true;
+		}
+
+		static void HandleWindowOpened(object o, WindowOpenedArgs args)
+		{
+			window_list_update_needed = true;
 			
-			Wnck.Screen.Default.ApplicationOpened += delegate {
-				window_list_update_needed = true;
-			};
 			
-			Wnck.Screen.Default.ApplicationClosed += delegate {
-				window_list_update_needed = true;
-			};
+		}
+		
+		public static void RegisterDesktopFileForPid (string desktopFile, int pid)
+		{
+			registered_pids [pid] = desktopFile;
 		}
 		
 		public static IEnumerable<Wnck.Window> WindowListForDesktopFile (string desktopFile)
@@ -120,6 +127,11 @@ namespace WnckSyncDaemon
 			do {
 				int pid = window.Pid;
 				if (pid == 0) continue;
+				
+				if (registered_pids.ContainsKey (pid)) {
+					file = registered_pids [pid];
+					continue;
+				}
 				
 				string exec = CmdLineForPid (pid);
 				if (exec == null) continue;
@@ -295,17 +307,6 @@ namespace WnckSyncDaemon
 			// nasty, and it likely came from a .desktop file.
 			char splitChar = Convert.ToChar (0x0);
 			splitChar = exec.Contains (splitChar) ? splitChar : ' ';
-			
-			// this part is here soley for the remap file so that users may specify to remap based on just the name
-			// without the full path.  If no remap file match is found, the net effect of this is nothing.
-			if (exec.StartsWith ("/")) {
-				string first_part = exec.Split (splitChar) [0];
-				int length = first_part.Length;
-				first_part = first_part.Split ('/').Last ();
-				
-				if (length < exec.Length)
-					 first_part = first_part + " " + exec.Substring (length + 1);
-			}
 			
 			string [] parts = exec.Split (splitChar);
 			for (int i = 0; i < parts.Length; i++) {
