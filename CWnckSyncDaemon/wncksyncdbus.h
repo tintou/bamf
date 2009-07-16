@@ -39,4 +39,6 @@ gboolean wncksync_dbus_desktop_file_for_xid (WnckSyncDBus *dbus, gulong xid, gch
 
 gboolean wncksync_dbus_xids_for_desktop_file (WnckSyncDBus *dbus, gchar *filename, GArray **xids, GError **error);
 
+gboolean wncksync_dbus_register_desktop_file_for_pid (WnckSyncDBus *dbus, gchar *filename, gint pid, GError **error);
+
 #endif

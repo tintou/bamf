@@ -22,13 +22,17 @@ static GHashTable * create_desktop_file_table (WindowMatcher *self);
 static GArray * prefix_strings (WindowMatcher *self);
 static GArray * xdg_data_dirs (WindowMatcher *self);
 static GArray * list_desktop_file_in_dir (WindowMatcher *self, GFile *dir);
+static GArray * pid_parent_tree (gint pid);
+static GArray * window_list_for_desktop_file_hint (WindowMatcher *self, GString *hint);
 
+static GString * desktop_file_hint_for_window (WindowMatcher *self, WnckWindow *window);
 static GString * exec_string_for_window (WindowMatcher *self, WnckWindow *window);
 static GString * exec_string_for_desktop_file (WindowMatcher *self, GString *desktopFile);
 
 static void process_exec_string (WindowMatcher *self, GString *execString);
 static void handle_window_opened (WnckScreen *screen, WnckWindow *window, gpointer data);
 static void handle_window_closed (WnckScreen *screen, WnckWindow *window, gpointer data);
+static void set_window_hint (WindowMatcher *self, WnckWindow *window);
 
 static void window_matcher_class_init (WindowMatcherClass *klass);
 static void window_matcher_init (WindowMatcher *self);
@@ -37,9 +41,10 @@ static void window_matcher_init (WindowMatcher *self);
 
 struct _WindowMatcherPrivate
 {
-	GArray *bad_prefixes;
+	GArray     *bad_prefixes;
 	GHashTable *desktop_file_table;
 	GHashTable *exec_list;
+	GHashTable *registered_pids;
 };
 
 G_DEFINE_TYPE (WindowMatcher, window_matcher, G_TYPE_OBJECT);
@@ -61,7 +66,8 @@ WindowMatcher * window_matcher_new ()
 	WindowMatcher *self = (WindowMatcher*) g_object_new (WINDOW_MATCHER_TYPE, NULL);
 	window_matcher_init (self);
 	
-	self->priv->bad_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex*));
+	self->priv->bad_prefixes    = g_array_new (FALSE, TRUE, sizeof (GRegex*));
+	self->priv->registered_pids = g_hash_table_new ((GHashFunc) g_int_hash, (GEqualFunc) g_int_equal);
 	
 	GArray* prefixstrings = prefix_strings (self);
 	
@@ -87,12 +93,14 @@ WindowMatcher * window_matcher_new ()
 }
 
 // ------------------------------------------------------------------------------
-// Wnck Signal Handlers
+// Wnck Signal Handlers and Related
 // ------------------------------------------------------------------------------
 
 static void handle_window_opened (WnckScreen *screen, WnckWindow *window, gpointer data)
 {
+	if (window == NULL) return;
 	
+	set_window_hint ((WindowMatcher*) data, window);
 }
 	
 
@@ -101,25 +109,84 @@ static void handle_window_closed (WnckScreen *screen, WnckWindow *window, gpoint
 	
 }
 
+static void set_window_hint (WindowMatcher *self, WnckWindow *window)
+{
+	if (self == NULL || window == NULL) return;
+	
+	GHashTable *registered_pids = self->priv->registered_pids;
+	
+	GArray *pids = pid_parent_tree (wnck_window_get_pid (window));
+	if (pids->len == 0) return;
+	
+	GString *desktopFile;
+	int i;
+	for (i = 0; i < pids->len; i++) {
+		gint pid = g_array_index (pids, gint, i);
+		
+		gint *key;
+		key = g_new (gint, 1);
+		*key = pid;
+		
+		desktopFile = (GString*) g_hash_table_lookup (registered_pids, key);
+		if (desktopFile != NULL && desktopFile->len != 0) break;
+	}
+	
+	if (desktopFile == NULL || desktopFile->len == 0) return;
+	
+	Display *XDisplay = XOpenDisplay (NULL);
+	XChangeProperty (XDisplay,
+				 	 wnck_window_get_xid (window),
+					 XInternAtom (XDisplay,
+							      _NET_WM_DESKTOP_FILE,
+							      FALSE),
+					 XA_STRING,
+					 8,
+					 PropModeReplace,
+					 (guchar *) desktopFile->str,
+					 sizeof (desktopFile->str));
+					 
+	g_array_free (pids, TRUE);
+}
+
 // ------------------------------------------------------------------------------
 // End Wnck Signal Handlers
 // ------------------------------------------------------------------------------
 
-void window_matcher_register_desktop_file_for_pid (WindowMatcher *self, GString *desktopFile, gulong pid)
+void window_matcher_register_desktop_file_for_pid (WindowMatcher *self, GString *desktopFile, gint pid)
 {
-	// FIXME
+	gint *key;
+	key = g_new (gint, 1);
+	*key = pid;
 	
-	return;
+	g_hash_table_insert (self->priv->registered_pids, key, desktopFile);
+	
+	//fixme, this is a bit heavy
+	
+	WnckScreen *screen = wnck_screen_get_default ();
+	GList *windows = wnck_screen_get_windows (screen);
+	
+	GList *glist_item = windows;
+	while (glist_item != NULL) {
+		set_window_hint (self, glist_item->data);
+		
+		glist_item = glist_item->next;	
+	}
 }
 
 GString * window_matcher_desktop_file_for_window (WindowMatcher *self, WnckWindow *window)
 {
-	WindowMatcherPrivate *priv = self->priv;
-	GString *exec = exec_string_for_window (self, window);
+	GString *desktopFile = desktop_file_hint_for_window (self, window);
 	
-	process_exec_string (self, exec);
+	if (desktopFile == NULL) {
+		WindowMatcherPrivate *priv = self->priv;
+		GString *exec = exec_string_for_window (self, window);
+		
+		process_exec_string (self, exec);
+		
+		desktopFile = g_hash_table_lookup (priv->desktop_file_table, exec);
+	}
 	
-	return g_hash_table_lookup (priv->desktop_file_table, exec);
+	return desktopFile;
 }
 
 GArray * window_matcher_window_list_for_desktop_file (WindowMatcher *self, GString *desktopFile)
@@ -143,17 +210,26 @@ GArray * window_matcher_window_list_for_desktop_file (WindowMatcher *self, GStri
 	
 	GList *glist_item = windows;
 	while (glist_item != NULL) {
-		GString *windowExec = exec_string_for_window (self, glist_item->data);
-		process_exec_string (self, windowExec);
-		if (windowExec != NULL && windowExec->len != 0) {
-			if (g_string_equal (exec, windowExec)) {
-				WnckWindow *window = glist_item->data;
-				g_array_append_val (windowList, window);
+		WnckWindow *window = glist_item->data;
+		
+		GString *windowHint = desktop_file_hint_for_window (self, window);
+		if (windowHint != NULL) {
+			if (g_string_equal (windowHint, desktopFile))
+				g_array_append_val (windowList, window); 
+			g_string_free (windowHint, TRUE);
+		} else {
+			GString *windowExec = exec_string_for_window (self, glist_item->data);
+			process_exec_string (self, windowExec);
+			
+			if (windowExec != NULL && windowExec->len != 0) {
+				if (g_string_equal (exec, windowExec)) {
+					g_array_append_val (windowList, window);
+				}
+				g_string_free (windowExec, TRUE);
 			}
-	
-			g_string_free (windowExec, TRUE);
+			
 		}
-		glist_item = glist_item->next;	
+		glist_item = glist_item->next;
 	}
 	
 	g_string_free (exec, TRUE);
@@ -163,64 +239,6 @@ GArray * window_matcher_window_list_for_desktop_file (WindowMatcher *self, GStri
 // ------------------------------------------------------------------------------
 // Internal methods
 // ------------------------------------------------------------------------------
-
-static GArray * prefix_strings (WindowMatcher *self)
-{
-	GArray *arr = g_array_new (FALSE, TRUE, sizeof (GString*));
-	
-	GString *gstr = g_string_new ("^gsku$");
-	g_array_append_val (arr, gstr);
-	
-	gstr = g_string_new ("^sudo$");
-	g_array_append_val (arr, gstr);
-	
-	gstr = g_string_new ("^java$");
-	g_array_append_val (arr, gstr);
-	
-	gstr = g_string_new ("^mono$");
-	g_array_append_val (arr, gstr);
-	
-	gstr = g_string_new ("^ruby$");
-	g_array_append_val (arr, gstr);
-	
-	gstr = g_string_new ("^padsp$");
-	g_array_append_val (arr, gstr);
-	
-	gstr = g_string_new ("^aoss$");
-	g_array_append_val (arr, gstr);
-	
-	gstr = g_string_new ("^python(\\d.\\d)?$");
-	g_array_append_val (arr, gstr);
-	
-	gstr = g_string_new ("^(ba)?sh$");
-	g_array_append_val (arr, gstr);
-	
-	return arr;
-}
-
-static GArray * xdg_data_dirs (WindowMatcher *self)
-{
-	    char *env = getenv ("XDG_DATA_DIRS");
-        gchar **dirs;
-        
-        GArray *arr = g_array_new (FALSE, TRUE, sizeof (GString*));
-
-        if (!env)
-        	env = "/usr/share/";
-        
-        dirs = g_strsplit(env, ":", 0);
-        
-        int i=0;
-        while (dirs [i] != NULL) {
-	        GString* dir = g_string_new (dirs [i]);
-			g_array_append_val (arr, dir);
-			g_free (dirs [i]);
-			i++;        
-        }
-        g_free (dirs);
-        
-        return arr;
-}
 
 static GHashTable * create_desktop_file_table (WindowMatcher *self)
 {
@@ -268,6 +286,40 @@ static GHashTable * create_desktop_file_table (WindowMatcher *self)
 	return table;
 }
 
+static GString * desktop_file_hint_for_window (WindowMatcher *self, WnckWindow *window)
+{
+	Display *XDisplay = XOpenDisplay (NULL);
+	Atom atom = XInternAtom (XDisplay, _NET_WM_DESKTOP_FILE, FALSE);
+	GString *hint;
+	
+	Atom type;
+	gint format;
+	gulong numItems;
+	gulong bytesAfter;
+	guchar *buffer;
+	
+	int result = XGetWindowProperty (XDisplay,
+									 wnck_window_get_xid (window),
+									 atom,
+									 0,
+									 G_MAXINT,
+									 FALSE,
+									 XA_STRING,
+									 &type,
+									 &format,
+									 &numItems,
+									 &bytesAfter,
+									 &buffer);
+	
+	if (result != Success)
+		hint = NULL;
+	else
+		hint = g_string_new (buffer);
+	
+	XFree (buffer);
+	return hint;
+}
+
 static GString * exec_string_for_desktop_file (WindowMatcher *self, GString *desktopFile)
 {
 	GDesktopAppInfo *desktopApp = g_desktop_app_info_new_from_filename (desktopFile->str);
@@ -281,6 +333,33 @@ static GString * exec_string_for_desktop_file (WindowMatcher *self, GString *des
 	g_free (line);
 	
 	return execLine;
+}
+
+static GString * exec_string_for_window (WindowMatcher *self, WnckWindow *window)
+{
+	gint pid = wnck_window_get_pid (window);
+	
+	if (pid == 0)
+		return NULL;
+	
+	glibtop_proc_args buffer;
+	
+	gchar **argv = glibtop_get_proc_argv (&buffer, pid, 0);
+	
+	GString *exec = g_string_new ("");
+	
+	int i = 0;
+	while (argv [i] != NULL) {
+		g_string_append (exec, argv [i]);
+		if (argv [i + 1] != NULL)
+			g_string_append (exec, " ");
+		g_free (argv [i]);
+		i++;
+	}
+	
+	g_free (argv);
+	
+	return exec;
 }
 
 static GArray * list_desktop_file_in_dir (WindowMatcher *self, GFile *dir)
@@ -332,6 +411,62 @@ static GArray * list_desktop_file_in_dir (WindowMatcher *self, GFile *dir)
 	return files;
 }
 
+static GArray * pid_parent_tree (gint pid)
+{
+	GArray *tree = g_array_new (FALSE, TRUE, sizeof (gint));
+	
+	// base case
+	if (pid == 0) return tree;
+	
+	g_array_append_val (tree, pid);
+	
+	glibtop_proc_uid buf;
+	glibtop_get_proc_uid (&buf, pid);
+	
+	GArray *parent = pid_parent_tree (buf.ppid);
+	
+	if (parent->len > 0)
+		g_array_append_vals (tree, parent->data, parent->len);
+		
+	g_array_free (tree, TRUE);
+	
+	return tree;
+}
+
+static GArray * prefix_strings (WindowMatcher *self)
+{
+	GArray *arr = g_array_new (FALSE, TRUE, sizeof (GString*));
+	
+	GString *gstr = g_string_new ("^gsku$");
+	g_array_append_val (arr, gstr);
+	
+	gstr = g_string_new ("^sudo$");
+	g_array_append_val (arr, gstr);
+	
+	gstr = g_string_new ("^java$");
+	g_array_append_val (arr, gstr);
+	
+	gstr = g_string_new ("^mono$");
+	g_array_append_val (arr, gstr);
+	
+	gstr = g_string_new ("^ruby$");
+	g_array_append_val (arr, gstr);
+	
+	gstr = g_string_new ("^padsp$");
+	g_array_append_val (arr, gstr);
+	
+	gstr = g_string_new ("^aoss$");
+	g_array_append_val (arr, gstr);
+	
+	gstr = g_string_new ("^python(\\d.\\d)?$");
+	g_array_append_val (arr, gstr);
+	
+	gstr = g_string_new ("^(ba)?sh$");
+	g_array_append_val (arr, gstr);
+	
+	return arr;
+}
+
 static void process_exec_string (WindowMatcher *self, GString *execString)
 {
 	if (execString == NULL || execString->len == 0)
@@ -380,29 +515,45 @@ static void process_exec_string (WindowMatcher *self, GString *execString)
 	g_free (parts);
 }
 
-static GString * exec_string_for_window (WindowMatcher *self, WnckWindow *window)
+static GArray * window_list_for_desktop_file_hint (WindowMatcher *self, GString *hint)
 {
-	gint pid = wnck_window_get_pid (window);
+	GArray *arr = g_array_new (FALSE, TRUE, sizeof (WnckWindow*));
 	
-	if (pid == 0)
-		return NULL;
+	WnckScreen *screen = wnck_screen_get_default ();
+	GList *windows = wnck_screen_get_windows (screen);
 	
-	glibtop_proc_args buffer;
-	
-	gchar **argv = glibtop_get_proc_argv (&buffer, pid, 0);
-	
-	GString *exec = g_string_new ("");
-	
-	int i = 0;
-	while (argv [i] != NULL) {
-		g_string_append (exec, argv [i]);
-		if (argv [i + 1] != NULL)
-			g_string_append (exec, " ");
-		g_free (argv [i]);
-		i++;
+	GList *window = windows;
+	while (window != NULL) {
+		WnckWindow *win = window->data;
+		GString *windowHint = desktop_file_hint_for_window (self, win);
+		
+		if (windowHint != NULL && g_string_equal (windowHint, hint))
+			g_array_append_val (arr, win);
+		
+		window = window->next;
 	}
-	
-	g_free (argv);
-	
-	return exec;
+}
+
+static GArray * xdg_data_dirs (WindowMatcher *self)
+{
+	    char *env = getenv ("XDG_DATA_DIRS");
+        gchar **dirs;
+        
+        GArray *arr = g_array_new (FALSE, TRUE, sizeof (GString*));
+
+        if (!env)
+        	env = "/usr/share/";
+        
+        dirs = g_strsplit(env, ":", 0);
+        
+        int i=0;
+        while (dirs [i] != NULL) {
+	        GString* dir = g_string_new (dirs [i]);
+			g_array_append_val (arr, dir);
+			g_free (dirs [i]);
+			i++;        
+        }
+        g_free (dirs);
+        
+        return arr;
 }

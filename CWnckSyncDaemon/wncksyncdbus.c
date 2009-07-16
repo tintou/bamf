@@ -90,3 +90,14 @@ gboolean wncksync_dbus_xids_for_desktop_file (WnckSyncDBus *dbus, gchar *filenam
 	
 	return TRUE;
 }
+
+gboolean wncksync_dbus_register_desktop_file_for_pid (WnckSyncDBus *dbus, gchar *filename, gint pid, GError **error)
+{
+	g_print ("Point 0\n");
+	GString *file = g_string_new (filename);
+	g_print ("Point 0.5\n");
+	window_matcher_register_desktop_file_for_pid (matcher, file, pid);
+	g_string_free (file, TRUE);
+	
+	return TRUE;
+}

@@ -35,7 +35,7 @@ GArray * wncksync_windows_for_desktop_file (gchar *desktop_file)
 {
 	GArray *arr;
 	error = NULL;
-	if (!dbus_g_proxy_call (proxy, "XidsForDesktopFile", &error, G_TYPE_STRING, &desktop_file, G_TYPE_INVALID, DBUS_TYPE_G_UINT_ARRAY, &arr, G_TYPE_INVALID))
+	if (!dbus_g_proxy_call (proxy, "XidsForDesktopFile", &error, G_TYPE_STRING, &desktop_file, G_TYPE_INVALID, DBUS_TYPE_G_UINT64_ARRAY, &arr, G_TYPE_INVALID))
 	{
 		g_printerr ("Failed to fetch desktop file: %s\n", error->message);
 		g_error_free (error);
@@ -59,7 +59,7 @@ gchar * wncksync_desktop_item_for_window_xid (gulong xid)
 {
 	gchar *desktop_file;
 	error = NULL;
-	if (!dbus_g_proxy_call (proxy, "DesktopFileForXid", &error, G_TYPE_UINT, xid, G_TYPE_INVALID, G_TYPE_STRING, &desktop_file, G_TYPE_INVALID))
+	if (!dbus_g_proxy_call (proxy, "DesktopFileForXid", &error, G_TYPE_UINT64, xid, G_TYPE_INVALID, G_TYPE_STRING, &desktop_file, G_TYPE_INVALID))
 	{
 		g_printerr ("Failed to fetch xid array");
 		g_error_free (error);	
