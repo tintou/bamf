@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{2857B73E-F847-4B02-9238-064979017E93}") = "libwncksync", "libwncksync\libwncksync.cproj", "{CF5B3FA6-9351-4256-8FCF-0435F12DEF93}"
 EndProject
-Project("{2857B73E-F847-4B02-9238-064979017E93}") = "CWnckSyncDaemon", "CWnckSyncDaemon\CWnckSyncDaemon.cproj", "{C857143F-57CA-40B3-BF2C-D7B2BB8B6F02}"
+Project("{2857B73E-F847-4B02-9238-064979017E93}") = "WnckSyncDaemon", "WnckSyncDaemon\WnckSyncDaemon.cproj", "{C857143F-57CA-40B3-BF2C-D7B2BB8B6F02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
