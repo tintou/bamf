@@ -1,0 +1,68 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ([2.63])
+AC_INIT(wncksyncdaemon, 0.2, dx-team@canonical.com)
+
+AC_CONFIG_SRCDIR(src/main.c)
+AC_CONFIG_HEADERS(config.h)
+AC_CONFIG_MACRO_DIR([m4])
+
+AM_INIT_AUTOMAKE
+GNOME_COMMON_INIT
+GNOME_COMPILE_WARNINGS(maximum)
+
+AM_MAINTAINER_MODE
+AM_DISABLE_STATIC
+AM_PROG_LIBTOOL
+AC_ISC_POSIX
+AC_SUBST(ACLOCAL_AMFLAFS, "$ACLOCAL_FLAGS -I m4")
+
+# Checks for programs.
+AC_PROG_CC
+AM_PROG_CC_C_O
+AC_PROG_INSTALL
+
+#
+# pkg-config
+#
+PKG_PROG_PKG_CONFIG
+
+#
+# glib
+#
+PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.16.0 gio-2.0 gio-unix-2.0)
+
+#
+# dbus
+#
+PKG_CHECK_MODULES(DBUS, dbus-glib-1 >= 0.76)
+DBUS_GLIB_BIN="`$PKG_CONFIG --variable=exec_prefix dbus-glib-1`/bin"
+AC_SUBST(DBUS_GLIB_BIN)
+
+#
+# libwnck
+#
+PKG_CHECK_MODULES(WNCK, libwnck-1.0)
+
+#
+# libgtop
+#
+PKG_CHECK_MODULES(GTOP, libgtop-2.0)
+
+#
+# Gnome/GTK checks
+#
+AM_PATH_GTK_2_0
+
+dnl CFLAGS
+CFLAGS="$CFLAGS -lm"
+
+AC_SUBST(WNCKSYNCDAEMON_CFLAGS)
+AC_SUBST(WNCKSYNCDAEMON_LIBS)
+
+AC_OUTPUT([
+Makefile
+lib/libwncksync/Makefile
+src/Makefile
+])

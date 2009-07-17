@@ -5,6 +5,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
 #include <gdk/gdk.h>
 #include <glib.h>
 #include <glib-object.h>
