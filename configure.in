@@ -65,4 +65,5 @@ AC_OUTPUT([
 Makefile
 lib/libwncksync/Makefile
 src/Makefile
+examples/Makefile
 ])

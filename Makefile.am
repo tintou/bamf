@@ -1,1 +1,1 @@
-SUBDIRS = lib/libwncksync src
+SUBDIRS = lib/libwncksync src examples
