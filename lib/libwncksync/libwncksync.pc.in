@@ -1,6 +1,13 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
 Name: libwncksync
 Description: C Convenience library for wncksync d-bus server.
 Version: 0.2
 
+Requires: somethingelse-2.0 somethingmore-1.0
 Libs: -L${libdir} -llibwncksync
-Cflags: -I${includedir}/libwncksync
+Cflags: -I${includedir}/libwncksync -I${libdir}/libwncksync/include
+

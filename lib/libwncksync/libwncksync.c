@@ -1,3 +1,12 @@
+#define WNCK_I_KNOW_THIS_IS_UNSTABLE
+
+#include <gtk/gtk.h>
+#include <gdk/gdk.h>
+#include <dbus/dbus.h>
+#include <dbus/dbus-glib.h>
+#include <dbus/dbus-glib-lowlevel.h>
+#include <libwnck/libwnck.h>
+
 #include "libwncksync.h"
 
 DBusGConnection *connection;

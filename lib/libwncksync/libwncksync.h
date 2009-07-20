@@ -2,15 +2,7 @@
 #ifndef __LIBWNCKSYNC_H__
 #define __LIBWNCKSYNC_H__
 
-#define WNCK_I_KNOW_THIS_IS_UNSTABLE
-
-#include <gtk/gtk.h>
-#include <gdk/gdk.h>
 #include <glib.h>
-#include <dbus/dbus.h>
-#include <dbus/dbus-glib.h>
-#include <dbus/dbus-glib-lowlevel.h>
-#include <libwnck/libwnck.h>
 
 /* Add function prototypes here */
 
