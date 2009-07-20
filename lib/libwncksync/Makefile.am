@@ -1,3 +1,5 @@
+PKG_CONFIG_FILES = libwncksync.pc
+
 lib_LTLIBRARIES = libwncksync.la
 
 libwncksync_la_SOURCES = \

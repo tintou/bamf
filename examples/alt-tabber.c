@@ -26,16 +26,55 @@
 #include <glib.h>
 #include <libwnck/libwnck.h>
 
+GtkWidget * make_tree_view ()
+{
+	GtkWidget *treeView;
+ 	GtkTreeStore *treeStore;
+ 	GtkTreeViewColumn *column;
+ 	GtkCellRenderer *renderer;
+
+	treeView = gtk_tree_view_new ();
+	treeStore = gtk_tree_store_new (1, G_TYPE_STRING);
+	
+	column = gtk_tree_view_column_new ();
+	gtk_tree_view_column_set_title (column, "windows");
+	
+	gtk_tree_view_append_column (GTK_TREE_VIEW (treeView), column);
+	
+	renderer = gtk_cell_renderer_text_new ();
+	
+	gtk_tree_view_column_pack_start (column, renderer, TRUE);
+	
+	gtk_tree_view_set_model (GTK_TREE_VIEW (treeView), GTK_TREE_MODEL (treeStore));
+	
+	g_object_unref (treeStore);
+	
+	return treeView;
+}
+
 int main (int argc, char **argv)
 {
 	GtkWidget *window;
- 
+	GtkWidget *treeView;
+	
 	gtk_init (&argc, &argv);
 
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_widget_show (window);
-		
+
+	treeView = make_tree_view ();
+	gtk_container_add (GTK_CONTAINER (window), treeView);
+	
+	gtk_widget_show (treeView);	
+	
 	gtk_main ();
 	
 	return 0;
 }
+
+
+
+
+
+
+
