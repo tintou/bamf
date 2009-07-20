@@ -7,7 +7,7 @@ Name: libwncksync
 Description: C Convenience library for wncksync d-bus server.
 Version: 0.2
 
-Requires: somethingelse-2.0 somethingmore-1.0
+Requires: glib-2.0
 Libs: -L${libdir} -llibwncksync
 Cflags: -I${includedir}/libwncksync -I${libdir}/libwncksync/include
 
