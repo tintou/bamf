@@ -140,6 +140,11 @@ static void handle_window_opened_closed (WnckScreen *screen, WnckWindow *window,
 	
 	timer = g_timeout_add (300, (GSourceFunc) on_timer_elapsed, NULL);
 }
+
+static void destroy (GtkWidget *widget, gpointer data)
+{
+	gtk_main_quit ();
+}
 	
 /* This entire program is intentionally implemented in a slightly niave manner to allow it to show
  * the function of both of the primary calls to libwncksync. There is usually no reason to use
@@ -151,6 +156,8 @@ int main (int argc, char **argv)
 	gtk_init (&argc, &argv);
 
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	
+	g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
 
 	treeView = make_tree_view ();
 	gtk_container_add (GTK_CONTAINER (window), treeView);
