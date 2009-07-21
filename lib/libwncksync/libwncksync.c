@@ -64,8 +64,13 @@ GArray * wncksync_windows_for_desktop_file (gchar *desktop_file)
 	return windows;
 }
 
-gchar * wncksync_desktop_item_for_window_xid (gulong xid)
+gchar * wncksync_desktop_item_for_window (WnckWindow *window)
 {
+	if (window == NULL)
+		return "";
+		
+	gulong xid = wnck_window_get_xid (window);
+
 	gchar *desktop_file;
 	error = NULL;
 	if (!dbus_g_proxy_call (proxy, "DesktopFileForXid", &error, G_TYPE_UINT64, xid, G_TYPE_INVALID, G_TYPE_STRING, &desktop_file, G_TYPE_INVALID))

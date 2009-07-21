@@ -8,7 +8,7 @@
 
 GArray * wncksync_windows_for_desktop_file (gchar *desktop_file);
 
-gchar * wncksync_desktop_item_for_window_xid (gulong xid);
+gchar * wncksync_desktop_item_for_window (WnckWindow *window);
 
 void wncksync_init ();
 

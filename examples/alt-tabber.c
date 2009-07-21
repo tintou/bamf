@@ -40,8 +40,11 @@ GArray * get_desktop_files ()
 	
 	GList *window;
 	for (window = windows; window != NULL; window = window->next) {
-		gulong xid = wnck_window_get_xid (window->data);
-		gchar *file = wncksync_desktop_item_for_window_xid (xid);
+		/* Doing just a little bit of tracking right here can save a lot of dbus calls.
+		 * This is not done hwoever to allow us to use as many of the features of libwncksync
+		 * as possible.
+		 */
+		gchar *file = wncksync_desktop_item_for_window (window->data);
 		if (file != NULL && *file != 0) {
 			GString *desktopFile = g_string_new (file);
 						
@@ -73,7 +76,9 @@ void populate_tree_store (GtkTreeStore *store)
 	int i;
 	for (i = 0; i < desktopFiles->len; i++) {
 		gtk_tree_store_append (store, &position, NULL);
+		
 		gchar *string = g_array_index (desktopFiles, GString*, i)->str;
+		
 		gtk_tree_store_set (store, &position, 0, string, -1);
 		
 		GArray * windows = wncksync_windows_for_desktop_file (string);
@@ -81,11 +86,7 @@ void populate_tree_store (GtkTreeStore *store)
 		for (j = 0; j < windows->len; j++) {
 			const gchar *name = wnck_window_get_name (g_array_index (windows, WnckWindow*, j));
 			gtk_tree_store_append (store, &child, &position);
-			gtk_tree_store_set (store, 
-					    &child, 
-					    0, 
-					    name,
-					    -1);
+			gtk_tree_store_set (store, &child, 0, name, -1);
 		}
 	}
 }
@@ -106,7 +107,6 @@ GtkWidget * make_tree_view ()
 	
 	renderer = gtk_cell_renderer_text_new ();
 	gtk_tree_view_column_pack_start (column, renderer, TRUE);
-	
 	gtk_tree_view_column_add_attribute(column, renderer, "text", 0);
 	
 	gtk_tree_view_set_model (GTK_TREE_VIEW (treeView), GTK_TREE_MODEL (treeStore));
@@ -121,7 +121,6 @@ static gboolean on_timer_elapsed (gpointer callback_data)
 	GtkTreeStore *store = GTK_TREE_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (treeView)));
 	
 	gtk_tree_store_clear (store);
-	
 	populate_tree_store (store);
 	
 	timer = 0;
@@ -129,15 +128,24 @@ static gboolean on_timer_elapsed (gpointer callback_data)
 	return FALSE;
 }
 
+
+/* libwnck has a nice habit of sending up tons of these events when it is first started.
+ * For this reason we use the timer to buffer out some of these events, and save ourselves
+ * from murdering the dbus server.
+ */
 static void handle_window_opened_closed (WnckScreen *screen, WnckWindow *window, gpointer data)
 {
 	if (timer > 0)
 		g_source_remove (timer);
-
+	
 	timer = g_timeout_add (300, (GSourceFunc) on_timer_elapsed, NULL);
 }
 	
-
+/* This entire program is intentionally implemented in a slightly niave manner to allow it to show
+ * the function of both of the primary calls to libwncksync. There is usually no reason to use
+ * both as one or the other can generally get the job done. Experienced coders should recognize how 
+ * to do this right away, however it is noted where it could be performed in the source.
+ */
 int main (int argc, char **argv)
 {
 	gtk_init (&argc, &argv);
