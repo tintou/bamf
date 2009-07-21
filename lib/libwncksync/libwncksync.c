@@ -35,7 +35,7 @@ void wncksync_init ()
 	
 }
 
-void wncksync_end ()
+void wncksync_quit ()
 {
 	//fixme
 }

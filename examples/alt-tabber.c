@@ -18,13 +18,65 @@
  * Boston, MA  02110-1301  USA
  */
  
-#define WNCK_I_KNOW_THIS_IS_UNSTABLE 
+#define WNCK_I_KNOW_THIS_IS_UNSTABLE
 
 #include <stdio.h>
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #include <glib.h>
 #include <libwnck/libwnck.h>
+#include <libwncksync/libwncksync.h>
+
+GArray * get_desktop_files ()
+{
+	WnckScreen *screen = wnck_screen_get_default ();
+	GList *windows = wnck_screen_get_windows (screen);
+	
+	GArray *desktopFiles = g_array_new (FALSE, TRUE, sizeof (GString*));
+	
+	GList *window;
+	for (window = windows; window != NULL; window = window->next) {
+		gulong xid = wnck_window_get_xid (window->data);
+		gchar *file = wncksync_desktop_item_for_window_xid (xid);
+		
+		if (file != NULL) {
+			GString *desktopFile = g_string_new (file);
+			
+			gboolean equal = FALSE;
+			int i;
+			for (i = 0; i < desktopFiles->len; i++) {
+				if (g_string_equal (g_array_index (desktopFiles, GString*, i), desktopFile)) {
+					equal = TRUE;
+					break;
+				}
+			}
+			
+			if (!equal)
+				g_array_append_val (desktopFiles, desktopFile);
+		}
+		
+		g_free (file);
+	}
+	
+	return desktopFiles;
+}
+
+void populate_tree_store (GtkTreeStore *store)
+{
+	GtkTreeIter position;
+	
+	wncksync_init ();
+	
+	GArray *desktopFiles = get_desktop_files ();
+	
+	int i;
+	for (i = 0; i < desktopFiles->len; i++) {
+		gtk_tree_store_insert (store, &position, NULL, 0);
+		gtk_tree_store_set (store, &position, 0, g_array_index (desktopFiles, GString*, i)->str, -1);
+	}
+	
+	wncksync_quit ();
+}
 
 GtkWidget * make_tree_view ()
 {
