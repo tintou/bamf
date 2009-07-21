@@ -1,1 +1,1 @@
-SUBDIRS = lib/libwncksync src examples data
+SUBDIRS = lib/libwncksync src examples data module
