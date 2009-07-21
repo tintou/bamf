@@ -10,15 +10,15 @@
 #include <dbus/dbus-glib-lowlevel.h>
 
 
-#define WNCKSYNC_DBUS_PATH "/org/wncksync/matcher/Controller"
-#define WNCKSYNC_DBUS_SERVICE "org.wncksync.matcher.Controller"
+#define WNCKSYNC_DBUS_PATH "/org/wncksync/Matcher"
+#define WNCKSYNC_DBUS_SERVICE "org.wncksync.Matcher"
 
-#define WNCKSYNC_TYPE_DBUS				(wncksync_dbus_get_type ())
-#define WNCKSYNC_DBUS(obj)				(G_TYPE_CHECK_INSTANCE_CAST ((obj), WNCKSYNC_TYPE_DBUS, WnckSyncDBus))
-#define WNCKSYNC_IS_DBUS				(G_TYPE_CHECK_INSTANCE_TYPE ((obj), WNCKSYNC_TYPE_DBUS))
+#define WNCKSYNC_TYPE_DBUS			(wncksync_dbus_get_type ())
+#define WNCKSYNC_DBUS(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), WNCKSYNC_TYPE_DBUS, WnckSyncDBus))
+#define WNCKSYNC_IS_DBUS			(G_TYPE_CHECK_INSTANCE_TYPE ((obj), WNCKSYNC_TYPE_DBUS))
 #define WNCKSYNC_DBUS_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), WNCKSYNC_TYPE_DBUS, WnckSyncDBusClass))
-#define WNCKSYNC_IS_DBUS_CLASS(klass)	(G_TYPE_CHECK_CLASA_TYPE ((klass), WNCKSYNC_TYPE_DBUS))
-#define WNCKSYNC_DBUS_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), WNCKSYNC_TYPE_DbuS, WnckSyncDBusClass))
+#define WNCKSYNC_IS_DBUS_CLASS(klass)		(G_TYPE_CHECK_CLASA_TYPE ((klass), WNCKSYNC_TYPE_DBUS))
+#define WNCKSYNC_DBUS_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), WNCKSYNC_TYPE_DbuS, WnckSyncDBusClass))
 
 typedef struct _WnckSyncDBus		WnckSyncDBus;
 typedef struct _WnckSyncDBusClass	WnckSyncDBusClass;

@@ -19,18 +19,18 @@
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 
-#define WINDOW_MATCHER_TYPE				(window_matcher_get_type ())
-#define WINDOW_MATCHER(obj)				(G_TYPE_CHECK_INSTANCE_CAST ((obj), WINDOW_MATCHER_TYPE, WindowMatcher))
-#define IS_WINDOW_MATCHER				(G_TYPE_CHECK_INSTANCE_TYPE ((obj), WINDOW_MATCHER_TYPE))
+#define WINDOW_MATCHER_TYPE			(window_matcher_get_type ())
+#define WINDOW_MATCHER(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), WINDOW_MATCHER_TYPE, WindowMatcher))
+#define IS_WINDOW_MATCHER			(G_TYPE_CHECK_INSTANCE_TYPE ((obj), WINDOW_MATCHER_TYPE))
 #define WINDOW_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), WINDOW_MATCHER_TYPE, WindowMatcherClass))
-#define IS_WINDOW_MATCHER_CLASS(klass)	(G_TYPE_CHECK_CLASA_TYPE ((klass), WINDOW_MATCHER_TYPE))
-#define WINDOW_MATCHER_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), WINDOW_MATCHER_TYPE, WindowMatcherClass))
+#define IS_WINDOW_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASA_TYPE ((klass), WINDOW_MATCHER_TYPE))
+#define WINDOW_MATCHER_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), WINDOW_MATCHER_TYPE, WindowMatcherClass))
 
 #define _NET_WM_DESKTOP_FILE			"_NET_WM_DESKTOP_FILE"
 
 typedef struct _WindowMatcher			WindowMatcher;
 typedef struct _WindowMatcherClass		WindowMatcherClass;
-typedef struct _WindowMatcherPrivate	WindowMatcherPrivate;
+typedef struct _WindowMatcherPrivate		WindowMatcherPrivate;
 
 typedef struct _WindowMatcher {
 	GObject parent;

@@ -67,4 +67,5 @@ lib/libwncksync/Makefile
 lib/libwncksync/libwncksync.pc
 src/Makefile
 examples/Makefile
+data/Makefile
 ])

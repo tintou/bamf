@@ -24,9 +24,9 @@ void wncksync_init ()
 	}
 	
 	proxy = dbus_g_proxy_new_for_name (connection, 
-					   "org.wncksync.matcher.Controller", 
-					   "/org/wncksync/matcher/Controller", 
-					   "org.wncksync.matcher.Controller");
+					   "org.wncksync.Matcher", 
+					   "/org/wncksync/Matcher", 
+					   "org.wncksync.Matcher");
 										
 	if (!proxy)
 	{
