@@ -24,9 +24,9 @@ void wncksync_init ()
 	}
 	
 	proxy = dbus_g_proxy_new_for_name (connection, 
-										"org.wncksync.WnckSync", 
-										"/org/wncksync/WnckSync/Control", 
-										"org.wncksync.WnckSync.Control");
+					   "org.wncksync.matcher.Controller", 
+					   "/org/wncksync/matcher/Controller", 
+					   "org.wncksync.matcher.Controller");
 										
 	if (!proxy)
 	{
@@ -42,21 +42,21 @@ void wncksync_quit ()
 
 GArray * wncksync_windows_for_desktop_file (gchar *desktop_file)
 {
+	GArray *windows = g_array_new (FALSE, TRUE, sizeof (WnckWindow*));
 	GArray *arr;
 	error = NULL;
-	if (!dbus_g_proxy_call (proxy, "XidsForDesktopFile", &error, G_TYPE_STRING, &desktop_file, G_TYPE_INVALID, DBUS_TYPE_G_UINT64_ARRAY, &arr, G_TYPE_INVALID))
+	if (!dbus_g_proxy_call (proxy, "XidsForDesktopFile", &error, G_TYPE_STRING, desktop_file, G_TYPE_INVALID, DBUS_TYPE_G_UINT64_ARRAY, &arr, G_TYPE_INVALID))
 	{
-		g_printerr ("Failed to fetch desktop file: %s\n", error->message);
+		g_printerr ("Failed to fetch xid array: %s\n", error->message);
 		g_error_free (error);
-		//Error Handling	
+		//Error Handling
+		return windows;
 	}
-	
-	GArray *windows = g_array_new (FALSE, TRUE, sizeof (WnckWindow));
 	
 	int i;
 	for (i = 0; i < arr->len; i++)
 	{
-		gulong xid = arr->data [i];
+		gulong xid = g_array_index (arr, gulong, i);
 		WnckWindow *window = wnck_window_get (xid);
 		g_array_append_val (windows, window);
 	}
@@ -70,9 +70,14 @@ gchar * wncksync_desktop_item_for_window_xid (gulong xid)
 	error = NULL;
 	if (!dbus_g_proxy_call (proxy, "DesktopFileForXid", &error, G_TYPE_UINT64, xid, G_TYPE_INVALID, G_TYPE_STRING, &desktop_file, G_TYPE_INVALID))
 	{
-		g_printerr ("Failed to fetch xid array");
-		g_error_free (error);	
+		g_printerr ("Failed to fetch desktop file: %s\n", error->message);
+		g_error_free (error);
+		
+		return "";
 	}
 	
-	return desktop_file;
+	gchar *result = g_strdup (desktop_file);
+	g_free (desktop_file);
+	
+	return result;
 }

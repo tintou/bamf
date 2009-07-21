@@ -66,8 +66,12 @@ gboolean wncksync_dbus_desktop_file_for_xid (WnckSyncDBus *dbus, gulong xid, gch
 	
 	if (window != NULL) {
 		GString *desktopFile = window_matcher_desktop_file_for_window (matcher, window);
-		*filename = g_strdup (desktopFile->str);
-		g_string_free (desktopFile, TRUE);
+		if (desktopFile == NULL) {
+			*filename = g_strdup ("");
+		} else {
+			*filename = g_strdup (desktopFile->str);
+			g_string_free (desktopFile, TRUE);
+		}
 	}
 	return TRUE;
 }
@@ -93,9 +97,7 @@ gboolean wncksync_dbus_xids_for_desktop_file (WnckSyncDBus *dbus, gchar *filenam
 
 gboolean wncksync_dbus_register_desktop_file_for_pid (WnckSyncDBus *dbus, gchar *filename, gint pid, GError **error)
 {
-	g_print ("Point 0\n");
 	GString *file = g_string_new (filename);
-	g_print ("Point 0.5\n");
 	window_matcher_register_desktop_file_for_pid (matcher, file, pid);
 	g_string_free (file, TRUE);
 	

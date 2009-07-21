@@ -27,6 +27,10 @@
 #include <libwnck/libwnck.h>
 #include <libwncksync/libwncksync.h>
 
+GtkWidget *window;
+GtkWidget *treeView;
+guint timer;
+
 GArray * get_desktop_files ()
 {
 	WnckScreen *screen = wnck_screen_get_default ();
@@ -38,10 +42,9 @@ GArray * get_desktop_files ()
 	for (window = windows; window != NULL; window = window->next) {
 		gulong xid = wnck_window_get_xid (window->data);
 		gchar *file = wncksync_desktop_item_for_window_xid (xid);
-		
-		if (file != NULL) {
+		if (file != NULL && *file != 0) {
 			GString *desktopFile = g_string_new (file);
-			
+						
 			gboolean equal = FALSE;
 			int i;
 			for (i = 0; i < desktopFiles->len; i++) {
@@ -63,19 +66,28 @@ GArray * get_desktop_files ()
 
 void populate_tree_store (GtkTreeStore *store)
 {
-	GtkTreeIter position;
-	
-	wncksync_init ();
+	GtkTreeIter position, child;
 	
 	GArray *desktopFiles = get_desktop_files ();
 	
 	int i;
 	for (i = 0; i < desktopFiles->len; i++) {
-		gtk_tree_store_insert (store, &position, NULL, 0);
-		gtk_tree_store_set (store, &position, 0, g_array_index (desktopFiles, GString*, i)->str, -1);
+		gtk_tree_store_append (store, &position, NULL);
+		gchar *string = g_array_index (desktopFiles, GString*, i)->str;
+		gtk_tree_store_set (store, &position, 0, string, -1);
+		
+		GArray * windows = wncksync_windows_for_desktop_file (string);
+		int j;
+		for (j = 0; j < windows->len; j++) {
+			const gchar *name = wnck_window_get_name (g_array_index (windows, WnckWindow*, j));
+			gtk_tree_store_append (store, &child, &position);
+			gtk_tree_store_set (store, 
+					    &child, 
+					    0, 
+					    name,
+					    -1);
+		}
 	}
-	
-	wncksync_quit ();
 }
 
 GtkWidget * make_tree_view ()
@@ -90,12 +102,12 @@ GtkWidget * make_tree_view ()
 	
 	column = gtk_tree_view_column_new ();
 	gtk_tree_view_column_set_title (column, "windows");
-	
 	gtk_tree_view_append_column (GTK_TREE_VIEW (treeView), column);
 	
 	renderer = gtk_cell_renderer_text_new ();
-	
 	gtk_tree_view_column_pack_start (column, renderer, TRUE);
+	
+	gtk_tree_view_column_add_attribute(column, renderer, "text", 0);
 	
 	gtk_tree_view_set_model (GTK_TREE_VIEW (treeView), GTK_TREE_MODEL (treeStore));
 	
@@ -104,23 +116,48 @@ GtkWidget * make_tree_view ()
 	return treeView;
 }
 
+static gboolean on_timer_elapsed (gpointer callback_data)
+{
+	GtkTreeStore *store = GTK_TREE_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (treeView)));
+	
+	gtk_tree_store_clear (store);
+	
+	populate_tree_store (store);
+	
+	timer = 0;
+	
+	return FALSE;
+}
+
+static void handle_window_opened_closed (WnckScreen *screen, WnckWindow *window, gpointer data)
+{
+	if (timer > 0)
+		g_source_remove (timer);
+
+	timer = g_timeout_add (300, (GSourceFunc) on_timer_elapsed, NULL);
+}
+	
+
 int main (int argc, char **argv)
 {
-	GtkWidget *window;
-	GtkWidget *treeView;
-	
 	gtk_init (&argc, &argv);
 
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_widget_show (window);
 
 	treeView = make_tree_view ();
 	gtk_container_add (GTK_CONTAINER (window), treeView);
 	
-	gtk_widget_show (treeView);	
+	WnckScreen *screen = wnck_screen_get_default ();
 	
+	g_signal_connect (G_OBJECT (screen), "window-opened", (GCallback) handle_window_opened_closed, window);
+	g_signal_connect (G_OBJECT (screen), "window-closed", (GCallback) handle_window_opened_closed, window);
+
+	wncksync_init ();
+	
+	gtk_widget_show_all (window);
 	gtk_main ();
-	
+
+	wncksync_quit ();	
 	return 0;
 }
 

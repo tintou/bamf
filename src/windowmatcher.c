@@ -144,7 +144,7 @@ static void set_window_hint (WindowMatcher *self, WnckWindow *window)
 					 PropModeReplace,
 					 (guchar *) desktopFile->str,
 					 sizeof (desktopFile->str));
-					 
+	XCloseDisplay (XDisplay);
 	g_array_free (pids, TRUE);
 }
 
@@ -177,7 +177,7 @@ GString * window_matcher_desktop_file_for_window (WindowMatcher *self, WnckWindo
 {
 	GString *desktopFile = desktop_file_hint_for_window (self, window);
 	
-	if (desktopFile == NULL) {
+	if (desktopFile == NULL || desktopFile->len == 0) {
 		WindowMatcherPrivate *priv = self->priv;
 		GString *exec = exec_string_for_window (self, window);
 		
@@ -185,8 +185,11 @@ GString * window_matcher_desktop_file_for_window (WindowMatcher *self, WnckWindo
 		
 		desktopFile = g_hash_table_lookup (priv->desktop_file_table, exec);
 	}
-	
-	return desktopFile;
+
+	if (desktopFile == NULL)
+		return g_string_new ("");
+	else
+		return g_string_new (desktopFile->str);
 }
 
 GArray * window_matcher_window_list_for_desktop_file (WindowMatcher *self, GString *desktopFile)
@@ -213,7 +216,7 @@ GArray * window_matcher_window_list_for_desktop_file (WindowMatcher *self, GStri
 		WnckWindow *window = glist_item->data;
 		
 		GString *windowHint = desktop_file_hint_for_window (self, window);
-		if (windowHint != NULL) {
+		if (windowHint != NULL && windowHint->len > 0) {
 			if (g_string_equal (windowHint, desktopFile))
 				g_array_append_val (windowList, window); 
 			g_string_free (windowHint, TRUE);
@@ -299,17 +302,19 @@ static GString * desktop_file_hint_for_window (WindowMatcher *self, WnckWindow *
 	guchar *buffer;
 	
 	int result = XGetWindowProperty (XDisplay,
-									 wnck_window_get_xid (window),
-									 atom,
-									 0,
-									 G_MAXINT,
-									 FALSE,
-									 XA_STRING,
-									 &type,
-									 &format,
-									 &numItems,
-									 &bytesAfter,
-									 &buffer);
+					 wnck_window_get_xid (window),
+					 atom,
+					 0,
+					 G_MAXINT,
+					 FALSE,
+					 XA_STRING,
+					 &type,
+					 &format,
+					 &numItems,
+					 &bytesAfter,
+					 &buffer);
+					 
+	XCloseDisplay (XDisplay);
 	
 	if (result != Success)
 		hint = NULL;
