@@ -17,10 +17,11 @@
 
 #include <config.h>
 
-#include <string.h>
-
 #include <glib.h>
 #include <gio/gio.h>
+#include <dbus/dbus.h>
+#include <dbus/dbus-glib.h>
+#include <dbus/dbus-glib-lowlevel.h>
 
 #include "gapplaunchhandlerdbus.h"
 
@@ -97,7 +98,37 @@ on_launched (GDesktopAppInfoLaunchHandler *launch_handler,
              const char  *desktop_file_path,
              gint pid)
 {
-	g_print ("%s\n", desktop_file_path);
+	DBusGConnection *connection;
+	GError *error = NULL;
+	DBusGProxy *proxy;
+
+	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+	
+	if (connection == NULL)
+	{
+		g_printerr ("Failed to open bus: %s\n", error->message);
+		g_error_free (error);	
+	}
+	
+	g_return_if_fail (connection);
+	
+	error = NULL;
+	
+	proxy = dbus_g_proxy_new_for_name (connection, 
+					   "org.wncksync.Matcher", 
+					   "/org/wncksync/Matcher", 
+					   "org.wncksync.Matcher");
+	
+	g_return_if_fail (proxy);
+			
+	dbus_g_proxy_call (proxy, 
+	                   "RegisterDesktopFileForPid", 
+	                   &error,
+	                   G_TYPE_STRING, desktop_file_path, 
+	                   G_TYPE_INT, pid, 
+	                   G_TYPE_INVALID, G_TYPE_INVALID);
+	g_object_unref (proxy);
+	dbus_g_connection_unref (connection);
 }
 
 static void

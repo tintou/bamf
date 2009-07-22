@@ -27,7 +27,6 @@ int main (int argc, char **argv)
 {
 	gtk_init (&argc, &argv);
 
-	g_print ("%s\n", argv [1]);
 	GAppInfo *appInfo = G_APP_INFO (g_desktop_app_info_new_from_filename (argv [1]));
 	
 	GError *error;

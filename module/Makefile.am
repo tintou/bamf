@@ -9,6 +9,7 @@ libgiodbus_la_CFLAGS =		\
 	-I$(top_srcdir)/common                  \
 	$(GLIB_CFLAGS)                          \
 	$(GCONF_CFLAGS)                         \
+	$(DBUS_CFLAGS)				\
 	-DGIO_MODULE_DIR=\"$(GIO_MODULE_DIR)\"	\
 	-DG_DISABLE_DEPRECATED			\
 	$(NULL)
@@ -20,7 +21,8 @@ libgiodbus_la_LDFLAGS = 	\
 	$(NULL)
 
 libgiodbus_la_LIBADD  =	     \
-	$(GLIB_LIBS)                 \
-	$(GCONF_LIBS)                \
+	$(GLIB_LIBS)            \
+	$(GCONF_LIBS)           \
+	$(DBUS_LIBS)		\
 	$(NULL)
 

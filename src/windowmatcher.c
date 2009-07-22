@@ -116,6 +116,7 @@ static void set_window_hint (WindowMatcher *self, WnckWindow *window)
 	GHashTable *registered_pids = self->priv->registered_pids;
 	
 	GArray *pids = pid_parent_tree (wnck_window_get_pid (window));
+
 	if (pids->len == 0) return;
 	
 	GString *desktopFile;
@@ -127,7 +128,7 @@ static void set_window_hint (WindowMatcher *self, WnckWindow *window)
 		key = g_new (gint, 1);
 		*key = pid;
 		
-		desktopFile = (GString*) g_hash_table_lookup (registered_pids, key);
+		desktopFile = g_hash_table_lookup (registered_pids, key);
 		if (desktopFile != NULL && desktopFile->len != 0) break;
 	}
 	
@@ -135,15 +136,15 @@ static void set_window_hint (WindowMatcher *self, WnckWindow *window)
 	
 	Display *XDisplay = XOpenDisplay (NULL);
 	XChangeProperty (XDisplay,
-				 	 wnck_window_get_xid (window),
-					 XInternAtom (XDisplay,
-							      _NET_WM_DESKTOP_FILE,
-							      FALSE),
-					 XA_STRING,
-					 8,
-					 PropModeReplace,
-					 (guchar *) desktopFile->str,
-					 sizeof (desktopFile->str));
+	                 wnck_window_get_xid (window),
+	                 XInternAtom (XDisplay,
+	                              _NET_WM_DESKTOP_FILE,
+				      FALSE),
+			 XA_STRING,
+			 8,
+			 PropModeReplace,
+			 desktopFile->str,
+			 desktopFile->len);
 	XCloseDisplay (XDisplay);
 	g_array_free (pids, TRUE);
 }
@@ -158,7 +159,8 @@ void window_matcher_register_desktop_file_for_pid (WindowMatcher *self, GString 
 	key = g_new (gint, 1);
 	*key = pid;
 	
-	g_hash_table_insert (self->priv->registered_pids, key, desktopFile);
+	GString *dup = g_string_new (desktopFile->str);
+	g_hash_table_insert (self->priv->registered_pids, key, dup);
 	
 	//fixme, this is a bit heavy
 	
@@ -373,10 +375,10 @@ static GArray * list_desktop_file_in_dir (WindowMatcher *self, GFile *dir)
 	GError *error = NULL;
 	
 	GFileEnumerator *enumerator = g_file_enumerate_children (dir, 
-															 G_FILE_ATTRIBUTE_STANDARD_TYPE "," G_FILE_ATTRIBUTE_STANDARD_NAME,
-															 0,
-															 NULL,
-															 &error);
+							         G_FILE_ATTRIBUTE_STANDARD_TYPE "," G_FILE_ATTRIBUTE_STANDARD_NAME,
+							         0,
+							         NULL,
+							         &error);
 	
 	if (!enumerator) {
 		g_print ("%s\n", error->message);
@@ -420,20 +422,14 @@ static GArray * pid_parent_tree (gint pid)
 {
 	GArray *tree = g_array_new (FALSE, TRUE, sizeof (gint));
 	
-	// base case
-	if (pid == 0) return tree;
+	while (pid > 1) {
+		g_array_append_val (tree, pid);
 	
-	g_array_append_val (tree, pid);
-	
-	glibtop_proc_uid buf;
-	glibtop_get_proc_uid (&buf, pid);
-	
-	GArray *parent = pid_parent_tree (buf.ppid);
-	
-	if (parent->len > 0)
-		g_array_append_vals (tree, parent->data, parent->len);
+		glibtop_proc_uid buf;
+		glibtop_get_proc_uid (&buf, pid);
 		
-	g_array_free (tree, TRUE);
+		pid = buf.ppid;
+	}
 	
 	return tree;
 }
@@ -528,14 +524,12 @@ static GArray * window_list_for_desktop_file_hint (WindowMatcher *self, GString 
 	GList *windows = wnck_screen_get_windows (screen);
 	
 	GList *window = windows;
-	while (window != NULL) {
+	for (window = windows; window != NULL; window = window->next) {
 		WnckWindow *win = window->data;
 		GString *windowHint = desktop_file_hint_for_window (self, win);
 		
 		if (windowHint != NULL && g_string_equal (windowHint, hint))
 			g_array_append_val (arr, win);
-		
-		window = window->next;
 	}
 }
 
