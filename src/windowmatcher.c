@@ -251,6 +251,8 @@ static GHashTable * create_desktop_file_table (WindowMatcher *self)
 		if (g_str_has_prefix (execLine->str, "ooffice")) {
 			g_hash_table_insert (table, execLine, desktopFile);
 		}
+		
+		process_exec_string (self, execLine);
 			
 		g_hash_table_insert (table, execLine, desktopFile);
 	}
