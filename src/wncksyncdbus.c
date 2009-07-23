@@ -35,6 +35,11 @@ static void wncksync_dbus_class_init (WnckSyncDBusClass *klass)
   dbus_g_object_type_install_info (WNCKSYNC_TYPE_DBUS, &dbus_glib_wncksync_dbus_object_info);
 }
 
+/**
+ * wncksync_dbus_new:
+ *
+ * Returns: a new WnckSyncDBus GObject.
+ **/
 WnckSyncDBus * wncksync_dbus_new (void)
 {
 	WnckSyncDBus *obj = (WnckSyncDBus*) g_object_new (WNCKSYNC_TYPE_DBUS, NULL);
@@ -45,8 +50,7 @@ WnckSyncDBus * wncksync_dbus_new (void)
 	guint request_name_result;
 
 	bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-	if (!bus)
-		return NULL;
+	g_return_val_if_fail (bus, NULL);
 
 	bus_proxy = dbus_g_proxy_new_for_name (bus, "org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus");
 
