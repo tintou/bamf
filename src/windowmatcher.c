@@ -248,11 +248,8 @@ static GHashTable * create_desktop_file_table (WindowMatcher *self)
 		 * Set full string into database for open office apps, we use this later to help
 		 * matching these files up for hint setting
 		 **/
-		if (g_str_has_prefix (execLine->str, "ooffice")) {
-			g_hash_table_insert (table, execLine, desktopFile);
-		}
-		
-		process_exec_string (self, execLine);
+		if (!g_str_has_prefix (execLine->str, "ooffice"))
+			process_exec_string (self, execLine);
 			
 		g_hash_table_insert (table, execLine, desktopFile);
 	}
@@ -516,8 +513,7 @@ static GString * get_open_office_window_hint (WindowMatcher *self, WnckWindow *w
 	GString *file = g_hash_table_lookup (desktopFileTable, exec);
 	g_string_free (exec, TRUE);
 
-	if (file == NULL) 
-		return NULL;
+	g_return_val_if_fail (file, NULL);
 
 	return g_string_new (file->str);
 }
