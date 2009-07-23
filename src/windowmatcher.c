@@ -253,7 +253,6 @@ static GHashTable * create_desktop_file_table (WindowMatcher *self)
 		}
 			
 		g_hash_table_insert (table, execLine, desktopFile);
-		g_string_free (execLine, TRUE);
 	}
 	
 	return table;
