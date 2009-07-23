@@ -1,5 +1,7 @@
 #define WNCK_I_KNOW_THIS_IS_UNSTABLE
 
+#include "config.h"
+
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #include <dbus/dbus.h>
@@ -17,8 +19,7 @@ void wncksync_init ()
 {
 	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 	
-	if (connection == NULL)
-	{
+	if (connection == NULL) {
 		g_printerr ("Failed to open bus: %s\n", error->message);
 		g_error_free (error);	
 	}
@@ -28,8 +29,7 @@ void wncksync_init ()
 					   "/org/wncksync/Matcher", 
 					   "org.wncksync.Matcher");
 										
-	if (!proxy)
-	{
+	if (!proxy) {
 		g_printerr ("Failed to get name owner.\n");	
 	}
 	
@@ -40,13 +40,32 @@ void wncksync_quit ()
 	//fixme
 }
 
+void * wncksync_register_desktop_file_for_pid (gchar *desktop_file, gint pid)
+{
+	error = NULL;
+	if (!dbus_g_proxy_call (proxy, 
+	                        "RegisterDesktopFileForPid", 
+	                         &error, 
+	                         G_TYPE_STRING, desktop_file, 
+	                         G_TYPE_INT, pid, 
+	                         G_TYPE_INVALID, G_TYPE_INVALID)) {
+		g_printerr ("%s\n", error->message);
+		g_error_free (error);	                         
+	}
+}
+
 GArray * wncksync_windows_for_desktop_file (gchar *desktop_file)
 {
 	GArray *windows = g_array_new (FALSE, TRUE, sizeof (WnckWindow*));
 	GArray *arr;
 	error = NULL;
-	if (!dbus_g_proxy_call (proxy, "XidsForDesktopFile", &error, G_TYPE_STRING, desktop_file, G_TYPE_INVALID, DBUS_TYPE_G_UINT64_ARRAY, &arr, G_TYPE_INVALID))
-	{
+	if (!dbus_g_proxy_call (proxy, 
+	                        "XidsForDesktopFile", 
+	                        &error, 
+	                        G_TYPE_STRING, desktop_file, 
+	                        G_TYPE_INVALID, 
+	                        DBUS_TYPE_G_UINT64_ARRAY, &arr, 
+	                        G_TYPE_INVALID)) {
 		g_printerr ("Failed to fetch xid array: %s\n", error->message);
 		g_error_free (error);
 		//Error Handling
@@ -54,8 +73,7 @@ GArray * wncksync_windows_for_desktop_file (gchar *desktop_file)
 	}
 	
 	int i;
-	for (i = 0; i < arr->len; i++)
-	{
+	for (i = 0; i < arr->len; i++) {
 		gulong xid = g_array_index (arr, gulong, i);
 		WnckWindow *window = wnck_window_get (xid);
 		g_array_append_val (windows, window);
@@ -73,8 +91,13 @@ gchar * wncksync_desktop_item_for_window (WnckWindow *window)
 
 	gchar *desktop_file;
 	error = NULL;
-	if (!dbus_g_proxy_call (proxy, "DesktopFileForXid", &error, G_TYPE_UINT64, xid, G_TYPE_INVALID, G_TYPE_STRING, &desktop_file, G_TYPE_INVALID))
-	{
+	if (!dbus_g_proxy_call (proxy, 
+	                        "DesktopFileForXid", 
+	                        &error, 
+	                        G_TYPE_UINT64, xid, 
+	                        G_TYPE_INVALID, 
+	                        G_TYPE_STRING, &desktop_file, 
+	                        G_TYPE_INVALID)) {
 		g_printerr ("Failed to fetch desktop file: %s\n", error->message);
 		g_error_free (error);
 		
