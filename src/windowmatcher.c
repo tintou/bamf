@@ -109,46 +109,6 @@ static void handle_window_closed (WnckScreen *screen, WnckWindow *window, gpoint
 	
 }
 
-static void set_window_hint (WindowMatcher *self, WnckWindow *window)
-{
-	if (self == NULL || window == NULL) return;
-	
-	GHashTable *registered_pids = self->priv->registered_pids;
-	
-	GArray *pids = pid_parent_tree (wnck_window_get_pid (window));
-
-	if (pids->len == 0) return;
-	
-	GString *desktopFile;
-	int i;
-	for (i = 0; i < pids->len; i++) {
-		gint pid = g_array_index (pids, gint, i);
-		
-		gint *key;
-		key = g_new (gint, 1);
-		*key = pid;
-		
-		desktopFile = g_hash_table_lookup (registered_pids, key);
-		if (desktopFile != NULL && desktopFile->len != 0) break;
-	}
-	
-	if (desktopFile == NULL || desktopFile->len == 0) return;
-	
-	Display *XDisplay = XOpenDisplay (NULL);
-	XChangeProperty (XDisplay,
-	                 wnck_window_get_xid (window),
-	                 XInternAtom (XDisplay,
-	                              _NET_WM_DESKTOP_FILE,
-				      FALSE),
-			 XA_STRING,
-			 8,
-			 PropModeReplace,
-			 desktopFile->str,
-			 desktopFile->len);
-	XCloseDisplay (XDisplay);
-	g_array_free (pids, TRUE);
-}
-
 // ------------------------------------------------------------------------------
 // End Wnck Signal Handlers
 // ------------------------------------------------------------------------------
@@ -186,6 +146,7 @@ GString * window_matcher_desktop_file_for_window (WindowMatcher *self, WnckWindo
 		process_exec_string (self, exec);
 		
 		desktopFile = g_hash_table_lookup (priv->desktop_file_table, exec);
+		g_string_free (exec, TRUE);
 	}
 
 	if (desktopFile == NULL)
@@ -282,10 +243,17 @@ static GHashTable * create_desktop_file_table (WindowMatcher *self)
 		GString *execLine = exec_string_for_desktop_file (self, desktopFile);
 		if (execLine == NULL)
 			continue;
-	
-		process_exec_string (self, execLine);
-		
+			
+		/**
+		 * Set full string into database for open office apps, we use this later to help
+		 * matching these files up for hint setting
+		 **/
+		if (g_str_has_prefix (execLine->str, "ooffice")) {
+			g_hash_table_insert (table, execLine, desktopFile);
+		}
+			
 		g_hash_table_insert (table, execLine, desktopFile);
+		g_string_free (execLine, TRUE);
 	}
 	
 	return table;
@@ -514,6 +482,88 @@ static void process_exec_string (WindowMatcher *self, GString *execString)
 	
 	g_free (exec);
 	g_free (parts);
+}
+
+static gboolean is_open_office_window (WindowMatcher *self, WnckWindow *window)
+{
+	WnckClassGroup *group = wnck_window_get_class_group (window);
+	
+	return (group && g_str_has_prefix (wnck_class_group_get_name (group), "OpenOffice"));
+}
+
+static GString * get_open_office_window_hint (WindowMatcher *self, WnckWindow *window)
+{
+	gchar *name = wnck_window_get_name (window);
+	
+	if (name == NULL)
+		return NULL;
+	
+	GString *exec;
+	if (g_str_has_suffix (name, "OpenOffice.org Writer")) {
+		exec = g_string_new ("ooffice -writer %F");
+	} else if (g_str_has_suffix (name, "OpenOffice.org Math")) {
+		exec = g_string_new ("ooffice -math %F");
+	} else if (g_str_has_suffix (name, "OpenOffice.org Calc")) {
+		exec = g_string_new ("ooffice -calc %F");
+	} else if (g_str_has_suffix (name, "OpenOffice.org Impress")) {
+		exec = g_string_new ("ooffice -impress %F");
+	} else if (g_str_has_suffix (name, "OpenOffice.org Draw")) {
+		exec = g_string_new ("ooffice -draw %F");
+	}
+
+	GHashTable *desktopFileTable = self->priv->desktop_file_table;
+	GString *file = g_hash_table_lookup (desktopFileTable, exec);
+	g_string_free (exec, TRUE);
+
+	if (file == NULL) 
+		return NULL;
+
+	return g_string_new (file->str);
+}
+
+static void set_window_hint (WindowMatcher *self, WnckWindow *window)
+{
+	g_return_if_fail (self && window);
+
+	GString *desktopFile;
+	if (is_open_office_window (self, window)) {
+		desktopFile = get_open_office_window_hint (self, window);
+	} else {
+		GHashTable *registered_pids = self->priv->registered_pids;
+	
+		GArray *pids = pid_parent_tree (wnck_window_get_pid (window));
+
+		g_return_if_fail (pids->len > 0);
+	
+		int i;
+		for (i = 0; i < pids->len; i++) {
+			gint pid = g_array_index (pids, gint, i);
+		
+			gint *key;
+			key = g_new (gint, 1);
+			*key = pid;
+		
+			desktopFile = g_hash_table_lookup (registered_pids, key);
+			if (desktopFile != NULL && desktopFile->len != 0) break;
+		}
+		
+		g_array_free (pids, TRUE);
+	}
+		
+	if (desktopFile == NULL || desktopFile->len == 0) return;
+	
+	Display *XDisplay = XOpenDisplay (NULL);
+	XChangeProperty (XDisplay,
+	                 wnck_window_get_xid (window),
+	                 XInternAtom (XDisplay,
+	                              _NET_WM_DESKTOP_FILE,
+				      FALSE),
+			 XA_STRING,
+			 8,
+			 PropModeReplace,
+			 desktopFile->str,
+			 desktopFile->len);
+	XCloseDisplay (XDisplay);
 }
 
 static GArray * window_list_for_desktop_file_hint (WindowMatcher *self, GString *hint)
