@@ -39,7 +39,7 @@ void wncksync_quit ()
 	//fixme
 }
 
-void * wncksync_register_desktop_file_for_pid (gchar *desktop_file, gint pid)
+void wncksync_register_desktop_file_for_pid (gchar *desktop_file, gint pid)
 {
 	error = NULL;
 	if (!dbus_g_proxy_call (proxy, 
