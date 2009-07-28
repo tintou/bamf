@@ -1,29 +1,23 @@
-60a61
-> #include <libwncksync/libwncksync.h>
-85a87
->     char *gettext_domain;
-385a388
->     retval->gettext_domain = NULL;
-546a550,555
-> /*
->  * ZK: I needed lookup before the real declaration so here's a prototype
->  */
-> static const char *
-> lookup (const GnomeDesktopItem *item, const char *key);
-> 
-681a691
->     retval->gettext_domain = lookup(retval, GNOME_DESKTOP_ITEM_GETTEXT_DOMAIN);
-724a735
->     retval->gettext_domain = lookup(retval, GNOME_DESKTOP_ITEM_GETTEXT_DOMAIN);
-993a1005,1012
->         if (item->gettext_domain) {
->             char *value = lookup(item, key);
->             if (value != NULL && value[0] != '\0') {
->                 char *locale_value = dgettext(item->gettext_domain, value);
->                 if (locale_value)
->                     return locale_value;
->             }
->         }
-2105a2125,2126
-> 	wncksync_register_desktop_file_for_pid (item->location, ret);
-> 
+*** a/libgnome-desktop/gnome-desktop-item.c	2009-04-13 18:00:20.000000000 -0400
+--- b/libgnome-desktop/gnome-desktop-item.c	2009-07-27 21:26:03.845330578 -0400
+***************
+*** 58,63 ****
+--- 58,64 ----
+  #undef GNOME_DISABLE_DEPRECATED
+  #include <libgnome/gnome-desktop-item.h>
+  #include <libgnome/gnome-desktop-utils.h>
++ #include <libwncksync/libwncksync.h>
+  
+  #include "private.h"
+  
+***************
+*** 2103,2108 ****
+--- 2122,2129 ----
+  			     (flags & GNOME_DESKTOP_ITEM_LAUNCH_DO_NOT_REAP_CHILD),
+  			     error);
+  
++ 	wncksync_register_desktop_file_for_pid (item->location, ret);
++ 
+  	return ret;
+  }
+  
