@@ -2,10 +2,7 @@
 #ifndef __LIBWNCKSYNC_H__
 #define __LIBWNCKSYNC_H__
 
-#define WNCK_I_KNOW_THIS_IS_UNSTABLE
-
 #include <glib.h>
-#include <libwnck/libwnck.h>
 
 /* Add function prototypes here */
 
