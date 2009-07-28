@@ -78,14 +78,9 @@ GArray * wncksync_xids_for_desktop_file (gchar *desktop_file)
 	return arr;
 }
 
-gchar * wncksync_desktop_item_for_window (WnckWindow *window)
+gchar * wncksync_desktop_item_for_xid (gulong xid)
 {
 	if (!wncksync_initialized) wncksync_init ();
-
-	if (window == NULL)
-		return "";
-		
-	gulong xid = wnck_window_get_xid (window);
 
 	gchar *desktop_file;
 	wncksync_error = NULL;

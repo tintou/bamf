@@ -44,7 +44,7 @@ GArray * get_desktop_files ()
 		 * This is not done hwoever to allow us to use as many of the features of libwncksync
 		 * as possible.
 		 */
-		gchar *file = wncksync_desktop_item_for_window (window->data);
+		gchar *file = wncksync_desktop_item_for_xid (wnck_window_get_xid (window->data));
 		if (file != NULL && *file != 0) {
 			GString *desktopFile = g_string_new (file);
 						
