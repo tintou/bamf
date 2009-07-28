@@ -11,7 +11,6 @@ libwncksync_la_DATA = \
 libwncksync_la_LIBADD = \
 		$(GLIB_LIBS) \
 		$(DBUS_LIBS) \
-		$(WNCK_LIBS) \
 		$(NULL)
 		
 libwncksync_la_CFLAGS = \
@@ -20,7 +19,6 @@ libwncksync_la_CFLAGS = \
 		-DDATADIR=\""$(datadir)"\" \
 		$(GTK_CFLAGS) \
 		$(DBUS_CFLAGS) \
-		$(WNCK_CFLAGS) \
 		$(NULL)
 
 libwncksync_la_LDFLAGS = \
