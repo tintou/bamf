@@ -267,7 +267,7 @@ static GString * desktop_file_hint_for_window (WindowMatcher *self, WnckWindow *
 	gint format;
 	gulong numItems;
 	gulong bytesAfter;
-	guchar *buffer;
+	gchar *buffer;
 	
 	int result = XGetWindowProperty (XDisplay,
 					 wnck_window_get_xid (window),
@@ -284,11 +284,15 @@ static GString * desktop_file_hint_for_window (WindowMatcher *self, WnckWindow *
 					 
 	XCloseDisplay (XDisplay);
 	
-	if (result != Success)
+	if (result != Success) {
 		hint = NULL;
-	else
-		hint = g_string_new (buffer);
-	
+	} else {
+		gchar *file = buffer;
+		if (g_str_has_prefix (file, "file://")) {
+			file += sizeof ("file://");
+		}
+		hint = g_string_new (file);
+	}
 	XFree (buffer);
 	return hint;
 }
