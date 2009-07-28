@@ -56,11 +56,10 @@ void wncksync_register_desktop_file_for_pid (gchar *desktop_file, gint pid)
 	                         G_TYPE_INVALID);
 }
 
-GArray * wncksync_windows_for_desktop_file (gchar *desktop_file)
+GArray * wncksync_xids_for_desktop_file (gchar *desktop_file)
 {
 	if (!wncksync_initialized) wncksync_init ();
 
-	GArray *windows = g_array_new (FALSE, TRUE, sizeof (WnckWindow*));
 	GArray *arr;
 	wncksync_error = NULL;
 	if (!dbus_g_proxy_call (wncksync_proxy, 
@@ -73,17 +72,10 @@ GArray * wncksync_windows_for_desktop_file (gchar *desktop_file)
 		g_printerr ("Failed to fetch xid array: %s\n", wncksync_error->message);
 		g_error_free (wncksync_error);
 		//Error Handling
-		return windows;
+		arr = g_array_new (FALSE, TRUE, sizeof (gulong));
 	}
 	
-	int i;
-	for (i = 0; i < arr->len; i++) {
-		gulong xid = g_array_index (arr, gulong, i);
-		WnckWindow *window = wnck_window_get (xid);
-		g_array_append_val (windows, window);
-	}
-	
-	return windows;
+	return arr;
 }
 
 gchar * wncksync_desktop_item_for_window (WnckWindow *window)

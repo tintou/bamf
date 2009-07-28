@@ -81,10 +81,11 @@ void populate_tree_store (GtkTreeStore *store)
 		
 		gtk_tree_store_set (store, &position, 0, string, -1);
 		
-		GArray * windows = wncksync_windows_for_desktop_file (string);
+		GArray * windows = wncksync_xids_for_desktop_file (string);
 		int j;
 		for (j = 0; j < windows->len; j++) {
-			const gchar *name = wnck_window_get_name (g_array_index (windows, WnckWindow*, j));
+			WnckWindow *window = wnck_window_get (g_array_index (windows, gulong, j));
+			const gchar *name = wnck_window_get_name (window);
 			gtk_tree_store_append (store, &child, &position);
 			gtk_tree_store_set (store, &child, 0, name, -1);
 		}

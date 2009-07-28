@@ -9,7 +9,7 @@
 
 /* Add function prototypes here */
 
-GArray * wncksync_windows_for_desktop_file (gchar *desktop_file);
+GArray * wncksync_xids_for_desktop_file (gchar *desktop_file);
 
 gchar * wncksync_desktop_item_for_window (WnckWindow *window);
 
