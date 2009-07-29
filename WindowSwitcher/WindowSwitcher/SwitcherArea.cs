@@ -367,7 +367,6 @@ namespace WindowSwitcher
 		IEnumerable<SwitcherItem> GetSwitcherItems ()
 		{
 			foreach (string file in RunningDesktopFiles ()) {
-				Console.WriteLine (file);
 				SwitcherItem si = new SwitcherItem (file);
 				if (si.VisibleWindows.Any ())
 					yield return si;
