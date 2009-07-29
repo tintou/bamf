@@ -1,1 +1,1 @@
-Currently OpenOffice apps will match rather poorly due to their single process nature.
+wncksyncdaemon should recreate the registered_pids database on restart by inspecting the state of libwnck windows
