@@ -65,6 +65,7 @@ namespace WindowSwitcher
 			
 			binder = new XKeybinder ();
 			binder.Bind ("<super>ISO_Left_Tab", OnSummoned);
+			binder.Bind ("<super>quoteleft", OnSummoned);
 		}
 
 		protected override bool OnKeyPressEvent (Gdk.EventKey evnt)
@@ -96,8 +97,11 @@ namespace WindowSwitcher
 		
 		void OnSummoned (object sender, System.EventArgs args)
 		{
-			if (!Visible)
-				ShowAll ();
+			if (Visible)
+				return;
+			
+			ShowAll ();
+			Stick ();
 			
 			for (int i = 0; i < 100; i++) {
 				if (TryGrabWindow (this)) {
