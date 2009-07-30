@@ -100,7 +100,40 @@ static void handle_window_opened (WnckScreen *screen, WnckWindow *window, gpoint
 {
 	if (window == NULL) return;
 	
-	set_window_hint ((WindowMatcher*) data, window);
+	WindowMatcher *self = (WindowMatcher*) data;
+	GString *hint = desktop_file_hint_for_window (self, window);
+	
+	if (hint == NULL || hint->len == 0) {
+		set_window_hint ((WindowMatcher*) data, window);
+	} else {
+		// this is useful in the case of crash recovery
+		gint pid = wnck_window_get_pid (window);
+		GArray *ppids = pid_parent_tree (pid);
+		
+		gint i;
+		gboolean found = FALSE;
+		for (i = 0; i < ppids->len; i++) {
+			gint *key;
+			key = g_new (gint, 1);
+			*key = g_array_index (ppids, gint, i);
+			
+			g_array_index (ppids, gint, i);
+		
+			if (g_hash_table_lookup (self->priv->registered_pids, key)) {
+				found = TRUE;
+				break;
+			}
+		}
+		
+		// we have no clue what this one is, lets register it
+		if (!found) {
+			gint *key;
+			key = g_new (gint, 1);
+			*key = pid;
+		
+			g_hash_table_insert (self->priv->registered_pids, key, hint);
+		}
+	}
 }
 	
 
@@ -287,7 +320,7 @@ static GString * desktop_file_hint_for_window (WindowMatcher *self, WnckWindow *
 	if (result != Success) {
 		hint = NULL;
 	} else {
-		hint = g_string_new (file);
+		hint = g_string_new (buffer);
 	}
 	XFree (buffer);
 	return hint;
