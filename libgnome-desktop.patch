@@ -12,11 +12,14 @@
   
 ***************
 *** 2103,2108 ****
---- 2122,2129 ----
+--- 2122,2132 ----
   			     (flags & GNOME_DESKTOP_ITEM_LAUNCH_DO_NOT_REAP_CHILD),
   			     error);
   
-+ 	wncksync_register_desktop_file_for_pid (item->location, ret);
++ 	gchar *file = g_filename_from_uri (item->location, NULL, NULL);
++ 	wncksync_register_desktop_file_for_pid (file, ret);
++ 	
++ 	g_free (file);
 + 
   	return ret;
   }

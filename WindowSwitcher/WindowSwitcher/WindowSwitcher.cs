@@ -95,6 +95,12 @@ namespace WindowSwitcher
 			return base.OnKeyReleaseEvent (evnt);
 		}
 		
+		protected override void OnShown ()
+		{
+			Resize (1, 1);
+			base.OnShown ();
+		}
+		
 		void OnSummoned (object sender, System.EventArgs args)
 		{
 			if (Visible)

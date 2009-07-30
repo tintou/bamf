@@ -287,10 +287,6 @@ static GString * desktop_file_hint_for_window (WindowMatcher *self, WnckWindow *
 	if (result != Success) {
 		hint = NULL;
 	} else {
-		gchar *file = buffer;
-		if (g_str_has_prefix (file, "file://")) {
-			file += sizeof ("file://") - 1;
-		}
 		hint = g_string_new (file);
 	}
 	XFree (buffer);
