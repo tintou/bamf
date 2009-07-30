@@ -125,6 +125,8 @@ static void handle_window_opened (WnckScreen *screen, WnckWindow *window, gpoint
 			}
 		}
 		
+		g_array_free (ppids, TRUE);
+		
 		// we have no clue what this one is, lets register it
 		if (!found) {
 			gint *key;
