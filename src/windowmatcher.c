@@ -162,11 +162,9 @@ void window_matcher_register_desktop_file_for_pid (WindowMatcher *self, GString 
 	WnckScreen *screen = wnck_screen_get_default ();
 	GList *windows = wnck_screen_get_windows (screen);
 	
-	GList *glist_item = windows;
-	while (glist_item != NULL) {
+	GList *glist_item;
+	for (gslist_item = windows; gslist_item != NULL; gslist_item->next) {
 		set_window_hint (self, glist_item->data);
-		
-		glist_item = glist_item->next;	
 	}
 }
 
@@ -186,8 +184,7 @@ GString * window_matcher_desktop_file_for_window (WindowMatcher *self, WnckWindo
 
 	if (desktopFile == NULL)
 		return g_string_new ("");
-	else
-		return g_string_new (desktopFile->str);
+	return g_string_new (desktopFile->str);
 }
 
 GArray * window_matcher_window_list_for_desktop_file (WindowMatcher *self, GString *desktopFile)

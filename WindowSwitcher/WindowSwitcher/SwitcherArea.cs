@@ -112,7 +112,7 @@ namespace WindowSwitcher
 			foreach (SwitcherItem si in SwitcherItems) {
 				foreach (Wnck.Window window in si.VisibleWindows) {
 					if (found) {
-						ActivateWindow (window);
+						SetWindow (window);
 						return;
 					} else if (window == CurrentWindow) {
 						found = true;
@@ -121,13 +121,13 @@ namespace WindowSwitcher
 			}
 			
 			Wnck.Window w = SwitcherItems.First ().VisibleWindows.First ();
-			ActivateWindow (w);
+			SetWindow (w);
 		}
 		
 		public void Prev ()
 		{
 			if (SwitcherItems.First ().VisibleWindows.First () == CurrentWindow) {
-				ActivateWindow (SwitcherItems.Last ().VisibleWindows.Last ());
+				SetWindow (SwitcherItems.Last ().VisibleWindows.Last ());
 				return;
 			}
 			
@@ -136,7 +136,7 @@ namespace WindowSwitcher
 				foreach (Wnck.Window window in si.VisibleWindows) {
 					if (window == CurrentWindow) {
 						if (prev != null)
-							ActivateWindow (prev);
+							SetWindow (prev);
 						return;
 					}
 					prev = window;
@@ -149,7 +149,7 @@ namespace WindowSwitcher
 			bool found = false;
 			foreach (SwitcherItem si in SwitcherItems) {
 				if (found) {
-					ActivateWindow (si.VisibleWindows.First ());
+					SetWindow (si.VisibleWindows.First ());
 					return;
 				} else if (si.VisibleWindows.Contains (CurrentWindow)) {
 					found = true;
@@ -157,13 +157,13 @@ namespace WindowSwitcher
 			}
 			
 			Wnck.Window w = SwitcherItems.First ().VisibleWindows.First ();
-			ActivateWindow (w);
+			SetWindow (w);
 		}
 		
 		public void PrevApp ()
 		{
 			if (SwitcherItems.First ().VisibleWindows.Contains (CurrentWindow)) {
-				ActivateWindow (SwitcherItems.Last ().VisibleWindows.First ());
+				SetWindow (SwitcherItems.Last ().VisibleWindows.First ());
 				return;
 			}
 			
@@ -171,11 +171,17 @@ namespace WindowSwitcher
 			foreach (SwitcherItem si in SwitcherItems) {
 				if (si.VisibleWindows.Contains (CurrentWindow)) {
 					if (prev != null)
-						ActivateWindow (prev.VisibleWindows.First ());
+						SetWindow (prev.VisibleWindows.First ());
 					return;
 				}
 				prev = si;
 			}
+		}
+		
+		void SetWindow (Wnck.Window w)
+		{
+			current_window = w;
+			QueueDraw ();			
 		}
 		
 		void ActivateWindow (Wnck.Window w)
@@ -183,8 +189,6 @@ namespace WindowSwitcher
 			if (!w.IsOnWorkspace (Wnck.Screen.Default.ActiveWorkspace))
 				w.Workspace.Activate (Gtk.Global.CurrentEventTime);
 			w.Activate (Gtk.Global.CurrentEventTime);
-			current_window = w;
-			QueueDraw ();
 		}
 
 		void HandleWindowOpened (object o, WindowOpenedArgs args)
@@ -363,6 +367,14 @@ namespace WindowSwitcher
 			
 			base.OnShown ();
 		}
+		
+		protected override void OnHidden ()
+		{
+			if (current_window != null)
+				ActivateWindow (current_window);
+			base.OnHidden ();
+		}
+
 
 		IEnumerable<SwitcherItem> GetSwitcherItems ()
 		{
