@@ -89,7 +89,7 @@ namespace WindowSwitcher
 		
 		protected override bool OnKeyReleaseEvent (Gdk.EventKey evnt)
 		{
-			if (evnt.Key == Gdk.Key.Super_L || evnt.Key == Gdk.Key.Super_R)
+			if (evnt.Key == Gdk.Key.Super_L || evnt.Key == Gdk.Key.Return)
 				HideAll ();
 			
 			return base.OnKeyReleaseEvent (evnt);
@@ -98,6 +98,7 @@ namespace WindowSwitcher
 		protected override void OnShown ()
 		{
 			Resize (1, 1);
+			
 			base.OnShown ();
 		}
 		
@@ -110,34 +111,21 @@ namespace WindowSwitcher
 			Stick ();
 			
 			for (int i = 0; i < 100; i++) {
-				if (TryGrabWindow (this)) {
+				if (TryGrab ()) {
 					break;
 				}
 				Thread.Sleep (100);
 			}
 		}
 		
-		bool TryGrabWindow (Gtk.Window window)
+		bool TryGrab ()
 		{
 			uint time;
-
 			time = Gtk.Global.CurrentEventTime;
-			if (Pointer.Grab (window.GdkWindow,
-												true,
-												EventMask.ButtonPressMask |
-												EventMask.ButtonReleaseMask |
-												EventMask.PointerMotionMask,
-												null,
-												null,
-												time) == GrabStatus.Success)
-			{
-				if (Keyboard.Grab (window.GdkWindow, true, time) == GrabStatus.Success) {
-					Gtk.Grab.Add (window);
-					return true;
-				} else {
-					Pointer.Ungrab (time);
-					return false;
-				}
+
+			if (Keyboard.Grab (GdkWindow, true, time) == GrabStatus.Success) {
+				Gtk.Grab.Add (this);
+				return true;
 			}
 			return false;
 		}

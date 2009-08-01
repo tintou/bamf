@@ -102,6 +102,15 @@ namespace WindowSwitcher
 			
 			Wnck.Global.ClientType = ClientType.Pager;
 			
+			Realized += delegate {
+				GdkWindow.SetBackPixmap (null, false);
+			};
+			
+			StyleSet += delegate {
+				if (IsRealized)
+					GdkWindow.SetBackPixmap (null, false);
+			};
+			
 			Wnck.Screen.Default.WindowOpened += HandleWindowOpened;
 			Wnck.Screen.Default.WindowClosed += HandleWindowClosed; 
 		}
@@ -356,7 +365,7 @@ namespace WindowSwitcher
 		
 		protected override void OnShown ()
 		{
-			current_window = Wnck.Screen.Default.ActiveWindow;
+			current_window = PreviousWindow ();
 			
 			// order things to get consistent feel, to array for performance
 			SwitcherItems = GetSwitcherItems ().OrderBy (si => si.DesktopItem.GetString ("Name")).ToArray ();
@@ -366,6 +375,15 @@ namespace WindowSwitcher
 			SetSizeRequest (width, 175);
 			
 			base.OnShown ();
+		}
+		
+		Wnck.Window PreviousWindow ()
+		{
+			return Wnck.Screen.Default.WindowsStacked
+				.Reverse ()
+				.Where (w => !w.IsSkipTasklist)
+				.Skip (1)
+				.First ();
 		}
 		
 		protected override void OnHidden ()
