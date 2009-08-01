@@ -53,7 +53,7 @@ G_BEGIN_DECLS
 #endif /* !G_ENABLE_DEBUG */
 
 
-/* BOOLEAN:UINT64,POINTER,POINTER (/tmp/dbus-binding-tool-c-marshallers.JQCOXU:1) */
+/* BOOLEAN:UINT64,POINTER,POINTER (/tmp/dbus-binding-tool-c-marshallers.KAD0XU:1) */
 extern void dbus_glib_marshal_wncksync_dbus_BOOLEAN__UINT64_POINTER_POINTER (GClosure     *closure,
                                                                              GValue       *return_value,
                                                                              guint         n_param_values,
@@ -102,7 +102,7 @@ dbus_glib_marshal_wncksync_dbus_BOOLEAN__UINT64_POINTER_POINTER (GClosure     *c
   g_value_set_boolean (return_value, v_return);
 }
 
-/* BOOLEAN:STRING,POINTER,POINTER (/tmp/dbus-binding-tool-c-marshallers.JQCOXU:2) */
+/* BOOLEAN:STRING,POINTER,POINTER (/tmp/dbus-binding-tool-c-marshallers.KAD0XU:2) */
 extern void dbus_glib_marshal_wncksync_dbus_BOOLEAN__STRING_POINTER_POINTER (GClosure     *closure,
                                                                              GValue       *return_value,
                                                                              guint         n_param_values,
@@ -151,7 +151,7 @@ dbus_glib_marshal_wncksync_dbus_BOOLEAN__STRING_POINTER_POINTER (GClosure     *c
   g_value_set_boolean (return_value, v_return);
 }
 
-/* BOOLEAN:STRING,INT,POINTER (/tmp/dbus-binding-tool-c-marshallers.JQCOXU:3) */
+/* BOOLEAN:STRING,INT,POINTER (/tmp/dbus-binding-tool-c-marshallers.KAD0XU:3) */
 extern void dbus_glib_marshal_wncksync_dbus_BOOLEAN__STRING_INT_POINTER (GClosure     *closure,
                                                                          GValue       *return_value,
                                                                          guint         n_param_values,
