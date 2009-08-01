@@ -1,1 +1,1 @@
-SUBDIRS = lib/libwncksync src examples data module
+SUBDIRS = lib/libwncksync src examples data module WindowSwitcher

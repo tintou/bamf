@@ -50,6 +50,8 @@ PKG_CHECK_MODULES(WNCK, libwnck-1.0)
 #
 PKG_CHECK_MODULES(GTOP, libgtop-2.0)
 
+PKG_CHECK_MODULES(LIBDO, glib-2.0 gdk-2.0 gdk-x11-2.0 gtk+-2.0)
+
 #
 # Gnome/GTK checks
 #
@@ -72,4 +74,8 @@ src/Makefile
 examples/Makefile
 data/Makefile
 module/Makefile
+WindowSwitcher/Makefile
+WindowSwitcher/WindowSwitcher/Makefile
+WindowSwitcher/LibWnckSync/Makefile
+WindowSwitcher/libwsbind/Makefile
 ])

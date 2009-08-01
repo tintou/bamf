@@ -70,6 +70,11 @@ namespace WindowSwitcher
 
 		protected override bool OnKeyPressEvent (Gdk.EventKey evnt)
 		{
+			if ((evnt.State & ModifierType.SuperMask) != ModifierType.SuperMask) {
+				HideAll ();
+				return base.OnKeyPressEvent (evnt);
+			}
+			
 			switch (evnt.Key) {
 			case Gdk.Key.asciitilde:
 				area.PrevApp ();
@@ -102,6 +107,14 @@ namespace WindowSwitcher
 			base.OnShown ();
 		}
 		
+		protected override void OnHidden ()
+		{
+			Keyboard.Ungrab (Gtk.Global.CurrentEventTime);
+			Gtk.Grab.Remove (this);
+			
+			base.OnHidden ();
+		}
+		
 		void OnSummoned (object sender, System.EventArgs args)
 		{
 			if (Visible)
@@ -114,8 +127,18 @@ namespace WindowSwitcher
 				if (TryGrab ()) {
 					break;
 				}
-				Thread.Sleep (100);
+				Thread.Sleep (10);
 			}
+			
+			// hack to workaround issue where super key is released before window is receiving events
+//			int x, y;
+//			Gdk.ModifierType mask;
+//			GdkWindow.GetPointer (out x, out y, out mask);
+//			
+//			Console.WriteLine (mask);
+//			if ((mask & ModifierType.Mod4Mask) != ModifierType.Mod4Mask &&
+//			    (mask & ModifierType.SuperMask) != ModifierType.SuperMask )
+//				HideAll ();
 		}
 		
 		bool TryGrab ()
@@ -123,7 +146,8 @@ namespace WindowSwitcher
 			uint time;
 			time = Gtk.Global.CurrentEventTime;
 
-			if (Keyboard.Grab (GdkWindow, true, time) == GrabStatus.Success) {
+			GrabStatus status = Keyboard.Grab (GdkWindow, true, time);
+			if (status == GrabStatus.Success) {
 				Gtk.Grab.Add (this);
 				return true;
 			}
