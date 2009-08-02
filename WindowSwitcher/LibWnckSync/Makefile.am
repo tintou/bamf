@@ -1,7 +1,7 @@
 # Simple component buildsystem
 include $(top_srcdir)/build.rules.mk
 
-ASSEMBLY = WindowSwitcher
+ASSEMBLY = LibWnckSync
 TARGET = library
 
 FILES = \

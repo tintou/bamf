@@ -19,8 +19,7 @@ COMPONENT_REFERENCES = $(foreach ref, $(PROJECT_REFERENCES),-r:$(BUILD_DIR)/$(re
 COMPONENT_DEPS = $(foreach ref,$(PROJECT_REFERENCES),$(BUILD_DIR)/$(ref).dll)
 
 OUTPUT_FILES = \
-        $(ASSEMBLY_FILE) \
-        $(ASSEMBLY_FILE).mdb
+        $(ASSEMBLY_FILE)
 
 moduledir = $(pkglibdir)
 # Install libraries as data; there's no need for them to be excutable
