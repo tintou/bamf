@@ -65,9 +65,9 @@ PKG_CHECK_MODULES(WNCK, libwnck-1.0)
 #
 PKG_CHECK_MODULES(GTOP, libgtop-2.0)
 
-PKG_CHECK_MODULES(LIBDO, glib-2.0 gdk-2.0 gdk-x11-2.0 gtk+-2.0)
-AC_SUBST(LIBDO_CFLAGS)
-AC_SUBST(LIBDO_LIBS)
+PKG_CHECK_MODULES(LIBWSBIND, glib-2.0 gdk-2.0 gdk-x11-2.0 gtk+-2.0)
+AC_SUBST(LIBWSBIND_CFLAGS)
+AC_SUBST(LIBWSBIND_LIBS)
 
 #
 # Gnome/GTK checks
@@ -109,6 +109,8 @@ data/Makefile
 module/Makefile
 WindowSwitcher/Makefile
 WindowSwitcher/WindowSwitcher/Makefile
+WindowSwitcher/WindowSwitcher/WindowSwitcher.exe.config
+WindowSwitcher/WindowSwitcher/window-switcher
 WindowSwitcher/LibWnckSync/Makefile
 WindowSwitcher/libwsbind/Makefile
 ])

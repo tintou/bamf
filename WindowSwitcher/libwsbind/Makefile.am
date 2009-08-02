@@ -8,17 +8,17 @@ AM_CFLAGS = -DG_LOG_DOMAIN=\"libdo\"	\
 	    $(LIBDO_CFLAGS)
 
 
-dolibdir = $(pkglibdir)
-dolib_LTLIBRARIES = libdo.la
+wslibdir = $(pkglibdir)
+wslib_LTLIBRARIES = libwsbind.la
 
-libdo_la_SOURCES =		\
+libwsbind_la_SOURCES =		\
 	keybinder.h	\
 	keybinder.c	\
 	eggaccelerators.h	\
 	eggaccelerators.c
 
-libdo_la_LDFLAGS = -export-dynamic -module -avoid-version
-libdo_la_LIBADD = $(LIBDO_LIBS)
+libwsbind_la_LDFLAGS = -export-dynamic -module -avoid-version
+libwsbind_la_LIBADD = $(LIBWSBIND_LIBS)
 
 maintainer-clean-local:
 	rm -f Makefile.in

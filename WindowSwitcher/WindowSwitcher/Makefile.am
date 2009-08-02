@@ -22,5 +22,10 @@ REFERENCES =  \
 
 PROJECT_REFERENCES = \
 	LibWnckSync
-	
+
+CLEANFILES += WindowSwitcher.exe.config window-switcher
+EXTRA_DIST += WindowSwitcher.exe.config.in gnome-do.in
+
+module_DATA += WindowSwitcher.exe.config	
 bin_SCRIPTS = window-switcher
+

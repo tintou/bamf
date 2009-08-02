@@ -25,7 +25,7 @@ namespace WindowSwitcher
 {
 	public class XKeybinder 
 	{
-		const string libdo = "/usr/lib/gnome-do/libdo.so";
+		const string libdo = "libwsbind";
 		
 		[DllImport(libdo)]
 		static extern void gnomedo_keybinder_init ();

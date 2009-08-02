@@ -1,0 +1,11 @@
+#!/bin/sh
+
+SCRIPT_PATH=`dirname $0`
+SCRIPT_PATH=`cd $SCRIPT_PATH; pwd`
+
+WINDOW_SWITCHER_EXE="@expanded_libdir@/@PACKAGE@/WindowSwitcher.exe"
+
+# If WindowSwitcher is not running, run it.
+if pgrep -u "`id -un`" '^gnome-do$' >/dev/null; then
+	mono "$WINDOW_SWITCHER_EXE" "$@"
+fi
