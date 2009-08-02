@@ -163,7 +163,7 @@ void window_matcher_register_desktop_file_for_pid (WindowMatcher *self, GString 
 	GList *windows = wnck_screen_get_windows (screen);
 	
 	GList *glist_item;
-	for (glist_item = windows; glist_item != NULL; glist_item->next) {
+	for (glist_item = windows; glist_item != NULL; glist_item = glist_item->next) {
 		set_window_hint (self, glist_item->data);
 	}
 }

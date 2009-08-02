@@ -27,7 +27,7 @@ module_DATA = $(foreach file,$(filter %.dll,$(OUTPUT_FILES)),$(file) $(file).mdb
 # Install executables as scripts
 module_SCRIPTS = $(filter %.exe,$(OUTPUT_FILES))
 
-MCS_FLAGS =  $(MCS_LINQ_FLAG) -noconfig -codepage:utf8 -warn:4
+MCS_FLAGS =  $(MCS_LINQ_FLAG) -noconfig -codepage:utf8 -warn:4 -debug
 
 all: $(ASSEMBLY_FILE)
 
