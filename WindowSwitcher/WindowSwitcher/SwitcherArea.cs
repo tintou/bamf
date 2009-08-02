@@ -370,16 +370,28 @@ namespace WindowSwitcher
 			// order things to get consistent feel, to array for performance
 			SwitcherItems = GetSwitcherItems ().OrderBy (si => si.DesktopItem.GetString ("Name")).ToArray ();
 			
-			int width = (IconSize + BufferSize * 2) * SwitcherItems.Count ();
+			int width = Math.Max (WindowItemWidth + 50, (IconSize + BufferSize * 2) * SwitcherItems.Count ());
 			
-			SetSizeRequest (width, 175);
+			int columns = width / WindowItemWidth;
+			int rows = SwitcherItems.Max (si => si.Windows.Count ()) / columns;
+			
+			int height = IconSize + 4 * BufferSize + (WindowItemHeight + BufferSize) * rows;
+			SetSizeRequest (width, Math.Max (175, height));
 			
 			base.OnShown ();
 		}
 		
 		Wnck.Window PreviousWindow ()
 		{
-			return Wnck.Screen.Default.WindowsStacked
+			IEnumerable<Wnck.Window> stack = Wnck.Screen.Default.WindowsStacked;
+			
+			if (!stack.Any ())
+				return null;
+			
+			if (stack.Count () == 1)
+				return stack.First ();
+			
+			return stack
 				.Reverse ()
 				.Where (w => !w.IsSkipTasklist)
 				.Skip (1)

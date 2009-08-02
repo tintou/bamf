@@ -129,16 +129,6 @@ namespace WindowSwitcher
 				}
 				Thread.Sleep (10);
 			}
-			
-			// hack to workaround issue where super key is released before window is receiving events
-//			int x, y;
-//			Gdk.ModifierType mask;
-//			GdkWindow.GetPointer (out x, out y, out mask);
-//			
-//			Console.WriteLine (mask);
-//			if ((mask & ModifierType.Mod4Mask) != ModifierType.Mod4Mask &&
-//			    (mask & ModifierType.SuperMask) != ModifierType.SuperMask )
-//				HideAll ();
 		}
 		
 		bool TryGrab ()
