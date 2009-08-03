@@ -305,10 +305,7 @@ namespace WindowSwitcher
 				cr.Pattern = lg;
 				
 				lg.Destroy ();
-				cr.FillPreserve ();
-				
-				cr.Color = BorderColor;
-				cr.Stroke ();
+				cr.Fill ();
 			}
 				
 			CairoHelper.SetSourcePixbuf (cr, icon, iconRegion.X + BufferSize, iconRegion.Y + BufferSize);
