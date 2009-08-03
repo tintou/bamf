@@ -9,6 +9,7 @@ libwncksync_la_DATA = \
 		libwncksync.pc
 			
 libwncksync_la_LIBADD = \
+    $(LIBWSBIND_LIBS) \
 		$(GLIB_LIBS) \
 		$(DBUS_LIBS) \
 		$(NULL)
@@ -17,6 +18,7 @@ libwncksync_la_CFLAGS = \
 		-Wall -std=c99 \
 		-fPIC \
 		-DDATADIR=\""$(datadir)"\" \
+    $(LIBWSBIND_CFLAGS) \
 		$(GLIB_CFLAGS) \
 		$(DBUS_CFLAGS) \
 		$(NULL)
