@@ -170,16 +170,21 @@ void window_matcher_register_desktop_file_for_pid (WindowMatcher *self, GString 
 
 GString * window_matcher_desktop_file_for_window (WindowMatcher *self, WnckWindow *window)
 {
+	g_print ("%s\n", wnck_window_get_name (window));
 	GString *desktopFile = desktop_file_hint_for_window (self, window);
+	
 	
 	if (desktopFile == NULL || desktopFile->len == 0) {
 		WindowMatcherPrivate *priv = self->priv;
 		GString *exec = exec_string_for_window (self, window);
 		
-		process_exec_string (self, exec);
-		
-		desktopFile = g_hash_table_lookup (priv->desktop_file_table, exec);
-		g_string_free (exec, TRUE);
+		if (exec != NULL) {
+			process_exec_string (self, exec);
+			if (exec->len > 0) {
+				desktopFile = g_hash_table_lookup (priv->desktop_file_table, exec);
+			}
+			g_string_free (exec, TRUE);
+		}
 	}
 
 	if (desktopFile == NULL)
