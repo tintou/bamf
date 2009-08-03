@@ -68,10 +68,10 @@ namespace WindowSwitcher
 			
 			void Build ()
 			{
+				List<Wnck.Window> stack = Wnck.Screen.Default.WindowsStacked.ToList ();
 				// to array for performance reasons
 				windows = LibWnckSync.Global.WindowsForDesktopFile (DesktopFile)
-					
-					.OrderBy (w => w.Xid)
+					.OrderByDescending (w => stack.IndexOf (w))
 					.ToArray ();
 			}
 		}
@@ -109,6 +109,15 @@ namespace WindowSwitcher
 			get { return current_window; }
 		}
 		
+		SwitcherItem CurrentSwitcherItem {
+			get { 
+				return SwitcherItems
+					.Where (si => si.Windows.Contains (current_window))
+					.DefaultIfEmpty (null)
+					.FirstOrDefault (); 
+			}
+		}
+		
 		public SwitcherArea ()
 		{
 			AddEvents ((int) Gdk.EventMask.AllEventsMask);
@@ -132,40 +141,24 @@ namespace WindowSwitcher
 		
 		public void Next ()
 		{
-			bool found = false;
-			foreach (SwitcherItem si in SwitcherItems) {
-				foreach (Wnck.Window window in si.VisibleWindows) {
-					if (found) {
-						SetWindow (window);
-						return;
-					} else if (window == CurrentWindow) {
-						found = true;
-					}
-				}
-			}
+			List<Wnck.Window> windows = new List<Wnck.Window> (CurrentSwitcherItem.Windows);
+			int current = windows.IndexOf (current_window);
 			
-			Wnck.Window w = SwitcherItems.First ().VisibleWindows.First ();
-			SetWindow (w);
+			if (current < windows.Count - 1)
+				SetWindow (windows [current + 1]);
+			else if (current == windows.Count - 1)
+				SetWindow (windows [0]);
 		}
 		
 		public void Prev ()
 		{
-			if (SwitcherItems.First ().VisibleWindows.First () == CurrentWindow) {
-				SetWindow (SwitcherItems.Last ().VisibleWindows.Last ());
-				return;
-			}
+			List<Wnck.Window> windows = new List<Wnck.Window> (CurrentSwitcherItem.Windows);
+			int current = windows.IndexOf (current_window);
 			
-			Wnck.Window prev = null;
-			foreach (SwitcherItem si in SwitcherItems) {
-				foreach (Wnck.Window window in si.VisibleWindows) {
-					if (window == CurrentWindow) {
-						if (prev != null)
-							SetWindow (prev);
-						return;
-					}
-					prev = window;
-				}
-			}
+			if (current > 0)
+				SetWindow (windows [current - 1]);
+			else if (current == 0)
+				SetWindow (windows.Last ());
 		}
 		
 		public void NextApp ()
@@ -202,6 +195,28 @@ namespace WindowSwitcher
 			}
 		}
 		
+		public void Up ()
+		{
+			List<Wnck.Window> windows = new List<Wnck.Window> (CurrentSwitcherItem.Windows);
+			int current = windows.IndexOf (current_window);
+			
+			if (current >= Columns) {
+				SetWindow (windows [current - Columns]);
+			} //fixme
+		}
+		
+		public void Down ()
+		{
+			List<Wnck.Window> windows = new List<Wnck.Window> (CurrentSwitcherItem.Windows);
+			int current = windows.IndexOf (current_window);
+			
+			if (windows.Count > current + Columns) {
+				SetWindow (windows [current + Columns]);
+			} else {
+				SetWindow (windows [current % Columns]);
+			}
+		}
+		
 		void SetWindow (Wnck.Window w)
 		{
 			current_window = w;
@@ -212,6 +227,10 @@ namespace WindowSwitcher
 		{
 			if (!w.IsOnWorkspace (Wnck.Screen.Default.ActiveWorkspace))
 				w.Workspace.Activate (Gtk.Global.CurrentEventTime);
+			
+			if (w.IsMinimized)
+				w.Unminimize (Gtk.Global.CurrentEventTime);
+			
 			w.Activate (Gtk.Global.CurrentEventTime);
 		}
 

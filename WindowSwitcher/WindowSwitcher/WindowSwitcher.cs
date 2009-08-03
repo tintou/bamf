@@ -76,17 +76,29 @@ namespace WindowSwitcher
 			}
 			
 			switch (evnt.Key) {
-			case Gdk.Key.asciitilde:
-				area.PrevApp ();
-				break;
 			case Gdk.Key.quoteleft:
-				area.NextApp ();
-				break;
-			case Gdk.Key.Tab:
 				area.Next ();
 				break;
-			case Gdk.Key.ISO_Left_Tab:
+			case Gdk.Key.asciitilde:
 				area.Prev ();
+				break;
+			case Gdk.Key.Tab:
+				area.NextApp ();
+				break;
+			case Gdk.Key.ISO_Left_Tab:
+				area.PrevApp ();
+				break;
+			case Gdk.Key.Up:
+				area.Up ();
+				break;
+			case Gdk.Key.Down:
+				area.Down ();
+				break;
+			case Gdk.Key.Left:
+				area.Prev ();
+				break;
+			case Gdk.Key.Right:
+				area.Next ();
 				break;
 			}
 			return base.OnKeyPressEvent (evnt);
