@@ -78,13 +78,28 @@ namespace WindowSwitcher
 		
 		const int IconSize = 64;
 		const int BufferSize = 8;
-		const int WindowItemWidth = 300;
 		const int WindowItemHeight = 20;
+		const int MinWidth = 300;
 		
 		Cairo.Color BackgroundColor = new Cairo.Color (0.7, 0.7, 0.7, .55);
 		Cairo.Color HighlightColorTop = new Cairo.Color (0.15, 0.15, 0.15, .85);
 		Cairo.Color HighlightColorBottom = new Cairo.Color (0, 0, 0, .85);
 		Cairo.Color BorderColor = new Cairo.Color (.3, .3, .3, .7);
+		
+		int WindowItemWidth {
+			get {
+				int fits = WidthRequest / MinWidth;
+				if (fits == 0)
+					return MinWidth - 20;
+				return (WidthRequest / fits) - 20;
+			}
+		}
+			
+		int Columns {
+			get {
+				return WidthRequest / WindowItemWidth;
+			}
+		}
 		
 		IEnumerable<SwitcherItem> SwitcherItems { get; set; }
 		
@@ -303,7 +318,7 @@ namespace WindowSwitcher
 			
 			if (isCurrent) {
 				int i = 0;
-				int columns = WidthRequest / WindowItemWidth;
+				int columns = Columns;
 				int columnBuffer = (WidthRequest % WindowItemWidth) / (columns + 1);
 				
 				foreach (Wnck.Window w in item.VisibleWindows) {
@@ -370,13 +385,12 @@ namespace WindowSwitcher
 			// order things to get consistent feel, to array for performance
 			SwitcherItems = GetSwitcherItems ().OrderBy (si => si.DesktopItem.GetString ("Name")).ToArray ();
 			
-			int width = Math.Max (WindowItemWidth + 50, (IconSize + BufferSize * 2) * SwitcherItems.Count ());
+			WidthRequest = Math.Max (MinWidth, (IconSize + BufferSize * 2) * SwitcherItems.Count ());
 			
-			int columns = width / WindowItemWidth;
-			int rows = SwitcherItems.Max (si => si.Windows.Count ()) / columns;
+			double rows = Math.Ceiling (SwitcherItems.Max (si => si.Windows.Count ()) / (double) Columns);
 			
-			int height = IconSize + 4 * BufferSize + (WindowItemHeight + BufferSize) * rows;
-			SetSizeRequest (width, Math.Max (175, height));
+			int height = IconSize + 4 * BufferSize + (WindowItemHeight + BufferSize) * (int) rows;
+			HeightRequest = Math.Max (100, height);
 			
 			base.OnShown ();
 		}

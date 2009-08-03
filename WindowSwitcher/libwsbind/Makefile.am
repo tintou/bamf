@@ -1,11 +1,11 @@
 INCLUDES = -I$(top_srcdir)
 
-AM_CFLAGS = -DG_LOG_DOMAIN=\"libdo\"	\
+AM_CFLAGS = -DG_LOG_DOMAIN=\"libwsbind\"	\
 	    -DEGG_COMPILATION 		\
 	    -DGTK_DISABLE_DEPRECATED 	\
 	    -DGDK_DISABLE_DEPRECATED 	\
 	    -DG_DISABLE_DEPRECATED	\
-	    $(LIBDO_CFLAGS)
+	    $(LIBWSBIND_CFLAGS)
 
 
 wslibdir = $(pkglibdir)
@@ -18,7 +18,9 @@ libwsbind_la_SOURCES =		\
 	eggaccelerators.c
 
 libwsbind_la_LDFLAGS = -export-dynamic -module -avoid-version
-libwsbind_la_LIBADD = $(LIBWSBIND_LIBS)
+
+libwsbind_la_LIBADD =   $(LIBWSBIND_LIBS) \
+			$(NULL)
 
 maintainer-clean-local:
 	rm -f Makefile.in

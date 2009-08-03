@@ -17,7 +17,7 @@ libwncksync_la_CFLAGS = \
 		-Wall -std=c99 \
 		-fPIC \
 		-DDATADIR=\""$(datadir)"\" \
-		$(GTK_CFLAGS) \
+		$(GLIB_CFLAGS) \
 		$(DBUS_CFLAGS) \
 		$(NULL)
 
