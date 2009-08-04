@@ -28,13 +28,13 @@ namespace WindowSwitcher
 		const string libdo = "libwsbind";
 		
 		[DllImport(libdo)]
-		static extern void gnomedo_keybinder_init ();
+		static extern void wsbind_keybinder_init ();
 
 		[DllImport(libdo)]
-		static extern void gnomedo_keybinder_bind (string keystring, BindkeyHandler handler);
+		static extern void wsbind_keybinder_bind (string keystring, BindkeyHandler handler);
 
 		[DllImport(libdo)]
-		static extern void gnomedo_keybinder_unbind (string keystring, BindkeyHandler handler);
+		static extern void wsbind_keybinder_unbind (string keystring, BindkeyHandler handler);
 
 		public delegate void BindkeyHandler (string key, IntPtr user_data);
 
@@ -53,7 +53,7 @@ namespace WindowSwitcher
 			key_handler = new BindkeyHandler (KeybindingPressed);
 			
 			try {
-				gnomedo_keybinder_init ();
+				wsbind_keybinder_init ();
 			} catch (DllNotFoundException) {
 				Console.Error.WriteLine ("libdo not found - keybindings will not work.");
 			}
@@ -75,14 +75,14 @@ namespace WindowSwitcher
 			bind.handler = handler;
 			bindings.Add (bind);
 			
-			gnomedo_keybinder_bind (bind.keystring, key_handler);
+			wsbind_keybinder_bind (bind.keystring, key_handler);
 		}
 
 		public void Unbind (string keystring)
 		{
 			foreach (Binding bind in bindings) {
 				if (bind.keystring == keystring) {
-					gnomedo_keybinder_unbind (bind.keystring, key_handler);
+					wsbind_keybinder_unbind (bind.keystring, key_handler);
 
 					bindings.Remove (bind);
 					break;
@@ -93,7 +93,7 @@ namespace WindowSwitcher
 		public virtual void UnbindAll ()
 		{
 			foreach (Binding bind in bindings) {
-				gnomedo_keybinder_unbind (bind.keystring, key_handler);
+				wsbind_keybinder_unbind (bind.keystring, key_handler);
 			}
 
 			bindings.Clear ();

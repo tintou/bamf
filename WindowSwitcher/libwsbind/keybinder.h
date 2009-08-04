@@ -30,18 +30,18 @@ G_BEGIN_DECLS
 
 typedef void (* GnomeDoBindkeyHandler) (char *keystring, gpointer user_data);
 
-void gnomedo_keybinder_init   (void);
+void wsbind_keybinder_init   (void);
 
-void gnomedo_keybinder_bind   (const char           *keystring,
+void wsbind_keybinder_bind   (const char           *keystring,
 			      GnomeDoBindkeyHandler  handler,
 			      gpointer              user_data);
 
-void gnomedo_keybinder_unbind (const char           *keystring,
+void wsbind_keybinder_unbind (const char           *keystring,
 			      GnomeDoBindkeyHandler  handler);
 
-gboolean gnomedo_keybinder_is_modifier (guint keycode);
+gboolean wsbind_keybinder_is_modifier (guint keycode);
 
-guint32 gnomedo_keybinder_get_current_event_time (void);
+guint32 wsbind_keybinder_get_current_event_time (void);
 
 G_END_DECLS
 

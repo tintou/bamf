@@ -240,7 +240,7 @@ keymap_changed (GdkKeymap *map)
 }
 
 void 
-gnomedo_keybinder_init (void)
+wsbind_keybinder_init (void)
 {
 	GdkKeymap *keymap = gdk_keymap_get_default ();
 	GdkWindow *rootwin = gdk_get_default_root_window ();
@@ -258,7 +258,7 @@ gnomedo_keybinder_init (void)
 }
 
 void 
-gnomedo_keybinder_bind (const char           *keystring,
+wsbind_keybinder_bind (const char           *keystring,
 		       GnomeDoBindkeyHandler  handler,
 		       gpointer              user_data)
 {
@@ -282,7 +282,7 @@ gnomedo_keybinder_bind (const char           *keystring,
 }
 
 void
-gnomedo_keybinder_unbind (const char           *keystring, 
+wsbind_keybinder_unbind (const char           *keystring, 
 			 GnomeDoBindkeyHandler  handler)
 {
 	GSList *iter;
@@ -308,7 +308,7 @@ gnomedo_keybinder_unbind (const char           *keystring,
  * From eggcellrenderkeys.c.
  */
 gboolean
-gnomedo_keybinder_is_modifier (guint keycode)
+wsbind_keybinder_is_modifier (guint keycode)
 {
 	gint i;
 	gint map_size;
@@ -334,7 +334,7 @@ gnomedo_keybinder_is_modifier (guint keycode)
 }
 
 guint32
-gnomedo_keybinder_get_current_event_time (void)
+wsbind_keybinder_get_current_event_time (void)
 {
 	if (processing_event) 
 		return last_event_time;
