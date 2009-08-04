@@ -55,8 +55,11 @@ WnckSyncDBus * wncksync_dbus_new (void)
 	bus_proxy = dbus_g_proxy_new_for_name (bus, "org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus");
 
 	if (!dbus_g_proxy_call (bus_proxy, "RequestName", &error,
-							G_TYPE_STRING, WNCKSYNC_DBUS_SERVICE, G_TYPE_UINT, 0, G_TYPE_INVALID,
-							G_TYPE_UINT, &request_name_result, G_TYPE_INVALID))
+				G_TYPE_STRING, WNCKSYNC_DBUS_SERVICE, 
+				G_TYPE_UINT, 0, 
+				G_TYPE_INVALID,
+				G_TYPE_UINT, &request_name_result, 
+				G_TYPE_INVALID))
 		return NULL;
 		
 	dbus_g_connection_register_g_object (bus, WNCKSYNC_DBUS_PATH, G_OBJECT (obj));
@@ -70,12 +73,15 @@ gboolean wncksync_dbus_desktop_file_for_xid (WnckSyncDBus *dbus, gulong xid, gch
 	
 	if (window != NULL) {
 		GString *desktopFile = window_matcher_desktop_file_for_window (matcher, window);
-		if (desktopFile == NULL) {
-			*filename = g_strdup ("");
-		} else {
+		if (desktopFile) {
 			*filename = g_strdup (desktopFile->str);
 			g_string_free (desktopFile, TRUE);
+		} else {
+			*filename = g_strdup ("");
 		}
+	} else {
+		// this should basically never happen, but lets deal with it.
+		*filename = g_strdup ("");
 	}
 	return TRUE;
 }
