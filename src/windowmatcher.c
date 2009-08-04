@@ -170,7 +170,6 @@ void window_matcher_register_desktop_file_for_pid (WindowMatcher *self, GString 
 
 GString * window_matcher_desktop_file_for_window (WindowMatcher *self, WnckWindow *window)
 {
-	g_print ("%s\n", wnck_window_get_name (window));
 	GString *desktopFile = desktop_file_hint_for_window (self, window);
 	
 	

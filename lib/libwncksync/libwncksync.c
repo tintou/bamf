@@ -50,10 +50,10 @@ void wncksync_register_desktop_file_for_pid (gchar *desktop_file, gint pid)
 
 	g_return_if_fail (desktop_file);
 	dbus_g_proxy_call_no_reply (wncksync_proxy, 
-	                        "RegisterDesktopFileForPid", 
-	                         G_TYPE_STRING, desktop_file, 
-	                         G_TYPE_INT, pid, 
-	                         G_TYPE_INVALID);
+				    "RegisterDesktopFileForPid", 
+				    G_TYPE_STRING, desktop_file, 
+				    G_TYPE_INT, pid, 
+				    G_TYPE_INVALID);
 }
 
 GArray * wncksync_xids_for_desktop_file (gchar *desktop_file)

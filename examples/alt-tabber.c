@@ -120,7 +120,7 @@ GtkWidget * make_tree_view ()
 static gboolean on_timer_elapsed (gpointer callback_data)
 {
 	GtkTreeStore *store = GTK_TREE_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (treeView)));
-	
+
 	gtk_tree_store_clear (store);
 	populate_tree_store (store);
 	
