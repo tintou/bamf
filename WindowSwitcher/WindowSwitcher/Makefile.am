@@ -19,6 +19,8 @@ REFERENCES =  \
 	$(GNOME_DESKTOP_SHARP_20_LIBS) \
 	$(LIBRSVG_SHARP_LIBS) \
 	$(WNCK_SHARP_10_LIBS)
+	
+RESOURCES = Resources/reflection.png
 
 PROJECT_REFERENCES = \
 	LibWnckSync

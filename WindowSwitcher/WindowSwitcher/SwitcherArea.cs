@@ -82,9 +82,11 @@ namespace WindowSwitcher
 		const int MinWidth = 300;
 		
 		Cairo.Color BackgroundColor = new Cairo.Color (0.7, 0.7, 0.7, .55);
-		Cairo.Color HighlightColorTop = new Cairo.Color (0.15, 0.15, 0.15, .85);
-		Cairo.Color HighlightColorBottom = new Cairo.Color (0, 0, 0, .85);
+		Cairo.Color HighlightColorTop = new Cairo.Color (0.2, 0.2, 0.2, .95);
+		Cairo.Color HighlightColorBottom = new Cairo.Color (0, 0, 0, .95);
 		Cairo.Color BorderColor = new Cairo.Color (.3, .3, .3, .7);
+		
+		Gdk.Pixbuf reflection;
 		
 		int WindowItemWidth {
 			get {
@@ -137,6 +139,8 @@ namespace WindowSwitcher
 			
 			Wnck.Screen.Default.WindowOpened += HandleWindowOpened;
 			Wnck.Screen.Default.WindowClosed += HandleWindowClosed; 
+			
+			reflection = new Gdk.Pixbuf (System.Reflection.Assembly.GetExecutingAssembly (), "reflection.png");
 		}
 		
 		public void Next ()
@@ -270,6 +274,9 @@ namespace WindowSwitcher
 			
 			cr.RoundedRectangle (region.X + 3, region.Y + 3, region.Width - 6, region.Height - 6, 7);
 			cr.Clip ();
+			
+			CairoHelper.SetSourcePixbuf (cr, reflection, -100, -100);
+			cr.PaintWithAlpha (.5);
 		}
 		
 		void DrawIcons (Cairo.Context cr, Gdk.Rectangle region)

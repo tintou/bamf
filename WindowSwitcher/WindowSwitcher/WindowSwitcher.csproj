@@ -55,4 +55,12 @@
       <Properties InternalTargetFrameworkVersion="3.5" />
     </MonoDevelop>
   </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="Resources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\reflection.png">
+      <LogicalName>reflection.png</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>
