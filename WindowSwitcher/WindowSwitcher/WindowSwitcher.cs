@@ -95,10 +95,10 @@ namespace WindowSwitcher
 				area.Down ();
 				break;
 			case Gdk.Key.Left:
-				area.Prev ();
+				area.Left ();
 				break;
 			case Gdk.Key.Right:
-				area.Next ();
+				area.Right ();
 				break;
 			}
 			return base.OnKeyPressEvent (evnt);

@@ -206,7 +206,7 @@ namespace WindowSwitcher
 			
 			if (current >= Columns) {
 				SetWindow (windows [current - Columns]);
-			} //fixme
+			}
 		}
 		
 		public void Down ()
@@ -216,9 +216,25 @@ namespace WindowSwitcher
 			
 			if (windows.Count > current + Columns) {
 				SetWindow (windows [current + Columns]);
-			} else {
-				SetWindow (windows [current % Columns]);
 			}
+		}
+		
+		public void Right ()
+		{
+			List<Wnck.Window> windows = new List<Wnck.Window> (CurrentSwitcherItem.Windows);
+			int current = windows.IndexOf (current_window);
+			
+			if (current % Columns < Columns - 1)
+				SetWindow (windows [current + 1]);
+		}
+		
+		public void Left ()
+		{
+			List<Wnck.Window> windows = new List<Wnck.Window> (CurrentSwitcherItem.Windows);
+			int current = windows.IndexOf (current_window);
+			
+			if (current % Columns > 0)
+				SetWindow (windows [current - 1]);
 		}
 		
 		void SetWindow (Wnck.Window w)
@@ -276,7 +292,7 @@ namespace WindowSwitcher
 			cr.Clip ();
 			
 			CairoHelper.SetSourcePixbuf (cr, reflection, -100, -100);
-			cr.PaintWithAlpha (.5);
+			cr.PaintWithAlpha (.35);
 		}
 		
 		void DrawIcons (Cairo.Context cr, Gdk.Rectangle region)
