@@ -1,12 +1,11 @@
-*** a/gio/gdesktopappinfo.c	2009-03-31 19:04:20.000000000 -0400
---- b/gio/gdesktopappinfo.c	2009-07-21 20:44:03.990156712 -0400
+*** a/gio/gdesktopappinfo.c	2009-10-16 23:57:29.436561111 -0400
+--- b/gio/gdesktopappinfo.c	2009-10-17 00:06:28.716984254 -0400
 ***************
 *** 69,74 ****
---- 69,79 ----
+--- 69,78 ----
   static void     mime_info_cache_reload                (const char       *dir);
   static gboolean g_desktop_app_info_ensure_saved       (GDesktopAppInfo  *info,
   						       GError          **error);
-+ 						   
 + static void 
 + g_desktop_app_info_launch_handler_on_launched (GDesktopAppInfoLaunchHandler *launch_handler,
 +                                                const char                   *desktop_file_path,
@@ -15,10 +14,10 @@
   /**
    * GDesktopAppInfo:
 ***************
-*** 969,974 ****
---- 975,1019 ----
-  extern char **environ;
-  #endif
+*** 859,864 ****
+--- 863,907 ----
+      g_setenv ("DESKTOP_STARTUP_ID", data->sn_id, TRUE);
+  }
   
 + static void
 + g_desktop_app_info_on_launched (const char *desktop_file_path, gint pid)
@@ -49,7 +48,7 @@
 + 
 +       if (lookup_instance != NULL)
 + 	setup_value = (gsize)lookup_instance;
-+       
++      
 +       g_once_init_leave (&lookup, setup_value);
 +     }
 + 
@@ -63,39 +62,39 @@
   g_desktop_app_info_launch_uris (GAppInfo           *appinfo,
   				GList              *uris,
 ***************
-*** 1045,1057 ****
+*** 910,922 ****
   	  g_list_free (launched_files);
   	}
-        
-        if (!g_spawn_async (info->path,  /* working directory */
+  
+        if (!g_spawn_async (info->path,
   			  argv,
-  			  envp,
-  			  G_SPAWN_SEARCH_PATH /* flags */,
-  			  NULL /* child_setup */,
-  			  NULL /* data */,
-! 			  NULL /* child_pid */,
+  			  NULL,
+  			  G_SPAWN_SEARCH_PATH,
+  			  child_setup,
+  			  &data,
+! 			  NULL,
   			  error))
   	{
-  	  if (sn_id)
---- 1090,1103 ----
+  	  if (data.sn_id)
+--- 953,966 ----
   	  g_list_free (launched_files);
   	}
-        
+  
 +       gint pid;
-        if (!g_spawn_async (info->path,  /* working directory */
+        if (!g_spawn_async (info->path,
   			  argv,
-  			  envp,
-  			  G_SPAWN_SEARCH_PATH /* flags */,
-  			  NULL /* child_setup */,
-  			  NULL /* data */,
-! 			  &pid /* child_pid */,
+  			  NULL,
+  			  G_SPAWN_SEARCH_PATH,
+  			  child_setup,
+  			  &data,
+! 			  &pid,
   			  error))
   	{
-  	  if (sn_id)
+  	  if (data.sn_id)
 ***************
-*** 1061,1066 ****
---- 1107,1116 ----
-  	    }
+*** 927,932 ****
+--- 971,980 ----
+  
   	  goto out;
   	}
 +       else
@@ -103,31 +102,14 @@
 +           g_desktop_app_info_on_launched (info->filename, pid);
 +         }
   
-        
-        g_free (sn_id);
+        g_free (data.sn_id);
+        g_free (data.display);
 ***************
-*** 1072,1077 ****
---- 1122,1128 ----
-      }
-    while (uris != NULL);
-  
-+   
-    completed = TRUE;
-  
-   out:
-***************
-*** 2828,2832 ****
---- 2879,2952 ----
+*** 2692,2696 ****
+--- 2740,2806 ----
     return (* iface->get_default_for_uri_scheme) (lookup, uri_scheme);
   }
   
-+ 
-+ 
-+ 
-+ 
-+ 
-+ 
-+ 
 + /* GDesktopAppInfoLaunchHandler interface: */
 + 
 + static void g_desktop_app_info_launch_handler_base_init (gpointer g_class);
@@ -155,7 +137,7 @@
 +       };
 +       GType g_define_type_id =
 + 	g_type_register_static (G_TYPE_INTERFACE, I_("GDesktopAppInfoLaunchHandler"),
-+ 				&desktop_app_info_launch_handler_info, 0);
++ 			&desktop_app_info_launch_handler_info, 0);
 + 
 +       g_type_interface_add_prerequisite (g_define_type_id, G_TYPE_OBJECT);
 + 
