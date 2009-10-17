@@ -230,3 +230,17 @@
   #endif
         
         ep = g_io_extension_point_register (G_LOCAL_DIRECTORY_MONITOR_EXTENSION_POINT_NAME);
+
+*** a/debian/libglib2.0-0.symbols	2009-10-17 00:46:41.000000000 -0400
+--- b/debian/libglib2.0-0.symbols	2009-10-17 00:46:29.127098039 -0400
+***************
+*** 124,129 ****
+--- 124,130 ----
+   g_data_stream_newline_type_get_type@Base 2.16.0
+   g_desktop_app_info_get_is_hidden@Base 2.16.0
+   g_desktop_app_info_get_type@Base 2.16.0
++  g_desktop_app_info_launch_handler_get_type@Base 2.22.0
+   g_desktop_app_info_lookup_get_default_for_uri_scheme@Base 2.16.0
+   g_desktop_app_info_lookup_get_type@Base 2.16.0
+   g_desktop_app_info_new@Base 2.16.0
+
