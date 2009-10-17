@@ -543,6 +543,8 @@ static GString * get_open_office_window_hint (WindowMatcher *self, WnckWindow *w
 		exec = g_string_new ("ooffice -impress %F");
 	} else if (g_str_has_suffix (name, "OpenOffice.org Draw")) {
 		exec = g_string_new ("ooffice -draw %F");
+	} else {
+		return NULL;
 	}
 
 	GHashTable *desktopFileTable = self->priv->desktop_file_table;
