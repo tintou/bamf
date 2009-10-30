@@ -35,7 +35,7 @@ GType wncksync_dbus_get_type (void);
 
 WnckSyncDBus * wncksync_dbus_new (void);
 
-gboolean wncksync_dbus_desktop_file_for_xid (WnckSyncDBus *dbus, gulong xid, gchar **filename, GError **error);
+gboolean wncksync_dbus_desktop_file_for_xid (WnckSyncDBus *dbus, guint32 xid, gchar **filename, GError **error);
 
 gboolean wncksync_dbus_xids_for_desktop_file (WnckSyncDBus *dbus, gchar *filename, GArray **xids, GError **error);
 

@@ -8,7 +8,7 @@
 
 GArray * wncksync_xids_for_desktop_file (gchar *desktop_file);
 
-gchar * wncksync_desktop_item_for_xid (gulong xid);
+gchar * wncksync_desktop_item_for_xid (guint32 xid);
 
 void wncksync_register_desktop_file_for_pid (gchar *desktop_file, gint pid);
 

@@ -67,7 +67,7 @@ WnckSyncDBus * wncksync_dbus_new (void)
 	return obj;
 }
 
-gboolean wncksync_dbus_desktop_file_for_xid (WnckSyncDBus *dbus, gulong xid, gchar **filename, GError **error)
+gboolean wncksync_dbus_desktop_file_for_xid (WnckSyncDBus *dbus, guint32 xid, gchar **filename, GError **error)
 {
 	WnckWindow *window = wnck_window_get (xid);
 	
@@ -91,12 +91,12 @@ gboolean wncksync_dbus_xids_for_desktop_file (WnckSyncDBus *dbus, gchar *filenam
 	GString *desktopFile = g_string_new (filename);
 	GArray *arr = window_matcher_window_list_for_desktop_file (matcher, desktopFile);
 	
-	*xids = g_array_new (FALSE, TRUE, sizeof (gulong));
+	*xids = g_array_new (FALSE, TRUE, sizeof (guint32));
 	
 	int i;
 	for (i = 0; i < arr->len; i++) {
 		WnckWindow *window = g_array_index (arr, WnckWindow*, i);
-		gulong xid = wnck_window_get_xid (window);
+		guint32 xid = (guint32) wnck_window_get_xid (window);
 		g_array_append_val (*xids, xid);
 	}
 	

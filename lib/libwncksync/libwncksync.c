@@ -67,18 +67,18 @@ GArray * wncksync_xids_for_desktop_file (gchar *desktop_file)
 	                        &wncksync_error, 
 	                        G_TYPE_STRING, desktop_file, 
 	                        G_TYPE_INVALID, 
-	                        DBUS_TYPE_G_UINT64_ARRAY, &arr, 
+	                        DBUS_TYPE_G_UINT_ARRAY, &arr, 
 	                        G_TYPE_INVALID)) {
 		g_printerr ("Failed to fetch xid array: %s\n", wncksync_error->message);
 		g_error_free (wncksync_error);
 		//Error Handling
-		arr = g_array_new (FALSE, TRUE, sizeof (gulong));
+		arr = g_array_new (FALSE, TRUE, sizeof (guint32));
 	}
 	
 	return arr;
 }
 
-gchar * wncksync_desktop_item_for_xid (gulong xid)
+gchar * wncksync_desktop_item_for_xid (guint32 xid)
 {
 	if (!wncksync_initialized) wncksync_init ();
 
@@ -87,7 +87,7 @@ gchar * wncksync_desktop_item_for_xid (gulong xid)
 	if (!dbus_g_proxy_call (wncksync_proxy, 
 	                        "DesktopFileForXid", 
 	                        &wncksync_error, 
-	                        G_TYPE_UINT64, xid, 
+	                        G_TYPE_UINT, xid, 
 	                        G_TYPE_INVALID, 
 	                        G_TYPE_STRING, &desktop_file, 
 	                        G_TYPE_INVALID)) {
