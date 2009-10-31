@@ -1,1 +1,0 @@
-SUBDIRS = libwsbind LibWnckSync WindowSwitcher

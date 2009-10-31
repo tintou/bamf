@@ -1,3 +1,0 @@
-<configuration>
-	<dllmap dll="libwsbind" target="@expanded_libdir@/@PACKAGE@/libwsbind.so"/>
-</configuration>
