@@ -4,5 +4,4 @@ SUBDIRS = 	lib/libwncksync \
 		src \
 		examples \
 		data \
-		module \
-		WindowSwitcher
+		module

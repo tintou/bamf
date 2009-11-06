@@ -32,8 +32,6 @@ AM_PROG_CC_C_O
 AC_PROG_INSTALL
 AC_HEADER_STDC
 
-SHAMROCK_FIND_C_SHARP_3_0_COMPILER
-
 SHAMROCK_EXPAND_LIBDIR
 SHAMROCK_EXPAND_BINDIR
 SHAMROCK_EXPAND_DATADIR
@@ -74,16 +72,6 @@ AC_SUBST(LIBWSBIND_LIBS)
 #
 AM_PATH_GTK_2_0
 
-#
-# Mono Stuff
-#
-PKG_CHECK_MODULES([GLIB_SHARP_20], [glib-sharp-2.0])
-PKG_CHECK_MODULES([GNOME_DESKTOP_SHARP_20], [gnome-desktop-sharp-2.0])
-PKG_CHECK_MODULES([GTK_SHARP_20], [gtk-sharp-2.0])
-PKG_CHECK_MODULES([LIBRSVG_SHARP], [rsvg2-sharp-2.0])
-PKG_CHECK_MODULES([WNCK_SHARP_10], [wnck-sharp-1.0])
-
-
 AC_SUBST([GLIB_SHARP_20_LIBS])
 AC_SUBST([GNOME_DESKTOP_SHARP_20_LIBS])
 AC_SUBST([GTK_SHARP_20_LIBS])
@@ -107,12 +95,6 @@ src/Makefile
 examples/Makefile
 data/Makefile
 module/Makefile
-WindowSwitcher/Makefile
-WindowSwitcher/WindowSwitcher/Makefile
-WindowSwitcher/WindowSwitcher/WindowSwitcher.exe.config
-WindowSwitcher/WindowSwitcher/window-switcher
-WindowSwitcher/LibWnckSync/Makefile
-WindowSwitcher/libwsbind/Makefile
 ])
 
 cat <<EOF
@@ -121,7 +103,5 @@ ${PACKAGE}-${VERSION}
 
   Build Environment
     Install Prefix:     ${prefix}
-    Mono C# Compiler:   ${MCS} ${GMCS_FLAGS}
-    Mono Runtime:       ${MONO}
 
 EOF
