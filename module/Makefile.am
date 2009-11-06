@@ -1,13 +1,13 @@
 libdir = $(giomodulesdir)
-lib_LTLIBRARIES = libgiodbus.la
+lib_LTLIBRARIES = libgiowncksync.la
 
 
-libgiodbus_la_SOURCES =					\
+libgiowncksync_la_SOURCES =					\
 	gapplaunchhandlerdbus.c gapplaunchhandlerdbus.h	\
 	dbus-module.c					\
 	$(NULL)
 
-libgiodbus_la_CFLAGS =				\
+libgiowncksync_la_CFLAGS =				\
 	-I$(top_srcdir)/common                  \
 	$(GLIB_CFLAGS)                          \
 	$(GCONF_CFLAGS)                         \
@@ -17,11 +17,11 @@ libgiodbus_la_CFLAGS =				\
 
 module_flags = -export_dynamic -avoid-version -module -no-undefined -export-symbols-regex '^g_io_module_(load|unload)'
 
-libgiodbus_la_LDFLAGS = 	\
+libgiowncksync_la_LDFLAGS = 	\
 	$(module_flags)         \
 	$(NULL)
 
-libgiodbus_la_LIBADD  =		\
+libgiowncksync_la_LIBADD  =		\
 	$(GLIB_LIBS)            \
 	$(GCONF_LIBS)           \
 	$(DBUS_LIBS)		\
