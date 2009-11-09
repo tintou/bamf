@@ -22,6 +22,13 @@
 			<arg type="i" name="pid" direction="in" />
 		</method>
 	
+		<method name="WindowMatchIsReady">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="wncksync_dbus_window_match_is_ready" />
+			<arg type="u" name="xid" direction="in" />
+			<arg type="b" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
 	</interface>
 
 </node>

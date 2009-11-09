@@ -28,6 +28,9 @@ static GArray * window_list_for_desktop_file_hint (WindowMatcher *self, GString 
 static GString * desktop_file_hint_for_window (WindowMatcher *self, WnckWindow *window);
 static GString * exec_string_for_window (WindowMatcher *self, WnckWindow *window);
 static GString * exec_string_for_desktop_file (WindowMatcher *self, GString *desktopFile);
+static GString * get_open_office_window_hint (WindowMatcher *self, WnckWindow *window);
+
+static gboolean is_open_office_window (WindowMatcher *self, WnckWindow *window);
 
 static void process_exec_string (WindowMatcher *self, GString *execString);
 static void handle_window_opened (WnckScreen *screen, WnckWindow *window, gpointer data);
@@ -148,20 +151,20 @@ static void handle_window_closed (WnckScreen *screen, WnckWindow *window, gpoint
 // End Wnck Signal Handlers
 // ------------------------------------------------------------------------------
 
-bool window_matcher_window_is_match_ready (WindowMatcher *self, WnckWindow *window)
+gboolean window_matcher_window_is_match_ready (WindowMatcher *self, WnckWindow *window)
 {
-	GString *exec;
+	GString *file;
 
 	if (!is_open_office_window (self, window))
-		return true;
+		return TRUE;
 
 	file = get_open_office_window_hint (self, window);
 	
 	if (file) {
 		g_string_free (file, TRUE);
-		return true;
+		return TRUE;
 	}
-	return false;
+	return FALSE;
 }
 
 void window_matcher_register_desktop_file_for_pid (WindowMatcher *self, GString *desktopFile, gint pid)
@@ -632,6 +635,8 @@ static GArray * window_list_for_desktop_file_hint (WindowMatcher *self, GString 
 		if (windowHint != NULL && g_string_equal (windowHint, hint))
 			g_array_append_val (arr, win);
 	}
+	
+	return arr;
 }
 
 static GArray * xdg_data_dirs (WindowMatcher *self)

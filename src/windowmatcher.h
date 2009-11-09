@@ -47,7 +47,7 @@ GType window_matcher_get_type (void);
 
 WindowMatcher * window_matcher_new (void);
 
-bool window_matcher_window_is_match_ready (WindowMatcher *self, WnckWindow *window);
+gboolean window_matcher_window_is_match_ready (WindowMatcher *self, WnckWindow *window);
 
 void window_matcher_register_desktop_file_for_pid (WindowMatcher *self, GString *desktopFile, gint pid);
 

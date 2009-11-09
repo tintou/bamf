@@ -67,6 +67,16 @@ WnckSyncDBus * wncksync_dbus_new (void)
 	return obj;
 }
 
+gboolean wncksync_dbus_window_match_is_ready (WnckSyncDBus *dbus, guint32 xid)
+{
+	WnckWindow *window = wnck_window_get (xid);
+	
+	if (!window)
+		return FALSE;
+	
+	return window_matcher_window_is_match_ready (matcher, window);
+}
+
 gboolean wncksync_dbus_desktop_file_for_xid (WnckSyncDBus *dbus, guint32 xid, gchar **filename, GError **error)
 {
 	WnckWindow *window = wnck_window_get (xid);

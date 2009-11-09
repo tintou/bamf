@@ -53,7 +53,7 @@ G_BEGIN_DECLS
 #endif /* !G_ENABLE_DEBUG */
 
 
-/* BOOLEAN:UINT,POINTER,POINTER (/tmp/dbus-binding-tool-c-marshallers.FDFY2U:1) */
+/* BOOLEAN:UINT,POINTER,POINTER (/tmp/dbus-binding-tool-c-marshallers.JJO62U:1) */
 extern void dbus_glib_marshal_wncksync_dbus_BOOLEAN__UINT_POINTER_POINTER (GClosure     *closure,
                                                                            GValue       *return_value,
                                                                            guint         n_param_values,
@@ -102,7 +102,7 @@ dbus_glib_marshal_wncksync_dbus_BOOLEAN__UINT_POINTER_POINTER (GClosure     *clo
   g_value_set_boolean (return_value, v_return);
 }
 
-/* BOOLEAN:STRING,POINTER,POINTER (/tmp/dbus-binding-tool-c-marshallers.FDFY2U:2) */
+/* BOOLEAN:STRING,POINTER,POINTER (/tmp/dbus-binding-tool-c-marshallers.JJO62U:2) */
 extern void dbus_glib_marshal_wncksync_dbus_BOOLEAN__STRING_POINTER_POINTER (GClosure     *closure,
                                                                              GValue       *return_value,
                                                                              guint         n_param_values,
@@ -151,7 +151,52 @@ dbus_glib_marshal_wncksync_dbus_BOOLEAN__STRING_POINTER_POINTER (GClosure     *c
   g_value_set_boolean (return_value, v_return);
 }
 
-/* BOOLEAN:STRING,INT,POINTER (/tmp/dbus-binding-tool-c-marshallers.FDFY2U:3) */
+/* BOOLEAN:UINT (/tmp/dbus-binding-tool-c-marshallers.JJO62U:3) */
+extern void dbus_glib_marshal_wncksync_dbus_BOOLEAN__UINT (GClosure     *closure,
+                                                           GValue       *return_value,
+                                                           guint         n_param_values,
+                                                           const GValue *param_values,
+                                                           gpointer      invocation_hint,
+                                                           gpointer      marshal_data);
+void
+dbus_glib_marshal_wncksync_dbus_BOOLEAN__UINT (GClosure     *closure,
+                                               GValue       *return_value G_GNUC_UNUSED,
+                                               guint         n_param_values,
+                                               const GValue *param_values,
+                                               gpointer      invocation_hint G_GNUC_UNUSED,
+                                               gpointer      marshal_data)
+{
+  typedef gboolean (*GMarshalFunc_BOOLEAN__UINT) (gpointer     data1,
+                                                  guint        arg_1,
+                                                  gpointer     data2);
+  register GMarshalFunc_BOOLEAN__UINT callback;
+  register GCClosure *cc = (GCClosure*) closure;
+  register gpointer data1, data2;
+  gboolean v_return;
+
+  g_return_if_fail (return_value != NULL);
+  g_return_if_fail (n_param_values == 2);
+
+  if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+      data1 = closure->data;
+      data2 = g_value_peek_pointer (param_values + 0);
+    }
+  else
+    {
+      data1 = g_value_peek_pointer (param_values + 0);
+      data2 = closure->data;
+    }
+  callback = (GMarshalFunc_BOOLEAN__UINT) (marshal_data ? marshal_data : cc->callback);
+
+  v_return = callback (data1,
+                       g_marshal_value_peek_uint (param_values + 1),
+                       data2);
+
+  g_value_set_boolean (return_value, v_return);
+}
+
+/* BOOLEAN:STRING,INT,POINTER (/tmp/dbus-binding-tool-c-marshallers.JJO62U:4) */
 extern void dbus_glib_marshal_wncksync_dbus_BOOLEAN__STRING_INT_POINTER (GClosure     *closure,
                                                                          GValue       *return_value,
                                                                          guint         n_param_values,
@@ -209,13 +254,14 @@ static const DBusGMethodInfo dbus_glib_wncksync_dbus_methods[] = {
   { (GCallback) wncksync_dbus_desktop_file_for_xid, dbus_glib_marshal_wncksync_dbus_BOOLEAN__UINT_POINTER_POINTER, 0 },
   { (GCallback) wncksync_dbus_xids_for_desktop_file, dbus_glib_marshal_wncksync_dbus_BOOLEAN__STRING_POINTER_POINTER, 67 },
   { (GCallback) wncksync_dbus_register_desktop_file_for_pid, dbus_glib_marshal_wncksync_dbus_BOOLEAN__STRING_INT_POINTER, 137 },
+  { (GCallback) wncksync_dbus_window_match_is_ready, dbus_glib_marshal_wncksync_dbus_BOOLEAN__UINT, 208 },
 };
 
 const DBusGObjectInfo dbus_glib_wncksync_dbus_object_info = {
   0,
   dbus_glib_wncksync_dbus_methods,
-  3,
-"org.wncksync.Matcher\0DesktopFileForXid\0S\0xid\0I\0u\0filename\0O\0F\0N\0s\0\0org.wncksync.Matcher\0XidsForDesktopFile\0S\0filename\0I\0s\0xids\0O\0F\0N\0au\0\0org.wncksync.Matcher\0RegisterDesktopFileForPid\0S\0filename\0I\0s\0pid\0I\0i\0\0\0",
+  4,
+"org.wncksync.Matcher\0DesktopFileForXid\0S\0xid\0I\0u\0filename\0O\0F\0N\0s\0\0org.wncksync.Matcher\0XidsForDesktopFile\0S\0filename\0I\0s\0xids\0O\0F\0N\0au\0\0org.wncksync.Matcher\0RegisterDesktopFileForPid\0S\0filename\0I\0s\0pid\0I\0i\0\0org.wncksync.Matcher\0WindowMatchIsReady\0S\0xid\0I\0u\0arg1\0O\0F\0R\0b\0\0\0",
 "\0",
 "\0"
 };
