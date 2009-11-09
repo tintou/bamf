@@ -148,6 +148,22 @@ static void handle_window_closed (WnckScreen *screen, WnckWindow *window, gpoint
 // End Wnck Signal Handlers
 // ------------------------------------------------------------------------------
 
+bool window_matcher_window_is_match_ready (WindowMatcher *self, WnckWindow *window)
+{
+	GString *exec;
+
+	if (!is_open_office_window (self, window))
+		return true;
+
+	file = get_open_office_window_hint (self, window);
+	
+	if (file) {
+		g_string_free (file, TRUE);
+		return true;
+	}
+	return false;
+}
+
 void window_matcher_register_desktop_file_for_pid (WindowMatcher *self, GString *desktopFile, gint pid)
 {
 	gint *key;
