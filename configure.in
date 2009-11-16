@@ -74,7 +74,9 @@ CFLAGS="$CFLAGS -lm"
 AC_SUBST(WNCKSYNCDAEMON_CFLAGS)
 AC_SUBST(WNCKSYNCDAEMON_LIBS)
 
-giomodulesdir=`pkg-config --variable=giomoduledir gio-2.0`
+origgiomodulesdir=`pkg-config --variable=giomoduledir gio-2.0`
+# Make giomodulesdir honour 'prefix', so that distcheck works. 
+giomodulesdir=`echo "$origgiomodulesdir" | sed 's|/usr|${prefix}|'`
 AC_SUBST(giomodulesdir)
 
 AC_OUTPUT([
