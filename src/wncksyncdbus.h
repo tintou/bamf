@@ -23,11 +23,11 @@
 typedef struct _WnckSyncDBus		WnckSyncDBus;
 typedef struct _WnckSyncDBusClass	WnckSyncDBusClass;
 
-typedef struct _WnckSyncDBus {
+struct _WnckSyncDBus {
         GObject parent;
 };
 
-typedef struct _WnckSyncDBusClass {
+struct _WnckSyncDBusClass {
         GObjectClass parent;
 };
 
