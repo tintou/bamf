@@ -84,6 +84,7 @@ lib/libwncksync/libwncksync.pc
 src/Makefile
 examples/Makefile
 data/Makefile
+data/org.wncksync.Matcher.service
 module/Makefile
 ])
 
