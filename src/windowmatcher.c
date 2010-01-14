@@ -27,6 +27,9 @@ static GArray * pid_parent_tree (gint pid);
 static GString * desktop_file_hint_for_window (WindowMatcher *self, WnckWindow *window);
 static GString * exec_string_for_window (WindowMatcher *self, WnckWindow *window);
 static GString * exec_string_for_desktop_file (WindowMatcher *self, GString *desktopFile);
+static GString * get_open_office_window_hint (WindowMatcher *self, WnckWindow *window);
+
+static gboolean is_open_office_window (WindowMatcher *self, WnckWindow *window);
 
 static void process_exec_string (WindowMatcher *self, GString *execString);
 static void handle_window_opened (WnckScreen *screen, WnckWindow *window, gpointer data);
@@ -115,6 +118,7 @@ static void handle_window_opened (WnckScreen *screen, WnckWindow *window, gpoint
 			gint *key;
 			key = g_new (gint, 1);
 			*key = g_array_index (ppids, gint, i);
+		
 			if (g_hash_table_lookup (self->priv->registered_pids, key)) {
 				found = TRUE;
 				break;
@@ -143,6 +147,22 @@ static void handle_window_closed (WnckScreen *screen, WnckWindow *window, gpoint
 // ------------------------------------------------------------------------------
 // End Wnck Signal Handlers
 // ------------------------------------------------------------------------------
+
+gboolean window_matcher_window_is_match_ready (WindowMatcher *self, WnckWindow *window)
+{
+	GString *file;
+
+	if (!is_open_office_window (self, window))
+		return TRUE;
+
+	file = get_open_office_window_hint (self, window);
+	
+	if (file) {
+		g_string_free (file, TRUE);
+		return TRUE;
+	}
+	return FALSE;
+}
 
 void window_matcher_register_desktop_file_for_pid (WindowMatcher *self, GString *desktopFile, gint pid)
 {
@@ -312,7 +332,7 @@ static GString * desktop_file_hint_for_window (WindowMatcher *self, WnckWindow *
 					 &format,
 					 &numItems,
 					 &bytesAfter,
-					 (unsigned char **)&buffer);
+					 &buffer);
 					 
 	XCloseDisplay (XDisplay);
 	
@@ -333,8 +353,8 @@ static GString * exec_string_for_desktop_file (WindowMatcher *self, GString *des
 		return NULL;
 		
 	gchar const *line = g_app_info_get_commandline (G_APP_INFO (desktopApp));
-	/* XXX: line could be NULL */
 	GString *execLine = g_string_new (line);
+	
 	return execLine;
 }
 
@@ -403,6 +423,7 @@ static GArray * list_desktop_file_in_dir (WindowMatcher *self, GFile *dir)
 		g_string_append (filename, g_file_info_get_name (info));
 		
 		if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY) {
+			// FIXME
 			list_desktop_file_in_dir (self, g_file_new_for_path (filename->str));
 		} else if (g_file_info_get_file_type (info) == G_FILE_TYPE_REGULAR) {
 			if (g_str_has_suffix (filename->str, ".desktop")) {
@@ -521,7 +542,7 @@ static gboolean is_open_office_window (WindowMatcher *self, WnckWindow *window)
 
 static GString * get_open_office_window_hint (WindowMatcher *self, WnckWindow *window)
 {
-	gchar const *name = wnck_window_get_name (window);
+	gchar *name = wnck_window_get_name (window);
 	
 	if (name == NULL)
 		return NULL;
