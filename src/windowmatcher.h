@@ -32,14 +32,14 @@ typedef struct _WindowMatcher			WindowMatcher;
 typedef struct _WindowMatcherClass		WindowMatcherClass;
 typedef struct _WindowMatcherPrivate		WindowMatcherPrivate;
 
-typedef struct _WindowMatcher {
+struct _WindowMatcher {
 	GObject parent;
 	
 	/*< private >*/
 	WindowMatcherPrivate *priv;
 };
 
-typedef struct _WindowMatcherClass {
+struct _WindowMatcherClass {
 	GObjectClass parent;
 };
 

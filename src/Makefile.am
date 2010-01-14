@@ -19,13 +19,18 @@ wncksyncdaemon_headers = \
 		main.h \
 		windowmatcher.h \
 		wncksyncdbus.h \
-		wncksyncdbus-glue.h \
 		$(NULL)
 
 wncksyncdaemon_SOURCES = \
 		$(wncksyncdaemon_sources) \
 		$(wncksyncdaemon_headers) \
 		$(NULL)
+
+nodist_EXTRA_wncksyncdaemon_SOURCES = \
+	wncksyncdbus-glue.h
+
+DISTCLEANFILES = \
+	wncksyncdbus-glue.h
 
 wncksyncdaemon_LDADD = \
 		$(X_LIBS) \

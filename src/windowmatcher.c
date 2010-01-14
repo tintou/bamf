@@ -23,14 +23,10 @@ static GArray * prefix_strings (WindowMatcher *self);
 static GArray * xdg_data_dirs (WindowMatcher *self);
 static GArray * list_desktop_file_in_dir (WindowMatcher *self, GFile *dir);
 static GArray * pid_parent_tree (gint pid);
-static GArray * window_list_for_desktop_file_hint (WindowMatcher *self, GString *hint);
 
 static GString * desktop_file_hint_for_window (WindowMatcher *self, WnckWindow *window);
 static GString * exec_string_for_window (WindowMatcher *self, WnckWindow *window);
 static GString * exec_string_for_desktop_file (WindowMatcher *self, GString *desktopFile);
-static GString * get_open_office_window_hint (WindowMatcher *self, WnckWindow *window);
-
-static gboolean is_open_office_window (WindowMatcher *self, WnckWindow *window);
 
 static void process_exec_string (WindowMatcher *self, GString *execString);
 static void handle_window_opened (WnckScreen *screen, WnckWindow *window, gpointer data);
@@ -119,9 +115,6 @@ static void handle_window_opened (WnckScreen *screen, WnckWindow *window, gpoint
 			gint *key;
 			key = g_new (gint, 1);
 			*key = g_array_index (ppids, gint, i);
-			
-			g_array_index (ppids, gint, i);
-		
 			if (g_hash_table_lookup (self->priv->registered_pids, key)) {
 				found = TRUE;
 				break;
@@ -150,22 +143,6 @@ static void handle_window_closed (WnckScreen *screen, WnckWindow *window, gpoint
 // ------------------------------------------------------------------------------
 // End Wnck Signal Handlers
 // ------------------------------------------------------------------------------
-
-gboolean window_matcher_window_is_match_ready (WindowMatcher *self, WnckWindow *window)
-{
-	GString *file;
-
-	if (!is_open_office_window (self, window))
-		return TRUE;
-
-	file = get_open_office_window_hint (self, window);
-	
-	if (file) {
-		g_string_free (file, TRUE);
-		return TRUE;
-	}
-	return FALSE;
-}
 
 void window_matcher_register_desktop_file_for_pid (WindowMatcher *self, GString *desktopFile, gint pid)
 {
@@ -335,7 +312,7 @@ static GString * desktop_file_hint_for_window (WindowMatcher *self, WnckWindow *
 					 &format,
 					 &numItems,
 					 &bytesAfter,
-					 &buffer);
+					 (unsigned char **)&buffer);
 					 
 	XCloseDisplay (XDisplay);
 	
@@ -355,11 +332,9 @@ static GString * exec_string_for_desktop_file (WindowMatcher *self, GString *des
 	if (desktopApp == NULL)
 		return NULL;
 		
-	gchar *line = g_app_info_get_commandline (G_APP_INFO (desktopApp));
+	gchar const *line = g_app_info_get_commandline (G_APP_INFO (desktopApp));
+	/* XXX: line could be NULL */
 	GString *execLine = g_string_new (line);
-	
-	g_free (line);
-	
 	return execLine;
 }
 
@@ -428,7 +403,7 @@ static GArray * list_desktop_file_in_dir (WindowMatcher *self, GFile *dir)
 		g_string_append (filename, g_file_info_get_name (info));
 		
 		if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY) {
-			GArray *recursFiles = list_desktop_file_in_dir (self, g_file_new_for_path (filename->str));
+			list_desktop_file_in_dir (self, g_file_new_for_path (filename->str));
 		} else if (g_file_info_get_file_type (info) == G_FILE_TYPE_REGULAR) {
 			if (g_str_has_suffix (filename->str, ".desktop")) {
 				g_array_append_val (files, filename);
@@ -546,7 +521,7 @@ static gboolean is_open_office_window (WindowMatcher *self, WnckWindow *window)
 
 static GString * get_open_office_window_hint (WindowMatcher *self, WnckWindow *window)
 {
-	gchar *name = wnck_window_get_name (window);
+	gchar const *name = wnck_window_get_name (window);
 	
 	if (name == NULL)
 		return NULL;
@@ -615,28 +590,9 @@ static void set_window_hint (WindowMatcher *self, WnckWindow *window)
 			 XA_STRING,
 			 8,
 			 PropModeReplace,
-			 desktopFile->str,
+			 (unsigned char *)desktopFile->str,
 			 desktopFile->len);
 	XCloseDisplay (XDisplay);
-}
-
-static GArray * window_list_for_desktop_file_hint (WindowMatcher *self, GString *hint)
-{
-	GArray *arr = g_array_new (FALSE, TRUE, sizeof (WnckWindow*));
-	
-	WnckScreen *screen = wnck_screen_get_default ();
-	GList *windows = wnck_screen_get_windows (screen);
-	
-	GList *window = windows;
-	for (window = windows; window != NULL; window = window->next) {
-		WnckWindow *win = window->data;
-		GString *windowHint = desktop_file_hint_for_window (self, win);
-		
-		if (windowHint != NULL && g_string_equal (windowHint, hint))
-			g_array_append_val (arr, win);
-	}
-	
-	return arr;
 }
 
 static GArray * xdg_data_dirs (WindowMatcher *self)
