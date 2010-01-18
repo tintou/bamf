@@ -1,19 +1,21 @@
-//  
-//  Copyright (C) 2009 Canonical Ltd.
-// 
-//  This program is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
-// 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-// 
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+/*
+ * Copyright (C) 2009 Canonical, Ltd.
+ *
+ * This library is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License
+ * version 3.0 as published by the Free Software Foundation.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License version 3.0 for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library. If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ * Authored by Jason Smith <jason.smith@canonical.com>
+ */
 
 #include <config.h>
 
@@ -59,7 +61,7 @@ g_app_launch_handler_dbus_constructor (GType                  type,
 {
   GObject *object;
   GAppLaunchHandlerDBusClass *klass;
-  GObjectClass *parent_class;  
+  GObjectClass *parent_class;
 
   object = NULL;
 
@@ -103,29 +105,29 @@ on_launched (GDesktopAppInfoLaunchHandler *launch_handler,
 	DBusGProxy *proxy;
 
 	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-	
+
 	if (connection == NULL)
 	{
 		g_printerr ("Failed to open bus: %s\n", error->message);
-		g_error_free (error);	
+		g_error_free (error);
 	}
-	
+
 	g_return_if_fail (connection);
-	
+
 	error = NULL;
-	
-	proxy = dbus_g_proxy_new_for_name (connection, 
-					   "org.wncksync.Matcher", 
-					   "/org/wncksync/Matcher", 
+
+	proxy = dbus_g_proxy_new_for_name (connection,
+					   "org.wncksync.Matcher",
+					   "/org/wncksync/Matcher",
 					   "org.wncksync.Matcher");
-	
+
 	g_return_if_fail (proxy);
-			
-	dbus_g_proxy_call (proxy, 
-	                   "RegisterDesktopFileForPid", 
+
+	dbus_g_proxy_call (proxy,
+	                   "RegisterDesktopFileForPid",
 	                   &error,
-	                   G_TYPE_STRING, desktop_file_path, 
-	                   G_TYPE_INT, pid, 
+	                   G_TYPE_STRING, desktop_file_path,
+	                   G_TYPE_INT, pid,
 	                   G_TYPE_INVALID, G_TYPE_INVALID);
 	g_object_unref (proxy);
 	dbus_g_connection_unref (connection);
@@ -137,7 +139,7 @@ launch_handler_iface_init (GDesktopAppInfoLaunchHandlerIface *iface)
   iface->on_launched = on_launched;
 }
 
-void 
+void
 g_app_launch_handler_dbus_register (GIOModule *module)
 {
   g_app_launch_handler_dbus_register_type (G_TYPE_MODULE (module));
