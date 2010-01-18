@@ -6,3 +6,5 @@ SUBDIRS = \
   examples \
   data \
   module
+
+EXTRA_DIST = COPYING.LGPL
