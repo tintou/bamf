@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT(wncksyncdaemon, 0.2.2, dx-team@canonical.com)
+AC_INIT(wncksync, 0.2.4, dx-team@canonical.com)
 
 AC_CONFIG_SRCDIR(src/main.c)
 AC_CONFIG_HEADERS(config.h)
@@ -88,7 +88,7 @@ Makefile
 lib/libwncksync/Makefile
 lib/libwncksync/libwncksync.pc
 src/Makefile
-examples/Makefile
+tests/Makefile
 data/Makefile
 data/org.wncksync.Matcher.service
 module/Makefile
