@@ -15,6 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // 
 
+#define _POSIX_C_SOURCE 199309L
 #include "windowmatcher.h"
 
 static GHashTable * create_desktop_file_table (WindowMatcher *self);
@@ -48,6 +49,44 @@ struct _WindowMatcherPrivate
 	GHashTable *exec_list;
 	GHashTable *registered_pids;
 };
+
+#define PROFILING
+#ifdef PROFILING
+#include <time.h>
+
+#define delta_t(start,stop) (stop.tv_sec - start.tv_sec + (stop.tv_nsec-start.tv_nsec)/1000000000.0)
+
+struct timespec _profile_start_real;
+struct timespec _profile_start_cpu;
+
+static void profile_start (const char* description)
+{
+	printf("start benchmarking %s\n", description);
+	clock_gettime (CLOCK_REALTIME, &_profile_start_real);
+	clock_gettime (CLOCK_PROCESS_CPUTIME_ID, &_profile_start_cpu);
+}
+
+static void profile_stop (const char* description)
+{
+    struct timespec stop_real;
+    struct timespec stop_cpu;
+    struct timespec res_real;
+    struct timespec res_cpu;
+
+    clock_gettime (CLOCK_REALTIME, &stop_real);
+    clock_gettime (CLOCK_PROCESS_CPUTIME_ID, &stop_cpu);
+    clock_getres (CLOCK_REALTIME, &res_real);
+    clock_getres (CLOCK_PROCESS_CPUTIME_ID, &res_cpu);
+
+    printf("%s: real %g (precision: %g) cpu %g (precision: %g)\n",
+	    description,
+	    delta_t (_profile_start_real, stop_real),
+	    res_real.tv_sec + res_real.tv_nsec/1000000000.0,
+	    delta_t (_profile_start_cpu, stop_cpu),
+	    res_cpu.tv_sec + res_cpu.tv_nsec/1000000000.0);
+
+}
+#endif
 
 G_DEFINE_TYPE (WindowMatcher, window_matcher, G_TYPE_OBJECT);
 
@@ -260,6 +299,9 @@ GArray * window_matcher_window_list_for_desktop_file (WindowMatcher *self, GStri
 
 static GHashTable * create_desktop_file_table (WindowMatcher *self)
 {
+#ifdef PROFILING
+	profile_start("create_desktop_file_table()");
+#endif
 	GHashTable *table = g_hash_table_new ((GHashFunc) g_string_hash, (GEqualFunc) g_string_equal);
 	
 	GArray *data_dirs = xdg_data_dirs (self);
@@ -306,6 +348,9 @@ static GHashTable * create_desktop_file_table (WindowMatcher *self)
 		g_hash_table_insert (table, execLine, desktopFile);
 	}
 	
+#ifdef PROFILING
+	profile_stop("create_desktop_file_table()");
+#endif
 	return table;
 }
 
