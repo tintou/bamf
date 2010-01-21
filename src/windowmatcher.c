@@ -51,7 +51,6 @@ struct _WindowMatcherPrivate
 	GHashTable *registered_pids;
 };
 
-#define PROFILING
 #ifdef PROFILING
 #include <time.h>
 
