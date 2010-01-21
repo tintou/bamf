@@ -39,6 +39,7 @@ wncksyncdaemon_LDADD = \
 		$(DBUS_LIBS) \
 		$(WNCK_LIBS) \
 		$(GTOP_LIBS) \
+		$(GMENU_LIBS) \
 		$(NULL)
 
 wncksyncdaemon_CFLAGS = \
@@ -49,6 +50,7 @@ wncksyncdaemon_CFLAGS = \
 		$(DBUS_CFLAGS) \
 		$(WNCK_CFLAGS) \
 		$(GTOP_CFLAGS) \
+		$(GMENU_CFLAGS) \
 		$(NULL)
 
 wncksyncdaemon_LDFLAGS = \

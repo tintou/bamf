@@ -18,11 +18,12 @@
 #define _POSIX_C_SOURCE 199309L
 #include "windowmatcher.h"
 
+#define GMENU_I_KNOW_THIS_IS_UNSTABLE
+#include <gmenu-tree.h>
+
 static GHashTable * create_desktop_file_table (WindowMatcher *self);
 
 static GArray * prefix_strings (WindowMatcher *self);
-static GArray * xdg_data_dirs (WindowMatcher *self);
-static GArray * list_desktop_file_in_dir (WindowMatcher *self, GFile *dir);
 static GArray * pid_parent_tree (gint pid);
 
 static GString * desktop_file_hint_for_window (WindowMatcher *self, WnckWindow *window);
@@ -297,56 +298,75 @@ GArray * window_matcher_window_list_for_desktop_file (WindowMatcher *self, GStri
 // Internal methods
 // ------------------------------------------------------------------------------
 
+static void create_desktop_file_table_for_entry (WindowMatcher *self,
+	GMenuTreeEntry *entry, GHashTable *table)
+{
+	GString *exec = g_string_new(gmenu_tree_entry_get_exec (entry));
+
+	/**
+	 * Set full string into database for open office apps, we use this later to help
+	 * matching these files up for hint setting
+	 **/
+	if (!g_str_has_prefix (exec->str, "ooffice"))
+		process_exec_string (self, exec);
+
+	g_hash_table_insert (table, exec,
+		g_string_new(gmenu_tree_entry_get_desktop_file_path (entry)));
+}
+
+static void create_desktop_file_table_for_directory (WindowMatcher *self,
+	GMenuTreeDirectory *dir, GHashTable *table)
+{
+	GSList *contents, *i;
+	contents = gmenu_tree_directory_get_contents (dir);
+
+	for (i = contents; i != NULL; i = g_slist_next (i)) {
+		GMenuTreeItem *item = i->data;
+
+		switch (gmenu_tree_item_get_type (item)) {
+		    case GMENU_TREE_ITEM_ENTRY:
+			create_desktop_file_table_for_entry (self, GMENU_TREE_ENTRY (item), table);
+			break;
+
+		    case GMENU_TREE_ITEM_DIRECTORY:
+			create_desktop_file_table_for_directory (self, GMENU_TREE_DIRECTORY (item), table);
+			break;
+
+		    default:
+			/* we do not need to care about the other types */
+			break;
+		}
+	    gmenu_tree_item_unref (item);
+	}
+	g_slist_free (contents);
+}
+
 static GHashTable * create_desktop_file_table (WindowMatcher *self)
 {
 #ifdef PROFILING
 	profile_start("create_desktop_file_table()");
 #endif
 	GHashTable *table = g_hash_table_new ((GHashFunc) g_string_hash, (GEqualFunc) g_string_equal);
-	
-	GArray *data_dirs = xdg_data_dirs (self);
-	
-	GArray *desktop_files = g_array_new (FALSE, TRUE, sizeof (GString*));
-	
-	int i;
-	for (i = 0; i < data_dirs->len; i++) {
-		GString* dir = g_array_index (data_dirs, GString*, i);
-		g_string_append (dir, "applications/");
-		
-		GFile *file = g_file_new_for_path (dir->str);
-		
-		if (g_file_query_exists (file, NULL)) {
-			GError *error = NULL;
-			GFileInfo *fileInfo = g_file_query_info (file, G_FILE_ATTRIBUTE_STANDARD_TYPE, 0, NULL, &error); 
-			if (g_file_info_get_file_type (fileInfo) == G_FILE_TYPE_DIRECTORY) {
-				GArray *newFiles = list_desktop_file_in_dir (self, file);
-				if (newFiles->len > 0)
-					g_array_append_vals (desktop_files, newFiles->data, newFiles->len);
-				g_array_free (newFiles, TRUE);
-			}
-			
-			g_object_unref (fileInfo);
-		}
-		
-		g_object_unref (file);
+
+	const char* menu_trees[] = {"applications.menu", "settings.menu", NULL};
+	const char** tree_name;
+
+	for (tree_name = menu_trees; *tree_name; tree_name++) {
+		/* TODO: do we need GMENU_TREE_FLAGS_INCLUDE_NODISPLAY ? */
+		GMenuTree* tree = gmenu_tree_lookup (*tree_name, 0);
+		GMenuTreeDirectory* dir = gmenu_tree_get_root_directory (tree);
+		create_desktop_file_table_for_directory (self, dir, table);
+		gmenu_tree_unref (tree);
 	}
 	
-	for (i = 0; i < desktop_files->len; i++) {
-		GString *desktopFile = g_array_index (desktop_files, GString*, i);
-		
-		GString *execLine = exec_string_for_desktop_file (self, desktopFile);
-		if (execLine == NULL)
-			continue;
-			
-		/**
-		 * Set full string into database for open office apps, we use this later to help
-		 * matching these files up for hint setting
-		 **/
-		if (!g_str_has_prefix (execLine->str, "ooffice"))
-			process_exec_string (self, execLine);
-			
-		g_hash_table_insert (table, execLine, desktopFile);
-	}
+	/*
+	GHashTableIter iter;
+	gpointer key, value;
+
+	g_hash_table_iter_init (&iter, table);
+	while (g_hash_table_iter_next (&iter, &key, &value))
+	    printf("key: %s val: %s\n", *((char**) key), *((char**) value));
+	*/
 	
 #ifdef PROFILING
 	profile_stop("create_desktop_file_table()");
@@ -428,56 +448,6 @@ static GString * exec_string_for_window (WindowMatcher *self, WnckWindow *window
 	g_free (argv);
 	
 	return exec;
-}
-
-static GArray * list_desktop_file_in_dir (WindowMatcher *self, GFile *dir)
-{
-	GArray *files = g_array_new (FALSE, TRUE, sizeof (GString*));
-	GError *error = NULL;
-	
-	GFileEnumerator *enumerator = g_file_enumerate_children (dir, 
-							         G_FILE_ATTRIBUTE_STANDARD_TYPE "," G_FILE_ATTRIBUTE_STANDARD_NAME,
-							         0,
-							         NULL,
-							         &error);
-	
-	if (!enumerator) {
-		g_print ("%s\n", error->message);
-		g_error_free (error);
-		return files;	
-	}
-	
-	if (error != NULL)
-		g_error_free (error);
-	
-	GFileInfo *info = NULL;
-	error = NULL;
-	while (TRUE)
-	{
-		info = g_file_enumerator_next_file (enumerator, NULL, &error);
-		if (error != NULL) {
-			g_print ("%s\n", error->message);
-			g_error_free (error);
-			error = NULL;		
-		} else if (info  == NULL) {
-			break;		
-		}
-		
-		GString *filename = g_string_new (g_file_get_path (dir));
-		g_string_append (filename, "/");
-		g_string_append (filename, g_file_info_get_name (info));
-		
-		if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY) {
-			// FIXME
-			list_desktop_file_in_dir (self, g_file_new_for_path (filename->str));
-		} else if (g_file_info_get_file_type (info) == G_FILE_TYPE_REGULAR) {
-			if (g_str_has_suffix (filename->str, ".desktop")) {
-				g_array_append_val (files, filename);
-			}
-		}
-	}
-	
-	return files;
 }
 
 static GArray * pid_parent_tree (gint pid)
@@ -661,26 +631,3 @@ static void set_window_hint (WindowMatcher *self, WnckWindow *window)
 	XCloseDisplay (XDisplay);
 }
 
-static GArray * xdg_data_dirs (WindowMatcher *self)
-{
-	    char *env = getenv ("XDG_DATA_DIRS");
-        gchar **dirs;
-        
-        GArray *arr = g_array_new (FALSE, TRUE, sizeof (GString*));
-
-        if (!env)
-        	env = "/usr/share/";
-        
-        dirs = g_strsplit(env, ":", 0);
-        
-        int i=0;
-        while (dirs [i] != NULL) {
-	        GString* dir = g_string_new (dirs [i]);
-			g_array_append_val (arr, dir);
-			g_free (dirs [i]);
-			i++;        
-        }
-        g_free (dirs);
-        
-        return arr;
-}
