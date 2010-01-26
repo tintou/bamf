@@ -5,3 +5,5 @@ EXTRA_DIST=org.wncksync.Matcher.service.in
 
 org.wncksync.Matcher.service: org.wncksync.Matcher.service.in
 	sed "s,@LIBEXECDIR@,$(libexecdir)," $< > $@
+
+CLEANFILES = org.wncksync.Matcher.service
