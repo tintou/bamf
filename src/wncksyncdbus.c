@@ -23,16 +23,19 @@ G_DEFINE_TYPE (WnckSyncDBus, wncksync_dbus, G_TYPE_OBJECT);
 
 WindowMatcher *matcher;
 
-static void wncksync_dbus_init (WnckSyncDBus *self)
+static void
+wncksync_dbus_init (WnckSyncDBus * self)
 {
   /* initialize all public and private members to reasonable default values. */
-  
+
   matcher = window_matcher_new ();
 }
 
-static void wncksync_dbus_class_init (WnckSyncDBusClass *klass)
+static void
+wncksync_dbus_class_init (WnckSyncDBusClass * klass)
 {
-  dbus_g_object_type_install_info (WNCKSYNC_TYPE_DBUS, &dbus_glib_wncksync_dbus_object_info);
+  dbus_g_object_type_install_info (WNCKSYNC_TYPE_DBUS,
+				   &dbus_glib_wncksync_dbus_object_info);
 }
 
 /**
@@ -40,86 +43,108 @@ static void wncksync_dbus_class_init (WnckSyncDBusClass *klass)
  *
  * Returns: a new WnckSyncDBus GObject.
  **/
-WnckSyncDBus * wncksync_dbus_new (void)
+WnckSyncDBus *
+wncksync_dbus_new (void)
 {
-	WnckSyncDBus *obj = (WnckSyncDBus*) g_object_new (WNCKSYNC_TYPE_DBUS, NULL);
-	
-	DBusGConnection *bus;
-	DBusGProxy *bus_proxy;
-	GError *error = NULL;
-	guint request_name_result;
+  WnckSyncDBus *obj =
+    (WnckSyncDBus *) g_object_new (WNCKSYNC_TYPE_DBUS, NULL);
 
-	bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-	g_return_val_if_fail (bus, NULL);
+  DBusGConnection *bus;
+  DBusGProxy *bus_proxy;
+  GError *error = NULL;
+  guint request_name_result;
 
-	bus_proxy = dbus_g_proxy_new_for_name (bus, "org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus");
+  bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+  g_return_val_if_fail (bus, NULL);
 
-	if (!dbus_g_proxy_call (bus_proxy, "RequestName", &error,
-				G_TYPE_STRING, WNCKSYNC_DBUS_SERVICE, 
-				G_TYPE_UINT, 0, 
-				G_TYPE_INVALID,
-				G_TYPE_UINT, &request_name_result, 
-				G_TYPE_INVALID))
-		return NULL;
-		
-	dbus_g_connection_register_g_object (bus, WNCKSYNC_DBUS_PATH, G_OBJECT (obj));
-	
-	return obj;
+  bus_proxy =
+    dbus_g_proxy_new_for_name (bus, "org.freedesktop.DBus",
+			       "/org/freedesktop/DBus",
+			       "org.freedesktop.DBus");
+
+  if (!dbus_g_proxy_call (bus_proxy, "RequestName", &error,
+			  G_TYPE_STRING, WNCKSYNC_DBUS_SERVICE,
+			  G_TYPE_UINT, 0,
+			  G_TYPE_INVALID,
+			  G_TYPE_UINT, &request_name_result, G_TYPE_INVALID))
+    return NULL;
+
+  dbus_g_connection_register_g_object (bus, WNCKSYNC_DBUS_PATH,
+				       G_OBJECT (obj));
+
+  return obj;
 }
 
-gboolean wncksync_dbus_window_match_is_ready (WnckSyncDBus *dbus, guint32 xid)
+gboolean
+wncksync_dbus_window_match_is_ready (WnckSyncDBus * dbus, guint32 xid)
 {
-	WnckWindow *window = wnck_window_get (xid);
-	
-	if (!window)
-		return FALSE;
-	
-	return window_matcher_window_is_match_ready (matcher, window);
+  WnckWindow *window = wnck_window_get (xid);
+
+  if (!window)
+    return FALSE;
+
+  return window_matcher_window_is_match_ready (matcher, window);
 }
 
-gboolean wncksync_dbus_desktop_file_for_xid (WnckSyncDBus *dbus, guint32 xid, gchar **filename, GError **error)
+gboolean
+wncksync_dbus_desktop_file_for_xid (WnckSyncDBus * dbus, guint32 xid,
+				    gchar ** filename, GError ** error)
 {
-	WnckWindow *window = wnck_window_get (xid);
-	
-	if (window != NULL) {
-		GString *desktopFile = window_matcher_desktop_file_for_window (matcher, window);
-		if (desktopFile) {
-			*filename = g_strdup (desktopFile->str);
-			g_string_free (desktopFile, TRUE);
-		} else {
-			*filename = g_strdup ("");
-		}
-	} else {
-		// this should basically never happen, but lets deal with it.
-		*filename = g_strdup ("");
+  WnckWindow *window = wnck_window_get (xid);
+
+  if (window != NULL)
+    {
+      GString *desktopFile =
+	window_matcher_desktop_file_for_window (matcher, window);
+      if (desktopFile)
+	{
+	  *filename = g_strdup (desktopFile->str);
+	  g_string_free (desktopFile, TRUE);
 	}
-	return TRUE;
-}
-
-gboolean wncksync_dbus_xids_for_desktop_file (WnckSyncDBus *dbus, gchar *filename, GArray **xids, GError **error)
-{
-	GString *desktopFile = g_string_new (filename);
-	GArray *arr = window_matcher_window_list_for_desktop_file (matcher, desktopFile);
-	
-	*xids = g_array_new (FALSE, TRUE, sizeof (guint32));
-	
-	int i;
-	for (i = 0; i < arr->len; i++) {
-		WnckWindow *window = g_array_index (arr, WnckWindow*, i);
-		guint32 xid = (guint32) wnck_window_get_xid (window);
-		g_array_append_val (*xids, xid);
+      else
+	{
+	  *filename = g_strdup ("");
 	}
-	
-	g_array_free (arr, TRUE);
-	
-	return TRUE;
+    }
+  else
+    {
+      // this should basically never happen, but lets deal with it.
+      *filename = g_strdup ("");
+    }
+  return TRUE;
 }
 
-gboolean wncksync_dbus_register_desktop_file_for_pid (WnckSyncDBus *dbus, gchar *filename, gint pid, GError **error)
+gboolean
+wncksync_dbus_xids_for_desktop_file (WnckSyncDBus * dbus, gchar * filename,
+				     GArray ** xids, GError ** error)
 {
-	GString *file = g_string_new (filename);
-	window_matcher_register_desktop_file_for_pid (matcher, file, pid);
-	g_string_free (file, TRUE);
-	
-	return TRUE;
+  GString *desktopFile = g_string_new (filename);
+  GArray *arr =
+    window_matcher_window_list_for_desktop_file (matcher, desktopFile);
+
+  *xids = g_array_new (FALSE, TRUE, sizeof (guint32));
+
+  int i;
+  for (i = 0; i < arr->len; i++)
+    {
+      WnckWindow *window = g_array_index (arr, WnckWindow *, i);
+      guint32 xid = (guint32) wnck_window_get_xid (window);
+      g_array_append_val (*xids, xid);
+    }
+
+  g_array_free (arr, TRUE);
+
+  return TRUE;
+}
+
+gboolean
+wncksync_dbus_register_desktop_file_for_pid (WnckSyncDBus * dbus,
+					     gchar * filename, gint pid,
+					     GError ** error)
+{
+  GString *file = g_string_new (filename);
+  window_matcher_register_desktop_file_for_pid (matcher, file, pid);
+  g_string_free (file, TRUE);
+
+  return TRUE;
 }

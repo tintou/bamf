@@ -28,32 +28,39 @@
 
 #define _NET_WM_DESKTOP_FILE			"_NET_WM_DESKTOP_FILE"
 
-typedef struct _WindowMatcher			WindowMatcher;
-typedef struct _WindowMatcherClass		WindowMatcherClass;
-typedef struct _WindowMatcherPrivate		WindowMatcherPrivate;
+typedef struct _WindowMatcher WindowMatcher;
+typedef struct _WindowMatcherClass WindowMatcherClass;
+typedef struct _WindowMatcherPrivate WindowMatcherPrivate;
 
-struct _WindowMatcher {
-	GObject parent;
-	
-	/*< private >*/
-	WindowMatcherPrivate *priv;
+struct _WindowMatcher
+{
+  GObject parent;
+
+  /*< private > */
+  WindowMatcherPrivate *priv;
 };
 
-struct _WindowMatcherClass {
-	GObjectClass parent;
+struct _WindowMatcherClass
+{
+  GObjectClass parent;
 };
 
 GType window_matcher_get_type (void);
 
-WindowMatcher * window_matcher_new (void);
+WindowMatcher *window_matcher_new (void);
 
-gboolean window_matcher_window_is_match_ready (WindowMatcher *self, WnckWindow *window);
+gboolean window_matcher_window_is_match_ready (WindowMatcher * self,
+					       WnckWindow * window);
 
-void window_matcher_register_desktop_file_for_pid (WindowMatcher *self, GString *desktopFile, gint pid);
+void window_matcher_register_desktop_file_for_pid (WindowMatcher * self,
+						   GString * desktopFile,
+						   gint pid);
 
-GString * window_matcher_desktop_file_for_window (WindowMatcher *self, WnckWindow *window);
+GString *window_matcher_desktop_file_for_window (WindowMatcher * self,
+						 WnckWindow * window);
 
-GArray * window_matcher_window_list_for_desktop_file (WindowMatcher *self, GString *desktopFile);
+GArray *window_matcher_window_list_for_desktop_file (WindowMatcher * self,
+						     GString * desktopFile);
 
 
 #endif

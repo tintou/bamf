@@ -23,14 +23,15 @@
 
 WnckSyncDBus *dbus_agent;
 
-int main (int argc, char **argv)
+int
+main (int argc, char **argv)
 {
-	gtk_init (&argc, &argv);
-	glibtop_init ();
-		
-	dbus_agent = wncksync_dbus_new ();
-	
-	gtk_main ();
-	
-	return 0;
+  gtk_init (&argc, &argv);
+  glibtop_init ();
+
+  dbus_agent = wncksync_dbus_new ();
+
+  gtk_main ();
+
+  return 0;
 }

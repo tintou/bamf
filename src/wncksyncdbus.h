@@ -20,27 +20,38 @@
 #define WNCKSYNC_IS_DBUS_CLASS(klass)		(G_TYPE_CHECK_CLASA_TYPE ((klass), WNCKSYNC_TYPE_DBUS))
 #define WNCKSYNC_DBUS_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), WNCKSYNC_TYPE_DbuS, WnckSyncDBusClass))
 
-typedef struct _WnckSyncDBus		WnckSyncDBus;
-typedef struct _WnckSyncDBusClass	WnckSyncDBusClass;
+typedef struct _WnckSyncDBus WnckSyncDBus;
+typedef struct _WnckSyncDBusClass WnckSyncDBusClass;
 
-struct _WnckSyncDBus {
-        GObject parent;
+struct _WnckSyncDBus
+{
+  GObject parent;
 };
 
-struct _WnckSyncDBusClass {
-        GObjectClass parent;
+struct _WnckSyncDBusClass
+{
+  GObjectClass parent;
 };
 
 GType wncksync_dbus_get_type (void);
 
-WnckSyncDBus * wncksync_dbus_new (void);
+WnckSyncDBus *wncksync_dbus_new (void);
 
-gboolean wncksync_dbus_window_match_is_ready (WnckSyncDBus *dbus, guint32 xid);
+gboolean wncksync_dbus_window_match_is_ready (WnckSyncDBus * dbus,
+					      guint32 xid);
 
-gboolean wncksync_dbus_desktop_file_for_xid (WnckSyncDBus *dbus, guint32 xid, gchar **filename, GError **error);
+gboolean wncksync_dbus_desktop_file_for_xid (WnckSyncDBus * dbus, guint32 xid,
+					     gchar ** filename,
+					     GError ** error);
 
-gboolean wncksync_dbus_xids_for_desktop_file (WnckSyncDBus *dbus, gchar *filename, GArray **xids, GError **error);
+gboolean wncksync_dbus_xids_for_desktop_file (WnckSyncDBus * dbus,
+					      gchar * filename,
+					      GArray ** xids,
+					      GError ** error);
 
-gboolean wncksync_dbus_register_desktop_file_for_pid (WnckSyncDBus *dbus, gchar *filename, gint pid, GError **error);
+gboolean wncksync_dbus_register_desktop_file_for_pid (WnckSyncDBus * dbus,
+						      gchar * filename,
+						      gint pid,
+						      GError ** error);
 
 #endif
