@@ -511,8 +511,8 @@ ensure_window_matching_state (WindowMatcher *self,
           GString *file_path = (GString*) value;
           
           if (g_str_has_prefix (exec_line->str, "chromium-browser") && 
-              g_strrstr (exec->str, "--app") &&
-              g_strrstr (exec->str, chrome_app_url->str))
+              g_strrstr (exec_line->str, "--app") &&
+              g_strrstr (exec_line->str, chrome_app_url->str))
             {
               /* We have found a match */
               file = g_string_new (file_path->str);
