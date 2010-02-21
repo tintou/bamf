@@ -26,6 +26,7 @@
 struct _WindowMatcherPrivate
 {
   GArray *bad_prefixes;
+  GHashTable *desktop_id_table;
   GHashTable *desktop_file_table;
   GHashTable *exec_list;
   GHashTable *registered_pids;
@@ -251,7 +252,8 @@ exec_string_for_desktop_file (WindowMatcher * self, GString * desktopFile)
 static void
 create_desktop_file_table_for_entry (WindowMatcher * self,
 				     GMenuTreeEntry * entry,
-				     GHashTable * table)
+				     GHashTable * desktop_file_table,
+				     GHashTable * desktop_id_table)
 {
   GString *exec;
   
@@ -270,16 +272,21 @@ create_desktop_file_table_for_entry (WindowMatcher * self,
        **/
       process_exec_string (self, exec);
     }
+  
+  GString* filename = g_string_new (gmenu_tree_entry_get_desktop_file_path (entry));
+  g_hash_table_insert (desktop_file_table, exec, filename);
 
-  g_hash_table_insert (table, exec,
-		       g_string_new (gmenu_tree_entry_get_desktop_file_path
-				     (entry)));
+  GString* desktop_id = g_string_new (g_path_get_basename (filename->str));
+  desktop_id = g_string_truncate (desktop_id, desktop_id->len - 8); /* remove last 8 characters for .desktop */
+  
+  g_hash_table_insert (desktop_id_table, desktop_id, filename); 
 }
 
 static void
 create_desktop_file_table_for_directory (WindowMatcher * self,
 					 GMenuTreeDirectory * dir,
-					 GHashTable * table)
+					 GHashTable * desktop_file_table,
+					 GHashTable * desktop_id_table)
 {
   GSList *contents, *i;
   contents = gmenu_tree_directory_get_contents (dir);
@@ -292,13 +299,13 @@ create_desktop_file_table_for_directory (WindowMatcher * self,
 	{
 	case GMENU_TREE_ITEM_ENTRY:
 	  create_desktop_file_table_for_entry (self, GMENU_TREE_ENTRY (item),
-					       table);
+					       desktop_file_table, desktop_id_table);
 	  break;
 
 	case GMENU_TREE_ITEM_DIRECTORY:
 	  create_desktop_file_table_for_directory (self,
 						   GMENU_TREE_DIRECTORY
-						   (item), table);
+						   (item), desktop_file_table, desktop_id_table);
 	  break;
 
 	default:
@@ -310,12 +317,15 @@ create_desktop_file_table_for_directory (WindowMatcher * self,
   g_slist_free (contents);
 }
 
-static GHashTable *
-create_desktop_file_table (WindowMatcher * self)
+static void
+create_desktop_file_table (WindowMatcher * self, GHashTable **desktop_file_table, GHashTable **desktop_id_table)
 {
-  GHashTable *table =
+  *desktop_file_table =
     g_hash_table_new ((GHashFunc) g_string_hash, (GEqualFunc) g_string_equal);
-
+  
+  *desktop_id_table =
+    g_hash_table_new ((GHashFunc) g_string_hash, (GEqualFunc) g_string_equal);
+  
   const char *menu_trees[] = { "applications.menu", "settings.menu", NULL };
   const char **tree_name;
 
@@ -324,7 +334,7 @@ create_desktop_file_table (WindowMatcher * self)
       /* TODO: do we need GMENU_TREE_FLAGS_INCLUDE_NODISPLAY ? */
       GMenuTree *tree = gmenu_tree_lookup (*tree_name, 0);
       GMenuTreeDirectory *dir = gmenu_tree_get_root_directory (tree);
-      create_desktop_file_table_for_directory (self, dir, table);
+      create_desktop_file_table_for_directory (self, dir, *desktop_file_table, *desktop_id_table);
       gmenu_tree_unref (tree);
     }
 
@@ -336,8 +346,6 @@ create_desktop_file_table (WindowMatcher * self)
      while (g_hash_table_iter_next (&iter, &key, &value))
      printf("key: %s val: %s\n", *((char**) key), *((char**) value));
    */
-
-  return table;
 }
 
 static gboolean
@@ -453,6 +461,21 @@ clean_window_memory (WindowMatcher *self,
     }
 }
 
+static GString*
+window_class_name (WnckWindow *window)
+{
+  WnckClassGroup *group;
+  
+  g_return_val_if_fail (WNCK_IS_WINDOW (window), NULL);
+
+  group = wnck_window_get_class_group (window);
+
+  if (!group)
+    return NULL;
+  
+  return g_string_new (wnck_class_group_get_res_class (group));
+}
+
 static void
 ensure_window_matching_state (WindowMatcher *self,
                               WnckWindow *window)
@@ -528,6 +551,22 @@ ensure_window_matching_state (WindowMatcher *self,
     }
   else
     {
+      GString *class_name;
+      class_name = g_string_ascii_down (window_class_name (window));
+      
+      if (class_name)
+        {
+          file = g_hash_table_lookup (priv->desktop_id_table, class_name);
+      
+          if (file)
+            {
+              file = g_string_new (file->str);
+              g_array_append_val (desktop_files, file);
+            }
+         
+         g_string_free (class_name, TRUE);
+       }
+      
       /* Make a fracking guess */
       exec = exec_string_for_window (self, window);
 
@@ -788,7 +827,7 @@ window_matcher_new ()
 
   g_array_free (prefixstrings, TRUE);
 
-  priv->desktop_file_table = create_desktop_file_table (self);
+  create_desktop_file_table (self, &(priv->desktop_file_table), &(priv->desktop_id_table));
 
   WnckScreen *screen = wnck_screen_get_default ();
 
