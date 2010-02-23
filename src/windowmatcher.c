@@ -261,7 +261,7 @@ create_desktop_file_table_for_entry (WindowMatcher * self,
   
   exec = g_string_new (gmenu_tree_entry_get_exec (entry));
 
-  if ((g_str_has_prefix (exec->str, "chromium-browser") && g_strrstr (exec->str, "--app")) || 
+  if (!(g_str_has_prefix (exec->str, "chromium-browser") && g_strrstr (exec->str, "--app")) && 
       !g_str_has_prefix (exec->str, "ooffice"))
     {
       /**
@@ -517,15 +517,32 @@ ensure_window_matching_state (WindowMatcher *self,
     {
       /* We have a chrome app, lets find its desktop file */
       
-      /* Chop off the last 2 characters as appurl hints are in the form off www.google.com_/
-       * we are only interested in www.google.com
+      /* We need to replace _/ with / as chromium will signal the "base name" of the url
+       * by placing a _ after it. So www.google.com/reader becomes www.google.com_/reader to
+       * chromium. We are restoring the original URL.
        */
-      chrome_app_url = g_string_truncate (chrome_app_url, 
-                                          (gsize) (chrome_app_url->len - 2));
+      GString *tmp = chrome_app_url;
+      GRegex *regex = g_regex_new ("_/", 0, 0, NULL);
+      
+      chrome_app_url = g_string_new (g_regex_replace_literal (regex, 
+                                                              chrome_app_url->str, 
+                                                              -1, 0, 
+                                                              "/", 
+                                                              0, NULL));
+      
+      g_string_free (tmp, TRUE);
+      g_regex_unref (regex);
+      
+      /* remove trailing slash */
+      if (g_str_has_suffix (chrome_app_url->str, "/"))
+        chrome_app_url = g_string_truncate (chrome_app_url, chrome_app_url->len - 1);
       
       /* Do a slow iteration over every .desktop file in our hash table, we are looking
        * for a chromium instance which contains --app and chrome_app_url
        */
+      
+      regex = g_regex_new (g_strdup_printf ("chromium-browser (.* )?--app( |=)\"?(http://|https://)?%s/?\"?( |$)", 
+                                            chrome_app_url->str), 0, 0, NULL);
       
       g_hash_table_iter_init (&iter, priv->desktop_file_table);
       while (g_hash_table_iter_next (&iter, &key, &value))
@@ -533,15 +550,15 @@ ensure_window_matching_state (WindowMatcher *self,
           GString *exec_line = (GString*) key;
           GString *file_path = (GString*) value;
           
-          if (g_str_has_prefix (exec_line->str, "chromium-browser") && 
-              g_strrstr (exec_line->str, "--app") &&
-              g_strrstr (exec_line->str, chrome_app_url->str))
+          if (g_regex_match (regex, exec_line->str, 0, NULL))
             {
               /* We have found a match */
               file = g_string_new (file_path->str);
               g_array_append_val (desktop_files, file);
-            } 
+            }
         }
+     
+      g_regex_unref (regex);
     }
   else if (hint && hint->len > 0)
     {
