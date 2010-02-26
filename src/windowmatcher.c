@@ -18,9 +18,6 @@
 #define _POSIX_C_SOURCE 199309L
 #include "windowmatcher.h"
 
-#define GMENU_I_KNOW_THIS_IS_UNSTABLE
-#include <gmenu-tree.h>
-
 #define WINDOW_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), WINDOW_MATCHER_TYPE, WindowMatcherPrivate))
 
 struct _WindowMatcherPrivate
@@ -230,39 +227,33 @@ exec_string_for_window (WindowMatcher * self, WnckWindow * window)
   return exec;
 }
 
-static GString *
-exec_string_for_desktop_file (WindowMatcher * self, GString * desktopFile)
+static gboolean
+exec_string_should_be_processed (WindowMatcher *self,
+                                 GString *exec)
 {
-  GDesktopAppInfo *desktopApp;
-  const gchar *line;
-  
-  g_return_val_if_fail (desktopFile, NULL);
-  g_return_val_if_fail (IS_WINDOW_MATCHER (self), NULL);
-
-  desktopApp = g_desktop_app_info_new_from_filename (desktopFile->str);
-
-  if (desktopApp == NULL)
-    return NULL;
-
-  line = g_app_info_get_commandline (G_APP_INFO (desktopApp));
-
-  return g_string_new (line);
+  return !(g_str_has_prefix (exec->str, "chromium-browser") && 
+           g_strrstr (exec->str, "--app")) && 
+         !g_str_has_prefix (exec->str, "ooffice");
 }
 
 static void
-create_desktop_file_table_for_entry (WindowMatcher * self,
-				     GMenuTreeEntry * entry,
-				     GHashTable * desktop_file_table,
-				     GHashTable * desktop_id_table)
+load_desktop_file_to_table (WindowMatcher * self,
+                            const char *file,
+                            GHashTable *desktop_file_table, 
+                            GHashTable *desktop_id_table)
 {
+  GAppInfo *desktop_file;
   GString *exec;
+  GString *filename;
+  GString *desktop_id;
   
   g_return_if_fail (IS_WINDOW_MATCHER (self));
   
-  exec = g_string_new (gmenu_tree_entry_get_exec (entry));
+  desktop_file = G_APP_INFO (g_desktop_app_info_new_from_filename (file));
 
-  if (!(g_str_has_prefix (exec->str, "chromium-browser") && g_strrstr (exec->str, "--app")) && 
-      !g_str_has_prefix (exec->str, "ooffice"))
+  exec = g_string_new (g_app_info_get_commandline (desktop_file));
+
+  if (exec_string_should_be_processed (self, exec))
     {
       /**
        * Set of nasty hacks which should be removed some day. We wish to keep the full exec
@@ -273,48 +264,117 @@ create_desktop_file_table_for_entry (WindowMatcher * self,
       process_exec_string (self, exec);
     }
   
-  GString* filename = g_string_new (gmenu_tree_entry_get_desktop_file_path (entry));
+  filename = g_string_new (file);
   g_hash_table_insert (desktop_file_table, exec, filename);
 
-  GString* desktop_id = g_string_new (g_path_get_basename (filename->str));
+  desktop_id = g_string_new (g_path_get_basename (filename->str));
   desktop_id = g_string_truncate (desktop_id, desktop_id->len - 8); /* remove last 8 characters for .desktop */
   
   g_hash_table_insert (desktop_id_table, desktop_id, filename); 
 }
 
 static void
-create_desktop_file_table_for_directory (WindowMatcher * self,
-					 GMenuTreeDirectory * dir,
-					 GHashTable * desktop_file_table,
-					 GHashTable * desktop_id_table)
+load_directory_to_table (WindowMatcher * self, 
+                         const char *directory, 
+                         GHashTable *desktop_file_table, 
+                         GHashTable *desktop_id_table)
 {
-  GSList *contents, *i;
-  contents = gmenu_tree_directory_get_contents (dir);
-
-  for (i = contents; i != NULL; i = g_slist_next (i))
+  GFile *dir;
+  GFileEnumerator *enumerator;
+  GFileInfo *info;
+  const char* name;
+  const char *path;
+  
+  dir = g_file_new_for_path (directory);
+  
+  enumerator = g_file_enumerate_children (dir,
+                                          "standard::*",
+                                          G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                          NULL,
+                                          NULL);
+  
+  if (!enumerator)
+    return;
+  
+  info = g_file_enumerator_next_file (enumerator, NULL, NULL);
+  for (; info; info = g_file_enumerator_next_file (enumerator, NULL, NULL))
     {
-      GMenuTreeItem *item = i->data;
-
-      switch (gmenu_tree_item_get_type (item))
-	{
-	case GMENU_TREE_ITEM_ENTRY:
-	  create_desktop_file_table_for_entry (self, GMENU_TREE_ENTRY (item),
-					       desktop_file_table, desktop_id_table);
-	  break;
-
-	case GMENU_TREE_ITEM_DIRECTORY:
-	  create_desktop_file_table_for_directory (self,
-						   GMENU_TREE_DIRECTORY
-						   (item), desktop_file_table, desktop_id_table);
-	  break;
-
-	default:
-	  /* we do not need to care about the other types */
-	  break;
-	}
-      gmenu_tree_item_unref (item);
+      
+      name = g_file_info_get_name (info);
+      path = g_build_filename (directory, name, NULL);
+      
+      if (g_str_has_suffix (name, ".desktop"))
+        load_desktop_file_to_table (self,
+                                    path,
+                                    desktop_file_table,
+                                    desktop_id_table);
+      
+      g_free ((gpointer) path);
+      g_object_unref (info);
     }
-  g_slist_free (contents);
+    
+  g_object_unref (enumerator);
+  g_object_unref (dir);
+}
+
+static void
+load_index_file_to_table (WindowMatcher * self, 
+                          const char *index_file, 
+                          GHashTable *desktop_file_table, 
+                          GHashTable *desktop_id_table)
+{
+  GFile *file;
+  GFileInputStream *stream;
+  GDataInputStream *input;
+  char *line;
+  char *directory;
+  gsize length;
+  
+  file = g_file_new_for_path (index_file);
+  
+  g_return_if_fail (file);
+  
+  stream = g_file_read (file, NULL, NULL);
+  
+  if (!stream)
+    {
+      g_object_unref (file);
+      return;
+    }
+  
+  directory = g_path_get_dirname (index_file);
+  input = g_data_input_stream_new (G_INPUT_STREAM (stream));
+  
+  line = g_data_input_stream_read_line (input, &length, NULL, NULL);
+  while (line)
+    {
+      GString *exec;
+      GString *desktop_id;
+      GString *filename;
+      
+      gchar **parts = g_strsplit (line, "\t", 3);
+      
+      exec = g_string_new (parts[1]);
+      
+      if (exec_string_should_be_processed (self, exec))
+        process_exec_string (self, exec);
+      
+      char *name = g_build_filename (directory, parts[0], NULL);
+      filename = g_string_new (name);
+      g_free ((gpointer) name);
+      
+      desktop_id = g_string_new (parts[0]);
+      desktop_id = g_string_truncate (desktop_id, desktop_id->len - 8);
+      
+      g_hash_table_insert (desktop_file_table, exec, filename);
+      g_hash_table_insert (desktop_id_table, desktop_id, filename); 
+      
+      length = 0;
+      g_strfreev (parts);
+      
+      line = g_data_input_stream_read_line (input, &length, NULL, NULL);
+    }
+  g_free ((gpointer) directory);
 }
 
 static void
@@ -325,27 +385,32 @@ create_desktop_file_table (WindowMatcher * self, GHashTable **desktop_file_table
   
   *desktop_id_table =
     g_hash_table_new ((GHashFunc) g_string_hash, (GEqualFunc) g_string_equal);
+
+  g_return_if_fail (IS_WINDOW_MATCHER (self));
   
-  const char *menu_trees[] = { "applications.menu", "settings.menu", NULL };
-  const char **tree_name;
-
-  for (tree_name = menu_trees; *tree_name; tree_name++)
+  const char *directories[] = { "/usr/share/applications", 
+                                "/usr/local/share/applications",
+                                g_build_filename (g_get_home_dir (), ".local/share/applications", NULL),
+                                NULL };
+  const char **directory;
+  for (directory = directories; *directory; directory++)
     {
-      /* TODO: do we need GMENU_TREE_FLAGS_INCLUDE_NODISPLAY ? */
-      GMenuTree *tree = gmenu_tree_lookup (*tree_name, 0);
-      GMenuTreeDirectory *dir = gmenu_tree_get_root_directory (tree);
-      create_desktop_file_table_for_directory (self, dir, *desktop_file_table, *desktop_id_table);
-      gmenu_tree_unref (tree);
+      if (!g_file_test (*directory, G_FILE_TEST_IS_DIR))
+        continue;
+      
+      const char *wncksync_file = g_build_filename (*directory, "wncksync.index", NULL);
+      
+      if (g_file_test (wncksync_file, G_FILE_TEST_EXISTS))
+        {
+          load_index_file_to_table (self, wncksync_file, *desktop_file_table, *desktop_id_table);
+        }
+      else
+        {
+          load_directory_to_table (self, *directory, *desktop_file_table, *desktop_id_table);
+        }
+      
+      g_free ((gpointer) wncksync_file);
     }
-
-  /*
-     GHashTableIter iter;
-     gpointer key, value;
-
-     g_hash_table_iter_init (&iter, table);
-     while (g_hash_table_iter_next (&iter, &key, &value))
-     printf("key: %s val: %s\n", *((char**) key), *((char**) value));
-   */
 }
 
 static gboolean
