@@ -23,6 +23,7 @@
 struct _WindowMatcherPrivate
 {
   GArray *bad_prefixes;
+  GArray *known_pids;
   GHashTable *desktop_id_table;
   GHashTable *desktop_file_table;
   GHashTable *exec_list;
@@ -177,12 +178,36 @@ prefix_strings (WindowMatcher * self)
 }
 
 static GArray *
-pid_parent_tree (gint pid)
+pid_parent_tree (WindowMatcher *self, gint pid)
 {
-  GArray *tree = g_array_new (FALSE, TRUE, sizeof (gint));
+  WindowMatcherPrivate *priv;
+  GArray *tree;
+  gint known_pid;
+  gint i;
+  
+  g_return_val_if_fail (IS_WINDOW_MATCHER (self), NULL);
+  
+  priv = self->priv;
+  
+  tree = g_array_new (FALSE, TRUE, sizeof (gint));
+  
+  g_array_append_val (tree, pid);
 
+  glibtop_proc_uid buf;
+  glibtop_get_proc_uid (&buf, pid);
+
+  pid = buf.ppid;
+  
   while (pid > 1)
     {
+      for (i = 0; i < priv->known_pids->len; i++)
+        {
+          /* ensure we dont match onto a terminal by mistake */
+          known_pid = g_array_index (priv->known_pids, gint, i);
+          if (known_pid == pid)
+            goto outppid;
+        }
+      
       g_array_append_val (tree, pid);
 
       glibtop_proc_uid buf;
@@ -190,6 +215,7 @@ pid_parent_tree (gint pid)
 
       pid = buf.ppid;
     }
+outppid:
 
   return tree;
 }
@@ -695,7 +721,7 @@ ensure_window_hint_set (WindowMatcher *self,
     {  
       GHashTable *registered_pids = self->priv->registered_pids;
 
-      GArray *pids = pid_parent_tree (wnck_window_get_pid (window));
+      GArray *pids = pid_parent_tree (self, wnck_window_get_pid (window));
 
       for (i = 0; i < pids->len; i++)
         {
@@ -725,6 +751,11 @@ handle_window_opened (WnckScreen * screen, WnckWindow * window, gpointer data)
   
   g_return_if_fail (IS_WINDOW_MATCHER (self));
   g_return_if_fail (WNCK_IS_WINDOW (window));
+  
+  gint pid = wnck_window_get_pid (window);
+  if (pid > 1)
+    g_array_append_val (self->priv->known_pids, pid);
+  
   
   /* technically this round-trips to the Xorg server up to three times, however this
    * is relatively infrequent and keeps the code nicely compartmentalized */
@@ -891,6 +922,7 @@ window_matcher_new ()
   self = (WindowMatcher *) g_object_new (WINDOW_MATCHER_TYPE, NULL);
   priv = self->priv;
 
+  priv->known_pids = g_array_new (FALSE, TRUE, sizeof (gint));
   priv->bad_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex *));
   priv->registered_pids =
     g_hash_table_new ((GHashFunc) g_int_hash, (GEqualFunc) g_int_equal);
