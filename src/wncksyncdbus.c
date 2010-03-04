@@ -21,14 +21,14 @@
 
 G_DEFINE_TYPE (WnckSyncDBus, wncksync_dbus, G_TYPE_OBJECT);
 
-WindowMatcher *matcher;
+WncksyncMatcher *matcher;
 
 static void
 wncksync_dbus_init (WnckSyncDBus * self)
 {
   /* initialize all public and private members to reasonable default values. */
 
-  matcher = window_matcher_new ();
+  matcher = wncksync_matcher_new ();
 }
 
 static void
@@ -46,13 +46,13 @@ wncksync_dbus_class_init (WnckSyncDBusClass * klass)
 WnckSyncDBus *
 wncksync_dbus_new (void)
 {
-  WnckSyncDBus *obj =
-    (WnckSyncDBus *) g_object_new (WNCKSYNC_TYPE_DBUS, NULL);
-
   DBusGConnection *bus;
   DBusGProxy *bus_proxy;
   GError *error = NULL;
   guint request_name_result;
+  WnckSyncDBus *obj;
+  
+  obj = (WnckSyncDBus *) g_object_new (WNCKSYNC_TYPE_DBUS, NULL);
 
   bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   g_return_val_if_fail (bus, NULL);
@@ -78,24 +78,28 @@ wncksync_dbus_new (void)
 gboolean
 wncksync_dbus_window_match_is_ready (WnckSyncDBus * dbus, guint32 xid)
 {
-  WnckWindow *window = wnck_window_get (xid);
-
+  WnckWindow *window;
+  
+  window = wnck_window_get (xid);
+  
   if (!window)
     return FALSE;
 
-  return window_matcher_window_is_match_ready (matcher, window);
+  return wncksync_matcher_window_is_match_ready (matcher, window);
 }
 
 gboolean
 wncksync_dbus_desktop_file_for_xid (WnckSyncDBus * dbus, guint32 xid,
 				    gchar ** filename, GError ** error)
 {
-  WnckWindow *window = wnck_window_get (xid);
+  WnckWindow *window;
+  GString *desktopFile;
+  
+  window = wnck_window_get (xid);
 
   if (window != NULL)
     {
-      GString *desktopFile =
-	window_matcher_desktop_file_for_window (matcher, window);
+      desktopFile = wncksync_matcher_desktop_file_for_window (matcher, window);
       if (desktopFile)
 	{
 	  *filename = g_strdup (desktopFile->str);
@@ -118,22 +122,27 @@ gboolean
 wncksync_dbus_xids_for_desktop_file (WnckSyncDBus * dbus, gchar * filename,
 				     GArray ** xids, GError ** error)
 {
-  GString *desktopFile = g_string_new (filename);
-  GArray *arr =
-    window_matcher_window_list_for_desktop_file (matcher, desktopFile);
+  GString *desktopFile;
+  GArray *arr;
+  WnckWindow *window;
+  guint32 xid;
+  
+  desktopFile = g_string_new (filename);
+  arr = wncksync_matcher_window_list_for_desktop_file (matcher, desktopFile);
 
   *xids = g_array_new (FALSE, TRUE, sizeof (guint32));
 
   int i;
   for (i = 0; i < arr->len; i++)
     {
-      WnckWindow *window = g_array_index (arr, WnckWindow *, i);
-      guint32 xid = (guint32) wnck_window_get_xid (window);
+      window = g_array_index (arr, WnckWindow *, i);
+      xid = (guint32) wnck_window_get_xid (window);
       g_array_append_val (*xids, xid);
     }
 
   g_array_free (arr, TRUE);
-
+  g_string_free (desktopFile, TRUE);
+  
   return TRUE;
 }
 
@@ -142,8 +151,10 @@ wncksync_dbus_register_desktop_file_for_pid (WnckSyncDBus * dbus,
 					     gchar * filename, gint pid,
 					     GError ** error)
 {
-  GString *file = g_string_new (filename);
-  window_matcher_register_desktop_file_for_pid (matcher, file, pid);
+  GString *file;
+  
+  file = g_string_new (filename);
+  wncksync_matcher_register_desktop_file_for_pid (matcher, file, pid);
   g_string_free (file, TRUE);
 
   return TRUE;

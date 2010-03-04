@@ -1,3 +1,20 @@
+//  
+//  Copyright (C) 2009 Canonical Ltd.
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// 
+
 #ifndef __WINDOWMATCHER_H__
 #define __WINDOWMATCHER_H__
 
@@ -19,48 +36,48 @@
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 
-#define WINDOW_MATCHER_TYPE			(window_matcher_get_type ())
-#define WINDOW_MATCHER(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), WINDOW_MATCHER_TYPE, WindowMatcher))
-#define IS_WINDOW_MATCHER(obj)			(G_TYPE_CHECK_INSTANCE_TYPE ((obj), WINDOW_MATCHER_TYPE))
-#define WINDOW_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), WINDOW_MATCHER_TYPE, WindowMatcherClass))
-#define IS_WINDOW_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASA_TYPE ((klass), WINDOW_MATCHER_TYPE))
-#define WINDOW_MATCHER_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), WINDOW_MATCHER_TYPE, WindowMatcherClass))
+#define WNCKSYNC_MATCHER_TYPE			(wncksync_matcher_get_type ())
+#define WNCKSYNC_MATCHER(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), WNCKSYNC_MATCHER_TYPE, WncksyncMatcher))
+#define WNCKSYNC_IS_MATCHER(obj)			(G_TYPE_CHECK_INSTANCE_TYPE ((obj), WNCKSYNC_MATCHER_TYPE))
+#define WNCKSYNC_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), WNCKSYNC_MATCHER_TYPE, WncksyncMatcherClass))
+#define WNCKSYNC_IS_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASA_TYPE ((klass), WNCKSYNC_MATCHER_TYPE))
+#define WNCKSYNC_MATCHER_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), WNCKSYNC_MATCHER_TYPE, WncksyncMatcherClass))
 
 #define _NET_WM_DESKTOP_FILE			"_NET_WM_DESKTOP_FILE"
 #define _CHROME_APP_URL                         "_CHROME_APP_URL"
 
-typedef struct _WindowMatcher WindowMatcher;
-typedef struct _WindowMatcherClass WindowMatcherClass;
-typedef struct _WindowMatcherPrivate WindowMatcherPrivate;
+typedef struct _WncksyncMatcher WncksyncMatcher;
+typedef struct _WncksyncMatcherClass WncksyncMatcherClass;
+typedef struct _WncksyncMatcherPrivate WncksyncMatcherPrivate;
 
-struct _WindowMatcher
+struct _WncksyncMatcher
 {
   GObject parent;
 
   /*< private > */
-  WindowMatcherPrivate *priv;
+  WncksyncMatcherPrivate *priv;
 };
 
-struct _WindowMatcherClass
+struct _WncksyncMatcherClass
 {
   GObjectClass parent;
 };
 
-GType window_matcher_get_type (void);
+GType wncksync_matcher_get_type (void);
 
-WindowMatcher *window_matcher_new (void);
+WncksyncMatcher *wncksync_matcher_new (void);
 
-gboolean window_matcher_window_is_match_ready (WindowMatcher * self,
+gboolean wncksync_matcher_window_is_match_ready (WncksyncMatcher * self,
 					       WnckWindow * window);
 
-void window_matcher_register_desktop_file_for_pid (WindowMatcher * self,
+void wncksync_matcher_register_desktop_file_for_pid (WncksyncMatcher * self,
 						   GString * desktopFile,
 						   gint pid);
 
-GString *window_matcher_desktop_file_for_window (WindowMatcher * self,
+GString *wncksync_matcher_desktop_file_for_window (WncksyncMatcher * self,
 						 WnckWindow * window);
 
-GArray *window_matcher_window_list_for_desktop_file (WindowMatcher * self,
+GArray *wncksync_matcher_window_list_for_desktop_file (WncksyncMatcher * self,
 						     GString * desktopFile);
 
 

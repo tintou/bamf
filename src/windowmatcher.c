@@ -18,9 +18,9 @@
 #define _POSIX_C_SOURCE 199309L
 #include "windowmatcher.h"
 
-#define WINDOW_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), WINDOW_MATCHER_TYPE, WindowMatcherPrivate))
+#define WNCKSYNC_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), WNCKSYNC_MATCHER_TYPE, WncksyncMatcherPrivate))
 
-struct _WindowMatcherPrivate
+struct _WncksyncMatcherPrivate
 {
   GArray *bad_prefixes;
   GArray *known_pids;
@@ -31,17 +31,17 @@ struct _WindowMatcherPrivate
   GHashTable *window_to_desktop_files;
 };
 
-G_DEFINE_TYPE (WindowMatcher, window_matcher, G_TYPE_OBJECT);
+G_DEFINE_TYPE (WncksyncMatcher, wncksync_matcher, G_TYPE_OBJECT);
 
 static GString *
-get_open_office_window_hint (WindowMatcher * self, WnckWindow * window)
+get_open_office_window_hint (WncksyncMatcher * self, WnckWindow * window)
 {
   const gchar *name;
   GString *exec;
   GHashTable *desktopFileTable;
   GString *file;
   
-  g_return_val_if_fail (IS_WINDOW_MATCHER (self), NULL);
+  g_return_val_if_fail (WNCKSYNC_IS_MATCHER (self), NULL);
   g_return_val_if_fail (WNCK_IS_WINDOW (window), NULL);
 
   name = wnck_window_get_name (window);
@@ -85,7 +85,7 @@ get_open_office_window_hint (WindowMatcher * self, WnckWindow * window)
 
 /* Attempts to return the binary name for a particular execution string */
 static void
-process_exec_string (WindowMatcher * self, GString * execString)
+process_exec_string (WncksyncMatcher * self, GString * execString)
 {
   gchar *exec, *part;
   gchar **parts;
@@ -143,7 +143,7 @@ process_exec_string (WindowMatcher * self, GString * execString)
 }
 
 static GArray *
-prefix_strings (WindowMatcher * self)
+prefix_strings (WncksyncMatcher * self)
 {
   GArray *arr = g_array_new (FALSE, TRUE, sizeof (GString *));
 
@@ -178,14 +178,14 @@ prefix_strings (WindowMatcher * self)
 }
 
 static GArray *
-pid_parent_tree (WindowMatcher *self, gint pid)
+pid_parent_tree (WncksyncMatcher *self, gint pid)
 {
-  WindowMatcherPrivate *priv;
+  WncksyncMatcherPrivate *priv;
   GArray *tree;
   gint known_pid;
   gint i;
   
-  g_return_val_if_fail (IS_WINDOW_MATCHER (self), NULL);
+  g_return_val_if_fail (WNCKSYNC_IS_MATCHER (self), NULL);
   
   priv = self->priv;
   
@@ -205,7 +205,7 @@ pid_parent_tree (WindowMatcher *self, gint pid)
           /* ensure we dont match onto a terminal by mistake */
           known_pid = g_array_index (priv->known_pids, gint, i);
           if (known_pid == pid)
-            goto outppid;
+            return tree;
         }
       
       g_array_append_val (tree, pid);
@@ -215,27 +215,25 @@ pid_parent_tree (WindowMatcher *self, gint pid)
 
       pid = buf.ppid;
     }
-outppid:
-
   return tree;
 }
 
 static GString *
-exec_string_for_window (WindowMatcher * self, WnckWindow * window)
+exec_string_for_window (WncksyncMatcher * self, WnckWindow * window)
 {
   gint pid = 0, i = 0;
   gchar **argv = NULL;
   GString *exec = NULL;
+  glibtop_proc_args buffer;
 
   g_return_val_if_fail (WNCK_IS_WINDOW (window), NULL);
-  g_return_val_if_fail (IS_WINDOW_MATCHER (self), NULL);
+  g_return_val_if_fail (WNCKSYNC_IS_MATCHER (self), NULL);
 
   pid = wnck_window_get_pid (window);
 
   if (pid == 0)
     return NULL;
 
-  glibtop_proc_args buffer;
   argv = glibtop_get_proc_argv (&buffer, pid, 0);
   exec = g_string_new ("");
 
@@ -254,7 +252,7 @@ exec_string_for_window (WindowMatcher * self, WnckWindow * window)
 }
 
 static gboolean
-exec_string_should_be_processed (WindowMatcher *self,
+exec_string_should_be_processed (WncksyncMatcher *self,
                                  GString *exec)
 {
   return !(g_str_has_prefix (exec->str, "chromium-browser") && 
@@ -263,7 +261,7 @@ exec_string_should_be_processed (WindowMatcher *self,
 }
 
 static void
-load_desktop_file_to_table (WindowMatcher * self,
+load_desktop_file_to_table (WncksyncMatcher * self,
                             const char *file,
                             GHashTable *desktop_file_table, 
                             GHashTable *desktop_id_table)
@@ -273,7 +271,7 @@ load_desktop_file_to_table (WindowMatcher * self,
   GString *filename;
   GString *desktop_id;
   
-  g_return_if_fail (IS_WINDOW_MATCHER (self));
+  g_return_if_fail (WNCKSYNC_IS_MATCHER (self));
   
   desktop_file = G_APP_INFO (g_desktop_app_info_new_from_filename (file));
 
@@ -300,7 +298,7 @@ load_desktop_file_to_table (WindowMatcher * self,
 }
 
 static void
-load_directory_to_table (WindowMatcher * self, 
+load_directory_to_table (WncksyncMatcher * self, 
                          const char *directory, 
                          GHashTable *desktop_file_table, 
                          GHashTable *desktop_id_table)
@@ -344,7 +342,7 @@ load_directory_to_table (WindowMatcher * self,
 }
 
 static void
-load_index_file_to_table (WindowMatcher * self, 
+load_index_file_to_table (WncksyncMatcher * self, 
                           const char *index_file, 
                           GHashTable *desktop_file_table, 
                           GHashTable *desktop_id_table)
@@ -404,7 +402,7 @@ load_index_file_to_table (WindowMatcher * self,
 }
 
 static void
-create_desktop_file_table (WindowMatcher * self, GHashTable **desktop_file_table, GHashTable **desktop_id_table)
+create_desktop_file_table (WncksyncMatcher * self, GHashTable **desktop_file_table, GHashTable **desktop_id_table)
 {
   *desktop_file_table =
     g_hash_table_new ((GHashFunc) g_string_hash, (GEqualFunc) g_string_equal);
@@ -412,7 +410,7 @@ create_desktop_file_table (WindowMatcher * self, GHashTable **desktop_file_table
   *desktop_id_table =
     g_hash_table_new ((GHashFunc) g_string_hash, (GEqualFunc) g_string_equal);
 
-  g_return_if_fail (IS_WINDOW_MATCHER (self));
+  g_return_if_fail (WNCKSYNC_IS_MATCHER (self));
   
   const char *directories[] = { "/usr/share/applications", 
                                 "/usr/local/share/applications",
@@ -440,7 +438,7 @@ create_desktop_file_table (WindowMatcher * self, GHashTable **desktop_file_table
 }
 
 static gboolean
-is_open_office_window (WindowMatcher * self, WnckWindow * window)
+is_open_office_window (WncksyncMatcher * self, WnckWindow * window)
 {
   WnckClassGroup *group;
 
@@ -451,26 +449,25 @@ is_open_office_window (WindowMatcher * self, WnckWindow * window)
 }
 
 static GString *
-get_window_hint (WindowMatcher *self,
+get_window_hint (WncksyncMatcher *self,
                  WnckWindow *window,
                  const char *atom_name)
 {
   Display *XDisplay;
   Atom atom;
-  GString *hint;
+  GString *hint = NULL;
   Atom type;
   gint format;
   gulong numItems;
   gulong bytesAfter;
   unsigned char *buffer;
 
-  g_return_val_if_fail (IS_WINDOW_MATCHER (self), NULL);
+  g_return_val_if_fail (WNCKSYNC_IS_MATCHER (self), NULL);
   g_return_val_if_fail (WNCK_IS_WINDOW (window), NULL);
   g_return_val_if_fail (atom_name, NULL);
   
   XDisplay = XOpenDisplay (NULL);
   atom = XInternAtom (XDisplay, atom_name, FALSE);
-  hint = NULL;
 
 
   int result = XGetWindowProperty (XDisplay,
@@ -496,14 +493,14 @@ get_window_hint (WindowMatcher *self,
 }
 
 static void
-set_window_hint (WindowMatcher * self, 
+set_window_hint (WncksyncMatcher * self, 
                  WnckWindow * window,
                  const char *atom_name,
                  const char *data)
 {
   Display *XDisplay;
   
-  g_return_if_fail (IS_WINDOW_MATCHER (self));
+  g_return_if_fail (WNCKSYNC_IS_MATCHER (self));
   g_return_if_fail (WNCK_IS_WINDOW (window));
   g_return_if_fail (atom_name);
   g_return_if_fail (data);
@@ -523,16 +520,16 @@ set_window_hint (WindowMatcher * self,
 }
 
 static void
-clean_window_memory (WindowMatcher *self,
+clean_window_memory (WncksyncMatcher *self,
                      WnckWindow *window)
 {
-  WindowMatcherPrivate *priv;
+  WncksyncMatcherPrivate *priv;
   GArray *desktop_files = NULL;
   GString *file;
   int i;
   
   g_return_if_fail (WNCK_IS_WINDOW (window));
-  g_return_if_fail (IS_WINDOW_MATCHER (self));
+  g_return_if_fail (WNCKSYNC_IS_MATCHER (self));
   
   priv = self->priv;
 
@@ -568,18 +565,18 @@ window_class_name (WnckWindow *window)
 }
 
 static void
-ensure_window_matching_state (WindowMatcher *self,
+ensure_window_matching_state (WncksyncMatcher *self,
                               WnckWindow *window)
 {
   GString *hint = NULL, *chrome_app_url = NULL, *file = NULL, *exec = NULL;
-  WindowMatcherPrivate *priv;
+  WncksyncMatcherPrivate *priv;
   GArray *desktop_files = NULL;
   GHashTableIter iter;
   gpointer key, value;
   int i;
   
   g_return_if_fail (WNCK_IS_WINDOW (window));
-  g_return_if_fail (IS_WINDOW_MATCHER (self));
+  g_return_if_fail (WNCKSYNC_IS_MATCHER (self));
 
   priv = self->priv;
 
@@ -698,14 +695,14 @@ ensure_window_matching_state (WindowMatcher *self,
 }
 
 static void
-ensure_window_hint_set (WindowMatcher *self,
+ensure_window_hint_set (WncksyncMatcher *self,
                         WnckWindow *window)
 {
   GString *window_hint;
   gint i, pid;
   gint *key;
   
-  g_return_if_fail (IS_WINDOW_MATCHER (self));
+  g_return_if_fail (WNCKSYNC_IS_MATCHER (self));
   g_return_if_fail (WNCK_IS_WINDOW (window));
   
   window_hint = get_window_hint (self, window, _NET_WM_DESKTOP_FILE);
@@ -746,10 +743,10 @@ ensure_window_hint_set (WindowMatcher *self,
 static void
 handle_window_opened (WnckScreen * screen, WnckWindow * window, gpointer data)
 {
-  WindowMatcher *self;
-  self = (WindowMatcher *) data;
+  WncksyncMatcher *self;
+  self = (WncksyncMatcher *) data;
   
-  g_return_if_fail (IS_WINDOW_MATCHER (self));
+  g_return_if_fail (WNCKSYNC_IS_MATCHER (self));
   g_return_if_fail (WNCK_IS_WINDOW (window));
   
   gint pid = wnck_window_get_pid (window);
@@ -766,17 +763,17 @@ handle_window_opened (WnckScreen * screen, WnckWindow * window, gpointer data)
 static void
 handle_window_closed (WnckScreen * screen, WnckWindow * window, gpointer data)
 {
-  WindowMatcher *self;
-  self = (WindowMatcher *) data;
+  WncksyncMatcher *self;
+  self = (WncksyncMatcher *) data;
   
-  g_return_if_fail (IS_WINDOW_MATCHER (self));
+  g_return_if_fail (WNCKSYNC_IS_MATCHER (self));
   g_return_if_fail (WNCK_IS_WINDOW (window));
   
   clean_window_memory (self, window);
 }
 
 gboolean
-window_matcher_window_is_match_ready (WindowMatcher * self,
+wncksync_matcher_window_is_match_ready (WncksyncMatcher * self,
 				      WnckWindow * window)
 {
   GString *file;
@@ -795,7 +792,7 @@ window_matcher_window_is_match_ready (WindowMatcher * self,
 }
 
 void
-window_matcher_register_desktop_file_for_pid (WindowMatcher * self,
+wncksync_matcher_register_desktop_file_for_pid (WncksyncMatcher * self,
 					      GString * desktopFile, gint pid)
 {
   gint *key;
@@ -804,7 +801,7 @@ window_matcher_register_desktop_file_for_pid (WindowMatcher * self,
   GList *windows;
   GString *dup;
   
-  g_return_if_fail (IS_WINDOW_MATCHER (self));
+  g_return_if_fail (WNCKSYNC_IS_MATCHER (self));
   g_return_if_fail (desktopFile && desktopFile->len > 0);
   
   key = g_new (gint, 1);
@@ -816,6 +813,9 @@ window_matcher_register_desktop_file_for_pid (WindowMatcher * self,
   /* fixme, this is a bit heavy */
 
   screen = wnck_screen_get_default ();
+  
+  g_return_if_fail (WNCK_IS_SCREEN (screen));
+  
   windows = wnck_screen_get_windows (screen);
 
   for (glist_item = windows; glist_item != NULL;
@@ -826,16 +826,16 @@ window_matcher_register_desktop_file_for_pid (WindowMatcher * self,
 }
 
 GString *
-window_matcher_desktop_file_for_window (WindowMatcher * self,
+wncksync_matcher_desktop_file_for_window (WncksyncMatcher * self,
 					WnckWindow * window)
 {
-  WindowMatcherPrivate *priv;
+  WncksyncMatcherPrivate *priv;
   GArray *desktop_files;
   GString *result;
   
   result = g_string_new ("");
   
-  g_return_val_if_fail (IS_WINDOW_MATCHER (self), result);
+  g_return_val_if_fail (WNCKSYNC_IS_MATCHER (self), result);
   g_return_val_if_fail (WNCK_IS_WINDOW (window), result);
   
   priv = self->priv;
@@ -855,18 +855,18 @@ window_matcher_desktop_file_for_window (WindowMatcher * self,
 }
 
 GArray *
-window_matcher_window_list_for_desktop_file (WindowMatcher * self,
+wncksync_matcher_window_list_for_desktop_file (WncksyncMatcher * self,
 					     GString * desktopFile)
 {
   WnckWindow *window;
-  WindowMatcherPrivate *priv;
+  WncksyncMatcherPrivate *priv;
   GArray *desktop_files, *result;
   GString *desktop_file;
   GHashTableIter iter;
   gpointer key, value;
   int i;
   
-  g_return_val_if_fail (IS_WINDOW_MATCHER (self), NULL);
+  g_return_val_if_fail (WNCKSYNC_IS_MATCHER (self), NULL);
   g_return_val_if_fail (desktopFile, NULL);
   
   priv = self->priv;
@@ -898,28 +898,28 @@ window_matcher_window_list_for_desktop_file (WindowMatcher * self,
 }
 
 static void
-window_matcher_class_init (WindowMatcherClass * klass)
+wncksync_matcher_class_init (WncksyncMatcherClass * klass)
 {
-  g_type_class_add_private (klass, sizeof (WindowMatcherPrivate));
+  g_type_class_add_private (klass, sizeof (WncksyncMatcherPrivate));
 }
 
 static void
-window_matcher_init (WindowMatcher * self)
+wncksync_matcher_init (WncksyncMatcher * self)
 {
-  WindowMatcherPrivate *priv;
+  WncksyncMatcherPrivate *priv;
 
-  self->priv = priv = WINDOW_MATCHER_GET_PRIVATE (self);
+  self->priv = priv = WNCKSYNC_MATCHER_GET_PRIVATE (self);
 }
 
-WindowMatcher *
-window_matcher_new ()
+WncksyncMatcher *
+wncksync_matcher_new ()
 {
-  WindowMatcher *self;
-  WindowMatcherPrivate *priv;
+  WncksyncMatcher *self;
+  WncksyncMatcherPrivate *priv;
   GArray *prefixstrings;
   int i;
   
-  self = (WindowMatcher *) g_object_new (WINDOW_MATCHER_TYPE, NULL);
+  self = (WncksyncMatcher *) g_object_new (WNCKSYNC_MATCHER_TYPE, NULL);
   priv = self->priv;
 
   priv->known_pids = g_array_new (FALSE, TRUE, sizeof (gint));
