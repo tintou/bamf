@@ -29,74 +29,45 @@
 
 #include "libwncksync.h"
 
-DBusGConnection *connection;
-GError *wncksync_error;
-DBusGProxy *wncksync_proxy;
-gboolean wncksync_initialized = FALSE;
+G_DEFINE_TYPE (WncksyncProxy, wncksync_proxy, G_TYPE_OBJECT);
+#define WNCKSYNC_PROXY_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
+WNCKSYNC_TYPE_PROXY, WncksyncProxyPrivate))
+
+struct _WncksyncProxyPrivate
+{
+  DBusGConnection *connection;
+  DBusGProxy      *proxy;
+};
 
 void
-wncksync_init ()
+wncksync_proxy_register_match (WncksyncProxy *proxy, gchar * desktop_file, gint pid)
 {
-  if (wncksync_initialized)
-    return;
-
-  wncksync_initialized = TRUE;
-
-  connection = dbus_g_bus_get (DBUS_BUS_SESSION, &wncksync_error);
-
-  if (connection == NULL)
-    {
-      g_printerr ("Failed to open bus: %s\n", wncksync_error->message);
-      g_error_free (wncksync_error);
-    }
-
-  wncksync_proxy = dbus_g_proxy_new_for_name (connection,
-					      "org.wncksync.Matcher",
-					      "/org/wncksync/Matcher",
-					      "org.wncksync.Matcher");
-
-  if (!wncksync_proxy)
-    {
-      g_printerr ("Failed to get name owner.\n");
-    }
-}
-
-void
-wncksync_quit ()
-{
-  //fixme
-}
-
-void
-wncksync_register_desktop_file_for_pid (gchar * desktop_file, gint pid)
-{
-  if (!wncksync_initialized)
-    wncksync_init ();
-
+  g_return_if_fail (WNCKSYNC_IS_PROXY (proxy));
   g_return_if_fail (desktop_file);
-  dbus_g_proxy_call_no_reply (wncksync_proxy,
+  
+  dbus_g_proxy_call_no_reply (proxy->priv->proxy,
 			      "RegisterDesktopFileForPid",
 			      G_TYPE_STRING, desktop_file,
 			      G_TYPE_INT, pid, G_TYPE_INVALID);
 }
 
 GArray *
-wncksync_xids_for_desktop_file (gchar * desktop_file)
+wncksync_proxy_get_xids (WncksyncProxy *proxy, gchar * desktop_file)
 {
-  if (!wncksync_initialized)
-    wncksync_init ();
+  GArray *arr = NULL;
+  GError *error = NULL;
 
-  GArray *arr;
-  wncksync_error = NULL;
-  if (!dbus_g_proxy_call (wncksync_proxy,
+  g_return_val_if_fail (WNCKSYNC_IS_PROXY (proxy), arr);
+
+  if (!dbus_g_proxy_call (proxy->priv->proxy,
 			  "XidsForDesktopFile",
-			  &wncksync_error,
+			  &error,
 			  G_TYPE_STRING, desktop_file,
 			  G_TYPE_INVALID,
 			  DBUS_TYPE_G_UINT_ARRAY, &arr, G_TYPE_INVALID))
     {
-      g_printerr ("Failed to fetch xid array: %s\n", wncksync_error->message);
-      g_error_free (wncksync_error);
+      g_printerr ("Failed to fetch xid array: %s\n", error->message);
+      g_error_free (error);
       //Error Handling
       arr = g_array_new (FALSE, TRUE, sizeof (guint32));
     }
@@ -105,23 +76,23 @@ wncksync_xids_for_desktop_file (gchar * desktop_file)
 }
 
 gchar *
-wncksync_desktop_item_for_xid (guint32 xid)
+wncksync_proxy_get_desktop_file (WncksyncProxy *proxy, guint32 xid)
 {
-  if (!wncksync_initialized)
-    wncksync_init ();
-
   gchar *desktop_file;
-  wncksync_error = NULL;
-  if (!dbus_g_proxy_call (wncksync_proxy,
+  GError *error = NULL;
+
+  g_return_val_if_fail (WNCKSYNC_IS_PROXY (proxy), "");
+  
+  if (!dbus_g_proxy_call (proxy->priv->proxy,
 			  "DesktopFileForXid",
-			  &wncksync_error,
+			  &error,
 			  G_TYPE_UINT, xid,
 			  G_TYPE_INVALID,
 			  G_TYPE_STRING, &desktop_file, G_TYPE_INVALID))
     {
       g_printerr ("Failed to fetch desktop file: %s\n",
-		  wncksync_error->message);
-      g_error_free (wncksync_error);
+		  error->message);
+      g_error_free (error);
 
       return "";
     }
@@ -130,4 +101,52 @@ wncksync_desktop_item_for_xid (guint32 xid)
   g_free (desktop_file);
 
   return result;
+}
+
+static void
+wncksync_proxy_class_init (WncksyncProxyClass * klass)
+{
+  g_type_class_add_private (klass, sizeof (WncksyncProxyPrivate));
+}
+
+static void
+wncksync_proxy_init (WncksyncProxy * self)
+{
+  WncksyncProxyPrivate *priv;
+
+  self->priv = priv = WNCKSYNC_PROXY_GET_PRIVATE (self);
+}
+
+WncksyncProxy *
+wncksync_proxy_get_default (void)
+{
+  static WncksyncProxy *self;
+  WncksyncProxyPrivate *priv;
+  GError *error = NULL;
+  
+  if (WNCKSYNC_IS_PROXY (self))
+  	return self;
+  
+  self = (WncksyncProxy *) g_object_new (WNCKSYNC_TYPE_PROXY, NULL);
+  priv = self->priv;
+
+  priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+  if (priv->connection == NULL)
+    {
+      g_printerr ("Failed to open bus: %s\n", error->message);
+      g_error_free (error);
+    }
+
+  priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
+					   "org.wncksync.Matcher",
+					   "/org/wncksync/Matcher",
+					   "org.wncksync.Matcher");
+
+  if (!priv->proxy)
+    {
+      g_printerr ("Failed to get name owner.\n");
+    }
+
+  return self;
 }

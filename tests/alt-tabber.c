@@ -43,7 +43,7 @@ GArray * get_desktop_files ()
 		 * This is not done hwoever to allow us to use as many of the features of libwncksync
 		 * as possible.
 		 */
-		gchar *file = wncksync_desktop_item_for_xid (wnck_window_get_xid (window->data));
+		gchar *file = wncksync_proxy_get_desktop_file (wncksync_proxy_get_default (), wnck_window_get_xid (window->data));
 		if (file != NULL && *file != 0) {
 			GString *desktopFile = g_string_new (file);
 
@@ -80,7 +80,7 @@ void populate_tree_store (GtkTreeStore *store)
 
 		gtk_tree_store_set (store, &position, 0, string, -1);
 
-		GArray * windows = wncksync_xids_for_desktop_file (string);
+		GArray * windows = wncksync_proxy_get_xids (wncksync_proxy_get_default (), string);
 		int j;
 		for (j = 0; j < windows->len; j++) {
 			WnckWindow *window = wnck_window_get (g_array_index (windows, gulong, j));
@@ -167,12 +167,8 @@ int main (int argc, char **argv)
 	g_signal_connect (G_OBJECT (screen), "window-opened", (GCallback) handle_window_opened_closed, window);
 	g_signal_connect (G_OBJECT (screen), "window-closed", (GCallback) handle_window_opened_closed, window);
 
-	wncksync_init ();
-
 	gtk_widget_show_all (window);
 	gtk_main ();
-
-	wncksync_quit ();
 	return 0;
 }
 
