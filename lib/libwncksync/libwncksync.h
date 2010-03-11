@@ -23,16 +23,53 @@
 
 #include <glib.h>
 
-/* Add function prototypes here */
+G_BEGIN_DECLS
 
-GArray *wncksync_xids_for_desktop_file (gchar * desktop_file);
+#define WNCKSYNC_TYPE_PROXY (wncksync_proxy_get_type ())
 
-gchar *wncksync_desktop_item_for_xid (guint32 xid);
+#define WNCKSYNC_PROXY(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
+        WNCKSYNC_TYPE_PROXY, WncksyncProxy))
 
-void wncksync_register_desktop_file_for_pid (gchar * desktop_file, gint pid);
+#define WNCKSYNC_PROXY_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), \
+        WNCKSYNC_TYPE_PROXY, WncksyncProxyClass))
 
-void wncksync_init ();
+#define WNCKSYNC_IS_PROXY(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), \
+        WNCKSYNC_TYPE_PROXY))
 
-void wncksync_quit ();
+#define WNCKSYNC_IS_PROXY_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), \
+        WNCKSYNC_TYPE_PROXY))
 
+#define WNCKSYNC_PROXY_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), \
+        WNCKSYNC_TYPE_PROXY, WncksyncProxyClass))
+
+typedef struct _WncksyncProxy WncksyncProxy;
+typedef struct _WncksyncProxyClass WncksyncProxyClass;
+typedef struct _WncksyncProxyPrivate WncksyncProxyPrivate;
+
+struct _WncksyncProxyClass
+{
+  GObjectClass parent_class;
+};
+
+
+struct _WncksyncProxy
+{
+  GObject parent_instance;
+
+  /* Private */
+  WncksyncProxyPrivate *priv;
+};
+
+WncksyncProxy * wncksync_proxy_get_default (void);
+
+GArray * wncksync_proxy_get_xids         (WncksyncProxy *proxy,
+                                          gchar * desktop_file);
+
+gchar *  wncksync_proxy_get_desktop_file (WncksyncProxy *proxy,
+                                          guint32 xid);
+
+void     wncksync_proxy_register_match   (WncksyncProxy *proxy,
+                                          gchar * desktop_file, 
+                                          gint    pid);
+G_END_DECLS
 #endif
