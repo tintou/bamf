@@ -39,6 +39,22 @@ struct _WncksyncProxyPrivate
   DBusGProxy      *proxy;
 };
 
+typedef struct _FileCallbackData FileCallbackData;
+struct _FileCallbackData
+{
+  WncksyncProxy        *proxy;
+  WncksyncFileCallback  callback;
+  gpointer              user_data;
+};
+
+typedef struct _ArrayCallbackData ArrayCallbackData;
+struct _ArrayCallbackData
+{
+  WncksyncProxy         *proxy;
+  WncksyncArrayCallback  callback;
+  gpointer               user_data;
+};
+
 void
 wncksync_proxy_register_match (WncksyncProxy *proxy, gchar * desktop_file, gint pid)
 {
@@ -75,6 +91,61 @@ wncksync_proxy_get_xids (WncksyncProxy *proxy, gchar * desktop_file)
   return arr;
 }
 
+static void
+xids_for_file_async_callback (DBusGProxy     *proxy, 
+                              DBusGProxyCall *call, 
+                              gpointer       *user_data)
+{
+  GArray *arr = NULL;
+  GError *error = NULL;
+  ArrayCallbackData *callback_data;
+  
+  callback_data = (ArrayCallbackData *) user_data;
+  
+  if (!dbus_g_proxy_end_call (proxy,
+                              call,
+                              &error,
+                              DBUS_TYPE_G_UINT_ARRAY, &arr,
+                              G_TYPE_INVALID))
+    {
+      g_printerr ("Failed to complete async callback: %s\n",
+                  error->message);
+      g_error_free (error);
+      return;
+    }
+  
+  (callback_data->callback) (callback_data->proxy, arr, callback_data->user_data);
+}
+
+void
+wncksync_proxy_get_xids_async (WncksyncProxy *proxy,
+                               gchar *desktop_file,
+                               WncksyncArrayCallback callback,
+                               gpointer user_data)
+{
+  DBusGProxyCall *call;
+  WncksyncProxyPrivate *priv;
+  ArrayCallbackData *data;
+  
+  g_return_if_fail (WNCKSYNC_IS_PROXY (proxy));
+
+  priv = proxy->priv;
+
+  data = (ArrayCallbackData *) g_malloc0 (sizeof (ArrayCallbackData));
+  
+  data->callback = callback;
+  data->proxy = proxy;
+  data->user_data = user_data;
+
+  call = dbus_g_proxy_begin_call (priv->proxy,
+                                  "XidsForDesktopFile",
+                                  (DBusGProxyCallNotify) xids_for_file_async_callback,
+                                  data,
+                                  g_free,
+                                  G_TYPE_STRING, desktop_file,
+                                  G_TYPE_INVALID);
+}
+
 gchar *
 wncksync_proxy_get_desktop_file (WncksyncProxy *proxy, guint32 xid)
 {
@@ -104,6 +175,64 @@ wncksync_proxy_get_desktop_file (WncksyncProxy *proxy, guint32 xid)
 }
 
 static void
+file_for_xid_async_callback (DBusGProxy     *proxy, 
+                             DBusGProxyCall *call, 
+                             gpointer       *user_data)
+{
+  gchar *desktop_file = NULL;
+  GError *error = NULL;
+  FileCallbackData *callback_data;
+  
+  callback_data = (FileCallbackData *) user_data;
+  
+  if (!dbus_g_proxy_end_call (proxy,
+                              call,
+                              &error,
+                              G_TYPE_STRING, &desktop_file,
+                              G_TYPE_INVALID))
+    {
+      g_printerr ("Failed to complete async callback: %s\n",
+                  error->message);
+      g_error_free (error);
+      return;
+    }
+  
+  (callback_data->callback) (callback_data->proxy, g_strdup (desktop_file), callback_data->user_data);
+
+  if (desktop_file)
+    g_free (desktop_file);
+}
+
+void
+wncksync_proxy_get_desktop_file_async (WncksyncProxy       *proxy,
+                                       guint32              xid,
+                                       WncksyncFileCallback callback,
+                                       gpointer             user_data)
+{
+  DBusGProxyCall *call;
+  WncksyncProxyPrivate *priv;
+  FileCallbackData *data;
+  
+  g_return_if_fail (WNCKSYNC_IS_PROXY (proxy));
+
+  priv = proxy->priv;
+
+  data = (FileCallbackData *) g_malloc0 (sizeof (FileCallbackData));
+  
+  data->callback = callback;
+  data->proxy = proxy;
+  data->user_data = user_data;
+
+  call = dbus_g_proxy_begin_call (priv->proxy,
+                                  "DesktopFileForXid",
+                                  (DBusGProxyCallNotify) file_for_xid_async_callback,
+                                  data,
+                                  g_free,
+                                  G_TYPE_UINT, xid,
+                                  G_TYPE_INVALID);
+}
+
+static void
 wncksync_proxy_class_init (WncksyncProxyClass * klass)
 {
   g_type_class_add_private (klass, sizeof (WncksyncProxyPrivate));
@@ -129,7 +258,7 @@ wncksync_proxy_get_default (void)
   
   self = (WncksyncProxy *) g_object_new (WNCKSYNC_TYPE_PROXY, NULL);
   priv = self->priv;
-
+  
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
   if (priv->connection == NULL)
