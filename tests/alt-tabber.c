@@ -30,6 +30,18 @@ GtkWidget *window;
 GtkWidget *treeView;
 guint timer;
 
+void file_callback (WncksyncProxy *proxy,
+                    gchar *file,
+                    WnckWindow *data)
+{
+  g_return_if_fail (WNCK_IS_WINDOW (data));
+
+  if (file)
+    {
+      g_print ("%s -- %s\n", file, wnck_window_get_name (data));
+    }
+}
+
 GArray * get_desktop_files ()
 {
 	WnckScreen *screen = wnck_screen_get_default ();
@@ -44,6 +56,11 @@ GArray * get_desktop_files ()
 		 * as possible.
 		 */
 		gchar *file = wncksync_proxy_get_desktop_file (wncksync_proxy_get_default (), wnck_window_get_xid (window->data));
+		wncksync_proxy_get_desktop_file_async (wncksync_proxy_get_default (),
+		                                       wnck_window_get_xid (window->data),
+		                                       (WncksyncFileCallback) file_callback,
+		                                       window->data);
+		                                       
 		if (file != NULL && *file != 0) {
 			GString *desktopFile = g_string_new (file);
 
