@@ -91,6 +91,61 @@ wncksync_proxy_get_xids (WncksyncProxy *proxy, gchar * desktop_file)
   return arr;
 }
 
+static void
+xids_for_file_async_callback (DBusGProxy     *proxy, 
+                              DBusGProxyCall *call, 
+                              gpointer       *user_data)
+{
+  GArray *arr = NULL;
+  GError *error = NULL;
+  ArrayCallbackData *callback_data;
+  
+  callback_data = (ArrayCallbackData *) user_data;
+  
+  if (!dbus_g_proxy_end_call (proxy,
+                              call,
+                              &error,
+                              DBUS_TYPE_G_UINT_ARRAY, &arr,
+                              G_TYPE_INVALID))
+    {
+      g_printerr ("Failed to complete async callback: %s\n",
+                  error->message);
+      g_error_free (error);
+      return;
+    }
+  
+  (callback_data->callback) (callback_data->proxy, arr, callback_data->user_data);
+}
+
+void
+wncksync_proxy_get_xids_async (WncksyncProxy *proxy,
+                               gchar *desktop_file,
+                               WncksyncArrayCallback callback,
+                               gpointer user_data)
+{
+  DBusGProxyCall *call;
+  WncksyncProxyPrivate *priv;
+  ArrayCallbackData *data;
+  
+  g_return_if_fail (WNCKSYNC_IS_PROXY (proxy));
+
+  priv = proxy->priv;
+
+  data = (ArrayCallbackData *) g_malloc0 (sizeof (ArrayCallbackData));
+  
+  data->callback = callback;
+  data->proxy = proxy;
+  data->user_data = user_data;
+
+  call = dbus_g_proxy_begin_call (priv->proxy,
+                                  "XidsForDesktopFile",
+                                  (DBusGProxyCallNotify) xids_for_file_async_callback,
+                                  data,
+                                  g_free,
+                                  G_TYPE_STRING, desktop_file,
+                                  G_TYPE_INVALID);
+}
+
 gchar *
 wncksync_proxy_get_desktop_file (WncksyncProxy *proxy, guint32 xid)
 {
@@ -139,12 +194,11 @@ file_for_xid_async_callback (DBusGProxy     *proxy,
       g_printerr ("Failed to complete async callback: %s\n",
                   error->message);
       g_error_free (error);
-      goto xid_out;
+      return;
     }
   
   (callback_data->callback) (callback_data->proxy, g_strdup (desktop_file), callback_data->user_data);
-  
-xid_out:
+
   if (desktop_file)
     g_free (desktop_file);
 }

@@ -83,6 +83,22 @@ GArray * get_desktop_files ()
 	return desktopFiles;
 }
 
+void array_callback (WncksyncProxy *proxy,
+                     GArray *xids,
+                     gchar *string)
+{
+  if (string)
+    {
+      g_print ("%s --", string);
+      int i;
+      for (i = 0; i < xids->len; i++)
+        {
+          g_print (" %u", g_array_index (xids, guint32, i));
+        }
+      g_print ("\n");
+    }
+}
+
 void populate_tree_store (GtkTreeStore *store)
 {
 	GtkTreeIter position, child;
@@ -98,6 +114,10 @@ void populate_tree_store (GtkTreeStore *store)
 		gtk_tree_store_set (store, &position, 0, string, -1);
 
 		GArray * windows = wncksync_proxy_get_xids (wncksync_proxy_get_default (), string);
+		wncksync_proxy_get_xids_async (wncksync_proxy_get_default (),
+		                               string,
+		                               (WncksyncArrayCallback) array_callback,
+		                               string);
 		int j;
 		for (j = 0; j < windows->len; j++) {
 			WnckWindow *window = wnck_window_get (g_array_index (windows, gulong, j));

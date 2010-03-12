@@ -73,6 +73,11 @@ WncksyncProxy * wncksync_proxy_get_default (void);
 GArray * wncksync_proxy_get_xids         (WncksyncProxy *proxy,
                                           gchar * desktop_file);
 
+void wncksync_proxy_get_xids_async (WncksyncProxy *proxy,
+                                    gchar *desktop_file,
+                                    WncksyncArrayCallback callback,
+                                    gpointer user_data);
+
 gchar *  wncksync_proxy_get_desktop_file (WncksyncProxy *proxy,
                                           guint32 xid);
                                           
