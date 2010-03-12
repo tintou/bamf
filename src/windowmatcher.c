@@ -774,7 +774,7 @@ handle_window_closed (WnckScreen * screen, WnckWindow * window, gpointer data)
 
 gboolean
 wncksync_matcher_window_is_match_ready (WncksyncMatcher * self,
-				      WnckWindow * window)
+		                        WnckWindow * window)
 {
   GString *file;
 
@@ -793,7 +793,8 @@ wncksync_matcher_window_is_match_ready (WncksyncMatcher * self,
 
 void
 wncksync_matcher_register_desktop_file_for_pid (WncksyncMatcher * self,
-					      GString * desktopFile, gint pid)
+					        GString * desktopFile, 
+					        gint pid)
 {
   gint *key;
   WnckScreen *screen;
@@ -897,6 +898,16 @@ wncksync_matcher_window_list_for_desktop_file (WncksyncMatcher * self,
   return result;
 }
 
+static int
+x_error_handler (Display *display, XErrorEvent *event)
+{
+  /* We hardly care, this means one of our get or set property calls didn't work
+   * while this kind of sucks, it wont effect the running of the program except to
+   * perhaps reduce the efficiency of the application
+   */
+  return 0;
+}
+
 static void
 wncksync_matcher_class_init (WncksyncMatcherClass * klass)
 {
@@ -949,6 +960,9 @@ wncksync_matcher_new ()
 		    (GCallback) handle_window_opened, self);
   g_signal_connect (G_OBJECT (screen), "window-closed",
 		    (GCallback) handle_window_closed, self);
+  
+  XSetErrorHandler (x_error_handler);
+  
 
   return self;
 }
