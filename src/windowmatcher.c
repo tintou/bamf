@@ -700,7 +700,7 @@ ensure_window_hint_set (WncksyncMatcher *self,
 {
   GArray *pids;
   GHashTable *registered_pids;
-  GString *window_hint = NULL, *existing_hint = NULL;
+  GString *window_hint = NULL;
   gint i, pid;
   gint *key;
   
@@ -721,14 +721,14 @@ ensure_window_hint_set (WncksyncMatcher *self,
           key = g_new (gint, 1);
           *key = pid;
           
-          existing_hint = g_hash_table_lookup (registered_pids, key);
-          if (!existing_hint)
+          if (!g_hash_table_lookup (registered_pids, key))
             {
               g_hash_table_insert (registered_pids, key, g_string_new (window_hint->str));
             }
         }
       
-      goto out;
+      g_string_free (window_hint, FALSE);
+      return;
     }
     
   if (is_open_office_window (self, window))
@@ -755,10 +755,6 @@ ensure_window_hint_set (WncksyncMatcher *self,
       
   if (window_hint)
     set_window_hint (self, window, _NET_WM_DESKTOP_FILE, window_hint->str);
-
-out:
-  if (window_hint)
-    g_string_free (window_hint, TRUE);
 }
 
 static void
