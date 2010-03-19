@@ -698,27 +698,46 @@ static void
 ensure_window_hint_set (WncksyncMatcher *self,
                         WnckWindow *window)
 {
-  GString *window_hint;
+  GArray *pids;
+  GHashTable *registered_pids;
+  GString *window_hint = NULL, *existing_hint = NULL;
   gint i, pid;
   gint *key;
   
   g_return_if_fail (WNCKSYNC_IS_MATCHER (self));
   g_return_if_fail (WNCK_IS_WINDOW (window));
   
+  registered_pids = self->priv->registered_pids;
   window_hint = get_window_hint (self, window, _NET_WM_DESKTOP_FILE);
   
   if (window_hint && window_hint->len > 0)
-    return; /* already set */
-  
+    {
+      /* already set, make sure we know about this
+       * fact for future windows of this applications */
+      pid = wnck_window_get_pid (window); 
+      
+      if (pid > 0)
+        {
+          key = g_new (gint, 1);
+          *key = pid;
+          
+          existing_hint = g_hash_table_lookup (registered_pids, key);
+          if (!existing_hint)
+            {
+              g_hash_table_insert (registered_pids, key, g_string_new (window_hint->str));
+            }
+        }
+      
+      goto out;
+    }
+    
   if (is_open_office_window (self, window))
     {
       window_hint = get_open_office_window_hint (self, window);
     }
   else
     {  
-      GHashTable *registered_pids = self->priv->registered_pids;
-
-      GArray *pids = pid_parent_tree (self, wnck_window_get_pid (window));
+      pids = pid_parent_tree (self, wnck_window_get_pid (window));
 
       for (i = 0; i < pids->len; i++)
         {
@@ -728,16 +747,18 @@ ensure_window_hint_set (WncksyncMatcher *self,
           *key = pid;
 
           window_hint = g_hash_table_lookup (registered_pids, key);
-          if (window_hint != NULL && window_hint->len != 0)
+          if (window_hint != NULL && window_hint->len > 0)
             break;
         }
       g_array_free (pids, TRUE);
     }
       
   if (window_hint)
-    {
-      set_window_hint (self, window, _NET_WM_DESKTOP_FILE, window_hint->str);
-    }
+    set_window_hint (self, window, _NET_WM_DESKTOP_FILE, window_hint->str);
+
+out:
+  if (window_hint)
+    g_string_free (window_hint, TRUE);
 }
 
 static void
