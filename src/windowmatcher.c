@@ -269,6 +269,7 @@ load_desktop_file_to_table (WncksyncMatcher * self,
   GAppInfo *desktop_file;
   GString *exec;
   GString *filename;
+  GString *existing;
   GString *desktop_id;
   
   g_return_if_fail (WNCKSYNC_IS_MATCHER (self));
@@ -289,11 +290,29 @@ load_desktop_file_to_table (WncksyncMatcher * self,
     }
   
   filename = g_string_new (file);
-  g_hash_table_insert (desktop_file_table, exec, filename);
-
   desktop_id = g_string_new (g_path_get_basename (filename->str));
   desktop_id = g_string_truncate (desktop_id, desktop_id->len - 8); /* remove last 8 characters for .desktop */
+
+  existing = g_hash_table_lookup (desktop_file_table, exec);
+
+  if (existing)
+    {
+      existing = g_string_new (g_path_get_basename (existing->str));
+      existing = g_string_truncate (existing, existing->len - 8); /* remove last 8 characters for .desktop */
+
+      if (g_strcmp0 (existing->str, exec->str) == 0)
+        {
+          existing = g_hash_table_lookup (desktop_file_table, exec);
+          /* we prefer to have the desktop file where the desktop-id == exec */
+          g_string_free (filename, TRUE);
+          g_string_free (desktop_id, TRUE);
+          g_string_free (existing, TRUE);
+          return;
+        }
+      g_string_free (existing, TRUE);
+    }
   
+  g_hash_table_insert (desktop_file_table, exec, filename);
   g_hash_table_insert (desktop_id_table, desktop_id, filename); 
 }
 
@@ -369,12 +388,13 @@ load_index_file_to_table (WncksyncMatcher * self,
   directory = g_path_get_dirname (index_file);
   input = g_data_input_stream_new (G_INPUT_STREAM (stream));
   
-  line = g_data_input_stream_read_line (input, &length, NULL, NULL);
-  while (line)
+  
+  while ((line = g_data_input_stream_read_line (input, &length, NULL, NULL)) != NULL)
     {
       GString *exec;
       GString *desktop_id;
       GString *filename;
+      GString *existing;
       
       gchar **parts = g_strsplit (line, "\t", 3);
       
@@ -389,14 +409,30 @@ load_index_file_to_table (WncksyncMatcher * self,
       
       desktop_id = g_string_new (parts[0]);
       desktop_id = g_string_truncate (desktop_id, desktop_id->len - 8);
-      
+
+      existing = g_hash_table_lookup (desktop_file_table, exec);
+
+      if (existing)
+        {
+          existing = g_string_new (g_path_get_basename (existing->str));
+          existing = g_string_truncate (existing, existing->len - 8); /* remove last 8 characters for .desktop */
+
+          if (g_strcmp0 (existing->str, exec->str) == 0)
+            {
+              existing = g_hash_table_lookup (desktop_file_table, exec);
+              /* we prefer to have the desktop file where the desktop-id == exec */
+              g_string_free (filename, TRUE);
+              g_string_free (desktop_id, TRUE);
+              continue;
+            }
+          g_string_free (existing, TRUE);
+        }
+        
       g_hash_table_insert (desktop_file_table, exec, filename);
       g_hash_table_insert (desktop_id_table, desktop_id, filename); 
       
       length = 0;
       g_strfreev (parts);
-      
-      line = g_data_input_stream_read_line (input, &length, NULL, NULL);
     }
   g_free ((gpointer) directory);
 }
