@@ -306,7 +306,6 @@ load_desktop_file_to_table (WncksyncMatcher * self,
           /* we prefer to have the desktop file where the desktop-id == exec */
           g_string_free (filename, TRUE);
           g_string_free (desktop_id, TRUE);
-          g_string_free (existing, TRUE);
           return;
         }
       g_string_free (existing, TRUE);
