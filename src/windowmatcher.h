@@ -36,48 +36,48 @@
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 
-#define WNCKSYNC_MATCHER_TYPE			(wncksync_matcher_get_type ())
-#define WNCKSYNC_MATCHER(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), WNCKSYNC_MATCHER_TYPE, WncksyncMatcher))
-#define WNCKSYNC_IS_MATCHER(obj)			(G_TYPE_CHECK_INSTANCE_TYPE ((obj), WNCKSYNC_MATCHER_TYPE))
-#define WNCKSYNC_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), WNCKSYNC_MATCHER_TYPE, WncksyncMatcherClass))
-#define WNCKSYNC_IS_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASA_TYPE ((klass), WNCKSYNC_MATCHER_TYPE))
-#define WNCKSYNC_MATCHER_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), WNCKSYNC_MATCHER_TYPE, WncksyncMatcherClass))
+#define BAMF_MATCHER_TYPE			(bamf_matcher_get_type ())
+#define BAMF_MATCHER(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_MATCHER_TYPE, BamfMatcher))
+#define BAMF_IS_MATCHER(obj)			(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_MATCHER_TYPE))
+#define BAMF_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_MATCHER_TYPE, BamfMatcherClass))
+#define BAMF_IS_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASA_TYPE ((klass), BAMF_MATCHER_TYPE))
+#define BAMF_MATCHER_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_MATCHER_TYPE, BamfMatcherClass))
 
 #define _NET_WM_DESKTOP_FILE			"_NET_WM_DESKTOP_FILE"
 #define _CHROME_APP_URL                         "_CHROME_APP_URL"
 
-typedef struct _WncksyncMatcher WncksyncMatcher;
-typedef struct _WncksyncMatcherClass WncksyncMatcherClass;
-typedef struct _WncksyncMatcherPrivate WncksyncMatcherPrivate;
+typedef struct _BamfMatcher BamfMatcher;
+typedef struct _BamfMatcherClass BamfMatcherClass;
+typedef struct _BamfMatcherPrivate BamfMatcherPrivate;
 
-struct _WncksyncMatcher
+struct _BamfMatcher
 {
   GObject parent;
 
   /*< private > */
-  WncksyncMatcherPrivate *priv;
+  BamfMatcherPrivate *priv;
 };
 
-struct _WncksyncMatcherClass
+struct _BamfMatcherClass
 {
   GObjectClass parent;
 };
 
-GType wncksync_matcher_get_type (void);
+GType bamf_matcher_get_type (void);
 
-WncksyncMatcher *wncksync_matcher_new (void);
+BamfMatcher *bamf_matcher_new (void);
 
-gboolean wncksync_matcher_window_is_match_ready (WncksyncMatcher * self,
+gboolean bamf_matcher_window_is_match_ready (BamfMatcher * self,
 					       WnckWindow * window);
 
-void wncksync_matcher_register_desktop_file_for_pid (WncksyncMatcher * self,
+void bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
 						   GString * desktopFile,
 						   gint pid);
 
-GString *wncksync_matcher_desktop_file_for_window (WncksyncMatcher * self,
+GString *bamf_matcher_desktop_file_for_window (BamfMatcher * self,
 						 WnckWindow * window);
 
-GArray *wncksync_matcher_window_list_for_desktop_file (WncksyncMatcher * self,
+GArray *bamf_matcher_window_list_for_desktop_file (BamfMatcher * self,
 						     GString * desktopFile);
 
 

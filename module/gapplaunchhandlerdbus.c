@@ -117,9 +117,9 @@ on_launched (GDesktopAppInfoLaunchHandler *launch_handler,
 	error = NULL;
 
 	proxy = dbus_g_proxy_new_for_name (connection,
-					   "org.wncksync.Matcher",
-					   "/org/wncksync/Matcher",
-					   "org.wncksync.Matcher");
+					   "org.bamf.Matcher",
+					   "/org/bamf/Matcher",
+					   "org.bamf.Matcher");
 
 	g_return_if_fail (proxy);
 
@@ -145,6 +145,6 @@ g_app_launch_handler_dbus_register (GIOModule *module)
   g_app_launch_handler_dbus_register_type (G_TYPE_MODULE (module));
   g_io_extension_point_implement (G_DESKTOP_APP_INFO_LAUNCH_HANDLER_EXTENSION_POINT_NAME,
 				  G_TYPE_APP_LAUNCH_HANDLER_DBUS,
-				  "wncksync",
+				  "bamf",
 				  10);
 }

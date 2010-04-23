@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT(wncksync, 0.2.20, dx-team@canonical.com)
+AC_INIT(bamf, 0.2.20, dx-team@canonical.com)
 
 AC_CONFIG_SRCDIR(src/main.c)
 AC_CONFIG_HEADERS(config.h)
@@ -75,8 +75,8 @@ AM_PATH_GTK_2_0
 dnl CFLAGS
 CFLAGS="$CFLAGS -Wall -Werror -lm"
 
-AC_SUBST(WNCKSYNCDAEMON_CFLAGS)
-AC_SUBST(WNCKSYNCDAEMON_LIBS)
+AC_SUBST(BAMFDAEMON_CFLAGS)
+AC_SUBST(BAMFDAEMON_LIBS)
 
 origgiomodulesdir=`pkg-config --variable=giomoduledir gio-2.0`
 # Make giomodulesdir honour 'prefix', so that distcheck works. 
@@ -85,8 +85,8 @@ AC_SUBST(giomodulesdir)
 
 AC_OUTPUT([
 Makefile
-lib/libwncksync/Makefile
-lib/libwncksync/libwncksync.pc
+lib/libbamf/Makefile
+lib/libbamf/libbamf.pc
 src/Makefile
 tests/Makefile
 data/Makefile

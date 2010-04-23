@@ -18,10 +18,6 @@
 #include "config.h"
 
 #include "main.h"
-#include "windowmatcher.h"
-#include "wncksyncdbus.h"
-
-WnckSyncDBus *dbus_agent;
 
 int
 main (int argc, char **argv)
@@ -29,7 +25,8 @@ main (int argc, char **argv)
   gtk_init (&argc, &argv);
   glibtop_init ();
 
-  dbus_agent = wncksync_dbus_new ();
+  dbus_g_object_type_install_info (BAMF_TYPE_CONTROL,
+				   &dbus_glib_bamf_object_info);
 
   gtk_main ();
 

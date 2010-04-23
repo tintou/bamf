@@ -1,9 +1,9 @@
 servicedir=@datarootdir@/dbus-1/services
-service_DATA=org.wncksync.Matcher.service
+service_DATA=org.ayatana.bamf.service
 
-EXTRA_DIST=org.wncksync.Matcher.service.in
+EXTRA_DIST=org.ayatana.bamf.service.in
 
-org.wncksync.Matcher.service: org.wncksync.Matcher.service.in
+org.ayatana.bamf.service: org.ayatana.bamf.service.in
 	sed "s,@LIBEXECDIR@,$(libexecdir)," $< > $@
 
-CLEANFILES = org.wncksync.Matcher.service
+CLEANFILES = org.ayatana.bamf.service

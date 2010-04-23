@@ -6,7 +6,7 @@
   #undef GNOME_DISABLE_DEPRECATED
   #include <libgnome/gnome-desktop-item.h>
   #include <libgnome/gnome-desktop-utils.h>
-+ #include <libwncksync/libwncksync.h>
++ #include <libbamf/libbamf.h>
   
   #include "private.h"
   
@@ -17,7 +17,7 @@
   			     error);
   
 + 	gchar *file = g_filename_from_uri (item->location, NULL, NULL);
-+ 	wncksync_register_desktop_file_for_pid (file, ret);
++ 	bamf_register_desktop_file_for_pid (file, ret);
 + 	
 + 	g_free (file);
 + 

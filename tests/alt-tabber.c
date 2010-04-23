@@ -6,7 +6,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License
  *
- * WnckSync is distributed in the hope that it will be useful,
+ * Bamf is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -24,13 +24,13 @@
 #include <gdk/gdk.h>
 #include <glib.h>
 #include <libwnck/libwnck.h>
-#include <libwncksync/libwncksync.h>
+#include <libbamf/libbamf.h>
 
 GtkWidget *window;
 GtkWidget *treeView;
 guint timer;
 
-void file_callback (WncksyncProxy *proxy,
+void file_callback (BamfProxy *proxy,
                     gchar *file,
                     WnckWindow *data)
 {
@@ -52,13 +52,13 @@ GArray * get_desktop_files ()
 	GList *window;
 	for (window = windows; window != NULL; window = window->next) {
 		/* Doing just a little bit of tracking right here can save a lot of dbus calls.
-		 * This is not done hwoever to allow us to use as many of the features of libwncksync
+		 * This is not done hwoever to allow us to use as many of the features of libbamf
 		 * as possible.
 		 */
-		gchar *file = wncksync_proxy_get_desktop_file (wncksync_proxy_get_default (), wnck_window_get_xid (window->data));
-		wncksync_proxy_get_desktop_file_async (wncksync_proxy_get_default (),
+		gchar *file = bamf_proxy_get_desktop_file (bamf_proxy_get_default (), wnck_window_get_xid (window->data));
+		bamf_proxy_get_desktop_file_async (bamf_proxy_get_default (),
 		                                       wnck_window_get_xid (window->data),
-		                                       (WncksyncFileCallback) file_callback,
+		                                       (BamfFileCallback) file_callback,
 		                                       window->data);
 		                                       
 		if (file != NULL && *file != 0) {
@@ -83,7 +83,7 @@ GArray * get_desktop_files ()
 	return desktopFiles;
 }
 
-void array_callback (WncksyncProxy *proxy,
+void array_callback (BamfProxy *proxy,
                      GArray *xids,
                      gchar *string)
 {
@@ -113,10 +113,10 @@ void populate_tree_store (GtkTreeStore *store)
 
 		gtk_tree_store_set (store, &position, 0, string, -1);
 
-		GArray * windows = wncksync_proxy_get_xids (wncksync_proxy_get_default (), string);
-		wncksync_proxy_get_xids_async (wncksync_proxy_get_default (),
+		GArray * windows = bamf_proxy_get_xids (bamf_proxy_get_default (), string);
+		bamf_proxy_get_xids_async (bamf_proxy_get_default (),
 		                               string,
-		                               (WncksyncArrayCallback) array_callback,
+		                               (BamfArrayCallback) array_callback,
 		                               string);
 		int j;
 		for (j = 0; j < windows->len; j++) {
@@ -184,7 +184,7 @@ static void destroy (GtkWidget *widget, gpointer data)
 }
 
 /* This entire program is intentionally implemented in a slightly niave manner to allow it to show
- * the function of both of the primary calls to libwncksync. There is usually no reason to use
+ * the function of both of the primary calls to libbamf. There is usually no reason to use
  * both as one or the other can generally get the job done. Experienced coders should recognize how
  * to do this right away, however it is noted where it could be performed in the source.
  */

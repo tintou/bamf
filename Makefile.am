@@ -1,7 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = \
-  lib/libwncksync \
+  lib/libbamf \
   src \
   tests \
   data \

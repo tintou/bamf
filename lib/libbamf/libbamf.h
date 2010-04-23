@@ -18,75 +18,75 @@
  */
 
 /* project created on 7/7/2009 at 2:02 PM */
-#ifndef __LIBWNCKSYNC_H__
-#define __LIBWNCKSYNC_H__
+#ifndef __LIBBAMF_H__
+#define __LIBBAMF_H__
 
 #include <glib.h>
 
 G_BEGIN_DECLS
 
-#define WNCKSYNC_TYPE_PROXY (wncksync_proxy_get_type ())
+#define BAMF_TYPE_PROXY (bamf_proxy_get_type ())
 
-#define WNCKSYNC_PROXY(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
-        WNCKSYNC_TYPE_PROXY, WncksyncProxy))
+#define BAMF_PROXY(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
+        BAMF_TYPE_PROXY, BamfProxy))
 
-#define WNCKSYNC_PROXY_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), \
-        WNCKSYNC_TYPE_PROXY, WncksyncProxyClass))
+#define BAMF_PROXY_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), \
+        BAMF_TYPE_PROXY, BamfProxyClass))
 
-#define WNCKSYNC_IS_PROXY(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), \
-        WNCKSYNC_TYPE_PROXY))
+#define BAMF_IS_PROXY(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), \
+        BAMF_TYPE_PROXY))
 
-#define WNCKSYNC_IS_PROXY_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), \
-        WNCKSYNC_TYPE_PROXY))
+#define BAMF_IS_PROXY_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), \
+        BAMF_TYPE_PROXY))
 
-#define WNCKSYNC_PROXY_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), \
-        WNCKSYNC_TYPE_PROXY, WncksyncProxyClass))
+#define BAMF_PROXY_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), \
+        BAMF_TYPE_PROXY, BamfProxyClass))
 
-typedef struct _WncksyncProxy WncksyncProxy;
-typedef struct _WncksyncProxyClass WncksyncProxyClass;
-typedef struct _WncksyncProxyPrivate WncksyncProxyPrivate;
+typedef struct _BamfProxy BamfProxy;
+typedef struct _BamfProxyClass BamfProxyClass;
+typedef struct _BamfProxyPrivate BamfProxyPrivate;
 
-struct _WncksyncProxyClass
+struct _BamfProxyClass
 {
   GObjectClass parent_class;
 };
 
 
-struct _WncksyncProxy
+struct _BamfProxy
 {
   GObject parent_instance;
 
   /* Private */
-  WncksyncProxyPrivate *priv;
+  BamfProxyPrivate *priv;
 };
 
-typedef void     (*WncksyncFileCallback)     (WncksyncProxy *proxy,
+typedef void     (*BamfFileCallback)     (BamfProxy *proxy,
                                               gchar *file,
                                               gpointer data);
 
-typedef void     (*WncksyncArrayCallback)     (WncksyncProxy *proxy,
+typedef void     (*BamfArrayCallback)     (BamfProxy *proxy,
                                                GArray *array,
                                                gpointer data);
 
-WncksyncProxy * wncksync_proxy_get_default (void);
+BamfProxy * bamf_proxy_get_default (void);
 
-GArray * wncksync_proxy_get_xids         (WncksyncProxy *proxy,
+GArray * bamf_proxy_get_xids         (BamfProxy *proxy,
                                           gchar * desktop_file);
 
-void wncksync_proxy_get_xids_async (WncksyncProxy *proxy,
+void bamf_proxy_get_xids_async (BamfProxy *proxy,
                                     gchar *desktop_file,
-                                    WncksyncArrayCallback callback,
+                                    BamfArrayCallback callback,
                                     gpointer user_data);
 
-gchar *  wncksync_proxy_get_desktop_file (WncksyncProxy *proxy,
+gchar *  bamf_proxy_get_desktop_file (BamfProxy *proxy,
                                           guint32 xid);
                                           
-void wncksync_proxy_get_desktop_file_async (WncksyncProxy       *proxy,
+void bamf_proxy_get_desktop_file_async (BamfProxy       *proxy,
                                             guint32              xid,
-                                            WncksyncFileCallback callback,
+                                            BamfFileCallback callback,
                                             gpointer             user_data);
 
-void     wncksync_proxy_register_match   (WncksyncProxy *proxy,
+void     bamf_proxy_register_match   (BamfProxy *proxy,
                                           gchar * desktop_file, 
                                           gint    pid);
 G_END_DECLS

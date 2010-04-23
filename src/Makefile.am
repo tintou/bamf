@@ -3,36 +3,36 @@ INCLUDE = 		\
 	-I$(srcdir)	\
 	$(NULL)
 
-wncksyncdaemondir = $(libexecdir)
+bamfdaemondir = $(libexecdir)
 
-wncksyncdaemon_PROGRAMS = \
-		wncksyncdaemon \
+bamfdaemon_PROGRAMS = \
+		bamfdaemon \
 		$(NULL)
 
-wncksyncdaemon_sources = \
+bamfdaemon_sources = \
 		main.c \
-		wncksyncdbus.c \
+		bamfdbus.c \
 		windowmatcher.c \
 		$(NULL)
 
-wncksyncdaemon_headers = \
+bamfdaemon_headers = \
 		main.h \
 		windowmatcher.h \
-		wncksyncdbus.h \
+		bamfdbus.h \
 		$(NULL)
 
-wncksyncdaemon_SOURCES = \
-		$(wncksyncdaemon_sources) \
-		$(wncksyncdaemon_headers) \
+bamfdaemon_SOURCES = \
+		$(bamfdaemon_sources) \
+		$(bamfdaemon_headers) \
 		$(NULL)
 
-nodist_EXTRA_wncksyncdaemon_SOURCES = \
-	wncksyncdbus-glue.h
+nodist_EXTRA_bamfdaemon_SOURCES = \
+	bamfdbus-glue.h
 
 DISTCLEANFILES = \
-	wncksyncdbus-glue.h
+	bamfdbus-glue.h
 
-wncksyncdaemon_LDADD = \
+bamfdaemon_LDADD = \
 		$(X_LIBS) \
 		$(GLIB_LIBS) \
 		$(GTK_LIBS) \
@@ -41,7 +41,7 @@ wncksyncdaemon_LDADD = \
 		$(GTOP_LIBS) \
 		$(NULL)
 
-wncksyncdaemon_CFLAGS = \
+bamfdaemon_CFLAGS = \
 		-Wall -std=c99 \
 		-DDATADIR=\""$(datadir)"\" \
 		$(GLIB_CFLAGS) \
@@ -51,15 +51,15 @@ wncksyncdaemon_CFLAGS = \
 		$(GTOP_CFLAGS) \
 		$(NULL)
 
-wncksyncdaemon_LDFLAGS = \
+bamfdaemon_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
 		$(NULL)
 
-wncksyncdbus-glue.h: wncksyncdbus-glue.xml Makefile
-		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=wncksync_dbus --mode=glib-server --output=$@ $<
+bamfdbus-glue.h: bamfdbus-glue.xml Makefile
+		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_dbus --mode=glib-server --output=$@ $<
 
 BUILT_SOURCES = \
-	wncksyncdbus-glue.h
+	bamfdbus-glue.h
 
 EXTRA_DIST = \
-	wncksyncdbus-glue.xml
+	bamfdbus-glue.xml

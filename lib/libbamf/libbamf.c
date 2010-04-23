@@ -27,13 +27,13 @@
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
 
-#include "libwncksync.h"
+#include "libbamf.h"
 
-G_DEFINE_TYPE (WncksyncProxy, wncksync_proxy, G_TYPE_OBJECT);
-#define WNCKSYNC_PROXY_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
-WNCKSYNC_TYPE_PROXY, WncksyncProxyPrivate))
+G_DEFINE_TYPE (BamfProxy, bamf_proxy, G_TYPE_OBJECT);
+#define BAMF_PROXY_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
+BAMF_TYPE_PROXY, BamfProxyPrivate))
 
-struct _WncksyncProxyPrivate
+struct _BamfProxyPrivate
 {
   DBusGConnection *connection;
   DBusGProxy      *proxy;
@@ -42,23 +42,23 @@ struct _WncksyncProxyPrivate
 typedef struct _FileCallbackData FileCallbackData;
 struct _FileCallbackData
 {
-  WncksyncProxy        *proxy;
-  WncksyncFileCallback  callback;
+  BamfProxy        *proxy;
+  BamfFileCallback  callback;
   gpointer              user_data;
 };
 
 typedef struct _ArrayCallbackData ArrayCallbackData;
 struct _ArrayCallbackData
 {
-  WncksyncProxy         *proxy;
-  WncksyncArrayCallback  callback;
+  BamfProxy         *proxy;
+  BamfArrayCallback  callback;
   gpointer               user_data;
 };
 
 void
-wncksync_proxy_register_match (WncksyncProxy *proxy, gchar * desktop_file, gint pid)
+bamf_proxy_register_match (BamfProxy *proxy, gchar * desktop_file, gint pid)
 {
-  g_return_if_fail (WNCKSYNC_IS_PROXY (proxy));
+  g_return_if_fail (BAMF_IS_PROXY (proxy));
   g_return_if_fail (desktop_file);
   
   dbus_g_proxy_call_no_reply (proxy->priv->proxy,
@@ -68,12 +68,12 @@ wncksync_proxy_register_match (WncksyncProxy *proxy, gchar * desktop_file, gint 
 }
 
 GArray *
-wncksync_proxy_get_xids (WncksyncProxy *proxy, gchar * desktop_file)
+bamf_proxy_get_xids (BamfProxy *proxy, gchar * desktop_file)
 {
   GArray *arr = NULL;
   GError *error = NULL;
 
-  g_return_val_if_fail (WNCKSYNC_IS_PROXY (proxy), arr);
+  g_return_val_if_fail (BAMF_IS_PROXY (proxy), arr);
 
   if (!dbus_g_proxy_call (proxy->priv->proxy,
 			  "XidsForDesktopFile",
@@ -118,16 +118,16 @@ xids_for_file_async_callback (DBusGProxy     *proxy,
 }
 
 void
-wncksync_proxy_get_xids_async (WncksyncProxy *proxy,
+bamf_proxy_get_xids_async (BamfProxy *proxy,
                                gchar *desktop_file,
-                               WncksyncArrayCallback callback,
+                               BamfArrayCallback callback,
                                gpointer user_data)
 {
   DBusGProxyCall *call;
-  WncksyncProxyPrivate *priv;
+  BamfProxyPrivate *priv;
   ArrayCallbackData *data;
   
-  g_return_if_fail (WNCKSYNC_IS_PROXY (proxy));
+  g_return_if_fail (BAMF_IS_PROXY (proxy));
 
   priv = proxy->priv;
 
@@ -147,12 +147,12 @@ wncksync_proxy_get_xids_async (WncksyncProxy *proxy,
 }
 
 gchar *
-wncksync_proxy_get_desktop_file (WncksyncProxy *proxy, guint32 xid)
+bamf_proxy_get_desktop_file (BamfProxy *proxy, guint32 xid)
 {
   gchar *desktop_file;
   GError *error = NULL;
 
-  g_return_val_if_fail (WNCKSYNC_IS_PROXY (proxy), "");
+  g_return_val_if_fail (BAMF_IS_PROXY (proxy), "");
   
   if (!dbus_g_proxy_call (proxy->priv->proxy,
 			  "DesktopFileForXid",
@@ -204,16 +204,16 @@ file_for_xid_async_callback (DBusGProxy     *proxy,
 }
 
 void
-wncksync_proxy_get_desktop_file_async (WncksyncProxy       *proxy,
+bamf_proxy_get_desktop_file_async (BamfProxy       *proxy,
                                        guint32              xid,
-                                       WncksyncFileCallback callback,
+                                       BamfFileCallback callback,
                                        gpointer             user_data)
 {
   DBusGProxyCall *call;
-  WncksyncProxyPrivate *priv;
+  BamfProxyPrivate *priv;
   FileCallbackData *data;
   
-  g_return_if_fail (WNCKSYNC_IS_PROXY (proxy));
+  g_return_if_fail (BAMF_IS_PROXY (proxy));
 
   priv = proxy->priv;
 
@@ -233,30 +233,30 @@ wncksync_proxy_get_desktop_file_async (WncksyncProxy       *proxy,
 }
 
 static void
-wncksync_proxy_class_init (WncksyncProxyClass * klass)
+bamf_proxy_class_init (BamfProxyClass * klass)
 {
-  g_type_class_add_private (klass, sizeof (WncksyncProxyPrivate));
+  g_type_class_add_private (klass, sizeof (BamfProxyPrivate));
 }
 
 static void
-wncksync_proxy_init (WncksyncProxy * self)
+bamf_proxy_init (BamfProxy * self)
 {
-  WncksyncProxyPrivate *priv;
+  BamfProxyPrivate *priv;
 
-  self->priv = priv = WNCKSYNC_PROXY_GET_PRIVATE (self);
+  self->priv = priv = BAMF_PROXY_GET_PRIVATE (self);
 }
 
-WncksyncProxy *
-wncksync_proxy_get_default (void)
+BamfProxy *
+bamf_proxy_get_default (void)
 {
-  static WncksyncProxy *self;
-  WncksyncProxyPrivate *priv;
+  static BamfProxy *self;
+  BamfProxyPrivate *priv;
   GError *error = NULL;
   
-  if (WNCKSYNC_IS_PROXY (self))
+  if (BAMF_IS_PROXY (self))
   	return self;
   
-  self = (WncksyncProxy *) g_object_new (WNCKSYNC_TYPE_PROXY, NULL);
+  self = (BamfProxy *) g_object_new (BAMF_TYPE_PROXY, NULL);
   priv = self->priv;
   
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
@@ -268,9 +268,9 @@ wncksync_proxy_get_default (void)
     }
 
   priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
-					   "org.wncksync.Matcher",
-					   "/org/wncksync/Matcher",
-					   "org.wncksync.Matcher");
+					   "org.bamf.Matcher",
+					   "/org/bamf/Matcher",
+					   "org.bamf.Matcher");
 
   if (!priv->proxy)
     {
