@@ -43,59 +43,94 @@ struct _BamfApplicationPrivate
 char * 
 bamf_application_get_application_type (BamfApplication *application)
 {
+  g_return_val_if_fail (BAMF_IS_APPLICATION (applicaton), NULL);
 
+  return application->priv->app->type;
 }
 
 char * 
 bamf_application_get_desktop_file (BamfApplication *application)
 {
+  g_return_val_if_fail (BAMF_IS_APPLICATION (applicaton), NULL);
 
+  return application->priv->desktop_file;
 }
 
 void   
 bamf_application_set_desktop_file (BamfApplication *application,
                                    char * desktop_file)
 {
+  g_return_if_fail (BAMF_IS_APPLICATION (application));
 
+  application->priv->desktop_file = desktop_file;
 }
 
 gboolean * 
 bamf_application_is_urgent  (BamfApplication *application)
 {
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
 
+  return application->priv->urgent;
 }
 
 void       
 bamf_application_set_urgent (BamfApplication *application,
                              gboolean urgent)
 {
+  g_return_if_fail (BAMF_IS_APPLICATION (application));
 
+  if (application->priv->urgent == urgent)
+    return;
+
+  application->priv->urgent = urgent;
+  g_signal_emit (application, application_signals[URGENT_CHANGED], 0, urgent);
 }
 
 GArray * 
 bamf_application_get_xids (BamfApplication *application)
 {
+  GArray *xids;
+  GList *windows, *w;
+  guint32 xid;
+  
+  g_return_val_if_fail (BAMF_IS_APPLICATION (applicaton), NULL);
 
+  xids = g_array_new (FALSE, TRUE, sizeof (guint32));
+  windows = application->priv->windows;
+
+  for (l = windows; l != null; l = l->next)
+    {
+      xid = wnck_window_get_xid (l->data);
+      g_array_append_val (xids, xid);
+    }
+
+  return xids;
 }
 
 GList * 
 bamf_application_get_windows (BamfApplication *application)
 {
+  g_return_val_if_fail (BAMF_IS_APPLICATION (applicaton), NULL);
 
+  return application->priv->windows;
 }
 
 void 
 bamf_application_add_window    (BamfApplication *application,
                                 WnckWindow *window)
 {
+  g_return_if_fail (BAMF_IS_APPLICATION (application));
 
+  application->priv->windows = g_list_prepend (application->priv->windows, window);
 }
 
 void 
 bamf_application_remove_window (BamfApplication *application,
                                 WnckWindow *window)
 {
+  g_return_if_fail (BAMF_IS_APPLICATION (application));
 
+  application->priv->windows = g_list_remove (application->priv->windows, window);
 }
 
 static void
