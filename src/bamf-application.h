@@ -22,6 +22,9 @@
 #include <glib.h>
 #include <glib-object.h>
 
+#define WNCK_I_KNOW_THIS_IS_UNSTABLE
+#include <libwnck/libwnck.h>
+
 #define BAMF_TYPE_APPLICATION			(bamf_application_get_type ())
 #define BAMF_APPLICATION(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_APPLICATION, BamfApplication))
 #define BAMF_IS_APPLICATION			(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_APPLICATION))
@@ -48,6 +51,24 @@ struct _BamfApplication
 
 GType bamf_application_get_type (void) G_GNUC_CONST;
 
+char * bamf_application_get_application_type (BamfApplication *application);
+
+char * bamf_application_get_desktop_file (BamfApplication *application);
+void   bamf_application_set_desktop_file (BamfApplication *application,
+                                          char * desktop_file);
+
+gboolean * bamf_application_is_urgent  (BamfApplication *application);
+void       bamf_application_set_urgent (BamfApplication *application,
+                                        gboolean urgent);
+
+GArray * bamf_application_get_xids (BamfApplication *application);
+
+GList * bamf_application_get_windows (BamfApplication *application);
+
+void bamf_application_add_window    (BamfApplication *application,
+                                     WnckWindow *window);
+void bamf_application_remove_window (BamfApplication *application,
+                                     WnckWindow *window);
 
 BamfApplication * bamf_application_new (void);
 

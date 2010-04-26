@@ -24,10 +24,8 @@ BAMF_TYPE_APPLICATION, BamfApplicationPrivate))
 
 enum
 {
-  ACTIVE_CHANGED,
-  CLOSED,
-  CHILDREN_CHANGED,
-  RUNNING_CHANGED,
+  WINDOWS_CHANGED,
+  URGENT_CHANGED,
   
   LAST_SIGNAL,
 };
@@ -36,8 +34,69 @@ static guint application_signals[LAST_SIGNAL] = { 0 };
 
 struct _BamfApplicationPrivate
 {
+  char * desktop_file;
+  char * app_type;
+  gboolan urgent;
+  GList * windows;
 };
 
+char * 
+bamf_application_get_application_type (BamfApplication *application)
+{
+
+}
+
+char * 
+bamf_application_get_desktop_file (BamfApplication *application)
+{
+
+}
+
+void   
+bamf_application_set_desktop_file (BamfApplication *application,
+                                   char * desktop_file)
+{
+
+}
+
+gboolean * 
+bamf_application_is_urgent  (BamfApplication *application)
+{
+
+}
+
+void       
+bamf_application_set_urgent (BamfApplication *application,
+                             gboolean urgent)
+{
+
+}
+
+GArray * 
+bamf_application_get_xids (BamfApplication *application)
+{
+
+}
+
+GList * 
+bamf_application_get_windows (BamfApplication *application)
+{
+
+}
+
+void 
+bamf_application_add_window    (BamfApplication *application,
+                                WnckWindow *window)
+{
+
+}
+
+void 
+bamf_application_remove_window (BamfApplication *application,
+                                WnckWindow *window)
+{
+
+}
 
 static void
 bamf_application_dispose (GObject *object)
@@ -60,7 +119,24 @@ bamf_application_class_init (BamfApplicationClass * klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = bamf_application_dispose;
-  
+
+  application_signals [WINDOWS_CHANGED] = 
+  	g_signal_new ("WindowsChanged",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              marshal_VOID__POINTER_POINTER,
+  	              G_TYPE_NONE, 2,
+  	              G_TYPE_ARRAY, G_TYPE_ARRAY);
+
+  application_signals [URGENT_CHANGED] = 
+  	g_signal_new ("UrgentChanged",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__BOOLEAN,
+  	              G_TYPE_NONE, 1,
+  	              G_TYPE_BOOLEAN);
 }
 
 BamfApplication *
