@@ -19,6 +19,7 @@
 #define __BAMFAPPLICATION_H__
 
 #include "bamf.h"
+#include "bamf-view.h"
 #include <glib.h>
 #include <glib-object.h>
 
@@ -57,8 +58,8 @@ char * bamf_application_get_desktop_file (BamfApplication *application);
 void   bamf_application_set_desktop_file (BamfApplication *application,
                                           char * desktop_file);
 
-gboolean * bamf_application_is_urgent  (BamfApplication *application);
-void       bamf_application_set_urgent (BamfApplication *application,
+gboolean bamf_application_is_urgent  (BamfApplication *application);
+void     bamf_application_set_urgent (BamfApplication *application,
                                         gboolean urgent);
 
 GArray * bamf_application_get_xids (BamfApplication *application);

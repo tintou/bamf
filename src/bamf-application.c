@@ -16,7 +16,7 @@
 // 
 
 #include "bamf-application.h"
-#include "bamfdbus-glue.h"
+#include "marshal.h"
 
 G_DEFINE_TYPE (BamfApplication, bamf_application, BAMF_TYPE_VIEW);
 #define BAMF_APPLICATION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -36,22 +36,22 @@ struct _BamfApplicationPrivate
 {
   char * desktop_file;
   char * app_type;
-  gboolan urgent;
+  gboolean urgent;
   GList * windows;
 };
 
 char * 
 bamf_application_get_application_type (BamfApplication *application)
 {
-  g_return_val_if_fail (BAMF_IS_APPLICATION (applicaton), NULL);
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
 
-  return application->priv->app->type;
+  return application->priv->app_type;
 }
 
 char * 
 bamf_application_get_desktop_file (BamfApplication *application)
 {
-  g_return_val_if_fail (BAMF_IS_APPLICATION (applicaton), NULL);
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
 
   return application->priv->desktop_file;
 }
@@ -65,7 +65,7 @@ bamf_application_set_desktop_file (BamfApplication *application,
   application->priv->desktop_file = desktop_file;
 }
 
-gboolean * 
+gboolean
 bamf_application_is_urgent  (BamfApplication *application)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
@@ -93,14 +93,14 @@ bamf_application_get_xids (BamfApplication *application)
   GList *windows, *w;
   guint32 xid;
   
-  g_return_val_if_fail (BAMF_IS_APPLICATION (applicaton), NULL);
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
 
   xids = g_array_new (FALSE, TRUE, sizeof (guint32));
   windows = application->priv->windows;
 
-  for (l = windows; l != null; l = l->next)
+  for (w = windows; w != NULL; w = w->next)
     {
-      xid = wnck_window_get_xid (l->data);
+      xid = wnck_window_get_xid (w->data);
       g_array_append_val (xids, xid);
     }
 
@@ -110,7 +110,7 @@ bamf_application_get_xids (BamfApplication *application)
 GList * 
 bamf_application_get_windows (BamfApplication *application)
 {
-  g_return_val_if_fail (BAMF_IS_APPLICATION (applicaton), NULL);
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
 
   return application->priv->windows;
 }
@@ -144,16 +144,14 @@ bamf_application_update_windows (BamfApplication *application)
 static void
 bamf_application_dispose (GObject *object)
 {
-  BamfApplication *application = BAMF_APPLICATION (object);
-
-  G_OBJECT_CLASS (bamf_application_parent_class)->dispose (gobject);
+  G_OBJECT_CLASS (bamf_application_parent_class)->dispose (object);
 }
 
 static void
 bamf_application_init (BamfApplication * self)
 {
   BamfApplicationPrivate *priv;
-  priv = self->priv = BAMF_APPLICATION_GET_PRIVATE (appman);
+  priv = self->priv = BAMF_APPLICATION_GET_PRIVATE (self);
 }
 
 static void
@@ -199,7 +197,7 @@ bamf_application_new_from_desktop_file (char * desktop_file)
 
   application = bamf_application_new ();
 
-  bamf_application_set_desktop_file (desktop_file);
+  bamf_application_set_desktop_file (application, desktop_file);
 
   return application;
 }
