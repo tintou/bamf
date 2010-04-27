@@ -16,7 +16,7 @@
 // 
 
 #include "bamf-view.h"
-#include "bamfdbus-glue.h"
+#include "marshal.h"
 
 G_DEFINE_TYPE (BamfView, bamf_view, G_TYPE_OBJECT);
 #define BAMF_VIEW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -48,6 +48,8 @@ GArray *
 bamf_view_get_children_paths (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+
+  return NULL;
 }
 
 GList *
@@ -83,7 +85,7 @@ bamf_view_is_active (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
-  return bamf->priv->is_active;
+  return view->priv->is_active;
 }
 
 void
@@ -92,10 +94,10 @@ bamf_view_set_active (BamfView *view,
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
 
-  if (active == bamf->priv->is_active)
+  if (active == view->priv->is_active)
     return;
 
-  bamf->priv->is_active = active;
+  view->priv->is_active = active;
   g_signal_emit (view, view_signals[ACTIVE_CHANGED], 0, active);
 }
 
@@ -104,7 +106,7 @@ bamf_view_is_running (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
-  return bamf->priv->is_active;
+  return view->priv->is_active;
 }
 
 void
@@ -113,10 +115,10 @@ bamf_view_set_running (BamfView *view,
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
 
-  if (running == bamf->priv->is_running)
+  if (running == view->priv->is_running)
     return;
 
-  bamf->priv->is_running = running;
+  view->priv->is_running = running;
   g_signal_emit (view, view_signals[RUNNING_CHANGED], 0, running);
 }
 
@@ -129,7 +131,8 @@ bamf_view_get_name (BamfView *view)
 }
 
 void
-bamf_view_set_name (BamfView *view)
+bamf_view_set_name (BamfView *view,
+                    char * name)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
 
@@ -141,14 +144,14 @@ bamf_view_get_parent_path (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
 
-  return view->priv->parent;
+  return "FIXME";
 }
 
 char *
 bamf_view_get_view_type (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  BAMF_VIEW_GET_CLASS (view)->view_type (view);
+  return BAMF_VIEW_GET_CLASS (view)->view_type (view);
 }
 
 char * 
@@ -163,6 +166,7 @@ bamf_view_export_on_bus (BamfView *view,
                          DBusGConnection *bus)
 {
 
+  return "path";
 }
 
 static void
@@ -170,20 +174,20 @@ bamf_view_dispose (GObject *object)
 {
   BamfView *view = BAMF_VIEW (object);
 
-  if (self->priv->children)
+  if (view->priv->children)
     {
-      g_array_free (view->priv->children, TRUE);
+      g_list_free (view->priv->children);
       view->priv->children = NULL;
     }
 
-  G_OBJECT_CLASS (bamf_view_parent_class)->dispose (gobject);
+  G_OBJECT_CLASS (bamf_view_parent_class)->dispose (object);
 }
 
 static void
 bamf_view_init (BamfView * self)
 {
   BamfViewPrivate *priv;
-  priv = self->priv = BAMF_VIEW_GET_PRIVATE (appman);
+  priv = self->priv = BAMF_VIEW_GET_PRIVATE (self);
 }
 
 static void

@@ -16,7 +16,6 @@
 // 
 
 #include "bamf-control.h"
-#include "bamfdbus-glue.h"
 
 G_DEFINE_TYPE (BamfControl, bamf_control, G_TYPE_OBJECT);
 #define BAMF_CONTROL_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -30,7 +29,7 @@ static void
 bamf_control_init (BamfControl * self)
 {
   BamfControlPrivate *priv;
-  priv = self->priv = BAMF_CONTROL_GET_PRIVATE (appman);
+  priv = self->priv = BAMF_CONTROL_GET_PRIVATE (self);
 }
 
 static void

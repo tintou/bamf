@@ -15,8 +15,8 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // 
 
+#include "marshal.h"
 #include "bamf-matcher.h"
-#include "bamfdbus-glue.h"
 
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, G_TYPE_OBJECT);
 #define BAMF_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -57,7 +57,7 @@ bamf_matcher_init (BamfMatcher * self)
   priv = self->priv = BAMF_MATCHER_GET_PRIVATE (self);
   
   bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-  g_return_val_if_fail (bus, NULL);
+  g_return_if_fail (bus);
 
   bus_proxy =
     dbus_g_proxy_new_for_name (bus, "org.freedesktop.DBus",
@@ -72,14 +72,12 @@ bamf_matcher_init (BamfMatcher * self)
     g_error ("Could not grab service");
 
   dbus_g_connection_register_g_object (bus, BAMF_MATCHER_PATH,
-				       G_OBJECT (obj));
+				       G_OBJECT (self));
 }
 
 static void
 bamf_matcher_class_init (BamfMatcherClass * klass)
 {
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
   matcher_signals [VIEW_OPENED] = 
   	g_signal_new ("view-opened",
   	              G_OBJECT_CLASS_TYPE (klass),
@@ -160,7 +158,7 @@ process_exec_string (BamfMatcher * self, char * execString)
   gboolean regexFail;
   GRegex *regex;
   
-  g_return_if_fail (execString && strlen (execString) > 0);
+  g_return_val_if_fail (execString && strlen (execString) > 0, g_strdup (execString));
 
   exec = g_utf8_casefold (execString, -1);
   parts = g_strsplit (exec, " ", 0);
@@ -207,6 +205,8 @@ process_exec_string (BamfMatcher * self, char * execString)
 
   g_free (exec);
   g_free (parts);
+
+  return execString;
 }
 
 static GArray *
@@ -337,7 +337,6 @@ load_desktop_file_to_table (BamfMatcher * self,
 {
   GAppInfo *desktop_file;
   char *exec;
-  char *filename;
   char *existing;
   GString *tmp;
   GString *desktop_id; /* is ok */
@@ -346,7 +345,7 @@ load_desktop_file_to_table (BamfMatcher * self,
   
   desktop_file = G_APP_INFO (g_desktop_app_info_new_from_filename (file));
 
-  exec = g_app_info_get_commandline (desktop_file);
+  exec = g_strdup (g_app_info_get_commandline (desktop_file));
 
   if (exec_string_should_be_processed (self, exec))
     {
@@ -359,8 +358,7 @@ load_desktop_file_to_table (BamfMatcher * self,
       exec = process_exec_string (self, exec);
     }
   
-  filename = file;
-  desktop_id = g_string_new (g_path_get_basename (filename));
+  desktop_id = g_string_new (g_path_get_basename (file));
   desktop_id = g_string_truncate (desktop_id, desktop_id->len - 8); /* remove last 8 characters for .desktop */
 
   existing = g_hash_table_lookup (desktop_file_table, exec);
@@ -368,7 +366,7 @@ load_desktop_file_to_table (BamfMatcher * self,
   if (existing)
     {
       tmp = g_string_new (g_path_get_basename (existing));
-      tmp = g_string_truncate (existing, tmp->len - 8); /* remove last 8 characters for .desktop */
+      tmp = g_string_truncate (tmp, tmp->len - 8); /* remove last 8 characters for .desktop */
 
       if (g_strcmp0 (tmp->str, exec) == 0)
         {
@@ -379,8 +377,8 @@ load_desktop_file_to_table (BamfMatcher * self,
       g_string_free (tmp, TRUE);
     }
   
-  g_hash_table_insert (desktop_file_table, exec, filename);
-  g_hash_table_insert (desktop_id_table, g_strdup (desktop_id->str), filename);
+  g_hash_table_insert (desktop_file_table, g_strdup (exec), g_strdup (file));
+  g_hash_table_insert (desktop_id_table, g_strdup (desktop_id->str), g_strdup (file));
 
   g_string_free (desktop_id, TRUE); 
 }
@@ -666,7 +664,7 @@ window_class_name (WnckWindow *window)
   if (!group)
     return NULL;
   
-  return wnck_class_group_get_res_class (group);
+  return g_strdup (wnck_class_group_get_res_class (group));
 }
 
 static void
@@ -753,7 +751,7 @@ ensure_window_matching_state (BamfMatcher *self,
      
       g_regex_unref (regex);
     }
-  else if (hint && hint->len > 0)
+  else if (hint && strlen (hint) > 0)
     {
       /* We have a window that has a hint that is NOT a chrome app */
       g_array_append_val (desktop_files, hint);
@@ -761,11 +759,11 @@ ensure_window_matching_state (BamfMatcher *self,
     }
   else
     {
-      char *class_name;
-      class_name = g_ascii_tolower (window_class_name (window);
+      char *class_name = window_class_name (window);
       
       if (class_name)
         {
+          class_name = g_ascii_strdown (class_name, -1);
           file = g_hash_table_lookup (priv->desktop_id_table, class_name);
       
           if (file)
@@ -789,7 +787,7 @@ ensure_window_matching_state (BamfMatcher *self,
           if (file)
             {
               /* Make sure we make a copy of the string */
-              file = g_strdup (file->str);
+              file = g_strdup (file);
               g_array_append_val (desktop_files, file);
             }
             
@@ -881,31 +879,7 @@ handle_window_opened (WnckScreen * screen, WnckWindow * window, gpointer data)
   ensure_window_hint_set (self, window);
   ensure_window_matching_state (self, window);
 }
-DBusGConnection *bus;
-  DBusGProxy *bus_proxy;
-  GError *error = NULL;
-  guint request_name_result;
-  BamfDBus *obj;
-  
-  obj = (BamfDBus *) g_object_new (BAMF_TYPE_DBUS, NULL);
 
-  bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-  g_return_val_if_fail (bus, NULL);
-
-  bus_proxy =
-    dbus_g_proxy_new_for_name (bus, "org.freedesktop.DBus",
-			       "/org/freedesktop/DBus",
-			       "org.freedesktop.DBus");
-
-  if (!dbus_g_proxy_call (bus_proxy, "RequestName", &error,
-			  G_TYPE_STRING, BAMF_DBUS_SERVICE,
-			  G_TYPE_UINT, 0,
-			  G_TYPE_INVALID,
-			  G_TYPE_UINT, &request_name_result, G_TYPE_INVALID))
-    return NULL;
-
-  dbus_g_connection_register_g_object (bus, BAMF_DBUS_PATH,
-				       G_OBJECT (obj));
 static void
 handle_window_closed (WnckScreen * screen, WnckWindow * window, gpointer data)
 {
@@ -1037,7 +1011,7 @@ bamf_matcher_get_default (void)
       GArray *prefixstrings;
       int i;
   
-      self = (BamfMatcher *) g_object_new (BAMF_MATCHER_TYPE, NULL);
+      self = (BamfMatcher *) g_object_new (BAMF_TYPE_MATCHER, NULL);
       priv = self->priv;
     
       priv->known_pids = g_array_new (FALSE, TRUE, sizeof (gint));
@@ -1054,7 +1028,7 @@ bamf_matcher_get_default (void)
           char *str = g_array_index (prefixstrings, char *, i);
           GRegex *regex = g_regex_new (str, G_REGEX_OPTIMIZE, 0, NULL);
           g_array_append_val (priv->bad_prefixes, regex);
-          g_free (str, TRUE);
+          g_free (str);
         }
 
       g_array_free (prefixstrings, TRUE);
