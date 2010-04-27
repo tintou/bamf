@@ -24,34 +24,35 @@
  *
  */
 /**
- * SECTION:bamf-application
- * @short_description: The base class for all applications
+ * SECTION:bamf-matcher
+ * @short_description: The base class for all matchers
  *
- * #BamfApplication is the base class that all applications need to derive from.
+ * #BamfMatcher is the base class that all matchers need to derive from.
  */
 
 #if HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#include "bamf-application.h"
+#include "bamf-matcher.h"
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
 
-G_DEFINE_TYPE (BamfApplication, bamf_application, BAMF_TYPE_VIEW);
+G_DEFINE_TYPE (BamfMatcher, bamf_matcher, G_TYPE_OBJECT);
 
-#define BAMF_APPLICATION_GET_PRIVATE(o) \
-  (G_TYPE_INSTANCE_GET_PRIVATE ((o), BAMF_TYPE_APPLICATION, BamfApplicationPrivate))
+#define BAMF_MATCHER_GET_PRIVATE(o) \
+  (G_TYPE_INSTANCE_GET_PRIVATE ((o), BAMF_TYPE_MATCHER, BamfMatcherPrivate))
 
-struct _BamfApplicationPrivate
+struct _BamfMatcherPrivate
 {
   DBusGConnection *connection;
   DBusGProxy      *proxy;
 };
 
 /* Globals */
+static BamfMatcher * default_matcher = NULL;
 
 /* Forwards */
 
@@ -60,21 +61,21 @@ struct _BamfApplicationPrivate
  */
 
 static void
-bamf_application_class_init (BamfApplicationClass *klass)
+bamf_matcher_class_init (BamfMatcherClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private (obj_class, sizeof (BamfApplicationPrivate));
+  g_type_class_add_private (obj_class, sizeof (BamfMatcherPrivate));
 }
 
 
 static void
-bamf_application_init (BamfApplication *self)
+bamf_matcher_init (BamfMatcher *self)
 {
-  BamfApplicationPrivate *priv;
+  BamfMatcherPrivate *priv;
   GError           *error = NULL;
 
-  priv = self->priv = BAMF_APPLICATION_GET_PRIVATE (self);
+  priv = self->priv = BAMF_MATCHER_GET_PRIVATE (self);
 
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   if (priv->connection == NULL)
@@ -85,6 +86,15 @@ bamf_application_init (BamfApplication *self)
         g_error_free (error);
       return;
     }
+
+  priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
+                                           "org.ayatana.bamf.matcher",
+                                           "/org/ayatana/bamf/matcher",
+                                           "org.ayatana.bamf.matcher");
+  if (priv->proxy == NULL)
+    {
+      g_error ("Unable to get org.bamf.Matcher matcher");
+    }
 }
 
 /*
@@ -94,3 +104,11 @@ bamf_application_init (BamfApplication *self)
 /*
  * Public Methods
  */
+BamfMatcher *
+bamf_matcher_get_default (void)
+{
+  if (BAMF_IS_MATCHER (default_matcher))
+    return g_object_ref (default_matcher);
+
+  return (default_matcher = g_object_new (BAMF_TYPE_MATCHER, NULL));
+}

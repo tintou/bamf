@@ -104,9 +104,9 @@ bamf_proxy_init (BamfProxy *self)
     }
 
   priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
-                                           "org.bamf.Matcher",
-                                           "/org/bamf/Matcher",
-                                           "org.bamf.Matcher");
+                                           "org.ayatana.bamf.matcher",
+                                           "/org/ayatana/bamf/matcher",
+                                           "org.ayatana.bamf.matcher");
   if (priv->proxy == NULL)
     {
       g_error ("Unable to get org.bamf.Matcher proxy");

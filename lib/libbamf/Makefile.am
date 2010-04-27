@@ -1,11 +1,17 @@
 lib_LTLIBRARIES = libbamf.la
 
 sources_h = \
+  bamf-application.h \
+  bamf-matcher.h \
   bamf-proxy.h \
+  bamf-view.h \
   libbamf.h
 
 libbamf_la_SOURCES = \
+  bamf-application.c \
+  bamf-matcher.c \
   bamf-proxy.c \
+  bamf-view.c \
   $(sources_h)
 
 libbamf_la_LIBADD = \
@@ -14,10 +20,11 @@ libbamf_la_LIBADD = \
   $(DBUS_LIBS) \
   $(NULL)
 
-libbamf_la_CFLAGS = \
+libbamf_la_CPPFLAGS = \
   -Wall -std=c99 \
   -fPIC \
   -DDATADIR=\""$(datadir)"\" \
+  -I$(top_srcdir)/lib \
   $(LIBWSBIND_CFLAGS) \
   $(GLIB_CFLAGS) \
   $(DBUS_CFLAGS) \

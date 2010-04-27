@@ -37,3 +37,10 @@ module/libgiodbus_la-gapplaunchhandlerdbus.lo
 src/Makefile
 src/Makefile.in
 src/wncksyncdaemon
+lib/libbamf/libbamf.la
+lib/libbamf/libbamf.pc
+lib/libbamf/libbamf_la-bamf-application.lo
+lib/libbamf/libbamf_la-bamf-matcher.lo
+lib/libbamf/libbamf_la-bamf-proxy.lo
+lib/libbamf/libbamf_la-bamf-view.lo
+src/bamfdbus-glue.h

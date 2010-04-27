@@ -24,28 +24,28 @@
  *
  */
 /**
- * SECTION:bamf-application
- * @short_description: The base class for all applications
+ * SECTION:bamf-view
+ * @short_description: The base class for all views
  *
- * #BamfApplication is the base class that all applications need to derive from.
+ * #BamfView is the base class that all views need to derive from.
  */
 
 #if HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#include "bamf-application.h"
+#include "bamf-view.h"
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
 
-G_DEFINE_TYPE (BamfApplication, bamf_application, BAMF_TYPE_VIEW);
+G_DEFINE_TYPE (BamfView, bamf_view, G_TYPE_OBJECT);
 
-#define BAMF_APPLICATION_GET_PRIVATE(o) \
-  (G_TYPE_INSTANCE_GET_PRIVATE ((o), BAMF_TYPE_APPLICATION, BamfApplicationPrivate))
+#define BAMF_VIEW_GET_PRIVATE(o) \
+  (G_TYPE_INSTANCE_GET_PRIVATE ((o), BAMF_TYPE_VIEW, BamfViewPrivate))
 
-struct _BamfApplicationPrivate
+struct _BamfViewPrivate
 {
   DBusGConnection *connection;
   DBusGProxy      *proxy;
@@ -60,21 +60,21 @@ struct _BamfApplicationPrivate
  */
 
 static void
-bamf_application_class_init (BamfApplicationClass *klass)
+bamf_view_class_init (BamfViewClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private (obj_class, sizeof (BamfApplicationPrivate));
+  g_type_class_add_private (obj_class, sizeof (BamfViewPrivate));
 }
 
 
 static void
-bamf_application_init (BamfApplication *self)
+bamf_view_init (BamfView *self)
 {
-  BamfApplicationPrivate *priv;
+  BamfViewPrivate *priv;
   GError           *error = NULL;
 
-  priv = self->priv = BAMF_APPLICATION_GET_PRIVATE (self);
+  priv = self->priv = BAMF_VIEW_GET_PRIVATE (self);
 
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   if (priv->connection == NULL)
