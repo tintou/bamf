@@ -56,7 +56,7 @@ gboolean bamf_matcher_application_is_running (BamfMatcher *matcher,
 
 GList * bamf_matcher_get_applications (BamfMatcher *matcher);
 
-GList * bamf_matcher_running_application_paths (BamfMatcher *matcher);
+GList * bamf_matcher_running_applications (BamfMatcher *matcher);
 
 GList * bamf_matcher_get_tabs (BamfMatcher *matcher);
 
