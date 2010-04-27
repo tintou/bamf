@@ -18,6 +18,7 @@
 #include "config.h"
 #include "bamf-control.h"
 #include "bamf-matcher.h"
+#include "bamfdbus-glue.h"
 
 #include "main.h"
 
@@ -33,8 +34,8 @@ main (int argc, char **argv)
   dbus_g_object_type_install_info (BAMF_TYPE_CONTROL,
 				   &dbus_glib_bamf_object_info);
 
-  control = bamf_control_get_default ();
   matcher = bamf_matcher_get_default ();
+  control = bamf_control_get_default ();
   
   gtk_main ();
 

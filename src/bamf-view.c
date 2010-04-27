@@ -158,6 +158,13 @@ bamf_view_inner_get_view_type (BamfView *view)
   return "Unknown";
 }
 
+char * 
+bamf_view_export_on_bus (BamfView *view,
+                         DBusGConnection *bus)
+{
+
+}
+
 static void
 bamf_view_dispose (GObject *object)
 {
@@ -187,7 +194,7 @@ bamf_view_class_init (BamfViewClass * klass)
   object_class->dispose = bamf_view_dispose;
   
   view_signals [ACTIVE_CHANGED] = 
-  	g_signal_new ("ActiveChanged",
+  	g_signal_new ("active-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
@@ -196,7 +203,7 @@ bamf_view_class_init (BamfViewClass * klass)
   	              G_TYPE_BOOLEAN);
 
   view_signals [CLOSED] = 
-  	g_signal_new ("Closed",
+  	g_signal_new ("closed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
@@ -204,7 +211,7 @@ bamf_view_class_init (BamfViewClass * klass)
   	              G_TYPE_NONE, 0);
 
   view_signals [CHILDREN_CHANGED] = 
-  	g_signal_new ("ChildrenChanged",
+  	g_signal_new ("children-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
@@ -213,7 +220,7 @@ bamf_view_class_init (BamfViewClass * klass)
   	              G_TYPE_ARRAY, G_TYPE_ARRAY);
 
   view_signals [RUNNING_CHANGED] = 
-  	g_signal_new ("RunningChanged",
+  	g_signal_new ("running-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,

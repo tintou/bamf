@@ -70,6 +70,10 @@ void bamf_application_add_window    (BamfApplication *application,
 void bamf_application_remove_window (BamfApplication *application,
                                      WnckWindow *window);
 
+void bamf_application_update_windows (BamfApplication *application);
+
 BamfApplication * bamf_application_new (void);
+
+BamfApplication * bamf_application_new_from_desktop_file (char * desktop_file);
 
 #endif

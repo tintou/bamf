@@ -133,6 +133,14 @@ bamf_application_remove_window (BamfApplication *application,
   application->priv->windows = g_list_remove (application->priv->windows, window);
 }
 
+void
+bamf_application_update_windows (BamfApplication *application)
+{
+  g_return_if_fail (BAMF_IS_APPLICATION (application));
+
+  
+}
+
 static void
 bamf_application_dispose (GObject *object)
 {
@@ -156,7 +164,7 @@ bamf_application_class_init (BamfApplicationClass * klass)
   object_class->dispose = bamf_application_dispose;
 
   application_signals [WINDOWS_CHANGED] = 
-  	g_signal_new ("WindowsChanged",
+  	g_signal_new ("windows-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
@@ -165,7 +173,7 @@ bamf_application_class_init (BamfApplicationClass * klass)
   	              G_TYPE_ARRAY, G_TYPE_ARRAY);
 
   application_signals [URGENT_CHANGED] = 
-  	g_signal_new ("UrgentChanged",
+  	g_signal_new ("urgent-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
@@ -180,6 +188,18 @@ bamf_application_new (void)
   BamfApplication *application;
 
   application = (BamfApplication *) g_object_new (BAMF_TYPE_APPLICATION, NULL);
+
+  return application;
+}
+
+BamfApplication *
+bamf_application_new_from_desktop_file (char * desktop_file)
+{
+  BamfApplication *application;
+
+  application = bamf_application_new ();
+
+  bamf_application_set_desktop_file (desktop_file);
 
   return application;
 }

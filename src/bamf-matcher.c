@@ -47,8 +47,32 @@ struct _BamfMatcherPrivate
 static void
 bamf_matcher_init (BamfMatcher * self)
 {
+
   BamfMatcherPrivate *priv;
-  priv = self->priv = BAMF_MATCHER_GET_PRIVATE (appman);
+  DBusGConnection *bus;
+  DBusGProxy *bus_proxy;
+  GError *error = NULL;
+  guint request_name_result;
+
+  priv = self->priv = BAMF_MATCHER_GET_PRIVATE (self);
+  
+  bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+  g_return_val_if_fail (bus, NULL);
+
+  bus_proxy =
+    dbus_g_proxy_new_for_name (bus, "org.freedesktop.DBus",
+			       "/org/freedesktop/DBus",
+			       "org.freedesktop.DBus");
+
+  if (!dbus_g_proxy_call (bus_proxy, "RequestName", &error,
+			  G_TYPE_STRING, BAMF_DBUS_SERVICE,
+			  G_TYPE_UINT, 0,
+			  G_TYPE_INVALID,
+			  G_TYPE_UINT, &request_name_result, G_TYPE_INVALID))
+    g_error ("Could not grab service");
+
+  dbus_g_connection_register_g_object (bus, BAMF_MATCHER_PATH,
+				       G_OBJECT (obj));
 }
 
 static void
@@ -57,7 +81,7 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   matcher_signals [VIEW_OPENED] = 
-  	g_signal_new ("ViewOpened",
+  	g_signal_new ("view-opened",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
@@ -66,7 +90,7 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
   	              G_TYPE_STRING, G_TYPE_STRING);
 
   matcher_signals [VIEW_OPENED] = 
-  	g_signal_new ("ViewClosed",
+  	g_signal_new ("view-closed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
@@ -857,7 +881,31 @@ handle_window_opened (WnckScreen * screen, WnckWindow * window, gpointer data)
   ensure_window_hint_set (self, window);
   ensure_window_matching_state (self, window);
 }
+DBusGConnection *bus;
+  DBusGProxy *bus_proxy;
+  GError *error = NULL;
+  guint request_name_result;
+  BamfDBus *obj;
+  
+  obj = (BamfDBus *) g_object_new (BAMF_TYPE_DBUS, NULL);
 
+  bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+  g_return_val_if_fail (bus, NULL);
+
+  bus_proxy =
+    dbus_g_proxy_new_for_name (bus, "org.freedesktop.DBus",
+			       "/org/freedesktop/DBus",
+			       "org.freedesktop.DBus");
+
+  if (!dbus_g_proxy_call (bus_proxy, "RequestName", &error,
+			  G_TYPE_STRING, BAMF_DBUS_SERVICE,
+			  G_TYPE_UINT, 0,
+			  G_TYPE_INVALID,
+			  G_TYPE_UINT, &request_name_result, G_TYPE_INVALID))
+    return NULL;
+
+  dbus_g_connection_register_g_object (bus, BAMF_DBUS_PATH,
+				       G_OBJECT (obj));
 static void
 handle_window_closed (WnckScreen * screen, WnckWindow * window, gpointer data)
 {

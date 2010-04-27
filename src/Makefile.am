@@ -11,14 +11,22 @@ bamfdaemon_PROGRAMS = \
 
 bamfdaemon_sources = \
 		main.c \
-		bamfdbus.c \
-		windowmatcher.c \
+		bamf-view.c \
+		bamf-control.c \
+		bamf-matcher.c \
+		bamf-application.c \
+		marshal.c \
 		$(NULL)
 
 bamfdaemon_headers = \
 		main.h \
-		windowmatcher.h \
-		bamfdbus.h \
+		bamf.h \
+		bamf-view.h \
+		bamf-control.h \
+		bamf-matcher.h \
+		bamf-application.h \
+		bamfdbus-glue.h \
+		marshal.h \
 		$(NULL)
 
 bamfdaemon_SOURCES = \

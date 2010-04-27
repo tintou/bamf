@@ -21,6 +21,9 @@
 #include "bamf.h"
 #include <glib.h>
 #include <glib-object.h>
+#include <dbus/dbus.h>
+#include <dbus/dbus-glib.h>
+#include <dbus/dbus-glib-lowlevel.h>
 
 #define BAMF_TYPE_VIEW			(bamf_view_get_type ())
 #define BAMF_VIEW(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_VIEW, BamfView))
@@ -79,6 +82,9 @@ void       bamf_view_set_parent (BamfView *view,
                                  BamfView *parent);
 
 char * bamf_view_get_view_type (BamfView *view);
+
+char * bamf_view_export_on_bus (BamfView *view,
+                                DBusGConnection *bus);
 
 BamfView * bamf_view_new (void);
 
