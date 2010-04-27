@@ -1,7 +1,8 @@
 lib_LTLIBRARIES = libbamf.la
 
 sources_h = \
-  bamf-proxy.h
+  bamf-proxy.h \
+  libbamf.h
 
 libbamf_la_SOURCES = \
   bamf-proxy.c \
