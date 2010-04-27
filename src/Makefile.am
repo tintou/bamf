@@ -64,7 +64,7 @@ bamfdaemon_LDFLAGS = \
 		$(NULL)
 
 bamfdbus-glue.h: bamfdbus-glue.xml Makefile
-		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_dbus --mode=glib-server --output=$@ $<
+		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf --mode=glib-server --output=$@ $<
 
 BUILT_SOURCES = \
 	bamfdbus-glue.h

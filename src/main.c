@@ -18,6 +18,8 @@
 #include "config.h"
 #include "bamf-control.h"
 #include "bamf-matcher.h"
+#include "bamf-view.h"
+#include "bamf-application.h"
 #include "bamfdbus-glue.h"
 
 #include "main.h"

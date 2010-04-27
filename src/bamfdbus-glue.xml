@@ -2,7 +2,7 @@
 
 <node name="/org/ayatana/bamf">
 
-	<interface name="org.ayatana.bamf.browser">
+	<!--<interface name="org.ayatana.bamf.browser">
 
 		<signal name="TabOpened">
 			<arg type="s" name="tab_id" direction="out" />
@@ -48,8 +48,8 @@
 				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
 			</arg>
 		</method>
-	</interface>
-
+	</interface>-->
+	
 	<interface name="org.ayatana.bamf.control">
 
 		<method name="RegisterApplicationForPid">
@@ -234,8 +234,7 @@
 		
 	</interface>
 
-	<interface name="org.ayatana.bamf.tab">
-		<!-- Standard view crap -->
+	<!--<interface name="org.ayatana.bamf.tab">
 	
 		<signal name="ActiveChanged">
 			<arg type="b" name="new_state" direction="out" />
@@ -295,7 +294,6 @@
 			</arg>
 		</method>
 
-		<!-- Tab specific stuff -->
 
 		<signal name="UriChanged">
 			<arg type="s" name="old" direction="out" />
@@ -330,7 +328,6 @@
 	</interface>
 
 	<interface name="org.ayatana.bamf.window">
-		<!-- Standard view crap -->
 	
 		<signal name="ActiveChanged">
 			<arg type="b" name="new_state" direction="out" />
@@ -390,7 +387,6 @@
 			</arg>
 		</method>
 
-		<!-- Tab specific stuff -->
 
 		<method name="GetXid">
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_window_get_xid" />
@@ -400,5 +396,5 @@
 		</method>
 		
 	</interface>
-	
+	-->
 </node>
