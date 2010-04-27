@@ -16,18 +16,26 @@
 // 
 
 #include "config.h"
+#include "bamf-control.h"
+#include "bamf-matcher.h"
 
 #include "main.h"
 
 int
 main (int argc, char **argv)
 {
+  BamfControl *control;
+  BamfMatcher *matcher;
+  
   gtk_init (&argc, &argv);
   glibtop_init ();
 
   dbus_g_object_type_install_info (BAMF_TYPE_CONTROL,
 				   &dbus_glib_bamf_object_info);
 
+  control = bamf_control_get_default ();
+  matcher = bamf_matcher_get_default ();
+  
   gtk_main ();
 
   return 0;
