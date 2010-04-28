@@ -94,3 +94,26 @@ bamf_application_init (BamfApplication *self)
 /*
  * Public Methods
  */
+BamfApplication *
+bamf_application_new (void)
+{
+  return NULL;
+}
+
+const gchar *
+bamf_application_get_application_type (BamfApplication *application)
+{
+  return NULL;
+}
+
+gboolean
+bamf_application_is_urgent (BamfApplication *application)
+{
+  return FALSE;
+}
+
+GList *
+bamf_application_get_windows (BamfApplication *application)
+{
+  return NULL;
+}

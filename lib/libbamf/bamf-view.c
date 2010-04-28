@@ -94,3 +94,38 @@ bamf_view_init (BamfView *self)
 /*
  * Public Methods
  */
+GList *
+bamf_view_get_children (BamfView *view)
+{
+  return NULL;
+}
+
+gboolean
+bamf_view_is_active (BamfView *view)
+{
+  return FALSE;
+}
+
+gboolean
+bamf_view_is_running (BamfView *view)
+{
+  return FALSE;
+}
+
+gchar *
+bamf_view_get_name (BamfView *view)
+{
+  return NULL;
+}
+
+BamfView *
+bamf_view_get_parent (BamfView *view)
+{
+  return NULL;
+}
+
+gchar *
+bamf_view_get_view_type (BamfView *view)
+{
+  return NULL;
+}

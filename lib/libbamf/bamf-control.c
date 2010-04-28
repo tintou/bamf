@@ -24,35 +24,34 @@
  *
  */
 /**
- * SECTION:bamf-matcher
- * @short_description: The base class for all matchers
+ * SECTION:bamf-control
+ * @short_description: The base class for all controls
  *
- * #BamfMatcher is the base class that all matchers need to derive from.
+ * #BamfControl is the base class that all controls need to derive from.
  */
 
 #if HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#include "bamf-matcher.h"
+#include "bamf-control.h"
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
-#include <dbus/dbus-glib-lowlevel.h>
 
-G_DEFINE_TYPE (BamfMatcher, bamf_matcher, G_TYPE_OBJECT);
+G_DEFINE_TYPE (BamfControl, bamf_control, G_TYPE_OBJECT);
 
-#define BAMF_MATCHER_GET_PRIVATE(o) \
-  (G_TYPE_INSTANCE_GET_PRIVATE ((o), BAMF_TYPE_MATCHER, BamfMatcherPrivate))
+#define BAMF_CONTROL_GET_PRIVATE(o) \
+  (G_TYPE_INSTANCE_GET_PRIVATE ((o), BAMF_TYPE_CONTROL, BamfControlPrivate))
 
-struct _BamfMatcherPrivate
+struct _BamfControlPrivate
 {
   DBusGConnection *connection;
   DBusGProxy      *proxy;
 };
 
 /* Globals */
-static BamfMatcher * default_matcher = NULL;
+static BamfControl * default_control = NULL;
 
 /* Forwards */
 
@@ -61,21 +60,21 @@ static BamfMatcher * default_matcher = NULL;
  */
 
 static void
-bamf_matcher_class_init (BamfMatcherClass *klass)
+bamf_control_class_init (BamfControlClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private (obj_class, sizeof (BamfMatcherPrivate));
+  g_type_class_add_private (obj_class, sizeof (BamfControlPrivate));
 }
 
 
 static void
-bamf_matcher_init (BamfMatcher *self)
+bamf_control_init (BamfControl *self)
 {
-  BamfMatcherPrivate *priv;
+  BamfControlPrivate *priv;
   GError           *error = NULL;
 
-  priv = self->priv = BAMF_MATCHER_GET_PRIVATE (self);
+  priv = self->priv = BAMF_CONTROL_GET_PRIVATE (self);
 
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   if (priv->connection == NULL)
@@ -88,12 +87,12 @@ bamf_matcher_init (BamfMatcher *self)
     }
 
   priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
-                                           "org.ayatana.bamf.matcher",
-                                           "/org/ayatana/bamf/matcher",
-                                           "org.ayatana.bamf.matcher");
+                                           "org.ayatana.bamf.control",
+                                           "/org/ayatana/bamf/control",
+                                           "org.ayatana.bamf.control");
   if (priv->proxy == NULL)
     {
-      g_error ("Unable to get org.bamf.Matcher matcher");
+      g_error ("Unable to get org.bamf.Control control");
     }
 }
 
@@ -104,51 +103,26 @@ bamf_matcher_init (BamfMatcher *self)
 /*
  * Public Methods
  */
-BamfMatcher *
-bamf_matcher_get_default (void)
+BamfControl *
+bamf_control_get_default (void)
 {
-  if (BAMF_IS_MATCHER (default_matcher))
-    return g_object_ref (default_matcher);
+  if (BAMF_IS_CONTROL (default_control))
+    return g_object_ref (default_control);
 
-  return (default_matcher = g_object_new (BAMF_TYPE_MATCHER, NULL));
-}
-
-BamfApplication *
-bamf_matcher_get_application_for_xid (BamfMatcher  *matcher,
-                                      guint32       xid)
-{
-  return NULL;
+  return (default_control = g_object_new (BAMF_TYPE_CONTROL, NULL));
 }
 
 gboolean
-bamf_matcher_application_is_running (BamfMatcher *matcher,
-                                     const gchar *application)
+bamf_control_register_application_for_pid (BamfControl  *control,
+                                           const gchar  *application,
+                                           gint32        pid)
 {
   return FALSE;
 }
 
-GList *
-bamf_matcher_get_applications (BamfMatcher *matcher)
+gboolean
+bamf_control_register_tab_provider (BamfControl *control,
+                                    const char  *path)
 {
-  return NULL;
+  return FALSE;
 }
-
-GList *
-bamf_matcher_get_running_applications (BamfMatcher *matcher)
-{
-  return NULL;
-}
-
-GList *
-bamf_matcher_get_tabs (BamfMatcher *matcher)
-{
-  return NULL;
-}
-
-GArray *
-bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
-                                       const gchar *application)
-{
-  return NULL;
-}
-

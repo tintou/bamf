@@ -2,6 +2,7 @@ lib_LTLIBRARIES = libbamf.la
 
 sources_h = \
   bamf-application.h \
+  bamf-control.h \
   bamf-matcher.h \
   bamf-proxy.h \
   bamf-view.h \
@@ -9,6 +10,7 @@ sources_h = \
 
 libbamf_la_SOURCES = \
   bamf-application.c \
+  bamf-control.c \
   bamf-matcher.c \
   bamf-proxy.c \
   bamf-view.c \
