@@ -83,4 +83,6 @@ gboolean          bamf_application_is_urgent            (BamfApplication *applic
 
 GList *           bamf_application_get_windows          (BamfApplication *application);
 
+G_END_DECLS
+
 #endif

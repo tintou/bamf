@@ -93,4 +93,6 @@ GList *           bamf_matcher_get_tabs                 (BamfMatcher *matcher);
 GArray *          bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
                                                          const gchar *application);
 
+G_END_DECLS
+
 #endif

@@ -82,4 +82,6 @@ gboolean      bamf_control_register_application_for_pid (BamfControl *control,
 
 gboolean      bamf_control_register_tab_provider        (BamfControl *control,
                                                          const char  *path);
+
+G_END_DECLS
 #endif

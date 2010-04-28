@@ -88,4 +88,6 @@ BamfView * bamf_view_get_parent     (BamfView *view);
 
 gchar    * bamf_view_get_view_type (BamfView *view);
 
+G_END_DECLS
+
 #endif
