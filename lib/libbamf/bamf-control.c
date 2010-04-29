@@ -24,34 +24,34 @@
  *
  */
 /**
- * SECTION:bamf-application
- * @short_description: The base class for all applications
+ * SECTION:bamf-control
+ * @short_description: The base class for all controls
  *
- * #BamfApplication is the base class that all applications need to derive from.
+ * #BamfControl is the base class that all controls need to derive from.
  */
 
 #if HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#include "bamf-application.h"
+#include "bamf-control.h"
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
-#include <dbus/dbus-glib-lowlevel.h>
 
-G_DEFINE_TYPE (BamfApplication, bamf_application, BAMF_TYPE_VIEW);
+G_DEFINE_TYPE (BamfControl, bamf_control, G_TYPE_OBJECT);
 
-#define BAMF_APPLICATION_GET_PRIVATE(o) \
-  (G_TYPE_INSTANCE_GET_PRIVATE ((o), BAMF_TYPE_APPLICATION, BamfApplicationPrivate))
+#define BAMF_CONTROL_GET_PRIVATE(o) \
+  (G_TYPE_INSTANCE_GET_PRIVATE ((o), BAMF_TYPE_CONTROL, BamfControlPrivate))
 
-struct _BamfApplicationPrivate
+struct _BamfControlPrivate
 {
   DBusGConnection *connection;
   DBusGProxy      *proxy;
 };
 
 /* Globals */
+static BamfControl * default_control = NULL;
 
 /* Forwards */
 
@@ -60,21 +60,21 @@ struct _BamfApplicationPrivate
  */
 
 static void
-bamf_application_class_init (BamfApplicationClass *klass)
+bamf_control_class_init (BamfControlClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private (obj_class, sizeof (BamfApplicationPrivate));
+  g_type_class_add_private (obj_class, sizeof (BamfControlPrivate));
 }
 
 
 static void
-bamf_application_init (BamfApplication *self)
+bamf_control_init (BamfControl *self)
 {
-  BamfApplicationPrivate *priv;
+  BamfControlPrivate *priv;
   GError           *error = NULL;
 
-  priv = self->priv = BAMF_APPLICATION_GET_PRIVATE (self);
+  priv = self->priv = BAMF_CONTROL_GET_PRIVATE (self);
 
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   if (priv->connection == NULL)
@@ -85,6 +85,15 @@ bamf_application_init (BamfApplication *self)
         g_error_free (error);
       return;
     }
+
+  priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
+                                           "org.ayatana.bamf.control",
+                                           "/org/ayatana/bamf/control",
+                                           "org.ayatana.bamf.control");
+  if (priv->proxy == NULL)
+    {
+      g_error ("Unable to get org.bamf.Control control");
+    }
 }
 
 /*
@@ -94,26 +103,26 @@ bamf_application_init (BamfApplication *self)
 /*
  * Public Methods
  */
-BamfApplication *
-bamf_application_new (void)
+BamfControl *
+bamf_control_get_default (void)
 {
-  return NULL;
-}
+  if (BAMF_IS_CONTROL (default_control))
+    return g_object_ref (default_control);
 
-const gchar *
-bamf_application_get_application_type (BamfApplication *application)
-{
-  return NULL;
+  return (default_control = g_object_new (BAMF_TYPE_CONTROL, NULL));
 }
 
 gboolean
-bamf_application_is_urgent (BamfApplication *application)
+bamf_control_register_application_for_pid (BamfControl  *control,
+                                           const gchar  *application,
+                                           gint32        pid)
 {
   return FALSE;
 }
 
-GList *
-bamf_application_get_windows (BamfApplication *application)
+gboolean
+bamf_control_register_tab_provider (BamfControl *control,
+                                    const char  *path)
 {
-  return NULL;
+  return FALSE;
 }

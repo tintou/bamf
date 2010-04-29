@@ -1,62 +1,88 @@
-//  
-//  Copyright (C) 2009 Canonical Ltd.
-// 
-//  This program is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
-// 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-// 
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+/*
+ * Copyright 2009 Canonical Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of either or both of the following licenses:
+ *
+ * 1) the GNU Lesser General Public License version 3, as published by the
+ * Free Software Foundation; and/or
+ * 2) the GNU Lesser General Public License version 2.1, as published by
+ * the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranties of
+ * MERCHANTABILITY, SATISFACTORY QUALITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the applicable version of the GNU Lesser General Public
+ * License for more details.
+ *
+ * You should have received a copy of both the GNU Lesser General Public
+ * License version 3 and version 2.1 along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>
+ *
+ * Authored by: Jason Smith <jason.smith@canonical.com>
+ *              Neil Jagdish Patel <neil.patel@canonical.com>
+ *
+ */
 
-#ifndef __BAMFAPPLICATION_H__
-#define __BAMFAPPLICATION_H__
+#ifndef _BAMF_APPLICATION_H_
+#define _BAMF_APPLICATION_H_
 
-#include "bamf.h"
-#include <glib.h>
 #include <glib-object.h>
+#include <libbamf/bamf-view.h>
 
-#define WNCK_I_KNOW_THIS_IS_UNSTABLE
-#include <libwnck/libwnck.h>
+G_BEGIN_DECLS
 
-#define BAMF_TYPE_APPLICATION			(bamf_application_get_type ())
-#define BAMF_APPLICATION(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_APPLICATION, BamfApplication))
-#define BAMF_IS_APPLICATION			(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_APPLICATION))
-#define BAMF_APPLICATION_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_APPLICATION, BamfApplicationClass))
-#define BAMF_IS_APPLICATION_CLASS(klass)	(G_TYPE_CHECK_CLASA_TYPE ((klass), BAMF_TYPE_APPLICATION))
-#define BAMF_APPLICATION_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_APPLICATION, BamfApplicationClass))
+#define BAMF_TYPE_APPLICATION (bamf_application_get_type ())
 
-typedef struct _BamfApplication BamfApplication;
-typedef struct _BamfApplicationClass BamfApplicationClass;
+#define BAMF_APPLICATION(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj),\
+        BAMF_TYPE_APPLICATION, BamfApplication))
+
+#define BAMF_APPLICATION_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass),\
+        BAMF_TYPE_APPLICATION, BamfApplicationClass))
+
+#define BAMF_IS_APPLICATION(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj),\
+        BAMF_TYPE_APPLICATION))
+
+#define BAMF_IS_APPLICATION_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),\
+        BAMF_TYPE_APPLICATION))
+
+#define BAMF_APPLICATION_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj),\
+        BAMF_TYPE_APPLICATION, BamfApplicationClass))
+
+typedef struct _BamfApplication        BamfApplication;
+typedef struct _BamfApplicationClass   BamfApplicationClass;
 typedef struct _BamfApplicationPrivate BamfApplicationPrivate;
-
-struct _BamfApplicationClass
-{
-  BamfViewClass parent;
-};
 
 struct _BamfApplication
 {
   BamfView parent;
 
-  /* private */
   BamfApplicationPrivate *priv;
 };
 
-GType bamf_application_get_type (void) G_GNUC_CONST;
+struct _BamfApplicationClass
+{
+  BamfViewClass parent_class;
 
-char * bamf_application_get_application_type (BamfApplication *application);
+  /*< private >*/
+  void (*_application_padding1) (void);
+  void (*_application_padding2) (void);
+  void (*_application_padding3) (void);
+  void (*_application_padding4) (void);
+  void (*_application_padding5) (void);
+  void (*_application_padding6) (void);
+};
 
-gboolean * bamf_application_is_urgent  (BamfApplication *application);
+GType             bamf_application_get_type             (void) G_GNUC_CONST;
 
-GList * bamf_application_get_windows (BamfApplication *application);
+BamfApplication * bamf_application_new                  (void);
 
-BamfApplication * bamf_application_new (void);
+const gchar     * bamf_application_get_application_type (BamfApplication *application);
+
+gboolean          bamf_application_is_urgent            (BamfApplication *application);
+
+GList *           bamf_application_get_windows          (BamfApplication *application);
+
+G_END_DECLS
 
 #endif
