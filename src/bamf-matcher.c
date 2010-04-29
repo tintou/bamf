@@ -17,6 +17,7 @@
 
 #include "marshal.h"
 #include "bamf-matcher.h"
+#include "bamf-matcher-glue.h"
 
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, G_TYPE_OBJECT);
 #define BAMF_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -49,35 +50,17 @@ bamf_matcher_init (BamfMatcher * self)
 {
 
   BamfMatcherPrivate *priv;
-  DBusGConnection *bus;
-  DBusGProxy *bus_proxy;
-  GError *error = NULL;
-  guint request_name_result;
-
   priv = self->priv = BAMF_MATCHER_GET_PRIVATE (self);
-  
-  bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-  g_return_if_fail (bus);
-
-  bus_proxy =
-    dbus_g_proxy_new_for_name (bus, "org.freedesktop.DBus",
-			       "/org/freedesktop/DBus",
-			       "org.freedesktop.DBus");
-
-  if (!dbus_g_proxy_call (bus_proxy, "RequestName", &error,
-			  G_TYPE_STRING, BAMF_DBUS_SERVICE,
-			  G_TYPE_UINT, 0,
-			  G_TYPE_INVALID,
-			  G_TYPE_UINT, &request_name_result, G_TYPE_INVALID))
-    g_error ("Could not grab service");
-
-  dbus_g_connection_register_g_object (bus, BAMF_MATCHER_PATH,
-				       G_OBJECT (self));
 }
 
 static void
 bamf_matcher_class_init (BamfMatcherClass * klass)
 {
+  g_type_class_add_private (klass, sizeof (BamfMatcherPrivate));
+
+  dbus_g_object_type_install_info (BAMF_TYPE_MATCHER,
+				   &dbus_glib_bamf_matcher_object_info);
+  
   matcher_signals [VIEW_OPENED] = 
   	g_signal_new ("view-opened",
   	              G_OBJECT_CLASS_TYPE (klass),
@@ -791,7 +774,7 @@ ensure_window_matching_state (BamfMatcher *self,
               g_array_append_val (desktop_files, file);
             }
             
-          g_free (exec);
+          //g_free (exec);
         }
       /* sub-optimal guesswork ends */
     }
@@ -1002,17 +985,19 @@ bamf_matcher_get_default (void)
 {
   static BamfMatcher *matcher;
 
-  if (BAMF_IS_MATCHER (matcher))
+  if (!BAMF_IS_MATCHER (matcher))
     {
-      matcher = (BamfMatcher *) g_object_new (BAMF_TYPE_MATCHER, NULL);
 
-      BamfMatcher *self;
       BamfMatcherPrivate *priv;
       GArray *prefixstrings;
       int i;
+      DBusGConnection *bus;
+      DBusGProxy *bus_proxy;
+      GError *error = NULL;
+      guint request_name_result;
   
-      self = (BamfMatcher *) g_object_new (BAMF_TYPE_MATCHER, NULL);
-      priv = self->priv;
+      matcher = (BamfMatcher *) g_object_new (BAMF_TYPE_MATCHER, NULL);
+      priv = matcher->priv;
     
       priv->known_pids = g_array_new (FALSE, TRUE, sizeof (gint));
       priv->bad_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex *));
@@ -1022,27 +1007,46 @@ bamf_matcher_get_default (void)
       priv->window_to_desktop_files =
         g_hash_table_new ((GHashFunc) g_direct_hash, (GEqualFunc) g_direct_equal);
       
-      prefixstrings = prefix_strings (self);
+      prefixstrings = prefix_strings (matcher);
       for (i = 0; i < prefixstrings->len; i++)
         {
           char *str = g_array_index (prefixstrings, char *, i);
           GRegex *regex = g_regex_new (str, G_REGEX_OPTIMIZE, 0, NULL);
           g_array_append_val (priv->bad_prefixes, regex);
-          g_free (str);
         }
 
       g_array_free (prefixstrings, TRUE);
 
-      create_desktop_file_table (self, &(priv->desktop_file_table), &(priv->desktop_id_table));
+      create_desktop_file_table (matcher, &(priv->desktop_file_table), &(priv->desktop_id_table));
 
       WnckScreen *screen = wnck_screen_get_default ();
 
       g_signal_connect (G_OBJECT (screen), "window-opened",
-		    (GCallback) handle_window_opened, self);
+		    (GCallback) handle_window_opened, matcher);
       g_signal_connect (G_OBJECT (screen), "window-closed",
-    		    (GCallback) handle_window_closed, self);
+    		    (GCallback) handle_window_closed, matcher);
   
       XSetErrorHandler (x_error_handler);
+
+
+      bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+      
+      g_return_val_if_fail (bus, matcher);
+
+      bus_proxy =
+        dbus_g_proxy_new_for_name (bus, "org.freedesktop.DBus",
+	    		                "/org/freedesktop/DBus",
+	    		                "org.freedesktop.DBus");
+
+      if (!dbus_g_proxy_call (bus_proxy, "RequestName", &error,
+	    		  G_TYPE_STRING, BAMF_DBUS_SERVICE,
+	    		  G_TYPE_UINT, 0,
+	    		  G_TYPE_INVALID,
+	    		  G_TYPE_UINT, &request_name_result, G_TYPE_INVALID))
+        g_error ("Could not grab service");
+
+      dbus_g_connection_register_g_object (bus, BAMF_MATCHER_PATH,
+	    			           G_OBJECT (matcher));
     }
 
   

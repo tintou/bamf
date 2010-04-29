@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<node name="/org/ayatana/bamf">
+
+	<interface name="org.ayatana.bamf.control">
+
+		<method name="RegisterApplicationForPid">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_control_register_application_for_pid" />
+			<arg type="s" name="application" direction="in" />
+			<arg type="i" name="pid" direction="in" />
+		</method>
+
+		<method name="RegisterTabProvider">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_control_register_tab_provider" />
+			<arg type="s" name="tab_path" direction="in" />
+		</method>
+		
+	</interface>
+
+</node>

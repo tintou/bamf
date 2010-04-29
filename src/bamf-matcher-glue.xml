@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<node name="/org/ayatana/bamf">
+
+	<interface name="org.ayatana.bamf.matcher">
+
+		<signal name="ViewOpened">
+			<arg type="s" name="path" direction="out" />
+			<arg type="s" name="type" direction="out" />
+		</signal>
+
+		<signal name="ViewClosed">
+			<arg type="s" name="path" direction="out" />
+			<arg type="s" name="type" direction="out" />
+		</signal>
+		
+		<method name="ApplicationForXid">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_matcher_application_for_xid" />
+			<arg type="u" name="xid" direction="in" />
+			<arg type="s" name="application" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+
+		<method name="ApplicationIsRunning">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_matcher_application_is_running" />
+			<arg type="s" name="application" direction="in" />
+			<arg type="b" name="running" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+
+		<method name="ApplicationPaths">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_matcher_application_dbus_paths" />
+			<arg type="as" name="paths" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+
+		<method name="PathForApplication">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_matcher_dbus_path_for_application" />
+			<arg type="s" name="applicaiton" direction="in" />
+			<arg type="s" name="path" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+
+		<method name="RunningApplications">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_matcher_running_application_paths" />
+			<arg type="as" name="paths" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+
+		<method name="TabPaths">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_matcher_tab_dbus_paths" />
+			<arg type="as" name="paths" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+
+		<method name="XidsForApplication">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_matcher_xids_for_application" />
+			<arg type="s" name="application" direction="in" />
+			<arg type="au" name="xids" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+		
+	</interface>
+
+</node>

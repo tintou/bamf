@@ -20,7 +20,6 @@
 #include "bamf-matcher.h"
 #include "bamf-view.h"
 #include "bamf-application.h"
-#include "bamfdbus-glue.h"
 
 #include "main.h"
 
@@ -32,9 +31,6 @@ main (int argc, char **argv)
   
   gtk_init (&argc, &argv);
   glibtop_init ();
-
-  dbus_g_object_type_install_info (BAMF_TYPE_CONTROL,
-				   &dbus_glib_bamf_object_info);
 
   matcher = bamf_matcher_get_default ();
   control = bamf_control_get_default ();
