@@ -196,6 +196,8 @@ bamf_view_class_init (BamfViewClass * klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = bamf_view_dispose;
+
+  g_type_class_add_private (klass, sizeof (BamfViewPrivate));
   
   view_signals [ACTIVE_CHANGED] = 
   	g_signal_new ("active-changed",

@@ -1047,9 +1047,9 @@ bamf_matcher_get_default (void)
 
       dbus_g_connection_register_g_object (bus, BAMF_MATCHER_PATH,
 	    			           G_OBJECT (matcher));
+
+      return matcher;
     }
 
-  
-
-  return g_object_ref (matcher);
+  return g_object_ref (G_OBJECT (matcher));
 }

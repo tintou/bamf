@@ -23,6 +23,7 @@ BAMF_TYPE_CONTROL, BamfControlPrivate))
 
 struct _BamfControlPrivate
 {
+  char * nothing;
 };
 
 static void
@@ -35,7 +36,7 @@ bamf_control_init (BamfControl * self)
 static void
 bamf_control_class_init (BamfControlClass * klass)
 {
-
+  g_type_class_add_private (klass, sizeof (BamfControlPrivate));
 }
 
 gboolean 
@@ -60,11 +61,11 @@ bamf_control_get_default (void)
 {
   static BamfControl *control;
 
-  if (BAMF_IS_CONTROL (control))
+  if (!BAMF_IS_CONTROL (control))
     {
       control = (BamfControl *) g_object_new (BAMF_TYPE_CONTROL, NULL);
       return control;
     }
 
-  return g_object_ref (control);
+  return g_object_ref (G_OBJECT (control));
 }

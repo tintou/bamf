@@ -161,6 +161,8 @@ bamf_application_class_init (BamfApplicationClass * klass)
 
   object_class->dispose = bamf_application_dispose;
 
+  g_type_class_add_private (klass, sizeof (BamfApplicationPrivate));
+
   application_signals [WINDOWS_CHANGED] = 
   	g_signal_new ("windows-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
