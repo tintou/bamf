@@ -27,7 +27,8 @@ enum
 {
   ACTIVE_CHANGED,
   CLOSED,
-  CHILDREN_CHANGED,
+  CHILD_ADDED,
+  CHILD_REMOVED,
   RUNNING_CHANGED,
   
   LAST_SIGNAL,
@@ -70,19 +71,6 @@ bamf_view_running_changed (BamfView *view, gboolean running)
 
   if (emit)
     g_signal_emit (view, view_signals[RUNNING_CHANGED], 0, running);
-}
-
-static void 
-bamf_view_children_changed (BamfView *view, char ** added, char ** removed)
-{
-  gboolean emit = TRUE;
-  if (BAMF_VIEW_GET_CLASS (view)->children_changed)
-    {
-      emit = !BAMF_VIEW_GET_CLASS (view)->children_changed (view, added, removed);
-    }
-
-  if (emit)
-    g_signal_emit (view, view_signals[CHILDREN_CHANGED], 0, added, removed);
 }
 
 static void 
@@ -150,7 +138,7 @@ void
 bamf_view_add_child (BamfView *view,
                      BamfView *child)
 {
-  char ** added;
+  char * added;
 
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (BAMF_IS_VIEW (child));
@@ -163,17 +151,15 @@ bamf_view_add_child (BamfView *view,
   if (BAMF_VIEW_GET_CLASS (view)->child_added)
     BAMF_VIEW_GET_CLASS (view)->child_added (view, child);
     
-  added = g_malloc0 (sizeof (char *) * 1);
-  added [0] = g_strdup (bamf_view_get_path (child));
-
-  bamf_view_children_changed (view, added, NULL);
+  added = g_strdup (bamf_view_get_path (child));
+  g_signal_emit (view, view_signals[CHILD_ADDED], 0, added);
 }
 
 void
 bamf_view_remove_child (BamfView *view,
                         BamfView *child)
 {
-  char ** removed;
+  char * removed;
 
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (BAMF_IS_VIEW (child));
@@ -185,10 +171,8 @@ bamf_view_remove_child (BamfView *view,
   if (BAMF_VIEW_GET_CLASS (view)->child_removed)
     BAMF_VIEW_GET_CLASS (view)->child_removed (view, child);
   
-  removed = g_malloc0 (sizeof (char *) * 1);
-  removed [0] = g_strdup (bamf_view_get_path (child));
-
-  bamf_view_children_changed (view, NULL, removed);
+  removed = g_strdup (bamf_view_get_path (child));
+  g_signal_emit (view, view_signals[CHILD_REMOVED], 0, removed);
 }
 
 gboolean 
@@ -368,14 +352,23 @@ bamf_view_class_init (BamfViewClass * klass)
   	              g_cclosure_marshal_VOID__VOID,
   	              G_TYPE_NONE, 0);
 
-  view_signals [CHILDREN_CHANGED] = 
-  	g_signal_new ("children-changed",
+  view_signals [CHILD_ADDED] = 
+  	g_signal_new ("child-added",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
-  	              marshal_VOID__POINTER_POINTER,
-  	              G_TYPE_NONE, 2,
-  	              G_TYPE_STRV, G_TYPE_STRV);
+  	              g_cclosure_marshal_VOID__STRING,
+  	              G_TYPE_NONE, 1,
+  	              G_TYPE_STRING);
+
+  view_signals [CHILD_REMOVED] = 
+  	g_signal_new ("child-removed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__STRING,
+  	              G_TYPE_NONE, 1,
+  	              G_TYPE_STRING);
 
   view_signals [RUNNING_CHANGED] = 
   	g_signal_new ("running-changed",

@@ -27,7 +27,8 @@ BAMF_TYPE_APPLICATION, BamfApplicationPrivate))
 
 enum
 {
-  WINDOWS_CHANGED,
+  WINDOW_ADDED,
+  WINDOW_REMOVED,
   URGENT_CHANGED,
   
   LAST_SIGNAL,
@@ -185,62 +186,18 @@ bamf_application_ensure_state (BamfApplication *application)
   g_array_free (xids, TRUE);
 }
 
-static gboolean
-bamf_application_children_changed (BamfView *view, char **added, char **removed)
-{
-  int length, i, j;
-  
-  char *item;
-  char **new_added = NULL;
-  char **new_removed = NULL;
-
-  if (added)
-    {
-      length = g_strv_length (added);
-      new_added = g_malloc0 (sizeof (char *) * length);
-
-      j = 0;
-      for (i = 0; i < length; i++)
-        {
-          item = added[i];
-          if (strstr (item, "application"))
-            {
-              new_added[j] = item;
-              j++;
-            }
-        }
-    }
-
-  if (removed)
-    {
-      length = g_strv_length (removed);
-      new_removed = g_malloc0 (sizeof (char *) * length);
-
-      j = 0;
-      for (i = 0; i < length; i++)
-        {
-          item = removed[i];
-          if (strstr (item, "application"))
-            {
-              new_removed[j] = item;
-              j++;
-            }
-        }
-    }
-
-  g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOWS_CHANGED], 0, new_added, new_removed);
-
-  bamf_application_ensure_state (BAMF_APPLICATION (view));  
-  
-  return FALSE;
-}
-
 static void
 bamf_application_child_added (BamfView *view, BamfView *child)
 {
   BamfApplication *application;
 
   application = BAMF_APPLICATION (view);
+
+  if (BAMF_IS_WINDOW (child))
+    {
+      g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOW_ADDED],0, bamf_view_get_path (view));
+    }
+  bamf_application_ensure_state (BAMF_APPLICATION (view));  
 }
 
 static void
@@ -249,6 +206,12 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
   BamfApplication *application;
 
   application = BAMF_APPLICATION (view);
+
+  if (BAMF_IS_WINDOW (child))
+    {
+      g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOW_REMOVED],0, bamf_view_get_path (view));
+    }
+  bamf_application_ensure_state (BAMF_APPLICATION (view));  
 }
 
 static void
@@ -279,7 +242,6 @@ bamf_application_class_init (BamfApplicationClass * klass)
   object_class->dispose = bamf_application_dispose;
 
   view_class->view_type = bamf_application_get_view_type;
-  view_class->children_changed = bamf_application_children_changed;
   view_class->child_added = bamf_application_child_added;
   view_class->child_removed = bamf_application_child_removed;
 
@@ -288,14 +250,23 @@ bamf_application_class_init (BamfApplicationClass * klass)
   dbus_g_object_type_install_info (BAMF_TYPE_APPLICATION,
 				   &dbus_glib_bamf_application_object_info);
 
-  application_signals [WINDOWS_CHANGED] = 
-  	g_signal_new ("windows-changed",
+  application_signals [WINDOW_ADDED] = 
+  	g_signal_new ("window-added",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
-  	              marshal_VOID__POINTER_POINTER,
-  	              G_TYPE_NONE, 2,
-  	              G_TYPE_STRV, G_TYPE_STRV);
+  	              g_cclosure_marshal_VOID__STRING,
+  	              G_TYPE_NONE, 1,
+  	              G_TYPE_STRING);
+
+  application_signals [WINDOW_REMOVED] = 
+  	g_signal_new ("window-removed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__STRING,
+  	              G_TYPE_NONE, 1,
+  	              G_TYPE_STRING);
 
   application_signals [URGENT_CHANGED] = 
   	g_signal_new ("urgent-changed",

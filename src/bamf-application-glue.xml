@@ -4,9 +4,12 @@
 	
 	<interface name="org.ayatana.bamf.application">
 
-		<signal name="WindowsChanged">
-			<arg type="as" name="added" direction="out" />
-			<arg type="as" name="removed" direction="out" />
+		<signal name="WindowAdded">
+			<arg type="s" name="path" direction="out" />
+		</signal>
+
+                <signal name="WindowRemoved">
+			<arg type="s" name="path" direction="out" />
 		</signal>
 
 		<signal name="UrgentChanged">
