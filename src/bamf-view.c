@@ -249,7 +249,7 @@ char *
 bamf_view_get_view_type (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  return BAMF_VIEW_GET_CLASS (view)->view_type (view);
+  return g_strdup (BAMF_VIEW_GET_CLASS (view)->view_type (view));
 }
 
 char * 

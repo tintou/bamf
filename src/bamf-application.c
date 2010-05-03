@@ -40,6 +40,7 @@ struct _BamfApplicationPrivate
 {
   char * desktop_file;
   char * app_type;
+  gboolean is_tab_container;
   gboolean urgent;
 };
 
@@ -187,6 +188,31 @@ bamf_application_ensure_state (BamfApplication *application)
 }
 
 static void
+window_urgent_changed (BamfWindow *window, gboolean urgent, BamfApplication *self)
+{
+  GList *l;
+  BamfView *view;
+
+  if (!urgent)
+    {
+      for (l = bamf_view_get_children (BAMF_VIEW (self)); l; l = l->next)
+        {
+          view = l->data;
+
+          if (!BAMF_IS_WINDOW (view))
+            continue;
+
+          if (bamf_window_is_urgent (BAMF_WINDOW (view)))
+            {
+              urgent = TRUE;
+              break;
+            }
+        }
+    }
+  bamf_application_set_urgent (self, urgent);
+}
+
+static void
 bamf_application_child_added (BamfView *view, BamfView *child)
 {
   BamfApplication *application;
@@ -196,8 +222,12 @@ bamf_application_child_added (BamfView *view, BamfView *child)
   if (BAMF_IS_WINDOW (child))
     {
       g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOW_ADDED],0, bamf_view_get_path (view));
+      g_signal_connect (G_OBJECT (child), "urgent-changed",
+	        	    (GCallback) window_urgent_changed, view);
     }
+    
   bamf_application_ensure_state (BAMF_APPLICATION (view));  
+
 }
 
 static void
@@ -210,7 +240,9 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
   if (BAMF_IS_WINDOW (child))
     {
       g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOW_REMOVED],0, bamf_view_get_path (view));
+      g_signal_handlers_disconnect_by_func (G_OBJECT (child), window_urgent_changed, view);
     }
+    
   bamf_application_ensure_state (BAMF_APPLICATION (view));  
 }
 
@@ -285,9 +317,11 @@ bamf_application_new (void)
 
   application = (BamfApplication *) g_object_new (BAMF_TYPE_APPLICATION, NULL);
 
-
   g_signal_connect (G_OBJECT (wnck_screen_get_default ()), "active-window-changed",
 		    (GCallback) active_window_changed, application);
+
+  application->priv->is_tab_container = FALSE;
+  application->priv->app_type = "system";
 
   return application;
 }

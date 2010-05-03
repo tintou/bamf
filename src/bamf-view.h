@@ -46,8 +46,8 @@ struct _BamfViewClass
   GList *names;
 
   gboolean (* running_changed) (BamfView *view, gboolean running);
-  gboolean (* active_changed) (BamfView *view, gboolean active);
-  gboolean (* closed) (BamfView *view);
+  gboolean (* active_changed)  (BamfView *view, gboolean active);
+  gboolean (* closed)          (BamfView *view);
 };
 
 struct _BamfView
@@ -58,40 +58,40 @@ struct _BamfView
   BamfViewPrivate *priv;
 };
 
-GType bamf_view_get_type (void) G_GNUC_CONST;
+GType      bamf_view_get_type           (void) G_GNUC_CONST;
 
-char ** bamf_view_get_children_paths (BamfView *view);
+char    ** bamf_view_get_children_paths (BamfView *view);
 
-GList * bamf_view_get_children (BamfView *view);
+GList    * bamf_view_get_children       (BamfView *view);
 
-char * bamf_view_get_path (BamfView *view);
+char     * bamf_view_get_path           (BamfView *view);
 
-void bamf_view_add_child (BamfView *view,
-                          BamfView *child);
+void       bamf_view_add_child          (BamfView *view,
+                                         BamfView *child);
 
-void bamf_view_remove_child (BamfView *view,
-                             BamfView *child);
+void       bamf_view_remove_child       (BamfView *view,
+                                         BamfView *child);
 
-gboolean bamf_view_is_active  (BamfView *view);
-void     bamf_view_set_active (BamfView *view,
-                               gboolean active);
+gboolean   bamf_view_is_active          (BamfView *view);
+void       bamf_view_set_active         (BamfView *view,
+                                         gboolean active);
 
-gboolean bamf_view_is_running  (BamfView *view);
-void     bamf_view_set_running (BamfView *view,
-                                gboolean running);
+gboolean   bamf_view_is_running         (BamfView *view);
+void       bamf_view_set_running        (BamfView *view,
+                                         gboolean running);
 
-char * bamf_view_get_name (BamfView *view);
-void   bamf_view_set_name (BamfView *view,
-                           const char * name);
+char     * bamf_view_get_name           (BamfView *view);
+void       bamf_view_set_name           (BamfView *view,
+                                         const char * name);
 
-char * bamf_view_get_parent_path (BamfView *view);
+char     * bamf_view_get_parent_path    (BamfView *view);
 
-BamfView * bamf_view_get_parent (BamfView *view);
-void       bamf_view_set_parent (BamfView *view,
-                                 BamfView *parent);
+BamfView * bamf_view_get_parent         (BamfView *view);
+void       bamf_view_set_parent         (BamfView *view,
+                                         BamfView *parent);
 
-char * bamf_view_get_view_type (BamfView *view);
+char     * bamf_view_get_view_type      (BamfView *view);
 
-char * bamf_view_export_on_bus (BamfView *view);
+char     * bamf_view_export_on_bus      (BamfView *view);
 
 #endif

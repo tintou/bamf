@@ -95,7 +95,13 @@ bamf_application_init (BamfApplication *self)
  * Public Methods
  */
 BamfApplication *
-bamf_application_new (void)
+bamf_application_new (const char * path)
+{
+  return NULL;
+}
+
+const gchar *
+bamf_application_get_desktop_file (BamfApplication *application)
 {
   return NULL;
 }

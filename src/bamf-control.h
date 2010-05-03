@@ -46,17 +46,17 @@ struct _BamfControl
   BamfControlPrivate *priv;
 };
 
-GType bamf_control_get_type (void) G_GNUC_CONST;
+GType         bamf_control_get_type                     (void) G_GNUC_CONST;
 
-gboolean bamf_control_register_application_for_pid (BamfControl *control,
-                                                    char *application,
-                                                    gint32 pid,
-                                                    GError **error);
+gboolean      bamf_control_register_application_for_pid (BamfControl *control,
+                                                         char *application,
+                                                         gint32 pid,
+                                                         GError **error);
 
-gboolean bamf_control_register_tab_provider (BamfControl *control,
-                                             char *path,
-                                             GError **error);
+gboolean      bamf_control_register_tab_provider        (BamfControl *control,
+                                                         char *path,
+                                                         GError **error);
 
-BamfControl * bamf_control_get_default (void);
+BamfControl * bamf_control_get_default                  (void);
 
 #endif

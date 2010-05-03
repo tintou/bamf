@@ -75,13 +75,13 @@ struct _BamfApplicationClass
 
 GType             bamf_application_get_type             (void) G_GNUC_CONST;
 
-BamfApplication * bamf_application_new                  (void);
+BamfApplication * bamf_application_new                  (const char *path);
 
 const gchar     * bamf_application_get_application_type (BamfApplication *application);
 
-gboolean          bamf_application_is_urgent            (BamfApplication *application);
+const gchar     * bamf_application_get_desktop_file     (BamfApplication *application);
 
-GList *           bamf_application_get_windows          (BamfApplication *application);
+gboolean          bamf_application_is_urgent            (BamfApplication *application);
 
 G_END_DECLS
 
