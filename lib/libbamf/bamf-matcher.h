@@ -28,6 +28,7 @@
 #define _BAMF_MATCHER_H_
 
 #include <glib-object.h>
+#include <libbamf/bamf-application.h>
 
 G_BEGIN_DECLS
 
@@ -71,8 +72,6 @@ struct _BamfMatcherClass
   void (*_matcher_padding5) (void);
   void (*_matcher_padding6) (void);
 };
-
-typedef void BamfApplication;
 
 GType             bamf_matcher_get_type                 (void) G_GNUC_CONST;
 

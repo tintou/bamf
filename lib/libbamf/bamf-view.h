@@ -74,15 +74,18 @@ struct _BamfViewClass
 
 GType      bamf_view_get_type             (void) G_GNUC_CONST;
 
-GList    * bamf_view_get_children (BamfView *view);
+void       bamf_view_set_path             (BamfView *view,
+                                           const char *path);
 
-gboolean   bamf_view_is_active  (BamfView *view);
+GList    * bamf_view_get_children  (BamfView *view);
 
-gboolean   bamf_view_is_running  (BamfView *view);
+gboolean   bamf_view_is_active     (BamfView *view);
 
-gchar    * bamf_view_get_name (BamfView *view);
+gboolean   bamf_view_is_running    (BamfView *view);
 
-BamfView * bamf_view_get_parent     (BamfView *view);
+gchar    * bamf_view_get_name      (BamfView *view);
+
+BamfView * bamf_view_get_parent    (BamfView *view);
 
 gchar    * bamf_view_get_view_type (BamfView *view);
 

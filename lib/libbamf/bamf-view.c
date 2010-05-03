@@ -59,6 +59,31 @@ struct _BamfViewPrivate
  * GObject stuff
  */
 
+void bamf_view_set_path (BamfView *view, 
+                         const char *path)
+{
+  BamfViewPrivate *priv;
+
+  g_return_if_fail (BAMF_IS_VIEW (view));
+
+  priv = view->priv;
+
+  if (priv->proxy)
+    {
+      g_warning ("bamf_view_set_path called multiple times\n");
+      return;
+    }
+  
+  priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
+                                           "org.ayatana.bamf",
+                                           path,
+                                           "org.ayatana.bamf.view");
+  if (priv->proxy == NULL)
+    {
+      g_error ("Unable to get org.ayatana.bamf.view view");
+    }
+}
+
 static void
 bamf_view_class_init (BamfViewClass *klass)
 {
@@ -73,6 +98,9 @@ bamf_view_init (BamfView *self)
 {
   BamfViewPrivate *priv;
   GError           *error = NULL;
+
+
+  
 
   priv = self->priv = BAMF_VIEW_GET_PRIVATE (self);
 
@@ -97,6 +125,26 @@ bamf_view_init (BamfView *self)
 GList *
 bamf_view_get_children (BamfView *view)
 {
+  /*char ** children;
+  GError *error;
+  BamfViewPrivate *priv;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+
+  priv = view->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "Children",
+                          &error,
+                          G_TYPE_NONE,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRV, &children,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Unable to fetch children: %s\n", error->message);
+    }*/
+
+  
   return NULL;
 }
 

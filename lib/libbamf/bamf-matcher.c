@@ -35,6 +35,8 @@
 #endif
 
 #include "bamf-matcher.h"
+#include "bamf-view.h"
+#include "bamf-factory.h"
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
@@ -49,6 +51,7 @@ struct _BamfMatcherPrivate
 {
   DBusGConnection *connection;
   DBusGProxy      *proxy;
+  GList           *views;
 };
 
 /* Globals */
@@ -93,7 +96,7 @@ bamf_matcher_init (BamfMatcher *self)
                                            "org.ayatana.bamf.matcher");
   if (priv->proxy == NULL)
     {
-      g_error ("Unable to get org.bamf.Matcher matcher");
+      g_error ("Unable to get org.ayatana.bamf.matcher matcher");
     }
 }
 
@@ -117,20 +120,101 @@ BamfApplication *
 bamf_matcher_get_application_for_xid (BamfMatcher  *matcher,
                                       guint32       xid)
 {
-  return NULL;
+  BamfMatcherPrivate *priv;
+  BamfView *view;
+  char *app = NULL;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+  priv = matcher->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "ApplicationForXid",
+                          &error,
+                          G_TYPE_UINT, xid,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &app,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to fetch path: %s", error->message);
+      g_error_free (error);
+    }
+
+  if (!app)
+    return NULL;
+
+  view = bamf_factory_view_for_path (bamf_factory_get_default (), app);
+
+  if (!BAMF_IS_APPLICATION (view))
+    return NULL;
+
+  return BAMF_APPLICATION (view);
 }
 
 gboolean
 bamf_matcher_application_is_running (BamfMatcher *matcher,
                                      const gchar *application)
 {
-  return FALSE;
+  BamfMatcherPrivate *priv;
+  gboolean running = FALSE;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), FALSE);
+  priv = matcher->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "ApplicationIsRunning",
+                          &error,
+                          G_TYPE_STRING, application,
+                          G_TYPE_INVALID,
+                          G_TYPE_BOOLEAN, &running,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to fetch path: %s", error->message);
+      g_error_free (error);
+    }
+
+  return running;
 }
 
 GList *
 bamf_matcher_get_applications (BamfMatcher *matcher)
 {
-  return NULL;
+  BamfMatcherPrivate *priv;
+  BamfView *view;
+  char **array = NULL;
+  int i, len;
+  GList *result = NULL;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+  priv = matcher->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "ApplicationPaths",
+                          &error,
+                          G_TYPE_NONE,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRV, &array,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to fetch paths: %s", error->message);
+      g_error_free (error);
+    }
+
+  if (!array)
+    return NULL;
+
+  len = g_strv_length (array);
+  for (i = 0; i < len; i++)
+    {
+      view = bamf_factory_view_for_path (bamf_factory_get_default (), array[i]);
+
+      if (view)
+        result = g_list_prepend (result, view);
+    }
+
+  return result;
 }
 
 GList *

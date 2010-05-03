@@ -4,16 +4,18 @@ sources_h = \
   bamf-application.h \
   bamf-control.h \
   bamf-matcher.h \
-  bamf-proxy.h \
   bamf-view.h \
+  bamf-window.h \
+  bamf-factory.h \
   libbamf.h
 
 libbamf_la_SOURCES = \
   bamf-application.c \
   bamf-control.c \
   bamf-matcher.c \
-  bamf-proxy.c \
   bamf-view.c \
+  bamf-window.c \
+  bamf-factory.c \
   $(sources_h)
 
 libbamf_la_LIBADD = \

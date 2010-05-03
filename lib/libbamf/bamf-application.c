@@ -87,17 +87,28 @@ bamf_application_init (BamfApplication *self)
     }
 }
 
-/*
- * Private Methods
- */
-
-/*
- * Public Methods
- */
 BamfApplication *
 bamf_application_new (const char * path)
 {
-  return NULL;
+  BamfApplication *self;
+  BamfApplicationPrivate *priv;
+
+  self = g_object_new (BAMF_TYPE_APPLICATION, NULL);
+
+  priv = self->priv;
+
+  bamf_view_set_path (BAMF_VIEW (self), path);
+
+  priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
+                                           "org.ayatana.bamf",
+                                           path,
+                                           "org.ayatana.bamf.application");
+  if (priv->proxy == NULL)
+    {
+      g_error ("Unable to get org.ayatana.bamf.application application");
+    }
+
+  return self;
 }
 
 const gchar *
