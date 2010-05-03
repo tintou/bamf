@@ -40,7 +40,6 @@ struct _BamfApplicationPrivate
   char * desktop_file;
   char * app_type;
   gboolean urgent;
-  GList * windows;
 };
 
 char * 
