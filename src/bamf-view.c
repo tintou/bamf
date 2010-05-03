@@ -45,6 +45,59 @@ struct _BamfViewPrivate
   gboolean is_running;
 };
 
+static void
+bamf_view_active_changed (BamfView *view, gboolean active)
+{
+  gboolean emit = TRUE;
+  if (BAMF_VIEW_GET_CLASS (view)->active_changed)
+    {
+      emit = !BAMF_VIEW_GET_CLASS (view)->active_changed (view, active);
+    }
+
+  if (emit)
+    g_signal_emit (view, view_signals[ACTIVE_CHANGED], 0, active);
+
+}
+
+static void 
+bamf_view_running_changed (BamfView *view, gboolean running)
+{
+  gboolean emit = TRUE;
+  if (BAMF_VIEW_GET_CLASS (view)->running_changed)
+    {
+      emit = !BAMF_VIEW_GET_CLASS (view)->running_changed (view, running);
+    }
+
+  if (emit)
+    g_signal_emit (view, view_signals[RUNNING_CHANGED], 0, running);
+}
+
+static void 
+bamf_view_children_changed (BamfView *view, char ** added, char ** removed)
+{
+  gboolean emit = TRUE;
+  if (BAMF_VIEW_GET_CLASS (view)->children_changed)
+    {
+      emit = !BAMF_VIEW_GET_CLASS (view)->children_changed (view, added, removed);
+    }
+
+  if (emit)
+    g_signal_emit (view, view_signals[CHILDREN_CHANGED], 0, added, removed);
+}
+
+static void 
+bamf_view_closed (BamfView *view)
+{
+  gboolean emit = TRUE;
+  if (BAMF_VIEW_GET_CLASS (view)->closed)
+    {
+      emit = !BAMF_VIEW_GET_CLASS (view)->closed (view);
+    }
+
+  if (emit)
+    g_signal_emit (view, view_signals[CLOSED], 0);
+}
+
 char * 
 bamf_view_get_path (BamfView *view)
 {
@@ -90,36 +143,34 @@ void
 bamf_view_add_child (BamfView *view,
                      BamfView *child)
 {
+  char ** added;
+
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (BAMF_IS_VIEW (child));
 
   view->priv->children = g_list_prepend (view->priv->children, child);
 
-  char ** added;
-
   added = g_malloc0 (sizeof (char *) * 1);
-
   added [0] = g_strdup (bamf_view_get_path (child));
 
-  g_signal_emit (view, view_signals[CHILDREN_CHANGED], 0, added, NULL);
+  bamf_view_children_changed (view, added, NULL);
 }
 
 void
 bamf_view_remove_child (BamfView *view,
                         BamfView *child)
 {
+  char ** removed;
+
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (BAMF_IS_VIEW (child));
 
   view->priv->children = g_list_remove (view->priv->children, child);
 
-  char ** removed;
-
   removed = g_malloc0 (sizeof (char *) * 1);
-
   removed [0] = g_strdup (bamf_view_get_path (child));
 
-  g_signal_emit (view, view_signals[CHILDREN_CHANGED], 0, NULL, removed);
+  bamf_view_children_changed (view, NULL, removed);
 }
 
 gboolean 
@@ -140,7 +191,7 @@ bamf_view_set_active (BamfView *view,
     return;
 
   view->priv->is_active = active;
-  g_signal_emit (view, view_signals[ACTIVE_CHANGED], 0, active);
+  bamf_view_active_changed (view, active);
 }
 
 gboolean 
@@ -148,7 +199,7 @@ bamf_view_is_running (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
-  return view->priv->is_active;
+  return view->priv->is_running;
 }
 
 void
@@ -161,7 +212,7 @@ bamf_view_set_running (BamfView *view,
     return;
 
   view->priv->is_running = running;
-  g_signal_emit (view, view_signals[RUNNING_CHANGED], 0, running);
+  bamf_view_running_changed (view, running);
 }
 
 char * 
@@ -203,7 +254,7 @@ char *
 bamf_view_inner_get_view_type (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  return "Unknown";
+  return "view";
 }
 
 char * 
@@ -221,7 +272,7 @@ bamf_view_export_on_bus (BamfView *view)
       do
         {
           num = g_random_int_range (1000, 9999);
-          path = g_strdup_printf ("%s/view%i", BAMF_DBUS_PATH, num);
+          path = g_strdup_printf ("%s/%s%i", BAMF_DBUS_PATH, bamf_view_get_view_type (view), num);
         }
       while (g_list_find (BAMF_VIEW_GET_CLASS (view)->names, path));
 
@@ -245,14 +296,14 @@ bamf_view_dispose (GObject *object)
   DBusGConnection *bus;
   GError *error = NULL;
   
-  BamfView *view = BAMF_VIEW (object);
+  BamfView *view = BAMF_VIEW (object);g_signal_emit (view, view_signals[CLOSED], 0);
+  bamf_view_closed (view);
 
   bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
   if (bus)
     dbus_g_connection_unregister_g_object (bus, object);
   
-  g_signal_emit (view, view_signals[CLOSED], 0);
   
   if (view->priv->children)
     {

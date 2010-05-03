@@ -19,6 +19,7 @@
 #include "bamf-application-glue.h"
 #include "bamf-window.h"
 #include "marshal.h"
+#include <string.h>
 
 G_DEFINE_TYPE (BamfApplication, bamf_application, BAMF_TYPE_VIEW);
 #define BAMF_APPLICATION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -141,6 +142,106 @@ bamf_application_manages_xid (BamfApplication *application,
   return result;
 }
 
+static char *
+bamf_application_get_view_type (BamfView *view)
+{
+  return "application";
+}
+
+static void
+bamf_application_ensure_state (BamfApplication *application)
+{
+  WnckWindow *active_window;
+  GArray *xids;
+  guint32 active_xid;
+  int i;
+  gboolean active = FALSE;
+
+  g_return_if_fail (BAMF_IS_APPLICATION (application));
+
+  xids = bamf_application_get_xids (application);
+
+  if (xids->len > 0)
+    bamf_view_set_running (BAMF_VIEW (application), TRUE);
+  else
+    bamf_view_set_running (BAMF_VIEW (application), FALSE);
+
+  active_window = wnck_screen_get_active_window (wnck_screen_get_default ());
+
+  if (WNCK_IS_WINDOW (active_window))
+    {
+      active_xid = wnck_window_get_xid (active_window);
+
+      for (i = 0; i < xids->len; i++)
+        {
+          if (active_xid == g_array_index (xids, guint32, i))
+            {
+              active = TRUE;
+              break;
+            }
+        }
+    }
+    
+  bamf_view_set_active (BAMF_VIEW (application), active);
+  g_array_free (xids, TRUE);
+}
+
+static gboolean
+bamf_application_children_changed (BamfView *view, char **added, char **removed)
+{
+  int length, i, j;
+  
+  char *item;
+  char **new_added = NULL;
+  char **new_removed = NULL;
+
+  if (added)
+    {
+      length = g_strv_length (added);
+      new_added = g_malloc0 (sizeof (char *) * length);
+
+      j = 0;
+      for (i = 0; i < length; i++)
+        {
+          item = added[i];
+          if (strstr (item, "application"))
+            {
+              new_added[j] = item;
+              j++;
+            }
+        }
+    }
+
+  if (removed)
+    {
+      length = g_strv_length (added);
+      new_removed = g_malloc0 (sizeof (char *) * length);
+
+      j = 0;
+      for (i = 0; i < length; i++)
+        {
+          item = removed[i];
+          if (strstr (item, "application"))
+            {
+              new_removed[j] = item;
+              j++;
+            }
+        }
+    }
+
+  g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOWS_CHANGED], 0, new_added, new_removed);
+
+  bamf_application_ensure_state (BAMF_APPLICATION (view));  
+  
+  return FALSE;
+}
+
+static void
+active_window_changed (WnckScreen *screen, WnckWindow *previous, BamfApplication *app)
+{
+  bamf_application_ensure_state (app);
+}
+
 static void
 bamf_application_dispose (GObject *object)
 {
@@ -158,8 +259,12 @@ static void
 bamf_application_class_init (BamfApplicationClass * klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  BamfViewClass *view_class = BAMF_VIEW_CLASS (klass);
 
   object_class->dispose = bamf_application_dispose;
+
+  view_class->view_type = bamf_application_get_view_type;
+  view_class->children_changed = bamf_application_children_changed;
 
   g_type_class_add_private (klass, sizeof (BamfApplicationPrivate));
   
@@ -191,6 +296,10 @@ bamf_application_new (void)
   BamfApplication *application;
 
   application = (BamfApplication *) g_object_new (BAMF_TYPE_APPLICATION, NULL);
+
+
+  g_signal_connect (G_OBJECT (wnck_screen_get_default ()), "active-window-changed",
+		    (GCallback) active_window_changed, application);
 
   return application;
 }

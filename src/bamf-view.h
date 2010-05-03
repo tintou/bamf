@@ -42,6 +42,11 @@ struct _BamfViewClass
 
   char * (*view_type) (BamfView *view);
   GList *names;
+
+  gboolean (* running_changed) (BamfView *view, gboolean running);
+  gboolean (* active_changed) (BamfView *view, gboolean active);
+  gboolean (* closed) (BamfView *view);
+  gboolean (* children_changed) (BamfView *view, char **added, char **removed);
 };
 
 struct _BamfView
