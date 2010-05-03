@@ -41,6 +41,7 @@ struct _BamfViewClass
   GObjectClass parent;
 
   char * (*view_type) (BamfView *view);
+  GList *names;
 };
 
 struct _BamfView
@@ -53,9 +54,11 @@ struct _BamfView
 
 GType bamf_view_get_type (void) G_GNUC_CONST;
 
-GArray * bamf_view_get_children_paths (BamfView *view);
+char ** bamf_view_get_children_paths (BamfView *view);
 
 GList * bamf_view_get_children (BamfView *view);
+
+char * bamf_view_get_path (BamfView *view);
 
 void bamf_view_add_child (BamfView *view,
                           BamfView *child);
@@ -73,7 +76,7 @@ void     bamf_view_set_running (BamfView *view,
 
 char * bamf_view_get_name (BamfView *view);
 void   bamf_view_set_name (BamfView *view,
-                           char * name);
+                           const char * name);
 
 char * bamf_view_get_parent_path (BamfView *view);
 
@@ -83,9 +86,6 @@ void       bamf_view_set_parent (BamfView *view,
 
 char * bamf_view_get_view_type (BamfView *view);
 
-char * bamf_view_export_on_bus (BamfView *view,
-                                DBusGConnection *bus);
-
-BamfView * bamf_view_new (void);
+char * bamf_view_export_on_bus (BamfView *view);
 
 #endif

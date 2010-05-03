@@ -16,6 +16,8 @@
 // 
 
 #include "bamf-application.h"
+#include "bamf-application-glue.h"
+#include "bamf-window.h"
 #include "marshal.h"
 
 G_DEFINE_TYPE (BamfApplication, bamf_application, BAMF_TYPE_VIEW);
@@ -62,7 +64,7 @@ bamf_application_set_desktop_file (BamfApplication *application,
 {
   g_return_if_fail (BAMF_IS_APPLICATION (application));
 
-  application->priv->desktop_file = desktop_file;
+  application->priv->desktop_file = g_strdup (desktop_file);
 }
 
 gboolean
@@ -89,56 +91,28 @@ bamf_application_set_urgent (BamfApplication *application,
 GArray * 
 bamf_application_get_xids (BamfApplication *application)
 {
+  GList *l;
   GArray *xids;
-  GList *windows, *w;
+  BamfView *view;
   guint32 xid;
-  
+
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
 
   xids = g_array_new (FALSE, TRUE, sizeof (guint32));
-  windows = application->priv->windows;
 
-  for (w = windows; w != NULL; w = w->next)
+  for (l = bamf_view_get_children (BAMF_VIEW (application)); l; l = l->next)
     {
-      xid = wnck_window_get_xid (w->data);
+      view = l->data;
+
+      if (!BAMF_IS_WINDOW (view))
+        continue;
+
+      xid = wnck_window_get_xid (bamf_window_get_window (BAMF_WINDOW (view)));
+
       g_array_append_val (xids, xid);
     }
 
   return xids;
-}
-
-GList * 
-bamf_application_get_windows (BamfApplication *application)
-{
-  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
-
-  return application->priv->windows;
-}
-
-void 
-bamf_application_add_window    (BamfApplication *application,
-                                WnckWindow *window)
-{
-  g_return_if_fail (BAMF_IS_APPLICATION (application));
-
-  application->priv->windows = g_list_prepend (application->priv->windows, window);
-}
-
-void 
-bamf_application_remove_window (BamfApplication *application,
-                                WnckWindow *window)
-{
-  g_return_if_fail (BAMF_IS_APPLICATION (application));
-
-  application->priv->windows = g_list_remove (application->priv->windows, window);
-}
-
-void
-bamf_application_update_windows (BamfApplication *application)
-{
-  g_return_if_fail (BAMF_IS_APPLICATION (application));
-
-  
 }
 
 static void
@@ -162,6 +136,9 @@ bamf_application_class_init (BamfApplicationClass * klass)
   object_class->dispose = bamf_application_dispose;
 
   g_type_class_add_private (klass, sizeof (BamfApplicationPrivate));
+  
+  dbus_g_object_type_install_info (BAMF_TYPE_APPLICATION,
+				   &dbus_glib_bamf_application_object_info);
 
   application_signals [WINDOWS_CHANGED] = 
   	g_signal_new ("windows-changed",
@@ -170,7 +147,7 @@ bamf_application_class_init (BamfApplicationClass * klass)
   	              0, NULL, NULL,
   	              marshal_VOID__POINTER_POINTER,
   	              G_TYPE_NONE, 2,
-  	              G_TYPE_ARRAY, G_TYPE_ARRAY);
+  	              G_TYPE_STRV, G_TYPE_STRV);
 
   application_signals [URGENT_CHANGED] = 
   	g_signal_new ("urgent-changed",

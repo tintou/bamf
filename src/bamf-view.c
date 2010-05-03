@@ -15,8 +15,9 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // 
 
-#include "bamf-view.h"
 #include "marshal.h"
+#include "bamf-view.h"
+#include "bamf-view-glue.h"
 
 G_DEFINE_TYPE (BamfView, bamf_view, G_TYPE_OBJECT);
 #define BAMF_VIEW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -37,19 +38,44 @@ static guint view_signals[LAST_SIGNAL] = { 0 };
 struct _BamfViewPrivate
 {
   char * name;
+  char * path;
   BamfView * parent;
   GList * children;
   gboolean is_active;
   gboolean is_running;
 };
 
-
-GArray * 
-bamf_view_get_children_paths (BamfView *view)
+char * 
+bamf_view_get_path (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
 
-  return NULL;
+  return view->priv->path;
+}
+
+char ** 
+bamf_view_get_children_paths (BamfView *view)
+{
+  char ** paths;
+  int n_items, i;
+  GList *child;
+  BamfView *cview;
+  
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+
+  n_items = g_list_length (view->priv->children);
+
+  paths = g_malloc0 (sizeof (char *) * n_items);
+
+  i = 0;
+  for (child = view->priv->children; child; child = child->next)
+    {
+      cview = child->data;
+      paths[i] = bamf_view_get_path (cview);
+      i++;
+    }
+  
+  return paths;
 }
 
 GList *
@@ -132,11 +158,11 @@ bamf_view_get_name (BamfView *view)
 
 void
 bamf_view_set_name (BamfView *view,
-                    char * name)
+                    const char * name)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
 
-  view->priv->name = name;
+  view->priv->name = g_strdup (name);
 }
 
 char * 
@@ -144,7 +170,10 @@ bamf_view_get_parent_path (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
 
-  return "FIXME";
+  if (!BAMF_IS_VIEW (view->priv->parent))
+    return NULL;
+  
+  return bamf_view_get_path (view->priv->parent);
 }
 
 char *
@@ -162,18 +191,53 @@ bamf_view_inner_get_view_type (BamfView *view)
 }
 
 char * 
-bamf_view_export_on_bus (BamfView *view,
-                         DBusGConnection *bus)
+bamf_view_export_on_bus (BamfView *view)
 {
+  char *path;
+  int  num;
+  DBusGConnection *bus;
+  GError *error = NULL;
 
-  return "path";
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+
+  if (!view->priv->path)
+    {  
+      do
+        {
+          num = g_random_int_range (1000, 9999);
+          path = g_strdup_printf ("%s/view%i", BAMF_DBUS_PATH, num);
+        }
+      while (g_list_find (BAMF_VIEW_GET_CLASS (view)->names, path));
+
+      BAMF_VIEW_GET_CLASS (view)->names = g_list_prepend (BAMF_VIEW_GET_CLASS (view)->names, path);
+
+      view->priv->path = path;
+
+      bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+      
+      g_return_val_if_fail (bus, NULL);
+
+      dbus_g_connection_register_g_object (bus, path, G_OBJECT (view));
+    }  
+  
+  return view->priv->path;
 }
 
 static void
 bamf_view_dispose (GObject *object)
 {
+  DBusGConnection *bus;
+  GError *error = NULL;
+  
   BamfView *view = BAMF_VIEW (object);
 
+  bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+  if (bus)
+    dbus_g_connection_unregister_g_object (bus, object);
+  
+  g_signal_emit (view, view_signals[CLOSED], 0);
+  
   if (view->priv->children)
     {
       g_list_free (view->priv->children);
@@ -196,6 +260,9 @@ bamf_view_class_init (BamfViewClass * klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = bamf_view_dispose;
+
+  dbus_g_object_type_install_info (BAMF_TYPE_VIEW,
+				   &dbus_glib_bamf_view_object_info);
 
   g_type_class_add_private (klass, sizeof (BamfViewPrivate));
   
@@ -223,7 +290,7 @@ bamf_view_class_init (BamfViewClass * klass)
   	              0, NULL, NULL,
   	              marshal_VOID__POINTER_POINTER,
   	              G_TYPE_NONE, 2,
-  	              G_TYPE_ARRAY, G_TYPE_ARRAY);
+  	              G_TYPE_STRV, G_TYPE_STRV);
 
   view_signals [RUNNING_CHANGED] = 
   	g_signal_new ("running-changed",
@@ -235,13 +302,4 @@ bamf_view_class_init (BamfViewClass * klass)
   	              G_TYPE_BOOLEAN);
 
   klass->view_type = bamf_view_inner_get_view_type;
-}
-
-BamfView *
-bamf_view_new (void)
-{
-  BamfView *view;
-
-  view = (BamfView *) g_object_new (BAMF_TYPE_VIEW, NULL);
-  return view;
 }

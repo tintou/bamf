@@ -18,6 +18,8 @@
 #include "marshal.h"
 #include "bamf-matcher.h"
 #include "bamf-matcher-glue.h"
+#include "bamf-application.h"
+#include "bamf-window.h"
 
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, G_TYPE_OBJECT);
 #define BAMF_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -43,6 +45,7 @@ struct _BamfMatcherPrivate
   GHashTable *registered_pids;
   GHashTable *window_to_desktop_files;
   GList *applications;
+  GList *windows;
 };
 
 static void
@@ -172,7 +175,7 @@ process_exec_string (BamfMatcher * self, char * execString)
 
 	  if (!regexFail)
 	    {
-	      execString = part;
+	      execString = g_strdup (part);
 	      break;
 	    }
 	}
@@ -650,41 +653,25 @@ window_class_name (WnckWindow *window)
   return g_strdup (wnck_class_group_get_res_class (group));
 }
 
-static void
-ensure_window_matching_state (BamfMatcher *self,
-                              WnckWindow *window)
+static GArray *
+bamf_matcher_possible_applications_for_window (BamfMatcher *self,
+                                               BamfWindow *bamf_window)
 {
   char *hint = NULL, *chrome_app_url = NULL, *file = NULL, *exec = NULL;
   BamfMatcherPrivate *priv;
+  WnckWindow *window;
   GArray *desktop_files = NULL;
   GHashTableIter iter;
   gpointer key, value;
-  int i;
   
-  g_return_if_fail (WNCK_IS_WINDOW (window));
-  g_return_if_fail (BAMF_IS_MATCHER (self));
+  g_return_val_if_fail (BAMF_IS_WINDOW (bamf_window), NULL);
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
 
   priv = self->priv;
 
-  desktop_files = g_hash_table_lookup (priv->window_to_desktop_files, window);
-  if (desktop_files)
-    {
-      /* Array already exists, lets make it empty */
-      for (i = 0; i < desktop_files->len; i++)
-        {
-          file = g_array_index (desktop_files, char*, i);
-          g_array_remove_index_fast (desktop_files, i);
-          g_free (file);
-        }
-    }
-  else
-    {
-      /* Make a new one and insert */
-      desktop_files = g_array_new (FALSE, TRUE, sizeof (char*));
-      g_hash_table_insert (priv->window_to_desktop_files, window, desktop_files);
-    }
+  desktop_files =  g_array_new (FALSE, TRUE, sizeof (char*));
+  window = bamf_window_get_window (bamf_window);
   
-
   hint = get_window_hint (self, window, _NET_WM_DESKTOP_FILE);
   chrome_app_url = get_window_hint (self, window, _CHROME_APP_URL);
   if (chrome_app_url && strlen (chrome_app_url) > 2)
@@ -778,6 +765,64 @@ ensure_window_matching_state (BamfMatcher *self,
         }
       /* sub-optimal guesswork ends */
     }
+
+  return desktop_files;
+}
+
+static void
+bamf_matcher_setup_window_state (BamfMatcher *self,
+                                 BamfWindow *bamf_window)
+{
+  GArray *possible_apps;
+  WnckWindow *window;
+  GList *apps, *a;
+  char *desktop_file;
+  int i;
+  BamfApplication *app = NULL, *best = NULL;
+  
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+  g_return_if_fail (BAMF_IS_WINDOW (bamf_window));
+
+  window = bamf_window_get_window (bamf_window);
+  apps = self->priv->applications;
+
+  possible_apps = bamf_matcher_possible_applications_for_window (self, bamf_window);
+
+  for (a = apps; a && !best; a = a->next)
+    {
+      app = a->data;
+
+      desktop_file = bamf_application_get_desktop_file (app);
+
+      for (i = 0; i < possible_apps->len; i++)
+        {
+          if (g_strcmp0 (desktop_file, g_array_index (possible_apps, char *, i)) == 0)
+            {
+              best = app;
+              break;
+            }
+        }
+    }
+
+  if (!best)
+    {
+      desktop_file = NULL;
+      
+      if (possible_apps->len > 0)
+        desktop_file = g_array_index (possible_apps, char *, 0);
+
+      if (desktop_file)
+        best = bamf_application_new_from_desktop_file (desktop_file);
+      else
+        best = bamf_application_new ();
+        
+      self->priv->applications = g_list_prepend (self->priv->applications, best);
+      bamf_view_export_on_bus (BAMF_VIEW (best));
+    }
+  
+  g_array_free (possible_apps, TRUE);
+  
+  bamf_view_add_child (BAMF_VIEW (best), BAMF_VIEW (bamf_window));
 }
 
 static void
@@ -843,41 +888,9 @@ ensure_window_hint_set (BamfMatcher *self,
     set_window_hint (self, window, _NET_WM_DESKTOP_FILE, window_hint);
 }
 
-static void
-handle_window_opened (WnckScreen * screen, WnckWindow * window, gpointer data)
-{
-  BamfMatcher *self;
-  self = (BamfMatcher *) data;
-  
-  g_return_if_fail (BAMF_IS_MATCHER (self));
-  g_return_if_fail (WNCK_IS_WINDOW (window));
-  
-  gint pid = wnck_window_get_pid (window);
-  if (pid > 1)
-    g_array_append_val (self->priv->known_pids, pid);
-  
-  
-  /* technically this round-trips to the Xorg server up to three times, however this
-   * is relatively infrequent and keeps the code nicely compartmentalized */
-  ensure_window_hint_set (self, window);
-  ensure_window_matching_state (self, window);
-}
-
-static void
-handle_window_closed (WnckScreen * screen, WnckWindow * window, gpointer data)
-{
-  BamfMatcher *self;
-  self = (BamfMatcher *) data;
-  
-  g_return_if_fail (BAMF_IS_MATCHER (self));
-  g_return_if_fail (WNCK_IS_WINDOW (window));
-  
-  clean_window_memory (self, window);
-}
-
 gboolean
 bamf_matcher_window_is_match_ready (BamfMatcher * self,
-		                        WnckWindow * window)
+		                    WnckWindow * window)
 {
   char *file;
 
@@ -893,6 +906,44 @@ bamf_matcher_window_is_match_ready (BamfMatcher * self,
     }
     
   return FALSE;
+}
+
+static void
+handle_window_opened (WnckScreen * screen, WnckWindow * window, gpointer data)
+{
+  BamfWindow *bamfwindow;
+  BamfMatcher *self;
+  self = (BamfMatcher *) data;
+  
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+  g_return_if_fail (WNCK_IS_WINDOW (window));
+  
+  gint pid = wnck_window_get_pid (window);
+  if (pid > 1)
+    g_array_append_val (self->priv->known_pids, pid);
+    
+  ensure_window_hint_set (self, window);
+
+  /* We need to make our objects for bus export, the quickest way to do this, though not
+   * always the best is to simply go window by window creating new applications as needed.
+   */
+
+  bamfwindow = bamf_window_new (window);
+  bamf_view_export_on_bus (BAMF_VIEW (bamfwindow));
+
+  bamf_matcher_setup_window_state (self, bamfwindow);
+}
+
+static void
+handle_window_closed (WnckScreen * screen, WnckWindow * window, gpointer data)
+{
+  BamfMatcher *self;
+  self = (BamfMatcher *) data;
+  
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+  g_return_if_fail (WNCK_IS_WINDOW (window));
+  
+  clean_window_memory (self, window);
 }
 
 void
@@ -953,7 +1004,7 @@ gboolean bamf_matcher_application_is_running (BamfMatcher *matcher,
   return FALSE;
 }
 
-GArray * bamf_matcher_application_dbus_paths (BamfMatcher *matcher)
+char ** bamf_matcher_application_dbus_paths (BamfMatcher *matcher)
 {
   return NULL;
 }
@@ -964,12 +1015,12 @@ char * bamf_matcher_dbus_path_for_application (BamfMatcher *matcher,
   return NULL;
 }
 
-GArray * bamf_matcher_running_application_paths (BamfMatcher *matcher)
+char ** bamf_matcher_running_application_paths (BamfMatcher *matcher)
 {
   return NULL;
 }
 
-GArray * bamf_matcher_tab_dbus_paths (BamfMatcher *matcher)
+char ** bamf_matcher_tab_dbus_paths (BamfMatcher *matcher)
 {
   return NULL;
 }
@@ -992,9 +1043,7 @@ bamf_matcher_get_default (void)
       GArray *prefixstrings;
       int i;
       DBusGConnection *bus;
-      DBusGProxy *bus_proxy;
       GError *error = NULL;
-      guint request_name_result;
   
       matcher = (BamfMatcher *) g_object_new (BAMF_TYPE_MATCHER, NULL);
       priv = matcher->priv;
@@ -1032,18 +1081,6 @@ bamf_matcher_get_default (void)
       bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
       
       g_return_val_if_fail (bus, matcher);
-
-      bus_proxy =
-        dbus_g_proxy_new_for_name (bus, "org.freedesktop.DBus",
-	    		                "/org/freedesktop/DBus",
-	    		                "org.freedesktop.DBus");
-
-      if (!dbus_g_proxy_call (bus_proxy, "RequestName", &error,
-	    		  G_TYPE_STRING, BAMF_DBUS_SERVICE,
-	    		  G_TYPE_UINT, 0,
-	    		  G_TYPE_INVALID,
-	    		  G_TYPE_UINT, &request_name_result, G_TYPE_INVALID))
-        g_error ("Could not grab service");
 
       dbus_g_connection_register_g_object (bus, BAMF_MATCHER_PATH,
 	    			           G_OBJECT (matcher));

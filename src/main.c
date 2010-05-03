@@ -18,8 +18,9 @@
 #include "config.h"
 #include "bamf-control.h"
 #include "bamf-matcher.h"
-#include "bamf-view.h"
-#include "bamf-application.h"
+#include <dbus/dbus.h>
+#include <dbus/dbus-glib.h>
+#include <dbus/dbus-glib-lowlevel.h>
 
 #include "main.h"
 
@@ -28,9 +29,30 @@ main (int argc, char **argv)
 {
   BamfControl *control;
   BamfMatcher *matcher;
+  DBusGConnection *bus;
+  DBusGProxy *bus_proxy;
+  GError *error = NULL;
+  guint request_name_result;
   
   gtk_init (&argc, &argv);
   glibtop_init ();
+
+  bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+      
+  if (!bus)
+    g_error ("Could not get session bus");
+
+  bus_proxy =
+    dbus_g_proxy_new_for_name (bus, "org.freedesktop.DBus",
+   		                "/org/freedesktop/DBus",
+    		                "org.freedesktop.DBus");
+
+  if (!dbus_g_proxy_call (bus_proxy, "RequestName", &error,
+  		  G_TYPE_STRING, BAMF_DBUS_SERVICE,
+    		  G_TYPE_UINT, 0,
+    		  G_TYPE_INVALID,
+    		  G_TYPE_UINT, &request_name_result, G_TYPE_INVALID))
+    g_error ("Could not grab service");
 
   matcher = bamf_matcher_get_default ();
   control = bamf_control_get_default ();

@@ -15,6 +15,7 @@ bamfdaemon_sources = \
 		bamf-control.c \
 		bamf-matcher.c \
 		bamf-application.c \
+		bamf-window.c \
 		marshal.c \
 		$(NULL)
 
@@ -24,10 +25,13 @@ bamfdaemon_headers = \
 		bamf-view.h \
 		bamf-control.h \
 		bamf-matcher.h \
+		bamf-window.h \
 		bamf-application.h \
 		bamf-application-glue.h \
 		bamf-control-glue.h \
 		bamf-matcher-glue.h \
+		bamf-window-glue.h \
+		bamf-view-glue.h \
 		marshal.h \
 		$(NULL)
 
@@ -40,12 +44,16 @@ nodist_EXTRA_bamfdaemon_SOURCES = \
 	bamf-application-glue.h \
 	bamf-control-glue.h \
 	bamf-matcher-glue.h \
+        bamf-window-glue.h \
+        bamf-view-glue.h \
 	$(NULL)
 
 DISTCLEANFILES = \
 	bamf-application-glue.h \
 	bamf-control-glue.h \
 	bamf-matcher-glue.h \
+	bamf-window-glue.h \
+	bamf-view-glue.h \
 	$(NULL)
 
 bamfdaemon_LDADD = \
@@ -80,14 +88,24 @@ bamf-control-glue.h: bamf-control-glue.xml Makefile
 bamf-matcher-glue.h: bamf-matcher-glue.xml Makefile
 		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_matcher --mode=glib-server --output=$@ $<
 
+bamf-window-glue.h: bamf-window-glue.xml Makefile
+		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_window --mode=glib-server --output=$@ $<
+
+bamf-view-glue.h: bamf-view-glue.xml Makefile
+		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_view --mode=glib-server --output=$@ $<
+
 BUILT_SOURCES = \
 	bamf-application-glue.h \
 	bamf-control-glue.h \
 	bamf-matcher-glue.h \
+	bamf-window-glue.h \
+	bamf-view-glue.h \
 	$(NULL)
 
 EXTRA_DIST = \
 	bamf-application-glue.xml \
 	bamf-control-glue.xml \
 	bamf-matcher-glue.xml \
+	bamf-window-glue.xml \
+	bamf-view-glue.xml \
 	$(NULL)

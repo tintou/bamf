@@ -60,18 +60,9 @@ void   bamf_application_set_desktop_file (BamfApplication *application,
 
 gboolean bamf_application_is_urgent  (BamfApplication *application);
 void     bamf_application_set_urgent (BamfApplication *application,
-                                        gboolean urgent);
+                                      gboolean urgent);
 
 GArray * bamf_application_get_xids (BamfApplication *application);
-
-GList * bamf_application_get_windows (BamfApplication *application);
-
-void bamf_application_add_window    (BamfApplication *application,
-                                     WnckWindow *window);
-void bamf_application_remove_window (BamfApplication *application,
-                                     WnckWindow *window);
-
-void bamf_application_update_windows (BamfApplication *application);
 
 BamfApplication * bamf_application_new (void);
 

@@ -69,6 +69,11 @@ struct _BamfMatcher
 
 GType bamf_matcher_get_type (void) G_GNUC_CONST;
 
+void
+bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
+                                            char * desktopFile, 
+                                            gint pid);
+
 char *
 bamf_matcher_application_for_xid (BamfMatcher *matcher,
                                   guint32 xid);
@@ -77,17 +82,17 @@ gboolean
 bamf_matcher_application_is_running (BamfMatcher *matcher,
                                      char *application);
 
-GArray *
+char **
 bamf_matcher_application_dbus_paths (BamfMatcher *matcher);
 
 char *
 bamf_matcher_dbus_path_for_application (BamfMatcher *matcher,
                                         char *application);
 
-GArray *
+char **
 bamf_matcher_running_application_paths (BamfMatcher *matcher);
 
-GArray *
+char **
 bamf_matcher_tab_dbus_paths (BamfMatcher *matcher);
 
 GArray *

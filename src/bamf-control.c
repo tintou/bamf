@@ -15,7 +15,9 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // 
 
+#include "bamf-matcher.h"
 #include "bamf-control.h"
+#include "bamf-control-glue.h"
 
 G_DEFINE_TYPE (BamfControl, bamf_control, G_TYPE_OBJECT);
 #define BAMF_CONTROL_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -23,7 +25,7 @@ BAMF_TYPE_CONTROL, BamfControlPrivate))
 
 struct _BamfControlPrivate
 {
-  char * nothing;
+  char * nothing; /* temporary to fix runtime warning about 0 size private struct */
 };
 
 static void
@@ -36,6 +38,9 @@ bamf_control_init (BamfControl * self)
 static void
 bamf_control_class_init (BamfControlClass * klass)
 {
+  dbus_g_object_type_install_info (BAMF_TYPE_CONTROL,
+				   &dbus_glib_bamf_control_object_info);
+  
   g_type_class_add_private (klass, sizeof (BamfControlPrivate));
 }
 
@@ -45,6 +50,9 @@ bamf_control_register_application_for_pid (BamfControl *control,
                                            gint32 pid,
                                            GError **error)
 {
+  bamf_matcher_register_desktop_file_for_pid (bamf_matcher_get_default (),
+                                              application, pid);
+
   return TRUE;
 }
 
@@ -63,7 +71,18 @@ bamf_control_get_default (void)
 
   if (!BAMF_IS_CONTROL (control))
     {
+      DBusGConnection *bus;
+      GError *error = NULL;
+      
       control = (BamfControl *) g_object_new (BAMF_TYPE_CONTROL, NULL);
+
+      bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+      g_return_val_if_fail (bus, control);
+      
+      dbus_g_connection_register_g_object (bus, BAMF_CONTROL_PATH,
+	    			           G_OBJECT (control));
+      
       return control;
     }
 
