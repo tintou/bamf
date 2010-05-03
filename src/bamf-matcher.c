@@ -43,9 +43,7 @@ struct _BamfMatcherPrivate
   GHashTable *desktop_file_table;
   GHashTable *exec_list;
   GHashTable *registered_pids;
-  GHashTable *window_to_desktop_files;
-  GList *applications;
-  GList *windows;
+  GList *views;
 };
 
 static void
@@ -608,36 +606,6 @@ set_window_hint (BamfMatcher * self,
   XCloseDisplay (XDisplay);
 }
 
-static void
-clean_window_memory (BamfMatcher *self,
-                     WnckWindow *window)
-{
-  BamfMatcherPrivate *priv;
-  GArray *desktop_files = NULL;
-  char *file;
-  int i;
-  
-  g_return_if_fail (WNCK_IS_WINDOW (window));
-  g_return_if_fail (BAMF_IS_MATCHER (self));
-  
-  priv = self->priv;
-
-  desktop_files = g_hash_table_lookup (priv->window_to_desktop_files, window);
-  if (desktop_files)
-    {
-      /* Array already exists, lets make it empty */
-      for (i = 0; i < desktop_files->len; i++)
-        {
-          file = g_array_index (desktop_files, char*, i);
-          g_array_remove_index_fast (desktop_files, i);
-          g_free (file);
-        }
-        
-      g_array_free (desktop_files, TRUE);
-      g_hash_table_remove (priv->window_to_desktop_files, window);
-    }
-}
-
 static char*
 window_class_name (WnckWindow *window)
 {
@@ -775,22 +743,28 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
 {
   GArray *possible_apps;
   WnckWindow *window;
-  GList *apps, *a;
+  GList *views, *a;
   char *desktop_file;
   int i;
   BamfApplication *app = NULL, *best = NULL;
+  BamfView *view;
   
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_WINDOW (bamf_window));
 
   window = bamf_window_get_window (bamf_window);
-  apps = self->priv->applications;
+  views = self->priv->views;
 
   possible_apps = bamf_matcher_possible_applications_for_window (self, bamf_window);
 
-  for (a = apps; a && !best; a = a->next)
+  for (a = views; a && !best; a = a->next)
     {
-      app = a->data;
+      view = a->data;
+
+      if (!BAMF_IS_APPLICATION (view))
+        continue;
+
+      app = BAMF_APPLICATION (view);
 
       desktop_file = bamf_application_get_desktop_file (app);
 
@@ -816,7 +790,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
       else
         best = bamf_application_new ();
         
-      self->priv->applications = g_list_prepend (self->priv->applications, best);
+      self->priv->views = g_list_prepend (self->priv->views, BAMF_VIEW (best));
       bamf_view_export_on_bus (BAMF_VIEW (best));
     }
   
@@ -932,18 +906,8 @@ handle_window_opened (WnckScreen * screen, WnckWindow * window, gpointer data)
   bamf_view_export_on_bus (BAMF_VIEW (bamfwindow));
 
   bamf_matcher_setup_window_state (self, bamfwindow);
-}
 
-static void
-handle_window_closed (WnckScreen * screen, WnckWindow * window, gpointer data)
-{
-  BamfMatcher *self;
-  self = (BamfMatcher *) data;
-  
-  g_return_if_fail (BAMF_IS_MATCHER (self));
-  g_return_if_fail (WNCK_IS_WINDOW (window));
-  
-  clean_window_memory (self, window);
+  self->priv->views = g_list_prepend (self->priv->views, BAMF_VIEW (bamfwindow));
 }
 
 void
@@ -995,29 +959,150 @@ x_error_handler (Display *display, XErrorEvent *event)
 char * bamf_matcher_application_for_xid (BamfMatcher *matcher,
                                          guint32 xid)
 {
+  char * desktop_file;
+  GList *l;
+  BamfView *view;
+  BamfMatcherPrivate *priv;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+
+  priv = matcher->priv;
+
+  for (l = priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_APPLICATION (view))
+        continue;
+
+      desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
+      if (bamf_application_manages_xid (BAMF_APPLICATION (view), xid))
+        {
+          return desktop_file;
+        }
+    }
+
   return NULL;
 }
 
 gboolean bamf_matcher_application_is_running (BamfMatcher *matcher,
                                               char *application)
 {
+  char * desktop_file;
+  GList *l;
+  BamfView *view;
+  BamfMatcherPrivate *priv;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), FALSE);
+
+  priv = matcher->priv;
+
+  for (l = priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_APPLICATION (view))
+        continue;
+
+      desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
+      if (g_strcmp0 (desktop_file, application) == 0)
+        {
+          g_free (desktop_file);
+          return bamf_view_is_running (view);
+        }
+      g_free (desktop_file);
+    }
+
   return FALSE;
 }
 
 char ** bamf_matcher_application_dbus_paths (BamfMatcher *matcher)
 {
-  return NULL;
+  char ** paths;
+  int i;
+  GList *l;
+  BamfView *view;
+  BamfMatcherPrivate *priv;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+
+  priv = matcher->priv;
+
+  paths = g_malloc0 (sizeof (char *) * g_list_length (priv->views));
+
+  i = 0;
+  for (l = priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_APPLICATION (view))
+        continue;
+
+      paths[i] = g_strdup (bamf_view_get_path (view));
+      i++;
+    }
+
+  return paths;
 }
 
 char * bamf_matcher_dbus_path_for_application (BamfMatcher *matcher,
                                                char *application)
 {
-  return NULL;
+  char * path = NULL;
+  char * desktop_file;
+  GList *l;
+  BamfView *view;
+  BamfMatcherPrivate *priv;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+
+  priv = matcher->priv;
+
+  for (l = priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_APPLICATION (view))
+        continue;
+
+      desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
+      if (g_strcmp0 (desktop_file, application) == 0)
+        {
+          path = g_strdup (bamf_view_get_path (view));
+        }
+      g_free (desktop_file);
+    }
+
+  return path;
 }
 
 char ** bamf_matcher_running_application_paths (BamfMatcher *matcher)
 {
-  return NULL;
+  char ** paths;
+  int i;
+  GList *l;
+  BamfView *view;
+  BamfMatcherPrivate *priv;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+
+  priv = matcher->priv;
+
+  paths = g_malloc0 (sizeof (char *) * g_list_length (priv->views));
+
+  i = 0;
+  for (l = priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_APPLICATION (view) || !bamf_view_is_running (view))
+        continue;
+
+      paths[i] = g_strdup (bamf_view_get_path (view));
+      i++;
+    }
+
+  return paths;
 }
 
 char ** bamf_matcher_tab_dbus_paths (BamfMatcher *matcher)
@@ -1028,7 +1113,36 @@ char ** bamf_matcher_tab_dbus_paths (BamfMatcher *matcher)
 GArray * bamf_matcher_xids_for_application (BamfMatcher *matcher,
                                             char *application)
 {
-  return NULL;
+  GArray * xids = NULL;
+  char * desktop_file;
+  GList *l;
+  BamfView *view;
+  BamfMatcherPrivate *priv;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+
+  priv = matcher->priv;
+
+  for (l = priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_APPLICATION (view))
+        continue;
+
+      desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
+      if (g_strcmp0 (desktop_file, application) == 0)
+        {
+
+          g_print ("%s\n", desktop_file);
+          xids = bamf_application_get_xids (BAMF_APPLICATION (view));
+          g_free (desktop_file);
+          break;
+        }
+      g_free (desktop_file);
+    }
+
+  return xids;
 }
 
 BamfMatcher *
@@ -1053,9 +1167,6 @@ bamf_matcher_get_default (void)
       priv->registered_pids =
         g_hash_table_new ((GHashFunc) g_int_hash, (GEqualFunc) g_int_equal);
       
-      priv->window_to_desktop_files =
-        g_hash_table_new ((GHashFunc) g_direct_hash, (GEqualFunc) g_direct_equal);
-      
       prefixstrings = prefix_strings (matcher);
       for (i = 0; i < prefixstrings->len; i++)
         {
@@ -1072,8 +1183,6 @@ bamf_matcher_get_default (void)
 
       g_signal_connect (G_OBJECT (screen), "window-opened",
 		    (GCallback) handle_window_opened, matcher);
-      g_signal_connect (G_OBJECT (screen), "window-closed",
-    		    (GCallback) handle_window_closed, matcher);
   
       XSetErrorHandler (x_error_handler);
 

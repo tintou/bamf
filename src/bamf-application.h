@@ -64,6 +64,9 @@ void     bamf_application_set_urgent (BamfApplication *application,
 
 GArray * bamf_application_get_xids (BamfApplication *application);
 
+gboolean bamf_application_manages_xid (BamfApplication *application,
+                                       guint32 xid);
+
 BamfApplication * bamf_application_new (void);
 
 BamfApplication * bamf_application_new_from_desktop_file (char * desktop_file);

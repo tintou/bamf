@@ -71,7 +71,7 @@ bamf_view_get_children_paths (BamfView *view)
   for (child = view->priv->children; child; child = child->next)
     {
       cview = child->data;
-      paths[i] = bamf_view_get_path (cview);
+      paths[i] = g_strdup (bamf_view_get_path (cview));
       i++;
     }
   
@@ -94,6 +94,14 @@ bamf_view_add_child (BamfView *view,
   g_return_if_fail (BAMF_IS_VIEW (child));
 
   view->priv->children = g_list_prepend (view->priv->children, child);
+
+  char ** added;
+
+  added = g_malloc0 (sizeof (char *) * 1);
+
+  added [0] = g_strdup (bamf_view_get_path (child));
+
+  g_signal_emit (view, view_signals[CHILDREN_CHANGED], 0, added, NULL);
 }
 
 void
@@ -104,6 +112,14 @@ bamf_view_remove_child (BamfView *view,
   g_return_if_fail (BAMF_IS_VIEW (child));
 
   view->priv->children = g_list_remove (view->priv->children, child);
+
+  char ** removed;
+
+  removed = g_malloc0 (sizeof (char *) * 1);
+
+  removed [0] = g_strdup (bamf_view_get_path (child));
+
+  g_signal_emit (view, view_signals[CHILDREN_CHANGED], 0, NULL, removed);
 }
 
 gboolean 

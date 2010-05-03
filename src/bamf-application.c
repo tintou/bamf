@@ -47,7 +47,7 @@ bamf_application_get_application_type (BamfApplication *application)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
 
-  return application->priv->app_type;
+  return g_strdup (application->priv->app_type);
 }
 
 char * 
@@ -55,7 +55,7 @@ bamf_application_get_desktop_file (BamfApplication *application)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
 
-  return application->priv->desktop_file;
+  return g_strdup (application->priv->desktop_file);
 }
 
 void   
@@ -113,6 +113,32 @@ bamf_application_get_xids (BamfApplication *application)
     }
 
   return xids;
+}
+
+gboolean 
+bamf_application_manages_xid (BamfApplication *application,
+                              guint32 xid)
+{
+  GArray *xids;
+  int i;
+  gboolean result = FALSE;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+
+  xids = bamf_application_get_xids (application);
+
+  for (i = 0; i < xids->len; i++)
+    {
+      if (g_array_index (xids, guint32, i) == xid)
+        {
+          result = TRUE;
+          break;
+        }
+    }
+
+  g_array_free (xids, TRUE);
+
+  return result;
 }
 
 static void
