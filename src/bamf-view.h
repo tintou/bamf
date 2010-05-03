@@ -40,7 +40,9 @@ struct _BamfViewClass
 {
   GObjectClass parent;
 
-  char * (*view_type) (BamfView *view);
+  char * (*view_type)     (BamfView *view);
+  void   (*child_added)   (BamfView *view, BamfView *child);
+  void   (*child_removed) (BamfView *view, BamfView *child); 
   GList *names;
 
   gboolean (* running_changed) (BamfView *view, gboolean running);

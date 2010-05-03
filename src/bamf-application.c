@@ -150,9 +150,11 @@ bamf_application_get_view_type (BamfView *view)
 static void
 bamf_application_ensure_state (BamfApplication *application)
 {
-  WnckWindow *active_window;
+  /* THIS METHOD SUCKS, FIXME */
+
+  WnckWindow *active_window, *window;
   GArray *xids;
-  guint32 active_xid;
+  guint32 xid;
   int i;
   gboolean active = FALSE;
 
@@ -169,15 +171,13 @@ bamf_application_ensure_state (BamfApplication *application)
 
   if (WNCK_IS_WINDOW (active_window))
     {
-      active_xid = wnck_window_get_xid (active_window);
-
       for (i = 0; i < xids->len; i++)
         {
-          if (active_xid == g_array_index (xids, guint32, i))
-            {
-              active = TRUE;
-              break;
-            }
+          xid = g_array_index (xids, guint32, i);
+          window = wnck_window_get (xid);
+
+          if (window == active_window)
+            active = TRUE;
         }
     }
     
@@ -213,7 +213,7 @@ bamf_application_children_changed (BamfView *view, char **added, char **removed)
 
   if (removed)
     {
-      length = g_strv_length (added);
+      length = g_strv_length (removed);
       new_removed = g_malloc0 (sizeof (char *) * length);
 
       j = 0;
@@ -233,6 +233,22 @@ bamf_application_children_changed (BamfView *view, char **added, char **removed)
   bamf_application_ensure_state (BAMF_APPLICATION (view));  
   
   return FALSE;
+}
+
+static void
+bamf_application_child_added (BamfView *view, BamfView *child)
+{
+  BamfApplication *application;
+
+  application = BAMF_APPLICATION (view);
+}
+
+static void
+bamf_application_child_removed (BamfView *view, BamfView *child)
+{
+  BamfApplication *application;
+
+  application = BAMF_APPLICATION (view);
 }
 
 static void
@@ -264,6 +280,8 @@ bamf_application_class_init (BamfApplicationClass * klass)
 
   view_class->view_type = bamf_application_get_view_type;
   view_class->children_changed = bamf_application_children_changed;
+  view_class->child_added = bamf_application_child_added;
+  view_class->child_removed = bamf_application_child_removed;
 
   g_type_class_add_private (klass, sizeof (BamfApplicationPrivate));
   

@@ -139,6 +139,13 @@ bamf_view_get_children (BamfView *view)
   return view->priv->children;
 }
 
+static void
+bamf_view_handle_child_closed (BamfView *child,
+                               BamfView *view)
+{
+  bamf_view_remove_child (view, child);
+}
+
 void
 bamf_view_add_child (BamfView *view,
                      BamfView *child)
@@ -148,8 +155,14 @@ bamf_view_add_child (BamfView *view,
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (BAMF_IS_VIEW (child));
 
+  g_signal_connect (G_OBJECT (child), "closed",
+		    (GCallback) bamf_view_handle_child_closed, view);
+
   view->priv->children = g_list_prepend (view->priv->children, child);
 
+  if (BAMF_VIEW_GET_CLASS (view)->child_added)
+    BAMF_VIEW_GET_CLASS (view)->child_added (view, child);
+    
   added = g_malloc0 (sizeof (char *) * 1);
   added [0] = g_strdup (bamf_view_get_path (child));
 
@@ -165,8 +178,13 @@ bamf_view_remove_child (BamfView *view,
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (BAMF_IS_VIEW (child));
 
+  g_signal_handlers_disconnect_by_func (child, bamf_view_handle_child_closed, view);
+
   view->priv->children = g_list_remove (view->priv->children, child);
 
+  if (BAMF_VIEW_GET_CLASS (view)->child_removed)
+    BAMF_VIEW_GET_CLASS (view)->child_removed (view, child);
+  
   removed = g_malloc0 (sizeof (char *) * 1);
   removed [0] = g_strdup (bamf_view_get_path (child));
 
