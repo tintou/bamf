@@ -115,6 +115,7 @@ bamf_view_get_children_paths (BamfView *view)
       paths[i] = g_strdup (bamf_view_get_path (cview));
       i++;
     }
+
   return paths;
 }
 
@@ -221,7 +222,7 @@ bamf_view_get_name (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
 
-  return view->priv->name;
+  return g_strdup (view->priv->name);
 }
 
 void
