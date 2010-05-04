@@ -36,6 +36,7 @@
 
 #include "bamf-application.h"
 #include "bamf-window.h"
+#include "bamf-factory.h"
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
@@ -46,19 +47,22 @@ G_DEFINE_TYPE (BamfApplication, bamf_application, BAMF_TYPE_VIEW);
 #define BAMF_APPLICATION_GET_PRIVATE(o) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((o), BAMF_TYPE_APPLICATION, BamfApplicationPrivate))
 
+enum
+{
+  WINDOW_ADDED,
+  WINDOW_REMOVED,
+  URGENT_CHANGED,
+  
+  LAST_SIGNAL,
+};
+
+static guint application_signals[LAST_SIGNAL] = { 0 };
+
 struct _BamfApplicationPrivate
 {
   DBusGConnection *connection;
   DBusGProxy      *proxy;
 };
-
-/* Globals */
-
-/* Forwards */
-
-/*
- * GObject stuff
- */
 
 static void
 bamf_application_class_init (BamfApplicationClass *klass)
@@ -66,6 +70,33 @@ bamf_application_class_init (BamfApplicationClass *klass)
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
 
   g_type_class_add_private (obj_class, sizeof (BamfApplicationPrivate));
+
+  application_signals [WINDOW_ADDED] = 
+  	g_signal_new ("window-added",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__POINTER,
+  	              G_TYPE_NONE, 1, 
+  	              BAMF_TYPE_VIEW);
+
+  application_signals [WINDOW_REMOVED] = 
+  	g_signal_new ("window-removed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__POINTER,
+  	              G_TYPE_NONE, 1, 
+  	              BAMF_TYPE_VIEW);
+
+  application_signals [URGENT_CHANGED] = 
+  	g_signal_new ("urgent-changed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__BOOLEAN,
+  	              G_TYPE_NONE, 1, 
+  	              G_TYPE_BOOLEAN);
 }
 
 
@@ -86,6 +117,32 @@ bamf_application_init (BamfApplication *self)
         g_error_free (error);
       return;
     }
+}
+
+static void
+bamf_application_on_window_added (DBusGProxy *proxy, char *path, BamfApplication *self)
+{
+  BamfView *view;
+
+  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+
+  g_signal_emit (G_OBJECT (self), application_signals[WINDOW_ADDED], 0, view);
+}
+
+static void
+bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplication *self)
+{
+  BamfView *view;
+
+  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+
+  g_signal_emit (G_OBJECT (self), application_signals[WINDOW_REMOVED], 0, view);
+}
+
+static void
+bamf_application_on_urgent_changed (DBusGProxy *proxy, gboolean urgent, BamfApplication *self)
+{
+  g_signal_emit (G_OBJECT (self), application_signals[URGENT_CHANGED], 0, urgent);
 }
 
 BamfApplication *
@@ -109,6 +166,39 @@ bamf_application_new (const char * path)
       g_error ("Unable to get org.ayatana.bamf.application application");
     }
 
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "WindowAdded",
+                           G_TYPE_STRING, 
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "WindowAdded",
+                               (GCallback) bamf_application_on_window_added,
+                               self,
+                               NULL);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "WindowRemoved",
+                           G_TYPE_STRING, 
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "WindowRemoved",
+                               (GCallback) bamf_application_on_window_removed,
+                               self,
+                               NULL);
+                           
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "UrgentChanged",
+                           G_TYPE_BOOLEAN, 
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "UrgentChanged",
+                               (GCallback) bamf_application_on_urgent_changed,
+                               self,
+                               NULL);
+  
   return self;
 }
 

@@ -158,17 +158,17 @@ bamf_matcher_init (BamfMatcher *self)
                            G_TYPE_STRING,
                            G_TYPE_INVALID);
 
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "ViewClosed",
-                           G_TYPE_STRING, 
-                           G_TYPE_STRING,
-                           G_TYPE_INVALID);
-
   dbus_g_proxy_connect_signal (priv->proxy,
                                "ViewOpened",
                                (GCallback) bamf_matcher_on_view_opened,
                                self,
                                NULL);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "ViewClosed",
+                           G_TYPE_STRING, 
+                           G_TYPE_STRING,
+                           G_TYPE_INVALID);
 
   dbus_g_proxy_connect_signal (priv->proxy,
                                "ViewClosed",

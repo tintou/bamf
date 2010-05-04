@@ -44,7 +44,8 @@ void populate_tree_store (GtkTreeStore *store)
   if (apps == NULL)
     g_print ("FAIL\n");
 
-  for (l = apps; l; l = l->next) {
+  for (l = apps; l; l = l->next) 
+  {
     gtk_tree_store_append (store, &position, NULL);
 
     app = BAMF_APPLICATION (l->data);
@@ -53,7 +54,8 @@ void populate_tree_store (GtkTreeStore *store)
 
     windows = bamf_application_get_windows (app);
 
-    for (w = windows; w; w = w->next) {
+    for (w = windows; w; w = w->next) 
+    {
       window = BAMF_WINDOW (w->data);
       const gchar *name = bamf_view_get_name (BAMF_VIEW (window));
       gtk_tree_store_append (store, &child, &position);
