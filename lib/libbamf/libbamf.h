@@ -21,6 +21,10 @@
 #ifndef __LIBBAMF_H__
 #define __LIBBAMF_H__
 
-#include <libbamf/bamf-proxy.h>
+#include <libbamf/bamf-application.h>
+#include <libbamf/bamf-window.h>
+#include <libbamf/bamf-view.h>
+#include <libbamf/bamf-control.h>
+#include <libbamf/bamf-matcher.h>
 
 #endif

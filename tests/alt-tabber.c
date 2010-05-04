@@ -30,101 +30,33 @@ GtkWidget *window;
 GtkWidget *treeView;
 guint timer;
 
-void file_callback (BamfProxy *proxy,
-                    gchar *file,
-                    WnckWindow *data)
-{
-  g_return_if_fail (WNCK_IS_WINDOW (data));
-
-  if (file)
-    {
-      g_print ("%s -- %s\n", file, wnck_window_get_name (data));
-    }
-}
-
-GArray * get_desktop_files ()
-{
-	WnckScreen *screen = wnck_screen_get_default ();
-	GList *windows = wnck_screen_get_windows (screen);
-
-	GArray *desktopFiles = g_array_new (FALSE, TRUE, sizeof (GString*));
-
-	GList *window;
-	for (window = windows; window != NULL; window = window->next) {
-		/* Doing just a little bit of tracking right here can save a lot of dbus calls.
-		 * This is not done hwoever to allow us to use as many of the features of libbamf
-		 * as possible.
-		 */
-		gchar *file = bamf_proxy_get_desktop_file (bamf_proxy_get_default (), wnck_window_get_xid (window->data));
-		bamf_proxy_get_desktop_file_async (bamf_proxy_get_default (),
-		                                       wnck_window_get_xid (window->data),
-		                                       (BamfFileCallback) file_callback,
-		                                       window->data);
-		                                       
-		if (file != NULL && *file != 0) {
-			GString *desktopFile = g_string_new (file);
-
-			gboolean equal = FALSE;
-			int i;
-			for (i = 0; i < desktopFiles->len; i++) {
-				if (g_string_equal (g_array_index (desktopFiles, GString*, i), desktopFile)) {
-					equal = TRUE;
-					break;
-				}
-			}
-
-			if (!equal)
-				g_array_append_val (desktopFiles, desktopFile);
-		}
-
-		g_free (file);
-	}
-
-	return desktopFiles;
-}
-
-void array_callback (BamfProxy *proxy,
-                     GArray *xids,
-                     gchar *string)
-{
-  if (string)
-    {
-      g_print ("%s --", string);
-      int i;
-      for (i = 0; i < xids->len; i++)
-        {
-          g_print (" %u", g_array_index (xids, guint32, i));
-        }
-      g_print ("\n");
-    }
-}
-
 void populate_tree_store (GtkTreeStore *store)
 {
-	GtkTreeIter position, child;
+	//GtkTreeIter position, child;
+	GList *l;
 
-	GArray *desktopFiles = get_desktop_files ();
+	GList *apps = bamf_matcher_get_applications (bamf_matcher_get_default ());
 
-	int i;
-	for (i = 0; i < desktopFiles->len; i++) {
-		gtk_tree_store_append (store, &position, NULL);
+	if (apps == NULL)
+	  g_print ("FAIL\n");
+
+	for (l = apps; l; l = l->next) {
+	        g_print ("APPLICATION\n");
+		/*gtk_tree_store_append (store, &position, NULL);
 
 		gchar *string = g_array_index (desktopFiles, GString*, i)->str;
 
 		gtk_tree_store_set (store, &position, 0, string, -1);
 
 		GArray * windows = bamf_proxy_get_xids (bamf_proxy_get_default (), string);
-		bamf_proxy_get_xids_async (bamf_proxy_get_default (),
-		                               string,
-		                               (BamfArrayCallback) array_callback,
-		                               string);
+
 		int j;
 		for (j = 0; j < windows->len; j++) {
 			WnckWindow *window = wnck_window_get (g_array_index (windows, gulong, j));
 			const gchar *name = wnck_window_get_name (window);
 			gtk_tree_store_append (store, &child, &position);
 			gtk_tree_store_set (store, &child, 0, name, -1);
-		}
+		}*/
 	}
 }
 
@@ -148,34 +80,10 @@ GtkWidget * make_tree_view ()
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW (treeView), GTK_TREE_MODEL (treeStore));
 
+        populate_tree_store (treeStore);
 	g_object_unref (treeStore);
 
 	return treeView;
-}
-
-static gboolean on_timer_elapsed (gpointer callback_data)
-{
-	GtkTreeStore *store = GTK_TREE_STORE (gtk_tree_view_get_model (GTK_TREE_VIEW (treeView)));
-
-	gtk_tree_store_clear (store);
-	populate_tree_store (store);
-
-	timer = 0;
-
-	return FALSE;
-}
-
-
-/* libwnck has a nice habit of sending up tons of these events when it is first started.
- * For this reason we use the timer to buffer out some of these events, and save ourselves
- * from murdering the dbus server.
- */
-static void handle_window_opened_closed (WnckScreen *screen, WnckWindow *window, gpointer data)
-{
-	if (timer > 0)
-		g_source_remove (timer);
-
-	timer = g_timeout_add (300, (GSourceFunc) on_timer_elapsed, NULL);
 }
 
 static void destroy (GtkWidget *widget, gpointer data)
@@ -198,11 +106,6 @@ int main (int argc, char **argv)
 
 	treeView = make_tree_view ();
 	gtk_container_add (GTK_CONTAINER (window), treeView);
-
-	WnckScreen *screen = wnck_screen_get_default ();
-
-	g_signal_connect (G_OBJECT (screen), "window-opened", (GCallback) handle_window_opened_closed, window);
-	g_signal_connect (G_OBJECT (screen), "window-closed", (GCallback) handle_window_opened_closed, window);
 
 	gtk_widget_show_all (window);
 	gtk_main ();

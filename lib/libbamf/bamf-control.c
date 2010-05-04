@@ -87,7 +87,7 @@ bamf_control_init (BamfControl *self)
     }
 
   priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
-                                           "org.ayatana.bamf.control",
+                                           "org.ayatana.bamf",
                                            "/org/ayatana/bamf/control",
                                            "org.ayatana.bamf.control");
   if (priv->proxy == NULL)

@@ -35,6 +35,7 @@
 #endif
 
 #include "bamf-view.h"
+#include "bamf-factory.h"
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
@@ -125,7 +126,9 @@ bamf_view_init (BamfView *self)
 GList *
 bamf_view_get_children (BamfView *view)
 {
-  /*char ** children;
+  char ** children;
+  int i, len;
+  GList *results = NULL;
   GError *error;
   BamfViewPrivate *priv;
 
@@ -142,38 +145,139 @@ bamf_view_get_children (BamfView *view)
                           G_TYPE_INVALID))
     {
       g_error ("Unable to fetch children: %s\n", error->message);
-    }*/
+    }
 
-  
-  return NULL;
+  if (!children)
+    return NULL;
+
+  len = g_strv_length (children);
+
+  for (i = 0; i < len; i++)
+    {
+      results = g_list_prepend (results, bamf_factory_view_for_path (bamf_factory_get_default (), children[i]));
+    }
+
+  return results;
 }
 
 gboolean
 bamf_view_is_active (BamfView *view)
 {
-  return FALSE;
+  BamfViewPrivate *priv;
+  gboolean active = FALSE;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
+  priv = view->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "IsActive",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_BOOLEAN, &active,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to fetch active: %s", error->message);
+      g_error_free (error);
+    }
+
+  return active;
 }
 
 gboolean
 bamf_view_is_running (BamfView *view)
 {
-  return FALSE;
+  BamfViewPrivate *priv;
+  gboolean running = FALSE;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
+  priv = view->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "IsRunning",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_BOOLEAN, &running,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to fetch running: %s", error->message);
+      g_error_free (error);
+    }
+
+  return running;
 }
 
 gchar *
 bamf_view_get_name (BamfView *view)
 {
-  return NULL;
+  BamfViewPrivate *priv;
+  char *name = NULL;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+  priv = view->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "Name",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &name,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to fetch name: %s", error->message);
+      g_error_free (error);
+    }
+
+  return name;
 }
 
 BamfView *
 bamf_view_get_parent (BamfView *view)
 {
-  return NULL;
+  BamfViewPrivate *priv;
+  char *parent = NULL;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+  priv = view->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "Parent",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &parent,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to fetch parent: %s", error->message);
+      g_error_free (error);
+    }
+
+  if (!parent)
+    return NULL;
+  return bamf_factory_view_for_path (bamf_factory_get_default (), parent);
 }
 
 gchar *
 bamf_view_get_view_type (BamfView *view)
 {
-  return NULL;
+  BamfViewPrivate *priv;
+  char *type = NULL;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+  priv = view->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "ViewType",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &type,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to fetch view type: %s", error->message);
+      g_error_free (error);
+    }
+
+  return type;
 }

@@ -91,7 +91,7 @@ bamf_matcher_init (BamfMatcher *self)
     }
 
   priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
-                                           "org.ayatana.bamf.matcher",
+                                           "org.ayatana.bamf",
                                            "/org/ayatana/bamf/matcher",
                                            "org.ayatana.bamf.matcher");
   if (priv->proxy == NULL)
@@ -193,7 +193,6 @@ bamf_matcher_get_applications (BamfMatcher *matcher)
   if (!dbus_g_proxy_call (priv->proxy,
                           "ApplicationPaths",
                           &error,
-                          G_TYPE_NONE,
                           G_TYPE_INVALID,
                           G_TYPE_STRV, &array,
                           G_TYPE_INVALID))
@@ -202,8 +201,7 @@ bamf_matcher_get_applications (BamfMatcher *matcher)
       g_error_free (error);
     }
 
-  if (!array)
-    return NULL;
+  g_return_val_if_fail (array, NULL);
 
   len = g_strv_length (array);
   for (i = 0; i < len; i++)
@@ -212,6 +210,8 @@ bamf_matcher_get_applications (BamfMatcher *matcher)
 
       if (view)
         result = g_list_prepend (result, view);
+      else
+        g_print ("DOUBLE FAIL\n");
     }
 
   return result;
