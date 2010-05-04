@@ -47,11 +47,62 @@ G_DEFINE_TYPE (BamfView, bamf_view, G_TYPE_OBJECT);
 #define BAMF_VIEW_GET_PRIVATE(o) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((o), BAMF_TYPE_VIEW, BamfViewPrivate))
 
+enum
+{
+  ACTIVE_CHANGED,
+  CLOSED,
+  CHILD_ADDED,
+  CHILD_REMOVED,
+  RUNNING_CHANGED,
+  
+  LAST_SIGNAL,
+};
+
+static guint view_signals[LAST_SIGNAL] = { 0 };
+
 struct _BamfViewPrivate
 {
   DBusGConnection *connection;
   DBusGProxy      *proxy;
 };
+
+static void
+bamf_view_on_active_changed (DBusGProxy *proxy, gboolean active, BamfView *self)
+{
+  g_signal_emit (G_OBJECT (self), view_signals[ACTIVE_CHANGED], 0, active);
+}
+
+static void
+bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
+{
+  g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
+}
+
+static void
+bamf_view_on_child_added (DBusGProxy *proxy, char *path, BamfView *self)
+{
+  BamfView *view;
+
+  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+
+  g_signal_emit (G_OBJECT (self), view_signals[CHILD_ADDED], 0, view);
+}
+
+static void
+bamf_view_on_child_removed (DBusGProxy *proxy, char *path, BamfView *self)
+{
+  BamfView *view;
+
+  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+
+  g_signal_emit (G_OBJECT (self), view_signals[CHILD_ADDED], 0, view);
+}
+
+static void
+bamf_view_on_running_changed (DBusGProxy *proxy, gboolean running, BamfView *self)
+{
+  g_signal_emit (G_OBJECT (self), view_signals[ACTIVE_CHANGED], 0, running);
+}
 
 void bamf_view_set_path (BamfView *view, 
                          const char *path)
@@ -76,6 +127,60 @@ void bamf_view_set_path (BamfView *view,
     {
       g_error ("Unable to get org.ayatana.bamf.view view");
     }
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "ActiveChanged",
+                           G_TYPE_BOOLEAN,
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "ActiveChanged",
+                               (GCallback) bamf_view_on_active_changed,
+                               view,
+                               NULL);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "Closed",
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "Closed",
+                               (GCallback) bamf_view_on_closed,
+                               view,
+                               NULL);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "ChildAdded",
+                           G_TYPE_STRING,
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "ChildAdded",
+                               (GCallback) bamf_view_on_child_added,
+                               view,
+                               NULL);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "ChildRemoved",
+                           G_TYPE_STRING,
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "ChildRemoved",
+                               (GCallback) bamf_view_on_child_removed,
+                               view,
+                               NULL);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "RunningChanged",
+                           G_TYPE_BOOLEAN,
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "RunningChanged",
+                               (GCallback) bamf_view_on_running_changed,
+                               view,
+                               NULL);
 }
 
 static void
@@ -84,6 +189,50 @@ bamf_view_class_init (BamfViewClass *klass)
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
 
   g_type_class_add_private (obj_class, sizeof (BamfViewPrivate));
+
+  view_signals [ACTIVE_CHANGED] = 
+  	g_signal_new ("active-changed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__BOOLEAN,
+  	              G_TYPE_NONE, 1, 
+  	              G_TYPE_BOOLEAN);
+
+  view_signals [CLOSED] = 
+  	g_signal_new ("closed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__VOID,
+  	              G_TYPE_NONE, 0);
+
+  view_signals [CHILD_ADDED] = 
+  	g_signal_new ("child-added",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__POINTER,
+  	              G_TYPE_NONE, 1, 
+  	              BAMF_TYPE_VIEW);
+
+  view_signals [CHILD_REMOVED] = 
+  	g_signal_new ("child-removed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__POINTER,
+  	              G_TYPE_NONE, 1, 
+  	              BAMF_TYPE_VIEW);
+
+  view_signals [CHILD_ADDED] = 
+  	g_signal_new ("running-changed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__BOOLEAN,
+  	              G_TYPE_NONE, 1, 
+  	              G_TYPE_BOOLEAN);
 }
 
 
