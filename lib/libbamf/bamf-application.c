@@ -35,6 +35,7 @@
 #endif
 
 #include "bamf-application.h"
+#include "bamf-window.h"
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
@@ -114,23 +115,95 @@ bamf_application_new (const char * path)
 const gchar *
 bamf_application_get_desktop_file (BamfApplication *application)
 {
-  return NULL;
+  BamfApplicationPrivate *priv;
+  gchar *file;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+  priv = application->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "DesktopFile",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &file,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to fetch path: %s", error->message);
+      g_error_free (error);
+    }
+
+  return file;
 }
 
 const gchar *
 bamf_application_get_application_type (BamfApplication *application)
 {
-  return NULL;
+  BamfApplicationPrivate *priv;
+  gchar *type;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+  priv = application->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "ApplicationType",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &type,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to fetch path: %s", error->message);
+      g_error_free (error);
+    }
+
+  return type;
 }
 
 gboolean
 bamf_application_is_urgent (BamfApplication *application)
 {
-  return FALSE;
+  BamfApplicationPrivate *priv;
+  gboolean urgent;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+  priv = application->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "IsUrgent",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_BOOLEAN, &urgent,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to fetch urgent: %s", error->message);
+      g_error_free (error);
+    }
+
+  return urgent;
 }
 
 GList *
 bamf_application_get_windows (BamfApplication *application)
 {
-  return NULL;
+  GList *children, *l;
+  GList *windows = NULL;
+  BamfView *view;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
+
+  children = bamf_view_get_children (BAMF_VIEW (application));
+
+  for (l = children; l; l = l->next)
+    {
+      view = l->data;
+    
+      if (BAMF_IS_WINDOW (view));
+        {
+          windows = g_list_prepend (windows, view);
+        }
+    }
+
+  return windows;
 }

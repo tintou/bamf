@@ -7,6 +7,7 @@ sources_h = \
   bamf-view.h \
   bamf-window.h \
   bamf-factory.h \
+  marshal.h \
   libbamf.h
 
 libbamf_la_SOURCES = \
@@ -16,6 +17,7 @@ libbamf_la_SOURCES = \
   bamf-view.c \
   bamf-window.c \
   bamf-factory.c \
+  marshal.c \
   $(sources_h)
 
 libbamf_la_LIBADD = \
@@ -32,6 +34,7 @@ libbamf_la_CPPFLAGS = \
   $(LIBWSBIND_CFLAGS) \
   $(GLIB_CFLAGS) \
   $(DBUS_CFLAGS) \
+  $(WNCK_CFLAGS) \
   $(NULL)
 
 libbamf_la_LDFLAGS = \

@@ -36,6 +36,7 @@
 
 #include "bamf-view.h"
 #include "bamf-factory.h"
+#include "bamf-window.h"
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
@@ -51,14 +52,6 @@ struct _BamfViewPrivate
   DBusGConnection *connection;
   DBusGProxy      *proxy;
 };
-
-/* Globals */
-
-/* Forwards */
-
-/*
- * GObject stuff
- */
 
 void bamf_view_set_path (BamfView *view, 
                          const char *path)
@@ -98,10 +91,7 @@ static void
 bamf_view_init (BamfView *self)
 {
   BamfViewPrivate *priv;
-  GError           *error = NULL;
-
-
-  
+  GError *error = NULL;
 
   priv = self->priv = BAMF_VIEW_GET_PRIVATE (self);
 
@@ -116,20 +106,13 @@ bamf_view_init (BamfView *self)
     }
 }
 
-/*
- * Private Methods
- */
-
-/*
- * Public Methods
- */
 GList *
 bamf_view_get_children (BamfView *view)
 {
   char ** children;
   int i, len;
   GList *results = NULL;
-  GError *error;
+  GError *error = NULL;
   BamfViewPrivate *priv;
 
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
@@ -139,7 +122,6 @@ bamf_view_get_children (BamfView *view)
   if (!dbus_g_proxy_call (priv->proxy,
                           "Children",
                           &error,
-                          G_TYPE_NONE,
                           G_TYPE_INVALID,
                           G_TYPE_STRV, &children,
                           G_TYPE_INVALID))
@@ -154,7 +136,9 @@ bamf_view_get_children (BamfView *view)
 
   for (i = 0; i < len; i++)
     {
-      results = g_list_prepend (results, bamf_factory_view_for_path (bamf_factory_get_default (), children[i]));
+      BamfView *view = bamf_factory_view_for_path (bamf_factory_get_default (), children[i]);
+      if (BAMF_IS_WINDOW (view))
+      results = g_list_prepend (results, view);
     }
 
   return results;

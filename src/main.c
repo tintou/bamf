@@ -37,6 +37,8 @@ main (int argc, char **argv)
   gtk_init (&argc, &argv);
   glibtop_init ();
 
+  dbus_g_thread_init ();
+
   bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
       
   if (!bus)
@@ -47,12 +49,15 @@ main (int argc, char **argv)
    		                "/org/freedesktop/DBus",
     		                "org.freedesktop.DBus");
 
+  error = NULL;
   if (!dbus_g_proxy_call (bus_proxy, "RequestName", &error,
   		  G_TYPE_STRING, BAMF_DBUS_SERVICE,
     		  G_TYPE_UINT, 0,
     		  G_TYPE_INVALID,
     		  G_TYPE_UINT, &request_name_result, G_TYPE_INVALID))
     g_error ("Could not grab service");
+
+  g_object_unref (G_OBJECT (bus_proxy));
 
   matcher = bamf_matcher_get_default ();
   control = bamf_control_get_default ();

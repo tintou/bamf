@@ -71,7 +71,7 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
   	              G_TYPE_NONE, 2, 
   	              G_TYPE_STRING, G_TYPE_STRING);
 
-  matcher_signals [VIEW_OPENED] = 
+  matcher_signals [VIEW_CLOSED] = 
   	g_signal_new ("view-closed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
@@ -92,18 +92,32 @@ on_view_closed (BamfView *view, BamfMatcher *self)
 static void
 bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
 {
+  char * path, * type;
+  
+  path = bamf_view_export_on_bus (view);
+  type = bamf_view_get_view_type (view);
+  
   g_signal_connect (G_OBJECT (view), "closed",
 	      	    (GCallback) on_view_closed, self);
 
   self->priv->views = g_list_prepend (self->priv->views, view);
+
+  g_signal_emit (self, matcher_signals[VIEW_OPENED],0, path, type);
 }
 
 static void
 bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
 {
+  char * path, * type;
+  
+  path = bamf_view_get_path (view);
+  type = bamf_view_get_view_type (view);
+
   g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_closed, self);
 
   self->priv->views = g_list_remove (self->priv->views, view);
+
+  g_signal_emit (self, matcher_signals[VIEW_CLOSED],0, path, type);
 }
 
 /******** OLD MATCHER CODE **********/
@@ -816,7 +830,6 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
         best = bamf_application_new ();
 
       bamf_matcher_register_view (self, BAMF_VIEW (best));
-      bamf_view_export_on_bus (BAMF_VIEW (best));
     }
   
   g_array_free (possible_apps, TRUE);
@@ -929,7 +942,6 @@ handle_window_opened (WnckScreen * screen, WnckWindow * window, gpointer data)
 
   bamfwindow = bamf_window_new (window);
   bamf_matcher_register_view (self, BAMF_VIEW (bamfwindow));
-  bamf_view_export_on_bus (BAMF_VIEW (bamfwindow));
 
   bamf_matcher_setup_window_state (self, bamfwindow);
 }
@@ -1052,7 +1064,7 @@ char ** bamf_matcher_application_dbus_paths (BamfMatcher *matcher)
 
   priv = matcher->priv;
 
-  paths = g_malloc0 (sizeof (char *) * g_list_length (priv->views));
+  paths = g_malloc0 (sizeof (char *) * (g_list_length (priv->views) + 1));
 
   i = 0;
   for (l = priv->views; l; l = l->next)
@@ -1112,7 +1124,7 @@ char ** bamf_matcher_running_application_paths (BamfMatcher *matcher)
 
   priv = matcher->priv;
 
-  paths = g_malloc0 (sizeof (char *) * g_list_length (priv->views));
+  paths = g_malloc0 (sizeof (char *) * (g_list_length (priv->views) + 1));
 
   i = 0;
   for (l = priv->views; l; l = l->next)

@@ -106,7 +106,7 @@ bamf_view_get_children_paths (BamfView *view)
 
   n_items = g_list_length (view->priv->children);
 
-  paths = g_malloc0 (sizeof (char *) * n_items);
+  paths = g_malloc0 (sizeof (char *) * (n_items + 1));
 
   i = 0;
   for (child = view->priv->children; child; child = child->next)
@@ -115,7 +115,6 @@ bamf_view_get_children_paths (BamfView *view)
       paths[i] = g_strdup (bamf_view_get_path (cview));
       i++;
     }
-  
   return paths;
 }
 
@@ -276,7 +275,7 @@ bamf_view_export_on_bus (BamfView *view)
           num = g_random_int_range (1000, 9999);
           path = g_strdup_printf ("%s/%s%i", BAMF_DBUS_PATH, bamf_view_get_view_type (view), num);
         }
-      while (g_list_find (BAMF_VIEW_GET_CLASS (view)->names, path));
+      while (g_list_find_custom (BAMF_VIEW_GET_CLASS (view)->names, path, (GCompareFunc) g_strcmp0));
 
       BAMF_VIEW_GET_CLASS (view)->names = g_list_prepend (BAMF_VIEW_GET_CLASS (view)->names, path);
 
@@ -285,6 +284,8 @@ bamf_view_export_on_bus (BamfView *view)
       bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
       
       g_return_val_if_fail (bus, NULL);
+
+      g_print ("%s\n", path);
 
       dbus_g_connection_register_g_object (bus, path, G_OBJECT (view));
     }  
@@ -307,7 +308,7 @@ bamf_view_dispose (GObject *object)
     {
       dbus_g_connection_unregister_g_object (bus, object);
     }
-  
+
   if (view->priv->children)
     {
       g_list_free (view->priv->children);

@@ -32,63 +32,71 @@ guint timer;
 
 void populate_tree_store (GtkTreeStore *store)
 {
-	//GtkTreeIter position, child;
-	GList *l;
+  GtkTreeIter position; 
+  GtkTreeIter child;
+  GList *windows, *w; 
+  GList *apps, *l;
+  BamfApplication *app;
+  BamfWindow *window;
+  
 
-	GList *apps = bamf_matcher_get_applications (bamf_matcher_get_default ());
+  apps = bamf_matcher_get_applications (bamf_matcher_get_default ());
 
-	if (apps == NULL)
-	  g_print ("FAIL\n");
+  if (apps == NULL)
+    g_print ("FAIL\n");
 
-	for (l = apps; l; l = l->next) {
-	        g_print ("APPLICATION\n");
-		/*gtk_tree_store_append (store, &position, NULL);
+  for (l = apps; l; l = l->next) {
+    gtk_tree_store_append (store, &position, NULL);
 
-		gchar *string = g_array_index (desktopFiles, GString*, i)->str;
+    app = BAMF_APPLICATION (l->data);
 
-		gtk_tree_store_set (store, &position, 0, string, -1);
+    gtk_tree_store_set (store, &position, 0, bamf_application_get_desktop_file (app), -1);
 
-		GArray * windows = bamf_proxy_get_xids (bamf_proxy_get_default (), string);
+    windows = bamf_application_get_windows (app);
 
-		int j;
-		for (j = 0; j < windows->len; j++) {
-			WnckWindow *window = wnck_window_get (g_array_index (windows, gulong, j));
-			const gchar *name = wnck_window_get_name (window);
-			gtk_tree_store_append (store, &child, &position);
-			gtk_tree_store_set (store, &child, 0, name, -1);
-		}*/
-	}
+    for (w = windows; w; w = w->next) {
+            window = BAMF_WINDOW (w->data);
+      const gchar *name = bamf_view_get_name (BAMF_VIEW (window));
+      gtk_tree_store_append (store, &child, &position);
+      gtk_tree_store_set (store, &child, 0, name, -1);
+    }
+  }
 }
 
 GtkWidget * make_tree_view ()
 {
-	GtkWidget *treeView;
- 	GtkTreeStore *treeStore;
- 	GtkTreeViewColumn *column;
- 	GtkCellRenderer *renderer;
+  GtkWidget *treeView;
+  GtkTreeStore *treeStore;
+  GtkTreeViewColumn *column;
+  GtkCellRenderer *renderer;
 
-	treeView = gtk_tree_view_new ();
-	treeStore = gtk_tree_store_new (1, G_TYPE_STRING);
+  treeView = gtk_tree_view_new ();
+  treeStore = gtk_tree_store_new (1, G_TYPE_STRING);
 
-	column = gtk_tree_view_column_new ();
-	gtk_tree_view_column_set_title (column, "windows");
-	gtk_tree_view_append_column (GTK_TREE_VIEW (treeView), column);
+  column = gtk_tree_view_column_new ();
+  gtk_tree_view_column_set_title (column, "windows");
+  gtk_tree_view_append_column (GTK_TREE_VIEW (treeView), column);
 
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_column_pack_start (column, renderer, TRUE);
-	gtk_tree_view_column_add_attribute(column, renderer, "text", 0);
+  renderer = gtk_cell_renderer_text_new ();
+  gtk_tree_view_column_pack_start (column, renderer, TRUE);
+  gtk_tree_view_column_add_attribute(column, renderer, "text", 0);
 
-	gtk_tree_view_set_model (GTK_TREE_VIEW (treeView), GTK_TREE_MODEL (treeStore));
+  gtk_tree_view_set_model (GTK_TREE_VIEW (treeView), GTK_TREE_MODEL (treeStore));
 
-        populate_tree_store (treeStore);
-	g_object_unref (treeStore);
+  populate_tree_store (treeStore);
+  g_object_unref (treeStore);
 
-	return treeView;
+  return treeView;
 }
 
 static void destroy (GtkWidget *widget, gpointer data)
 {
-	gtk_main_quit ();
+  gtk_main_quit ();
+}
+
+static void handle_view_opened (BamfMatcher *matcher, BamfView *view, gpointer data)
+{
+  g_print ("VIEW OPENED\n");
 }
 
 /* This entire program is intentionally implemented in a slightly niave manner to allow it to show
@@ -98,18 +106,24 @@ static void destroy (GtkWidget *widget, gpointer data)
  */
 int main (int argc, char **argv)
 {
-	gtk_init (&argc, &argv);
+  BamfMatcher *matcher;
+  gtk_init (&argc, &argv);
 
-	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  matcher = bamf_matcher_get_default ();
 
-	g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
+  g_signal_connect (G_OBJECT (matcher), "view-opened",
+	            (GCallback) handle_view_opened, NULL);
 
-	treeView = make_tree_view ();
-	gtk_container_add (GTK_CONTAINER (window), treeView);
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 
-	gtk_widget_show_all (window);
-	gtk_main ();
-	return 0;
+  g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
+
+  treeView = make_tree_view ();
+  gtk_container_add (GTK_CONTAINER (window), treeView);
+
+  gtk_widget_show_all (window);
+  gtk_main ();
+  return 0;
 }
 
 

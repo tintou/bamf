@@ -37,6 +37,7 @@
 #include "bamf-matcher.h"
 #include "bamf-view.h"
 #include "bamf-factory.h"
+#include "marshal.h"
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
@@ -47,6 +48,16 @@ G_DEFINE_TYPE (BamfMatcher, bamf_matcher, G_TYPE_OBJECT);
 #define BAMF_MATCHER_GET_PRIVATE(o) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((o), BAMF_TYPE_MATCHER, BamfMatcherPrivate))
 
+enum
+{
+  VIEW_OPENED,
+  VIEW_CLOSED,
+  
+  LAST_SIGNAL,
+};
+
+static guint matcher_signals[LAST_SIGNAL] = { 0 };
+
 struct _BamfMatcherPrivate
 {
   DBusGConnection *connection;
@@ -54,14 +65,7 @@ struct _BamfMatcherPrivate
   GList           *views;
 };
 
-/* Globals */
 static BamfMatcher * default_matcher = NULL;
-
-/* Forwards */
-
-/*
- * GObject stuff
- */
 
 static void
 bamf_matcher_class_init (BamfMatcherClass *klass)
@@ -69,8 +73,52 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
 
   g_type_class_add_private (obj_class, sizeof (BamfMatcherPrivate));
+
+  matcher_signals [VIEW_OPENED] = 
+  	g_signal_new ("view-opened",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__POINTER,
+  	              G_TYPE_NONE, 1, 
+  	              G_TYPE_OBJECT);
+
+  matcher_signals [VIEW_CLOSED] = 
+  	g_signal_new ("view-closed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__POINTER,
+  	              G_TYPE_NONE, 1, 
+  	              G_TYPE_OBJECT, G_TYPE_STRING);
 }
 
+
+static void
+bamf_matcher_on_view_opened (DBusGProxy *proxy, 
+                             char *path, 
+                             char *type, 
+                             BamfMatcher *matcher)
+{
+  BamfView *view;
+
+  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+
+  g_signal_emit (matcher, matcher_signals[VIEW_OPENED],0, view);
+}
+
+static void
+bamf_matcher_on_view_closed (DBusGProxy *proxy, 
+                             char *path, 
+                             char *type, 
+                             BamfMatcher *matcher)
+{
+  BamfView *view;
+
+  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+
+  g_signal_emit (matcher, matcher_signals[VIEW_CLOSED],0, view);
+}
 
 static void
 bamf_matcher_init (BamfMatcher *self)
@@ -98,6 +146,35 @@ bamf_matcher_init (BamfMatcher *self)
     {
       g_error ("Unable to get org.ayatana.bamf.matcher matcher");
     }
+
+  dbus_g_object_register_marshaller ((GClosureMarshal) marshal_VOID__STRING_STRING,
+                                     G_TYPE_NONE, 
+                                     G_TYPE_STRING, G_TYPE_STRING,
+                                     G_TYPE_INVALID);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "ViewOpened",
+                           G_TYPE_STRING, 
+                           G_TYPE_STRING,
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "ViewClosed",
+                           G_TYPE_STRING, 
+                           G_TYPE_STRING,
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "ViewOpened",
+                               (GCallback) bamf_matcher_on_view_opened,
+                               self,
+                               NULL);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "ViewClosed",
+                               (GCallback) bamf_matcher_on_view_closed,
+                               self,
+                               NULL);
 }
 
 /*
