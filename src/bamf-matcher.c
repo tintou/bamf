@@ -81,6 +81,31 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
   	              G_TYPE_STRING, G_TYPE_STRING);
 }
 
+static void bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view);
+
+static void
+on_view_closed (BamfView *view, BamfMatcher *self)
+{
+  bamf_matcher_unregister_view (self, view);
+}
+
+static void
+bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
+{
+  g_signal_connect (G_OBJECT (view), "closed",
+	      	    (GCallback) on_view_closed, self);
+
+  self->priv->views = g_list_prepend (self->priv->views, view);
+}
+
+static void
+bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
+{
+  g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_closed, self);
+
+  self->priv->views = g_list_remove (self->priv->views, view);
+}
+
 /******** OLD MATCHER CODE **********/
 
 static char *
@@ -789,8 +814,8 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
         best = bamf_application_new_from_desktop_file (desktop_file);
       else
         best = bamf_application_new ();
-        
-      self->priv->views = g_list_prepend (self->priv->views, BAMF_VIEW (best));
+
+      bamf_matcher_register_view (self, BAMF_VIEW (best));
       bamf_view_export_on_bus (BAMF_VIEW (best));
     }
   
@@ -903,11 +928,10 @@ handle_window_opened (WnckScreen * screen, WnckWindow * window, gpointer data)
    */
 
   bamfwindow = bamf_window_new (window);
+  bamf_matcher_register_view (self, BAMF_VIEW (bamfwindow));
   bamf_view_export_on_bus (BAMF_VIEW (bamfwindow));
 
   bamf_matcher_setup_window_state (self, bamfwindow);
-
-  self->priv->views = g_list_prepend (self->priv->views, BAMF_VIEW (bamfwindow));
 }
 
 void

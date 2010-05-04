@@ -230,6 +230,13 @@ bamf_application_child_added (BamfView *view, BamfView *child)
 
 }
 
+static gboolean
+on_empty (GObject *object)
+{
+  g_object_unref (object);
+  return FALSE;
+}
+
 static void
 bamf_application_child_removed (BamfView *view, BamfView *child)
 {
@@ -243,7 +250,12 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
       g_signal_handlers_disconnect_by_func (G_OBJECT (child), window_urgent_changed, view);
     }
     
-  bamf_application_ensure_state (BAMF_APPLICATION (view));  
+  bamf_application_ensure_state (BAMF_APPLICATION (view));
+
+  if (g_list_length (bamf_view_get_children (view)) == 0)
+    {
+      g_idle_add ((GSourceFunc) on_empty, view);
+    }
 }
 
 static void
@@ -255,6 +267,8 @@ active_window_changed (WnckScreen *screen, WnckWindow *previous, BamfApplication
 static void
 bamf_application_dispose (GObject *object)
 {
+  g_signal_handlers_disconnect_by_func (G_OBJECT (wnck_screen_get_default ()), active_window_changed, object);
+
   G_OBJECT_CLASS (bamf_application_parent_class)->dispose (object);
 }
 

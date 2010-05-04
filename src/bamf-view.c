@@ -298,14 +298,15 @@ bamf_view_dispose (GObject *object)
   DBusGConnection *bus;
   GError *error = NULL;
   
-  BamfView *view = BAMF_VIEW (object);g_signal_emit (view, view_signals[CLOSED], 0);
+  BamfView *view = BAMF_VIEW (object);
   bamf_view_closed (view);
 
   bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
   if (bus)
-    dbus_g_connection_unregister_g_object (bus, object);
-  
+    {
+      dbus_g_connection_unregister_g_object (bus, object);
+    }
   
   if (view->priv->children)
     {
