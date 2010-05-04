@@ -96,13 +96,6 @@ bamf_control_init (BamfControl *self)
     }
 }
 
-/*
- * Private Methods
- */
-
-/*
- * Public Methods
- */
 BamfControl *
 bamf_control_get_default (void)
 {

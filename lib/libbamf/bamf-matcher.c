@@ -161,8 +161,7 @@ bamf_matcher_init (BamfMatcher *self)
   dbus_g_proxy_connect_signal (priv->proxy,
                                "ViewOpened",
                                (GCallback) bamf_matcher_on_view_opened,
-                               self,
-                               NULL);
+                               self, NULL);
 
   dbus_g_proxy_add_signal (priv->proxy,
                            "ViewClosed",
@@ -173,8 +172,7 @@ bamf_matcher_init (BamfMatcher *self)
   dbus_g_proxy_connect_signal (priv->proxy,
                                "ViewClosed",
                                (GCallback) bamf_matcher_on_view_closed,
-                               self,
-                               NULL);
+                               self, NULL);
 }
 
 /*

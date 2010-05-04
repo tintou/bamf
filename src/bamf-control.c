@@ -64,6 +64,21 @@ bamf_control_register_tab_provider (BamfControl *control,
   return TRUE;
 }
 
+static gboolean
+bamf_control_on_quit (BamfControl *control)
+{
+  gtk_main_quit ();
+  return FALSE;
+}
+
+gboolean
+bamf_control_quit (BamfControl *control,
+                   GError **error)
+{
+  g_idle_add ((GSourceFunc) bamf_control_on_quit, control);
+  return TRUE;
+}
+
 BamfControl *
 bamf_control_get_default (void)
 {

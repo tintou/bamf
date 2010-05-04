@@ -267,9 +267,28 @@ active_window_changed (WnckScreen *screen, WnckWindow *previous, BamfApplication
 static void
 bamf_application_dispose (GObject *object)
 {
+  BamfApplication *app;
+  BamfApplicationPrivate *priv;
+  
+  app = BAMF_APPLICATION (object);
+  priv = app->priv;
+
   g_signal_handlers_disconnect_by_func (G_OBJECT (wnck_screen_get_default ()), active_window_changed, object);
 
+  if (priv->desktop_file)
+    {
+      g_free (priv->desktop_file);
+      priv->desktop_file = NULL;
+    }
+
+  if (priv->app_type)
+    {
+      g_free (priv->app_type);
+      priv->app_type = NULL;
+    }
+
   G_OBJECT_CLASS (bamf_application_parent_class)->dispose (object);
+
 }
 
 static void
@@ -335,7 +354,7 @@ bamf_application_new (void)
 		    (GCallback) active_window_changed, application);
 
   application->priv->is_tab_container = FALSE;
-  application->priv->app_type = "system";
+  application->priv->app_type = g_strdup ("system");
 
   return application;
 }

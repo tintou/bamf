@@ -57,6 +57,9 @@ gboolean      bamf_control_register_tab_provider        (BamfControl *control,
                                                          char *path,
                                                          GError **error);
 
+gboolean      bamf_control_quit                         (BamfControl *control,
+                                                         GError **error);
+
 BamfControl * bamf_control_get_default                  (void);
 
 #endif

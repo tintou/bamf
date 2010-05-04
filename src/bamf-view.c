@@ -151,7 +151,7 @@ bamf_view_add_child (BamfView *view,
   if (BAMF_VIEW_GET_CLASS (view)->child_added)
     BAMF_VIEW_GET_CLASS (view)->child_added (view, child);
     
-  added = g_strdup (bamf_view_get_path (child));
+  added = bamf_view_get_path (child);
   g_signal_emit (view, view_signals[CHILD_ADDED], 0, added);
 }
 
@@ -171,7 +171,7 @@ bamf_view_remove_child (BamfView *view,
   if (BAMF_VIEW_GET_CLASS (view)->child_removed)
     BAMF_VIEW_GET_CLASS (view)->child_removed (view, child);
   
-  removed = g_strdup (bamf_view_get_path (child));
+  removed = bamf_view_get_path (child);
   g_signal_emit (view, view_signals[CHILD_REMOVED], 0, removed);
 }
 
@@ -262,10 +262,11 @@ bamf_view_inner_get_view_type (BamfView *view)
 char * 
 bamf_view_export_on_bus (BamfView *view)
 {
-  char *path;
+  char *path = NULL;
   int  num;
   DBusGConnection *bus;
   GError *error = NULL;
+  GList *l = NULL;
 
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
 
@@ -273,10 +274,12 @@ bamf_view_export_on_bus (BamfView *view)
     {  
       do
         {
+          if (path)
+            g_free (path);
           num = g_random_int_range (1000, 9999);
           path = g_strdup_printf ("%s/%s%i", BAMF_DBUS_PATH, bamf_view_get_view_type (view), num);
         }
-      while (g_list_find_custom (BAMF_VIEW_GET_CLASS (view)->names, path, (GCompareFunc) g_strcmp0));
+      while ((l = g_list_find_custom (BAMF_VIEW_GET_CLASS (view)->names, path, (GCompareFunc) g_strcmp0)) != NULL);
 
       BAMF_VIEW_GET_CLASS (view)->names = g_list_prepend (BAMF_VIEW_GET_CLASS (view)->names, path);
 
@@ -299,6 +302,8 @@ bamf_view_dispose (GObject *object)
   GError *error = NULL;
   
   BamfView *view = BAMF_VIEW (object);
+  BamfViewPrivate *priv = view->priv;
+  
   bamf_view_closed (view);
 
   bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
@@ -308,10 +313,22 @@ bamf_view_dispose (GObject *object)
       dbus_g_connection_unregister_g_object (bus, object);
     }
 
-  if (view->priv->children)
+  if (priv->children)
     {
-      g_list_free (view->priv->children);
+      g_list_free (priv->children);
       view->priv->children = NULL;
+    }
+
+  if (priv->name)
+    {
+      g_free (priv->name);
+      priv->name = NULL;
+    }
+
+  if (priv->path)
+    {
+      g_free (priv->path);
+      priv->path = NULL;
     }
 
   G_OBJECT_CLASS (bamf_view_parent_class)->dispose (object);

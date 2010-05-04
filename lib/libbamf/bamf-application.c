@@ -151,11 +151,9 @@ bamf_application_new (const char * path)
   BamfApplication *self;
   BamfApplicationPrivate *priv;
 
-  self = g_object_new (BAMF_TYPE_APPLICATION, NULL);
+  self = g_object_new (BAMF_TYPE_APPLICATION, "path", path, NULL);
 
   priv = self->priv;
-
-  bamf_view_set_path (BAMF_VIEW (self), path);
 
   priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
                                            "org.ayatana.bamf",

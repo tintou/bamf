@@ -14,6 +14,10 @@
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_control_register_tab_provider" />
 			<arg type="s" name="tab_path" direction="in" />
 		</method>
+
+		<method name="Quit">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_control_quit" />
+		</method>
 		
 	</interface>
 

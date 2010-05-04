@@ -64,18 +64,28 @@ struct _BamfViewPrivate
 {
   DBusGConnection *connection;
   DBusGProxy      *proxy;
+  gchar           *path;
+};
+
+enum
+{
+  PROP_0,
+
+  PROP_PATH,
 };
 
 static void
 bamf_view_on_active_changed (DBusGProxy *proxy, gboolean active, BamfView *self)
 {
-  g_signal_emit (G_OBJECT (self), view_signals[ACTIVE_CHANGED], 0, active);
+  g_signal_emit (G_OBJECT(self), view_signals[ACTIVE_CHANGED], 0, active);
 }
 
 static void
 bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
 {
   g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
+
+  g_object_unref (self);
 }
 
 static void
@@ -104,12 +114,87 @@ bamf_view_on_running_changed (DBusGProxy *proxy, gboolean running, BamfView *sel
   g_signal_emit (G_OBJECT (self), view_signals[ACTIVE_CHANGED], 0, running);
 }
 
-void bamf_view_set_path (BamfView *view, 
-                         const char *path)
+static void
+bamf_view_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
+  BamfView *self;
+
+  self = BAMF_VIEW (object);
+
+  switch (property_id)
+    {
+      case PROP_PATH:
+        self->priv->path = g_value_dup_string (value);
+
+        break;
+        
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+    }
+}
+
+static void
+bamf_view_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+{
+  BamfView *self;
+
+  self = BAMF_VIEW (object);
+
+  switch (property_id)
+    {
+      case PROP_PATH:
+        g_value_set_string (value, self->priv->path);
+
+        break;
+        
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+    }
+}
+
+static void
+bamf_view_dispose (GObject *object)
+{
+  BamfView *view;
   BamfViewPrivate *priv;
 
-  g_return_if_fail (BAMF_IS_VIEW (view));
+  view = BAMF_VIEW (object);
+
+  priv = view->priv;
+
+  dbus_g_proxy_disconnect_signal (priv->proxy,
+                                  "ActiveChanged",
+                                  (GCallback) bamf_view_on_active_changed,
+                                  view);
+
+  dbus_g_proxy_disconnect_signal (priv->proxy,
+                                  "Closed",
+                                  (GCallback) bamf_view_on_closed,
+                                  view);
+
+  dbus_g_proxy_disconnect_signal (priv->proxy,
+                                  "ChildAdded",
+                                  (GCallback) bamf_view_on_child_added,
+                                  view);
+
+  dbus_g_proxy_disconnect_signal (priv->proxy,
+                                  "ChildRemoved",
+                                  (GCallback) bamf_view_on_child_removed,
+                                  view);
+
+  dbus_g_proxy_disconnect_signal (priv->proxy,
+                                  "RunningChanged",
+                                  (GCallback) bamf_view_on_running_changed,
+                                   view);
+}
+
+static void
+bamf_view_constructed (GObject *object)
+{
+  BamfView *view;
+  BamfViewPrivate *priv;
+
+  view = BAMF_VIEW (object);
 
   priv = view->priv;
 
@@ -121,7 +206,7 @@ void bamf_view_set_path (BamfView *view,
   
   priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
                                            "org.ayatana.bamf",
-                                           path,
+                                           priv->path,
                                            "org.ayatana.bamf.view");
   if (priv->proxy == NULL)
     {
@@ -133,15 +218,30 @@ void bamf_view_set_path (BamfView *view,
                            G_TYPE_BOOLEAN,
                            G_TYPE_INVALID);
 
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "Closed",
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "ChildAdded",
+                           G_TYPE_STRING,
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "ChildRemoved",
+                           G_TYPE_STRING,
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "RunningChanged",
+                           G_TYPE_BOOLEAN,
+                           G_TYPE_INVALID);
+
   dbus_g_proxy_connect_signal (priv->proxy,
                                "ActiveChanged",
                                (GCallback) bamf_view_on_active_changed,
                                view,
                                NULL);
-
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "Closed",
-                           G_TYPE_INVALID);
 
   dbus_g_proxy_connect_signal (priv->proxy,
                                "Closed",
@@ -149,32 +249,17 @@ void bamf_view_set_path (BamfView *view,
                                view,
                                NULL);
 
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "ChildAdded",
-                           G_TYPE_STRING,
-                           G_TYPE_INVALID);
-
   dbus_g_proxy_connect_signal (priv->proxy,
                                "ChildAdded",
                                (GCallback) bamf_view_on_child_added,
                                view,
                                NULL);
 
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "ChildRemoved",
-                           G_TYPE_STRING,
-                           G_TYPE_INVALID);
-
   dbus_g_proxy_connect_signal (priv->proxy,
                                "ChildRemoved",
                                (GCallback) bamf_view_on_child_removed,
                                view,
                                NULL);
-
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "RunningChanged",
-                           G_TYPE_BOOLEAN,
-                           G_TYPE_INVALID);
 
   dbus_g_proxy_connect_signal (priv->proxy,
                                "RunningChanged",
@@ -186,7 +271,16 @@ void bamf_view_set_path (BamfView *view,
 static void
 bamf_view_class_init (BamfViewClass *klass)
 {
+  GParamSpec *pspec;
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+
+  obj_class->constructed  = bamf_view_constructed;
+  obj_class->dispose      = bamf_view_dispose;
+  obj_class->get_property = bamf_view_get_property;
+  obj_class->set_property = bamf_view_set_property;
+
+  pspec = g_param_spec_string ("path", "path", "path", "", G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+  g_object_class_install_property (obj_class, PROP_PATH, pspec);
 
   g_type_class_add_private (obj_class, sizeof (BamfViewPrivate));
 

@@ -74,9 +74,6 @@ struct _BamfViewClass
 
 GType      bamf_view_get_type             (void) G_GNUC_CONST;
 
-void       bamf_view_set_path             (BamfView *view,
-                                           const char *path);
-
 GList    * bamf_view_get_children  (BamfView *view);
 
 gboolean   bamf_view_is_active     (BamfView *view);
