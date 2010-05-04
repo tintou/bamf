@@ -285,8 +285,6 @@ bamf_view_export_on_bus (BamfView *view)
       
       g_return_val_if_fail (bus, NULL);
 
-      g_print ("%s\n", path);
-
       dbus_g_connection_register_g_object (bus, path, G_OBJECT (view));
     }  
   
