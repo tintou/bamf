@@ -98,6 +98,7 @@ char **
 bamf_view_get_children_paths (BamfView *view)
 {
   char ** paths;
+  char *path;
   int n_items, i;
   GList *child;
   BamfView *cview;
@@ -112,7 +113,12 @@ bamf_view_get_children_paths (BamfView *view)
   for (child = view->priv->children; child; child = child->next)
     {
       cview = child->data;
-      paths[i] = g_strdup (bamf_view_get_path (cview));
+      path = bamf_view_get_path (cview);
+
+      if (!path)
+        continue;
+      
+      paths[i] = g_strdup (path);
       i++;
     }
 
@@ -272,11 +278,12 @@ bamf_view_export_on_bus (BamfView *view)
 
   if (!view->priv->path)
     {  
+      num = g_random_int_range (1000, 9999);
       do
         {
           if (path)
             g_free (path);
-          num = g_random_int_range (1000, 9999);
+          num++;
           path = g_strdup_printf ("%s/%s%i", BAMF_DBUS_PATH, bamf_view_get_view_type (view), num);
         }
       while ((l = g_list_find_custom (BAMF_VIEW_GET_CLASS (view)->names, path, (GCompareFunc) g_strcmp0)) != NULL);
@@ -308,9 +315,10 @@ bamf_view_dispose (GObject *object)
 
   bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
-  if (bus)
+  if (bus && priv->path)
     {
       dbus_g_connection_unregister_g_object (bus, object);
+      BAMF_VIEW_GET_CLASS (view)->names = g_list_remove (BAMF_VIEW_GET_CLASS (view)->names, priv->path);
     }
 
   if (priv->children)

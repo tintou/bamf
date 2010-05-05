@@ -89,6 +89,7 @@ lib/libbamf/Makefile
 lib/libbamf/libbamf.pc
 src/Makefile
 tests/functional/Makefile
+tests/unit/Makefile
 data/Makefile
 module/Makefile
 ])

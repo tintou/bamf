@@ -4,6 +4,7 @@ SUBDIRS = \
   lib/libbamf \
   src \
   tests/functional \
+  tests/unit \
   data \
   module
 
