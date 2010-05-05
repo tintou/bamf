@@ -179,7 +179,7 @@ get_open_office_window_hint (BamfMatcher * self, WnckWindow * window)
 static char *
 process_exec_string (BamfMatcher * self, char * execString)
 {
-  gchar *exec, *part;
+  gchar *result = NULL, *exec = NULL, *part = NULL, *tmp = NULL;
   gchar **parts;
   gint i, j;
   gboolean regexFail;
@@ -197,11 +197,9 @@ process_exec_string (BamfMatcher * self, char * execString)
 
       if (!g_str_has_prefix (part, "-"))
 	{
-	  part = g_utf8_strrchr (part, -1, '/');
-	  if (part == NULL)
-	    part = parts[i];
-	  else
-	    part++;
+	  tmp = g_utf8_strrchr (part, -1, '/');
+	  if (tmp)
+            part = tmp + 1;
 
 	  regexFail = FALSE;
 	  for (j = 0; j < self->priv->bad_prefixes->len; j++)
@@ -216,24 +214,20 @@ process_exec_string (BamfMatcher * self, char * execString)
 
 	  if (!regexFail)
 	    {
-	      execString = g_strdup (part);
+	      result = g_strdup (part);
 	      break;
 	    }
 	}
       i++;
     }
 
-  i = 0;
-  while (parts[i] != NULL)
-    {
-      g_free (parts[i]);
-      i++;
-    }
+  if (!result)
+    result = g_strdup (execString);
 
   g_free (exec);
-  g_free (parts);
+  g_strfreev (parts);
 
-  return execString;
+  return result;
 }
 
 static GArray *
@@ -366,6 +360,7 @@ load_desktop_file_to_table (BamfMatcher * self,
   GAppInfo *desktop_file;
   char *exec;
   char *existing;
+  char *path;
   GString *tmp;
   GString *desktop_id; /* is ok */
   
@@ -385,31 +380,42 @@ load_desktop_file_to_table (BamfMatcher * self,
        * helps hack around applications that run in the same process cross radically different instances.
        * A better solution needs to be thought up, however at this time it is not known.
        **/
-      exec = process_exec_string (self, exec);
+      char *tmp = process_exec_string (self, exec);
+      g_free (exec);
+      exec = tmp;
     }
+
+  path = g_path_get_basename (file);
+  desktop_id = g_string_new (path);
+  g_free (path);
   
-  desktop_id = g_string_new (g_path_get_basename (file));
   desktop_id = g_string_truncate (desktop_id, desktop_id->len - 8); /* remove last 8 characters for .desktop */
 
   existing = g_hash_table_lookup (desktop_file_table, exec);
 
   if (existing)
     {
-      tmp = g_string_new (g_path_get_basename (existing));
-      tmp = g_string_truncate (tmp, tmp->len - 8); /* remove last 8 characters for .desktop */
+      path = g_path_get_basename (existing);
+      tmp = g_string_new (path);
+      g_free (path);
+      
+      g_string_truncate (tmp, tmp->len - 8); /* remove last 8 characters for .desktop */
 
       if (g_strcmp0 (tmp->str, exec) == 0)
         {
           /* we prefer to have the desktop file where the desktop-id == exec */
           g_string_free (desktop_id, TRUE);
+          g_string_free (tmp, TRUE);
           return;
         }
       g_string_free (tmp, TRUE);
     }
-  
-  g_hash_table_insert (desktop_file_table, g_strdup (exec), g_strdup (file));
-  g_hash_table_insert (desktop_id_table, g_strdup (desktop_id->str), g_strdup (file));
 
+  path = g_strdup (file);
+  g_hash_table_insert (desktop_file_table, g_strdup (exec), path);
+  g_hash_table_insert (desktop_id_table, g_strdup (desktop_id->str), path);
+
+  g_free (exec);
   g_string_free (desktop_id, TRUE); 
 }
 
@@ -468,6 +474,8 @@ load_index_file_to_table (BamfMatcher * self,
   GDataInputStream *input;
   char *line;
   char *directory;
+  char *path;
+  char *filestr;
   gsize length;
   
   file = g_file_new_for_path (index_file);
@@ -497,20 +505,26 @@ load_index_file_to_table (BamfMatcher * self,
       exec = parts[1];
       
       if (exec_string_should_be_processed (self, exec))
-        exec = process_exec_string (self, exec);
+        {
+          char *tmp = process_exec_string (self, exec);
+          g_free (exec);
+          exec = tmp;
+        }
       
       char *name = g_build_filename (directory, parts[0], NULL);
       filename = g_string_new (name);
       g_free ((gpointer) name);
       
       desktop_id = g_string_new (parts[0]);
-      desktop_id = g_string_truncate (desktop_id, desktop_id->len - 8);
+      g_string_truncate (desktop_id, desktop_id->len - 8);
 
       existing = g_hash_table_lookup (desktop_file_table, exec);
 
       if (existing)
         {
-          tmp = g_string_new (g_path_get_basename (existing));
+          path = g_path_get_basename (existing);
+          tmp = g_string_new (path);
+          g_free (path);
           tmp = g_string_truncate (tmp, tmp->len - 8); /* remove last 8 characters for .desktop */
 
           if (g_strcmp0 (tmp->str, exec) == 0)
@@ -522,9 +536,10 @@ load_index_file_to_table (BamfMatcher * self,
             }
           g_string_free (tmp, TRUE);
         }
-        
-      g_hash_table_insert (desktop_file_table, g_strdup (exec), filename);
-      g_hash_table_insert (desktop_id_table, g_strdup (desktop_id->str), filename);
+
+      filestr = g_strdup (filename->str);
+      g_hash_table_insert (desktop_file_table, g_strdup (exec), filestr);
+      g_hash_table_insert (desktop_id_table, g_strdup (desktop_id->str), filestr);
        
       g_string_free (desktop_id, TRUE);
       
@@ -538,10 +553,16 @@ static void
 create_desktop_file_table (BamfMatcher * self, GHashTable **desktop_file_table, GHashTable **desktop_id_table)
 {
   *desktop_file_table =
-    g_hash_table_new ((GHashFunc) g_str_hash, (GEqualFunc) g_str_equal);
+    g_hash_table_new_full ((GHashFunc) g_str_hash, 
+                           (GEqualFunc) g_str_equal,
+                           (GDestroyNotify) g_free,
+                           NULL);
   
   *desktop_id_table =
-    g_hash_table_new ((GHashFunc) g_str_hash, (GEqualFunc) g_str_equal);
+    g_hash_table_new_full ((GHashFunc) g_str_hash, 
+                           (GEqualFunc) g_str_equal,
+                           (GDestroyNotify) g_free,
+                           NULL);
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   
@@ -763,7 +784,11 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
       exec = exec_string_for_window (self, window);
 
       if (exec)
-        exec = process_exec_string (self, exec);
+        {
+          char *tmp = process_exec_string (self, exec);
+          g_free (exec);
+          exec = tmp;
+        } 
       
       if (exec && strlen (exec) > 0)
         {
@@ -822,6 +847,8 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
               break;
             }
         }
+
+      g_free (desktop_file);
     }
 
   if (!best)
@@ -838,6 +865,13 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
 
       bamf_matcher_register_view (self, BAMF_VIEW (best));
     }
+
+ for (i = 0; i < possible_apps->len; i++)
+  {
+    char *str = g_array_index (possible_apps, char *, i);
+    g_free (str);
+  }
+
   
   g_array_free (possible_apps, TRUE);
   
