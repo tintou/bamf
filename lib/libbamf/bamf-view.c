@@ -279,7 +279,7 @@ bamf_view_class_init (BamfViewClass *klass)
   obj_class->get_property = bamf_view_get_property;
   obj_class->set_property = bamf_view_set_property;
 
-  pspec = g_param_spec_string ("path", "path", "path", "", G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+  pspec = g_param_spec_string ("path", "path", "path", NULL, G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
   g_object_class_install_property (obj_class, PROP_PATH, pspec);
 
   g_type_class_add_private (obj_class, sizeof (BamfViewPrivate));

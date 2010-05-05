@@ -117,6 +117,7 @@ static void test_desktop_file        (void);
 static void test_urgent              (void);
 static void test_urgent_event        (void);
 static void test_get_xids            (void);
+static void test_manages_xid         (void);
 
 void
 test_application_create_suite (void)
@@ -128,6 +129,7 @@ test_application_create_suite (void)
   g_test_add_func (DOMAIN"/Urgent", test_urgent);
   g_test_add_func (DOMAIN"/Urgent/ChangedEvent", test_urgent_event);
   g_test_add_func (DOMAIN"/Xids", test_get_xids);
+  g_test_add_func (DOMAIN"/ManagesXid", test_manages_xid);
 }
 
 static void
@@ -276,5 +278,22 @@ test_get_xids (void)
 
   g_assert (found);
  
+  g_object_unref (application);
+}
+
+static void
+test_manages_xid (void)
+{
+  BamfApplication *application;
+  BamfWindowTest *test;
+
+  application = bamf_application_new ();
+  test = bamf_window_test_new (20);
+
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
+
+  g_assert (bamf_application_manages_xid (application, 20));
+
+  g_object_unref (test);
   g_object_unref (application);
 }

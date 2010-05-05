@@ -79,4 +79,4 @@ full-report:
 	      > test-bamf-results.html )
 
 clean-generic:
-	rm -f test-bamf-results.xml test-bamf-results.html test-surface-blur-after.png test-surface-blur-before.png
+	rm -f test-bamf-results.xml test-bamf-results.html

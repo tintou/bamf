@@ -34,6 +34,7 @@ static void test_path                (void);
 static void test_path_collision      (void);
 static void test_running             (void);
 static void test_running_event       (void);
+static void test_parent_child_out_of_order_unref (void);
 
 void
 test_view_create_suite (void)
@@ -53,6 +54,7 @@ test_view_create_suite (void)
   g_test_add_func (DOMAIN"/Children/Paths", test_children_paths);
   g_test_add_func (DOMAIN"/Children/AddedEvent", test_child_added_event);
   g_test_add_func (DOMAIN"/Children/RemovedEvent", test_child_removed_event);
+  g_test_add_func (DOMAIN"/Children/UnrefOrder", test_parent_child_out_of_order_unref);
 }
 
 static void
@@ -455,4 +457,21 @@ test_closed_event (void)
   g_object_unref (view);
 
   g_assert (closed_event_fired);
+}
+
+static void
+test_parent_child_out_of_order_unref (void)
+{
+  BamfView *parent, *child;
+
+  parent = g_object_new (BAMF_TYPE_VIEW, NULL);
+  child = g_object_new (BAMF_TYPE_VIEW, NULL);
+
+  bamf_view_export_on_bus (parent);
+  bamf_view_export_on_bus (child);
+
+  bamf_view_add_child (parent, child);
+
+  g_object_unref (parent);
+  g_object_unref (child);
 }

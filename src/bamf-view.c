@@ -307,6 +307,7 @@ bamf_view_dispose (GObject *object)
 {
   DBusGConnection *bus;
   GError *error = NULL;
+  GList *l;
   
   BamfView *view = BAMF_VIEW (object);
   BamfViewPrivate *priv = view->priv;
@@ -323,6 +324,10 @@ bamf_view_dispose (GObject *object)
 
   if (priv->children)
     {
+      for (l = priv->children; l; l = l->next)
+        {
+          bamf_view_remove_child (view, l->data);
+        }
       g_list_free (priv->children);
       view->priv->children = NULL;
     }
