@@ -31,6 +31,7 @@ test_bamf_SOURCES = \
   $(bamf_test_extra_headers) \
   test-bamf.c \
   test-view.c \
+  test-application.c \
   test-matcher.c
 
 test_bamf_CPPFLAGS = \

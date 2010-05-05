@@ -32,6 +32,7 @@
 
 void test_matcher_create_suite (void);
 void test_view_create_suite (void);
+void test_application_create_suite (void);
  
 gint
 main (gint argc, gchar *argv[])
@@ -56,8 +57,8 @@ main (gint argc, gchar *argv[])
 
   bus_proxy =
     dbus_g_proxy_new_for_name (bus, "org.freedesktop.DBus",
-   		                "/org/freedesktop/DBus",
-    		                "org.freedesktop.DBus");
+   		                    "/org/freedesktop/DBus",
+    		                    "org.freedesktop.DBus");
 
   error = NULL;
   if (!dbus_g_proxy_call (bus_proxy, "RequestName", &error,
@@ -71,6 +72,7 @@ main (gint argc, gchar *argv[])
 
   test_matcher_create_suite ();
   test_view_create_suite ();
+  test_application_create_suite ();
   
   return g_test_run ();
 }
