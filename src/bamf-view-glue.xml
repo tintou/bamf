@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<node name="/org/ayatana/bamf">
+
+	<interface name="org.ayatana.bamf.view">
+	
+		<signal name="ActiveChanged">
+			<arg type="b" name="new_state" direction="out" />
+		</signal>
+
+		<signal name="Closed">
+		</signal>
+
+		<signal name="ChildAdded">
+			<arg type="s" name="path" direction="out" />
+		</signal>
+
+		<signal name="ChildRemoved">
+			<arg type="s" name="path" direction="out" />
+		</signal>
+
+		<signal name="RunningChanged">
+			<arg type="b" name="new_state" direction="out" />
+		</signal>
+
+		<method name="Children">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_view_get_children_paths" />
+			<arg type="as" name="children" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+
+		<method name="IsActive">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_view_is_active" />
+			<arg type="b" name="active" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+
+		<method name="IsRunning">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_view_is_running" />
+			<arg type="b" name="running" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+
+		<method name="Name">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_view_get_name" />
+			<arg type="s" name="name" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+
+		<method name="Parent">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_view_get_parent_path" />
+			<arg type="s" name="parent" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+
+		<method name="ViewType">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_view_get_view_type" />
+			<arg type="s" name="view_type" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+		
+	</interface>
+	
+</node>
