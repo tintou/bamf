@@ -180,7 +180,6 @@ static char *
 process_exec_string (BamfMatcher * self, char * execString)
 {
   gchar *exec, *part;
-  gchar *result = NULL;
   gchar **parts;
   gint i, j;
   gboolean regexFail;
@@ -217,7 +216,7 @@ process_exec_string (BamfMatcher * self, char * execString)
 
 	  if (!regexFail)
 	    {
-	      result = g_strdup (part);
+	      execString = g_strdup (part);
 	      break;
 	    }
 	}
@@ -231,13 +230,10 @@ process_exec_string (BamfMatcher * self, char * execString)
       i++;
     }
 
-  if (!result)
-    result = g_strdup (execString);
-
   g_free (exec);
   g_free (parts);
 
-  return result;
+  return execString;
 }
 
 static GArray *
@@ -319,7 +315,7 @@ pid_parent_tree (BamfMatcher *self, gint pid)
 static char *
 exec_string_for_window (BamfMatcher * self, WnckWindow * window)
 {
-  gchar *result;
+  gchar *result = NULL;
   gint pid = 0, i = 0;
   gchar **argv = NULL;
   GString *exec = NULL;
@@ -347,10 +343,8 @@ exec_string_for_window (BamfMatcher * self, WnckWindow * window)
 
   g_free (argv);
 
-
   result = g_strdup (exec->str);
   g_string_free (exec, TRUE);
-
   return result;
 }
 
@@ -372,7 +366,6 @@ load_desktop_file_to_table (BamfMatcher * self,
   GAppInfo *desktop_file;
   char *exec;
   char *existing;
-  char *path;
   GString *tmp;
   GString *desktop_id; /* is ok */
   
@@ -382,7 +375,7 @@ load_desktop_file_to_table (BamfMatcher * self,
 
   exec = g_strdup (g_app_info_get_commandline (desktop_file));
 
-  g_object_unref (G_OBJECT (desktop_file));
+  g_object_unref (desktop_file);
 
   if (exec_string_should_be_processed (self, exec))
     {
@@ -392,39 +385,31 @@ load_desktop_file_to_table (BamfMatcher * self,
        * helps hack around applications that run in the same process cross radically different instances.
        * A better solution needs to be thought up, however at this time it is not known.
        **/
-      existing = process_exec_string (self, exec);
-      g_free (exec);
-      exec = existing;
+      exec = process_exec_string (self, exec);
     }
-
-  path = g_path_get_basename (file);
-  desktop_id = g_string_new (path);
-  g_string_truncate (desktop_id, desktop_id->len - 8); /* remove last 8 characters for .desktop */
-  g_free (path);
+  
+  desktop_id = g_string_new (g_path_get_basename (file));
+  desktop_id = g_string_truncate (desktop_id, desktop_id->len - 8); /* remove last 8 characters for .desktop */
 
   existing = g_hash_table_lookup (desktop_file_table, exec);
 
   if (existing)
     {
-      path = g_path_get_basename (existing);
-      tmp = g_string_new (path);
-      g_string_truncate (tmp, tmp->len - 8); /* remove last 8 characters for .desktop */
-      g_free (path);
- 
+      tmp = g_string_new (g_path_get_basename (existing));
+      tmp = g_string_truncate (tmp, tmp->len - 8); /* remove last 8 characters for .desktop */
+
       if (g_strcmp0 (tmp->str, exec) == 0)
         {
           /* we prefer to have the desktop file where the desktop-id == exec */
           g_string_free (desktop_id, TRUE);
-          g_string_free (tmp, TRUE);
           return;
         }
       g_string_free (tmp, TRUE);
     }
   
-  g_hash_table_insert (desktop_file_table, exec, g_strdup (file));
-  g_hash_table_insert (desktop_id_table, desktop_id->str, g_strdup (file));
+  g_hash_table_insert (desktop_file_table, g_strdup (exec), g_strdup (file));
+  g_hash_table_insert (desktop_id_table, g_strdup (desktop_id->str), g_strdup (file));
 
-  g_free (exec);
   g_string_free (desktop_id, TRUE); 
 }
 
@@ -512,11 +497,7 @@ load_index_file_to_table (BamfMatcher * self,
       exec = parts[1];
       
       if (exec_string_should_be_processed (self, exec))
-        {
-          existing = process_exec_string (self, exec);
-          g_free (exec);
-          exec = existing;
-        }
+        exec = process_exec_string (self, exec);
       
       char *name = g_build_filename (directory, parts[0], NULL);
       filename = g_string_new (name);
@@ -782,11 +763,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
       exec = exec_string_for_window (self, window);
 
       if (exec)
-        {
-          char *tmp = process_exec_string (self, exec);
-          g_free (exec);
-          exec = tmp; 
-        }
+        exec = process_exec_string (self, exec);
       
       if (exec && strlen (exec) > 0)
         {
@@ -803,9 +780,6 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
       /* sub-optimal guesswork ends */
     }
 
-  if (hint)
-    g_free (hint);
-
   return desktop_files;
 }
 
@@ -816,7 +790,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
   GArray *possible_apps;
   WnckWindow *window;
   GList *views, *a;
-  char *desktop_file, *str;
+  char *desktop_file;
   int i;
   BamfApplication *app = NULL, *best = NULL;
   BamfView *view;
@@ -848,8 +822,6 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
               break;
             }
         }
-
-      g_free (desktop_file);
     }
 
   if (!best)
@@ -866,13 +838,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
 
       bamf_matcher_register_view (self, BAMF_VIEW (best));
     }
-
-  for (i = 0; i < possible_apps->len; i++)
-    {
-      str = g_array_index (possible_apps, char *, i);
-      g_free (str);
-    }
-
+  
   g_array_free (possible_apps, TRUE);
   
   bamf_view_add_child (BAMF_VIEW (best), BAMF_VIEW (bamf_window));
@@ -1057,8 +1023,6 @@ char * bamf_matcher_application_for_xid (BamfMatcher *matcher,
         {
           return desktop_file;
         }
-        
-      g_free (desktop_file);
     }
 
   return NULL;
@@ -1149,7 +1113,6 @@ char * bamf_matcher_dbus_path_for_application (BamfMatcher *matcher,
         {
           path = g_strdup (bamf_view_get_path (view));
         }
-        
       g_free (desktop_file);
     }
 
