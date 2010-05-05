@@ -48,7 +48,7 @@ bamf_window_is_urgent (BamfWindow *self)
   if (BAMF_WINDOW_GET_CLASS (self)->is_urgent)
     return BAMF_WINDOW_GET_CLASS (self)->is_urgent (self);
 
-  return wnck_window_needs_attention (self->priv->window);
+  return wnck_window_needs_attention (bamf_window_get_window (self));
 }
 
 WnckWindow *
@@ -67,9 +67,10 @@ bamf_window_get_xid (BamfWindow *window)
 {
   g_return_val_if_fail (BAMF_IS_WINDOW (window), 0);
 
+
   if (BAMF_WINDOW_GET_CLASS (window)->get_xid)
     return BAMF_WINDOW_GET_CLASS (window)->get_xid (window);
-    
+
   return (guint32) wnck_window_get_xid (window->priv->window);
 }
 
@@ -124,12 +125,14 @@ bamf_window_dispose (GObject *object)
   g_signal_handler_disconnect (wnck_screen_get_default (),
                                self->priv->closed_id);
 
-  g_signal_handler_disconnect (self->priv->window,
-                               self->priv->name_changed_id);
+  if (self->priv->window)
+    {
+      g_signal_handler_disconnect (self->priv->window,
+                                   self->priv->name_changed_id);
 
-  g_signal_handler_disconnect (self->priv->window,
-                               self->priv->state_changed_id);
- 
+      g_signal_handler_disconnect (self->priv->window,
+                                   self->priv->state_changed_id);
+    }
   G_OBJECT_CLASS (bamf_window_parent_class)->dispose (object);
 }
 

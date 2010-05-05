@@ -109,7 +109,7 @@ bamf_application_get_xids (BamfApplication *application)
       if (!BAMF_IS_WINDOW (view))
         continue;
 
-      xid = wnck_window_get_xid (bamf_window_get_window (BAMF_WINDOW (view)));
+      xid = bamf_window_get_xid (BAMF_WINDOW (view));
 
       g_array_append_val (xids, xid);
     }

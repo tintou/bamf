@@ -63,14 +63,19 @@ struct _BamfWindowTestClass
   void (*_test_padding6) (void);
 };
 
+GType       bamf_window_test_get_type (void) G_GNUC_CONST;
+
 G_DEFINE_TYPE (BamfWindowTest, bamf_window_test, BAMF_TYPE_WINDOW);
 
-GType       bamf_window_test_get_type (void) G_GNUC_CONST;
 
 static guint32
 bamf_window_test_get_xid (BamfWindow *window)
 {
-  return (BAMF_TYPE_WINDOW_TEST (window))->xid;
+  BamfWindowTest *self;
+
+  self = BAMF_WINDOW_TEST (window);
+
+  return self->xid;
 }
 
 static void
@@ -225,10 +230,51 @@ static void
 test_get_xids (void)
 {
   BamfApplication *application;
+  BamfWindowTest *window1, *window2;
+  GArray *xids;
+  gboolean found;
+  guint32 xid;
+  int i;
 
   application = bamf_application_new ();
+  window1 = bamf_window_test_new (25);
+  window2 = bamf_window_test_new (50);
 
-  g_assert (bamf_application_get_xids (application)->len == 0);
+  xids = bamf_application_get_xids (application);
+  g_assert (xids->len == 0);
+  g_array_free (xids, TRUE);
 
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window1));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window2));
+
+  xids = bamf_application_get_xids (application);
+  g_assert (xids->len == 2);
+
+  found = FALSE;
+  for (i = 0; i < xids->len; i++)
+    {
+      xid = g_array_index (xids, guint32, i);
+      if (xid == 25)
+        {
+          found = TRUE;
+          break;
+        }
+    }
+
+  g_assert (found);
+
+  found = FALSE;
+  for (i = 0; i < xids->len; i++)
+    {
+      xid = g_array_index (xids, guint32, i);
+      if (xid == 50)
+        {
+          found = TRUE;
+          break;
+        }
+    }
+
+  g_assert (found);
+ 
   g_object_unref (application);
 }
