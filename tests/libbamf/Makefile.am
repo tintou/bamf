@@ -2,24 +2,29 @@ noinst_PROGRAMS = \
   test-libbamf
 
 test_libbamf_SOURCES = \
-  test-libbamf.c
+  test-libbamf.c \
+  test-matcher.c
 
 test_libbamf_CPPFLAGS = \
   -I$(top_srcdir) \
+  -I$(top_srcdir)/lib \
   -I$(top_srcdir)/lib/libbamf \
   -I$(top_builddir)/lib/libbamf \
-  -DTESTDIR=\""$(top_srcdir)/tests/liblibbamf"\" \
+  -DTESTDIR=\""$(top_srcdir)/tests/libbamf"\" \
   $(GCC_FLAGS) \
-  $(CLUTTER_CFLAGS) \
-  $(CLUTTER_GTK_CFLAGS) \
   $(GTK_CFLAGS) \
-  $(MAINTAINER_CFLAGS)
+  $(WNCK_CFLAGS) \
+  $(LIBWSBIND_CFLAGS) \
+  $(DBUS_CFLAGS) \
+  $(GLIB_CFLAGS)
 
 test_libbamf_LDADD = \
-  $(top_builddir)/lib/libbamf/liblibbamf.la \
-  $(CLUTTER_LIBS) \
-  $(CLUTTER_GTK_LIBS) \
-  $(GTK_LIBS)
+  $(top_builddir)/lib/libbamf/libbamf.la \
+  $(LIBWSBIND_LIBS) \
+  $(WNCK_LIBS) \
+  $(GLIB_LIBS) \
+  $(GTK_LIBS) \
+  $(DBUS_LIBS)
 
 #run make test as part of make check
 check-local: test
