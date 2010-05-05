@@ -17,9 +17,93 @@
  *
  */
 
-#include <glib.h>
 #include <stdlib.h>
+#include <glib.h>
+#include <glib-object.h>
 #include "bamf-application.h"
+#include "bamf-window.h"
+
+#define BAMF_TYPE_WINDOW_TEST (bamf_window_test_get_type ())
+
+#define BAMF_WINDOW_TEST(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj),\
+	BAMF_TYPE_WINDOW_TEST, BamfWindowTest))
+
+#define BAMF_WINDOW_TEST_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass),\
+	BAMF_TYPE_WINDOW_TEST, BamfWindowTestClass))
+
+#define BAMF_IS_WINDOW_TEST(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj),\
+	BAMF_TYPE_WINDOW_TEST))
+
+#define BAMF_IS_WINDOW_TEST_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),\
+	BAMF_TYPE_WINDOW_TEST))
+
+#define BAMF_WINDOW_TEST_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj),\
+	BAMF_TYPE_WINDOW_TEST, BamfWindowTestClass))
+
+typedef struct _BamfWindowTest        BamfWindowTest;
+typedef struct _BamfWindowTestClass   BamfWindowTestClass;
+typedef struct _BamfWindowTestPrivate BamfWindowTestPrivate;
+
+struct _BamfWindowTest
+{
+  BamfWindow parent;
+  guint32 xid;
+};
+
+struct _BamfWindowTestClass
+{
+  /*< private >*/
+  BamfWindowClass parent_class;
+  
+  void (*_test_padding1) (void);
+  void (*_test_padding2) (void);
+  void (*_test_padding3) (void);
+  void (*_test_padding4) (void);
+  void (*_test_padding5) (void);
+  void (*_test_padding6) (void);
+};
+
+G_DEFINE_TYPE (BamfWindowTest, bamf_window_test, BAMF_TYPE_WINDOW);
+
+GType       bamf_window_test_get_type (void) G_GNUC_CONST;
+
+static guint32
+bamf_window_test_get_xid (BamfWindow *window)
+{
+  return (BAMF_TYPE_WINDOW_TEST (window))->xid;
+}
+
+static void
+bamf_window_test_class_init (BamfWindowTestClass *klass)
+{
+  BamfWindowClass *win_class = BAMF_WINDOW_CLASS (klass);
+
+  win_class->get_xid = bamf_window_test_get_xid;
+}
+
+
+static void
+bamf_window_test_init (BamfWindowTest *self)
+{
+  ;
+}
+
+
+static BamfWindowTest *
+bamf_window_test_new (guint32 xid)
+{
+  BamfWindowTest *self;
+
+  self = g_object_new (BAMF_TYPE_WINDOW_TEST, NULL);
+  self->xid = xid;
+
+  return self;
+}
+
+
+
+
+
 
 #define DESKTOP_FILE "usr/share/applications/gnome-terminal.desktop"
 
@@ -27,6 +111,7 @@ static void test_allocation          (void);
 static void test_desktop_file        (void);
 static void test_urgent              (void);
 static void test_urgent_event        (void);
+static void test_get_xids            (void);
 
 void
 test_application_create_suite (void)
@@ -37,6 +122,7 @@ test_application_create_suite (void)
   g_test_add_func (DOMAIN"/DesktopFile", test_desktop_file);
   g_test_add_func (DOMAIN"/Urgent", test_urgent);
   g_test_add_func (DOMAIN"/Urgent/ChangedEvent", test_urgent_event);
+  g_test_add_func (DOMAIN"/Xids", test_get_xids);
 }
 
 static void
@@ -83,7 +169,7 @@ test_urgent (void)
 {
   BamfApplication *application;
 
-  application = g_object_new (BAMF_TYPE_APPLICATION, NULL);
+  application = bamf_application_new ();
   g_assert (!bamf_application_is_urgent (application));
 
   bamf_application_set_urgent (application, TRUE);
@@ -111,7 +197,7 @@ test_urgent_event (void)
 {
   BamfApplication *application;
 
-  application = g_object_new (BAMF_TYPE_APPLICATION, NULL);
+  application = bamf_application_new ();
   g_assert (!bamf_application_is_urgent (application));
 
   g_signal_connect (G_OBJECT (application), "urgent-changed",
@@ -133,4 +219,16 @@ test_urgent_event (void)
 
   g_object_unref (application);
   g_assert (!BAMF_IS_APPLICATION (application));
+}
+
+static void
+test_get_xids (void)
+{
+  BamfApplication *application;
+
+  application = bamf_application_new ();
+
+  g_assert (bamf_application_get_xids (application)->len == 0);
+
+  g_object_unref (application);
 }
