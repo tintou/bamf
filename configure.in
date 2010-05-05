@@ -88,7 +88,7 @@ Makefile
 lib/libbamf/Makefile
 lib/libbamf/libbamf.pc
 src/Makefile
-tests/Makefile
+tests/functional/Makefile
 data/Makefile
 module/Makefile
 ])

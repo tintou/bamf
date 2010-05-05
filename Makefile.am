@@ -3,7 +3,7 @@ ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = \
   lib/libbamf \
   src \
-  tests \
+  tests/functional \
   data \
   module
 
