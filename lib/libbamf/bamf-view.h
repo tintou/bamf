@@ -74,6 +74,13 @@ struct _BamfViewClass
 
 GType      bamf_view_get_type             (void) G_GNUC_CONST;
 
+/**
+ * bamf_view_get_children:
+ * @view: a #BamfView
+ *
+ * Returns: (element-type Bamf.View) (transfer container): Returns a list of #BamfView which must be
+ *           freed after usage. Elements of the list are owned by bamf and should not be unreffed.
+ */
 GList    * bamf_view_get_children  (BamfView *view);
 
 gboolean   bamf_view_is_active     (BamfView *view);
