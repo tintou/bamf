@@ -29,6 +29,26 @@ struct _BamfControlPrivate
 };
 
 static void
+bamf_control_constructed (GObject *object)
+{
+  BamfControl *control;
+  DBusGConnection *bus;
+  GError *error = NULL;
+  
+  if (G_OBJECT_CLASS (bamf_control_parent_class)->constructed)
+    G_OBJECT_CLASS (bamf_control_parent_class)->constructed (object);
+  
+  control = BAMF_CONTROL (object);
+  
+  bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+  g_return_if_fail (bus);
+      
+  dbus_g_connection_register_g_object (bus, BAMF_CONTROL_PATH,
+                                       G_OBJECT (control));
+}
+
+static void
 bamf_control_init (BamfControl * self)
 {
   BamfControlPrivate *priv;
@@ -38,6 +58,10 @@ bamf_control_init (BamfControl * self)
 static void
 bamf_control_class_init (BamfControlClass * klass)
 {
+  GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+  
+  obj_class->constructed = bamf_control_constructed;
+
   dbus_g_object_type_install_info (BAMF_TYPE_CONTROL,
 				   &dbus_glib_bamf_control_object_info);
   
@@ -86,18 +110,7 @@ bamf_control_get_default (void)
 
   if (!BAMF_IS_CONTROL (control))
     {
-      DBusGConnection *bus;
-      GError *error = NULL;
-      
       control = (BamfControl *) g_object_new (BAMF_TYPE_CONTROL, NULL);
-
-      bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-
-      g_return_val_if_fail (bus, control);
-      
-      dbus_g_connection_register_g_object (bus, BAMF_CONTROL_PATH,
-	    			           G_OBJECT (control));
-      
       return control;
     }
 

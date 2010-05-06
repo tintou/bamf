@@ -83,7 +83,8 @@ bamf_window_constructed (GObject *object)
   BamfWindowPrivate *priv;
   gchar *path;
   
-  G_OBJECT_CLASS (bamf_window_parent_class)->constructed (object);
+  if (G_OBJECT_CLASS (bamf_window_parent_class)->constructed)
+    G_OBJECT_CLASS (bamf_window_parent_class)->constructed (object);
   
   g_object_get (object, "path", &path, NULL);
   

@@ -97,7 +97,8 @@ bamf_application_constructed (GObject *object)
   BamfApplicationPrivate *priv;
   char *path;
 
-  G_OBJECT_CLASS (bamf_application_parent_class)->constructed (object);
+  if (G_OBJECT_CLASS (bamf_application_parent_class)->constructed)
+    G_OBJECT_CLASS (bamf_application_parent_class)->constructed (object);
   
   self = BAMF_APPLICATION (object);
   priv = self->priv;

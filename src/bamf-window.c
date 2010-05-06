@@ -30,6 +30,13 @@ enum
   LAST_SIGNAL,
 };
 
+enum
+{
+  PROP_0,
+
+  PROP_WINDOW,
+};
+
 static guint window_signals[LAST_SIGNAL] = { 0 };
 
 struct _BamfWindowPrivate
@@ -116,6 +123,66 @@ bamf_window_get_view_type (BamfView *view)
 }
 
 static void
+bamf_window_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+{
+  BamfWindow *self;
+
+  self = BAMF_WINDOW (object);
+
+  switch (property_id)
+    {
+      case PROP_WINDOW:
+        self->priv->window = WNCK_WINDOW (g_value_get_object (value));
+
+        break;
+        
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+    }
+}
+
+static void
+bamf_window_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+{
+  BamfWindow *self;
+
+  self = BAMF_WINDOW (object);
+
+  switch (property_id)
+    {
+      case PROP_WINDOW:
+        g_value_set_object (value, self->priv->window);
+
+        break;
+        
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+    }
+}
+
+static void
+bamf_window_constructed (GObject *object)
+{
+  BamfWindow *self;
+  WnckWindow *window;
+  
+  if (G_OBJECT_CLASS (bamf_window_parent_class)->constructed)
+    G_OBJECT_CLASS (bamf_window_parent_class)->constructed (object);
+  
+  g_object_get (object, "window", &window, NULL);
+  
+  self = BAMF_WINDOW (object);
+  
+  bamf_view_set_name (BAMF_VIEW (self), wnck_window_get_name (window));
+
+  self->priv->name_changed_id = g_signal_connect (G_OBJECT (window), "name-changed",
+    		                       (GCallback) handle_name_changed, self);
+
+  self->priv->state_changed_id = g_signal_connect (G_OBJECT (window), "state-changed",
+                                       (GCallback) handle_state_changed, self);
+}
+
+static void
 bamf_window_dispose (GObject *object)
 {
   BamfWindow *self;
@@ -153,11 +220,18 @@ bamf_window_init (BamfWindow * self)
 static void
 bamf_window_class_init (BamfWindowClass * klass)
 {
+  GParamSpec *pspec;
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   BamfViewClass *view_class = BAMF_VIEW_CLASS (klass);
 
-  object_class->dispose = bamf_window_dispose;
-  view_class->view_type = bamf_window_get_view_type;
+  object_class->dispose      = bamf_window_dispose;
+  object_class->get_property = bamf_window_get_property;
+  object_class->set_property = bamf_window_set_property;
+  object_class->constructed  = bamf_window_constructed;
+  view_class->view_type      = bamf_window_get_view_type;
+  
+  pspec = g_param_spec_object ("window", "window", "window", WNCK_TYPE_WINDOW, G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+  g_object_class_install_property (object_class, PROP_WINDOW, pspec);
 
   g_type_class_add_private (klass, sizeof (BamfWindowPrivate));
   
@@ -178,18 +252,7 @@ BamfWindow *
 bamf_window_new (WnckWindow *window)
 {
   BamfWindow *self;
-
-  self = (BamfWindow *) g_object_new (BAMF_TYPE_WINDOW, NULL);
-
-  self->priv->window = window;
-
-  bamf_view_set_name (BAMF_VIEW (self), wnck_window_get_name (window));
-
-  self->priv->name_changed_id = g_signal_connect (G_OBJECT (window), "name-changed",
-    		                       (GCallback) handle_name_changed, self);
-
-  self->priv->state_changed_id = g_signal_connect (G_OBJECT (window), "state-changed",
-                                       (GCallback) handle_state_changed, self);
+  self = (BamfWindow *) g_object_new (BAMF_TYPE_WINDOW, "window", window, NULL);
 
   return self;
 }

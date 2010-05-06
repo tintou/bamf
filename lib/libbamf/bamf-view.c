@@ -193,6 +193,9 @@ bamf_view_constructed (GObject *object)
 {
   BamfView *view;
   BamfViewPrivate *priv;
+  
+  if (G_OBJECT_CLASS (bamf_view_parent_class)->constructed)
+    G_OBJECT_CLASS (bamf_view_parent_class)->constructed (object);
 
   view = BAMF_VIEW (object);
 
