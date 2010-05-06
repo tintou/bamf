@@ -65,9 +65,94 @@ struct _BamfApplicationPrivate
 };
 
 static void
+bamf_application_on_window_added (DBusGProxy *proxy, char *path, BamfApplication *self)
+{
+  BamfView *view;
+
+  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+
+  g_signal_emit (G_OBJECT (self), application_signals[WINDOW_ADDED], 0, view);
+}
+
+static void
+bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplication *self)
+{
+  BamfView *view;
+
+  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+
+  g_signal_emit (G_OBJECT (self), application_signals[WINDOW_REMOVED], 0, view);
+}
+
+static void
+bamf_application_on_urgent_changed (DBusGProxy *proxy, gboolean urgent, BamfApplication *self)
+{
+  g_signal_emit (G_OBJECT (self), application_signals[URGENT_CHANGED], 0, urgent);
+}
+
+static void
+bamf_application_constructed (GObject *object)
+{
+  BamfApplication *self;
+  BamfApplicationPrivate *priv;
+  char *path;
+
+  G_OBJECT_CLASS (bamf_application_parent_class)->constructed (object);
+  
+  self = BAMF_APPLICATION (object);
+  priv = self->priv;
+  
+  g_object_get (object, "path", &path, NULL);
+  
+  priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
+                                           "org.ayatana.bamf",
+                                           path,
+                                           "org.ayatana.bamf.application");
+  if (priv->proxy == NULL)
+    {
+      g_error ("Unable to get org.ayatana.bamf.application application");
+    }
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "WindowAdded",
+                           G_TYPE_STRING, 
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "WindowRemoved",
+                           G_TYPE_STRING, 
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "UrgentChanged",
+                           G_TYPE_BOOLEAN, 
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "WindowAdded",
+                               (GCallback) bamf_application_on_window_added,
+                               self,
+                               NULL);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "WindowRemoved",
+                               (GCallback) bamf_application_on_window_removed,
+                               self,
+                               NULL);
+                           
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "UrgentChanged",
+                               (GCallback) bamf_application_on_urgent_changed,
+                               self,
+                               NULL);
+}
+
+static void
 bamf_application_class_init (BamfApplicationClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+  
+  obj_class->constructed = bamf_application_constructed;
 
   g_type_class_add_private (obj_class, sizeof (BamfApplicationPrivate));
 
@@ -119,84 +204,12 @@ bamf_application_init (BamfApplication *self)
     }
 }
 
-static void
-bamf_application_on_window_added (DBusGProxy *proxy, char *path, BamfApplication *self)
-{
-  BamfView *view;
-
-  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
-
-  g_signal_emit (G_OBJECT (self), application_signals[WINDOW_ADDED], 0, view);
-}
-
-static void
-bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplication *self)
-{
-  BamfView *view;
-
-  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
-
-  g_signal_emit (G_OBJECT (self), application_signals[WINDOW_REMOVED], 0, view);
-}
-
-static void
-bamf_application_on_urgent_changed (DBusGProxy *proxy, gboolean urgent, BamfApplication *self)
-{
-  g_signal_emit (G_OBJECT (self), application_signals[URGENT_CHANGED], 0, urgent);
-}
-
 BamfApplication *
 bamf_application_new (const char * path)
 {
   BamfApplication *self;
-  BamfApplicationPrivate *priv;
-
   self = g_object_new (BAMF_TYPE_APPLICATION, "path", path, NULL);
 
-  priv = self->priv;
-
-  priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
-                                           "org.ayatana.bamf",
-                                           path,
-                                           "org.ayatana.bamf.application");
-  if (priv->proxy == NULL)
-    {
-      g_error ("Unable to get org.ayatana.bamf.application application");
-    }
-
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "WindowAdded",
-                           G_TYPE_STRING, 
-                           G_TYPE_INVALID);
-
-  dbus_g_proxy_connect_signal (priv->proxy,
-                               "WindowAdded",
-                               (GCallback) bamf_application_on_window_added,
-                               self,
-                               NULL);
-
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "WindowRemoved",
-                           G_TYPE_STRING, 
-                           G_TYPE_INVALID);
-
-  dbus_g_proxy_connect_signal (priv->proxy,
-                               "WindowRemoved",
-                               (GCallback) bamf_application_on_window_removed,
-                               self,
-                               NULL);
-                           
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "UrgentChanged",
-                           G_TYPE_BOOLEAN, 
-                           G_TYPE_INVALID);
-
-  dbus_g_proxy_connect_signal (priv->proxy,
-                               "UrgentChanged",
-                               (GCallback) bamf_application_on_urgent_changed,
-                               self,
-                               NULL);
-  
   return self;
 }
 
