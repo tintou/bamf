@@ -355,10 +355,10 @@ bamf_view_init (BamfView *self)
 /**
   * bamf_view_get_children:
   *
-  * @vparam_view: (annotation1) (annotation2) (...): documentation for first 
-  * @param_second: (annotation1) (annotation2) (...): documentation for second
+  * @view: a #BamfView: The view to return children of. 
   *
-  * Returns: (annotation1) (annotation2) (...): Returns stuff which you have to free after use
+  * Returns value: (element-type BamfView) (transfer partial): Returns a list of #BamfView which must be
+                   freed after usage. Elements of the list are owned by bamf and should not be unreffed.
   */
 GList *
 bamf_view_get_children (BamfView *view)
