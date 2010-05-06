@@ -75,12 +75,45 @@ struct _BamfApplicationClass
 
 GType             bamf_application_get_type             (void) G_GNUC_CONST;
 
+/**
+ * bamf_application_get_applicaton_type:
+ * @application: a #BamfApplication
+ *
+ * Used to determine what type of application a .desktop file represents. Current values are:
+ *  "system" : A normal application, like firefox or evolution
+ *  "web"    : A web application, like facebook or twitter
+ *
+ * Returns: A string
+ */
 const gchar     * bamf_application_get_application_type (BamfApplication *application);
 
+/**
+ * bamf_application_get_desktop_file:
+ * @application: a #BamfApplication
+ *
+ * Used to fetch the path to the .desktop file associated with the passed application. If
+ * none exists, the result is NULL.
+ *
+ * Returns: A string representing the path to the desktop file.
+ */
 const gchar     * bamf_application_get_desktop_file     (BamfApplication *application);
 
+/**
+ * bamf_application_is_urgent:
+ * @application: a #BamfApplication
+ *
+ * Determines if an application is urgent or not, requiring attention from a user.
+ */
 gboolean          bamf_application_is_urgent            (BamfApplication *application);
 
+/**
+ * bamf_application_get_windows:
+ * @application: a #BamfApplication
+ *
+ * Used to fetch all #BamfWindow's associated with the passed #BamfApplication.
+ *
+ * Returns: (element-type Bamf.Window) (transfer container): A list of #BamfWindow's.
+ */
 GList * bamf_application_get_windows (BamfApplication *application);
 
 G_END_DECLS
