@@ -108,7 +108,7 @@ gboolean          bamf_matcher_application_is_running   (BamfMatcher *matcher,
  * this method is needed is bamf will occasionally track applications which are not currently
  * running for nefarious purposes.
  *
- * Returns: (element-type Bamf.Application) (transfer conainer): A list of #BamfApplication's.
+ * Returns: (element-type Bamf.Application) (transfer container): A list of #BamfApplication's.
  */
 GList *           bamf_matcher_get_applications         (BamfMatcher *matcher);
 
@@ -118,7 +118,7 @@ GList *           bamf_matcher_get_applications         (BamfMatcher *matcher);
  *
  * Used to fetch all #BamfApplication's which are running.
  *
- * Returns: (element-type Bamf.Application) (transfer conainer): A list of #BamfApplication's.
+ * Returns: (element-type Bamf.Application) (transfer container): A list of #BamfApplication's.
  */
 GList *           bamf_matcher_get_running_applications (BamfMatcher *matcher);
 
@@ -128,7 +128,7 @@ GList *           bamf_matcher_get_running_applications (BamfMatcher *matcher);
  *
  * Used to fetch all #BamfView's representing tabs. Currently unused.
  *
- * Returns: (element-type Bamf.View) (transfer conainer): A list of #BamfViews's.
+ * Returns: (element-type Bamf.View) (transfer container): A list of #BamfViews's.
  */
 GList *           bamf_matcher_get_tabs                 (BamfMatcher *matcher);
 
@@ -139,7 +139,7 @@ GList *           bamf_matcher_get_tabs                 (BamfMatcher *matcher);
  * Used to fetch all xid's associated with an application. Useful for performing window
  * 
  *
- * Returns: (element-type guint32) (transfer conainer): A list of xids.
+ * Returns: (element-type guint32) (transfer container): A list of xids.
  */
 GArray *          bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
                                                          const gchar *application);
