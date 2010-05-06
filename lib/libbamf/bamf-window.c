@@ -44,6 +44,15 @@ G_DEFINE_TYPE (BamfWindow, bamf_window, BAMF_TYPE_VIEW);
 #define BAMF_WINDOW_GET_PRIVATE(o) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((o), BAMF_TYPE_WINDOW, BamfWindowPrivate))
 
+enum
+{
+  VISIBLE_CHANGED,
+  
+  LAST_SIGNAL,
+};
+
+static guint window_signals[LAST_SIGNAL] = { 0 };
+
 struct _BamfWindowPrivate
 {
   DBusGConnection *connection;
@@ -75,6 +84,12 @@ static guint32 bamf_window_get_xid (BamfWindow *self)
 }
 
 static void
+bamf_window_on_user_visible_changed (DBusGProxy *proxy, gboolean visible, BamfWindow *self)
+{
+  g_signal_emit (G_OBJECT (self), window_signals[VISIBLE_CHANGED], 0, visible);
+}
+
+static void
 bamf_window_constructed (GObject *object)
 {
   BamfWindow *self;
@@ -100,6 +115,17 @@ bamf_window_constructed (GObject *object)
 
   priv->xid = bamf_window_get_xid (self);
   g_free (path);
+  
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "UserVisibleChanged",
+                           G_TYPE_BOOLEAN, 
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "UserVisibleChanged",
+                               (GCallback) bamf_window_on_user_visible_changed,
+                               self,
+                               NULL);
 }
 
 static void
