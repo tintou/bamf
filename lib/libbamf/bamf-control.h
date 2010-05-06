@@ -76,7 +76,7 @@ GType bamf_control_get_type (void) G_GNUC_CONST;
 
 BamfControl * bamf_control_get_default (void);
 
-void      bamf_constrol_insert_desktop_file (BamfControl *control,
+void      bamf_control_insert_desktop_file (BamfControl *control,
                                              const gchar *desktop_file);
 
 void      bamf_control_register_application_for_pid (BamfControl *control,

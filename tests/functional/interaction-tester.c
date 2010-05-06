@@ -21,14 +21,13 @@
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #include <glib.h>
-#include <libwnck/libwnck.h>
 #include <libbamf/libbamf.h>
 
 static GtkWidget *window;
 static BamfMatcher *matcher;
 static BamfControl *control;
 
-static gboolean application_seen;
+//static gboolean application_seen;
 
 static void destroy (GtkWidget *widget, gpointer data)
 {
@@ -37,7 +36,6 @@ static void destroy (GtkWidget *widget, gpointer data)
 
 static void handle_view_opened (BamfMatcher *matcher, BamfView *view, gpointer data)
 {
-  if (!BAMF_IS_APPLICATION)
     return;
   
   
@@ -47,15 +45,15 @@ static void handle_view_closed (BamfMatcher *matcher, BamfView *view, gpointer d
 {
 }
 
-static void test_window_match_without_registration ()
-{
-  gtk_widget_show_all (window);
-}
+//static void test_window_match_without_registration ()
+//{
+//  gtk_widget_show_all (window);
+//}
 
-static void test_window_match_with_registration ()
-{
+//static void test_window_match_with_registration ()
+//{
 
-}
+//}
 
 static void begin_testing ()
 {
@@ -69,16 +67,16 @@ int main (int argc, char **argv)
   matcher = bamf_matcher_get_default ();
   control = bamf_control_get_default ();
 
-  bamf_control_insert_desktop_file (control, g_build_filename (g_get_current_dir (), "interact-test.desktop");
+  bamf_control_insert_desktop_file (control, g_build_filename (g_get_current_dir (), "interact-test.desktop", NULL));
 
   g_signal_connect (G_OBJECT (matcher), "view-opened",
 	            (GCallback) handle_view_opened, NULL);
   
   g_signal_connect (G_OBJECT (matcher), "view-closed",
-	            (GCallback) handle_view_opened, NULL);
+	            (GCallback) handle_view_closed, NULL);
 
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_wmclass (window, "interact-test", "interact-test");
+  gtk_window_set_wmclass (GTK_WINDOW (window), "interact-test", "interact-test");
 
   g_signal_connect (G_OBJECT (window), "destroy", G_CALLBACK (destroy), NULL);
   

@@ -21,7 +21,6 @@
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #include <glib.h>
-#include <libwnck/libwnck.h>
 #include <libbamf/libbamf.h>
 
 GtkWidget *window;

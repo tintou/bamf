@@ -106,7 +106,7 @@ bamf_control_get_default (void)
 }
 
 void
-bamf_constrol_insert_desktop_file (BamfControl *control,
+bamf_control_insert_desktop_file (BamfControl *control,
                                    const gchar *desktop_file)
 {
   BamfControlPrivate *priv;
