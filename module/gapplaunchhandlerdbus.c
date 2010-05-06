@@ -117,14 +117,14 @@ on_launched (GDesktopAppInfoLaunchHandler *launch_handler,
 	error = NULL;
 
 	proxy = dbus_g_proxy_new_for_name (connection,
-					   "org.bamf.Matcher",
-					   "/org/bamf/Matcher",
-					   "org.bamf.Matcher");
+					   "org.ayatana.bamf",
+					   "/org/ayatana/bamf",
+					   "org.ayatana.bamf.control");
 
 	g_return_if_fail (proxy);
 
 	dbus_g_proxy_call (proxy,
-	                   "RegisterDesktopFileForPid",
+	                   "RegisterApplicationForPid",
 	                   &error,
 	                   G_TYPE_STRING, desktop_file_path,
 	                   G_TYPE_INT, pid,
