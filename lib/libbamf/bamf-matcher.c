@@ -103,6 +103,7 @@ bamf_matcher_on_view_opened (DBusGProxy *proxy,
   BamfView *view;
 
   view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+  g_object_ref (view);
 
   g_signal_emit (matcher, matcher_signals[VIEW_OPENED],0, view);
 }
@@ -118,6 +119,7 @@ bamf_matcher_on_view_closed (DBusGProxy *proxy,
   view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
 
   g_signal_emit (matcher, matcher_signals[VIEW_CLOSED],0, view);
+  g_object_unref (view);
 }
 
 static void

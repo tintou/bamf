@@ -115,11 +115,11 @@ bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
   path = bamf_view_get_path (view);
   type = bamf_view_get_view_type (view);
 
+  g_signal_emit (self, matcher_signals[VIEW_CLOSED],0, path, type);
+
   g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_closed, self);
 
   self->priv->views = g_list_remove (self->priv->views, view);
-
-  g_signal_emit (self, matcher_signals[VIEW_CLOSED],0, path, type);
 
   g_free (type);
 }

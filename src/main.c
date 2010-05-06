@@ -27,6 +27,7 @@
 int
 main (int argc, char **argv)
 {
+  GOptionContext *options;
   BamfControl *control;
   BamfMatcher *matcher;
   DBusGConnection *bus;
@@ -36,6 +37,17 @@ main (int argc, char **argv)
   
   gtk_init (&argc, &argv);
   glibtop_init ();
+  
+  options = g_option_context_new ("");
+  g_option_context_set_help_enabled (options, TRUE);
+  g_option_context_set_description (options, "It is one, and so are we");
+  
+  g_option_context_parse (options, &argc, &argv, &error);
+  
+  if (error)
+    {
+      exit (1);
+    }
 
   dbus_g_thread_init ();
 

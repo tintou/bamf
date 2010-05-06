@@ -41,13 +41,14 @@ struct _BamfViewClass
   GObjectClass parent;
 
   char * (*view_type)     (BamfView *view);
-  void   (*child_added)   (BamfView *view, BamfView *child);
-  void   (*child_removed) (BamfView *view, BamfView *child); 
-  GList *names;
-
   gboolean (* running_changed) (BamfView *view, gboolean running);
   gboolean (* active_changed)  (BamfView *view, gboolean active);
   gboolean (* closed)          (BamfView *view);
+  GList *names;
+
+  /*< signals >*/
+  void   (*child_added)   (BamfView *view, BamfView *child);
+  void   (*child_removed) (BamfView *view, BamfView *child); 
 };
 
 struct _BamfView

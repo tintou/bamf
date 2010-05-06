@@ -74,7 +74,7 @@ bamf_factory_init (BamfFactory *self)
 
   priv = self->priv = BAMF_FACTORY_GET_PRIVATE (self);
 
-  priv->views = g_hash_table_new ((GHashFunc) g_str_hash, (GEqualFunc) g_str_equal);
+  priv->views = g_hash_table_new_full ((GHashFunc) g_str_hash, (GEqualFunc) g_str_equal, (GDestroyNotify) g_free, NULL);
 }
 
 BamfView * 
@@ -92,7 +92,9 @@ bamf_factory_view_for_path (BamfFactory * factory,
   view = g_hash_table_lookup (views, path);
 
   if (view)
-    return view;
+    {
+      return view;
+    }  
 
   view = g_object_new (BAMF_TYPE_VIEW, "path", path, NULL);
 
@@ -109,16 +111,24 @@ bamf_factory_view_for_path (BamfFactory * factory,
     {
       view = BAMF_VIEW (bamf_window_new (path));
     }
+  
+  if (view)
+    {
+      g_hash_table_insert (views, g_strdup (path), view);
+    }
 
   return view;
 }
 
+static BamfFactory *factory = NULL;
+
 BamfFactory * 
 bamf_factory_get_default (void)
 {
-  BamfFactory *self;
-
-  self = (BamfFactory *) g_object_new (BAMF_TYPE_FACTORY, NULL);
-
-  return self;
+  
+  if (BAMF_IS_FACTORY (factory))
+    return factory;
+  
+  factory = (BamfFactory *) g_object_new (BAMF_TYPE_FACTORY, NULL);
+  return factory;
 }
