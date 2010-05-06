@@ -65,15 +65,15 @@ if HAVE_INTROSPECTION
 
 introspection_sources = $(library_include_HEADERS)
 
-LibBamf-0.2.gir: libbamf.la
-LibBamf_0_2_gir_INCLUDES = \
+Bamf-0.2.gir: libbamf.la
+Bamf_0_2_gir_INCLUDES = \
 	GObject-2.0 \
 	Wnck-1.0
-LibBamf_0_2_gir_CFLAGS = $(LIBBAMF_CFLAGS) -I ../ $(WNCK_CFLAGS) $(WNCK_LIBS)
-LibBamf_0_2_gir_LIBS = libbamf.la 
-LibBamf_0_2_gir_FILES = $(addprefix $(srcdir)/, $(introspection_sources))
+Bamf_0_2_gir_CFLAGS = $(LIBBAMF_CFLAGS) -I ../ $(WNCK_CFLAGS) $(WNCK_LIBS)
+Bamf_0_2_gir_LIBS = libbamf.la 
+Bamf_0_2_gir_FILES = $(addprefix $(srcdir)/, $(introspection_sources))
 
-INTROSPECTION_GIRS += LibBamf-0.2.gir
+INTROSPECTION_GIRS += Bamf-0.2.gir
 
 girdir = $(datadir)/gir-1.0
 dist_gir_DATA = $(INTROSPECTION_GIRS)
@@ -92,10 +92,10 @@ endif
 if HAVE_INTROSPECTION
 
 vapidir = $(datadir)/vala/vapi
-vapi_DATA = LibBamf-0.2.vapi
+vapi_DATA = Bamf-0.2.vapi
 
-LibBamf-0.2.vapi: LibBamf-0.2.gir
-	$(VALA_API_GEN) --pkg libwnck-1.0 --library=LibBamf-0.2 $<
+Bamf-0.2.vapi: Bamf-0.2.gir
+	$(VALA_API_GEN) --pkg libwnck-1.0 --library=Bamf-0.2 $<
 
 CLEANFILES += $(vapi_DATA)
 

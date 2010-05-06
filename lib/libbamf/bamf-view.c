@@ -353,13 +353,12 @@ bamf_view_init (BamfView *self)
 }
 
 /**
-  * bamf_view_get_children:
-  *
-  * @view: a #BamfView: The view to return children of. 
-  *
-  * Returns value: (element-type BamfView) (transfer partial): Returns a list of #BamfView which must be
-                   freed after usage. Elements of the list are owned by bamf and should not be unreffed.
-  */
+ * bamf_view_get_children:
+ * @view: a #BamfView
+ *
+ * Returns: (element-type Bamf.View) (transfer partial): Returns a list of #BamfView which must be
+ *           freed after usage. Elements of the list are owned by bamf and should not be unreffed.
+ */
 GList *
 bamf_view_get_children (BamfView *view)
 {
