@@ -78,19 +78,57 @@ GType      bamf_view_get_type             (void) G_GNUC_CONST;
  * bamf_view_get_children:
  * @view: a #BamfView
  *
+ * Note: Makes sever dbus calls the first time this is called on a view. Dbus messaging is reduced afterwards.
+ *
  * Returns: (element-type Bamf.View) (transfer container): Returns a list of #BamfView which must be
  *           freed after usage. Elements of the list are owned by bamf and should not be unreffed.
  */
 GList    * bamf_view_get_children  (BamfView *view);
 
+/**
+ * bamf_view_is_active:
+ * @view: a #BamfView
+ *
+ * Determines if the view is currently active and focused by the user. Useful for an active window indicator. 
+ */
 gboolean   bamf_view_is_active     (BamfView *view);
 
+/**
+ * bamf_view_is_running:
+ * @view: a #BamfView
+ *
+ * Determines if the view is currently running. Useful for a running window indicator. 
+ */
 gboolean   bamf_view_is_running    (BamfView *view);
 
+/**
+ * bamf_view_is_active:
+ * @view: a #BamfView
+ *
+ * Gets the name of a view. This name is a short name best used to represent the view with text. 
+ */
 gchar    * bamf_view_get_name      (BamfView *view);
 
+/**
+ * bamf_view_get_parent:
+ * @view: a #BamfView
+ *
+ * Returns the current parent of a #BamfView. This parent is not the only parent, simply the primary parent
+ * of a view. It may be possible to find this #BamfView in other parts of the tree.
+ *
+ * Returns: (transfer none): Returns a #BamfView.
+ */
 BamfView * bamf_view_get_parent    (BamfView *view);
 
+/**
+ * bamf_view_get_view_type:
+ * @view: a #BamfView
+ *
+ * The view type of a window is a short string used to represent all views of the same class. These
+ * descriptions should not be used to do casting as they are not considered stable.
+ *
+ * Returns: (transfer full): A gchar*
+ */
 gchar    * bamf_view_get_view_type (BamfView *view);
 
 G_END_DECLS
