@@ -74,20 +74,22 @@ bamf_application_set_desktop_file (BamfApplication *application,
 gboolean
 bamf_application_user_visible  (BamfApplication *application)
 {
-  GList *l;
-  BamfView *view;
-
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
 
-  for (l = bamf_view_get_children (BAMF_VIEW (application)); l; l = l->next)
-    {
-      view = l->data;
-      
-      if (BAMF_IS_WINDOW (view) && bamf_window_user_visible (BAMF_WINDOW (view)))
-        return TRUE;
-    }
+  return application->priv->user_visible;
+}
 
-  return FALSE;
+void       
+bamf_application_set_user_visible (BamfApplication *application,
+                                   gboolean visible)
+{
+  g_return_if_fail (BAMF_IS_APPLICATION (application));
+
+  if (application->priv->user_visible == visible)
+    return;
+
+  application->priv->user_visible = visible;
+  g_signal_emit (application, application_signals[VISIBLE_CHANGED], 0, visible);
 }
 
 gboolean
@@ -171,84 +173,72 @@ bamf_application_get_view_type (BamfView *view)
 }
 
 static void
-bamf_application_ensure_state (BamfApplication *application)
+bamf_application_ensure_flags (BamfApplication *self)
 {
-  /* THIS METHOD SUCKS, FIXME */
-
-  WnckWindow *active_window, *window;
-  GArray *xids;
-  guint32 xid;
-  int i;
-  gboolean active = FALSE;
-
-  g_return_if_fail (BAMF_IS_APPLICATION (application));
-
-  xids = bamf_application_get_xids (application);
-
-  if (xids->len > 0)
-    bamf_view_set_running (BAMF_VIEW (application), TRUE);
-  else
-    bamf_view_set_running (BAMF_VIEW (application), FALSE);
-
+  gboolean urgent = FALSE, visible = FALSE, running = FALSE, active = FALSE;
+  GList *l;
+  BamfView *view;
+  WnckWindow *active_window;
+  
   active_window = wnck_screen_get_active_window (wnck_screen_get_default ());
 
-  if (WNCK_IS_WINDOW (active_window))
+  for (l = bamf_view_get_children (BAMF_VIEW (self)); l; l = l->next)
     {
-      for (i = 0; i < xids->len; i++)
-        {
-          xid = g_array_index (xids, guint32, i);
-          window = wnck_window_get (xid);
+      view = l->data;
 
-          if (window == active_window)
-            active = TRUE;
-        }
+      if (!BAMF_IS_WINDOW (view))
+        continue;
+        
+      running = TRUE;
+
+      if (bamf_window_is_urgent (BAMF_WINDOW (view)))
+        urgent = TRUE;
+      if (bamf_window_user_visible (BAMF_WINDOW (view)))
+        visible = TRUE;
+      if (active_window == bamf_window_get_window (BAMF_WINDOW (view)))
+        active = TRUE;
+      
+      if (urgent && visible && active)
+        break;
     }
     
-  bamf_view_set_active (BAMF_VIEW (application), active);
-  g_array_free (xids, TRUE);
+  bamf_application_set_urgent (self, urgent);
+  bamf_application_set_user_visible (self, visible);
+  bamf_view_set_running (BAMF_VIEW (self), running);
+  bamf_view_set_active (BAMF_VIEW (self), active);
 }
 
 static void
 window_urgent_changed (BamfWindow *window, gboolean urgent, BamfApplication *self)
 {
-  GList *l;
-  BamfView *view;
+  bamf_application_ensure_flags (self);
+}
 
-  if (!urgent)
-    {
-      for (l = bamf_view_get_children (BAMF_VIEW (self)); l; l = l->next)
-        {
-          view = l->data;
-
-          if (!BAMF_IS_WINDOW (view))
-            continue;
-
-          if (bamf_window_is_urgent (BAMF_WINDOW (view)))
-            {
-              urgent = TRUE;
-              break;
-            }
-        }
-    }
-  bamf_application_set_urgent (self, urgent);
+static void
+window_visible_changed (BamfWindow *window, gboolean visible, BamfApplication *self)
+{
+  bamf_application_ensure_flags (self);
 }
 
 static void
 bamf_application_child_added (BamfView *view, BamfView *child)
 {
   BamfApplication *application;
+  BamfWindow *window;
 
   application = BAMF_APPLICATION (view);
 
   if (BAMF_IS_WINDOW (child))
     {
+      window = BAMF_WINDOW (child);
       g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOW_ADDED],0, bamf_view_get_path (view));
       g_signal_connect (G_OBJECT (child), "urgent-changed",
 	        	    (GCallback) window_urgent_changed, view);
+      g_signal_connect (G_OBJECT (child), "user-visible-changed",
+	        	    (GCallback) window_visible_changed, view);
     }
     
-  bamf_application_ensure_state (BAMF_APPLICATION (view));  
-
+  bamf_application_ensure_flags (BAMF_APPLICATION (view));  
 }
 
 static gboolean
@@ -269,9 +259,10 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
     {
       g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOW_REMOVED],0, bamf_view_get_path (view));
       g_signal_handlers_disconnect_by_func (G_OBJECT (child), window_urgent_changed, view);
+      g_signal_handlers_disconnect_by_func (G_OBJECT (child), window_visible_changed, view);
     }
     
-  bamf_application_ensure_state (BAMF_APPLICATION (view));
+  bamf_application_ensure_flags (BAMF_APPLICATION (view));
 
   if (g_list_length (bamf_view_get_children (view)) == 0)
     {
@@ -282,7 +273,7 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
 static void
 active_window_changed (WnckScreen *screen, WnckWindow *previous, BamfApplication *app)
 {
-  bamf_application_ensure_state (app);
+  bamf_application_ensure_flags (app);
 }
 
 static void

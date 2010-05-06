@@ -58,8 +58,10 @@ GType bamf_window_get_type (void) G_GNUC_CONST;
 WnckWindow * bamf_window_get_window (BamfWindow *self);
 
 gboolean bamf_window_is_urgent (BamfWindow *self);
+void bamf_window_set_is_urgent (BamfWindow *self, gboolean urgent);
 
 gboolean bamf_window_user_visible (BamfWindow *self);
+void bamf_window_set_user_visible (BamfWindow *self, gboolean visible);
 
 guint32 bamf_window_get_xid (BamfWindow *window);
 

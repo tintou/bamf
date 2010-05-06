@@ -50,15 +50,36 @@ struct _BamfWindowPrivate
   gboolean user_visible;
 };
 
+void
+bamf_window_set_urgent (BamfWindow *self, gboolean urgent)
+{
+  g_return_if_fail (BAMF_IS_WINDOW (self));
+  
+  if (urgent == self->priv->urgent)
+    return;
+  
+  self->priv->urgent = urgent;
+  g_signal_emit (self, window_signals[URGENT_CHANGED], 0, urgent);
+}
+
 gboolean
 bamf_window_is_urgent (BamfWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
+  
+  return self->priv->urgent;
+}
 
-  if (BAMF_WINDOW_GET_CLASS (self)->is_urgent)
-    return BAMF_WINDOW_GET_CLASS (self)->is_urgent (self);
-
-  return wnck_window_needs_attention (bamf_window_get_window (self));
+void
+bamf_window_set_user_visible (BamfWindow *self, gboolean visible)
+{
+  g_return_if_fail (BAMF_IS_WINDOW (self));
+  
+  if (visible == self->priv->user_visible)
+    return;
+  
+  self->priv->user_visible = visible;
+  g_signal_emit (self, window_signals[VISIBLE_CHANGED], 0, visible);
 }
 
 gboolean
@@ -66,10 +87,7 @@ bamf_window_user_visible (BamfWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
 
-  if (BAMF_WINDOW_GET_CLASS (self)->user_visible)
-    return BAMF_WINDOW_GET_CLASS (self)->user_visible (self);
-
-  return !wnck_window_is_skip_tasklist (bamf_window_get_window (self));
+  return self->priv->user_visible;
 }
 
 WnckWindow *
@@ -126,11 +144,11 @@ handle_state_changed (WnckWindow *window,
 {
   if ((change_mask & WNCK_WINDOW_STATE_URGENT))
     {
-      g_signal_emit (self, window_signals[URGENT_CHANGED], 0, bamf_window_is_urgent (self));
+      bamf_window_set_urgent (self, wnck_window_needs_attention (window));
     }
   else if ((change_mask & WNCK_WINDOW_STATE_SKIP_TASKLIST))
     {
-      g_signal_emit (self, window_signals[VISIBLE_CHANGED], 0, bamf_window_user_visible (self));
+      bamf_window_set_user_visible (self, !wnck_window_is_skip_tasklist (window));
     }
 }
 
