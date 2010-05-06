@@ -296,6 +296,12 @@ bamf_application_init (BamfApplication * self)
 {
   BamfApplicationPrivate *priv;
   priv = self->priv = BAMF_APPLICATION_GET_PRIVATE (self);
+  
+  priv->is_tab_container = FALSE;
+  priv->app_type = g_strdup ("system");
+  
+  g_signal_connect (G_OBJECT (wnck_screen_get_default ()), "active-window-changed",
+		    (GCallback) active_window_changed, self);
 }
 
 static void
@@ -347,14 +353,7 @@ BamfApplication *
 bamf_application_new (void)
 {
   BamfApplication *application;
-
   application = (BamfApplication *) g_object_new (BAMF_TYPE_APPLICATION, NULL);
-
-  g_signal_connect (G_OBJECT (wnck_screen_get_default ()), "active-window-changed",
-		    (GCallback) active_window_changed, application);
-
-  application->priv->is_tab_container = FALSE;
-  application->priv->app_type = g_strdup ("system");
 
   return application;
 }
@@ -363,8 +362,7 @@ BamfApplication *
 bamf_application_new_from_desktop_file (char * desktop_file)
 {
   BamfApplication *application;
-
-  application = bamf_application_new ();
+  application = (BamfApplication *) g_object_new (BAMF_TYPE_APPLICATION, NULL);
 
   bamf_application_set_desktop_file (application, desktop_file);
 
