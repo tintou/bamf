@@ -295,7 +295,41 @@ bamf_matcher_get_applications (BamfMatcher *matcher)
 GList *
 bamf_matcher_get_running_applications (BamfMatcher *matcher)
 {
-  return NULL;
+  BamfMatcherPrivate *priv;
+  BamfView *view;
+  char **array = NULL;
+  int i, len;
+  GList *result = NULL;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+  priv = matcher->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "RunningApplications",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRV, &array,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to fetch paths: %s", error->message);
+      g_error_free (error);
+    }
+
+  g_return_val_if_fail (array, NULL);
+
+  len = g_strv_length (array);
+  for (i = 0; i < len; i++)
+    {
+      view = bamf_factory_view_for_path (bamf_factory_get_default (), array[i]);
+
+      if (view)
+        result = g_list_prepend (result, view);
+      else
+        g_print ("DOUBLE FAIL\n");
+    }
+
+  return result;
 }
 
 GList *

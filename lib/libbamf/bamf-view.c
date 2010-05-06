@@ -352,6 +352,14 @@ bamf_view_init (BamfView *self)
     }
 }
 
+/**
+  * bamf_view_get_children:
+  *
+  * @vparam_view: (annotation1) (annotation2) (...): documentation for first 
+  * @param_second: (annotation1) (annotation2) (...): documentation for second
+  *
+  * Returns: (annotation1) (annotation2) (...): Returns stuff which you have to free after use
+  */
 GList *
 bamf_view_get_children (BamfView *view)
 {
