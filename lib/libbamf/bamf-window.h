@@ -91,7 +91,7 @@ gboolean          bamf_window_is_urgent            (BamfWindow *window);
  * bamf_window_get_inner:
  * @view: a #BamfView
  *
- * Dont do this, ever, seriously. If you must do this, dont.
+ * Don't do this, ever, seriously. If you must do this, don't.
  *
  * Returns: a #WnckWindow
  */
