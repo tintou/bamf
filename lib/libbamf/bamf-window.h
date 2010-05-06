@@ -29,8 +29,6 @@
 
 #include <glib-object.h>
 #include <libbamf/bamf-view.h>
-
-#define WNCK_I_KNOW_THIS_IS_UNSTABLE
 #include <libwnck/libwnck.h>
 
 G_BEGIN_DECLS

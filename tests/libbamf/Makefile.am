@@ -10,6 +10,7 @@ test_libbamf_CPPFLAGS = \
   -I$(top_srcdir)/lib \
   -I$(top_srcdir)/lib/libbamf \
   -I$(top_builddir)/lib/libbamf \
+  -DWNCK_I_KNOW_THIS_IS_UNSTABLE \
   -DTESTDIR=\""$(top_srcdir)/tests/libbamf"\" \
   $(GCC_FLAGS) \
   $(GTK_CFLAGS) \

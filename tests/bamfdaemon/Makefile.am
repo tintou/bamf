@@ -38,6 +38,7 @@ test_bamf_CPPFLAGS = \
   -I$(top_srcdir) \
   -I$(top_srcdir)/src \
   -I$(top_builddir)/src \
+  -DWNCK_I_KNOW_THIS_IS_UNSTABLE \
   -DTESTDIR=\""$(top_srcdir)/tests/unit"\" \
   $(GCC_FLAGS) \
   $(GTK_CFLAGS) \

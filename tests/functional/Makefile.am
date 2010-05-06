@@ -25,7 +25,8 @@ alt_tabber_CPPFLAGS = \
   -I$(top_srcdir) \
   -I$(top_srcdir)/lib \
   -I$(top_builddir)/lib \
-	-DDATADIR=\""$(datadir)"\" \
+  -DDATADIR=\""$(datadir)"\" \
+  -DWNCK_I_KNOW_THIS_IS_UNSTABLE \
   $(LIBWSBIND_CFLAGS) \
   $(GLIB_CFLAGS) \
   $(DBUS_CFLAGS) \
