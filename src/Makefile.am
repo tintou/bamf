@@ -68,6 +68,7 @@ bamfdaemon_LDADD = \
 bamfdaemon_CFLAGS = \
 		-Wall -std=c99 \
 		-DDATADIR=\""$(datadir)"\" \
+		-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
 		$(GLIB_CFLAGS) \
 		$(GTK_CFLAGS) \
 		$(DBUS_CFLAGS) \

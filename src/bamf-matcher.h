@@ -31,8 +31,6 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 #include <gio/gdesktopappinfo.h>
-
-#define WNCK_I_KNOW_THIS_IS_UNSTABLE
 #include <libwnck/libwnck.h>
 #include <libgtop-2.0/glibtop.h>
 #include <glibtop/procargs.h>

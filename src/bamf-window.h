@@ -22,8 +22,6 @@
 #include "bamf-view.h"
 #include <glib.h>
 #include <glib-object.h>
-
-#define WNCK_I_KNOW_THIS_IS_UNSTABLE
 #include <libwnck/libwnck.h>
 
 #define BAMF_TYPE_WINDOW			(bamf_window_get_type ())
