@@ -105,17 +105,37 @@ bamf_control_get_default (void)
   return (default_control = g_object_new (BAMF_TYPE_CONTROL, NULL));
 }
 
-gboolean
+void
+bamf_constrol_insert_desktop_file (BamfControl *control,
+                                   const gchar *desktop_file)
+{
+  BamfControlPrivate *priv;
+  GError *error = NULL;
+
+  g_return_if_fail (BAMF_IS_CONTROL (control));
+  priv = control->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "OmNomNomDesktopFile",
+                          &error,
+                          G_TYPE_STRING, desktop_file,
+                          G_TYPE_INVALID,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to insert desktop file: %s", error->message);
+      g_error_free (error);
+    }
+}
+
+void
 bamf_control_register_application_for_pid (BamfControl  *control,
                                            const gchar  *application,
                                            gint32        pid)
 {
-  return FALSE;
 }
 
-gboolean
+void
 bamf_control_register_tab_provider (BamfControl *control,
                                     const char  *path)
 {
-  return FALSE;
 }

@@ -80,6 +80,16 @@ bamf_control_register_application_for_pid (BamfControl *control,
   return TRUE;
 }
 
+gboolean      
+bamf_control_insert_desktop_file (BamfControl *control,
+                                  char *path,
+                                  GError **error)
+{
+  
+  
+  return TRUE;
+}
+
 gboolean 
 bamf_control_register_tab_provider (BamfControl *control,
                                     char *path,

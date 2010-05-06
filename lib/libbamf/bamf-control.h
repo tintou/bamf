@@ -76,12 +76,15 @@ GType bamf_control_get_type (void) G_GNUC_CONST;
 
 BamfControl * bamf_control_get_default (void);
 
-gboolean      bamf_control_register_application_for_pid (BamfControl *control,
-                                                         const gchar *application,
-                                                         gint32       pid);
+void      bamf_constrol_insert_desktop_file (BamfControl *control,
+                                             const gchar *desktop_file);
 
-gboolean      bamf_control_register_tab_provider        (BamfControl *control,
-                                                         const char  *path);
+void      bamf_control_register_application_for_pid (BamfControl *control,
+                                                     const gchar *application,
+                                                     gint32       pid);
+
+void      bamf_control_register_tab_provider        (BamfControl *control,
+                                                     const char  *path);
 
 G_END_DECLS
 #endif

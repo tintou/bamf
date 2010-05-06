@@ -971,6 +971,9 @@ handle_window_opened (WnckScreen * screen, WnckWindow * window, gpointer data)
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (WNCK_IS_WINDOW (window));
   
+  if (wnck_window_get_window_type (window) & WNCK_WINDOW_DESKTOP)
+    return;
+  
   gint pid = wnck_window_get_pid (window);
   if (pid > 1)
     g_array_append_val (self->priv->known_pids, pid);
@@ -985,6 +988,18 @@ handle_window_opened (WnckScreen * screen, WnckWindow * window, gpointer data)
   bamf_matcher_register_view (self, BAMF_VIEW (bamfwindow));
 
   bamf_matcher_setup_window_state (self, bamfwindow);
+}
+
+void
+bamf_matcher_load_desktop_file (BamfMatcher * self,
+                                char * desktop_file)
+{
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+  
+  load_desktop_file_to_table (self,
+                              desktop_file,
+                              self->priv->desktop_file_table, 
+                              self->priv->desktop_id_table);
 }
 
 void

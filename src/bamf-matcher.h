@@ -67,6 +67,9 @@ struct _BamfMatcher
 
 GType         bamf_matcher_get_type                      (void) G_GNUC_CONST;
 
+void          bamf_matcher_load_desktop_file             (BamfMatcher * self,
+                                                          char * desktop_file);
+
 void          bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
                                                           char * desktopFile, 
                                                           gint pid);
