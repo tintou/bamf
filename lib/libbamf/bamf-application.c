@@ -310,6 +310,30 @@ bamf_application_user_visible (BamfApplication *application)
   return visible;
 }
 
+GArray *
+bamf_application_get_xids (BamfApplication *application)
+{
+  BamfApplicationPrivate *priv;
+  GArray *xids;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+  priv = application->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "Xids",
+                          &error,
+                          G_TYPE_INVALID,
+                          DBUS_TYPE_G_UINT_ARRAY, &xids,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to fetch xids: %s", error->message);
+      g_error_free (error);
+    }
+
+  return xids;
+}
+
 GList *
 bamf_application_get_windows (BamfApplication *application)
 {

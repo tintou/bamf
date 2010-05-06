@@ -118,6 +118,15 @@ gboolean          bamf_application_user_visible         (BamfApplication *applic
  */
 GList * bamf_application_get_windows (BamfApplication *application);
 
+/**
+ * bamf_application_get_xids:
+ * @application: a #BamfApplication
+ *
+ * Used to fetch all #BamfWindow's xids associated with the passed #BamfApplication.
+ *
+ * Returns: (transfer full): An array of xids.
+ */
+GArray * bamf_application_get_xids (BamfApplication *application);
 
 G_END_DECLS
 
