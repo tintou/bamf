@@ -3,6 +3,10 @@
 <node name="/org/ayatana/bamf">
 
 	<interface name="org.ayatana.bamf.window">
+	
+		<signal name="UserVisibleChanged">
+			<arg type="b" name="new_state" direction="out" />
+		</signal>
 
 		<method name="GetXid">
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_window_get_xid" />

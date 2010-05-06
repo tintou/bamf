@@ -26,6 +26,7 @@ BAMF_TYPE_WINDOW, BamfWindowPrivate))
 enum
 {
   URGENT_CHANGED,
+  VISIBLE_CHANGED,
   
   LAST_SIGNAL,
 };
@@ -45,6 +46,8 @@ struct _BamfWindowPrivate
   gulong closed_id;
   gulong name_changed_id;
   gulong state_changed_id;
+  gboolean urgent;
+  gboolean user_visible;
 };
 
 gboolean
@@ -121,10 +124,14 @@ handle_state_changed (WnckWindow *window,
                       WnckWindowState new_state, 
                       BamfWindow *self)
 {
-  if (!(change_mask & WNCK_WINDOW_STATE_URGENT))
-    return;
-
-  g_signal_emit (self, window_signals[URGENT_CHANGED], 0, wnck_window_needs_attention (window));
+  if ((change_mask & WNCK_WINDOW_STATE_URGENT))
+    {
+      g_signal_emit (self, window_signals[URGENT_CHANGED], 0, bamf_window_is_urgent (self));
+    }
+  else if ((change_mask & WNCK_WINDOW_STATE_SKIP_TASKLIST))
+    {
+      g_signal_emit (self, window_signals[VISIBLE_CHANGED], 0, bamf_window_user_visible (self));
+    }
 }
 
 static char *
@@ -251,6 +258,15 @@ bamf_window_class_init (BamfWindowClass * klass)
 
   window_signals [URGENT_CHANGED] = 
   	g_signal_new ("urgent-changed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__BOOLEAN,
+  	              G_TYPE_NONE, 1, 
+  	              G_TYPE_BOOLEAN);
+  
+  window_signals [VISIBLE_CHANGED] = 
+  	g_signal_new ("user-visible-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,

@@ -30,6 +30,7 @@ enum
   WINDOW_ADDED,
   WINDOW_REMOVED,
   URGENT_CHANGED,
+  VISIBLE_CHANGED,
   
   LAST_SIGNAL,
 };
@@ -42,6 +43,7 @@ struct _BamfApplicationPrivate
   char * app_type;
   gboolean is_tab_container;
   gboolean urgent;
+  gboolean user_visible;
 };
 
 char * 
@@ -360,6 +362,15 @@ bamf_application_class_init (BamfApplicationClass * klass)
 
   application_signals [URGENT_CHANGED] = 
   	g_signal_new ("urgent-changed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__BOOLEAN,
+  	              G_TYPE_NONE, 1,
+  	              G_TYPE_BOOLEAN);
+  
+  application_signals [VISIBLE_CHANGED] = 
+  	g_signal_new ("user-visible-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,

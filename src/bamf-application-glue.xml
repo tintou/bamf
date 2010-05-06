@@ -15,6 +15,10 @@
 		<signal name="UrgentChanged">
 			<arg type="b" name="new_state" direction="out" />
 		</signal>
+		
+		<signal name="UserVisibleChanged">
+			<arg type="b" name="new_state" direction="out" />
+		</signal>
 
 		<method name="ApplicationType">
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_application_get_application_type" />
