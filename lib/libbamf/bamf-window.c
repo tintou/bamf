@@ -77,11 +77,41 @@ static guint32 bamf_window_get_xid (BamfWindow *self)
 }
 
 static void
+bamf_window_constructed (GObject *object)
+{
+  BamfWindow *self;
+  BamfWindowPrivate *priv;
+  gchar *path;
+  
+  G_OBJECT_CLASS (bamf_window_parent_class)->constructed (object);
+  
+  g_object_get (object, "path", &path, NULL);
+  
+  self = BAMF_WINDOW (object);
+  priv = self->priv;
+
+  priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
+                                           "org.ayatana.bamf",
+                                           path,
+                                           "org.ayatana.bamf.window");
+  if (priv->proxy == NULL)
+    {
+      g_error ("Unable to get org.ayatana.bamf.window window");
+    }
+
+  priv->xid = bamf_window_get_xid (self);
+  g_free (path);
+}
+
+static void
 bamf_window_class_init (BamfWindowClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
 
   g_type_class_add_private (obj_class, sizeof (BamfWindowPrivate));
+  
+  obj_class->constructed = bamf_window_constructed;
+  
 }
 
 
@@ -108,22 +138,7 @@ BamfWindow *
 bamf_window_new (const char * path)
 {
   BamfWindow *self;
-  BamfWindowPrivate *priv;
-
   self = g_object_new (BAMF_TYPE_WINDOW, "path", path, NULL);
-
-  priv = self->priv;
-
-  priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
-                                           "org.ayatana.bamf",
-                                           path,
-                                           "org.ayatana.bamf.window");
-  if (priv->proxy == NULL)
-    {
-      g_error ("Unable to get org.ayatana.bamf.window window");
-    }
-
-  priv->xid = bamf_window_get_xid (self);
 
   return self;
 }
