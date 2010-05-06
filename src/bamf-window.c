@@ -137,19 +137,21 @@ handle_name_changed (WnckWindow *window, BamfWindow *self)
 }
 
 static void
+bamf_window_ensure_flags (BamfWindow *self)
+{
+  g_return_if_fail (BAMF_IS_WINDOW (self));
+
+  bamf_window_set_urgent (self, wnck_window_needs_attention (self->priv->window));
+  bamf_window_set_user_visible (self, !wnck_window_is_skip_tasklist (self->priv->window));
+}
+
+static void
 handle_state_changed (WnckWindow *window, 
                       WnckWindowState change_mask, 
                       WnckWindowState new_state, 
                       BamfWindow *self)
 {
-  if ((change_mask & WNCK_WINDOW_STATE_URGENT))
-    {
-      bamf_window_set_urgent (self, wnck_window_needs_attention (window));
-    }
-  else if ((change_mask & WNCK_WINDOW_STATE_SKIP_TASKLIST))
-    {
-      bamf_window_set_user_visible (self, !wnck_window_is_skip_tasklist (window));
-    }
+  bamf_window_ensure_flags (self);
 }
 
 static char *
@@ -216,6 +218,8 @@ bamf_window_constructed (GObject *object)
 
   self->priv->state_changed_id = g_signal_connect (G_OBJECT (window), "state-changed",
                                        (GCallback) handle_state_changed, self);
+  
+  bamf_window_ensure_flags (self);
 }
 
 static void
