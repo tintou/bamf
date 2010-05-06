@@ -32,12 +32,10 @@ libbamf_la_CPPFLAGS = \
   -Wall -std=c99 \
   -fPIC \
   -DDATADIR=\""$(datadir)"\" \
-  -DWNCK_I_KNOW_THIS_IS_UNSTABLE \
   -I$(top_srcdir)/lib \
   $(LIBWSBIND_CFLAGS) \
   $(GLIB_CFLAGS) \
   $(DBUS_CFLAGS) \
-  $(WNCK_CFLAGS) \
   $(NULL)
 
 libbamf_la_LDFLAGS = \
