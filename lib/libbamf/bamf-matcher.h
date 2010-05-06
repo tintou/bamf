@@ -75,20 +75,72 @@ struct _BamfMatcherClass
 
 GType             bamf_matcher_get_type                 (void) G_GNUC_CONST;
 
+/**
+ * bamf_matcher_get_default:
+ * @matcher: a #BamfMatcher
+ *
+ * Returns the default matcher. This matcher is owned by bamf and shared between other callers.
+ *
+ * Returns: (transfer none): A new #BamfMatcher
+ */
 BamfMatcher *     bamf_matcher_get_default              (void);
 
+/**
+ * bamf_matcher_get_application_for_xid:
+ * @matcher: a #BamfMatcher
+ *
+ * Used to fetch the #BamfApplication containing the passed xid.
+ *
+ * Returns: (transfer container): The #BamfApplication representing the xid passed, or NULL if none exists.
+ */
 BamfApplication * bamf_matcher_get_application_for_xid  (BamfMatcher *matcher,
                                                          guint32      xid);
 
 gboolean          bamf_matcher_application_is_running   (BamfMatcher *matcher,
                                                          const gchar *application);
 
+/**
+ * bamf_matcher_get_applications:
+ * @matcher: a #BamfMatcher
+ *
+ * Used to fetch all #BamfApplication's running or not. Application authors who wish to only 
+ * see running applications should use bamf_matcher_get_running_applications instead. The reason
+ * this method is needed is bamf will occasionally track applications which are not currently
+ * running for nefarious purposes.
+ *
+ * Returns: (element-type Bamf.Application) (transfer conainer): A list of #BamfApplication's.
+ */
 GList *           bamf_matcher_get_applications         (BamfMatcher *matcher);
 
+/**
+ * bamf_matcher_get_running_applications:
+ * @matcher: a #BamfMatcher
+ *
+ * Used to fetch all #BamfApplication's which are running.
+ *
+ * Returns: (element-type Bamf.Application) (transfer conainer): A list of #BamfApplication's.
+ */
 GList *           bamf_matcher_get_running_applications (BamfMatcher *matcher);
 
+/**
+ * bamf_matcher_get_tabs:
+ * @matcher: a #BamfMatcher
+ *
+ * Used to fetch all #BamfView's representing tabs. Currently unused.
+ *
+ * Returns: (element-type Bamf.View) (transfer conainer): A list of #BamfViews's.
+ */
 GList *           bamf_matcher_get_tabs                 (BamfMatcher *matcher);
 
+/**
+ * bamf_matcher_get_applications:
+ * @matcher: a #BamfMatcher
+ *
+ * Used to fetch all xid's associated with an application. Useful for performing window
+ * 
+ *
+ * Returns: (element-type guint32) (transfer conainer): A list of xids.
+ */
 GArray *          bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
                                                          const gchar *application);
 

@@ -89,7 +89,7 @@ gboolean          bamf_window_is_urgent            (BamfWindow *window);
 
 /**
  * bamf_window_get_inner:
- * @view: a #BamfView
+ * @window: a #BamfWindow
  *
  * Don't do this, ever, seriously. If you must do this, don't.
  *
