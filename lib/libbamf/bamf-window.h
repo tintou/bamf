@@ -29,7 +29,6 @@
 
 #include <glib-object.h>
 #include <libbamf/bamf-view.h>
-#include <libwnck/libwnck.h>
 
 G_BEGIN_DECLS
 
@@ -83,17 +82,9 @@ GType             bamf_window_get_type             (void) G_GNUC_CONST;
  * Determines if the view is currently urgent and requires attention from the user. Useful for an 
  * urgent window indicator. 
  */
-gboolean          bamf_window_is_urgent            (BamfWindow *window);
+gboolean          bamf_window_is_urgent            (BamfWindow *self);
 
-/**
- * bamf_window_get_inner:
- * @window: a #BamfWindow
- *
- * Don't do this, ever, seriously. If you must do this, don't.
- *
- * Returns: a #WnckWindow
- */
-WnckWindow      * bamf_window_get_inner            (BamfWindow *window);
+gboolean          bamf_window_user_visible         (BamfWindow *self);
 
 G_END_DECLS
 

@@ -70,6 +70,25 @@ bamf_application_set_desktop_file (BamfApplication *application,
 }
 
 gboolean
+bamf_application_user_visible  (BamfApplication *application)
+{
+  GList *l;
+  BamfView *view;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+
+  for (l = bamf_view_get_children (BAMF_VIEW (application)); l; l = l->next)
+    {
+      view = l->data;
+      
+      if (BAMF_IS_WINDOW (view) && bamf_window_user_visible (BAMF_WINDOW (view)))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+gboolean
 bamf_application_is_urgent  (BamfApplication *application)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);

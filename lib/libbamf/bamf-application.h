@@ -106,6 +106,8 @@ const gchar     * bamf_application_get_desktop_file     (BamfApplication *applic
  */
 gboolean          bamf_application_is_urgent            (BamfApplication *application);
 
+gboolean          bamf_application_user_visible         (BamfApplication *application);
+
 /**
  * bamf_application_get_windows:
  * @application: a #BamfApplication
@@ -115,6 +117,7 @@ gboolean          bamf_application_is_urgent            (BamfApplication *applic
  * Returns: (element-type Bamf.Window) (transfer container): A list of #BamfWindow's.
  */
 GList * bamf_application_get_windows (BamfApplication *application);
+
 
 G_END_DECLS
 

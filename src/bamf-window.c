@@ -58,6 +58,17 @@ bamf_window_is_urgent (BamfWindow *self)
   return wnck_window_needs_attention (bamf_window_get_window (self));
 }
 
+gboolean
+bamf_window_user_visible (BamfWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
+
+  if (BAMF_WINDOW_GET_CLASS (self)->user_visible)
+    return BAMF_WINDOW_GET_CLASS (self)->user_visible (self);
+
+  return !wnck_window_is_skip_tasklist (bamf_window_get_window (self));
+}
+
 WnckWindow *
 bamf_window_get_window (BamfWindow *self)
 {

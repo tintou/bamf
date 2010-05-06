@@ -39,9 +39,10 @@ struct _BamfWindowClass
 {
   BamfViewClass parent;
 
-  gboolean     (*is_urgent)  (BamfWindow *window);
-  guint32       (*get_xid)    (BamfWindow *window);
-  WnckWindow * (*get_window) (BamfWindow *window);
+  gboolean     (*user_visible) (BamfWindow *window);
+  gboolean     (*is_urgent)    (BamfWindow *window);
+  guint32      (*get_xid)      (BamfWindow *window);
+  WnckWindow * (*get_window)   (BamfWindow *window);
 };
 
 struct _BamfWindow
@@ -57,6 +58,8 @@ GType bamf_window_get_type (void) G_GNUC_CONST;
 WnckWindow * bamf_window_get_window (BamfWindow *self);
 
 gboolean bamf_window_is_urgent (BamfWindow *self);
+
+gboolean bamf_window_user_visible (BamfWindow *self);
 
 guint32 bamf_window_get_xid (BamfWindow *window);
 

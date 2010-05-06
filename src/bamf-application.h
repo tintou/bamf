@@ -60,6 +60,8 @@ gboolean          bamf_application_is_urgent             (BamfApplication *appli
 void              bamf_application_set_urgent            (BamfApplication *application,
                                                           gboolean urgent);
 
+gboolean          bamf_application_user_visible          (BamfApplication *application);
+
 GArray          * bamf_application_get_xids              (BamfApplication *application);
 
 gboolean          bamf_application_manages_xid           (BamfApplication *application,

@@ -286,6 +286,30 @@ bamf_application_is_urgent (BamfApplication *application)
   return urgent;
 }
 
+gboolean  
+bamf_application_user_visible (BamfApplication *application)
+{
+  BamfApplicationPrivate *priv;
+  gboolean visible;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+  priv = application->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "UserVisible",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_BOOLEAN, &visible,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to fetch user visible: %s", error->message);
+      g_error_free (error);
+    }
+
+  return visible;
+}
+
 GList *
 bamf_application_get_windows (BamfApplication *application)
 {

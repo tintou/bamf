@@ -36,6 +36,13 @@
 				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
 			</arg>
 		</method>
+		
+		<method name="UserVisible">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_application_user_visible" />
+			<arg type="b" name="visible" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
 
 		<method name="Xids">
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_application_get_xids" />

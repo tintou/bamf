@@ -50,7 +50,6 @@ struct _BamfWindowPrivate
   DBusGConnection *connection;
   DBusGProxy      *proxy;
   guint32          xid;
-  WnckWindow      *window;
 };
 
 static guint32 bamf_window_get_xid (BamfWindow *self)
@@ -144,28 +143,50 @@ bamf_window_new (const char * path)
   return self;
 }
 
-WnckWindow *
-bamf_window_get_inner (BamfWindow *self)
-{
-  g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
-
-  if (!self->priv->window)
-    self->priv->window = wnck_window_get (self->priv->xid);
-
-  return self->priv->window;
-}
-
 gboolean
 bamf_window_is_urgent (BamfWindow *self)
 {
-  WnckWindow *window;
+  BamfWindowPrivate *priv;
+  gboolean result = FALSE;
+  GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
+  priv = self->priv;
 
-  window = bamf_window_get_inner (self);
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "IsUrgent",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_BOOLEAN, &result,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to fetch urgent: %s", error->message);
+      g_error_free (error);
+    }
 
-  if (!window)
-    return FALSE;
+  return result;
+}
 
-  return wnck_window_needs_attention (window);
+gboolean          
+bamf_window_user_visible (BamfWindow *self)
+{
+  BamfWindowPrivate *priv;
+  gboolean result = FALSE;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
+  priv = self->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "UserVisible",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_BOOLEAN, &result,
+                          G_TYPE_INVALID))
+    {
+      g_error ("Failed to fetch urgent: %s", error->message);
+      g_error_free (error);
+    }
+
+  return result;
 }
