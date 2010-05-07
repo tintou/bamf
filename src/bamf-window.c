@@ -50,7 +50,7 @@ struct _BamfWindowPrivate
   gboolean user_visible;
 };
 
-void
+static void
 bamf_window_set_urgent (BamfWindow *self, gboolean urgent)
 {
   g_return_if_fail (BAMF_IS_WINDOW (self));
@@ -70,7 +70,7 @@ bamf_window_is_urgent (BamfWindow *self)
   return self->priv->urgent;
 }
 
-void
+static void
 bamf_window_set_user_visible (BamfWindow *self, gboolean visible)
 {
   g_return_if_fail (BAMF_IS_WINDOW (self));

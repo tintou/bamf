@@ -33,9 +33,12 @@ bamf_test_extra_headers = \
 test_bamf_SOURCES = \
   $(bamf_test_extra_sources) \
   $(bamf_test_extra_headers) \
+  test-mock-window.h \
+  test-mock-window.c \
   test-bamf.c \
   test-view.c \
   test-application.c \
+  test-window.c \
   test-matcher.c
 
 test_bamf_CPPFLAGS = \

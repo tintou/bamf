@@ -27,9 +27,10 @@
 #include <glibtop.h>
 
 
+void test_application_create_suite (void);
 void test_matcher_create_suite (void);
 void test_view_create_suite (void);
-void test_application_create_suite (void);
+void test_window_create_suite (void);
  
 gint
 main (gint argc, gchar *argv[])
@@ -69,6 +70,7 @@ main (gint argc, gchar *argv[])
 
   test_matcher_create_suite ();
   test_view_create_suite ();
+  test_window_create_suite ();
   test_application_create_suite ();
   
   return g_test_run ();
