@@ -35,6 +35,7 @@ void populate_tree_store (GtkTreeStore *store)
   GList *apps, *l;
   BamfApplication *app;
   BamfWindow *window;
+  const char *filename;
   
   apps = bamf_matcher_get_applications (bamf_matcher_get_default ());
 
@@ -43,16 +44,18 @@ void populate_tree_store (GtkTreeStore *store)
 
   for (l = apps; l; l = l->next) 
   {
-    gtk_tree_store_append (store, &position, NULL);
-
     app = BAMF_APPLICATION (l->data);
     
     if (!bamf_application_user_visible (app))
       continue;
 
-    gtk_tree_store_set (store, &position, 0, bamf_application_get_desktop_file (app), -1);
+    gtk_tree_store_append (store, &position, NULL);
+    filename = bamf_application_get_desktop_file (app);
+    gtk_tree_store_set (store, &position, 0, filename, -1);
 
     windows = bamf_application_get_windows (app);
+    
+    g_print("%i    %s\n", g_list_length (windows), filename);
 
     for (w = windows; w; w = w->next) 
     {

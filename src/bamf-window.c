@@ -42,7 +42,7 @@ static guint window_signals[LAST_SIGNAL] = { 0 };
 
 struct _BamfWindowPrivate
 {
-  WnckWindow * window;
+  BamfLegacyWindow * window;
   gulong closed_id;
   gulong name_changed_id;
   gulong state_changed_id;
@@ -90,7 +90,7 @@ bamf_window_user_visible (BamfWindow *self)
   return self->priv->user_visible;
 }
 
-WnckWindow *
+BamfLegacyWindow *
 bamf_window_get_window (BamfWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
@@ -110,17 +110,17 @@ bamf_window_get_xid (BamfWindow *window)
   if (BAMF_WINDOW_GET_CLASS (window)->get_xid)
     return BAMF_WINDOW_GET_CLASS (window)->get_xid (window);
 
-  return (guint32) wnck_window_get_xid (window->priv->window);
+  return (guint32) bamf_legacy_window_get_xid (window->priv->window);
 }
 
 static void
-handle_window_closed (WnckScreen * screen, WnckWindow * window, gpointer data)
+handle_window_closed (BamfLegacyWindow * window, gpointer data)
 {
   BamfWindow *self;
   self = (BamfWindow *) data;
   
   g_return_if_fail (BAMF_IS_WINDOW (self));
-  g_return_if_fail (WNCK_IS_WINDOW (window));
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
 
   if (window == self->priv->window)
     {
@@ -129,11 +129,11 @@ handle_window_closed (WnckScreen * screen, WnckWindow * window, gpointer data)
 }
 
 static void
-handle_name_changed (WnckWindow *window, BamfWindow *self)
+handle_name_changed (BamfLegacyWindow *window, BamfWindow *self)
 {
-  g_return_if_fail (WNCK_IS_WINDOW (window));
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
 
-  bamf_view_set_name (BAMF_VIEW (self), wnck_window_get_name (window));
+  bamf_view_set_name (BAMF_VIEW (self), bamf_legacy_window_get_name (window));
 }
 
 static void
@@ -141,14 +141,12 @@ bamf_window_ensure_flags (BamfWindow *self)
 {
   g_return_if_fail (BAMF_IS_WINDOW (self));
 
-  bamf_window_set_urgent (self, wnck_window_needs_attention (self->priv->window));
-  bamf_window_set_user_visible (self, !wnck_window_is_skip_tasklist (self->priv->window));
+  bamf_window_set_urgent (self, bamf_legacy_window_needs_attention (self->priv->window));
+  bamf_window_set_user_visible (self, !bamf_legacy_window_is_skip_tasklist (self->priv->window));
 }
 
 static void
-handle_state_changed (WnckWindow *window, 
-                      WnckWindowState change_mask, 
-                      WnckWindowState new_state, 
+handle_state_changed (BamfLegacyWindow *window, 
                       BamfWindow *self)
 {
   bamf_window_ensure_flags (self);
@@ -170,8 +168,7 @@ bamf_window_set_property (GObject *object, guint property_id, const GValue *valu
   switch (property_id)
     {
       case PROP_WINDOW:
-        self->priv->window = WNCK_WINDOW (g_value_get_object (value));
-
+        self->priv->window = BAMF_LEGACY_WINDOW (g_value_get_object (value));
         break;
         
       default:
@@ -202,7 +199,7 @@ static void
 bamf_window_constructed (GObject *object)
 {
   BamfWindow *self;
-  WnckWindow *window;
+  BamfLegacyWindow *window;
   
   if (G_OBJECT_CLASS (bamf_window_parent_class)->constructed)
     G_OBJECT_CLASS (bamf_window_parent_class)->constructed (object);
@@ -211,13 +208,16 @@ bamf_window_constructed (GObject *object)
   
   self = BAMF_WINDOW (object);
   
-  bamf_view_set_name (BAMF_VIEW (self), wnck_window_get_name (window));
+  bamf_view_set_name (BAMF_VIEW (self), bamf_legacy_window_get_name (window));
 
   self->priv->name_changed_id = g_signal_connect (G_OBJECT (window), "name-changed",
     		                       (GCallback) handle_name_changed, self);
 
   self->priv->state_changed_id = g_signal_connect (G_OBJECT (window), "state-changed",
                                        (GCallback) handle_state_changed, self);
+                                       
+  self->priv->closed_id = g_signal_connect (G_OBJECT (window), "closed",
+                                            (GCallback) handle_window_closed, self);
   
   bamf_window_ensure_flags (self);
 }
@@ -229,9 +229,6 @@ bamf_window_dispose (GObject *object)
 
   self = BAMF_WINDOW (object);
 
-  g_signal_handler_disconnect (wnck_screen_get_default (),
-                               self->priv->closed_id);
-
   if (self->priv->window)
     {
       g_signal_handler_disconnect (self->priv->window,
@@ -239,6 +236,12 @@ bamf_window_dispose (GObject *object)
 
       g_signal_handler_disconnect (self->priv->window,
                                    self->priv->state_changed_id);
+      
+      g_signal_handler_disconnect (self->priv->window,
+                                   self->priv->closed_id);
+      
+      g_object_unref (self->priv->window);
+      self->priv->window = NULL;
     }
   G_OBJECT_CLASS (bamf_window_parent_class)->dispose (object);
 }
@@ -246,15 +249,8 @@ bamf_window_dispose (GObject *object)
 static void
 bamf_window_init (BamfWindow * self)
 {
-  WnckScreen *screen;
-
   BamfWindowPrivate *priv;
   priv = self->priv = BAMF_WINDOW_GET_PRIVATE (self);
-
-  screen = wnck_screen_get_default ();
-
-  priv->closed_id = g_signal_connect (G_OBJECT (screen), "window-closed",
-    		                       (GCallback) handle_window_closed, self);
 }
 
 static void
@@ -270,7 +266,7 @@ bamf_window_class_init (BamfWindowClass * klass)
   object_class->constructed  = bamf_window_constructed;
   view_class->view_type      = bamf_window_get_view_type;
   
-  pspec = g_param_spec_object ("window", "window", "window", WNCK_TYPE_WINDOW, G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+  pspec = g_param_spec_object ("window", "window", "window", BAMF_TYPE_LEGACY_WINDOW, G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
   g_object_class_install_property (object_class, PROP_WINDOW, pspec);
 
   g_type_class_add_private (klass, sizeof (BamfWindowPrivate));
@@ -298,7 +294,7 @@ bamf_window_class_init (BamfWindowClass * klass)
 }
 
 BamfWindow *
-bamf_window_new (WnckWindow *window)
+bamf_window_new (BamfLegacyWindow *window)
 {
   BamfWindow *self;
   self = (BamfWindow *) g_object_new (BAMF_TYPE_WINDOW, "window", window, NULL);

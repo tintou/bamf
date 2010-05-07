@@ -20,6 +20,8 @@
 #include "bamf-matcher-glue.h"
 #include "bamf-application.h"
 #include "bamf-window.h"
+#include "bamf-legacy-window.h"
+#include "bamf-legacy-screen.h"
 
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, G_TYPE_OBJECT);
 #define BAMF_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -127,7 +129,7 @@ bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
 /******** OLD MATCHER CODE **********/
 
 static char *
-get_open_office_window_hint (BamfMatcher * self, WnckWindow * window)
+get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
 {
   const gchar *name;
   char *exec;
@@ -135,9 +137,9 @@ get_open_office_window_hint (BamfMatcher * self, WnckWindow * window)
   char *file;
   
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
-  g_return_val_if_fail (WNCK_IS_WINDOW (window), NULL);
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
 
-  name = wnck_window_get_name (window);
+  name = bamf_legacy_window_get_name (window);
 
   if (name == NULL)
     return NULL;
@@ -307,7 +309,7 @@ pid_parent_tree (BamfMatcher *self, gint pid)
 }
 
 static char *
-exec_string_for_window (BamfMatcher * self, WnckWindow * window)
+exec_string_for_window (BamfMatcher * self, BamfLegacyWindow * window)
 {
   gchar *result = NULL;
   gint pid = 0, i = 0;
@@ -315,10 +317,10 @@ exec_string_for_window (BamfMatcher * self, WnckWindow * window)
   GString *exec = NULL;
   glibtop_proc_args buffer;
 
-  g_return_val_if_fail (WNCK_IS_WINDOW (window), NULL);
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
 
-  pid = wnck_window_get_pid (window);
+  pid = bamf_legacy_window_get_pid (window);
 
   if (pid == 0)
     return NULL;
@@ -592,19 +594,14 @@ create_desktop_file_table (BamfMatcher * self, GHashTable **desktop_file_table, 
 }
 
 static gboolean
-is_open_office_window (BamfMatcher * self, WnckWindow * window)
+is_open_office_window (BamfMatcher * self, BamfLegacyWindow * window)
 {
-  WnckClassGroup *group;
-
-  g_return_val_if_fail (WNCK_IS_WINDOW (window), FALSE);
-
-  group = wnck_window_get_class_group (window);
-  return group && g_str_has_prefix (wnck_class_group_get_name (group), "OpenOffice");
+  return g_str_has_prefix (bamf_legacy_window_get_class_name (window), "OpenOffice");
 }
 
 static char *
 get_window_hint (BamfMatcher *self,
-                 WnckWindow *window,
+                 BamfLegacyWindow *window,
                  const char *atom_name)
 {
   Display *XDisplay;
@@ -617,15 +614,14 @@ get_window_hint (BamfMatcher *self,
   unsigned char *buffer;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
-  g_return_val_if_fail (WNCK_IS_WINDOW (window), NULL);
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
   g_return_val_if_fail (atom_name, NULL);
   
   XDisplay = XOpenDisplay (NULL);
   atom = XInternAtom (XDisplay, atom_name, FALSE);
 
-
   int result = XGetWindowProperty (XDisplay,
-				   wnck_window_get_xid (window),
+				   (gulong) bamf_legacy_window_get_xid (window),
 				   atom,
 				   0,
 				   G_MAXINT,
@@ -640,28 +636,30 @@ get_window_hint (BamfMatcher *self,
   XCloseDisplay (XDisplay);
 
   if (result == Success && numItems > 0)
-    hint = g_strdup ((char*) buffer);
-
+    {
+      hint = g_strdup ((char*) buffer);
+    }
+    
   XFree (buffer);
   return hint;
 }
 
 static void
 set_window_hint (BamfMatcher * self, 
-                 WnckWindow * window,
+                 BamfLegacyWindow * window,
                  const char *atom_name,
                  const char *data)
 {
   Display *XDisplay;
   
   g_return_if_fail (BAMF_IS_MATCHER (self));
-  g_return_if_fail (WNCK_IS_WINDOW (window));
+  g_return_if_fail (BAMF_LEGACY_WINDOW (window));
   g_return_if_fail (atom_name);
   g_return_if_fail (data);
 
   XDisplay = XOpenDisplay (NULL);
   XChangeProperty (XDisplay,
-		   wnck_window_get_xid (window),
+		   bamf_legacy_window_get_xid (window),
 		   XInternAtom (XDisplay,
 				atom_name,
 				FALSE),
@@ -674,18 +672,9 @@ set_window_hint (BamfMatcher * self,
 }
 
 static char*
-window_class_name (WnckWindow *window)
+window_class_name (BamfLegacyWindow *window)
 {
-  WnckClassGroup *group;
-  
-  g_return_val_if_fail (WNCK_IS_WINDOW (window), NULL);
-
-  group = wnck_window_get_class_group (window);
-
-  if (!group)
-    return NULL;
-  
-  return g_strdup (wnck_class_group_get_res_class (group));
+  return g_strdup (bamf_legacy_window_get_class_name (window));
 }
 
 static GArray *
@@ -694,7 +683,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 {
   char *hint = NULL, *chrome_app_url = NULL, *file = NULL, *exec = NULL;
   BamfMatcherPrivate *priv;
-  WnckWindow *window;
+  BamfLegacyWindow *window;
   GArray *desktop_files = NULL;
   GHashTableIter iter;
   gpointer key, value;
@@ -813,7 +802,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
                                  BamfWindow *bamf_window)
 {
   GArray *possible_apps;
-  WnckWindow *window;
+  BamfLegacyWindow *window;
   GList *views, *a;
   char *desktop_file;
   int i;
@@ -880,7 +869,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
 
 static void
 ensure_window_hint_set (BamfMatcher *self,
-                        WnckWindow *window)
+                        BamfLegacyWindow *window)
 {
   GArray *pids;
   GHashTable *registered_pids;
@@ -889,7 +878,7 @@ ensure_window_hint_set (BamfMatcher *self,
   gint *key;
   
   g_return_if_fail (BAMF_IS_MATCHER (self));
-  g_return_if_fail (WNCK_IS_WINDOW (window));
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
   
   registered_pids = self->priv->registered_pids;
   window_hint = get_window_hint (self, window, _NET_WM_DESKTOP_FILE);
@@ -898,7 +887,7 @@ ensure_window_hint_set (BamfMatcher *self,
     {
       /* already set, make sure we know about this
        * fact for future windows of this applications */
-      pid = wnck_window_get_pid (window); 
+      pid = bamf_legacy_window_get_pid (window); 
       
       if (pid > 0)
         {
@@ -921,7 +910,7 @@ ensure_window_hint_set (BamfMatcher *self,
     }
   else
     {  
-      pids = pid_parent_tree (self, wnck_window_get_pid (window));
+      pids = pid_parent_tree (self, bamf_legacy_window_get_pid (window));
 
       for (i = 0; i < pids->len; i++)
         {
@@ -943,7 +932,7 @@ ensure_window_hint_set (BamfMatcher *self,
 
 gboolean
 bamf_matcher_window_is_match_ready (BamfMatcher * self,
-		                    WnckWindow * window)
+		                    BamfLegacyWindow * window)
 {
   char *file;
 
@@ -962,19 +951,19 @@ bamf_matcher_window_is_match_ready (BamfMatcher * self,
 }
 
 static void
-handle_window_opened (WnckScreen * screen, WnckWindow * window, gpointer data)
+handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, gpointer data)
 {
   BamfWindow *bamfwindow;
   BamfMatcher *self;
   self = (BamfMatcher *) data;
   
   g_return_if_fail (BAMF_IS_MATCHER (self));
-  g_return_if_fail (WNCK_IS_WINDOW (window));
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
   
-  if (wnck_window_get_window_type (window) & WNCK_WINDOW_DESKTOP)
+  if (bamf_legacy_window_is_desktop_window (window))
     return;
   
-  gint pid = wnck_window_get_pid (window);
+  gint pid = bamf_legacy_window_get_pid (window);
   if (pid > 1)
     g_array_append_val (self->priv->known_pids, pid);
     
@@ -1008,7 +997,7 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
                                             gint pid)
 {
   gint *key;
-  WnckScreen *screen;
+  BamfLegacyScreen *screen;
   GList *glist_item;
   GList *windows;
   char *dup;
@@ -1024,11 +1013,11 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
 
   /* fixme, this is a bit heavy */
 
-  screen = wnck_screen_get_default ();
+  screen = bamf_legacy_screen_get_default ();
   
-  g_return_if_fail (WNCK_IS_SCREEN (screen));
+  g_return_if_fail (BAMF_IS_LEGACY_SCREEN (screen));
   
-  windows = wnck_screen_get_windows (screen);
+  windows = bamf_legacy_screen_get_windows (screen);
 
   for (glist_item = windows; glist_item != NULL;
        glist_item = glist_item->next)
@@ -1271,7 +1260,7 @@ bamf_matcher_get_default (void)
 
       create_desktop_file_table (matcher, &(priv->desktop_file_table), &(priv->desktop_id_table));
 
-      WnckScreen *screen = wnck_screen_get_default ();
+      BamfLegacyScreen *screen = bamf_legacy_screen_get_default ();
 
       g_signal_connect (G_OBJECT (screen), "window-opened",
 		    (GCallback) handle_window_opened, matcher);

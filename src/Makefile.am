@@ -11,6 +11,8 @@ bamfdaemon_PROGRAMS = \
 
 bamfdaemon_sources = \
 		main.c \
+		bamf-legacy-window.c \
+     		bamf-legacy-screen.c \
 		bamf-view.c \
 		bamf-control.c \
 		bamf-matcher.c \
@@ -22,6 +24,8 @@ bamfdaemon_sources = \
 bamfdaemon_headers = \
 		main.h \
 		bamf.h \
+		bamf-legacy-window.h \
+	        bamf-legacy-screen.h \
 		bamf-view.h \
 		bamf-control.h \
 		bamf-matcher.h \

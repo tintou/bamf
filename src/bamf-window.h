@@ -20,15 +20,15 @@
 
 #include "bamf.h"
 #include "bamf-view.h"
+#include "bamf-legacy-window.h"
 #include <glib.h>
 #include <glib-object.h>
-#include <libwnck/libwnck.h>
 
 #define BAMF_TYPE_WINDOW			(bamf_window_get_type ())
 #define BAMF_WINDOW(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_WINDOW, BamfWindow))
 #define BAMF_IS_WINDOW(obj)			(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_WINDOW))
 #define BAMF_WINDOW_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_WINDOW, BamfWindowClass))
-#define BAMF_IS_WINDOW_CLASS(klass)	(G_TYPE_CHECK_CLASA_TYPE ((klass), BAMF_TYPE_WINDOW))
+#define BAMF_IS_WINDOW_CLASS(klass)		(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_WINDOW))
 #define BAMF_WINDOW_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_WINDOW, BamfWindowClass))
 
 typedef struct _BamfWindow BamfWindow;
@@ -42,7 +42,7 @@ struct _BamfWindowClass
   gboolean     (*user_visible) (BamfWindow *window);
   gboolean     (*is_urgent)    (BamfWindow *window);
   guint32      (*get_xid)      (BamfWindow *window);
-  WnckWindow * (*get_window)   (BamfWindow *window);
+  BamfLegacyWindow * (*get_window)   (BamfWindow *window);
 };
 
 struct _BamfWindow
@@ -55,7 +55,7 @@ struct _BamfWindow
 
 GType bamf_window_get_type (void) G_GNUC_CONST;
 
-WnckWindow * bamf_window_get_window (BamfWindow *self);
+BamfLegacyWindow * bamf_window_get_window (BamfWindow *self);
 
 gboolean bamf_window_is_urgent (BamfWindow *self);
 void bamf_window_set_is_urgent (BamfWindow *self, gboolean urgent);
@@ -65,6 +65,6 @@ void bamf_window_set_user_visible (BamfWindow *self, gboolean visible);
 
 guint32 bamf_window_get_xid (BamfWindow *window);
 
-BamfWindow * bamf_window_new (WnckWindow *window);
+BamfWindow * bamf_window_new (BamfLegacyWindow *window);
 
 #endif

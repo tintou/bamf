@@ -29,7 +29,7 @@
 #define BAMF_VIEW(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_VIEW, BamfView))
 #define BAMF_IS_VIEW(obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_VIEW))
 #define BAMF_VIEW_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_VIEW, BamfViewClass))
-#define BAMF_IS_VIEW_CLASS(klass)	(G_TYPE_CHECK_CLASA_TYPE ((klass), BAMF_TYPE_VIEW))
+#define BAMF_IS_VIEW_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_VIEW))
 #define BAMF_VIEW_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_VIEW, BamfViewClass))
 
 typedef struct _BamfView BamfView;

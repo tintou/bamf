@@ -18,6 +18,7 @@
 #include "bamf-matcher.h"
 #include "bamf-control.h"
 #include "bamf-control-glue.h"
+#include <gtk/gtk.h>
 
 G_DEFINE_TYPE (BamfControl, bamf_control, G_TYPE_OBJECT);
 #define BAMF_CONTROL_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \

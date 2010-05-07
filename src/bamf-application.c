@@ -18,6 +18,8 @@
 #include "bamf-application.h"
 #include "bamf-application-glue.h"
 #include "bamf-window.h"
+#include "bamf-legacy-window.h"
+#include "bamf-legacy-screen.h"
 #include "marshal.h"
 #include <string.h>
 
@@ -178,9 +180,9 @@ bamf_application_ensure_flags (BamfApplication *self)
   gboolean urgent = FALSE, visible = FALSE, running = FALSE, active = FALSE;
   GList *l;
   BamfView *view;
-  WnckWindow *active_window;
+  BamfLegacyWindow *active_window;
   
-  active_window = wnck_screen_get_active_window (wnck_screen_get_default ());
+  active_window = bamf_legacy_screen_get_active_window (bamf_legacy_screen_get_default ());
 
   for (l = bamf_view_get_children (BAMF_VIEW (self)); l; l = l->next)
     {
@@ -271,7 +273,7 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
 }
 
 static void
-active_window_changed (WnckScreen *screen, WnckWindow *previous, BamfApplication *app)
+active_window_changed (BamfLegacyScreen *screen, BamfApplication *app)
 {
   bamf_application_ensure_flags (app);
 }
@@ -285,7 +287,7 @@ bamf_application_dispose (GObject *object)
   app = BAMF_APPLICATION (object);
   priv = app->priv;
 
-  g_signal_handlers_disconnect_by_func (G_OBJECT (wnck_screen_get_default ()), active_window_changed, object);
+  g_signal_handlers_disconnect_by_func (G_OBJECT (bamf_legacy_screen_get_default ()), active_window_changed, object);
 
   if (priv->desktop_file)
     {
@@ -312,7 +314,7 @@ bamf_application_init (BamfApplication * self)
   priv->is_tab_container = FALSE;
   priv->app_type = g_strdup ("system");
   
-  g_signal_connect (G_OBJECT (wnck_screen_get_default ()), "active-window-changed",
+  g_signal_connect (G_OBJECT (bamf_legacy_screen_get_default ()), "active-window-changed",
 		    (GCallback) active_window_changed, self);
 }
 

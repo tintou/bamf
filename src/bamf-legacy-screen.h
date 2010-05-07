@@ -1,0 +1,66 @@
+//  
+//  Copyright (C) 2009 Canonical Ltd.
+// 
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+// 
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// 
+
+#ifndef __BAMFLEGACY_SCREEN_H__
+#define __BAMFLEGACY_SCREEN_H__
+
+#include "bamf.h"
+#include "bamf-view.h"
+#include "bamf-legacy-window.h"
+#include <glib.h>
+#include <glib-object.h>
+
+#define BAMF_TYPE_LEGACY_SCREEN			(bamf_legacy_screen_get_type ())
+#define BAMF_LEGACY_SCREEN(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_LEGACY_SCREEN, BamfLegacyScreen))
+#define BAMF_IS_LEGACY_SCREEN(obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_LEGACY_SCREEN))
+#define BAMF_LEGACY_SCREEN_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_LEGACY_SCREEN, BamfLegacyScreenClass))
+#define BAMF_IS_LEGACY_SCREEN_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_LEGACY_SCREEN))
+#define BAMF_LEGACY_SCREEN_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_LEGACY_SCREEN, BamfLegacyScreenClass))
+
+typedef struct _BamfLegacyScreen BamfLegacyScreen;
+typedef struct _BamfLegacyScreenClass BamfLegacyScreenClass;
+typedef struct _BamfLegacyScreenPrivate BamfLegacyScreenPrivate;
+
+struct _BamfLegacyScreenClass
+{
+  GObjectClass parent;
+
+  GList    (*get_windows)      (BamfLegacyScreen *legacy_screen);
+
+  /*< signals >*/
+  void     (*window_opened)          (BamfLegacyScreen *legacy_screen, BamfLegacyWindow *legacy_window);
+  void     (*window_closed)          (BamfLegacyScreen *legacy_screen, BamfLegacyWindow *legacy_window);
+  void     (*active_window_changed)  (BamfLegacyScreen *legacy_screen);
+};
+
+struct _BamfLegacyScreen
+{
+  GObject parent;
+
+  /* private */
+  BamfLegacyScreenPrivate *priv;
+};
+
+GType              bamf_legacy_screen_get_type           (void) G_GNUC_CONST;
+
+GList            * bamf_legacy_screen_get_windows        (BamfLegacyScreen *screen);
+
+BamfLegacyWindow * bamf_legacy_screen_get_active_window  (BamfLegacyScreen *screen);
+
+BamfLegacyScreen * bamf_legacy_screen_get_default        (void);
+
+#endif

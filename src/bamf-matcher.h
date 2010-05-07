@@ -31,7 +31,6 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 #include <gio/gdesktopappinfo.h>
-#include <libwnck/libwnck.h>
 #include <libgtop-2.0/glibtop.h>
 #include <glibtop/procargs.h>
 #include <glibtop/procuid.h>
@@ -42,7 +41,7 @@
 #define BAMF_MATCHER(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_MATCHER, BamfMatcher))
 #define BAMF_IS_MATCHER(obj)			(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_MATCHER))
 #define BAMF_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_MATCHER, BamfMatcherClass))
-#define BAMF_IS_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASA_TYPE ((klass), BAMF_TYPE_MATCHER))
+#define BAMF_IS_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_MATCHER))
 #define BAMF_MATCHER_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_MATCHER, BamfMatcherClass))
 
 #define _NET_WM_DESKTOP_FILE			"_NET_WM_DESKTOP_FILE"
