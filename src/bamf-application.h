@@ -22,7 +22,6 @@
 #include "bamf-view.h"
 #include <glib.h>
 #include <glib-object.h>
-#include <libwnck/libwnck.h>
 
 #define BAMF_TYPE_APPLICATION			(bamf_application_get_type ())
 #define BAMF_APPLICATION(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_APPLICATION, BamfApplication))
