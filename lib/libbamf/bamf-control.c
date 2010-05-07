@@ -79,7 +79,7 @@ bamf_control_init (BamfControl *self)
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   if (priv->connection == NULL)
     {
-      g_error ("Failed to open connection to bus: %s",
+      g_warning ("Failed to open connection to bus: %s",
                error != NULL ? error->message : "Unknown");
       if (error)
         g_error_free (error);
@@ -122,7 +122,7 @@ bamf_control_insert_desktop_file (BamfControl *control,
                           G_TYPE_INVALID,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to insert desktop file: %s", error->message);
+      g_warning ("Failed to insert desktop file: %s", error->message);
       g_error_free (error);
     }
 }
@@ -132,6 +132,22 @@ bamf_control_register_application_for_pid (BamfControl  *control,
                                            const gchar  *application,
                                            gint32        pid)
 {
+  BamfControlPrivate *priv;
+  GError *error = NULL;
+
+  g_return_if_fail (BAMF_IS_CONTROL (control));
+  priv = control->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "RegisterApplicationForPid",
+                          &error,
+                          G_TYPE_STRING, desktop_file,
+                          G_TYPE_UINT, pid,
+                          G_TYPE_INVALID,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to register application: %s", error->message);
+      g_error_free (error);
 }
 
 void

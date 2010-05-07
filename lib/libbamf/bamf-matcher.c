@@ -213,8 +213,9 @@ bamf_matcher_get_application_for_xid (BamfMatcher  *matcher,
                           G_TYPE_STRING, &app,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch path: %s", error->message);
+      g_warning ("Failed to fetch path: %s", error->message);
       g_error_free (error);
+      return NULL;
     }
 
   if (!app)
@@ -247,8 +248,10 @@ bamf_matcher_application_is_running (BamfMatcher *matcher,
                           G_TYPE_BOOLEAN, &running,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch path: %s", error->message);
+      g_warning ("Failed to fetch path: %s", error->message);
       g_error_free (error);
+      
+      return FALSE;
     }
 
   return running;
@@ -274,8 +277,10 @@ bamf_matcher_get_applications (BamfMatcher *matcher)
                           G_TYPE_STRV, &array,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch paths: %s", error->message);
+      g_warning ("Failed to fetch paths: %s", error->message);
       g_error_free (error);
+      
+      return FALSE;
     }
 
   g_return_val_if_fail (array, NULL);
@@ -314,8 +319,10 @@ bamf_matcher_get_running_applications (BamfMatcher *matcher)
                           G_TYPE_STRV, &array,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch paths: %s", error->message);
+      g_warning ("Failed to fetch paths: %s", error->message);
       g_error_free (error);
+      
+      return NULL;
     }
 
   g_return_val_if_fail (array, NULL);
@@ -337,6 +344,7 @@ bamf_matcher_get_running_applications (BamfMatcher *matcher)
 GList *
 bamf_matcher_get_tabs (BamfMatcher *matcher)
 {
+  /* FIXME */
   return NULL;
 }
 
@@ -344,6 +352,7 @@ GArray *
 bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
                                        const gchar *application)
 {
+  /* FIXME */
   return NULL;
 }
 

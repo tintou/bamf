@@ -118,7 +118,7 @@ bamf_application_constructed (GObject *object)
                                            "org.ayatana.bamf.application");
   if (priv->proxy == NULL)
     {
-      g_error ("Unable to get org.ayatana.bamf.application application");
+      g_critical ("Unable to get org.ayatana.bamf.application application");
     }
 
   dbus_g_proxy_add_signal (priv->proxy,
@@ -224,7 +224,7 @@ bamf_application_init (BamfApplication *self)
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   if (priv->connection == NULL)
     {
-      g_error ("Failed to open connection to bus: %s",
+      g_critical ("Failed to open connection to bus: %s",
                error != NULL ? error->message : "Unknown");
       if (error)
         g_error_free (error);
@@ -258,8 +258,10 @@ bamf_application_get_desktop_file (BamfApplication *application)
                           G_TYPE_STRING, &file,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch path: %s", error->message);
+      g_warning ("Failed to fetch path: %s", error->message);
       g_error_free (error);
+      
+      return NULL;
     }
 
   return file;
@@ -282,8 +284,10 @@ bamf_application_get_application_type (BamfApplication *application)
                           G_TYPE_STRING, &type,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch path: %s", error->message);
+      g_warning ("Failed to fetch path: %s", error->message);
       g_error_free (error);
+      
+      return NULL;
     }
 
   return type;
@@ -306,8 +310,10 @@ bamf_application_is_urgent (BamfApplication *application)
                           G_TYPE_BOOLEAN, &urgent,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch urgent: %s", error->message);
+      g_warning ("Failed to fetch urgent: %s", error->message);
       g_error_free (error);
+      
+      return FALSE;
     }
 
   return urgent;
@@ -330,8 +336,10 @@ bamf_application_user_visible (BamfApplication *application)
                           G_TYPE_BOOLEAN, &visible,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch user visible: %s", error->message);
+      g_warning ("Failed to fetch user visible: %s", error->message);
       g_error_free (error);
+      
+      return FALSE;
     }
 
   return visible;
@@ -354,8 +362,10 @@ bamf_application_get_xids (BamfApplication *application)
                           DBUS_TYPE_G_UINT_ARRAY, &xids,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch xids: %s", error->message);
+      g_warning ("Failed to fetch xids: %s", error->message);
       g_error_free (error);
+      
+      return NULL;
     }
 
   return xids;

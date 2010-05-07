@@ -76,8 +76,9 @@ static guint32 bamf_window_get_xid (BamfWindow *self)
                           G_TYPE_UINT, &xid,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch path: %s", error->message);
+      g_warning ("Failed to fetch path: %s", error->message);
       g_error_free (error);
+      return 0;
     }
 
   return xid;
@@ -151,7 +152,7 @@ bamf_window_init (BamfWindow *self)
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   if (priv->connection == NULL)
     {
-      g_error ("Failed to open connection to bus: %s",
+      g_critical ("Failed to open connection to bus: %s",
                error != NULL ? error->message : "Unknown");
       if (error)
         g_error_free (error);
@@ -185,8 +186,10 @@ bamf_window_is_urgent (BamfWindow *self)
                           G_TYPE_BOOLEAN, &result,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch urgent: %s", error->message);
+      g_warning ("Failed to fetch urgent: %s", error->message);
       g_error_free (error);
+      
+      return FALSE;
     }
 
   return result;
@@ -209,8 +212,10 @@ bamf_window_user_visible (BamfWindow *self)
                           G_TYPE_BOOLEAN, &result,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch urgent: %s", error->message);
+      g_warning ("Failed to fetch urgent: %s", error->message);
       g_error_free (error);
+      
+      return FALSE;
     }
 
   return result;

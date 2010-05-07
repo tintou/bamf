@@ -213,7 +213,8 @@ bamf_view_constructed (GObject *object)
                                            "org.ayatana.bamf.view");
   if (priv->proxy == NULL)
     {
-      g_error ("Unable to get org.ayatana.bamf.view view");
+      g_critical ("Unable to get org.ayatana.bamf.view view");
+      return;
     }
 
   dbus_g_proxy_add_signal (priv->proxy,
@@ -344,7 +345,7 @@ bamf_view_init (BamfView *self)
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   if (priv->connection == NULL)
     {
-      g_error ("Failed to open connection to bus: %s",
+      g_critical ("Failed to open connection to bus: %s",
                error != NULL ? error->message : "Unknown");
       if (error)
         g_error_free (error);
@@ -372,7 +373,8 @@ bamf_view_get_children (BamfView *view)
                           G_TYPE_STRV, &children,
                           G_TYPE_INVALID))
     {
-      g_error ("Unable to fetch children: %s\n", error->message);
+      g_warning ("Unable to fetch children: %s\n", error->message);
+      return NULL;
     }
 
   if (!children)
@@ -407,8 +409,10 @@ bamf_view_is_active (BamfView *view)
                           G_TYPE_BOOLEAN, &active,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch active: %s", error->message);
+      g_warning ("Failed to fetch active: %s", error->message);
       g_error_free (error);
+      
+      return FALSE;
     }
 
   return active;
@@ -431,8 +435,10 @@ bamf_view_is_running (BamfView *view)
                           G_TYPE_BOOLEAN, &running,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch running: %s", error->message);
+      g_warning ("Failed to fetch running: %s", error->message);
       g_error_free (error);
+      
+      return FALSE;
     }
 
   return running;
@@ -455,8 +461,10 @@ bamf_view_get_name (BamfView *view)
                           G_TYPE_STRING, &name,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch name: %s", error->message);
+      g_warning ("Failed to fetch name: %s", error->message);
       g_error_free (error);
+      
+      return NULL;
     }
 
   return name;
@@ -479,8 +487,9 @@ bamf_view_get_parent (BamfView *view)
                           G_TYPE_STRING, &parent,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch parent: %s", error->message);
+      g_warning ("Failed to fetch parent: %s", error->message);
       g_error_free (error);
+      return NULL;
     }
 
   if (!parent)
@@ -505,8 +514,9 @@ bamf_view_get_view_type (BamfView *view)
                           G_TYPE_STRING, &type,
                           G_TYPE_INVALID))
     {
-      g_error ("Failed to fetch view type: %s", error->message);
+      g_warning ("Failed to fetch view type: %s", error->message);
       g_error_free (error);
+      return NULL;
     }
 
   return type;
