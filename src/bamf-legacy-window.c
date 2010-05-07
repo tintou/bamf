@@ -243,7 +243,7 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
   legacy_window_signals [NAME_CHANGED] = 
   	g_signal_new ("name-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
+  	              G_SIGNAL_RUN_FIRST,
   	              G_STRUCT_OFFSET (BamfLegacyWindowClass, name_changed), 
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__VOID,
@@ -252,7 +252,7 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
   legacy_window_signals [STATE_CHANGED] = 
   	g_signal_new ("state-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
+  	              G_SIGNAL_RUN_FIRST,
   	              G_STRUCT_OFFSET (BamfLegacyWindowClass, state_changed), 
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__VOID,
@@ -261,7 +261,7 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
   legacy_window_signals [CLOSED] = 
   	g_signal_new ("closed",
   	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
+  	              G_SIGNAL_RUN_FIRST,
   	              G_STRUCT_OFFSET (BamfLegacyWindowClass, closed), 
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__VOID,

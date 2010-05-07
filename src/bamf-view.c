@@ -153,6 +153,10 @@ bamf_view_add_child (BamfView *view,
 		    (GCallback) bamf_view_handle_child_closed, view);
 
   view->priv->children = g_list_prepend (view->priv->children, child);
+  
+  // Do this by hand so we can pass and object instead of a string
+  if (BAMF_VIEW_GET_CLASS (view)->child_added)
+    BAMF_VIEW_GET_CLASS (view)->child_added (view, child);
 
   added = bamf_view_get_path (child);
   g_signal_emit (view, view_signals[CHILD_ADDED], 0, added);
@@ -170,6 +174,10 @@ bamf_view_remove_child (BamfView *view,
   g_signal_handlers_disconnect_by_func (child, bamf_view_handle_child_closed, view);
 
   view->priv->children = g_list_remove (view->priv->children, child);
+  
+  // Do this by hand so we can pass and object instead of a string
+  if (BAMF_VIEW_GET_CLASS (view)->child_removed)
+    BAMF_VIEW_GET_CLASS (view)->child_removed (view, child);
 
   removed = bamf_view_get_path (child);
   g_signal_emit (view, view_signals[CHILD_REMOVED], 0, removed);
@@ -380,8 +388,8 @@ bamf_view_class_init (BamfViewClass * klass)
   view_signals [CHILD_ADDED] = 
   	g_signal_new ("child-added",
   	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              G_STRUCT_OFFSET (BamfViewClass, child_added), 
+  	              0, 
+  	              0, 
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__STRING,
   	              G_TYPE_NONE, 1,
@@ -390,8 +398,9 @@ bamf_view_class_init (BamfViewClass * klass)
   view_signals [CHILD_REMOVED] = 
   	g_signal_new ("child-removed",
   	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_STRUCT_OFFSET (BamfViewClass, child_removed),
-  	              0, NULL, NULL,
+  	              0,
+  	              0,
+  	              NULL, NULL,
   	              g_cclosure_marshal_VOID__STRING,
   	              G_TYPE_NONE, 1,
   	              G_TYPE_STRING);

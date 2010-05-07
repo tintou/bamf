@@ -128,7 +128,7 @@ bamf_legacy_screen_class_init (BamfLegacyScreenClass * klass)
   legacy_screen_signals [WINDOW_OPENED] = 
   	g_signal_new ("window-opened",
   	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
+  	              G_SIGNAL_RUN_FIRST,
   	              G_STRUCT_OFFSET (BamfLegacyScreenClass, window_opened), 
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__POINTER,
@@ -138,7 +138,7 @@ bamf_legacy_screen_class_init (BamfLegacyScreenClass * klass)
   legacy_screen_signals [WINDOW_CLOSED] = 
   	g_signal_new ("window-closed",
   	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
+  	              G_SIGNAL_RUN_FIRST,
   	              G_STRUCT_OFFSET (BamfLegacyScreenClass, window_closed), 
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__POINTER,
@@ -148,7 +148,7 @@ bamf_legacy_screen_class_init (BamfLegacyScreenClass * klass)
   legacy_screen_signals [ACTIVE_WINDOW_CHANGED] = 
   	g_signal_new ("active-window-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
+  	              G_SIGNAL_RUN_FIRST,
   	              G_STRUCT_OFFSET (BamfLegacyScreenClass, active_window_changed), 
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__VOID,

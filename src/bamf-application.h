@@ -56,12 +56,8 @@ void              bamf_application_set_desktop_file      (BamfApplication *appli
                                                           char * desktop_file);
  
 gboolean          bamf_application_is_urgent             (BamfApplication *application);
-void              bamf_application_set_urgent            (BamfApplication *application,
-                                                          gboolean urgent);
 
 gboolean          bamf_application_user_visible          (BamfApplication *application);
-void              bamf_application_set_user_visible      (BamfApplication *application,
-                                                          gboolean visible);
 
 GArray          * bamf_application_get_xids              (BamfApplication *application);
 

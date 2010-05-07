@@ -81,7 +81,7 @@ bamf_application_user_visible  (BamfApplication *application)
   return application->priv->user_visible;
 }
 
-void       
+static void       
 bamf_application_set_user_visible (BamfApplication *application,
                                    gboolean visible)
 {
@@ -102,7 +102,7 @@ bamf_application_is_urgent  (BamfApplication *application)
   return application->priv->urgent;
 }
 
-void       
+static void       
 bamf_application_set_urgent (BamfApplication *application,
                              gboolean urgent)
 {
@@ -230,17 +230,19 @@ bamf_application_child_added (BamfView *view, BamfView *child)
 
   application = BAMF_APPLICATION (view);
 
+  bamf_application_ensure_flags (BAMF_APPLICATION (view));  
+
   if (BAMF_IS_WINDOW (child))
     {
       window = BAMF_WINDOW (child);
-      g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOW_ADDED],0, bamf_view_get_path (view));
+      g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOW_ADDED], 0, bamf_view_get_path (view));
+      
       g_signal_connect (G_OBJECT (child), "urgent-changed",
 	        	    (GCallback) window_urgent_changed, view);
       g_signal_connect (G_OBJECT (child), "user-visible-changed",
 	        	    (GCallback) window_visible_changed, view);
     }
     
-  bamf_application_ensure_flags (BAMF_APPLICATION (view));  
 }
 
 static gboolean
