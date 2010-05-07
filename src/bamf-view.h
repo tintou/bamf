@@ -40,7 +40,10 @@ struct _BamfViewClass
 {
   GObjectClass parent;
 
-  char * (*view_type)     (BamfView *view);
+  /*< methods >*/
+  char *         (*view_type)                 (BamfView *view);
+  
+  /*< random stuff >*/
   gboolean (* running_changed) (BamfView *view, gboolean running);
   gboolean (* active_changed)  (BamfView *view, gboolean active);
   gboolean (* closed)          (BamfView *view);

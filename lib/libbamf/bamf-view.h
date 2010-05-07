@@ -62,6 +62,12 @@ struct _BamfView
 struct _BamfViewClass
 {
   GObjectClass parent_class;
+  
+  GList      * (*get_children)        (BamfView *view);
+  gboolean     (*is_active)           (BamfView *view);
+  gboolean     (*is_running)          (BamfView *view);
+  gchar      * (*get_name)            (BamfView *view);
+  gchar      * (*view_type)           (BamfView *view);
 
   /*< private >*/
   void (*_view_padding1) (void);

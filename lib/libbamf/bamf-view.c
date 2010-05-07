@@ -363,6 +363,9 @@ bamf_view_get_children (BamfView *view)
   BamfViewPrivate *priv;
 
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+  
+  if (BAMF_VIEW_GET_CLASS (view)->get_children)
+    return BAMF_VIEW_GET_CLASS (view)->get_children (view);
 
   priv = view->priv;
 
@@ -401,6 +404,9 @@ bamf_view_is_active (BamfView *view)
 
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
   priv = view->priv;
+  
+  if (BAMF_VIEW_GET_CLASS (view)->is_active)
+    return BAMF_VIEW_GET_CLASS (view)->is_active (view);
 
   if (!dbus_g_proxy_call (priv->proxy,
                           "IsActive",
@@ -427,6 +433,9 @@ bamf_view_is_running (BamfView *view)
 
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
   priv = view->priv;
+  
+  if (BAMF_VIEW_GET_CLASS (view)->is_running)
+    return BAMF_VIEW_GET_CLASS (view)->is_running (view);
 
   if (!dbus_g_proxy_call (priv->proxy,
                           "IsRunning",
@@ -453,6 +462,9 @@ bamf_view_get_name (BamfView *view)
 
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
   priv = view->priv;
+  
+  if (BAMF_VIEW_GET_CLASS (view)->get_name)
+    return BAMF_VIEW_GET_CLASS (view)->get_name (view);
 
   if (!dbus_g_proxy_call (priv->proxy,
                           "Name",
@@ -479,7 +491,7 @@ bamf_view_get_parent (BamfView *view)
 
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
   priv = view->priv;
-
+  
   if (!dbus_g_proxy_call (priv->proxy,
                           "Parent",
                           &error,
@@ -506,6 +518,9 @@ bamf_view_get_view_type (BamfView *view)
 
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
   priv = view->priv;
+  
+  if (BAMF_VIEW_GET_CLASS (view)->view_type)
+    return BAMF_VIEW_GET_CLASS (view)->view_type (view);
 
   if (!dbus_g_proxy_call (priv->proxy,
                           "ViewType",
