@@ -226,6 +226,17 @@ bamf_view_set_running (BamfView *view,
 }
 
 char * 
+bamf_view_get_icon (BamfView *view)
+{
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+  
+  if (BAMF_VIEW_GET_CLASS (view)->get_icon) 
+    return BAMF_VIEW_GET_CLASS (view)->get_icon (view);
+
+  return NULL;
+}
+
+char * 
 bamf_view_get_name (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
@@ -257,14 +268,11 @@ char *
 bamf_view_get_view_type (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  return g_strdup (BAMF_VIEW_GET_CLASS (view)->view_type (view));
-}
-
-char * 
-bamf_view_inner_get_view_type (BamfView *view)
-{
-  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  return "view";
+  
+  if (BAMF_VIEW_GET_CLASS (view)->view_type)
+    return BAMF_VIEW_GET_CLASS (view)->view_type (view);
+    
+  return g_strdup ("view");
 }
 
 char * 
@@ -293,7 +301,7 @@ bamf_view_export_on_bus (BamfView *view)
       BAMF_VIEW_GET_CLASS (view)->names = g_list_prepend (BAMF_VIEW_GET_CLASS (view)->names, path);
 
       view->priv->path = path;
-
+      
       bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
       
       g_return_val_if_fail (bus, NULL);
@@ -413,6 +421,4 @@ bamf_view_class_init (BamfViewClass * klass)
   	              g_cclosure_marshal_VOID__BOOLEAN,
   	              G_TYPE_NONE, 1,
   	              G_TYPE_BOOLEAN);
-
-  klass->view_type = bamf_view_inner_get_view_type;
 }

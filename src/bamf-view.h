@@ -39,15 +39,16 @@ typedef struct _BamfViewPrivate BamfViewPrivate;
 struct _BamfViewClass
 {
   GObjectClass parent;
+  GList *names;
 
   /*< methods >*/
   char *         (*view_type)                 (BamfView *view);
+  char *         (*get_icon)                  (BamfView *view);
   
   /*< random stuff >*/
   gboolean (* running_changed) (BamfView *view, gboolean running);
   gboolean (* active_changed)  (BamfView *view, gboolean active);
   gboolean (* closed)          (BamfView *view);
-  GList *names;
 
   /*< signals >*/
   void   (*child_added)   (BamfView *view, BamfView *child);
@@ -83,6 +84,8 @@ void       bamf_view_set_active         (BamfView *view,
 gboolean   bamf_view_is_running         (BamfView *view);
 void       bamf_view_set_running        (BamfView *view,
                                          gboolean running);
+
+char     * bamf_view_get_icon           (BamfView *view);
 
 char     * bamf_view_get_name           (BamfView *view);
 void       bamf_view_set_name           (BamfView *view,

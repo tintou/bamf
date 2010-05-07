@@ -215,7 +215,7 @@ bamf_legacy_window_test_new (guint32 xid, gchar *name)
 
 
 
-#define DESKTOP_FILE "usr/share/applications/gnome-terminal.desktop"
+#define DESKTOP_FILE "/usr/share/applications/gnome-terminal.desktop"
 
 static void test_allocation          (void);
 static void test_desktop_file        (void);

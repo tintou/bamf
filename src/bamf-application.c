@@ -22,6 +22,7 @@
 #include "bamf-legacy-screen.h"
 #include "marshal.h"
 #include <string.h>
+#include <gio/gdesktopappinfo.h>
 
 G_DEFINE_TYPE (BamfApplication, bamf_application, BAMF_TYPE_VIEW);
 #define BAMF_APPLICATION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -43,10 +44,19 @@ struct _BamfApplicationPrivate
 {
   char * desktop_file;
   char * app_type;
+  char * icon;
   gboolean is_tab_container;
   gboolean urgent;
   gboolean user_visible;
 };
+
+static char *
+bamf_application_get_icon (BamfView *view)
+{
+  g_return_val_if_fail (BAMF_IS_APPLICATION (view), NULL);
+  
+  return BAMF_APPLICATION (view)->priv->icon;
+}
 
 char * 
 bamf_application_get_application_type (BamfApplication *application)
@@ -68,9 +78,22 @@ void
 bamf_application_set_desktop_file (BamfApplication *application,
                                    char * desktop_file)
 {
+  GDesktopAppInfo *desktop;
+  GIcon *icon;
+
   g_return_if_fail (BAMF_IS_APPLICATION (application));
 
   application->priv->desktop_file = g_strdup (desktop_file);
+  desktop = g_desktop_app_info_new_from_filename (desktop_file);
+  
+  if (!G_IS_APP_INFO (desktop))
+    return;
+  
+  icon = g_app_info_get_icon (G_APP_INFO (desktop));
+  
+  application->priv->icon = g_icon_to_string (icon);
+  
+  g_object_unref (desktop);
 }
 
 gboolean
@@ -171,7 +194,7 @@ bamf_application_manages_xid (BamfApplication *application,
 static char *
 bamf_application_get_view_type (BamfView *view)
 {
-  return "application";
+  return g_strdup ("application");
 }
 
 static void
@@ -331,6 +354,7 @@ bamf_application_class_init (BamfApplicationClass * klass)
   view_class->view_type = bamf_application_get_view_type;
   view_class->child_added = bamf_application_child_added;
   view_class->child_removed = bamf_application_child_removed;
+  view_class->get_icon = bamf_application_get_icon;
 
   g_type_class_add_private (klass, sizeof (BamfApplicationPrivate));
   

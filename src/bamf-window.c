@@ -155,7 +155,7 @@ handle_state_changed (BamfLegacyWindow *window,
 static char *
 bamf_window_get_view_type (BamfView *view)
 {
-  return "window";
+  return g_strdup ("window");
 }
 
 static void
