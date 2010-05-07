@@ -141,13 +141,14 @@ bamf_control_register_application_for_pid (BamfControl  *control,
   if (!dbus_g_proxy_call (priv->proxy,
                           "RegisterApplicationForPid",
                           &error,
-                          G_TYPE_STRING, desktop_file,
+                          G_TYPE_STRING, application,
                           G_TYPE_UINT, pid,
                           G_TYPE_INVALID,
                           G_TYPE_INVALID))
     {
       g_warning ("Failed to register application: %s", error->message);
       g_error_free (error);
+    }
 }
 
 void
