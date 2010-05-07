@@ -67,6 +67,7 @@ struct _BamfViewClass
   gboolean     (*is_active)           (BamfView *view);
   gboolean     (*is_running)          (BamfView *view);
   gchar      * (*get_name)            (BamfView *view);
+  gchar      * (*get_icon)            (BamfView *view);
   gchar      * (*view_type)           (BamfView *view);
 
   /*< private >*/
@@ -108,12 +109,20 @@ gboolean   bamf_view_is_active     (BamfView *view);
 gboolean   bamf_view_is_running    (BamfView *view);
 
 /**
- * bamf_view_is_active:
+ * bamf_view_get_name:
  * @view: a #BamfView
  *
  * Gets the name of a view. This name is a short name best used to represent the view with text. 
  */
 gchar    * bamf_view_get_name      (BamfView *view);
+
+/**
+ * bamf_view_get_icon:
+ * @view: a #BamfView
+ *
+ * Gets the icon of a view. This icon is used to visually represent the view. 
+ */
+gchar    * bamf_view_get_icon      (BamfView *view);
 
 /**
  * bamf_view_get_parent:

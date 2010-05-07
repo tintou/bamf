@@ -454,6 +454,35 @@ bamf_view_is_running (BamfView *view)
 }
 
 gchar *
+bamf_view_get_icon (BamfView *view)
+{
+  BamfViewPrivate *priv;
+  char *icon = NULL;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+  priv = view->priv;
+  
+  if (BAMF_VIEW_GET_CLASS (view)->get_icon)
+    return BAMF_VIEW_GET_CLASS (view)->get_icon (view);
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "Icon",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &icon,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch icon: %s", error->message);
+      g_error_free (error);
+      
+      return NULL;
+    }
+
+  return icon;
+}
+
+gchar *
 bamf_view_get_name (BamfView *view)
 {
   BamfViewPrivate *priv;
