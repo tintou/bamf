@@ -638,9 +638,9 @@ get_window_hint (BamfMatcher *self,
   if (result == Success && numItems > 0)
     {
       hint = g_strdup ((char*) buffer);
+      XFree (buffer);
     }
     
-  XFree (buffer);
   return hint;
 }
 

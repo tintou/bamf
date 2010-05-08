@@ -105,8 +105,8 @@ bamf_legacy_window_get_class_name (BamfLegacyWindow *self)
   
   window = self->priv->legacy_window;
 
-  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_name)
-    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_name (self);
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_class_name)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_class_name (self);
 
   if (!window)
     return NULL;

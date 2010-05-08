@@ -18,6 +18,7 @@
 #include "config.h"
 #include "bamf-control.h"
 #include "bamf-matcher.h"
+#include "bamf-legacy-screen.h"
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
@@ -33,6 +34,7 @@ main (int argc, char **argv)
   DBusGConnection *bus;
   DBusGProxy *bus_proxy;
   GError *error = NULL;
+  char *state_file = NULL;
   guint request_name_result;
   
   gtk_init (&argc, &argv);
@@ -40,15 +42,29 @@ main (int argc, char **argv)
   
   options = g_option_context_new ("");
   g_option_context_set_help_enabled (options, TRUE);
-  g_option_context_set_description (options, "It is one, and so are we");
+  g_option_context_set_summary (options, "It's one, and so are we...");
+  
+  GOptionEntry entries[] = 
+  {
+    {"load-file", 'l', 0, G_OPTION_ARG_STRING, &state_file, "Load bamf state from file instead of the system", NULL },
+    {NULL}
+  };
+  
+  g_option_context_add_main_entries (options, entries, NULL);
+  
+  g_option_context_add_group (options, gtk_get_option_group (FALSE));
   
   g_option_context_parse (options, &argc, &argv, &error);
   
   if (error)
     {
+      g_error_free (error);
+      error = NULL;
+      
+      g_print ("%s\n", g_option_context_get_help (options, TRUE, NULL));
       exit (1);
     }
-
+    
   dbus_g_thread_init ();
 
   bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
@@ -73,6 +89,11 @@ main (int argc, char **argv)
 
   matcher = bamf_matcher_get_default ();
   control = bamf_control_get_default ();
+  
+  if (state_file)
+    {
+      bamf_legacy_screen_set_state_file (bamf_legacy_screen_get_default (), state_file);
+    }
   
   gtk_main ();
 

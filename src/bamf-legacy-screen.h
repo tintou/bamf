@@ -57,6 +57,8 @@ struct _BamfLegacyScreen
 
 GType              bamf_legacy_screen_get_type           (void) G_GNUC_CONST;
 
+void               bamf_legacy_screen_set_state_file     (BamfLegacyScreen *screen, const char *file);
+
 GList            * bamf_legacy_screen_get_windows        (BamfLegacyScreen *screen);
 
 BamfLegacyWindow * bamf_legacy_screen_get_active_window  (BamfLegacyScreen *screen);

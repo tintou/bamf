@@ -40,6 +40,7 @@ struct _BamfLegacyWindowClass
   GObjectClass parent;
   
   char   * (*get_name)           (BamfLegacyWindow *legacy_window);
+  char   * (*get_class_name)     (BamfLegacyWindow *legacy_window);
   gint     (*get_pid)            (BamfLegacyWindow *legacy_window);
   guint32  (*get_xid)            (BamfLegacyWindow *legacy_window);
   gboolean (*needs_attention)    (BamfLegacyWindow *legacy_window);
