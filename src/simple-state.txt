@@ -1,0 +1,3 @@
+open	234	My Firstish Window	gedit
+open	436	My Second Window	gedit
+open	325	Some Firefox Window	firefox
