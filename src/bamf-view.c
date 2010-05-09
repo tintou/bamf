@@ -15,7 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // 
 
-#include "marshal.h"
+#include "bamf-marshal.h"
 #include "bamf-view.h"
 #include "bamf-view-glue.h"
 

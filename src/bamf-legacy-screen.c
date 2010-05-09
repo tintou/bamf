@@ -17,7 +17,6 @@
 
 #include "bamf-legacy-screen.h"
 #include "bamf-legacy-window-test.h"
-#include "marshal.h"
 #include <gio/gio.h>
 
 G_DEFINE_TYPE (BamfLegacyScreen, bamf_legacy_screen, G_TYPE_OBJECT);

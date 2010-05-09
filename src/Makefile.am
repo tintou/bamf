@@ -1,3 +1,10 @@
+CLEANFILES =
+DISTCLEANFILES =
+BUILT_SOURCES =
+EXTRA_DIST = libappindicator/appindicator-0.1.pc.in
+
+include $(top_srcdir)/Makefile.am.marshal
+
 INCLUDE = 		\
 	-I.		\
 	-I$(srcdir)	\
@@ -7,6 +14,16 @@ bamfdaemondir = $(libexecdir)
 
 bamfdaemon_PROGRAMS = \
 		bamfdaemon \
+		$(NULL)
+
+bamfdaemon_built_sources = \
+		bamf-marshal.c \
+		bamf-marshal.h \
+		bamf-application-glue.h \
+		bamf-control-glue.h \
+		bamf-matcher-glue.h \
+		bamf-window-glue.h \
+		bamf-view-glue.h \
 		$(NULL)
 
 bamfdaemon_sources = \
@@ -19,7 +36,6 @@ bamfdaemon_sources = \
 		bamf-matcher.c \
 		bamf-application.c \
 		bamf-window.c \
-		marshal.c \
 		$(NULL)
 
 bamfdaemon_headers = \
@@ -33,15 +49,10 @@ bamfdaemon_headers = \
 		bamf-matcher.h \
 		bamf-window.h \
 		bamf-application.h \
-		bamf-application-glue.h \
-		bamf-control-glue.h \
-		bamf-matcher-glue.h \
-		bamf-window-glue.h \
-		bamf-view-glue.h \
-		marshal.h \
 		$(NULL)
 
 bamfdaemon_SOURCES = \
+                $(bamfdaemon_built_sources) \
 		$(bamfdaemon_sources) \
 		$(bamfdaemon_headers) \
 		$(NULL)
@@ -54,7 +65,10 @@ nodist_EXTRA_bamfdaemon_SOURCES = \
         bamf-view-glue.h \
 	$(NULL)
 
-DISTCLEANFILES = \
+glib_marshal_list = bamf-marshal.list
+glib_marshal_prefix = bamf_marshal
+
+DISTCLEANFILES += \
 	bamf-application-glue.h \
 	bamf-control-glue.h \
 	bamf-matcher-glue.h \
@@ -101,7 +115,7 @@ bamf-window-glue.h: bamf-window-glue.xml Makefile
 bamf-view-glue.h: bamf-view-glue.xml Makefile
 		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_view --mode=glib-server --output=$@ $<
 
-BUILT_SOURCES = \
+BUILT_SOURCES += \
 	bamf-application-glue.h \
 	bamf-control-glue.h \
 	bamf-matcher-glue.h \
@@ -109,10 +123,12 @@ BUILT_SOURCES = \
 	bamf-view-glue.h \
 	$(NULL)
 
-EXTRA_DIST = \
+EXTRA_DIST += \
 	bamf-application-glue.xml \
 	bamf-control-glue.xml \
 	bamf-matcher-glue.xml \
 	bamf-window-glue.xml \
 	bamf-view-glue.xml \
 	$(NULL)
+
+

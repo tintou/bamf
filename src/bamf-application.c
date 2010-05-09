@@ -20,7 +20,6 @@
 #include "bamf-window.h"
 #include "bamf-legacy-window.h"
 #include "bamf-legacy-screen.h"
-#include "marshal.h"
 #include <string.h>
 #include <gio/gdesktopappinfo.h>
 

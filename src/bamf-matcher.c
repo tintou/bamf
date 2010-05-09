@@ -15,7 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // 
 
-#include "marshal.h"
+#include "bamf-marshal.h"
 #include "bamf-matcher.h"
 #include "bamf-matcher-glue.h"
 #include "bamf-application.h"
@@ -69,7 +69,7 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
-  	              marshal_VOID__STRING_STRING,
+  	              bamf_marshal_VOID__STRING_STRING,
   	              G_TYPE_NONE, 2, 
   	              G_TYPE_STRING, G_TYPE_STRING);
 
@@ -78,7 +78,7 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
-  	              marshal_VOID__STRING_STRING,
+  	              bamf_marshal_VOID__STRING_STRING,
   	              G_TYPE_NONE, 2, 
   	              G_TYPE_STRING, G_TYPE_STRING);
 }

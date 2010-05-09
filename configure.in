@@ -79,6 +79,8 @@ GOBJECT_INTROSPECTION_CHECK([0.6.7])
 ###########################
 
 AC_PATH_PROG([VALA_API_GEN], [vapigen])
+AC_PATH_PROG([GLIB_GENMARSHAL], [glib-genmarshal])
+
 
 #
 # Gnome/GTK checks

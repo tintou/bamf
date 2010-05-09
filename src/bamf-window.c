@@ -17,7 +17,6 @@
 
 #include "bamf-window.h"
 #include "bamf-window-glue.h"
-#include "marshal.h"
 
 G_DEFINE_TYPE (BamfWindow, bamf_window, BAMF_TYPE_VIEW);
 #define BAMF_WINDOW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \

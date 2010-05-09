@@ -16,7 +16,6 @@
 // 
 
 #include "bamf-legacy-window.h"
-#include "marshal.h"
 
 G_DEFINE_TYPE (BamfLegacyWindow, bamf_legacy_window, G_TYPE_OBJECT);
 #define BAMF_LEGACY_WINDOW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
