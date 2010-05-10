@@ -21,6 +21,8 @@
 #include "bamf.h"
 #include <glib.h>
 #include <glib-object.h>
+#include <dbus/dbus-glib.h>
+#include <dbus/dbus-glib-lowlevel.h>
 
 #define BAMF_TYPE_CONTROL			(bamf_control_get_type ())
 #define BAMF_CONTROL(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_CONTROL, BamfControl))
@@ -55,7 +57,7 @@ gboolean      bamf_control_register_application_for_pid (BamfControl *control,
 
 gboolean      bamf_control_register_tab_provider        (BamfControl *control,
                                                          char *path,
-                                                         GError **error);
+                                                         DBusGMethodInvocation *context);
 
 gboolean      bamf_control_insert_desktop_file          (BamfControl *control,
                                                          char *path,

@@ -12,6 +12,7 @@
 
 		<method name="RegisterTabProvider">
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_control_register_tab_provider" />
+			<annotation name="org.freedesktop.DBus.GLib.Async" value="" />
 			<arg type="s" name="tab_path" direction="in" />
 		</method>
 		

@@ -15,6 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // 
 
+#include "bamf-tab-source.h"
 #include "bamf-matcher.h"
 #include "bamf-control.h"
 #include "bamf-control-glue.h"
@@ -26,7 +27,7 @@ BAMF_TYPE_CONTROL, BamfControlPrivate))
 
 struct _BamfControlPrivate
 {
-  char * nothing; /* temporary to fix runtime warning about 0 size private struct */
+  GList *sources;
 };
 
 static void
@@ -87,15 +88,41 @@ bamf_control_insert_desktop_file (BamfControl *control,
                                   GError **error)
 {
   
-  
   return TRUE;
 }
 
 gboolean 
 bamf_control_register_tab_provider (BamfControl *control,
                                     char *path,
-                                    GError **error)
+                                    DBusGMethodInvocation *context)
 {
+  BamfTabSource *source;
+  char *bus;
+
+  if (!path)
+    {
+      dbus_g_method_return (context);
+      return TRUE;
+    }
+  
+  bus = dbus_g_method_get_sender (context);
+  
+  if (!bus)
+    {
+      dbus_g_method_return (context);
+      return TRUE;
+    }
+  
+  source = bamf_tab_source_new (bus, path);
+
+  if (!BAMF_IS_TAB_SOURCE (source))
+    {
+      dbus_g_method_return (context);
+      return TRUE;
+    }  
+  
+  control->priv->sources = g_list_prepend (control->priv->sources, source);
+
   return TRUE;
 }
 

@@ -24,6 +24,7 @@ bamfdaemon_built_sources = \
 		bamf-matcher-glue.h \
 		bamf-window-glue.h \
 		bamf-view-glue.h \
+		bamf-tab-source.h \
 		$(NULL)
 
 bamfdaemon_sources = \
@@ -36,6 +37,7 @@ bamfdaemon_sources = \
 		bamf-matcher.c \
 		bamf-application.c \
 		bamf-window.c \
+		bamf-tab-source.c \
 		$(NULL)
 
 bamfdaemon_headers = \

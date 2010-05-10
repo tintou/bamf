@@ -9,6 +9,7 @@ bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-matcher.c \
 		$(top_srcdir)/src/bamf-application.c \
 		$(top_srcdir)/src/bamf-window.c \
+		$(top_srcdir)/src/bamf-tab-source.c \
 		$(top_srcdir)/src/bamf-marshal.c \
 		$(NULL)
 
@@ -21,6 +22,7 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/bamf-control.h \
 		$(top_srcdir)/src/bamf-matcher.h \
 		$(top_srcdir)/src/bamf-window.h \
+		$(top_srcdir)/src/bamf-tab-source.h \
 		$(top_srcdir)/src/bamf-application.h \
 		$(top_srcdir)/src/bamf-application-glue.h \
 		$(top_srcdir)/src/bamf-control-glue.h \
