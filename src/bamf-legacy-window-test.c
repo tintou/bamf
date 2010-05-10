@@ -115,7 +115,7 @@ bamf_legacy_window_test_set_name (BamfLegacyWindowTest *self, char *val)
   g_signal_emit_by_name (self, "name-changed");
 }
 
-char *
+static const char *
 bamf_legacy_window_test_get_name (BamfLegacyWindow *legacy_window)
 {
   BamfLegacyWindowTest *self;
@@ -125,7 +125,7 @@ bamf_legacy_window_test_get_name (BamfLegacyWindow *legacy_window)
   return  self->name;
 }
 
-char *
+static const char *
 bamf_legacy_window_test_get_class (BamfLegacyWindow *legacy_window)
 {
   BamfLegacyWindowTest *self;
@@ -135,13 +135,38 @@ bamf_legacy_window_test_get_class (BamfLegacyWindow *legacy_window)
   return  self->klass;
 }
 
+char *
+bamf_legacy_window_test_get_exec_string (BamfLegacyWindow *legacy_window)
+{
+  BamfLegacyWindowTest *self;
+  
+  self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
+  
+  return self->exec;
+}
+
+void
+bamf_legacy_window_test_close (BamfLegacyWindowTest *self)
+{
+  g_signal_emit_by_name (self, "closed");
+}
+
+void
+bamf_legacy_window_test_dispose (GObject *object)
+{
+  G_OBJECT_CLASS (bamf_legacy_window_test_parent_class)->dispose (object);
+}
+
 void
 bamf_legacy_window_test_class_init (BamfLegacyWindowTestClass *klass)
 {
   BamfLegacyWindowClass *win_class = BAMF_LEGACY_WINDOW_CLASS (klass);
-
+  GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+  
+  obj_class->dispose          = bamf_legacy_window_test_dispose;
   win_class->get_name         = bamf_legacy_window_test_get_name;
   win_class->get_class_name   = bamf_legacy_window_test_get_class;
+  win_class->get_exec_string  = bamf_legacy_window_test_get_exec_string;
   win_class->get_xid          = bamf_legacy_window_test_get_xid;
   win_class->get_pid          = bamf_legacy_window_test_get_pid;
   win_class->needs_attention  = bamf_legacy_window_test_needs_attention;
@@ -158,14 +183,15 @@ bamf_legacy_window_test_init (BamfLegacyWindowTest *self)
 
 
 BamfLegacyWindowTest *
-bamf_legacy_window_test_new (guint32 xid, gchar *name, gchar *klass)
+bamf_legacy_window_test_new (guint32 xid, gchar *name, gchar *klass, gchar *exec)
 {
   BamfLegacyWindowTest *self;
 
   self = g_object_new (BAMF_TYPE_LEGACY_WINDOW_TEST, NULL);
   self->xid = xid;
-  self->name = name;
-  self->klass = klass;
+  self->name = g_strdup (name);
+  self->klass = g_strdup (klass);
+  self->exec = g_strdup (exec);
 
   return self;
 }

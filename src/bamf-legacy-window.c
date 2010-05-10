@@ -16,6 +16,9 @@
 // 
 
 #include "bamf-legacy-window.h"
+#include <libgtop-2.0/glibtop.h>
+#include <glibtop/procargs.h>
+#include <glibtop/procuid.h>
 
 G_DEFINE_TYPE (BamfLegacyWindow, bamf_legacy_window, G_TYPE_OBJECT);
 #define BAMF_LEGACY_WINDOW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -35,9 +38,9 @@ static guint legacy_window_signals[LAST_SIGNAL] = { 0 };
 struct _BamfLegacyWindowPrivate
 {
   WnckWindow * legacy_window;
-  gulong closed_id;
-  gulong name_changed_id;
-  gulong state_changed_id;
+  gulong       closed_id;
+  gulong       name_changed_id;
+  gulong       state_changed_id;
 };
 
 gboolean
@@ -130,6 +133,44 @@ bamf_legacy_window_get_name (BamfLegacyWindow *self)
   if (!self->priv->legacy_window)
     return NULL;
   return wnck_window_get_name (self->priv->legacy_window);
+}
+
+char *
+bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
+{
+  gchar *result = NULL;
+  gint pid = 0, i = 0;
+  gchar **argv = NULL;
+  GString *exec = NULL;
+  glibtop_proc_args buffer;
+
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
+  
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_exec_string)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_exec_string (self);
+
+  pid = bamf_legacy_window_get_pid (self);
+
+  if (pid == 0)
+    return NULL;
+
+  argv = glibtop_get_proc_argv (&buffer, pid, 0);
+  exec = g_string_new ("");
+
+  while (argv[i] != NULL)
+    {
+      g_string_append (exec, argv[i]);
+      if (argv[i + 1] != NULL)
+	g_string_append (exec, " ");
+      g_free (argv[i]);
+      i++;
+    }
+
+  g_free (argv);
+
+  result = g_strdup (exec->str);
+  g_string_free (exec, TRUE);
+  return result;
 }
 
 gint

@@ -54,6 +54,7 @@ struct _BamfLegacyWindowTest
   gint    pid;
   char * name;
   char * klass;
+  char * exec;
   gboolean needs_attention;
   gboolean is_desktop;
   gboolean is_skip;
@@ -101,10 +102,10 @@ bamf_legacy_window_test_is_skip_tasklist (BamfLegacyWindow *legacy_window);
 void
 bamf_legacy_window_test_set_name (BamfLegacyWindowTest *self, char *val);
 
-char *
-bamf_legacy_window_test_get_name (BamfLegacyWindow *legacy_window);
+void
+bamf_legacy_window_test_close (BamfLegacyWindowTest *self);
 
 BamfLegacyWindowTest *
-bamf_legacy_window_test_new (guint32 xid, gchar *name, gchar *klass);
+bamf_legacy_window_test_new (guint32 xid, gchar *name, gchar *klass, gchar *exec);
 
 #endif

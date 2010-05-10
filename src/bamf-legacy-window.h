@@ -20,6 +20,7 @@
 
 #include "bamf.h"
 #include "bamf-view.h"
+#include <sys/types.h>
 #include <glib.h>
 #include <glib-object.h>
 #include <libwnck/libwnck.h>
@@ -39,13 +40,14 @@ struct _BamfLegacyWindowClass
 {
   GObjectClass parent;
   
-  char   * (*get_name)           (BamfLegacyWindow *legacy_window);
-  char   * (*get_class_name)     (BamfLegacyWindow *legacy_window);
-  gint     (*get_pid)            (BamfLegacyWindow *legacy_window);
-  guint32  (*get_xid)            (BamfLegacyWindow *legacy_window);
-  gboolean (*needs_attention)    (BamfLegacyWindow *legacy_window);
-  gboolean (*is_skip_tasklist)   (BamfLegacyWindow *legacy_window);
-  gboolean (*is_desktop)         (BamfLegacyWindow *legacy_window);
+  const char * (*get_name)           (BamfLegacyWindow *legacy_window);
+  const char * (*get_class_name)     (BamfLegacyWindow *legacy_window);
+  char       * (*get_exec_string)    (BamfLegacyWindow *legacy_window);
+  gint         (*get_pid)            (BamfLegacyWindow *legacy_window);
+  guint32      (*get_xid)            (BamfLegacyWindow *legacy_window);
+  gboolean     (*needs_attention)    (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_skip_tasklist)   (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_desktop)         (BamfLegacyWindow *legacy_window);
 
   /*< signals >*/
   void     (*name_changed)    (BamfLegacyWindow *legacy_window);
@@ -78,6 +80,8 @@ gboolean           bamf_legacy_window_is_desktop_window (BamfLegacyWindow *self)
 const char       * bamf_legacy_window_get_class_name    (BamfLegacyWindow *self);
 
 const char       * bamf_legacy_window_get_name          (BamfLegacyWindow *self);
+
+char             * bamf_legacy_window_get_exec_string   (BamfLegacyWindow *self);
 
 BamfLegacyWindow * bamf_legacy_window_new               (WnckWindow *legacy_window);
 

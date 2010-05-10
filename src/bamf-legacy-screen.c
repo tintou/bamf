@@ -42,12 +42,22 @@ struct _BamfLegacyScreenPrivate
   GDataInputStream *stream;
 };
 
+static void
+handle_window_closed (BamfLegacyWindow *window, BamfLegacyScreen *self)
+{
+  self->priv->windows = g_list_remove (self->priv->windows, window);
+
+  g_signal_emit (self, legacy_screen_signals[WINDOW_CLOSED], 0, window);
+  
+  g_object_unref (window);
+}
+
 static gboolean
 on_state_file_load_timeout (BamfLegacyScreen *self)
 {
   BamfLegacyWindow *window;
   GDataInputStream *stream;
-  gchar *line, *name, *class;
+  gchar *line, *name, *class, *exec;
   GList *l;
   gchar **parts;
   guint32 xid;
@@ -62,7 +72,7 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
     return FALSE;
     
   // Line format:
-  // open	<xid> 	<name>	<wmclass>
+  // open	<xid> 	<name>	<wmclass> <exec>
   // close	<xid>
   // attention	<xid>	<true/false>
   // skip	<xid>	<true/false>
@@ -75,9 +85,14 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
     {
       name  = parts[2];
       class = parts[3];
+      exec  = parts[4];
       
-      window = BAMF_LEGACY_WINDOW (bamf_legacy_window_test_new (xid, name, class));
+      window = BAMF_LEGACY_WINDOW (bamf_legacy_window_test_new (xid, name, class, exec));
       self->priv->windows = g_list_prepend (self->priv->windows, window);
+      
+      g_signal_connect (G_OBJECT (window), "closed",
+                        (GCallback) handle_window_closed, self);
+      
       g_signal_emit (self, legacy_screen_signals[WINDOW_OPENED], 0, window);
     }
   else if (g_strcmp0 (parts[0], "close") == 0)
@@ -87,9 +102,7 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
           window = l->data;
           if (bamf_legacy_window_get_xid (window) == xid)
             {
-              self->priv->windows = g_list_remove (self->priv->windows, window);
-              g_signal_emit (self, legacy_screen_signals[WINDOW_CLOSED], 0, window);
-              g_object_unref (window);
+              bamf_legacy_window_test_close (BAMF_LEGACY_WINDOW_TEST (window));
               break;
             }
         }
@@ -139,16 +152,6 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
   
   g_strfreev (parts);  
   return TRUE;
-}
-
-static void
-handle_window_closed (BamfLegacyWindow *window, BamfLegacyScreen *self)
-{
-  self->priv->windows = g_list_remove (self->priv->windows, window);
-
-  g_signal_emit (self, legacy_screen_signals[WINDOW_CLOSED], 0, window);
-  
-  g_object_unref (window);
 }
 
 static void

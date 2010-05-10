@@ -21,6 +21,7 @@
 #include "bamf-application.h"
 #include "bamf-window.h"
 #include "bamf-legacy-window.h"
+#include "bamf-legacy-window-test.h"
 #include "bamf-legacy-screen.h"
 
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, G_TYPE_OBJECT);
@@ -306,42 +307,6 @@ pid_parent_tree (BamfMatcher *self, gint pid)
       pid = buf.ppid;
     }
   return tree;
-}
-
-static char *
-exec_string_for_window (BamfMatcher * self, BamfLegacyWindow * window)
-{
-  gchar *result = NULL;
-  gint pid = 0, i = 0;
-  gchar **argv = NULL;
-  GString *exec = NULL;
-  glibtop_proc_args buffer;
-
-  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
-  g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
-
-  pid = bamf_legacy_window_get_pid (window);
-
-  if (pid == 0)
-    return NULL;
-
-  argv = glibtop_get_proc_argv (&buffer, pid, 0);
-  exec = g_string_new ("");
-
-  while (argv[i] != NULL)
-    {
-      g_string_append (exec, argv[i]);
-      if (argv[i + 1] != NULL)
-	g_string_append (exec, " ");
-      g_free (argv[i]);
-      i++;
-    }
-
-  g_free (argv);
-
-  result = g_strdup (exec->str);
-  g_string_free (exec, TRUE);
-  return result;
 }
 
 static gboolean
@@ -658,6 +623,7 @@ set_window_hint (BamfMatcher * self,
   g_return_if_fail (data);
 
   XDisplay = XOpenDisplay (NULL);
+  
   XChangeProperty (XDisplay,
 		   bamf_legacy_window_get_xid (window),
 		   XInternAtom (XDisplay,
@@ -770,7 +736,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
        }
       
       /* Make a fracking guess */
-      exec = exec_string_for_window (self, window);
+      exec = bamf_legacy_window_get_exec_string (window);
 
       if (exec)
         {
