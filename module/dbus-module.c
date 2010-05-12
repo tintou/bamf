@@ -28,7 +28,7 @@
 void
 g_io_module_load (GIOModule *module)
 {
-	g_app_launch_handler_dbus_register (module);
+	g_app_launch_handler_bamf_register (module);
 }
 
 void

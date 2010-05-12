@@ -110,9 +110,9 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
   else if (g_strcmp0 (parts[0], "attention") == 0)
     {
       gboolean attention = FALSE;
-      if (g_strcmp0 (parts[1], "true") == 0)
+      if (g_strcmp0 (parts[2], "true") == 0)
         attention = TRUE;
-      else if (g_strcmp0 (parts[1], "false") == 0)
+      else if (g_strcmp0 (parts[2], "false") == 0)
         attention = FALSE;
       else
         return TRUE;
@@ -129,9 +129,9 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
   else if (g_strcmp0 (parts[0], "skip") == 0)
     {
       gboolean skip = FALSE;
-      if (g_strcmp0 (parts[1], "true") == 0)
+      if (g_strcmp0 (parts[2], "true") == 0)
         skip = TRUE;
-      else if (g_strcmp0 (parts[1], "false") == 0)
+      else if (g_strcmp0 (parts[2], "false") == 0)
         skip = FALSE;
       else
         return TRUE;

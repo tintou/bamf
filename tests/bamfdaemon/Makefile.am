@@ -3,6 +3,7 @@ noinst_PROGRAMS = \
 
 bamf_test_extra_sources = \
                 $(top_srcdir)/src/bamf-legacy-window.c \
+                $(top_srcdir)/src/bamf-legacy-window-test.c \
      		$(top_srcdir)/src/bamf-legacy-screen.c \
 		$(top_srcdir)/src/bamf-view.c \
 		$(top_srcdir)/src/bamf-control.c \
@@ -17,6 +18,7 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/main.h \
 		$(top_srcdir)/src/bamf.h \
 		$(top_srcdir)/src/bamf-legacy-window.h \
+		$(top_srcdir)/src/bamf-legacy-window-test.h \
 	        $(top_srcdir)/src/bamf-legacy-screen.h \
 		$(top_srcdir)/src/bamf-view.h \
 		$(top_srcdir)/src/bamf-control.h \
@@ -35,8 +37,6 @@ bamf_test_extra_headers = \
 test_bamf_SOURCES = \
   $(bamf_test_extra_sources) \
   $(bamf_test_extra_headers) \
-  test-mock-window.h \
-  test-mock-window.c \
   test-bamf.c \
   test-view.c \
   test-application.c \

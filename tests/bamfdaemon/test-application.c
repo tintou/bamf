@@ -23,7 +23,7 @@
 #include "bamf-application.h"
 #include "bamf-window.h"
 #include "bamf-legacy-window.h"
-#include "test-mock-window.h"
+#include "bamf-legacy-window-test.h"
 
 #define DESKTOP_FILE "/usr/share/applications/gnome-terminal.desktop"
 
@@ -110,8 +110,8 @@ test_urgent (void)
   
   g_signal_connect (G_OBJECT (application), "urgent-changed", (GCallback) on_urgent_changed, NULL);
   
-  test1 = bamf_legacy_window_test_new (20, "Window X");
-  test2 = bamf_legacy_window_test_new (20, "Window Y");
+  test1 = bamf_legacy_window_test_new (20, "Window X", "class", "exec");
+  test2 = bamf_legacy_window_test_new (20, "Window Y", "class", "exec");
   
   window1 = bamf_window_new (BAMF_LEGACY_WINDOW (test1));
   window2 = bamf_window_new (BAMF_LEGACY_WINDOW (test2));
@@ -166,8 +166,8 @@ test_get_xids (void)
   application = bamf_application_new ();
   
   // Leaks memory
-  window1 = bamf_window_new (BAMF_LEGACY_WINDOW (bamf_legacy_window_test_new (25, "window1")));
-  window2 = bamf_window_new (BAMF_LEGACY_WINDOW (bamf_legacy_window_test_new (50, "window2")));
+  window1 = bamf_window_new (BAMF_LEGACY_WINDOW (bamf_legacy_window_test_new (25, "window1", "class", "exec")));
+  window2 = bamf_window_new (BAMF_LEGACY_WINDOW (bamf_legacy_window_test_new (50, "window2", "class", "exec")));
 
   xids = bamf_application_get_xids (application);
   g_assert (xids->len == 0);
@@ -215,7 +215,7 @@ test_manages_xid (void)
   BamfWindow *test;
 
   application = bamf_application_new ();
-  test = bamf_window_new (BAMF_LEGACY_WINDOW (bamf_legacy_window_test_new (20, "window")));
+  test = bamf_window_new (BAMF_LEGACY_WINDOW (bamf_legacy_window_test_new (20, "window", "class", "exec")));
 
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
 
@@ -245,8 +245,8 @@ test_user_visible (void)
   
   g_signal_connect (G_OBJECT (application), "user-visible-changed", (GCallback) on_user_visible_changed, NULL);
   
-  test1 = bamf_legacy_window_test_new (20, "Window X");
-  test2 = bamf_legacy_window_test_new (20, "Window Y");
+  test1 = bamf_legacy_window_test_new (20, "Window X", "class", "exec");
+  test2 = bamf_legacy_window_test_new (20, "Window Y", "class", "exec");
   
   window1 = bamf_window_new (BAMF_LEGACY_WINDOW (test1));
   window2 = bamf_window_new (BAMF_LEGACY_WINDOW (test2));

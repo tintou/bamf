@@ -28,13 +28,13 @@
 #include "gapplaunchhandlerdbus.h"
 
 
-struct _GAppLaunchHandlerDBus {
+struct _GAppLaunchHandlerBamf {
   GObject parent;
 
 };
 
 static void launch_handler_iface_init (GDesktopAppInfoLaunchHandlerIface *iface);
-static void g_app_launch_handler_dbus_finalize (GObject *object);
+static void g_app_launch_handler_bamf_finalize (GObject *object);
 
 #define _G_IMPLEMENT_INTERFACE_DYNAMIC(TYPE_IFACE, iface_init)       { \
   const GInterfaceInfo g_implement_interface_info = { \
@@ -43,30 +43,30 @@ static void g_app_launch_handler_dbus_finalize (GObject *object);
   g_type_module_add_interface (type_module, g_define_type_id, TYPE_IFACE, &g_implement_interface_info); \
 }
 
-G_DEFINE_DYNAMIC_TYPE_EXTENDED (GAppLaunchHandlerDBus, g_app_launch_handler_dbus, G_TYPE_OBJECT, 0,
+G_DEFINE_DYNAMIC_TYPE_EXTENDED (GAppLaunchHandlerBamf, g_app_launch_handler_bamf, G_TYPE_OBJECT, 0,
                                 _G_IMPLEMENT_INTERFACE_DYNAMIC (G_TYPE_DESKTOP_APP_INFO_LAUNCH_HANDLER,
                                                                 launch_handler_iface_init))
 
 static void
-g_app_launch_handler_dbus_finalize (GObject *object)
+g_app_launch_handler_bamf_finalize (GObject *object)
 {
-  if (G_OBJECT_CLASS (g_app_launch_handler_dbus_parent_class)->finalize)
-    (*G_OBJECT_CLASS (g_app_launch_handler_dbus_parent_class)->finalize) (object);
+  if (G_OBJECT_CLASS (g_app_launch_handler_bamf_parent_class)->finalize)
+    (*G_OBJECT_CLASS (g_app_launch_handler_bamf_parent_class)->finalize) (object);
 }
 
 static GObject *
-g_app_launch_handler_dbus_constructor (GType                  type,
+g_app_launch_handler_bamf_constructor (GType                  type,
                          	       guint                  n_construct_properties,
                          	       GObjectConstructParam *construct_properties)
 {
   GObject *object;
-  GAppLaunchHandlerDBusClass *klass;
+  GAppLaunchHandlerBamfClass *klass;
   GObjectClass *parent_class;
 
   object = NULL;
 
   /* Invoke parent constructor. */
-  klass = G_APP_LAUNCH_HANDLER_DBUS_CLASS (g_type_class_peek (G_TYPE_APP_LAUNCH_HANDLER_DBUS));
+  klass = G_APP_LAUNCH_HANDLER_BAMF_CLASS (g_type_class_peek (G_TYPE_APP_LAUNCH_HANDLER_BAMF));
   parent_class = G_OBJECT_CLASS (g_type_class_peek_parent (klass));
   object = parent_class->constructor (type,
                                       n_construct_properties,
@@ -76,23 +76,23 @@ g_app_launch_handler_dbus_constructor (GType                  type,
 }
 
 static void
-g_app_launch_handler_dbus_init (GAppLaunchHandlerDBus *lookup)
+g_app_launch_handler_bamf_init (GAppLaunchHandlerBamf *lookup)
 {
 }
 
 static void
-g_app_launch_handler_dbus_class_finalize (GAppLaunchHandlerDBusClass *klass)
+g_app_launch_handler_bamf_class_finalize (GAppLaunchHandlerBamfClass *klass)
 {
 }
 
 
 static void
-g_app_launch_handler_dbus_class_init (GAppLaunchHandlerDBusClass *klass)
+g_app_launch_handler_bamf_class_init (GAppLaunchHandlerBamfClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  gobject_class->constructor = g_app_launch_handler_dbus_constructor;
-  gobject_class->finalize = g_app_launch_handler_dbus_finalize;
+  gobject_class->constructor = g_app_launch_handler_bamf_constructor;
+  gobject_class->finalize = g_app_launch_handler_bamf_finalize;
 }
 
 static void
@@ -140,11 +140,11 @@ launch_handler_iface_init (GDesktopAppInfoLaunchHandlerIface *iface)
 }
 
 void
-g_app_launch_handler_dbus_register (GIOModule *module)
+g_app_launch_handler_bamf_register (GIOModule *module)
 {
-  g_app_launch_handler_dbus_register_type (G_TYPE_MODULE (module));
+  g_app_launch_handler_bamf_register_type (G_TYPE_MODULE (module));
   g_io_extension_point_implement (G_DESKTOP_APP_INFO_LAUNCH_HANDLER_EXTENSION_POINT_NAME,
-				  G_TYPE_APP_LAUNCH_HANDLER_DBUS,
+				  G_TYPE_APP_LAUNCH_HANDLER_BAMF,
 				  "bamf",
 				  10);
 }

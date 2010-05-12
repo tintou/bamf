@@ -31,23 +31,31 @@ enum
   PROP_PATH,
 };
 
-enum
-{
-  TAB_OPENED,
-  TAB_CLOSED,
-  TAB_URI_CHANGED,
-  
-  LAST_SIGNAL,
-};
-
-static guint tab_source_signals[LAST_SIGNAL] = { 0 };
-
 struct _BamfTabSourcePrivate
 {
-  char *bus;
-  char *path;
+  char       *bus;
+  char       *path;
   DBusGProxy *proxy;
+  GHashTable *tabs;
 };
+
+static void
+bamf_tab_source_on_tab_opened (DBusGProxy *proxy, char *id, BamfTabSource *source)
+{
+
+}
+
+static void
+bamf_tab_source_on_tab_closed (DBusGProxy *proxy, char *id, BamfTabSource *source)
+{
+
+}
+
+static void
+bamf_tab_source_on_uri_changed (DBusGProxy *proxy, char *id, char *old_uri, char *new_uri, BamfTabSource *source)
+{
+
+}
 
 static void
 bamf_tab_source_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
@@ -122,6 +130,41 @@ bamf_tab_source_constructed (GObject *object)
     {
       g_critical ("Unable to get org.ayatana.bamf.browser object from bus");
     }
+  
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "TabUriChanged",
+                           G_TYPE_STRING,
+                           G_TYPE_STRING,
+                           G_TYPE_STRING,
+                           G_TYPE_INVALID);
+  
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "TabOpened",
+                           G_TYPE_STRING,
+                           G_TYPE_INVALID);
+  
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "TabClosed",
+                           G_TYPE_STRING,
+                           G_TYPE_INVALID);
+  
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "TabUriChanged",
+                               (GCallback) bamf_tab_source_on_uri_changed,
+                               source,
+                               NULL);
+  
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "TabOpened",
+                               (GCallback) bamf_tab_source_on_tab_opened,
+                               source,
+                               NULL);
+  
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "TabClosed",
+                               (GCallback) bamf_tab_source_on_tab_closed,
+                               source,
+                               NULL);
 }
 
 static void
@@ -139,6 +182,11 @@ bamf_tab_source_init (BamfTabSource * self)
 {
   BamfTabSourcePrivate *priv;
   priv = self->priv = BAMF_TAB_SOURCE_GET_PRIVATE (self);
+  
+  priv->tabs = g_hash_table_new_full ((GHashFunc) g_str_hash,
+                                      (GEqualFunc) g_str_equal,
+                                      (GDestroyNotify) g_free,
+                                      NULL);
 }
 
 static void
@@ -159,33 +207,6 @@ bamf_tab_source_class_init (BamfTabSourceClass * klass)
   
   pspec = g_param_spec_string ("bus", "bus", "bus", NULL, G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
   g_object_class_install_property (object_class, PROP_BUS, pspec);
-  
-  tab_source_signals [TAB_URI_CHANGED] = 
-  	g_signal_new ("tab-uri-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              bamf_marshal_VOID__STRING_STRING_STRING,
-  	              G_TYPE_NONE, 3, 
-  	              G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
-  
-  tab_source_signals [TAB_OPENED] = 
-  	g_signal_new ("tab-opened",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__STRING,
-  	              G_TYPE_NONE, 1, 
-  	              G_TYPE_STRING);
-  
-  tab_source_signals [TAB_CLOSED] = 
-  	g_signal_new ("tab-closed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__STRING,
-  	              G_TYPE_NONE, 1, 
-  	              G_TYPE_STRING);
 }
 
 BamfTabSource *
