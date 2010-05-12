@@ -75,15 +75,6 @@ struct _BamfWindowClass
 
 GType             bamf_window_get_type             (void) G_GNUC_CONST;
 
-/**
- * bamf_window_is_urgent:
- * @window: a #BamfWindow
- *
- * Determines if the view is currently urgent and requires attention from the user. Useful for an 
- * urgent window indicator. 
- */
-gboolean          bamf_window_is_urgent            (BamfWindow *self);
-
 G_END_DECLS
 
 #endif

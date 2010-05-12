@@ -86,18 +86,6 @@ bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplicati
 }
 
 static void
-bamf_application_on_urgent_changed (DBusGProxy *proxy, gboolean urgent, BamfApplication *self)
-{
-  g_signal_emit (G_OBJECT (self), application_signals[URGENT_CHANGED], 0, urgent);
-}
-
-static void
-bamf_application_on_user_visible_changed (DBusGProxy *proxy, gboolean visible, BamfApplication *self)
-{
-  g_signal_emit (G_OBJECT (self), application_signals[VISIBLE_CHANGED], 0, visible);
-}
-
-static void
 bamf_application_constructed (GObject *object)
 {
   BamfApplication *self;
@@ -131,16 +119,6 @@ bamf_application_constructed (GObject *object)
                            G_TYPE_STRING, 
                            G_TYPE_INVALID);
 
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "UrgentChanged",
-                           G_TYPE_BOOLEAN, 
-                           G_TYPE_INVALID);
-  
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "UserVisibleChanged",
-                           G_TYPE_BOOLEAN, 
-                           G_TYPE_INVALID);
-
   dbus_g_proxy_connect_signal (priv->proxy,
                                "WindowAdded",
                                (GCallback) bamf_application_on_window_added,
@@ -150,18 +128,6 @@ bamf_application_constructed (GObject *object)
   dbus_g_proxy_connect_signal (priv->proxy,
                                "WindowRemoved",
                                (GCallback) bamf_application_on_window_removed,
-                               self,
-                               NULL);
-                           
-  dbus_g_proxy_connect_signal (priv->proxy,
-                               "UrgentChanged",
-                               (GCallback) bamf_application_on_urgent_changed,
-                               self,
-                               NULL);
-  
-  dbus_g_proxy_connect_signal (priv->proxy,
-                               "UserVisibleChanged",
-                               (GCallback) bamf_application_on_user_visible_changed,
                                self,
                                NULL);
 }
@@ -192,24 +158,6 @@ bamf_application_class_init (BamfApplicationClass *klass)
   	              g_cclosure_marshal_VOID__POINTER,
   	              G_TYPE_NONE, 1, 
   	              BAMF_TYPE_VIEW);
-
-  application_signals [URGENT_CHANGED] = 
-  	g_signal_new ("urgent-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
-  	              G_TYPE_BOOLEAN);
-  
-  application_signals [VISIBLE_CHANGED] = 
-  	g_signal_new ("user-visible-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
-  	              G_TYPE_BOOLEAN);
 }
 
 
@@ -291,58 +239,6 @@ bamf_application_get_application_type (BamfApplication *application)
     }
 
   return type;
-}
-
-gboolean
-bamf_application_is_urgent (BamfApplication *application)
-{
-  BamfApplicationPrivate *priv;
-  gboolean urgent;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
-  priv = application->priv;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "IsUrgent",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_BOOLEAN, &urgent,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch urgent: %s", error->message);
-      g_error_free (error);
-      
-      return FALSE;
-    }
-
-  return urgent;
-}
-
-gboolean  
-bamf_application_user_visible (BamfApplication *application)
-{
-  BamfApplicationPrivate *priv;
-  gboolean visible;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
-  priv = application->priv;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "UserVisible",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_BOOLEAN, &visible,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch user visible: %s", error->message);
-      g_error_free (error);
-      
-      return FALSE;
-    }
-
-  return visible;
 }
 
 GArray *

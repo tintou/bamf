@@ -44,15 +44,6 @@ G_DEFINE_TYPE (BamfWindow, bamf_window, BAMF_TYPE_VIEW);
 #define BAMF_WINDOW_GET_PRIVATE(o) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((o), BAMF_TYPE_WINDOW, BamfWindowPrivate))
 
-enum
-{
-  VISIBLE_CHANGED,
-  
-  LAST_SIGNAL,
-};
-
-static guint window_signals[LAST_SIGNAL] = { 0 };
-
 struct _BamfWindowPrivate
 {
   DBusGConnection *connection;
@@ -60,7 +51,7 @@ struct _BamfWindowPrivate
   guint32          xid;
 };
 
-static guint32 bamf_window_get_xid (BamfWindow *self)
+guint32 bamf_window_get_xid (BamfWindow *self)
 {
   BamfWindowPrivate *priv;
   guint32 xid = 0;
@@ -82,12 +73,6 @@ static guint32 bamf_window_get_xid (BamfWindow *self)
     }
 
   return xid;
-}
-
-static void
-bamf_window_on_user_visible_changed (DBusGProxy *proxy, gboolean visible, BamfWindow *self)
-{
-  g_signal_emit (G_OBJECT (self), window_signals[VISIBLE_CHANGED], 0, visible);
 }
 
 static void
@@ -117,16 +102,6 @@ bamf_window_constructed (GObject *object)
   priv->xid = bamf_window_get_xid (self);
   g_free (path);
   
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "UserVisibleChanged",
-                           G_TYPE_BOOLEAN, 
-                           G_TYPE_INVALID);
-
-  dbus_g_proxy_connect_signal (priv->proxy,
-                               "UserVisibleChanged",
-                               (GCallback) bamf_window_on_user_visible_changed,
-                               self,
-                               NULL);
 }
 
 static void
@@ -167,30 +142,4 @@ bamf_window_new (const char * path)
   self = g_object_new (BAMF_TYPE_WINDOW, "path", path, NULL);
 
   return self;
-}
-
-gboolean
-bamf_window_is_urgent (BamfWindow *self)
-{
-  BamfWindowPrivate *priv;
-  gboolean result = FALSE;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
-  priv = self->priv;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "IsUrgent",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_BOOLEAN, &result,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch urgent: %s", error->message);
-      g_error_free (error);
-      
-      return FALSE;
-    }
-
-  return result;
 }

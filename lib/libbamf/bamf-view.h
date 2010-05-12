@@ -66,6 +66,7 @@ struct _BamfViewClass
   GList      * (*get_children)        (BamfView *view);
   gboolean     (*is_active)           (BamfView *view);
   gboolean     (*is_running)          (BamfView *view);
+  gboolean     (*is_urgent)           (BamfView *view);
   gchar      * (*get_name)            (BamfView *view);
   gchar      * (*get_icon)            (BamfView *view);
   gchar      * (*view_type)           (BamfView *view);
@@ -107,6 +108,8 @@ gboolean   bamf_view_is_active     (BamfView *view);
  * Determines if the view is currently running. Useful for a running window indicator. 
  */
 gboolean   bamf_view_is_running    (BamfView *view);
+
+gboolean   bamf_view_is_urgent     (BamfView *view);
 
 /**
  * bamf_view_get_name:

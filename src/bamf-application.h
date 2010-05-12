@@ -55,8 +55,6 @@ char            * bamf_application_get_desktop_file      (BamfApplication *appli
 void              bamf_application_set_desktop_file      (BamfApplication *application,
                                                           char * desktop_file);
  
-gboolean          bamf_application_is_urgent             (BamfApplication *application);
-
 GArray          * bamf_application_get_xids              (BamfApplication *application);
 
 gboolean          bamf_application_manages_xid           (BamfApplication *application,

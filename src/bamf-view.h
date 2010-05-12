@@ -46,6 +46,7 @@ struct _BamfViewClass
   char *         (*get_icon)                  (BamfView *view);
   
   /*< random stuff >*/
+  gboolean (* urgent_changed)      (BamfView *view, gboolean urgent);
   gboolean (* running_changed)      (BamfView *view, gboolean running);
   gboolean (* active_changed)       (BamfView *view, gboolean active);
   gboolean (* user_visible_changed) (BamfView *view, gboolean visible);
@@ -87,9 +88,13 @@ gboolean   bamf_view_is_running         (BamfView *view);
 void       bamf_view_set_running        (BamfView *view,
                                          gboolean running);
                                          
-gboolean   bamf_view_user_visible    (BamfView *view);
+gboolean   bamf_view_user_visible       (BamfView *view);
 void       bamf_view_set_user_visible   (BamfView *view,
                                          gboolean user_visible);
+
+gboolean   bamf_view_is_urgent          (BamfView *view);
+void       bamf_view_set_urgent         (BamfView *view,
+                                         gboolean urgent);
 
 char     * bamf_view_get_icon           (BamfView *view);
 

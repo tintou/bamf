@@ -31,7 +31,6 @@ enum
 {
   WINDOW_ADDED,
   WINDOW_REMOVED,
-  URGENT_CHANGED,
   
   LAST_SIGNAL,
 };
@@ -44,7 +43,6 @@ struct _BamfApplicationPrivate
   char * app_type;
   char * icon;
   gboolean is_tab_container;
-  gboolean urgent;
 };
 
 static char *
@@ -91,27 +89,6 @@ bamf_application_set_desktop_file (BamfApplication *application,
   application->priv->icon = g_icon_to_string (icon);
   
   g_object_unref (desktop);
-}
-
-gboolean
-bamf_application_is_urgent  (BamfApplication *application)
-{
-  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
-
-  return application->priv->urgent;
-}
-
-static void       
-bamf_application_set_urgent (BamfApplication *application,
-                             gboolean urgent)
-{
-  g_return_if_fail (BAMF_IS_APPLICATION (application));
-
-  if (application->priv->urgent == urgent)
-    return;
-
-  application->priv->urgent = urgent;
-  g_signal_emit (application, application_signals[URGENT_CHANGED], 0, urgent);
 }
 
 GArray * 
@@ -192,7 +169,7 @@ bamf_application_ensure_flags (BamfApplication *self)
         
       running = TRUE;
 
-      if (bamf_window_is_urgent (BAMF_WINDOW (view)))
+      if (bamf_view_is_urgent (view))
         urgent = TRUE;
       if (bamf_view_user_visible (view))
         visible = TRUE;
@@ -203,7 +180,7 @@ bamf_application_ensure_flags (BamfApplication *self)
         break;
     }
     
-  bamf_application_set_urgent (self, urgent);
+  bamf_view_set_urgent       (BAMF_VIEW (self), urgent);
   bamf_view_set_user_visible (BAMF_VIEW (self), visible);
   bamf_view_set_running      (BAMF_VIEW (self), running);
   bamf_view_set_active       (BAMF_VIEW (self), active);
@@ -367,15 +344,6 @@ bamf_application_class_init (BamfApplicationClass * klass)
   	              g_cclosure_marshal_VOID__STRING,
   	              G_TYPE_NONE, 1,
   	              G_TYPE_STRING);
-
-  application_signals [URGENT_CHANGED] = 
-  	g_signal_new ("urgent-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1,
-  	              G_TYPE_BOOLEAN);
 }
 
 BamfApplication *

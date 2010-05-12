@@ -24,19 +24,10 @@ BAMF_TYPE_WINDOW, BamfWindowPrivate))
 
 enum
 {
-  URGENT_CHANGED,
-  
-  LAST_SIGNAL,
-};
-
-enum
-{
   PROP_0,
 
   PROP_WINDOW,
 };
-
-static guint window_signals[LAST_SIGNAL] = { 0 };
 
 struct _BamfWindowPrivate
 {
@@ -44,28 +35,7 @@ struct _BamfWindowPrivate
   gulong closed_id;
   gulong name_changed_id;
   gulong state_changed_id;
-  gboolean urgent;
 };
-
-static void
-bamf_window_set_urgent (BamfWindow *self, gboolean urgent)
-{
-  g_return_if_fail (BAMF_IS_WINDOW (self));
-  
-  if (urgent == self->priv->urgent)
-    return;
-  
-  self->priv->urgent = urgent;
-  g_signal_emit (self, window_signals[URGENT_CHANGED], 0, urgent);
-}
-
-gboolean
-bamf_window_is_urgent (BamfWindow *self)
-{
-  g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
-  
-  return self->priv->urgent;
-}
 
 BamfLegacyWindow *
 bamf_window_get_window (BamfWindow *self)
@@ -118,7 +88,7 @@ bamf_window_ensure_flags (BamfWindow *self)
 {
   g_return_if_fail (BAMF_IS_WINDOW (self));
 
-  bamf_window_set_urgent (self, bamf_legacy_window_needs_attention (self->priv->window));
+  bamf_view_set_urgent       (BAMF_VIEW (self), bamf_legacy_window_needs_attention (self->priv->window));
   bamf_view_set_user_visible (BAMF_VIEW (self), !bamf_legacy_window_is_skip_tasklist (self->priv->window));
 }
 
@@ -250,15 +220,6 @@ bamf_window_class_init (BamfWindowClass * klass)
   
   dbus_g_object_type_install_info (BAMF_TYPE_WINDOW,
 				   &dbus_glib_bamf_window_object_info);
-
-  window_signals [URGENT_CHANGED] = 
-  	g_signal_new ("urgent-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
-  	              G_TYPE_BOOLEAN);
 }
 
 BamfWindow *

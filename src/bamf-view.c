@@ -31,6 +31,7 @@ enum
   CHILD_REMOVED,
   EXPORTED,
   RUNNING_CHANGED,
+  URGENT_CHANGED,
   USER_VISIBLE_CHANGED,
   
   LAST_SIGNAL,
@@ -46,6 +47,7 @@ struct _BamfViewPrivate
   GList * children;
   gboolean is_active;
   gboolean is_running;
+  gboolean is_urgent;
   gboolean user_visible;
 };
 
@@ -87,6 +89,19 @@ bamf_view_running_changed (BamfView *view, gboolean running)
 
   if (emit)
     g_signal_emit (view, view_signals[RUNNING_CHANGED], 0, running);
+}
+
+static void 
+bamf_view_urgent_changed (BamfView *view, gboolean urgent)
+{
+  gboolean emit = TRUE;
+  if (BAMF_VIEW_GET_CLASS (view)->urgent_changed)
+    {
+      emit = !BAMF_VIEW_GET_CLASS (view)->urgent_changed (view, urgent);
+    }
+
+  if (emit)
+    g_signal_emit (view, view_signals[URGENT_CHANGED], 0, urgent);
 }
 
 static void 
@@ -218,6 +233,27 @@ bamf_view_set_active (BamfView *view,
 
   view->priv->is_active = active;
   bamf_view_active_changed (view, active);
+}
+
+gboolean 
+bamf_view_is_urgent (BamfView *view)
+{
+  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
+
+  return view->priv->is_urgent;
+}
+
+void
+bamf_view_set_urgent (BamfView *view,
+                       gboolean urgent)
+{
+  g_return_if_fail (BAMF_IS_VIEW (view));
+
+  if (urgent == view->priv->is_urgent)
+    return;
+
+  view->priv->is_urgent = urgent;
+  bamf_view_urgent_changed (view, urgent);
 }
 
 gboolean 
@@ -469,6 +505,15 @@ bamf_view_class_init (BamfViewClass * klass)
 
   view_signals [RUNNING_CHANGED] = 
   	g_signal_new ("running-changed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__BOOLEAN,
+  	              G_TYPE_NONE, 1,
+  	              G_TYPE_BOOLEAN);
+  
+  view_signals [URGENT_CHANGED] = 
+  	g_signal_new ("urgent-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,

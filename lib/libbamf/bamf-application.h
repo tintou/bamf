@@ -99,14 +99,6 @@ const gchar     * bamf_application_get_application_type (BamfApplication *applic
 const gchar     * bamf_application_get_desktop_file     (BamfApplication *application);
 
 /**
- * bamf_application_is_urgent:
- * @application: a #BamfApplication
- *
- * Determines if an application is urgent or not, requiring attention from a user.
- */
-gboolean          bamf_application_is_urgent            (BamfApplication *application);
-
-/**
  * bamf_application_get_windows:
  * @application: a #BamfApplication
  *

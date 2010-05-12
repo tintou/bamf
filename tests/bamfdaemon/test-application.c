@@ -122,25 +122,25 @@ test_urgent (void)
   window2 = bamf_window_new (BAMF_LEGACY_WINDOW (test2));
   
   // Ensure we are not visible with no windows
-  g_assert (!bamf_application_is_urgent (application));
+  g_assert (!bamf_view_is_urgent (BAMF_VIEW (application)));
   
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window1));
   
   // Test that when added, we signaled properly
-  g_assert (!bamf_application_is_urgent (application));
+  g_assert (!bamf_view_is_urgent (BAMF_VIEW (application)));
   g_assert (!signal_seen);
   
   bamf_view_remove_child (BAMF_VIEW (application), BAMF_VIEW (window1));
   
   // Test that we unset and signal properly
-  g_assert (!bamf_application_is_urgent (application));
+  g_assert (!bamf_view_is_urgent (BAMF_VIEW (application)));
   g_assert (!signal_seen);
   
   bamf_legacy_window_test_set_attention (test1, TRUE);
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window1));
   
   // Ensure that when adding a skip-tasklist window, we dont set this to visible 
-  g_assert (bamf_application_is_urgent (application));
+  g_assert (bamf_view_is_urgent (BAMF_VIEW (application)));
   g_assert (signal_seen);
   g_assert (signal_result);
   
@@ -148,12 +148,12 @@ test_urgent (void)
 
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window2));
   
-  g_assert (bamf_application_is_urgent (application));
+  g_assert (bamf_view_is_urgent (BAMF_VIEW (application)));
   g_assert (!signal_seen);
   
   bamf_legacy_window_test_set_attention (test1, FALSE);
   
-  g_assert (!bamf_application_is_urgent (application));
+  g_assert (!bamf_view_is_urgent (BAMF_VIEW (application)));
   g_assert (signal_seen);
   g_assert (!signal_result);
 }

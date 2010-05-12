@@ -54,6 +54,8 @@ enum
   CHILD_ADDED,
   CHILD_REMOVED,
   RUNNING_CHANGED,
+  URGENT_CHANGED,
+  VISIBLE_CHANGED,
   
   LAST_SIGNAL,
 };
@@ -112,6 +114,18 @@ static void
 bamf_view_on_running_changed (DBusGProxy *proxy, gboolean running, BamfView *self)
 {
   g_signal_emit (G_OBJECT (self), view_signals[ACTIVE_CHANGED], 0, running);
+}
+
+static void
+bamf_view_on_urgent_changed (DBusGProxy *proxy, gboolean urgent, BamfView *self)
+{
+  g_signal_emit (G_OBJECT (self), view_signals[URGENT_CHANGED], 0, urgent);
+}
+
+static void
+bamf_view_on_user_visible_changed (DBusGProxy *proxy, gboolean visible, BamfView *self)
+{
+  g_signal_emit (G_OBJECT (self), view_signals[VISIBLE_CHANGED], 0, visible);
 }
 
 static void
@@ -240,6 +254,16 @@ bamf_view_constructed (GObject *object)
                            "RunningChanged",
                            G_TYPE_BOOLEAN,
                            G_TYPE_INVALID);
+  
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "UrgentChanged",
+                           G_TYPE_BOOLEAN, 
+                           G_TYPE_INVALID);
+  
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "UserVisibleChanged",
+                           G_TYPE_BOOLEAN, 
+                           G_TYPE_INVALID);
 
   dbus_g_proxy_connect_signal (priv->proxy,
                                "ActiveChanged",
@@ -268,6 +292,18 @@ bamf_view_constructed (GObject *object)
   dbus_g_proxy_connect_signal (priv->proxy,
                                "RunningChanged",
                                (GCallback) bamf_view_on_running_changed,
+                               view,
+                               NULL);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "UrgentChanged",
+                               (GCallback) bamf_view_on_urgent_changed,
+                               view,
+                               NULL);
+  
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "UserVisibleChanged",
+                               (GCallback) bamf_view_on_user_visible_changed,
                                view,
                                NULL);
 }
@@ -325,6 +361,24 @@ bamf_view_class_init (BamfViewClass *klass)
 
   view_signals [CHILD_ADDED] = 
   	g_signal_new ("running-changed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__BOOLEAN,
+  	              G_TYPE_NONE, 1, 
+  	              G_TYPE_BOOLEAN);
+
+  view_signals [URGENT_CHANGED] = 
+  	g_signal_new ("urgent-changed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__BOOLEAN,
+  	              G_TYPE_NONE, 1, 
+  	              G_TYPE_BOOLEAN);
+  
+  view_signals [VISIBLE_CHANGED] = 
+  	g_signal_new ("user-visible-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
@@ -478,6 +532,36 @@ bamf_view_is_running (BamfView *view)
 
   return running;
 }
+
+gboolean
+bamf_view_is_urgent (BamfView *view)
+{
+  BamfViewPrivate *priv;
+  gboolean urgent = FALSE;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
+  priv = view->priv;
+  
+  if (BAMF_VIEW_GET_CLASS (view)->is_urgent)
+    return BAMF_VIEW_GET_CLASS (view)->is_urgent (view);
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "IsUrgent",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_BOOLEAN, &urgent,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch urgent: %s", error->message);
+      g_error_free (error);
+      
+      return FALSE;
+    }
+
+  return urgent;
+}
+
 
 gchar *
 bamf_view_get_icon (BamfView *view)
