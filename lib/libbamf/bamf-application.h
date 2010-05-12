@@ -106,8 +106,6 @@ const gchar     * bamf_application_get_desktop_file     (BamfApplication *applic
  */
 gboolean          bamf_application_is_urgent            (BamfApplication *application);
 
-gboolean          bamf_application_user_visible         (BamfApplication *application);
-
 /**
  * bamf_application_get_windows:
  * @application: a #BamfApplication

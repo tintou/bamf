@@ -59,8 +59,6 @@ BamfLegacyWindow * bamf_window_get_window (BamfWindow *self);
 
 gboolean bamf_window_is_urgent (BamfWindow *self);
 
-gboolean bamf_window_user_visible (BamfWindow *self);
-
 guint32 bamf_window_get_xid (BamfWindow *window);
 
 BamfWindow * bamf_window_new (BamfLegacyWindow *window);

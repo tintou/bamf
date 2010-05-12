@@ -424,6 +424,32 @@ bamf_view_is_active (BamfView *view)
   return active;
 }
 
+gboolean          
+bamf_view_user_visible (BamfView *self)
+{
+  BamfViewPrivate *priv;
+  gboolean result = FALSE;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (self), FALSE);
+  priv = self->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "UserVisible",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_BOOLEAN, &result,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch urgent: %s", error->message);
+      g_error_free (error);
+      
+      return FALSE;
+    }
+
+  return result;
+}
+
 gboolean
 bamf_view_is_running (BamfView *view)
 {

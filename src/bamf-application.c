@@ -32,7 +32,6 @@ enum
   WINDOW_ADDED,
   WINDOW_REMOVED,
   URGENT_CHANGED,
-  VISIBLE_CHANGED,
   
   LAST_SIGNAL,
 };
@@ -46,7 +45,6 @@ struct _BamfApplicationPrivate
   char * icon;
   gboolean is_tab_container;
   gboolean urgent;
-  gboolean user_visible;
 };
 
 static char *
@@ -93,27 +91,6 @@ bamf_application_set_desktop_file (BamfApplication *application,
   application->priv->icon = g_icon_to_string (icon);
   
   g_object_unref (desktop);
-}
-
-gboolean
-bamf_application_user_visible  (BamfApplication *application)
-{
-  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
-
-  return application->priv->user_visible;
-}
-
-static void       
-bamf_application_set_user_visible (BamfApplication *application,
-                                   gboolean visible)
-{
-  g_return_if_fail (BAMF_IS_APPLICATION (application));
-
-  if (application->priv->user_visible == visible)
-    return;
-
-  application->priv->user_visible = visible;
-  g_signal_emit (application, application_signals[VISIBLE_CHANGED], 0, visible);
 }
 
 gboolean
@@ -217,7 +194,7 @@ bamf_application_ensure_flags (BamfApplication *self)
 
       if (bamf_window_is_urgent (BAMF_WINDOW (view)))
         urgent = TRUE;
-      if (bamf_window_user_visible (BAMF_WINDOW (view)))
+      if (bamf_view_user_visible (view))
         visible = TRUE;
       if (active_window == bamf_window_get_window (BAMF_WINDOW (view)))
         active = TRUE;
@@ -227,9 +204,9 @@ bamf_application_ensure_flags (BamfApplication *self)
     }
     
   bamf_application_set_urgent (self, urgent);
-  bamf_application_set_user_visible (self, visible);
-  bamf_view_set_running (BAMF_VIEW (self), running);
-  bamf_view_set_active (BAMF_VIEW (self), active);
+  bamf_view_set_user_visible (BAMF_VIEW (self), visible);
+  bamf_view_set_running      (BAMF_VIEW (self), running);
+  bamf_view_set_active       (BAMF_VIEW (self), active);
 }
 
 static void
@@ -239,9 +216,15 @@ window_urgent_changed (BamfWindow *window, gboolean urgent, BamfApplication *sel
 }
 
 static void
-window_visible_changed (BamfWindow *window, gboolean visible, BamfApplication *self)
+view_visible_changed (BamfView *view, gboolean visible, BamfApplication *self)
 {
   bamf_application_ensure_flags (self);
+}
+
+static void
+view_exported (BamfView *view, BamfApplication *self)
+{
+  g_signal_emit (self, application_signals[WINDOW_ADDED], 0, bamf_view_get_path (view));
 }
 
 static void
@@ -257,12 +240,17 @@ bamf_application_child_added (BamfView *view, BamfView *child)
   if (BAMF_IS_WINDOW (child))
     {
       window = BAMF_WINDOW (child);
-      g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOW_ADDED], 0, bamf_view_get_path (view));
+      
+      if (bamf_view_is_on_bus (child))
+        g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOW_ADDED], 0, bamf_view_get_path (child));
+      else
+        g_signal_connect (G_OBJECT (child), "exported",
+                          (GCallback) view_exported, view);
       
       g_signal_connect (G_OBJECT (child), "urgent-changed",
 	        	    (GCallback) window_urgent_changed, view);
       g_signal_connect (G_OBJECT (child), "user-visible-changed",
-	        	    (GCallback) window_visible_changed, view);
+	        	    (GCallback) view_visible_changed, view);
     }
     
 }
@@ -283,9 +271,11 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
 
   if (BAMF_IS_WINDOW (child))
     {
-      g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOW_REMOVED],0, bamf_view_get_path (view));
+      if (bamf_view_is_on_bus (child))
+        g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOW_REMOVED],0, bamf_view_get_path (child));
+        
       g_signal_handlers_disconnect_by_func (G_OBJECT (child), window_urgent_changed, view);
-      g_signal_handlers_disconnect_by_func (G_OBJECT (child), window_visible_changed, view);
+      g_signal_handlers_disconnect_by_func (G_OBJECT (child), view_visible_changed, view);
     }
     
   bamf_application_ensure_flags (BAMF_APPLICATION (view));
@@ -380,15 +370,6 @@ bamf_application_class_init (BamfApplicationClass * klass)
 
   application_signals [URGENT_CHANGED] = 
   	g_signal_new ("urgent-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1,
-  	              G_TYPE_BOOLEAN);
-  
-  application_signals [VISIBLE_CHANGED] = 
-  	g_signal_new ("user-visible-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,

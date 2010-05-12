@@ -124,6 +124,8 @@ gchar    * bamf_view_get_name      (BamfView *view);
  */
 gchar    * bamf_view_get_icon      (BamfView *view);
 
+gboolean   bamf_view_user_visible  (BamfView *self);
+
 /**
  * bamf_view_get_parent:
  * @view: a #BamfView

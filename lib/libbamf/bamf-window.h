@@ -84,8 +84,6 @@ GType             bamf_window_get_type             (void) G_GNUC_CONST;
  */
 gboolean          bamf_window_is_urgent            (BamfWindow *self);
 
-gboolean          bamf_window_user_visible         (BamfWindow *self);
-
 G_END_DECLS
 
 #endif

@@ -194,29 +194,3 @@ bamf_window_is_urgent (BamfWindow *self)
 
   return result;
 }
-
-gboolean          
-bamf_window_user_visible (BamfWindow *self)
-{
-  BamfWindowPrivate *priv;
-  gboolean result = FALSE;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
-  priv = self->priv;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "UserVisible",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_BOOLEAN, &result,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch urgent: %s", error->message);
-      g_error_free (error);
-      
-      return FALSE;
-    }
-
-  return result;
-}

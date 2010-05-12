@@ -42,18 +42,18 @@ test_view_create_suite (void)
 #define DOMAIN "/View"
 
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
-  g_test_add_func (DOMAIN"/Allocation/CloseEvent", test_closed_event);
   g_test_add_func (DOMAIN"/Name", test_name);
   g_test_add_func (DOMAIN"/Active", test_active);
-  g_test_add_func (DOMAIN"/Active/Event", test_active_event);
   g_test_add_func (DOMAIN"/Running", test_running);
-  g_test_add_func (DOMAIN"/Running/Event", test_running_event);
   g_test_add_func (DOMAIN"/Path", test_path);
   g_test_add_func (DOMAIN"/Path/Collision", test_path_collision);
+  g_test_add_func (DOMAIN"/Events/Close", test_closed_event);
+  g_test_add_func (DOMAIN"/Events/Active", test_active_event);
+  g_test_add_func (DOMAIN"/Events/Running", test_running_event);
+  g_test_add_func (DOMAIN"/Events/ChildAdded", test_child_added_event);
+  g_test_add_func (DOMAIN"/Events/ChildRemoved", test_child_removed_event);
   g_test_add_func (DOMAIN"/Children", test_children);
   g_test_add_func (DOMAIN"/Children/Paths", test_children_paths);
-  g_test_add_func (DOMAIN"/Children/AddedEvent", test_child_added_event);
-  g_test_add_func (DOMAIN"/Children/RemovedEvent", test_child_removed_event);
   g_test_add_func (DOMAIN"/Children/UnrefOrder", test_parent_child_out_of_order_unref);
 }
 

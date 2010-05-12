@@ -34,9 +34,12 @@ static void test_get_xids            (void);
 static void test_manages_xid         (void);
 static void test_user_visible        (void);
 static void test_urgent              (void);
+static void test_window_added        (void);
+static void test_window_removed      (void);
 
-static gboolean signal_seen = FALSE;
+static gboolean signal_seen   = FALSE;
 static gboolean signal_result = FALSE;
+static char *   signal_window = NULL;
 
 void
 test_application_create_suite (void)
@@ -46,9 +49,11 @@ test_application_create_suite (void)
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
   g_test_add_func (DOMAIN"/DesktopFile", test_desktop_file);
   g_test_add_func (DOMAIN"/ManagesXid", test_manages_xid);
-  g_test_add_func (DOMAIN"/Urgent", test_urgent);
-  g_test_add_func (DOMAIN"/UserVisible", test_user_visible);
   g_test_add_func (DOMAIN"/Xids", test_get_xids);
+  g_test_add_func (DOMAIN"/Events/Urgent", test_urgent);
+  g_test_add_func (DOMAIN"/Events/UserVisible", test_user_visible);
+  g_test_add_func (DOMAIN"/Events/WindowAdded", test_window_added);
+  g_test_add_func (DOMAIN"/Events/WindowRemoved", test_window_removed);
 }
 
 static void
@@ -252,12 +257,12 @@ test_user_visible (void)
   window2 = bamf_window_new (BAMF_LEGACY_WINDOW (test2));
   
   // Ensure we are not visible with no windows
-  g_assert (!bamf_application_user_visible (application));
+  g_assert (!bamf_view_user_visible (BAMF_VIEW (application)));
   
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window1));
   
   // Test that when added, we signaled properly
-  g_assert (bamf_application_user_visible (application));
+  g_assert (bamf_view_user_visible (BAMF_VIEW (application)));
   g_assert (signal_seen);
   g_assert (signal_result);
   
@@ -266,7 +271,7 @@ test_user_visible (void)
   bamf_view_remove_child (BAMF_VIEW (application), BAMF_VIEW (window1));
   
   // Test that we unset and signal properly
-  g_assert (!bamf_application_user_visible (application));
+  g_assert (!bamf_view_user_visible (BAMF_VIEW (application)));
   g_assert (signal_seen);
   g_assert (!signal_result);
   
@@ -276,12 +281,12 @@ test_user_visible (void)
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window1));
   
   // Ensure that when adding a skip-tasklist window, we dont set this to visible 
-  g_assert (!bamf_application_user_visible (application));
+  g_assert (!bamf_view_user_visible (BAMF_VIEW (application)));
   g_assert (!signal_seen);
   
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window2));
   
-  g_assert (bamf_application_user_visible (application));
+  g_assert (bamf_view_user_visible (BAMF_VIEW (application)));
   g_assert (signal_seen);
   g_assert (signal_result);
   
@@ -289,8 +294,108 @@ test_user_visible (void)
   
   bamf_legacy_window_test_set_skip (test2, TRUE);
   
-  g_assert (!bamf_window_user_visible (window1));
-  g_assert (!bamf_application_user_visible (application));
+  g_assert (!bamf_view_user_visible (BAMF_VIEW (window1)));
+  g_assert (!bamf_view_user_visible (BAMF_VIEW (application)));
   g_assert (signal_seen);
   g_assert (!signal_result);
+}
+
+static void
+on_window_added (BamfApplication *application, char *window, gpointer data)
+{
+  signal_seen = TRUE;
+  signal_window = g_strdup (window);
+}
+
+static void
+test_window_added (void)
+{
+  signal_seen = FALSE;
+  
+  BamfApplication *application;
+  BamfWindow *window;
+  BamfLegacyWindowTest *test;
+  char *path;
+  
+  application = bamf_application_new ();
+  
+  g_signal_connect (G_OBJECT (application), "window-added", (GCallback) on_window_added, NULL);
+  
+  test = bamf_legacy_window_test_new (20, "Window X", "class", "exec");
+  window = bamf_window_new (BAMF_LEGACY_WINDOW (test));
+  
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window));
+  
+  // Ensure we dont signal things that are not on the bus
+  g_assert (!signal_seen);
+  
+  bamf_view_remove_child (BAMF_VIEW (application), BAMF_VIEW (window));
+  
+  path = bamf_view_export_on_bus (BAMF_VIEW (window));
+  
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window));
+  
+  g_assert (signal_seen);
+  g_assert (g_strcmp0 (signal_window, path) == 0);
+  
+  signal_seen = FALSE;
+  
+  g_object_unref (window);
+  g_object_unref (test);
+   
+  test = bamf_legacy_window_test_new (20, "Window X", "class", "exec");
+  window = bamf_window_new (BAMF_LEGACY_WINDOW (test));
+  
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window));
+  
+  g_assert (!signal_seen);
+  
+  path = bamf_view_export_on_bus (BAMF_VIEW (window));
+  
+  g_assert (signal_seen);
+  g_assert (g_strcmp0 (signal_window, path) == 0);
+}
+
+static void
+on_window_removed (BamfApplication *application, char *window, gpointer data)
+{
+  signal_seen = TRUE;
+  signal_window = g_strdup (window);
+}
+
+static void
+test_window_removed (void)
+{
+  signal_seen = FALSE;
+  
+  BamfApplication *application;
+  BamfWindow *window;
+  BamfLegacyWindowTest *test;
+  char *path;
+  
+  application = bamf_application_new ();
+  
+  g_signal_connect (G_OBJECT (application), "window-removed", (GCallback) on_window_removed, NULL);
+  
+  test = bamf_legacy_window_test_new (20, "Window X", "class", "exec");
+  window = bamf_window_new (BAMF_LEGACY_WINDOW (test));
+  
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window));
+  bamf_view_remove_child (BAMF_VIEW (application), BAMF_VIEW (window));
+  
+  // Ensure we dont signal things that are not on the bus
+  g_assert (!signal_seen);
+  
+  path = bamf_view_export_on_bus (BAMF_VIEW (window));
+  
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window));
+  bamf_view_remove_child (BAMF_VIEW (application), BAMF_VIEW (window));
+  
+  g_assert (signal_seen);
+  g_assert (g_strcmp0 (signal_window, path) == 0);
+  
+  signal_seen = FALSE;
+  
+  g_object_unref (window);
+  g_object_unref (test);
 }

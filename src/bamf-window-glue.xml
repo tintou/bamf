@@ -4,10 +4,6 @@
 
 	<interface name="org.ayatana.bamf.window">
 	
-		<signal name="UserVisibleChanged">
-			<arg type="b" name="new_state" direction="out" />
-		</signal>
-
 		<method name="GetXid">
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_window_get_xid" />
 			<arg type="u" name="xid" direction="out">
@@ -18,13 +14,6 @@
 		<method name="IsUrgent">
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_window_is_urgent" />
 			<arg type="b" name="urgent" direction="out">
-				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
-			</arg>
-		</method>
-		
-		<method name="UserVisible">
-			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_window_user_visible" />
-			<arg type="b" name="visible" direction="out">
 				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
 			</arg>
 		</method>

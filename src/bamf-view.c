@@ -29,7 +29,9 @@ enum
   CLOSED,
   CHILD_ADDED,
   CHILD_REMOVED,
+  EXPORTED,
   RUNNING_CHANGED,
+  USER_VISIBLE_CHANGED,
   
   LAST_SIGNAL,
 };
@@ -44,6 +46,7 @@ struct _BamfViewPrivate
   GList * children;
   gboolean is_active;
   gboolean is_running;
+  gboolean user_visible;
 };
 
 static void
@@ -58,6 +61,19 @@ bamf_view_active_changed (BamfView *view, gboolean active)
   if (emit)
     g_signal_emit (view, view_signals[ACTIVE_CHANGED], 0, active);
 
+}
+
+static void 
+bamf_view_user_visible_changed (BamfView *view, gboolean user_visible)
+{
+  gboolean emit = TRUE;
+  if (BAMF_VIEW_GET_CLASS (view)->user_visible_changed)
+    {
+      emit = !BAMF_VIEW_GET_CLASS (view)->user_visible_changed (view, user_visible);
+    }
+
+  if (emit)
+    g_signal_emit (view, view_signals[USER_VISIBLE_CHANGED], 0, user_visible);
 }
 
 static void 
@@ -225,6 +241,26 @@ bamf_view_set_running (BamfView *view,
   bamf_view_running_changed (view, running);
 }
 
+gboolean
+bamf_view_user_visible (BamfView *view)
+{
+  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
+
+  return view->priv->user_visible;
+}
+
+void 
+bamf_view_set_user_visible (BamfView *view, gboolean user_visible)
+{
+  g_return_if_fail (BAMF_IS_VIEW (view));
+
+  if (user_visible == view->priv->user_visible)
+    return;
+
+  view->priv->user_visible = user_visible;
+  bamf_view_user_visible_changed (view, user_visible);
+}
+
 char * 
 bamf_view_get_icon (BamfView *view)
 {
@@ -307,9 +343,19 @@ bamf_view_export_on_bus (BamfView *view)
       g_return_val_if_fail (bus, NULL);
 
       dbus_g_connection_register_g_object (bus, path, G_OBJECT (view));
+      
+      g_signal_emit (view, view_signals[EXPORTED], 0);
     }  
   
   return view->priv->path;
+}
+
+gboolean
+bamf_view_is_on_bus (BamfView *view)
+{
+  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
+  
+  return view->priv->path != NULL;
 }
 
 static void
@@ -413,8 +459,25 @@ bamf_view_class_init (BamfViewClass * klass)
   	              G_TYPE_NONE, 1,
   	              G_TYPE_STRING);
 
+  view_signals [EXPORTED] = 
+  	g_signal_new ("exported",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__VOID,
+  	              G_TYPE_NONE, 0);
+
   view_signals [RUNNING_CHANGED] = 
   	g_signal_new ("running-changed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__BOOLEAN,
+  	              G_TYPE_NONE, 1,
+  	              G_TYPE_BOOLEAN);
+
+  view_signals [USER_VISIBLE_CHANGED] = 
+  	g_signal_new ("user-visible-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,

@@ -46,7 +46,7 @@ void populate_tree_store (GtkTreeStore *store)
   {
     app = BAMF_APPLICATION (l->data);
     
-    if (!bamf_application_user_visible (app))
+    if (!bamf_view_user_visible (BAMF_VIEW (app)))
       continue;
 
     gtk_tree_store_append (store, &position, NULL);
@@ -61,7 +61,7 @@ void populate_tree_store (GtkTreeStore *store)
     {
       window = BAMF_WINDOW (w->data);
       
-      if (!bamf_window_user_visible (window))
+      if (!bamf_view_user_visible (BAMF_VIEW (window)))
         continue;
       
       const gchar *name = bamf_view_get_name (BAMF_VIEW (window));

@@ -25,7 +25,6 @@ BAMF_TYPE_WINDOW, BamfWindowPrivate))
 enum
 {
   URGENT_CHANGED,
-  VISIBLE_CHANGED,
   
   LAST_SIGNAL,
 };
@@ -46,7 +45,6 @@ struct _BamfWindowPrivate
   gulong name_changed_id;
   gulong state_changed_id;
   gboolean urgent;
-  gboolean user_visible;
 };
 
 static void
@@ -67,26 +65,6 @@ bamf_window_is_urgent (BamfWindow *self)
   g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
   
   return self->priv->urgent;
-}
-
-static void
-bamf_window_set_user_visible (BamfWindow *self, gboolean visible)
-{
-  g_return_if_fail (BAMF_IS_WINDOW (self));
-  
-  if (visible == self->priv->user_visible)
-    return;
-  
-  self->priv->user_visible = visible;
-  g_signal_emit (self, window_signals[VISIBLE_CHANGED], 0, visible);
-}
-
-gboolean
-bamf_window_user_visible (BamfWindow *self)
-{
-  g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
-
-  return self->priv->user_visible;
 }
 
 BamfLegacyWindow *
@@ -141,7 +119,7 @@ bamf_window_ensure_flags (BamfWindow *self)
   g_return_if_fail (BAMF_IS_WINDOW (self));
 
   bamf_window_set_urgent (self, bamf_legacy_window_needs_attention (self->priv->window));
-  bamf_window_set_user_visible (self, !bamf_legacy_window_is_skip_tasklist (self->priv->window));
+  bamf_view_set_user_visible (BAMF_VIEW (self), !bamf_legacy_window_is_skip_tasklist (self->priv->window));
 }
 
 static void
@@ -275,15 +253,6 @@ bamf_window_class_init (BamfWindowClass * klass)
 
   window_signals [URGENT_CHANGED] = 
   	g_signal_new ("urgent-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
-  	              G_TYPE_BOOLEAN);
-  
-  window_signals [VISIBLE_CHANGED] = 
-  	g_signal_new ("user-visible-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
