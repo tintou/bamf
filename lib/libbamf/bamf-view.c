@@ -200,6 +200,16 @@ bamf_view_dispose (GObject *object)
                                   "RunningChanged",
                                   (GCallback) bamf_view_on_running_changed,
                                    view);
+
+  dbus_g_proxy_disconnect_signal (priv->proxy,
+                                 "UrgentChanged",
+                                 (GCallback) bamf_view_on_urgent_changed,
+                                 view);
+  
+  dbus_g_proxy_disconnect_signal (priv->proxy,
+                                 "UserVisibleChanged",
+                                 (GCallback) bamf_view_on_user_visible_changed,
+                                 view);
 }
 
 static void
