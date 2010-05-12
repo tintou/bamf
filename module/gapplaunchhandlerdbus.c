@@ -100,37 +100,38 @@ on_launched (GDesktopAppInfoLaunchHandler *launch_handler,
              const char  *desktop_file_path,
              gint pid)
 {
-	DBusGConnection *connection;
-	GError *error = NULL;
-	DBusGProxy *proxy;
+  DBusGConnection *connection;
+  GError *error = NULL;
+  DBusGProxy *proxy;
 
-	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+  connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
-	if (connection == NULL)
-	{
-		g_printerr ("Failed to open bus: %s\n", error->message);
-		g_error_free (error);
-	}
+  if (connection == NULL)
+    {
+      g_printerr ("Failed to open bus: %s\n", error->message);
+      g_error_free (error);
+    }
 
-	g_return_if_fail (connection);
+  g_return_if_fail (connection);
 
-	error = NULL;
+  error = NULL;
 
-	proxy = dbus_g_proxy_new_for_name (connection,
-					   "org.ayatana.bamf",
-					   "/org/ayatana/bamf",
-					   "org.ayatana.bamf.control");
+  proxy = dbus_g_proxy_new_for_name (connection,
+                                     "org.ayatana.bamf",
+                                     "/org/ayatana/bamf",
+                                     "org.ayatana.bamf.control");
 
-	g_return_if_fail (proxy);
+  g_return_if_fail (proxy);
 
-	dbus_g_proxy_call (proxy,
-	                   "RegisterApplicationForPid",
-	                   &error,
-	                   G_TYPE_STRING, desktop_file_path,
-	                   G_TYPE_INT, pid,
-	                   G_TYPE_INVALID, G_TYPE_INVALID);
-	g_object_unref (proxy);
-	dbus_g_connection_unref (connection);
+  dbus_g_proxy_call (proxy,
+                     "RegisterApplicationForPid",
+                     &error,
+                     G_TYPE_STRING, desktop_file_path,
+                     G_TYPE_INT, pid,
+                     G_TYPE_INVALID, G_TYPE_INVALID);
+
+  g_object_unref (proxy);
+  dbus_g_connection_unref (connection);
 }
 
 static void
