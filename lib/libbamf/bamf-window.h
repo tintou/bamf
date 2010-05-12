@@ -75,6 +75,8 @@ struct _BamfWindowClass
 
 GType             bamf_window_get_type             (void) G_GNUC_CONST;
 
+guint32           bamf_window_get_xid              (BamfWindow *self);
+
 G_END_DECLS
 
 #endif
