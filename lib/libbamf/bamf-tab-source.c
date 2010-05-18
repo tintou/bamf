@@ -52,7 +52,7 @@ bamf_tab_source_show_tab        (BamfTabSource *source,
   g_return_if_fail (BAMF_IS_TAB_SOURCE (source));
   
   if (BAMF_TAB_SOURCE_GET_CLASS (source)->show_tab)
-    BAMF_TAB_SOURCE_GET_CLASS (source)->show_tab (source);
+    BAMF_TAB_SOURCE_GET_CLASS (source)->show_tab (source, tab_id);
 }
 
 char ** 
@@ -73,7 +73,7 @@ bamf_tab_source_get_tab_preview (BamfTabSource *source,
   g_return_val_if_fail (BAMF_IS_TAB_SOURCE (source), NULL);
   
   if (BAMF_TAB_SOURCE_GET_CLASS (source)->tab_preview)
-    return BAMF_TAB_SOURCE_GET_CLASS (source)->tab_preview (source);
+    return BAMF_TAB_SOURCE_GET_CLASS (source)->tab_preview (source, tab_id);
   
   return NULL;
 }
@@ -85,7 +85,7 @@ bamf_tab_source_get_tab_uri     (BamfTabSource *source,
   g_return_val_if_fail (BAMF_IS_TAB_SOURCE (source), NULL);
   
   if (BAMF_TAB_SOURCE_GET_CLASS (source)->tab_uri)
-    return BAMF_TAB_SOURCE_GET_CLASS (source)->tab_uri (source);
+    return BAMF_TAB_SOURCE_GET_CLASS (source)->tab_uri (source, tab_id);
   
   return NULL;
 }
@@ -97,7 +97,7 @@ bamf_tab_source_get_tab_xid     (BamfTabSource *source,
   g_return_val_if_fail (BAMF_IS_TAB_SOURCE (source), 0);
   
   if (BAMF_TAB_SOURCE_GET_CLASS (source)->tab_xid)
-    return BAMF_TAB_SOURCE_GET_CLASS (source)->tab_xid (source);
+    return BAMF_TAB_SOURCE_GET_CLASS (source)->tab_xid (source, tab_id);
   
   return 0;
 }
