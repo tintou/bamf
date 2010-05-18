@@ -16,8 +16,8 @@
 // 
 
 #include "bamf-view.h"
-#include "bamf-tab.h"
 #include "bamf-tab-source.h"
+#include "bamf-tab.h"
 #include "bamf-marshal.h"
 #include <dbus/dbus-glib.h>
 
@@ -33,6 +33,19 @@ enum
   PROP_PATH,
 };
 
+enum
+{
+  REMOTE_TAB_URI_CHANGED,
+  REMOTE_TAB_OPENED,
+  REMOTE_TAB_CLOSED,
+  TAB_OPENED,
+  TAB_CLOSED,
+
+  LAST_SIGNAL,
+};
+
+static guint bamf_tab_source_signals[LAST_SIGNAL] = { 0 };
+
 struct _BamfTabSourcePrivate
 {
   char       *bus;
@@ -44,19 +57,28 @@ struct _BamfTabSourcePrivate
 static void
 bamf_tab_source_on_tab_opened (DBusGProxy *proxy, char *id, BamfTabSource *source)
 {
+  BamfTab *tab;
+  
+  g_return_if_fail (BAMF_IS_TAB_SOURCE (source));
 
+  g_signal_emit (source, REMOTE_TAB_OPENED, 0, id);
+  
+  tab = bamf_tab_new (source, id);
+  g_hash_table_insert (source->priv->tabs, id, tab);
+  
+  g_signal_emit (source, TAB_OPENED, 0, tab);
 }
 
 static void
 bamf_tab_source_on_tab_closed (DBusGProxy *proxy, char *id, BamfTabSource *source)
 {
-
+  g_signal_emit (source, REMOTE_TAB_CLOSED, 0, id);
 }
 
 static void
 bamf_tab_source_on_uri_changed (DBusGProxy *proxy, char *id, char *old_uri, char *new_uri, BamfTabSource *source)
 {
-
+  g_signal_emit (source, REMOTE_TAB_URI_CHANGED, 0, id, old_uri, new_uri);
 }
 
 static void
@@ -209,6 +231,56 @@ bamf_tab_source_class_init (BamfTabSourceClass * klass)
   
   pspec = g_param_spec_string ("bus", "bus", "bus", NULL, G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
   g_object_class_install_property (object_class, PROP_BUS, pspec);
+  
+  bamf_tab_source_signals [REMOTE_TAB_URI_CHANGED] = 
+  	g_signal_new ("remote-tab-uri-changed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              G_SIGNAL_RUN_FIRST,
+  	              0, 
+  	              NULL, NULL,
+  	              bamf_marshal_VOID__STRING_STRING_STRING,
+  	              G_TYPE_NONE, 3,
+  	              G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+  
+  bamf_tab_source_signals [REMOTE_TAB_OPENED] = 
+  	g_signal_new ("remote-tab-opened",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              G_SIGNAL_RUN_FIRST,
+  	              0, 
+  	              NULL, NULL,
+  	              g_cclosure_marshal_VOID__STRING,
+  	              G_TYPE_NONE, 1,
+  	              G_TYPE_STRING);
+  
+  bamf_tab_source_signals [REMOTE_TAB_CLOSED] = 
+  	g_signal_new ("remote-tab-closed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              G_SIGNAL_RUN_FIRST,
+  	              0, 
+  	              NULL, NULL,
+  	              g_cclosure_marshal_VOID__STRING,
+  	              G_TYPE_NONE, 1,
+  	              G_TYPE_STRING);
+  
+  bamf_tab_source_signals [TAB_OPENED] = 
+  	g_signal_new ("tab-opened",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              G_SIGNAL_RUN_FIRST,
+  	              0, 
+  	              NULL, NULL,
+  	              g_cclosure_marshal_VOID__OBJECT,
+  	              G_TYPE_NONE, 1,
+  	              BAMF_TYPE_TAB);
+  
+  bamf_tab_source_signals [TAB_CLOSED] = 
+  	g_signal_new ("tab-closed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              G_SIGNAL_RUN_FIRST,
+  	              0, 
+  	              NULL, NULL,
+  	              g_cclosure_marshal_VOID__OBJECT,
+  	              G_TYPE_NONE, 1,
+  	              BAMF_TYPE_TAB);
 }
 
 BamfTabSource *

@@ -37,8 +37,8 @@ bamfdaemon_sources = \
 		bamf-matcher.c \
 		bamf-application.c \
 		bamf-window.c \
-		bamf-tab-source.c \
 		bamf-tab.c \
+		bamf-tab-source.c \
 		$(NULL)
 
 bamfdaemon_headers = \
@@ -52,8 +52,8 @@ bamfdaemon_headers = \
 		bamf-matcher.h \
 		bamf-window.h \
 		bamf-application.h \
-		bamf-tab-source.h \
 		bamf-tab.h \
+		bamf-tab-source.h \
 		$(NULL)
 
 bamfdaemon_SOURCES = \

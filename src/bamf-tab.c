@@ -83,6 +83,18 @@ bamf_tab_get_view_type (BamfView *view)
 }
 
 static void
+on_tab_uri_changed (BamfTabSource *source, char *id, char *old_uri, char *new_uri, BamfTab *self)
+{
+  if (g_strcmp0 (id, self->priv->id) != 0)
+    return;
+  
+  g_free (self->priv->uri);
+  self->priv->uri = g_strdup (new_uri);  
+
+  g_signal_emit (self, URI_CHANGED, 0, old_uri, new_uri);
+}
+
+static void
 bamf_tab_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
   BamfTab *self;
@@ -135,6 +147,8 @@ bamf_tab_constructed (GObject *object)
     G_OBJECT_CLASS (bamf_tab_parent_class)->constructed (object);
   
   self = BAMF_TAB (object);
+  
+  g_signal_connect (self->priv->source, "remote-tab-uri-changed", (GCallback) on_tab_uri_changed, self);
 }
 
 static void
