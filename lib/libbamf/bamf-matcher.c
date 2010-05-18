@@ -37,7 +37,7 @@
 #include "bamf-matcher.h"
 #include "bamf-view.h"
 #include "bamf-factory.h"
-#include "marshal.h"
+#include "bamf-marshal.h"
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
@@ -149,7 +149,7 @@ bamf_matcher_init (BamfMatcher *self)
       g_error ("Unable to get org.ayatana.bamf.matcher matcher");
     }
 
-  dbus_g_object_register_marshaller ((GClosureMarshal) marshal_VOID__STRING_STRING,
+  dbus_g_object_register_marshaller ((GClosureMarshal) bamf_marshal_VOID__STRING_STRING,
                                      G_TYPE_NONE, 
                                      G_TYPE_STRING, G_TYPE_STRING,
                                      G_TYPE_INVALID);

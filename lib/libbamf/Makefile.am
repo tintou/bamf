@@ -1,6 +1,22 @@
 lib_LTLIBRARIES = libbamf.la
 
 CLEANFILES =
+DISTCLEANFILES =
+BUILT_SOURCES =
+EXTRA_DIST = 
+
+include $(top_srcdir)/Makefile.am.marshal
+
+libbamf_sources = \
+  bamf-application.c \
+  bamf-control.c \
+  bamf-matcher.c \
+  bamf-view.c \
+  bamf-window.c \
+  bamf-factory.c \
+  bamf-tab-source.c \
+  bamf-marshal.c \
+  $(NULL)
 
 sources_h = \
   bamf-application.h \
@@ -9,18 +25,16 @@ sources_h = \
   bamf-view.h \
   bamf-window.h \
   bamf-factory.h \
-  marshal.h \
-  libbamf.h
+  bamf-tab-source.h \
+  bamf-tab-source-glue.h \
+  bamf-marshal.h \
+  libbamf.h \
+  $(NULL)
 
 libbamf_la_SOURCES = \
-  bamf-application.c \
-  bamf-control.c \
-  bamf-matcher.c \
-  bamf-view.c \
-  bamf-window.c \
-  bamf-factory.c \
-  marshal.c \
-  $(sources_h)
+  $(sources_h) \
+  $(libbamf_sources) \
+  $(NULL)
 
 libbamf_la_LIBADD = \
   $(LIBWSBIND_LIBS) \
@@ -41,6 +55,25 @@ libbamf_la_CPPFLAGS = \
 libbamf_la_LDFLAGS = \
   -shared -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
   $(NULL)
+
+DISTCLEANFILES += \
+	bamf-tab-source-glue.h \
+	$(NULL)
+
+glib_marshal_list = bamf-marshal.list
+glib_marshal_prefix = bamf_marshal
+
+bamf-tab-source-glue.h: bamf-tab-source-glue.xml Makefile
+		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_tab_source --mode=glib-server --output=$@ $<
+
+BUILT_SOURCES += \
+	bamf-tab-source-glue.h \
+	$(NULL)
+
+EXTRA_DIST += \
+	bamf-tab-source-glue.xml \
+	$(NULL)
+
 
 library_includedir=$(includedir)/libbamf/libbamf
 library_include_HEADERS = \
