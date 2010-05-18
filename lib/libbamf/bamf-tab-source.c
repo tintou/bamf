@@ -48,7 +48,7 @@ struct _BamfTabSourcePrivate
 gboolean           
 bamf_tab_source_show_tab        (BamfTabSource *source, 
                                  char *tab_id,
-                                 GError *error;)
+                                 GError *error)
 {
   g_return_val_if_fail (BAMF_IS_TAB_SOURCE (source), TRUE);
   
