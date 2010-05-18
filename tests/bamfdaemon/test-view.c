@@ -448,6 +448,7 @@ test_closed_event (void)
   BamfView *view;
 
   view = g_object_new (BAMF_TYPE_VIEW, NULL);
+  bamf_view_export_on_bus (view);
 
   g_signal_connect (G_OBJECT (view), "closed",
                     (GCallback) on_closed, NULL);

@@ -32,6 +32,8 @@ enum
 {
   VIEW_OPENED,
   VIEW_CLOSED,
+  ACTIVE_APPLICATION_CHANGED,
+  ACTIVE_WINDOW_CHANGED,
   
   LAST_SIGNAL,
 };
@@ -76,6 +78,24 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
 
   matcher_signals [VIEW_CLOSED] = 
   	g_signal_new ("view-closed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              bamf_marshal_VOID__STRING_STRING,
+  	              G_TYPE_NONE, 2, 
+  	              G_TYPE_STRING, G_TYPE_STRING);
+  
+  matcher_signals [ACTIVE_APPLICATION_CHANGED] = 
+  	g_signal_new ("active-application-changed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              bamf_marshal_VOID__STRING_STRING,
+  	              G_TYPE_NONE, 2, 
+  	              G_TYPE_STRING, G_TYPE_STRING);
+
+  matcher_signals [ACTIVE_WINDOW_CHANGED] = 
+  	g_signal_new ("active-window-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
@@ -1003,8 +1023,63 @@ x_error_handler (Display *display, XErrorEvent *event)
 }
 /******** END OLD MATCHER *********/
 
-char * bamf_matcher_application_for_xid (BamfMatcher *matcher,
-                                         guint32 xid)
+char * 
+bamf_matcher_get_active_application (BamfMatcher *matcher)
+{
+  GList *l;
+  BamfView *view;
+  BamfMatcherPrivate *priv;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+
+  priv = matcher->priv;
+
+  for (l = priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_APPLICATION (view))
+        continue;
+
+      if (bamf_view_is_active (view))
+        {
+          return bamf_view_get_path (view);
+        }
+    }
+
+  return NULL;
+}
+
+char * 
+bamf_matcher_get_active_window (BamfMatcher *matcher)
+{ 
+  GList *l;
+  BamfView *view;
+  BamfMatcherPrivate *priv;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+
+  priv = matcher->priv;
+
+  for (l = priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_WINDOW (view))
+        continue;
+
+      if (bamf_view_is_active (view))
+        {
+          return bamf_view_get_path (view);
+        }
+    }
+
+  return NULL;
+}
+
+char * 
+bamf_matcher_application_for_xid (BamfMatcher *matcher,
+                                  guint32 xid)
 {
   char * desktop_file;
   GList *l;

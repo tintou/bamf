@@ -72,6 +72,10 @@ void          bamf_matcher_load_desktop_file             (BamfMatcher * self,
 void          bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
                                                           char * desktopFile, 
                                                           gint pid);
+                                                          
+char        * bamf_matcher_get_active_application        (BamfMatcher *matcher);
+
+char        * bamf_matcher_get_active_window             (BamfMatcher *matcher);                                                          
 
 char        * bamf_matcher_application_for_xid           (BamfMatcher *matcher,
                                                           guint32 xid);

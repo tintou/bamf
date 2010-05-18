@@ -45,6 +45,7 @@ struct _BamfViewPrivate
   char * path;
   BamfView * parent;
   GList * children;
+  gboolean disposed;
   gboolean is_active;
   gboolean is_running;
   gboolean is_urgent;
@@ -404,7 +405,7 @@ bamf_view_dispose (GObject *object)
   BamfView *view = BAMF_VIEW (object);
   BamfViewPrivate *priv = view->priv;
   
-  if (priv->path)
+  if (!priv->disposed)
     bamf_view_closed (view);
 
   bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
@@ -437,6 +438,7 @@ bamf_view_dispose (GObject *object)
       priv->path = NULL;
     }
 
+  priv->disposed = TRUE;
   G_OBJECT_CLASS (bamf_view_parent_class)->dispose (object);
 }
 

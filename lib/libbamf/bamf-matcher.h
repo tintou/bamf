@@ -28,6 +28,7 @@
 #define _BAMF_MATCHER_H_
 
 #include <glib-object.h>
+#include <libbamf/bamf-window.h>
 #include <libbamf/bamf-application.h>
 
 G_BEGIN_DECLS
@@ -83,7 +84,11 @@ GType             bamf_matcher_get_type                 (void) G_GNUC_CONST;
  *
  * Returns: (transfer none): A new #BamfMatcher
  */
-BamfMatcher *     bamf_matcher_get_default              (void);
+BamfMatcher     * bamf_matcher_get_default              (void);
+
+BamfApplication * bamf_matcher_get_active_application   (BamfMatcher *matcher);
+
+BamfWindow      * bamf_matcher_get_active_window        (BamfMatcher *matcher);
 
 /**
  * bamf_matcher_get_application_for_xid:

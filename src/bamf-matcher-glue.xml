@@ -14,6 +14,30 @@
 			<arg type="s" name="type" direction="out" />
 		</signal>
 		
+		<signal name="ActiveWindowChanged">
+			<arg type="s" name="old" direction="out" />
+			<arg type="s" name="new" direction="out" />
+		</signal>
+		
+		<signal name="ActiveApplicationChanged">
+			<arg type="s" name="old" direction="out" />
+			<arg type="s" name="new" direction="out" />
+		</signal>
+		
+		<method name="ActiveApplication">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_matcher_get_active_application" />
+			<arg type="s" name="application" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+		
+		<method name="ActiveWindow">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_matcher_get_active_window" />
+			<arg type="s" name="window" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+		
 		<method name="ApplicationForXid">
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_matcher_application_for_xid" />
 			<arg type="u" name="xid" direction="in" />
