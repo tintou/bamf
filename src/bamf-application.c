@@ -187,7 +187,13 @@ bamf_application_ensure_flags (BamfApplication *self)
 }
 
 static void
-window_urgent_changed (BamfWindow *window, gboolean urgent, BamfApplication *self)
+view_active_changed (BamfView *view, gboolean active, BamfApplication *self)
+{
+  bamf_application_ensure_flags (self);
+}
+
+static void
+view_urgent_changed (BamfView *view, gboolean urgent, BamfApplication *self)
 {
   bamf_application_ensure_flags (self);
 }
@@ -208,7 +214,6 @@ static void
 bamf_application_child_added (BamfView *view, BamfView *child)
 {
   BamfApplication *application;
-  BamfWindow *window;
 
   application = BAMF_APPLICATION (view);
 
@@ -216,20 +221,19 @@ bamf_application_child_added (BamfView *view, BamfView *child)
 
   if (BAMF_IS_WINDOW (child))
     {
-      window = BAMF_WINDOW (child);
-      
       if (bamf_view_is_on_bus (child))
         g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOW_ADDED], 0, bamf_view_get_path (child));
       else
         g_signal_connect (G_OBJECT (child), "exported",
                           (GCallback) view_exported, view);
-      
-      g_signal_connect (G_OBJECT (child), "urgent-changed",
-	        	    (GCallback) window_urgent_changed, view);
-      g_signal_connect (G_OBJECT (child), "user-visible-changed",
-	        	    (GCallback) view_visible_changed, view);
     }
-    
+ 
+  g_signal_connect (G_OBJECT (child), "active-changed",
+                    (GCallback) view_active_changed, view);
+  g_signal_connect (G_OBJECT (child), "urgent-changed",
+                    (GCallback) view_urgent_changed, view);
+  g_signal_connect (G_OBJECT (child), "user-visible-changed",
+                    (GCallback) view_visible_changed, view);
 }
 
 static gboolean
@@ -250,10 +254,11 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
     {
       if (bamf_view_is_on_bus (child))
         g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOW_REMOVED],0, bamf_view_get_path (child));
-        
-      g_signal_handlers_disconnect_by_func (G_OBJECT (child), window_urgent_changed, view);
-      g_signal_handlers_disconnect_by_func (G_OBJECT (child), view_visible_changed, view);
     }
+  
+  g_signal_handlers_disconnect_by_func (G_OBJECT (child), view_active_changed, view);  
+  g_signal_handlers_disconnect_by_func (G_OBJECT (child), view_urgent_changed, view);
+  g_signal_handlers_disconnect_by_func (G_OBJECT (child), view_visible_changed, view);
     
   bamf_application_ensure_flags (BAMF_APPLICATION (view));
 
@@ -264,12 +269,6 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
 }
 
 static void
-active_window_changed (BamfLegacyScreen *screen, BamfApplication *app)
-{
-  bamf_application_ensure_flags (app);
-}
-
-static void
 bamf_application_dispose (GObject *object)
 {
   BamfApplication *app;
@@ -277,8 +276,6 @@ bamf_application_dispose (GObject *object)
   
   app = BAMF_APPLICATION (object);
   priv = app->priv;
-
-  g_signal_handlers_disconnect_by_func (G_OBJECT (bamf_legacy_screen_get_default ()), active_window_changed, object);
 
   if (priv->desktop_file)
     {
@@ -304,9 +301,6 @@ bamf_application_init (BamfApplication * self)
   
   priv->is_tab_container = FALSE;
   priv->app_type = g_strdup ("system");
-  
-  g_signal_connect (G_OBJECT (bamf_legacy_screen_get_default ()), "active-window-changed",
-		    (GCallback) active_window_changed, self);
 }
 
 static void

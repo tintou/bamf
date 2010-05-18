@@ -231,7 +231,7 @@ bamf_view_set_active (BamfView *view,
 
   if (active == view->priv->is_active)
     return;
-
+    
   view->priv->is_active = active;
   bamf_view_active_changed (view, active);
 }

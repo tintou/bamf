@@ -17,6 +17,7 @@
 
 #include "bamf-window.h"
 #include "bamf-window-glue.h"
+#include "bamf-legacy-screen.h"
 
 G_DEFINE_TYPE (BamfWindow, bamf_window, BAMF_TYPE_VIEW);
 #define BAMF_WINDOW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -88,6 +89,7 @@ bamf_window_ensure_flags (BamfWindow *self)
 {
   g_return_if_fail (BAMF_IS_WINDOW (self));
 
+  bamf_view_set_active       (BAMF_VIEW (self), bamf_legacy_window_is_active (self->priv->window));
   bamf_view_set_urgent       (BAMF_VIEW (self), bamf_legacy_window_needs_attention (self->priv->window));
   bamf_view_set_user_visible (BAMF_VIEW (self), !bamf_legacy_window_is_skip_tasklist (self->priv->window));
 }
@@ -103,6 +105,12 @@ static char *
 bamf_window_get_view_type (BamfView *view)
 {
   return g_strdup ("window");
+}
+
+static void
+active_window_changed (BamfLegacyScreen *screen, BamfWindow *window)
+{
+  bamf_window_ensure_flags (window);
 }
 
 static void
@@ -175,6 +183,8 @@ bamf_window_dispose (GObject *object)
   BamfWindow *self;
 
   self = BAMF_WINDOW (object);
+  
+  g_signal_handlers_disconnect_by_func (G_OBJECT (bamf_legacy_screen_get_default ()), active_window_changed, object);
 
   if (self->priv->window)
     {
@@ -198,6 +208,9 @@ bamf_window_init (BamfWindow * self)
 {
   BamfWindowPrivate *priv;
   priv = self->priv = BAMF_WINDOW_GET_PRIVATE (self);
+  
+  g_signal_connect (G_OBJECT (bamf_legacy_screen_get_default ()), "active-window-changed",
+		    (GCallback) active_window_changed, self);
 }
 
 static void

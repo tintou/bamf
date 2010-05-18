@@ -1043,7 +1043,7 @@ bamf_matcher_get_active_application (BamfMatcher *matcher)
 
       if (bamf_view_is_active (view))
         {
-          return bamf_view_get_path (view);
+          return g_strdup (bamf_view_get_path (view));
         }
     }
 
@@ -1070,7 +1070,7 @@ bamf_matcher_get_active_window (BamfMatcher *matcher)
 
       if (bamf_view_is_active (view))
         {
-          return bamf_view_get_path (view);
+          return g_strdup (bamf_view_get_path (view));
         }
     }
 
