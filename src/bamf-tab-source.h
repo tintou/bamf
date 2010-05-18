@@ -61,7 +61,7 @@ GArray        * bamf_tab_source_get_tab_preview  (BamfTabSource *tab_source, cha
 
 char          * bamf_tab_source_get_tab_uri      (BamfTabSource *tab_source, char *id);
 
-guint32       * bamf_tab_source_get_xid          (BamfTabSource *tab_source, char *id);
+guint32         bamf_tab_source_get_xid          (BamfTabSource *tab_source, char *id);
 
 BamfTabSource * bamf_tab_source_new              (char *bus, char *path);
 

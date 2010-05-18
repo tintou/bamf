@@ -54,6 +54,40 @@ struct _BamfTabSourcePrivate
   GHashTable *tabs;
 };
 
+char ** 
+bamf_tab_source_tab_ids (BamfTabSource *self)
+{
+  return NULL;
+}
+
+void 
+bamf_tab_source_show_tab (BamfTabSource *self, 
+                          char *id)
+{
+
+}
+
+GArray * 
+bamf_tab_source_get_tab_preview (BamfTabSource *tab_source, 
+                                 char *id)
+{
+  return NULL;
+}
+
+char * 
+bamf_tab_source_get_tab_uri (BamfTabSource *tab_source, 
+                             char *id)
+{
+  return NULL;
+}
+
+guint32 
+bamf_tab_source_get_xid (BamfTabSource *tab_source, 
+                         char *id)
+{
+  return 0;
+}
+
 static void
 bamf_tab_source_on_tab_opened (DBusGProxy *proxy, char *id, BamfTabSource *source)
 {
@@ -64,7 +98,7 @@ bamf_tab_source_on_tab_opened (DBusGProxy *proxy, char *id, BamfTabSource *sourc
   g_signal_emit (source, REMOTE_TAB_OPENED, 0, id);
   
   tab = bamf_tab_new (source, id);
-  g_hash_table_insert (source->priv->tabs, id, tab);
+  g_hash_table_insert (source->priv->tabs, g_strdup (id), tab);
   
   g_signal_emit (source, TAB_OPENED, 0, tab);
 }
@@ -72,7 +106,21 @@ bamf_tab_source_on_tab_opened (DBusGProxy *proxy, char *id, BamfTabSource *sourc
 static void
 bamf_tab_source_on_tab_closed (DBusGProxy *proxy, char *id, BamfTabSource *source)
 {
+  BamfTab *tab;
+  
+  g_return_if_fail (BAMF_IS_TAB_SOURCE (source));
+
   g_signal_emit (source, REMOTE_TAB_CLOSED, 0, id);
+  
+  tab = g_hash_table_lookup (source->priv->tabs, id);
+  
+  if (!BAMF_IS_TAB (tab))
+    return;
+  
+  g_hash_table_remove (source->priv->tabs, id);
+
+  g_signal_emit (source, TAB_CLOSED, 0, tab);
+  g_object_unref (tab);
 }
 
 static void
