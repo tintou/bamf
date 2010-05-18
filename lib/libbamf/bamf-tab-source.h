@@ -36,8 +36,9 @@ struct _BamfTabSourceClass {
 
 GType bamf_tab_source_get_type (void) G_GNUC_CONST;
 
-void           bamf_tab_source_show_tab        (BamfTabSource *source, 
-                                                char *tab_id);
+gboolean       bamf_tab_source_show_tab        (BamfTabSource *source, 
+                                                char *tab_id,
+                                                GError *error);
 
 char        ** bamf_tab_source_get_tab_ids     (BamfTabSource *source);
 

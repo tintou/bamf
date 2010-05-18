@@ -45,14 +45,17 @@ struct _BamfTabSourcePrivate
   char *id;
 };
 
-void           
+gboolean           
 bamf_tab_source_show_tab        (BamfTabSource *source, 
-                                 char *tab_id)
+                                 char *tab_id,
+                                 GError *error;)
 {
-  g_return_if_fail (BAMF_IS_TAB_SOURCE (source));
+  g_return_val_if_fail (BAMF_IS_TAB_SOURCE (source), TRUE);
   
   if (BAMF_TAB_SOURCE_GET_CLASS (source)->show_tab)
     BAMF_TAB_SOURCE_GET_CLASS (source)->show_tab (source, tab_id);
+  
+  return TRUE;
 }
 
 char ** 
