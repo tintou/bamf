@@ -16,8 +16,10 @@
 // 
 
 #include "bamf-tab-source.h"
+#include "bamf-tab-source-glue.h"
 #include "bamf-marshal.h"
 
+#define BAMF_TAB_SOURCE_PATH "/org/bamf/tabsource"
 
 G_DEFINE_TYPE (BamfTabSource, bamf_tab_source, G_TYPE_OBJECT)
 #define BAMF_TAB_SOURCE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE((object), BAMF_TYPE_TAB_SOURCE, BamfTabSourcePrivate))
@@ -150,8 +152,39 @@ bamf_tab_source_dispose (GObject *object)
 static void
 bamf_tab_source_constructed (GObject *object)
 {
+  char *path;
+  DBusGConnection *bus;
+  DBusGProxy      *proxy;
+  GError *error = NULL;
+
   if (G_OBJECT_CLASS (bamf_tab_source_parent_class)->constructed)
     G_OBJECT_CLASS (bamf_tab_source_parent_class)->constructed (object);
+  
+  bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+  g_return_if_fail (bus);
+
+  path = g_strdup_printf ("%s%s", BAMF_TAB_SOURCE_PATH, BAMF_TAB_SOURCE (object)->priv->id);
+
+  dbus_g_connection_register_g_object (bus, path, object);
+  
+  proxy = dbus_g_proxy_new_for_name (bus,
+                                     "org.ayatana.bamf",
+                                     "/org/ayatana/bamf/control",
+                                     "org.ayatana.bamf.control");
+  
+  error = NULL;
+  if (!dbus_g_proxy_call (proxy,
+                          "RegisterTabProvider",
+                          &error,
+                          G_TYPE_STRING, path,
+                          G_TYPE_INVALID,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Could not register tab source: %s", error->message);
+      g_error_free (error);
+    }
+  
+  g_object_unref (proxy);
 }
 
 static void
@@ -169,6 +202,9 @@ bamf_tab_source_class_init (BamfTabSourceClass *klass)
   g_object_class_install_property (object_class, PROP_ID, pspec);
 
   g_type_class_add_private (object_class, sizeof (BamfTabSourcePrivate));
+  
+  dbus_g_object_type_install_info (BAMF_TYPE_TAB_SOURCE,
+				   &dbus_glib_bamf_tab_source_object_info);
   
   bamf_tab_source_signals [TAB_URI_CHANGED] = 
   	g_signal_new ("tab-uri-changed",

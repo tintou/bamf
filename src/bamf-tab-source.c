@@ -15,6 +15,8 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // 
 
+#include "bamf-view.h"
+#include "bamf-tab.h"
 #include "bamf-tab-source.h"
 #include "bamf-marshal.h"
 #include <dbus/dbus-glib.h>

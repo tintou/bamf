@@ -24,7 +24,7 @@ bamfdaemon_built_sources = \
 		bamf-matcher-glue.h \
 		bamf-window-glue.h \
 		bamf-view-glue.h \
-		bamf-tab-source.h \
+		bamf-tab-glue.h \
 		$(NULL)
 
 bamfdaemon_sources = \
@@ -38,6 +38,7 @@ bamfdaemon_sources = \
 		bamf-application.c \
 		bamf-window.c \
 		bamf-tab-source.c \
+		bamf-tab.c \
 		$(NULL)
 
 bamfdaemon_headers = \
@@ -51,6 +52,8 @@ bamfdaemon_headers = \
 		bamf-matcher.h \
 		bamf-window.h \
 		bamf-application.h \
+		bamf-tab-source.h \
+		bamf-tab.h \
 		$(NULL)
 
 bamfdaemon_SOURCES = \
@@ -65,6 +68,7 @@ nodist_EXTRA_bamfdaemon_SOURCES = \
 	bamf-matcher-glue.h \
         bamf-window-glue.h \
         bamf-view-glue.h \
+        bamf-tab-glue.h \
 	$(NULL)
 
 glib_marshal_list = bamf-marshal.list
@@ -76,6 +80,7 @@ DISTCLEANFILES += \
 	bamf-matcher-glue.h \
 	bamf-window-glue.h \
 	bamf-view-glue.h \
+	bamf-tab-glue.h \
 	$(NULL)
 
 bamfdaemon_LDADD = \
@@ -117,12 +122,16 @@ bamf-window-glue.h: bamf-window-glue.xml Makefile
 bamf-view-glue.h: bamf-view-glue.xml Makefile
 		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_view --mode=glib-server --output=$@ $<
 
+bamf-tab-glue.h: bamf-tab-glue.xml Makefile
+		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_tab --mode=glib-server --output=$@ $<
+
 BUILT_SOURCES += \
 	bamf-application-glue.h \
 	bamf-control-glue.h \
 	bamf-matcher-glue.h \
 	bamf-window-glue.h \
 	bamf-view-glue.h \
+	bamf-tab-glue.h \
 	$(NULL)
 
 EXTRA_DIST += \
@@ -131,6 +140,7 @@ EXTRA_DIST += \
 	bamf-matcher-glue.xml \
 	bamf-window-glue.xml \
 	bamf-view-glue.xml \
+	bamf-tab-glue.xml \
 	$(NULL)
 
 

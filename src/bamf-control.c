@@ -123,6 +123,7 @@ bamf_control_register_tab_provider (BamfControl *control,
   
   control->priv->sources = g_list_prepend (control->priv->sources, source);
 
+  dbus_g_method_return (context);
   return TRUE;
 }
 

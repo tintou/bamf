@@ -404,7 +404,8 @@ bamf_view_dispose (GObject *object)
   BamfView *view = BAMF_VIEW (object);
   BamfViewPrivate *priv = view->priv;
   
-  bamf_view_closed (view);
+  if (priv->path)
+    bamf_view_closed (view);
 
   bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 

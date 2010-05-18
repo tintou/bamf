@@ -26,5 +26,6 @@
 #include <libbamf/bamf-view.h>
 #include <libbamf/bamf-control.h>
 #include <libbamf/bamf-matcher.h>
+#include <libbamf/bamf-tab-source.h>
 
 #endif
