@@ -58,6 +58,7 @@ struct _BamfLegacyWindowTest
   gboolean needs_attention;
   gboolean is_desktop;
   gboolean is_skip;
+  gboolean is_active;
 };
 
 struct _BamfLegacyWindowTestClass
@@ -86,6 +87,12 @@ bamf_legacy_window_test_set_attention (BamfLegacyWindowTest *self, gboolean val)
 
 gboolean
 bamf_legacy_window_test_needs_attention (BamfLegacyWindow *legacy_window);
+
+void
+bamf_legacy_window_test_set_active (BamfLegacyWindowTest *self, gboolean val);
+
+gboolean
+bamf_legacy_window_test_is_active (BamfLegacyWindow *legacy_window);
 
 void
 bamf_legacy_window_test_set_desktop (BamfLegacyWindowTest *self, gboolean val);

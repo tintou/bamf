@@ -46,6 +46,7 @@ struct _BamfLegacyWindowClass
   gint         (*get_pid)            (BamfLegacyWindow *legacy_window);
   guint32      (*get_xid)            (BamfLegacyWindow *legacy_window);
   gboolean     (*needs_attention)    (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_active)          (BamfLegacyWindow *legacy_window);
   gboolean     (*is_skip_tasklist)   (BamfLegacyWindow *legacy_window);
   gboolean     (*is_desktop)         (BamfLegacyWindow *legacy_window);
 

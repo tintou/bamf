@@ -63,6 +63,27 @@ bamf_legacy_window_test_needs_attention (BamfLegacyWindow *legacy_window)
 }
 
 void
+bamf_legacy_window_test_set_active (BamfLegacyWindowTest *self, gboolean val)
+{
+  if (self->is_active == val)
+    return;
+    
+  self->is_active = val;
+
+  g_signal_emit_by_name (self, "state-changed");
+}
+
+gboolean
+bamf_legacy_window_test_is_active (BamfLegacyWindow *legacy_window)
+{
+  BamfLegacyWindowTest *self;
+
+  self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
+
+  return self->is_active;
+}
+
+void
 bamf_legacy_window_test_set_desktop (BamfLegacyWindowTest *self, gboolean val)
 {
   if (self->is_desktop == val)
@@ -172,6 +193,7 @@ bamf_legacy_window_test_class_init (BamfLegacyWindowTestClass *klass)
   win_class->needs_attention  = bamf_legacy_window_test_needs_attention;
   win_class->is_skip_tasklist = bamf_legacy_window_test_is_skip_tasklist;
   win_class->is_desktop       = bamf_legacy_window_test_is_desktop;
+  win_class->is_active        = bamf_legacy_window_test_is_active;
 }
 
 

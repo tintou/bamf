@@ -156,10 +156,7 @@ bamf_application_ensure_flags (BamfApplication *self)
   gboolean urgent = FALSE, visible = FALSE, running = FALSE, active = FALSE;
   GList *l;
   BamfView *view;
-  BamfLegacyWindow *active_window;
   
-  active_window = bamf_legacy_screen_get_active_window (bamf_legacy_screen_get_default ());
-
   for (l = bamf_view_get_children (BAMF_VIEW (self)); l; l = l->next)
     {
       view = l->data;
@@ -173,7 +170,7 @@ bamf_application_ensure_flags (BamfApplication *self)
         urgent = TRUE;
       if (bamf_view_user_visible (view))
         visible = TRUE;
-      if (active_window == bamf_window_get_window (BAMF_WINDOW (view)))
+      if (bamf_view_is_active (view))
         active = TRUE;
       
       if (urgent && visible && active)
@@ -217,8 +214,6 @@ bamf_application_child_added (BamfView *view, BamfView *child)
 
   application = BAMF_APPLICATION (view);
 
-  bamf_application_ensure_flags (BAMF_APPLICATION (view));  
-
   if (BAMF_IS_WINDOW (child))
     {
       if (bamf_view_is_on_bus (child))
@@ -234,6 +229,8 @@ bamf_application_child_added (BamfView *view, BamfView *child)
                     (GCallback) view_urgent_changed, view);
   g_signal_connect (G_OBJECT (child), "user-visible-changed",
                     (GCallback) view_visible_changed, view);
+
+  bamf_application_ensure_flags (BAMF_APPLICATION (view));  
 }
 
 static gboolean

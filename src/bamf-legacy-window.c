@@ -50,6 +50,9 @@ bamf_legacy_window_is_active (BamfLegacyWindow *self)
 
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), FALSE);
   
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->is_active)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->is_active (self);
+  
   active = wnck_screen_get_active_window (wnck_screen_get_default ());
   
   return active == self->priv->legacy_window;

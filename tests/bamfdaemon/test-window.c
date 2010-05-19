@@ -25,6 +25,7 @@
 
 static void test_allocation    (void);
 static void test_xid           (void);
+static void test_active        (void);
 static void test_urgent        (void);
 static void test_user_visible  (void);
 
@@ -38,6 +39,7 @@ test_window_create_suite (void)
 
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
   g_test_add_func (DOMAIN"/Xid", test_xid);
+  g_test_add_func (DOMAIN"/Events/Active", test_active);
   g_test_add_func (DOMAIN"/Events/Urgent", test_urgent);
   g_test_add_func (DOMAIN"/Events/UserVisible", test_user_visible);
 }
@@ -109,6 +111,45 @@ test_urgent (void)
   
   bamf_legacy_window_test_set_attention (test, FALSE);  
   g_assert (!bamf_view_is_urgent (BAMF_VIEW (window)));
+  g_assert (signal_seen);
+  g_assert (!signal_result);
+  
+  g_object_unref (window);
+  g_object_unref (test);
+}
+
+void
+on_active_changed (BamfWindow *window, gboolean result, gpointer pointer)
+{
+  signal_seen = TRUE;
+  signal_result = result;
+}
+
+void
+test_active (void)
+{
+  signal_seen = FALSE;
+
+  BamfWindow *window;
+  BamfLegacyWindowTest *test;
+  
+  test = bamf_legacy_window_test_new (20,"Window X", "class", "exec");
+  
+  window = bamf_window_new (BAMF_LEGACY_WINDOW (test));
+  g_signal_connect (G_OBJECT (window), "active-changed", (GCallback) on_active_changed, NULL);
+  
+  g_assert (!bamf_view_is_active (BAMF_VIEW (window)));
+  g_assert (!signal_seen);
+  
+  bamf_legacy_window_test_set_active (test, TRUE);  
+  g_assert (bamf_view_is_active (BAMF_VIEW (window)));
+  g_assert (signal_seen);
+  g_assert (signal_result);
+  
+  signal_seen = FALSE;
+  
+  bamf_legacy_window_test_set_active (test, FALSE);  
+  g_assert (!bamf_view_is_active (BAMF_VIEW (window)));
   g_assert (signal_seen);
   g_assert (!signal_result);
   

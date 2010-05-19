@@ -30,6 +30,7 @@
 static void test_allocation          (void);
 static void test_desktop_file        (void);
 static void test_urgent              (void);
+static void test_active              (void);
 static void test_get_xids            (void);
 static void test_manages_xid         (void);
 static void test_user_visible        (void);
@@ -50,6 +51,7 @@ test_application_create_suite (void)
   g_test_add_func (DOMAIN"/DesktopFile", test_desktop_file);
   g_test_add_func (DOMAIN"/ManagesXid", test_manages_xid);
   g_test_add_func (DOMAIN"/Xids", test_get_xids);
+  g_test_add_func (DOMAIN"/Events/Active", test_active);
   g_test_add_func (DOMAIN"/Events/Urgent", test_urgent);
   g_test_add_func (DOMAIN"/Events/UserVisible", test_user_visible);
   g_test_add_func (DOMAIN"/Events/WindowAdded", test_window_added);
@@ -154,6 +156,69 @@ test_urgent (void)
   bamf_legacy_window_test_set_attention (test1, FALSE);
   
   g_assert (!bamf_view_is_urgent (BAMF_VIEW (application)));
+  g_assert (signal_seen);
+  g_assert (!signal_result);
+}
+
+static void
+on_active_changed (BamfApplication *application, gboolean result, gpointer data)
+{
+  signal_seen = TRUE;
+  signal_result = result;
+}
+
+static void
+test_active (void)
+{
+  signal_seen = FALSE;
+  
+  BamfApplication *application;
+  BamfWindow *window1, *window2;
+  BamfLegacyWindowTest *test1, *test2;
+  
+  application = bamf_application_new ();
+  
+  g_signal_connect (G_OBJECT (application), "active-changed", (GCallback) on_active_changed, NULL);
+  
+  test1 = bamf_legacy_window_test_new (20, "Window X", "class", "exec");
+  test2 = bamf_legacy_window_test_new (20, "Window Y", "class", "exec");
+  
+  window1 = bamf_window_new (BAMF_LEGACY_WINDOW (test1));
+  window2 = bamf_window_new (BAMF_LEGACY_WINDOW (test2));
+  
+  // Ensure we are not active with no windows
+  g_assert (!bamf_view_is_active (BAMF_VIEW (application)));
+  
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window1));
+  
+  // Test that when added, we signaled properly
+  g_assert (!bamf_view_is_active (BAMF_VIEW (application)));
+  g_assert (!signal_seen);
+  
+  bamf_view_remove_child (BAMF_VIEW (application), BAMF_VIEW (window1));
+  
+  // Test that we unset and signal properly
+  g_assert (!bamf_view_is_active (BAMF_VIEW (application)));
+  g_assert (!signal_seen);
+  
+  bamf_legacy_window_test_set_active (test1, TRUE);
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window1));
+  
+  // Ensure that when adding a skip-tasklist window, we dont set this to visible 
+  g_assert (bamf_view_is_active (BAMF_VIEW (application)));
+  g_assert (signal_seen);
+  g_assert (signal_result);
+  
+  signal_seen = FALSE;
+
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window2));
+  
+  g_assert (bamf_view_is_active (BAMF_VIEW (application)));
+  g_assert (!signal_seen);
+  
+  bamf_legacy_window_test_set_active (test1, FALSE);
+  
+  g_assert (!bamf_view_is_active (BAMF_VIEW (application)));
   g_assert (signal_seen);
   g_assert (!signal_result);
 }
