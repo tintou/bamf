@@ -86,7 +86,7 @@ on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
                      matcher_signals[ACTIVE_APPLICATION_CHANGED], 
                      0,
                      BAMF_IS_VIEW (last) ? bamf_view_get_path (BAMF_VIEW (last)) : NULL,
-                     BAMF_IS_VIEW (view) ? bamf_view_get_path (BAMF_VIEW (view)) : NULL);
+                     BAMF_IS_VIEW (priv->active_app) ? bamf_view_get_path (BAMF_VIEW (priv->active_app)) : NULL);
     }
   else if (BAMF_IS_WINDOW (view))
     {
@@ -110,7 +110,7 @@ on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
                      matcher_signals[ACTIVE_WINDOW_CHANGED], 
                      0,
                      BAMF_IS_VIEW (last) ? bamf_view_get_path (BAMF_VIEW (last)) : NULL,
-                     BAMF_IS_VIEW (view) ? bamf_view_get_path (BAMF_VIEW (view)) : NULL);
+                     BAMF_IS_VIEW (priv->active_win) ? bamf_view_get_path (BAMF_VIEW (priv->active_win)) : NULL);
     }
 }
 
