@@ -42,14 +42,77 @@ static guint matcher_signals[LAST_SIGNAL] = { 0 };
 
 struct _BamfMatcherPrivate
 {
-  GArray *bad_prefixes;
-  GArray *known_pids;
-  GHashTable *desktop_id_table;
-  GHashTable *desktop_file_table;
-  GHashTable *exec_list;
-  GHashTable *registered_pids;
-  GList *views;
+  GArray          * bad_prefixes;
+  GArray          * known_pids;
+  GHashTable      * desktop_id_table;
+  GHashTable      * desktop_file_table;
+  GHashTable      * exec_list;
+  GHashTable      * registered_pids;
+  GList           * views;
+  BamfView        * active_app;
+  BamfView        * active_win;
 };
+
+static void
+on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
+{
+  BamfMatcherPrivate *priv;
+  BamfView *last;
+
+  g_return_if_fail (BAMF_IS_MATCHER (matcher));
+  g_return_if_fail (BAMF_IS_VIEW (view));
+  
+  priv = matcher->priv;
+  
+  if (BAMF_IS_APPLICATION (view))
+    {
+      /* Do some handy short circuiting so we can assume a signal
+       * will be generated at the end of this
+       */
+      if (!active && !priv->active_app)
+        return;
+      
+      if (active && priv->active_app == view)
+        return;
+      
+      last = priv->active_app;
+      
+      if (active)
+        priv->active_app = view;
+      else
+        priv->active_app = NULL;
+      
+      g_signal_emit (matcher, 
+                     matcher_signals[ACTIVE_APPLICATION_CHANGED], 
+                     0,
+                     BAMF_IS_VIEW (last) ? bamf_view_get_path (BAMF_VIEW (last)) : NULL,
+                     BAMF_IS_VIEW (view) ? bamf_view_get_path (BAMF_VIEW (view)) : NULL);
+    }
+  else if (BAMF_IS_WINDOW (view))
+    {
+      /* Do some handy short circuiting so we can assume a signal
+       * will be generated at the end of this
+       */
+      if (!active && !priv->active_win)
+        return;
+      
+      if (active && priv->active_win == view)
+        return;
+      
+      last = priv->active_win;
+      
+      if (active)
+        priv->active_win = view;
+      else
+        priv->active_win = NULL;
+      
+      g_signal_emit (matcher, 
+                     matcher_signals[ACTIVE_WINDOW_CHANGED], 
+                     0,
+                     BAMF_IS_VIEW (last) ? bamf_view_get_path (BAMF_VIEW (last)) : NULL,
+                     BAMF_IS_VIEW (view) ? bamf_view_get_path (BAMF_VIEW (view)) : NULL);
+    }
+}
 
 static void bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view);
 
@@ -69,6 +132,8 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
   
   g_signal_connect (G_OBJECT (view), "closed",
 	      	    (GCallback) on_view_closed, self);
+  g_signal_connect (G_OBJECT (view), "active-changed",
+                    (GCallback) on_view_active_changed, self);
 
   self->priv->views = g_list_prepend (self->priv->views, view);
 
@@ -88,6 +153,7 @@ bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
   g_signal_emit (self, matcher_signals[VIEW_CLOSED],0, path, type);
 
   g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_closed, self);
+  g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_active_changed, self);
 
   self->priv->views = g_list_remove (self->priv->views, view);
 
