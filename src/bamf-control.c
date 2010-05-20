@@ -87,6 +87,7 @@ bamf_control_insert_desktop_file (BamfControl *control,
                                   char *path,
                                   GError **error)
 {
+  bamf_matcher_load_desktop_file (bamf_matcher_get_default (), path);
   
   return TRUE;
 }

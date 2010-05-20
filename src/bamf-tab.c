@@ -17,6 +17,7 @@
 
 #include "bamf-tab.h"
 #include "bamf-tab-glue.h"
+#include "bamf-tab-source.h"
 #include "bamf-marshal.h"
 
 G_DEFINE_TYPE (BamfTab, bamf_tab, BAMF_TYPE_VIEW);
@@ -56,24 +57,24 @@ bamf_tab_current_uri (BamfTab *self)
 }
 
 void 
-bamf_tab_show (BamfTab *self)
+bamf_tab_show (BamfTab *tab)
 {
-  g_return_if_fail (BAMF_IS_TAB (self));
-
-  return;
+  g_return_if_fail (BAMF_IS_TAB (tab));
+  
+  bamf_tab_source_show_tab (tab->priv->source, tab->priv->id);
 }
 
 guint32 bamf_tab_parent_xid (BamfTab *tab)
 {
   g_return_val_if_fail (BAMF_IS_TAB (tab), 0);
 
-  return 0;
+  return bamf_tab_source_get_tab_xid (tab->priv->source, tab->priv->id);
 }
 
 GArray *
 bamf_tab_get_preview (BamfTab *tab)
 {
-  return NULL;
+  return bamf_tab_source_get_tab_preview (tab->priv->source, tab->priv->id);
 }
 
 static char *

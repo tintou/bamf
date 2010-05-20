@@ -57,35 +57,129 @@ struct _BamfTabSourcePrivate
 char ** 
 bamf_tab_source_tab_ids (BamfTabSource *self)
 {
-  return NULL;
+  BamfTabSourcePrivate *priv;
+  GError *error = NULL;
+  char **ids = NULL;
+
+  g_return_val_if_fail (BAMF_IS_TAB_SOURCE (self), NULL);
+  priv = self->priv;
+  
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "TabIds",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRV, &ids,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to get tab ids: %s", error->message);
+      g_error_free (error);
+      return NULL;
+    }
+  
+  return ids;
 }
 
 void 
 bamf_tab_source_show_tab (BamfTabSource *self, 
                           char *id)
 {
+  BamfTabSourcePrivate *priv;
+  GError *error = NULL;
 
+  g_return_if_fail (BAMF_IS_TAB_SOURCE (self));
+  priv = self->priv;
+  
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "ShowTab",
+                          &error,
+                          G_TYPE_STRING, id,
+                          G_TYPE_INVALID,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to show tab: %s", error->message);
+      g_error_free (error);
+    }
 }
 
 GArray * 
-bamf_tab_source_get_tab_preview (BamfTabSource *tab_source, 
+bamf_tab_source_get_tab_preview (BamfTabSource *self, 
                                  char *id)
 {
-  return NULL;
+  BamfTabSourcePrivate *priv;
+  GError *error = NULL;
+  GArray *preview_data = NULL;
+
+  g_return_val_if_fail (BAMF_IS_TAB_SOURCE (self), NULL);
+  priv = self->priv;
+  
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "TabUri",
+                          &error,
+                          G_TYPE_STRING, id,
+                          G_TYPE_INVALID,
+                          G_TYPE_ARRAY, &preview_data,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to get tab preview data: %s", error->message);
+      g_error_free (error);
+      return NULL;
+    }
+  
+  return preview_data;
 }
 
 char * 
-bamf_tab_source_get_tab_uri (BamfTabSource *tab_source, 
+bamf_tab_source_get_tab_uri (BamfTabSource *self, 
                              char *id)
 {
-  return NULL;
+  BamfTabSourcePrivate *priv;
+  GError *error = NULL;
+  char *uri = NULL;
+
+  g_return_val_if_fail (BAMF_IS_TAB_SOURCE (self), NULL);
+  priv = self->priv;
+  
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "TabUri",
+                          &error,
+                          G_TYPE_STRING, id,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &uri,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to get tab URI: %s", error->message);
+      g_error_free (error);
+      return NULL;
+    }
+  
+  return uri;
 }
 
 guint32 
-bamf_tab_source_get_xid (BamfTabSource *tab_source, 
-                         char *id)
+bamf_tab_source_get_tab_xid (BamfTabSource *self, 
+                             char *id)
 {
-  return 0;
+  BamfTabSourcePrivate *priv;
+  GError *error = NULL;
+  guint32 xid = 0;
+
+  g_return_val_if_fail (BAMF_IS_TAB_SOURCE (self), 0);
+  priv = self->priv;
+  
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "TabXid",
+                          &error,
+                          G_TYPE_STRING, id,
+                          G_TYPE_INVALID,
+                          G_TYPE_UINT, &xid,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to get tab XID: %s", error->message);
+      g_error_free (error);
+      return 0;
+    }
+  
+  return xid;
 }
 
 static void

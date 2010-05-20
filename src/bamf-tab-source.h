@@ -57,11 +57,11 @@ char         ** bamf_tab_source_tab_ids          (BamfTabSource *self);
 
 void            bamf_tab_source_show_tab         (BamfTabSource *self, char *id);
 
-GArray        * bamf_tab_source_get_tab_preview  (BamfTabSource *tab_source, char *id);
+GArray        * bamf_tab_source_get_tab_preview  (BamfTabSource *self, char *id);
 
-char          * bamf_tab_source_get_tab_uri      (BamfTabSource *tab_source, char *id);
+char          * bamf_tab_source_get_tab_uri      (BamfTabSource *self, char *id);
 
-guint32         bamf_tab_source_get_xid          (BamfTabSource *tab_source, char *id);
+guint32         bamf_tab_source_get_tab_xid      (BamfTabSource *self, char *id);
 
 BamfTabSource * bamf_tab_source_new              (char *bus, char *path);
 
