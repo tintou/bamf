@@ -1,0 +1,13 @@
+{
+  "name": "WebNow Love",
+  "description": "Favorite your favorites",
+  "version": "1",
+  "background_page": "background.html",
+  "permissions": [
+    "tabs", "http://*/*"
+  ],
+  "plugins": [
+    { "path": "plugin/npunity.so", "public": false }
+  ],
+  "default_locale": "en"
+}
