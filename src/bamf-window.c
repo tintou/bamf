@@ -1,19 +1,21 @@
-//  
-//  Copyright (C) 2009 Canonical Ltd.
-// 
-//  This program is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
-// 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-// 
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+/*
+ * Copyright (C) 2010 Canonical Ltd
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Authored by: Jason Smith <jason.smith@canonical.com>
+ *
+ */
 
 #include "bamf-window.h"
 #include "bamf-window-glue.h"
@@ -66,7 +68,7 @@ handle_window_closed (BamfLegacyWindow * window, gpointer data)
 {
   BamfWindow *self;
   self = (BamfWindow *) data;
-  
+
   g_return_if_fail (BAMF_IS_WINDOW (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
 
@@ -95,7 +97,7 @@ bamf_window_ensure_flags (BamfWindow *self)
 }
 
 static void
-handle_state_changed (BamfLegacyWindow *window, 
+handle_state_changed (BamfLegacyWindow *window,
                       BamfWindow *self)
 {
   bamf_window_ensure_flags (self);
@@ -125,7 +127,7 @@ bamf_window_set_property (GObject *object, guint property_id, const GValue *valu
       case PROP_WINDOW:
         self->priv->window = BAMF_LEGACY_WINDOW (g_value_get_object (value));
         break;
-        
+
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
     }
@@ -144,7 +146,7 @@ bamf_window_get_property (GObject *object, guint property_id, GValue *value, GPa
         g_value_set_object (value, self->priv->window);
 
         break;
-        
+
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
     }
@@ -155,14 +157,14 @@ bamf_window_constructed (GObject *object)
 {
   BamfWindow *self;
   BamfLegacyWindow *window;
-  
+
   if (G_OBJECT_CLASS (bamf_window_parent_class)->constructed)
     G_OBJECT_CLASS (bamf_window_parent_class)->constructed (object);
-  
+
   g_object_get (object, "window", &window, NULL);
-  
+
   self = BAMF_WINDOW (object);
-  
+
   bamf_view_set_name (BAMF_VIEW (self), bamf_legacy_window_get_name (window));
 
   self->priv->name_changed_id = g_signal_connect (G_OBJECT (window), "name-changed",
@@ -170,10 +172,10 @@ bamf_window_constructed (GObject *object)
 
   self->priv->state_changed_id = g_signal_connect (G_OBJECT (window), "state-changed",
                                        (GCallback) handle_state_changed, self);
-                                       
+
   self->priv->closed_id = g_signal_connect (G_OBJECT (window), "closed",
                                             (GCallback) handle_window_closed, self);
-  
+
   bamf_window_ensure_flags (self);
 }
 
@@ -183,7 +185,7 @@ bamf_window_dispose (GObject *object)
   BamfWindow *self;
 
   self = BAMF_WINDOW (object);
-  
+
   g_signal_handlers_disconnect_by_func (G_OBJECT (bamf_legacy_screen_get_default ()), active_window_changed, object);
 
   if (self->priv->window)
@@ -193,10 +195,10 @@ bamf_window_dispose (GObject *object)
 
       g_signal_handler_disconnect (self->priv->window,
                                    self->priv->state_changed_id);
-      
+
       g_signal_handler_disconnect (self->priv->window,
                                    self->priv->closed_id);
-      
+
       g_object_unref (self->priv->window);
       self->priv->window = NULL;
     }
@@ -208,7 +210,7 @@ bamf_window_init (BamfWindow * self)
 {
   BamfWindowPrivate *priv;
   priv = self->priv = BAMF_WINDOW_GET_PRIVATE (self);
-  
+
   g_signal_connect (G_OBJECT (bamf_legacy_screen_get_default ()), "active-window-changed",
 		    (GCallback) active_window_changed, self);
 }
@@ -225,12 +227,12 @@ bamf_window_class_init (BamfWindowClass * klass)
   object_class->set_property = bamf_window_set_property;
   object_class->constructed  = bamf_window_constructed;
   view_class->view_type      = bamf_window_get_view_type;
-  
+
   pspec = g_param_spec_object ("window", "window", "window", BAMF_TYPE_LEGACY_WINDOW, G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
   g_object_class_install_property (object_class, PROP_WINDOW, pspec);
 
   g_type_class_add_private (klass, sizeof (BamfWindowPrivate));
-  
+
   dbus_g_object_type_install_info (BAMF_TYPE_WINDOW,
 				   &dbus_glib_bamf_window_object_info);
 }
