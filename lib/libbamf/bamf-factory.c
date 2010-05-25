@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Canonical Ltd.
+ * Copyright 2010 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
