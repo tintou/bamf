@@ -54,6 +54,7 @@ libbamf_la_CPPFLAGS = \
 
 libbamf_la_LDFLAGS = \
   -shared -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
+  -version-info 0.2 \
   $(NULL)
 
 DISTCLEANFILES += \
