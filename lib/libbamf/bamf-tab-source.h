@@ -1,3 +1,28 @@
+/*
+ * Copyright 2010 Canonical Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of either or both of the following licenses:
+ *
+ * 1) the GNU Lesser General Public License version 3, as published by the
+ * Free Software Foundation; and/or
+ * 2) the GNU Lesser General Public License version 2.1, as published by
+ * the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranties of
+ * MERCHANTABILITY, SATISFACTORY QUALITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the applicable version of the GNU Lesser General Public
+ * License for more details.
+ *
+ * You should have received a copy of both the GNU Lesser General Public
+ * License version 3 and version 2.1 along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>
+ *
+ * Authored by: Jason Smith <jason.smith@canonical.com>
+ *
+ */
+
 #ifndef __BAMF_TAB_SOURCE_H__
 #define __BAMF_TAB_SOURCE_H__
 
@@ -19,13 +44,13 @@ typedef struct _BamfTabSourcePrivate	BamfTabSourcePrivate;
 
 struct _BamfTabSource {
 	GObject parent;
-	
+
 	BamfTabSourcePrivate *priv;
 };
 
 struct _BamfTabSourceClass {
 	GObjectClass parent_class;
-	
+
 	/*< methods >*/
 	void      (*show_tab)      (BamfTabSource *source, char *tab_id);
 	char   ** (*tab_ids)       (BamfTabSource *source);
@@ -36,7 +61,7 @@ struct _BamfTabSourceClass {
 
 GType bamf_tab_source_get_type (void) G_GNUC_CONST;
 
-gboolean       bamf_tab_source_show_tab        (BamfTabSource *source, 
+gboolean       bamf_tab_source_show_tab        (BamfTabSource *source,
                                                 char *tab_id,
                                                 GError *error);
 
