@@ -1,19 +1,23 @@
-//  
-//  Copyright (C) 2009 Canonical Ltd.
-// 
-//  This program is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
-// 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-// 
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+/*
+ * Copyright 2009 Canonical Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the the GNU General Public License version 3, as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranties of
+ * MERCHANTABILITY, SATISFACTORY QUALITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the applicable version of the GNU Lesser General Public
+ * License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 3 along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>
+ *
+ * Authored by: Jason Smith <jason.smith@canonical.com>
+ *
+ */
 
 #include "bamf-tab-source.h"
 #include "bamf-matcher.h"
@@ -36,16 +40,16 @@ bamf_control_constructed (GObject *object)
   BamfControl *control;
   DBusGConnection *bus;
   GError *error = NULL;
-  
+
   if (G_OBJECT_CLASS (bamf_control_parent_class)->constructed)
     G_OBJECT_CLASS (bamf_control_parent_class)->constructed (object);
-  
+
   control = BAMF_CONTROL (object);
-  
+
   bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
   g_return_if_fail (bus);
-      
+
   dbus_g_connection_register_g_object (bus, BAMF_CONTROL_PATH,
                                        G_OBJECT (control));
 }
@@ -61,16 +65,16 @@ static void
 bamf_control_class_init (BamfControlClass * klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
-  
+
   obj_class->constructed = bamf_control_constructed;
 
   dbus_g_object_type_install_info (BAMF_TYPE_CONTROL,
 				   &dbus_glib_bamf_control_object_info);
-  
+
   g_type_class_add_private (klass, sizeof (BamfControlPrivate));
 }
 
-gboolean 
+gboolean
 bamf_control_register_application_for_pid (BamfControl *control,
                                            char *application,
                                            gint32 pid,
@@ -82,17 +86,17 @@ bamf_control_register_application_for_pid (BamfControl *control,
   return TRUE;
 }
 
-gboolean      
+gboolean
 bamf_control_insert_desktop_file (BamfControl *control,
                                   char *path,
                                   GError **error)
 {
   bamf_matcher_load_desktop_file (bamf_matcher_get_default (), path);
-  
+
   return TRUE;
 }
 
-gboolean 
+gboolean
 bamf_control_register_tab_provider (BamfControl *control,
                                     char *path,
                                     DBusGMethodInvocation *context)
@@ -105,23 +109,23 @@ bamf_control_register_tab_provider (BamfControl *control,
       dbus_g_method_return (context);
       return TRUE;
     }
-  
+
   bus = dbus_g_method_get_sender (context);
-  
+
   if (!bus)
     {
       dbus_g_method_return (context);
       return TRUE;
     }
-  
+
   source = bamf_tab_source_new (bus, path);
 
   if (!BAMF_IS_TAB_SOURCE (source))
     {
       dbus_g_method_return (context);
       return TRUE;
-    }  
-  
+    }
+
   control->priv->sources = g_list_prepend (control->priv->sources, source);
 
   dbus_g_method_return (context);

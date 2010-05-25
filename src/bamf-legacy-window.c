@@ -1,19 +1,23 @@
-//  
-//  Copyright (C) 2009 Canonical Ltd.
-// 
-//  This program is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
-// 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-// 
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+/*
+ * Copyright 2009 Canonical Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the the GNU General Public License version 3, as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranties of
+ * MERCHANTABILITY, SATISFACTORY QUALITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the applicable version of the GNU Lesser General Public
+ * License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 3 along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>
+ *
+ * Authored by: Jason Smith <jason.smith@canonical.com>
+ *
+ */
 
 #include "bamf-legacy-window.h"
 #include <libgtop-2.0/glibtop.h>
@@ -29,7 +33,7 @@ enum
   NAME_CHANGED,
   STATE_CHANGED,
   CLOSED,
-  
+
   LAST_SIGNAL,
 };
 
@@ -49,12 +53,12 @@ bamf_legacy_window_is_active (BamfLegacyWindow *self)
   WnckWindow *active;
 
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), FALSE);
-  
+
   if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->is_active)
     return BAMF_LEGACY_WINDOW_GET_CLASS (self)->is_active (self);
-  
+
   active = wnck_screen_get_active_window (wnck_screen_get_default ());
-  
+
   return active == self->priv->legacy_window;
 }
 
@@ -107,7 +111,7 @@ bamf_legacy_window_get_class_name (BamfLegacyWindow *self)
   WnckWindow *window;
 
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
-  
+
   window = self->priv->legacy_window;
 
   if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_class_name)
@@ -115,12 +119,12 @@ bamf_legacy_window_get_class_name (BamfLegacyWindow *self)
 
   if (!window)
     return NULL;
-  
+
   group = wnck_window_get_class_group (window);
-  
+
   if (!group)
     return NULL;
-    
+
   return wnck_class_group_get_res_class (group);
 }
 
@@ -148,7 +152,7 @@ bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
   glibtop_proc_args buffer;
 
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
-  
+
   if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_exec_string)
     return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_exec_string (self);
 
@@ -201,7 +205,7 @@ bamf_legacy_window_get_xid (BamfLegacyWindow *self)
 
   if (!self->priv->legacy_window)
     return 0;
-   
+
   return (guint32) wnck_window_get_xid (self->priv->legacy_window);
 }
 
@@ -214,9 +218,9 @@ handle_name_changed (WnckWindow *window, BamfLegacyWindow *self)
 }
 
 static void
-handle_state_changed (WnckWindow *window, 
-                      WnckWindowState change_mask, 
-                      WnckWindowState new_state, 
+handle_state_changed (WnckWindow *window,
+                      WnckWindowState change_mask,
+                      WnckWindowState new_state,
                       BamfLegacyWindow *self)
 {
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
@@ -231,7 +235,7 @@ handle_window_closed (WnckScreen *screen,
 {
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
   g_return_if_fail (WNCK_IS_WINDOW (window));
-  
+
   if (window == self->priv->legacy_window)
     {
       g_signal_emit (self, legacy_window_signals[CLOSED], 0);
@@ -256,7 +260,7 @@ bamf_legacy_window_dispose (GObject *object)
       g_signal_handler_disconnect (self->priv->legacy_window,
                                    self->priv->state_changed_id);
     }
-    
+
   G_OBJECT_CLASS (bamf_legacy_window_parent_class)->dispose (object);
 }
 
@@ -280,37 +284,37 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose      = bamf_legacy_window_dispose;
-  
+
   g_type_class_add_private (klass, sizeof (BamfLegacyWindowPrivate));
-  
-  legacy_window_signals [NAME_CHANGED] = 
+
+  legacy_window_signals [NAME_CHANGED] =
   	g_signal_new ("name-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfLegacyWindowClass, name_changed), 
+  	              G_STRUCT_OFFSET (BamfLegacyWindowClass, name_changed),
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__VOID,
   	              G_TYPE_NONE, 0);
-  
-  legacy_window_signals [STATE_CHANGED] = 
+
+  legacy_window_signals [STATE_CHANGED] =
   	g_signal_new ("state-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfLegacyWindowClass, state_changed), 
+  	              G_STRUCT_OFFSET (BamfLegacyWindowClass, state_changed),
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__VOID,
   	              G_TYPE_NONE, 0);
-  
-  legacy_window_signals [CLOSED] = 
+
+  legacy_window_signals [CLOSED] =
   	g_signal_new ("closed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfLegacyWindowClass, closed), 
+  	              G_STRUCT_OFFSET (BamfLegacyWindowClass, closed),
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__VOID,
   	              G_TYPE_NONE, 0);
-  
-  
+
+
 }
 
 BamfLegacyWindow *
@@ -318,7 +322,7 @@ bamf_legacy_window_new (WnckWindow *legacy_window)
 {
   BamfLegacyWindow *self;
   self = (BamfLegacyWindow *) g_object_new (BAMF_TYPE_LEGACY_WINDOW, NULL);
-  
+
   self->priv->legacy_window = legacy_window;
 
   self->priv->name_changed_id = g_signal_connect (G_OBJECT (legacy_window), "name-changed",

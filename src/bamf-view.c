@@ -1,19 +1,23 @@
-//  
-//  Copyright (C) 2009 Canonical Ltd.
-// 
-//  This program is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
-// 
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-// 
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+/*
+ * Copyright 2009 Canonical Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the the GNU General Public License version 3, as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranties of
+ * MERCHANTABILITY, SATISFACTORY QUALITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the applicable version of the GNU Lesser General Public
+ * License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * version 3 along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>
+ *
+ * Authored by: Jason Smith <jason.smith@canonical.com>
+ *
+ */
 
 #include "bamf-marshal.h"
 #include "bamf-view.h"
@@ -33,7 +37,7 @@ enum
   RUNNING_CHANGED,
   URGENT_CHANGED,
   USER_VISIBLE_CHANGED,
-  
+
   LAST_SIGNAL,
 };
 
@@ -66,7 +70,7 @@ bamf_view_active_changed (BamfView *view, gboolean active)
 
 }
 
-static void 
+static void
 bamf_view_user_visible_changed (BamfView *view, gboolean user_visible)
 {
   gboolean emit = TRUE;
@@ -79,7 +83,7 @@ bamf_view_user_visible_changed (BamfView *view, gboolean user_visible)
     g_signal_emit (view, view_signals[USER_VISIBLE_CHANGED], 0, user_visible);
 }
 
-static void 
+static void
 bamf_view_running_changed (BamfView *view, gboolean running)
 {
   gboolean emit = TRUE;
@@ -92,7 +96,7 @@ bamf_view_running_changed (BamfView *view, gboolean running)
     g_signal_emit (view, view_signals[RUNNING_CHANGED], 0, running);
 }
 
-static void 
+static void
 bamf_view_urgent_changed (BamfView *view, gboolean urgent)
 {
   gboolean emit = TRUE;
@@ -105,7 +109,7 @@ bamf_view_urgent_changed (BamfView *view, gboolean urgent)
     g_signal_emit (view, view_signals[URGENT_CHANGED], 0, urgent);
 }
 
-static void 
+static void
 bamf_view_closed (BamfView *view)
 {
   gboolean emit = TRUE;
@@ -118,7 +122,7 @@ bamf_view_closed (BamfView *view)
     g_signal_emit (view, view_signals[CLOSED], 0);
 }
 
-char * 
+char *
 bamf_view_get_path (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
@@ -126,7 +130,7 @@ bamf_view_get_path (BamfView *view)
   return view->priv->path;
 }
 
-char ** 
+char **
 bamf_view_get_children_paths (BamfView *view)
 {
   char ** paths;
@@ -134,7 +138,7 @@ bamf_view_get_children_paths (BamfView *view)
   int n_items, i;
   GList *child;
   BamfView *cview;
-  
+
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
 
   n_items = g_list_length (view->priv->children);
@@ -149,7 +153,7 @@ bamf_view_get_children_paths (BamfView *view)
 
       if (!path)
         continue;
-      
+
       paths[i] = g_strdup (path);
       i++;
     }
@@ -185,7 +189,7 @@ bamf_view_add_child (BamfView *view,
 		    (GCallback) bamf_view_handle_child_closed, view);
 
   view->priv->children = g_list_prepend (view->priv->children, child);
-  
+
   // Do this by hand so we can pass and object instead of a string
   if (BAMF_VIEW_GET_CLASS (view)->child_added)
     BAMF_VIEW_GET_CLASS (view)->child_added (view, child);
@@ -206,7 +210,7 @@ bamf_view_remove_child (BamfView *view,
   g_signal_handlers_disconnect_by_func (child, bamf_view_handle_child_closed, view);
 
   view->priv->children = g_list_remove (view->priv->children, child);
-  
+
   // Do this by hand so we can pass and object instead of a string
   if (BAMF_VIEW_GET_CLASS (view)->child_removed)
     BAMF_VIEW_GET_CLASS (view)->child_removed (view, child);
@@ -215,7 +219,7 @@ bamf_view_remove_child (BamfView *view,
   g_signal_emit (view, view_signals[CHILD_REMOVED], 0, removed);
 }
 
-gboolean 
+gboolean
 bamf_view_is_active (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
@@ -231,12 +235,12 @@ bamf_view_set_active (BamfView *view,
 
   if (active == view->priv->is_active)
     return;
-    
+
   view->priv->is_active = active;
   bamf_view_active_changed (view, active);
 }
 
-gboolean 
+gboolean
 bamf_view_is_urgent (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
@@ -257,7 +261,7 @@ bamf_view_set_urgent (BamfView *view,
   bamf_view_urgent_changed (view, urgent);
 }
 
-gboolean 
+gboolean
 bamf_view_is_running (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
@@ -286,7 +290,7 @@ bamf_view_user_visible (BamfView *view)
   return view->priv->user_visible;
 }
 
-void 
+void
 bamf_view_set_user_visible (BamfView *view, gboolean user_visible)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
@@ -298,18 +302,18 @@ bamf_view_set_user_visible (BamfView *view, gboolean user_visible)
   bamf_view_user_visible_changed (view, user_visible);
 }
 
-char * 
+char *
 bamf_view_get_icon (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  
-  if (BAMF_VIEW_GET_CLASS (view)->get_icon) 
+
+  if (BAMF_VIEW_GET_CLASS (view)->get_icon)
     return BAMF_VIEW_GET_CLASS (view)->get_icon (view);
 
   return NULL;
 }
 
-char * 
+char *
 bamf_view_get_name (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
@@ -326,14 +330,14 @@ bamf_view_set_name (BamfView *view,
   view->priv->name = g_strdup (name);
 }
 
-char * 
+char *
 bamf_view_get_parent_path (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
 
   if (!BAMF_IS_VIEW (view->priv->parent))
     return NULL;
-  
+
   return bamf_view_get_path (view->priv->parent);
 }
 
@@ -341,14 +345,14 @@ char *
 bamf_view_get_view_type (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  
+
   if (BAMF_VIEW_GET_CLASS (view)->view_type)
     return BAMF_VIEW_GET_CLASS (view)->view_type (view);
-    
+
   return g_strdup ("view");
 }
 
-char * 
+char *
 bamf_view_export_on_bus (BamfView *view)
 {
   char *path = NULL;
@@ -360,7 +364,7 @@ bamf_view_export_on_bus (BamfView *view)
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
 
   if (!view->priv->path)
-    {  
+    {
       num = g_random_int_range (1000, 9999);
       do
         {
@@ -374,16 +378,16 @@ bamf_view_export_on_bus (BamfView *view)
       BAMF_VIEW_GET_CLASS (view)->names = g_list_prepend (BAMF_VIEW_GET_CLASS (view)->names, path);
 
       view->priv->path = path;
-      
+
       bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-      
+
       g_return_val_if_fail (bus, NULL);
 
       dbus_g_connection_register_g_object (bus, path, G_OBJECT (view));
-      
+
       g_signal_emit (view, view_signals[EXPORTED], 0);
-    }  
-  
+    }
+
   return view->priv->path;
 }
 
@@ -391,7 +395,7 @@ gboolean
 bamf_view_is_on_bus (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-  
+
   return view->priv->path != NULL;
 }
 
@@ -401,10 +405,10 @@ bamf_view_dispose (GObject *object)
   DBusGConnection *bus;
   GError *error = NULL;
   GList *l;
-  
+
   BamfView *view = BAMF_VIEW (object);
   BamfViewPrivate *priv = view->priv;
-  
+
   if (!priv->disposed)
     bamf_view_closed (view);
 
@@ -460,17 +464,17 @@ bamf_view_class_init (BamfViewClass * klass)
 				   &dbus_glib_bamf_view_object_info);
 
   g_type_class_add_private (klass, sizeof (BamfViewPrivate));
-  
-  view_signals [ACTIVE_CHANGED] = 
+
+  view_signals [ACTIVE_CHANGED] =
   	g_signal_new ("active-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
   	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
+  	              G_TYPE_NONE, 1,
   	              G_TYPE_BOOLEAN);
 
-  view_signals [CLOSED] = 
+  view_signals [CLOSED] =
   	g_signal_new ("closed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
@@ -478,17 +482,17 @@ bamf_view_class_init (BamfViewClass * klass)
   	              g_cclosure_marshal_VOID__VOID,
   	              G_TYPE_NONE, 0);
 
-  view_signals [CHILD_ADDED] = 
+  view_signals [CHILD_ADDED] =
   	g_signal_new ("child-added",
   	              G_OBJECT_CLASS_TYPE (klass),
-  	              0, 
-  	              0, 
+  	              0,
+  	              0,
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__STRING,
   	              G_TYPE_NONE, 1,
   	              G_TYPE_STRING);
 
-  view_signals [CHILD_REMOVED] = 
+  view_signals [CHILD_REMOVED] =
   	g_signal_new ("child-removed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
@@ -498,7 +502,7 @@ bamf_view_class_init (BamfViewClass * klass)
   	              G_TYPE_NONE, 1,
   	              G_TYPE_STRING);
 
-  view_signals [EXPORTED] = 
+  view_signals [EXPORTED] =
   	g_signal_new ("exported",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
@@ -506,7 +510,7 @@ bamf_view_class_init (BamfViewClass * klass)
   	              g_cclosure_marshal_VOID__VOID,
   	              G_TYPE_NONE, 0);
 
-  view_signals [RUNNING_CHANGED] = 
+  view_signals [RUNNING_CHANGED] =
   	g_signal_new ("running-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
@@ -514,8 +518,8 @@ bamf_view_class_init (BamfViewClass * klass)
   	              g_cclosure_marshal_VOID__BOOLEAN,
   	              G_TYPE_NONE, 1,
   	              G_TYPE_BOOLEAN);
-  
-  view_signals [URGENT_CHANGED] = 
+
+  view_signals [URGENT_CHANGED] =
   	g_signal_new ("urgent-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
@@ -524,7 +528,7 @@ bamf_view_class_init (BamfViewClass * klass)
   	              G_TYPE_NONE, 1,
   	              G_TYPE_BOOLEAN);
 
-  view_signals [USER_VISIBLE_CHANGED] = 
+  view_signals [USER_VISIBLE_CHANGED] =
   	g_signal_new ("user-visible-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
