@@ -46,7 +46,7 @@ Description: Window matching library - debugging symbols for daemon
  .
  This package contains debugging symbols for the daemon.
 
-Package: libbamf0.2
+Package: libbamf0
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
@@ -56,13 +56,13 @@ Description: Window matching library - shared library
  .
  This package contains shared libraries to be used by applications.
 
-Package: libbamf0.2-dbg
+Package: libbamf0-dbg
 Section: debug
 Architecture: any
 Priority: extra
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         libbamf0.2 (= ${binary:Version}),
+         libbamf0 (= ${binary:Version}),
 Description: Window matching library - debugging symbols for the library
  bamf matches application windows to desktop files
  .
@@ -77,7 +77,7 @@ Section: libdevel
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         libbamf0.2 (= ${binary:Version}),
+         libbamf0 (= ${binary:Version}),
          libwnck-dev,
          libglib2.0-dev (>= 2.23.0-1ubuntu3~),
 Description: Window matching library - development files
