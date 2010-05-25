@@ -1,7 +1,7 @@
 CLEANFILES =
 DISTCLEANFILES =
 BUILT_SOURCES =
-EXTRA_DIST = libappindicator/appindicator-0.1.pc.in
+EXTRA_DIST = 
 
 include $(top_srcdir)/Makefile.am.marshal
 
