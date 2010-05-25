@@ -1,8 +1,8 @@
 /*
- * Copyright (C) 2009 Canonical Ltd
+ * Copyright (C) 2010 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 3 as 
+ * it under the terms of the GNU General Public License version 3 as
  * published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -13,9 +13,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Authored by Jason Smith <jason.smith@canonical.com>
+ * Authored by: Jason Smith <jason.smith@canonical.com>
  *
  */
+
 
 #ifndef __BAMFMOCKWINDOW_H__
 #define __BAMFMOCKWINDOW_H__
@@ -65,7 +66,7 @@ struct _BamfLegacyWindowTestClass
 {
   /*< private >*/
   BamfLegacyWindowClass parent_class;
-  
+
   void (*_test_padding1) (void);
   void (*_test_padding2) (void);
   void (*_test_padding3) (void);
