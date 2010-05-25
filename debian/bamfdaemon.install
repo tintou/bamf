@@ -1,0 +1,3 @@
+debian/tmp/usr/lib/bamf
+debian/tmp/usr/lib/gio/modules/libgiobamf.so
+debian/tmp/usr/share/dbus-1/services/

@@ -1,0 +1,13 @@
+#!/usr/bin/make -f
+
+include /usr/share/cdbs/1/class/gnome.mk
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/rules/utils.mk
+
+LDFLAGS += -Wl,-z,defs -Wl,--as-needed
+
+binary-pre-install::
+	find debian/tmp/usr/lib -name \*.la -exec rm {} \;
+	find debian/tmp/usr/lib -name \*.a -exec rm {} \;
+
+common-binary-predeb-arch:: list-missing
