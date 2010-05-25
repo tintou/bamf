@@ -1,5 +1,5 @@
 bamf (0.2.22-0ubuntu1) UNRELEASED; urgency=low
 
-  * Initial Packaging
+  * Initial Packaging (LP: #583880)
 
  -- Didier Roche <didrocks@ubuntu.com>  Tue, 25 May 2010 10:32:24 +0200
