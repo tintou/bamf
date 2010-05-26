@@ -6,11 +6,14 @@ include /usr/share/cdbs/1/rules/utils.mk
 
 LDFLAGS += -Wl,-z,defs -Wl,--as-needed
 
+
+DEB_CONFIGURE_EXTRA_FLAGS := --enable-introspection=no
+
 binary-pre-install::
 	find debian/tmp/usr/lib -name \*.la -exec rm {} \;
 	find debian/tmp/usr/lib -name \*.a -exec rm {} \;
 
-$(patsubst %,binary-predeb/%,$(DEB_ALL_PACKAGES)) ::
-	dh_girepository -p$(cdbs_curpkg)
+common-binary-fixup-arch::
+	dh_girepository -pgir1.0-bamf-0.2
 
 common-binary-predeb-arch:: list-missing
