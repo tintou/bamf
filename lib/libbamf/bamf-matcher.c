@@ -39,6 +39,7 @@
 #include "bamf-factory.h"
 #include "bamf-marshal.h"
 
+#include <string.h>
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
@@ -144,6 +145,42 @@ bamf_matcher_on_view_closed (DBusGProxy *proxy,
 }
 
 static void
+bamf_matcher_on_active_application_changed (DBusGProxy *proxy,
+                                            char *old_path,
+                                            char *new_path,
+                                            BamfMatcher *matcher)
+{
+  BamfView *old_view = NULL;
+  BamfView *new_view = NULL;
+
+  if (old_path && strlen (old_path) > 0)
+    old_view = bamf_factory_view_for_path (bamf_factory_get_default (), old_path);
+
+  if (new_path && strlen (new_path) > 0)
+    new_view = bamf_factory_view_for_path (bamf_factory_get_default (), new_path);
+
+  g_signal_emit (matcher, matcher_signals[ACTIVE_APPLICATION_CHANGED], 0, old_view, new_view);
+}
+
+static void
+bamf_matcher_on_active_window_changed (DBusGProxy *proxy,
+                                       char *old_path,
+                                       char *new_path,
+                                       BamfMatcher *matcher)
+{
+  BamfView *old_view = NULL;
+  BamfView *new_view = NULL;
+
+  if (old_path && strlen (old_path) > 0)
+    old_view = bamf_factory_view_for_path (bamf_factory_get_default (), old_path);
+
+  if (new_path && strlen (new_path) > 0)
+    new_view = bamf_factory_view_for_path (bamf_factory_get_default (), new_path);
+
+  g_signal_emit (matcher, matcher_signals[ACTIVE_WINDOW_CHANGED], 0, old_view, new_view);
+}
+
+static void
 bamf_matcher_init (BamfMatcher *self)
 {
   BamfMatcherPrivate *priv;
@@ -195,6 +232,28 @@ bamf_matcher_init (BamfMatcher *self)
   dbus_g_proxy_connect_signal (priv->proxy,
                                "ViewClosed",
                                (GCallback) bamf_matcher_on_view_closed,
+                               self, NULL);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "ActiveApplicationChanged",
+                           G_TYPE_STRING, 
+                           G_TYPE_STRING,
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "ActiveApplicationChanged",
+                               (GCallback) bamf_matcher_on_active_application_changed,
+                               self, NULL);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "ActiveWindowChanged",
+                           G_TYPE_STRING, 
+                           G_TYPE_STRING,
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "ActiveWindowChanged",
+                               (GCallback) bamf_matcher_on_active_window_changed,
                                self, NULL);
 }
 
