@@ -72,7 +72,7 @@ on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
       /* Do some handy short circuiting so we can assume a signal
        * will be generated at the end of this
        */
-      if (!active && !priv->active_app)
+      if (!active && priv->active_app != view)
         return;
 
       if (active && priv->active_app == view)
@@ -96,7 +96,7 @@ on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
       /* Do some handy short circuiting so we can assume a signal
        * will be generated at the end of this
        */
-      if (!active && !priv->active_win)
+      if (!active && priv->active_win != view)
         return;
 
       if (active && priv->active_win == view)
