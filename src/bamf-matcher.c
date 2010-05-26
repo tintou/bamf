@@ -510,7 +510,6 @@ load_index_file_to_table (BamfMatcher * self,
       if (exec_string_should_be_processed (self, exec))
         {
           char *tmp = process_exec_string (self, exec);
-          g_free (exec);
           exec = tmp;
         }
 
