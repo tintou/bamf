@@ -1,5 +1,7 @@
 bamf (0.2.22-0ubuntu1) UNRELEASED; urgency=low
 
   * Initial Packaging (LP: #583880)
+  * temporary disabling gir building due to bug:
+    https://bugzilla.gnome.org/show_bug.cgi?id=619703
 
  -- Didier Roche <didrocks@ubuntu.com>  Tue, 25 May 2010 10:32:24 +0200
