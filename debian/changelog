@@ -1,3 +1,9 @@
+bamf (0.2.24-0ubuntu1) maverick; urgency=low
+
+  * New upstream release.
+
+ -- Didier Roche <didrocks@ubuntu.com>  Thu, 27 May 2010 18:35:29 +0200
+
 bamf (0.2.22-0ubuntu1) maverick; urgency=low
 
   * Initial Packaging (LP: #583880)
