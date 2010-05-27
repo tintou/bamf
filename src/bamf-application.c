@@ -78,6 +78,7 @@ bamf_application_set_desktop_file (BamfApplication *application,
 {
   GDesktopAppInfo *desktop;
   GIcon *icon;
+  const char *name;
 
   g_return_if_fail (BAMF_IS_APPLICATION (application));
 
@@ -88,8 +89,11 @@ bamf_application_set_desktop_file (BamfApplication *application,
     return;
 
   icon = g_app_info_get_icon (G_APP_INFO (desktop));
+  name = g_app_info_get_display_name (G_APP_INFO (desktop));
 
   application->priv->icon = g_icon_to_string (icon);
+
+  bamf_view_set_name (BAMF_VIEW (application), name);
 
   g_object_unref (desktop);
 }
@@ -224,6 +228,13 @@ bamf_application_child_added (BamfView *view, BamfView *child)
       else
         g_signal_connect (G_OBJECT (child), "exported",
                           (GCallback) view_exported, view);
+    }
+
+  // If we're not a real application, get some properties from our first child
+  if (application->priv->desktop_file == NULL)
+    {
+      if (bamf_view_get_name (view) == NULL)
+        bamf_view_set_name (view, bamf_view_get_name (child));
     }
 
   g_signal_connect (G_OBJECT (child), "active-changed",
