@@ -349,9 +349,7 @@ static gboolean
 exec_string_should_be_processed (BamfMatcher *self,
                                  char *exec)
 {
-  return !(g_str_has_prefix (exec, "chromium-browser") &&
-           g_strrstr (exec, "--app")) &&
-         !g_str_has_prefix (exec, "ooffice");
+  return !g_str_has_prefix (exec, "ooffice");
 }
 
 static void
