@@ -195,6 +195,40 @@ bamf_application_get_xids (BamfApplication *application)
   return xids;
 }
 
+gboolean          
+bamf_application_contains_similar_to_window (BamfApplication *self, 
+                                             BamfWindow *window)
+{
+  gboolean result = FALSE;
+  const char *class, *owned_class;
+  GList *children, *l;
+  BamfView *child;
+  
+  g_return_val_if_fail (BAMF_IS_APPLICATION (self), FALSE);
+  g_return_val_if_fail (BAMF_IS_WINDOW (window), FALSE);
+  
+  class = bamf_legacy_window_get_class_name (bamf_window_get_window (window));
+  
+  children = bamf_view_get_children (BAMF_VIEW (self));
+  for (l = children; l; l = l->next)
+    {
+      child = l->data;
+      
+      if (!BAMF_IS_WINDOW (child))
+        continue;
+      
+      owned_class = bamf_legacy_window_get_class_name (bamf_window_get_window (BAMF_WINDOW (child)));
+      
+      if (g_strcmp0 (class, owned_class) == 0)
+        {
+          result = TRUE;
+          break;
+        }
+    }
+  
+  return result;
+}
+
 gboolean
 bamf_application_manages_xid (BamfApplication *application,
                               guint32 xid)

@@ -818,6 +818,10 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
 
   possible_apps = bamf_matcher_possible_applications_for_window (self, bamf_window);
 
+  /* Loop over every application, inside that application see if its .desktop file
+   * matches with any of our possible hits. If so we match it. If we have no possible hits
+   * fall back to secondary matching. 
+   */
   for (a = views; a && !best; a = a->next)
     {
       view = a->data;
@@ -826,18 +830,29 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
         continue;
 
       app = BAMF_APPLICATION (view);
-
       desktop_file = bamf_application_get_desktop_file (app);
-
-      for (i = 0; i < possible_apps->len; i++)
+      
+      if (possible_apps->len > 0)
         {
-          if (g_strcmp0 (desktop_file, g_array_index (possible_apps, char *, i)) == 0)
+          /* primary matching */
+
+          for (i = 0; i < possible_apps->len; i++)
             {
-              best = app;
-              break;
+              if (g_strcmp0 (desktop_file, g_array_index (possible_apps, char *, i)) == 0)
+                {
+                  best = app;
+                  break;
+                }
             }
         }
-
+      else if (desktop_file == NULL) 
+        {
+          /* secondary matching */
+          
+          if (bamf_application_contains_similar_to_window (app, bamf_window))
+            best = app;
+        }
+        
       g_free (desktop_file);
     }
 
