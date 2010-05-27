@@ -72,7 +72,7 @@ on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
       /* Do some handy short circuiting so we can assume a signal
        * will be generated at the end of this
        */
-      if (!active && !priv->active_app)
+      if (!active && priv->active_app != view)
         return;
 
       if (active && priv->active_app == view)
@@ -96,7 +96,7 @@ on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
       /* Do some handy short circuiting so we can assume a signal
        * will be generated at the end of this
        */
-      if (!active && !priv->active_win)
+      if (!active && priv->active_win != view)
         return;
 
       if (active && priv->active_win == view)
@@ -371,6 +371,9 @@ load_desktop_file_to_table (BamfMatcher * self,
 
   desktop_file = G_APP_INFO (g_desktop_app_info_new_from_filename (file));
 
+  if (!G_IS_APP_INFO (desktop_file))
+    return;
+
   exec = g_strdup (g_app_info_get_commandline (desktop_file));
 
   g_object_unref (desktop_file);
@@ -510,7 +513,6 @@ load_index_file_to_table (BamfMatcher * self,
       if (exec_string_should_be_processed (self, exec))
         {
           char *tmp = process_exec_string (self, exec);
-          g_free (exec);
           exec = tmp;
         }
 
