@@ -55,7 +55,7 @@ Description: Window matching library - development files
  .
  This package contains files that are needed to build applications.
 
-Package: libbamf0-dbg
+Package: bamf-dbg
 Section: debug
 Architecture: any
 Priority: extra
