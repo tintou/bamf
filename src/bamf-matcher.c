@@ -946,26 +946,6 @@ ensure_window_hint_set (BamfMatcher *self,
     set_window_hint (self, window, _NET_WM_DESKTOP_FILE, window_hint);
 }
 
-gboolean
-bamf_matcher_window_is_match_ready (BamfMatcher * self,
-		                    BamfLegacyWindow * window)
-{
-  char *file;
-
-  if (!is_open_office_window (self, window))
-    return TRUE;
-
-  file = get_open_office_window_hint (self, window);
-
-  if (file)
-    {
-      g_free (file);
-      return TRUE;
-    }
-
-  return FALSE;
-}
-
 static void
 handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, gpointer data)
 {
