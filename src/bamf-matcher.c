@@ -27,6 +27,9 @@
 #include "bamf-legacy-window-test.h"
 #include "bamf-legacy-screen.h"
 
+#define GMENU_I_KNOW_THIS_IS_UNSTABLE
+#include <gnome-menus/gmenu-tree.h>
+
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, G_TYPE_OBJECT);
 #define BAMF_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_MATCHER, BamfMatcherPrivate))
@@ -549,9 +552,23 @@ load_index_file_to_table (BamfMatcher * self,
   g_free ((gpointer) directory);
 }
 
+static GList *
+get_desktop_file_directories (BamfMatcher *self)
+{
+  GList *dirs = NULL;
+  
+  dirs = g_list_prepend (dirs, g_strdup ("/usr/share/applications"));
+  dirs = g_list_prepend (dirs, g_strdup ("/usr/local/share/applications"));
+  dirs = g_list_prepend (dirs, g_strdup (g_build_filename (g_get_home_dir (), ".share/applications", NULL)));
+  
+  return dirs;
+}
+
 static void
 create_desktop_file_table (BamfMatcher * self, GHashTable **desktop_file_table, GHashTable **desktop_id_table)
 {
+  GList *directories;
+
   *desktop_file_table =
     g_hash_table_new_full ((GHashFunc) g_str_hash,
                            (GEqualFunc) g_str_equal,
@@ -566,17 +583,18 @@ create_desktop_file_table (BamfMatcher * self, GHashTable **desktop_file_table, 
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
 
-  const char *directories[] = { "/usr/share/applications",
-                                "/usr/local/share/applications",
-                                g_build_filename (g_get_home_dir (), ".local/share/applications", NULL),
-                                NULL };
-  const char **directory;
-  for (directory = directories; *directory; directory++)
+  directories = get_desktop_file_directories (self);
+
+  GList *l;
+  char *directory;
+  for (l = directories; l; l = l->next)
     {
-      if (!g_file_test (*directory, G_FILE_TEST_IS_DIR))
+      directory = l->data;
+      
+      if (!g_file_test (directory, G_FILE_TEST_IS_DIR))
         continue;
 
-      const char *bamf_file = g_build_filename (*directory, "bamf.index", NULL);
+      const char *bamf_file = g_build_filename (directory, "bamf.index", NULL);
 
       if (g_file_test (bamf_file, G_FILE_TEST_EXISTS))
         {
@@ -584,11 +602,14 @@ create_desktop_file_table (BamfMatcher * self, GHashTable **desktop_file_table, 
         }
       else
         {
-          load_directory_to_table (self, *directory, *desktop_file_table, *desktop_id_table);
+          load_directory_to_table (self, directory, *desktop_file_table, *desktop_id_table);
         }
 
+      g_free (directory);
       g_free ((gpointer) bamf_file);
     }
+  
+  g_list_free (directories);
 }
 
 static gboolean
