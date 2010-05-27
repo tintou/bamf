@@ -32,22 +32,6 @@ Description: Window matching library - daemon
  module that facilitates the matching of applications started
  through GDesktopAppInfo
 
-Package: bamfdaemon-dbg
-Section: debug
-Architecture: any
-Priority: extra
-Depends: ${shlibs:Depends},
-         ${misc:Depends},
-         bamfdaemon (= ${binary:Version}),
-Description: Window matching library - debugging symbols for daemon
- bamf matches application windows to desktop files
- .
- This package contains the daemon used by the library and a gio
- module that facilitates the matching of applications started
- through GDesktopAppInfo
- .
- This package contains debugging symbols for the daemon.
-
 Package: libbamf0
 Architecture: any
 Depends: ${shlibs:Depends},
@@ -57,22 +41,6 @@ Description: Window matching library - shared library
  bamf matches application windows to desktop files
  .
  This package contains shared libraries to be used by applications.
-
-Package: libbamf0-dbg
-Section: debug
-Architecture: any
-Priority: extra
-Depends: ${shlibs:Depends},
-         ${misc:Depends},
-         libbamf0 (= ${binary:Version}),
-Description: Window matching library - debugging symbols for the library
- bamf matches application windows to desktop files
- .
- This package contains the daemon used by the library and a gio
- module that facilitates the matching of applications started
- through GDesktopAppInfo
- .
- This package contains debugging symbols for the library.
 
 Package: libbamf-dev
 Section: libdevel
@@ -86,6 +54,22 @@ Description: Window matching library - development files
  bamf matches application windows to desktop files
  .
  This package contains files that are needed to build applications.
+
+Package: libbamf0-dbg
+Section: debug
+Architecture: any
+Priority: extra
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         libbamf0 (= ${binary:Version}),
+Description: Window matching library - debugging symbols
+ bamf matches application windows to desktop files
+ .
+ This package contains the daemon used by the library and a gio
+ module that facilitates the matching of applications started
+ through GDesktopAppInfo
+ .
+ This package contains debugging symbols for the daemon and library.
 
 #Package: gir1.0-bamf-0.2
 #Section: libs

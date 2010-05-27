@@ -6,8 +6,9 @@ include /usr/share/cdbs/1/rules/utils.mk
 
 LDFLAGS += -Wl,-z,defs -Wl,--as-needed
 
-
 DEB_CONFIGURE_EXTRA_FLAGS := --enable-introspection=no
+DEB_DBG_PACKAGE_bamfdaemon = libbamf0-dbg
+DEB_DBG_PACKAGE_libbamf0 = libbamf0-dbg
 
 binary-pre-install::
 	find debian/tmp/usr/lib -name \*.la -exec rm {} \;
