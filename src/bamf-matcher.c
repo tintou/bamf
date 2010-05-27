@@ -556,10 +556,35 @@ static GList *
 get_desktop_file_directories (BamfMatcher *self)
 {
   GList *dirs = NULL;
+  const char *env;
+  char  *path;
+  char **data_dirs = NULL;
+  char **data;
   
-  dirs = g_list_prepend (dirs, g_strdup ("/usr/share/applications"));
-  dirs = g_list_prepend (dirs, g_strdup ("/usr/local/share/applications"));
+  env = g_getenv ("XDG_DATA_DIRS");
+  
+  if (env)
+    data_dirs = g_strsplit (env, ":", 0);
+  
+  for (data = data_dirs; *data; data++)
+    {
+      path = g_build_filename (*data, "applications", NULL);
+      if (g_file_test (path, G_FILE_TEST_IS_DIR))
+        dirs = g_list_prepend (dirs, path);
+      else
+        g_free (path);
+    }
+  
+  if (!g_list_find_custom (dirs, "/usr/share/applications", (GCompareFunc) g_strcmp0))
+    dirs = g_list_prepend (dirs, g_strdup ("/usr/share/applications"));
+  
+  if (!g_list_find_custom (dirs, "/usr/local/share/applications", (GCompareFunc) g_strcmp0))
+    dirs = g_list_prepend (dirs, g_strdup ("/usr/local/share/applications"));
+  
   dirs = g_list_prepend (dirs, g_strdup (g_build_filename (g_get_home_dir (), ".share/applications", NULL)));
+  
+  if (data_dirs)
+    g_strfreev (data_dirs);
   
   return dirs;
 }
