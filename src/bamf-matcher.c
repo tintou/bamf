@@ -27,9 +27,6 @@
 #include "bamf-legacy-window-test.h"
 #include "bamf-legacy-screen.h"
 
-#define GMENU_I_KNOW_THIS_IS_UNSTABLE
-#include <gnome-menus/gmenu-tree.h>
-
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, G_TYPE_OBJECT);
 #define BAMF_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_MATCHER, BamfMatcherPrivate))
