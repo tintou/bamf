@@ -55,6 +55,7 @@ struct _BamfMatcherPrivate
   GHashTable      * exec_list;
   GHashTable      * registered_pids;
   GList           * views;
+  GList           * monitors;
   BamfView        * active_app;
   BamfView        * active_win;
 };
@@ -589,10 +590,52 @@ get_desktop_file_directories (BamfMatcher *self)
   return dirs;
 }
 
+static gboolean
+hash_table_remove_values (gpointer key, gpointer value, gpointer target)
+{
+  return g_strcmp0 ((char *) value, (char *) target) == 0;
+}
+
+static void
+on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFileMonitorEvent type, BamfMatcher *self)
+{
+  char *path;
+
+  g_return_if_fail (G_IS_FILE_MONITOR (monitor));
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+  
+  if (type != G_FILE_MONITOR_EVENT_CHANGED && type != G_FILE_MONITOR_EVENT_DELETED)
+    return;
+  
+  g_return_if_fail (G_IS_FILE (file));
+  path = g_file_get_path (file);
+  
+  if (!g_str_has_suffix (path, ".desktop"))
+    goto out;
+      
+  if (type == G_FILE_MONITOR_EVENT_CREATED)
+    {
+      bamf_matcher_load_desktop_file (self, path);
+    }
+  else if (type == G_FILE_MONITOR_EVENT_DELETED)
+    {
+      g_hash_table_foreach_remove (self->priv->desktop_id_table, (GHRFunc) hash_table_remove_values, path);
+      g_hash_table_foreach_remove (self->priv->desktop_file_table, (GHRFunc) hash_table_remove_values, path);
+    }
+
+out:
+  g_free (path);
+}
+
 static void
 create_desktop_file_table (BamfMatcher * self, GHashTable **desktop_file_table, GHashTable **desktop_id_table)
 {
   GList *directories;
+  GList *l;
+  char *directory;
+  const char *bamf_file;
+  GFile *file;
+  GFileMonitor *monitor;
 
   *desktop_file_table =
     g_hash_table_new_full ((GHashFunc) g_str_hash,
@@ -610,16 +653,21 @@ create_desktop_file_table (BamfMatcher * self, GHashTable **desktop_file_table, 
 
   directories = get_desktop_file_directories (self);
 
-  GList *l;
-  char *directory;
   for (l = directories; l; l = l->next)
     {
       directory = l->data;
       
       if (!g_file_test (directory, G_FILE_TEST_IS_DIR))
         continue;
-
-      const char *bamf_file = g_build_filename (directory, "bamf.index", NULL);
+      
+      file = g_file_new_for_path (directory);
+      monitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE, NULL, NULL);
+      
+      self->priv->monitors = g_list_prepend (self->priv->monitors, monitor);
+      
+      g_signal_connect (monitor, "changed", (GCallback) on_monitor_changed, self);
+      
+      bamf_file = g_build_filename (directory, "bamf.index", NULL);
 
       if (g_file_test (bamf_file, G_FILE_TEST_EXISTS))
         {
