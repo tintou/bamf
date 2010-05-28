@@ -27,6 +27,9 @@
 #include "bamf-legacy-window-test.h"
 #include "bamf-legacy-screen.h"
 
+#define GMENU_I_KNOW_THIS_IS_UNSTABLE
+#include <gnome-menus/gmenu-tree.h>
+
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, G_TYPE_OBJECT);
 #define BAMF_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_MATCHER, BamfMatcherPrivate))
@@ -52,6 +55,7 @@ struct _BamfMatcherPrivate
   GHashTable      * exec_list;
   GHashTable      * registered_pids;
   GList           * views;
+  GList           * monitors;
   BamfView        * active_app;
   BamfView        * active_win;
 };
@@ -349,9 +353,7 @@ static gboolean
 exec_string_should_be_processed (BamfMatcher *self,
                                  char *exec)
 {
-  return !(g_str_has_prefix (exec, "chromium-browser") &&
-           g_strrstr (exec, "--app")) &&
-         !g_str_has_prefix (exec, "ooffice");
+  return !g_str_has_prefix (exec, "ooffice");
 }
 
 static void
@@ -554,9 +556,90 @@ load_index_file_to_table (BamfMatcher * self,
   g_free ((gpointer) directory);
 }
 
+static GList *
+get_desktop_file_directories (BamfMatcher *self)
+{
+  GList *dirs = NULL;
+  const char *env;
+  char  *path;
+  char **data_dirs = NULL;
+  char **data;
+  
+  env = g_getenv ("XDG_DATA_DIRS");
+  
+  if (env)
+    data_dirs = g_strsplit (env, ":", 0);
+  
+  for (data = data_dirs; *data; data++)
+    {
+      path = g_build_filename (*data, "applications", NULL);
+      if (g_file_test (path, G_FILE_TEST_IS_DIR))
+        dirs = g_list_prepend (dirs, path);
+      else
+        g_free (path);
+    }
+  
+  if (!g_list_find_custom (dirs, "/usr/share/applications", (GCompareFunc) g_strcmp0))
+    dirs = g_list_prepend (dirs, g_strdup ("/usr/share/applications"));
+  
+  if (!g_list_find_custom (dirs, "/usr/local/share/applications", (GCompareFunc) g_strcmp0))
+    dirs = g_list_prepend (dirs, g_strdup ("/usr/local/share/applications"));
+  
+  dirs = g_list_prepend (dirs, g_strdup (g_build_filename (g_get_home_dir (), ".share/applications", NULL)));
+  
+  if (data_dirs)
+    g_strfreev (data_dirs);
+  
+  return dirs;
+}
+
+static gboolean
+hash_table_remove_values (gpointer key, gpointer value, gpointer target)
+{
+  return g_strcmp0 ((char *) value, (char *) target) == 0;
+}
+
+static void
+on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFileMonitorEvent type, BamfMatcher *self)
+{
+  char *path;
+
+  g_return_if_fail (G_IS_FILE_MONITOR (monitor));
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+  
+  if (type != G_FILE_MONITOR_EVENT_CHANGED && type != G_FILE_MONITOR_EVENT_DELETED)
+    return;
+  
+  g_return_if_fail (G_IS_FILE (file));
+  path = g_file_get_path (file);
+  
+  if (!g_str_has_suffix (path, ".desktop"))
+    goto out;
+      
+  if (type == G_FILE_MONITOR_EVENT_CREATED)
+    {
+      bamf_matcher_load_desktop_file (self, path);
+    }
+  else if (type == G_FILE_MONITOR_EVENT_DELETED)
+    {
+      g_hash_table_foreach_remove (self->priv->desktop_id_table, (GHRFunc) hash_table_remove_values, path);
+      g_hash_table_foreach_remove (self->priv->desktop_file_table, (GHRFunc) hash_table_remove_values, path);
+    }
+
+out:
+  g_free (path);
+}
+
 static void
 create_desktop_file_table (BamfMatcher * self, GHashTable **desktop_file_table, GHashTable **desktop_id_table)
 {
+  GList *directories;
+  GList *l;
+  char *directory;
+  const char *bamf_file;
+  GFile *file;
+  GFileMonitor *monitor;
+
   *desktop_file_table =
     g_hash_table_new_full ((GHashFunc) g_str_hash,
                            (GEqualFunc) g_str_equal,
@@ -571,17 +654,23 @@ create_desktop_file_table (BamfMatcher * self, GHashTable **desktop_file_table, 
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
 
-  const char *directories[] = { "/usr/share/applications",
-                                "/usr/local/share/applications",
-                                g_build_filename (g_get_home_dir (), ".local/share/applications", NULL),
-                                NULL };
-  const char **directory;
-  for (directory = directories; *directory; directory++)
-    {
-      if (!g_file_test (*directory, G_FILE_TEST_IS_DIR))
-        continue;
+  directories = get_desktop_file_directories (self);
 
-      const char *bamf_file = g_build_filename (*directory, "bamf.index", NULL);
+  for (l = directories; l; l = l->next)
+    {
+      directory = l->data;
+      
+      if (!g_file_test (directory, G_FILE_TEST_IS_DIR))
+        continue;
+      
+      file = g_file_new_for_path (directory);
+      monitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE, NULL, NULL);
+      
+      self->priv->monitors = g_list_prepend (self->priv->monitors, monitor);
+      
+      g_signal_connect (monitor, "changed", (GCallback) on_monitor_changed, self);
+      
+      bamf_file = g_build_filename (directory, "bamf.index", NULL);
 
       if (g_file_test (bamf_file, G_FILE_TEST_EXISTS))
         {
@@ -589,11 +678,14 @@ create_desktop_file_table (BamfMatcher * self, GHashTable **desktop_file_table, 
         }
       else
         {
-          load_directory_to_table (self, *directory, *desktop_file_table, *desktop_id_table);
+          load_directory_to_table (self, directory, *desktop_file_table, *desktop_id_table);
         }
 
+      g_free (directory);
       g_free ((gpointer) bamf_file);
     }
+  
+  g_list_free (directories);
 }
 
 static gboolean
@@ -685,12 +777,10 @@ static GArray *
 bamf_matcher_possible_applications_for_window (BamfMatcher *self,
                                                BamfWindow *bamf_window)
 {
-  char *hint = NULL, *chrome_app_url = NULL, *file = NULL, *exec = NULL;
+  char *hint = NULL, *file = NULL, *exec = NULL;
   BamfMatcherPrivate *priv;
   BamfLegacyWindow *window;
   GArray *desktop_files = NULL;
-  GHashTableIter iter;
-  gpointer key, value;
 
   g_return_val_if_fail (BAMF_IS_WINDOW (bamf_window), NULL);
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
@@ -701,57 +791,9 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
   window = bamf_window_get_window (bamf_window);
 
   hint = get_window_hint (self, window, _NET_WM_DESKTOP_FILE);
-  chrome_app_url = get_window_hint (self, window, _CHROME_APP_URL);
-  if (chrome_app_url && strlen (chrome_app_url) > 2)
+
+  if (hint && strlen (hint) > 0)
     {
-      /* We have a chrome app, lets find its desktop file */
-
-      /* We need to replace _/ with / as chromium will signal the "base name" of the url
-       * by placing a _ after it. So www.google.com/reader becomes www.google.com_/reader to
-       * chromium. We are restoring the original URL.
-       */
-      char *tmp = chrome_app_url;
-      GRegex *regex = g_regex_new ("_/", 0, 0, NULL);
-
-      chrome_app_url = g_regex_replace_literal (regex,
-                                                chrome_app_url,
-                                                -1, 0,
-                                                 "/",
-                                                 0, NULL);
-
-      g_free (tmp);
-      g_regex_unref (regex);
-
-      /* remove trailing slash */
-      if (g_str_has_suffix (chrome_app_url, "/"))
-        chrome_app_url = g_strndup (chrome_app_url, strlen (chrome_app_url) - 1); /* LEAK */
-
-      /* Do a slow iteration over every .desktop file in our hash table, we are looking
-       * for a chromium instance which contains --app and chrome_app_url
-       */
-
-      regex = g_regex_new (g_strdup_printf ("chromium-browser (.* )?--app( |=)\"?(http://|https://)?%s/?\"?( |$)",
-                                            chrome_app_url), 0, 0, NULL);
-
-      g_hash_table_iter_init (&iter, priv->desktop_file_table);
-      while (g_hash_table_iter_next (&iter, &key, &value))
-        {
-          char *exec_line = (char*) key;
-          char *file_path = (char*) value;
-
-          if (g_regex_match (regex, exec_line, 0, NULL))
-            {
-              /* We have found a match */
-              file = g_strdup (file_path);
-              g_array_append_val (desktop_files, file);
-            }
-        }
-
-      g_regex_unref (regex);
-    }
-  else if (hint && strlen (hint) > 0)
-    {
-      /* We have a window that has a hint that is NOT a chrome app */
       g_array_append_val (desktop_files, hint);
       /* whew, hard work, didn't even have to make a copy! */
     }
@@ -821,6 +863,10 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
 
   possible_apps = bamf_matcher_possible_applications_for_window (self, bamf_window);
 
+  /* Loop over every application, inside that application see if its .desktop file
+   * matches with any of our possible hits. If so we match it. If we have no possible hits
+   * fall back to secondary matching. 
+   */
   for (a = views; a && !best; a = a->next)
     {
       view = a->data;
@@ -829,18 +875,29 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
         continue;
 
       app = BAMF_APPLICATION (view);
-
       desktop_file = bamf_application_get_desktop_file (app);
-
-      for (i = 0; i < possible_apps->len; i++)
+      
+      if (possible_apps->len > 0)
         {
-          if (g_strcmp0 (desktop_file, g_array_index (possible_apps, char *, i)) == 0)
+          /* primary matching */
+
+          for (i = 0; i < possible_apps->len; i++)
             {
-              best = app;
-              break;
+              if (g_strcmp0 (desktop_file, g_array_index (possible_apps, char *, i)) == 0)
+                {
+                  best = app;
+                  break;
+                }
             }
         }
-
+      else if (desktop_file == NULL) 
+        {
+          /* secondary matching */
+          
+          if (bamf_application_contains_similar_to_window (app, bamf_window))
+            best = app;
+        }
+        
       g_free (desktop_file);
     }
 
@@ -932,26 +989,6 @@ ensure_window_hint_set (BamfMatcher *self,
 
   if (window_hint)
     set_window_hint (self, window, _NET_WM_DESKTOP_FILE, window_hint);
-}
-
-gboolean
-bamf_matcher_window_is_match_ready (BamfMatcher * self,
-		                    BamfLegacyWindow * window)
-{
-  char *file;
-
-  if (!is_open_office_window (self, window))
-    return TRUE;
-
-  file = get_open_office_window_hint (self, window);
-
-  if (file)
-    {
-      g_free (file);
-      return TRUE;
-    }
-
-  return FALSE;
 }
 
 static void
