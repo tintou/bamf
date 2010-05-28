@@ -69,9 +69,9 @@ bamf_legacy_window_is_desktop_window (BamfLegacyWindow *self)
   if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->is_desktop)
     return BAMF_LEGACY_WINDOW_GET_CLASS (self)->is_desktop (self);
 
-  if (!self->priv->legacy_window)
-    return FALSE;
-  return (wnck_window_get_window_type (self->priv->legacy_window) & WNCK_WINDOW_DESKTOP);
+  g_return_val_if_fail (self->priv->legacy_window, FALSE);
+
+  return (wnck_window_get_window_type (self->priv->legacy_window) == WNCK_WINDOW_DESKTOP);
 }
 
 gboolean
