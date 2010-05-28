@@ -334,6 +334,13 @@ bamf_application_child_added (BamfView *view, BamfView *child)
                           (GCallback) view_exported, view);
     }
 
+  // If we're not a real application, get some properties from our first child
+  if (application->priv->desktop_file == NULL)
+    {
+      if (bamf_view_get_name (view) == NULL)
+        bamf_view_set_name (view, bamf_view_get_name (child));
+    }
+
   g_signal_connect (G_OBJECT (child), "active-changed",
                     (GCallback) view_active_changed, view);
   g_signal_connect (G_OBJECT (child), "urgent-changed",
