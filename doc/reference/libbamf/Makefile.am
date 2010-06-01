@@ -42,12 +42,16 @@ content_files =
 
 # CFLAGS and LDFLAGS for compiling gtkdoc-scangobj with your library.
 INCLUDES= \
-  -I$(top_srcdir)/src   \
-  $(ZEITGEIST_CFLAGS)
+  -I$(top_srcdir)/lib/libbamf   \
+  $(LIBWSBIND_CFLAGS) \
+  $(GLIB_CFLAGS) \
+  $(DBUS_CFLAGS)
 
 GTKDOC_LIBS = \
-  $(ZEITGEIST_LIBS) \
-  $(top_builddir)/src/libzeitgeist-1.0.la
+  $(LIBWSBIND_LIBS) \
+  $(GLIB_LIBS) \
+  $(DBUS_LIBS) \
+  $(top_builddir)/lib/libbamf/libbamf.la
 
 # This includes the standard gtk-doc make rules, copied by gtkdocize.
 include $(top_srcdir)/gtk-doc.make
