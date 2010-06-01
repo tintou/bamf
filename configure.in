@@ -81,6 +81,11 @@ GOBJECT_INTROSPECTION_CHECK([0.6.7])
 AC_PATH_PROG([VALA_API_GEN], [vapigen])
 AC_PATH_PROG([GLIB_GENMARSHAL], [glib-genmarshal])
 
+###########################
+# GTK-DOC
+###########################
+GTK_DOC_CHECK(1.0)
+
 
 #
 # Gnome/GTK checks
@@ -108,6 +113,9 @@ tests/bamfdaemon/Makefile
 tests/libbamf/Makefile
 data/Makefile
 module/Makefile
+doc/Makefile
+doc/reference/Makefile
+doc/reference/libbamf/Makefile
 ])
 
 cat <<EOF
