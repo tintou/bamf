@@ -26,14 +26,14 @@ sources_h = \
   bamf-window.h \
   bamf-factory.h \
   bamf-tab-source.h \
-  bamf-tab-source-glue.h \
-  bamf-marshal.h \
   libbamf.h \
   $(NULL)
 
 libbamf_la_SOURCES = \
   $(sources_h) \
   $(libbamf_sources) \
+  bamf-tab-source-glue.h \
+  bamf-marshal.h \
   $(NULL)
 
 libbamf_la_LIBADD = \
@@ -63,8 +63,8 @@ DISTCLEANFILES += \
 glib_marshal_list = bamf-marshal.list
 glib_marshal_prefix = bamf_marshal
 
-bamf-tab-source-glue.h: bamf-tab-source-glue.xml Makefile
-		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_tab_source --mode=glib-server --output=$@ $<
+bamf-tab-source-glue.h: bamf-tab-source-glue.xml
+	$(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_tab_source --mode=glib-server --output=$@ $<
 
 BUILT_SOURCES += \
 	bamf-tab-source-glue.h \
