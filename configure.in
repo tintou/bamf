@@ -51,6 +51,9 @@ PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.16.0 gio-2.0 gio-unix-2.0)
 # dbus
 #
 PKG_CHECK_MODULES(DBUS, dbus-glib-1 >= 0.76)
+AC_SUBST(DBUS_LIBS)
+AC_SUBST(DBUS_CFLAGS)
+
 DBUS_GLIB_BIN="`$PKG_CONFIG --variable=exec_prefix dbus-glib-1`/bin"
 AC_SUBST(DBUS_GLIB_BIN)
 
