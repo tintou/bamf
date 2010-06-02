@@ -50,10 +50,25 @@ Depends: ${shlibs:Depends},
          libbamf0 (= ${binary:Version}),
          libwnck-dev,
          libglib2.0-dev (>= 2.23.0-1ubuntu3~),
+Suggests: libbamf-doc
 Description: Window matching library - development files
  bamf matches application windows to desktop files
  .
  This package contains files that are needed to build applications.
+
+Package: libbamf-doc
+Section: doc
+Architecture: all
+Depends: ${misc:Depends}
+Suggests: devhelp
+Description: Window matching library - documentation
+ bamf matches application windows to desktop files
+ .
+ This package contains the daemon used by the library and a gio
+ module that facilitates the matching of applications started
+ through GDesktopAppInfo
+ .
+ This package contains the documentation
 
 Package: bamf-dbg
 Section: debug
