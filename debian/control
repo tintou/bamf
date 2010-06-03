@@ -92,7 +92,7 @@ Description: Window matching library - debugging symbols
 #Depends: ${gir:Depends},
 #         ${shlibs:Depends},
 #         ${misc:Depends}
-#Description: GObject introspection data for the Bamf 0Clutter 1.0 library
+#Description: GObject introspection data for the Bamf 0 library
 # This package contains introspection data for the Bamf library.
 # .
 # It can be used by packages using the GIRepository format to generate
