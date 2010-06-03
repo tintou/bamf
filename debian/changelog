@@ -1,4 +1,4 @@
-bamf (0.2.24-0ubuntu3) UNRELEASED; urgency=low
+bamf (0.2.24-0ubuntu2) UNRELEASED; urgency=low
 
   * debian/control, debian/libbamf-doc.install:
     - add libbamf-doc package
