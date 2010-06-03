@@ -4,6 +4,8 @@ bamf (0.2.24-0ubuntu3) UNRELEASED; urgency=low
     - add libbamf-doc package
   * debian/libbamf0.symbols:
     - updated 
+  * debian/control, debian/rules:
+    - build the doc by default
 
  -- Didier Roche <didrocks@ubuntu.com>  Thu, 03 Jun 2010 14:06:01 +0200
 
