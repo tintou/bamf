@@ -1,11 +1,13 @@
-bamf (0.2.24-0ubuntu2) UNRELEASED; urgency=low
+bamf (0.2.24-0ubuntu3) UNRELEASED; urgency=low
 
   * debian/control, debian/libbamf-doc.install:
     - add libbamf-doc package
   * debian/libbamf0.symbols:
     - updated 
+  * debian/control:
+    - replaces wncksync
 
- -- Didier Roche <didrocks@ubuntu.com>  Wed, 02 Jun 2010 13:39:13 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Thu, 03 Jun 2010 14:06:01 +0200
 
 bamf (0.2.24-0ubuntu1) maverick; urgency=low
 

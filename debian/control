@@ -25,6 +25,9 @@ Package: bamfdaemon
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
+Provides: wncksyncdaemon
+Replaces: wncksyncdaemon
+Conflicts: wncksyncdaemon (=< 0.2.24-0ubuntu1)
 Description: Window matching library - daemon
  bamf matches application windows to desktop files
  .
@@ -37,6 +40,9 @@ Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          bamfdaemon (= ${binary:Version}),
+Provides: wncksync0
+Replaces: wncksync0
+Conflicts: wncksync0 (=< 0.2.24-0ubuntu1)
 Description: Window matching library - shared library
  bamf matches application windows to desktop files
  .
@@ -50,6 +56,9 @@ Depends: ${shlibs:Depends},
          libbamf0 (= ${binary:Version}),
          libwnck-dev,
          libglib2.0-dev (>= 2.23.0-1ubuntu3~),
+Provides: wncksync-dev
+Replaces: wncksync-dev
+Conflicts: wncksync-dev (=< 0.2.24-0ubuntu1)
 Suggests: libbamf-doc
 Description: Window matching library - development files
  bamf matches application windows to desktop files
@@ -77,6 +86,9 @@ Priority: extra
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          libbamf0 (= ${binary:Version}),
+Provides: wncksync-dbg
+Replaces: wncksync-dbg
+Conflicts: wncksync-dbg (=< 0.2.24-0ubuntu1)
 Description: Window matching library - debugging symbols
  bamf matches application windows to desktop files
  .
