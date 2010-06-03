@@ -144,7 +144,7 @@ bamf_application_class_init (BamfApplicationClass *klass)
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__POINTER,
+  	              g_cclosure_marshal_VOID__OBJECT,
   	              G_TYPE_NONE, 1, 
   	              BAMF_TYPE_VIEW);
 
@@ -153,7 +153,7 @@ bamf_application_class_init (BamfApplicationClass *klass)
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__POINTER,
+  	              g_cclosure_marshal_VOID__OBJECT,
   	              G_TYPE_NONE, 1, 
   	              BAMF_TYPE_VIEW);
 }
