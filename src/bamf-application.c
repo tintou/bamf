@@ -53,7 +53,7 @@ bamf_application_get_icon (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION (view), NULL);
 
-  return BAMF_APPLICATION (view)->priv->icon;
+  return g_strdup (BAMF_APPLICATION (view)->priv->icon);
 }
 
 char *
@@ -76,9 +76,9 @@ static gboolean
 icon_name_is_valid (char *name)
 {
   GtkIconTheme *icon_theme;
-  
+
   g_return_val_if_fail (name, FALSE);
-  
+
   icon_theme = gtk_icon_theme_get_default ();
   return gtk_icon_theme_has_icon (icon_theme, name);
 }
@@ -94,7 +94,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
   char *icon = NULL, *name = NULL;
 
   g_return_if_fail (BAMF_IS_APPLICATION (self));
-  
+
   if (self->priv->icon && bamf_view_get_name (BAMF_VIEW (self)))
     return;
 
@@ -123,21 +123,21 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
                 {
                   class = bamf_legacy_window_get_class_name (bamf_window_get_window (BAMF_WINDOW (view)));
                   icon = g_utf8_strdown (class, -1);
-                  
+
                   if (icon_name_is_valid (icon))
                     break;
-                  
+
                   g_free (icon);
                   icon = bamf_legacy_window_get_exec_string (bamf_window_get_window (BAMF_WINDOW (view)));
-                  
+
                   if (icon_name_is_valid (icon))
                     break;
-                  
+
                   g_free (icon);
                   icon = g_strdup ("application-default-icon");
                 }
               while (FALSE);
-              
+
               name = g_strdup (bamf_legacy_window_get_class_name (bamf_window_get_window (BAMF_WINDOW (view))));
               break;
             }
@@ -147,13 +147,13 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
     {
       /* we do nothing as we have nothing to go on */
     }
-  
+
   if (icon)
     self->priv->icon = icon;
-  
+
   if (name)
     bamf_view_set_name (BAMF_VIEW (self), name);
-  
+
   g_free (name);
 }
 
@@ -164,7 +164,7 @@ bamf_application_set_desktop_file (BamfApplication *application,
   g_return_if_fail (BAMF_IS_APPLICATION (application));
 
   application->priv->desktop_file = g_strdup (desktop_file);
-  
+
   bamf_application_setup_icon_and_name (application);
 }
 
@@ -195,37 +195,37 @@ bamf_application_get_xids (BamfApplication *application)
   return xids;
 }
 
-gboolean          
-bamf_application_contains_similar_to_window (BamfApplication *self, 
+gboolean
+bamf_application_contains_similar_to_window (BamfApplication *self,
                                              BamfWindow *window)
 {
   gboolean result = FALSE;
   const char *class, *owned_class;
   GList *children, *l;
   BamfView *child;
-  
+
   g_return_val_if_fail (BAMF_IS_APPLICATION (self), FALSE);
   g_return_val_if_fail (BAMF_IS_WINDOW (window), FALSE);
-  
+
   class = bamf_legacy_window_get_class_name (bamf_window_get_window (window));
-  
+
   children = bamf_view_get_children (BAMF_VIEW (self));
   for (l = children; l; l = l->next)
     {
       child = l->data;
-      
+
       if (!BAMF_IS_WINDOW (child))
         continue;
-      
+
       owned_class = bamf_legacy_window_get_class_name (bamf_window_get_window (BAMF_WINDOW (child)));
-      
+
       if (g_strcmp0 (class, owned_class) == 0)
         {
           result = TRUE;
           break;
         }
     }
-  
+
   return result;
 }
 
@@ -349,7 +349,7 @@ bamf_application_child_added (BamfView *view, BamfView *child)
                     (GCallback) view_visible_changed, view);
 
   bamf_application_ensure_flags (BAMF_APPLICATION (view));
-  
+
   bamf_application_setup_icon_and_name (application);
 }
 
