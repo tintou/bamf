@@ -6,6 +6,8 @@ bamf (0.2.24-0ubuntu3) UNRELEASED; urgency=low
     - updated 
   * debian/control, debian/rules:
     - build the doc by default
+  * debian/rules:
+    - fix rm *{,l}a files
 
  -- Didier Roche <didrocks@ubuntu.com>  Thu, 03 Jun 2010 14:06:01 +0200
 
