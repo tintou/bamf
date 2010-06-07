@@ -7,7 +7,9 @@ SUBDIRS = \
   tests/bamfdaemon \
   tests/libbamf \
   data \
-  module
+  module \
+  doc
 
 EXTRA_DIST = COPYING.LGPL autogen.sh build.rules.mk m4/i18n.m4 m4/programs.m4 m4/util.m4
-DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
+DISTCHECK_CONFIGURE_FLAGS = --enable-introspection --enable-gtk-doc
+

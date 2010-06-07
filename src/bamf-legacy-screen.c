@@ -271,7 +271,7 @@ bamf_legacy_screen_class_init (BamfLegacyScreenClass * klass)
   	              G_SIGNAL_RUN_FIRST,
   	              G_STRUCT_OFFSET (BamfLegacyScreenClass, window_opened),
   	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__POINTER,
+  	              g_cclosure_marshal_VOID__OBJECT,
   	              G_TYPE_NONE, 1,
   	              BAMF_TYPE_LEGACY_WINDOW);
 
@@ -281,7 +281,7 @@ bamf_legacy_screen_class_init (BamfLegacyScreenClass * klass)
   	              G_SIGNAL_RUN_FIRST,
   	              G_STRUCT_OFFSET (BamfLegacyScreenClass, window_closed),
   	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__POINTER,
+  	              g_cclosure_marshal_VOID__OBJECT,
   	              G_TYPE_NONE, 1,
   	              BAMF_TYPE_LEGACY_WINDOW);
 

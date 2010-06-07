@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE book PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "">
+<book xmlns="http://www.devhelp.net/book" title="libbamf Reference Manual" link="index.html" author="" name="libbamf">
+  <chapters>
+    <sub name="Classes" link="ch01.html">
+      <sub name="BamfMatcher" link="BamfMatcher.html"/>
+      <sub name="BamfWindow" link="BamfWindow.html"/>
+      <sub name="BamfFactory" link="BamfFactory.html"/>
+      <sub name="BamfControl" link="BamfControl.html"/>
+      <sub name="BamfTabSource" link="BamfTabSource.html"/>
+      <sub name="BamfView" link="BamfView.html"/>
+      <sub name="BamfApplication" link="BamfApplication.html"/>
+    </sub>
+    <sub name="Object Hierarchy" link="object-tree.html"/>
+    <sub name="API Index" link="api-index-full.html"/>
+    <sub name="Annotation Glossary" link="annotation-glossary.html"/>
+  </chapters>
+  <functions>
+    <function name="BamfMatcher" link="BamfMatcher.html#BamfMatcher-struct"/>
+    <function name="BamfMatcherClass" link="BamfMatcher.html#BamfMatcherClass"/>
+    <function name="BamfMatcherPrivate" link="BamfMatcher.html#BamfMatcherPrivate"/>
+    <function name="bamf_matcher_get_default ()" link="BamfMatcher.html#bamf-matcher-get-default"/>
+    <function name="bamf_matcher_get_active_application ()" link="BamfMatcher.html#bamf-matcher-get-active-application"/>
+    <function name="bamf_matcher_get_active_window ()" link="BamfMatcher.html#bamf-matcher-get-active-window"/>
+    <function name="bamf_matcher_get_application_for_xid ()" link="BamfMatcher.html#bamf-matcher-get-application-for-xid"/>
+    <function name="bamf_matcher_application_is_running ()" link="BamfMatcher.html#bamf-matcher-application-is-running"/>
+    <function name="bamf_matcher_get_applications ()" link="BamfMatcher.html#bamf-matcher-get-applications"/>
+    <function name="bamf_matcher_get_running_applications ()" link="BamfMatcher.html#bamf-matcher-get-running-applications"/>
+    <function name="bamf_matcher_get_tabs ()" link="BamfMatcher.html#bamf-matcher-get-tabs"/>
+    <function name="bamf_matcher_get_xids_for_application ()" link="BamfMatcher.html#bamf-matcher-get-xids-for-application"/>
+    <function name="The &quot;active-application-changed&quot; signal" link="BamfMatcher.html#BamfMatcher-active-application-changed"/>
+    <function name="The &quot;active-window-changed&quot; signal" link="BamfMatcher.html#BamfMatcher-active-window-changed"/>
+    <function name="The &quot;view-closed&quot; signal" link="BamfMatcher.html#BamfMatcher-view-closed"/>
+    <function name="The &quot;view-opened&quot; signal" link="BamfMatcher.html#BamfMatcher-view-opened"/>
+    <function name="BamfWindow" link="BamfWindow.html#BamfWindow-struct"/>
+    <function name="BamfWindowClass" link="BamfWindow.html#BamfWindowClass"/>
+    <function name="BamfWindowPrivate" link="BamfWindow.html#BamfWindowPrivate"/>
+    <function name="bamf_window_get_xid ()" link="BamfWindow.html#bamf-window-get-xid"/>
+    <function name="BamfFactory" link="BamfFactory.html#BamfFactory-struct"/>
+    <function name="BamfFactoryClass" link="BamfFactory.html#BamfFactoryClass"/>
+    <function name="BamfFactoryPrivate" link="BamfFactory.html#BamfFactoryPrivate"/>
+    <function name="bamf_factory_view_for_path ()" link="BamfFactory.html#bamf-factory-view-for-path"/>
+    <function name="bamf_factory_get_default ()" link="BamfFactory.html#bamf-factory-get-default"/>
+    <function name="BamfControl" link="BamfControl.html#BamfControl-struct"/>
+    <function name="BamfControlClass" link="BamfControl.html#BamfControlClass"/>
+    <function name="BamfControlPrivate" link="BamfControl.html#BamfControlPrivate"/>
+    <function name="bamf_control_get_default ()" link="BamfControl.html#bamf-control-get-default"/>
+    <function name="bamf_control_insert_desktop_file ()" link="BamfControl.html#bamf-control-insert-desktop-file"/>
+    <function name="bamf_control_register_application_for_pid ()" link="BamfControl.html#bamf-control-register-application-for-pid"/>
+    <function name="bamf_control_register_tab_provider ()" link="BamfControl.html#bamf-control-register-tab-provider"/>
+    <function name="BAMF_TAB_SOURCE_CONST()" link="BamfTabSource.html#BAMF-TAB-SOURCE-CONST:CAPS"/>
+    <function name="BamfTabSource" link="BamfTabSource.html#BamfTabSource-struct"/>
+    <function name="BamfTabSourceClass" link="BamfTabSource.html#BamfTabSourceClass"/>
+    <function name="BamfTabSourcePrivate" link="BamfTabSource.html#BamfTabSourcePrivate"/>
+    <function name="bamf_tab_source_show_tab ()" link="BamfTabSource.html#bamf-tab-source-show-tab"/>
+    <function name="bamf_tab_source_get_tab_ids ()" link="BamfTabSource.html#bamf-tab-source-get-tab-ids"/>
+    <function name="bamf_tab_source_get_tab_preview ()" link="BamfTabSource.html#bamf-tab-source-get-tab-preview"/>
+    <function name="bamf_tab_source_get_tab_uri ()" link="BamfTabSource.html#bamf-tab-source-get-tab-uri"/>
+    <function name="bamf_tab_source_get_tab_xid ()" link="BamfTabSource.html#bamf-tab-source-get-tab-xid"/>
+    <function name="The &quot;id&quot; property" link="BamfTabSource.html#BamfTabSource--id"/>
+    <function name="The &quot;tab-closed&quot; signal" link="BamfTabSource.html#BamfTabSource-tab-closed"/>
+    <function name="The &quot;tab-opened&quot; signal" link="BamfTabSource.html#BamfTabSource-tab-opened"/>
+    <function name="The &quot;tab-uri-changed&quot; signal" link="BamfTabSource.html#BamfTabSource-tab-uri-changed"/>
+    <function name="BamfView" link="BamfView.html#BamfView-struct"/>
+    <function name="BamfViewClass" link="BamfView.html#BamfViewClass"/>
+    <function name="BamfViewPrivate" link="BamfView.html#BamfViewPrivate"/>
+    <function name="bamf_view_get_children ()" link="BamfView.html#bamf-view-get-children"/>
+    <function name="bamf_view_is_active ()" link="BamfView.html#bamf-view-is-active"/>
+    <function name="bamf_view_is_running ()" link="BamfView.html#bamf-view-is-running"/>
+    <function name="bamf_view_is_urgent ()" link="BamfView.html#bamf-view-is-urgent"/>
+    <function name="bamf_view_get_name ()" link="BamfView.html#bamf-view-get-name"/>
+    <function name="bamf_view_get_icon ()" link="BamfView.html#bamf-view-get-icon"/>
+    <function name="bamf_view_user_visible ()" link="BamfView.html#bamf-view-user-visible"/>
+    <function name="bamf_view_get_parent ()" link="BamfView.html#bamf-view-get-parent"/>
+    <function name="bamf_view_get_view_type ()" link="BamfView.html#bamf-view-get-view-type"/>
+    <function name="The &quot;path&quot; property" link="BamfView.html#BamfView--path"/>
+    <function name="The &quot;active-changed&quot; signal" link="BamfView.html#BamfView-active-changed"/>
+    <function name="The &quot;child-added&quot; signal" link="BamfView.html#BamfView-child-added"/>
+    <function name="The &quot;child-removed&quot; signal" link="BamfView.html#BamfView-child-removed"/>
+    <function name="The &quot;closed&quot; signal" link="BamfView.html#BamfView-closed"/>
+    <function name="The &quot;running-changed&quot; signal" link="BamfView.html#BamfView-running-changed"/>
+    <function name="The &quot;urgent-changed&quot; signal" link="BamfView.html#BamfView-urgent-changed"/>
+    <function name="The &quot;user-visible-changed&quot; signal" link="BamfView.html#BamfView-user-visible-changed"/>
+    <function name="BamfApplication" link="BamfApplication.html#BamfApplication-struct"/>
+    <function name="BamfApplicationClass" link="BamfApplication.html#BamfApplicationClass"/>
+    <function name="BamfApplicationPrivate" link="BamfApplication.html#BamfApplicationPrivate"/>
+    <function name="bamf_application_get_application_type ()" link="BamfApplication.html#bamf-application-get-application-type"/>
+    <function name="bamf_application_get_desktop_file ()" link="BamfApplication.html#bamf-application-get-desktop-file"/>
+    <function name="bamf_application_get_windows ()" link="BamfApplication.html#bamf-application-get-windows"/>
+    <function name="bamf_application_get_xids ()" link="BamfApplication.html#bamf-application-get-xids"/>
+    <function name="The &quot;window-added&quot; signal" link="BamfApplication.html#BamfApplication-window-added"/>
+    <function name="The &quot;window-removed&quot; signal" link="BamfApplication.html#BamfApplication-window-removed"/>
+  </functions>
+</book>

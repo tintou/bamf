@@ -1,0 +1,62 @@
+<!-- ##### SECTION Title ##### -->
+BamfFactory
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### STRUCT BamfFactory ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT BamfFactoryClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+
+<!-- ##### STRUCT BamfFactoryPrivate ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### FUNCTION bamf_factory_view_for_path ##### -->
+<para>
+
+</para>
+
+@factory: 
+@path: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_factory_get_default ##### -->
+<para>
+
+</para>
+
+@void: 
+@Returns: 
+
+
