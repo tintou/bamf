@@ -1,4 +1,4 @@
-bamf (0.2.26-0ubuntu2) UNRELEASED; urgency=low
+bamf (0.2.26-0ubuntu2) maverick; urgency=low
 
   * debian/libbamf-dev.install:
     - don't try to install a vapi file right now
