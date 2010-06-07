@@ -6,6 +6,8 @@ bamf (0.2.26-0ubuntu1) UNRELEASED; urgency=low
     - updated 
   * debian/control, debian/rules:
     - build the doc by default
+  * debian/libbamf-dev.install:
+    - install vapi files
   * debian/rules:
     - fix rm *{,l}a files
   * debian/watch:
