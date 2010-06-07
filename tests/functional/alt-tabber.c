@@ -50,7 +50,7 @@ void populate_tree_store (GtkTreeStore *store)
       continue;
 
     gtk_tree_store_append (store, &position, NULL);
-    filename = bamf_application_get_desktop_file (app);
+    filename = bamf_view_get_name (BAMF_VIEW (app));
     gtk_tree_store_set (store, &position, 0, filename, -1);
 
     windows = bamf_application_get_windows (app);

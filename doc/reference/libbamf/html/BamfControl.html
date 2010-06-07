@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>BamfControl</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<link rel="home" href="index.html" title="libbamf Reference Manual">
+<link rel="up" href="ch01.html" title="Classes">
+<link rel="prev" href="BamfFactory.html" title="BamfFactory">
+<link rel="next" href="BamfTabSource.html" title="BamfTabSource">
+<meta name="generator" content="GTK-Doc V1.14 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="BamfFactory.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">libbamf Reference Manual</th>
+<td><a accesskey="n" href="BamfTabSource.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#BamfControl.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#BamfControl.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#BamfControl.object-hierarchy" class="shortcut">Object Hierarchy</a>
+</td></tr>
+</table>
+<div class="refentry" title="BamfControl">
+<a name="BamfControl"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="BamfControl.top_of_page"></a>BamfControl</span></h2>
+<p>BamfControl — The base class for all controls</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv" title="Synopsis">
+<a name="BamfControl.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">                    <a class="link" href="BamfControl.html#BamfControl-struct" title="BamfControl">BamfControl</a>;
+                    <a class="link" href="BamfControl.html#BamfControlClass" title="BamfControlClass">BamfControlClass</a>;
+                    <a class="link" href="BamfControl.html#BamfControlPrivate" title="BamfControlPrivate">BamfControlPrivate</a>;
+<a class="link" href="BamfControl.html" title="BamfControl"><span class="returnvalue">BamfControl</span></a> *       <a class="link" href="BamfControl.html#bamf-control-get-default" title="bamf_control_get_default ()">bamf_control_get_default</a>            (<em class="parameter"><code><span class="type">void</span></code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="BamfControl.html#bamf-control-insert-desktop-file" title="bamf_control_insert_desktop_file ()">bamf_control_insert_desktop_file</a>    (<em class="parameter"><code><a class="link" href="BamfControl.html" title="BamfControl"><span class="type">BamfControl</span></a> *control</code></em>,
+                                                         <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *desktop_file</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="BamfControl.html#bamf-control-register-application-for-pid" title="bamf_control_register_application_for_pid ()">bamf_control_register_application_for_pid</a>
+                                                        (<em class="parameter"><code><a class="link" href="BamfControl.html" title="BamfControl"><span class="type">BamfControl</span></a> *control</code></em>,
+                                                         <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *application</code></em>,
+                                                         <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint32"><span class="type">gint32</span></a> pid</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="BamfControl.html#bamf-control-register-tab-provider" title="bamf_control_register_tab_provider ()">bamf_control_register_tab_provider</a>  (<em class="parameter"><code><a class="link" href="BamfControl.html" title="BamfControl"><span class="type">BamfControl</span></a> *control</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *path</code></em>);
+</pre>
+</div>
+<div class="refsect1" title="Object Hierarchy">
+<a name="BamfControl.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+   +----BamfControl
+</pre>
+</div>
+<div class="refsect1" title="Description">
+<a name="BamfControl.description"></a><h2>Description</h2>
+<p>
+<a class="link" href="BamfControl.html" title="BamfControl"><span class="type">BamfControl</span></a> is the base class that all controls need to derive from.
+</p>
+</div>
+<div class="refsect1" title="Details">
+<a name="BamfControl.details"></a><h2>Details</h2>
+<div class="refsect2" title="BamfControl">
+<a name="BamfControl-struct"></a><h3>BamfControl</h3>
+<pre class="programlisting">typedef struct _BamfControl BamfControl;</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2" title="BamfControlClass">
+<a name="BamfControlClass"></a><h3>BamfControlClass</h3>
+<pre class="programlisting">typedef struct {
+  GObjectClass parent_class;
+} BamfControlClass;
+</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2" title="BamfControlPrivate">
+<a name="BamfControlPrivate"></a><h3>BamfControlPrivate</h3>
+<pre class="programlisting">typedef struct _BamfControlPrivate BamfControlPrivate;</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2" title="bamf_control_get_default ()">
+<a name="bamf-control-get-default"></a><h3>bamf_control_get_default ()</h3>
+<pre class="programlisting"><a class="link" href="BamfControl.html" title="BamfControl"><span class="returnvalue">BamfControl</span></a> *       bamf_control_get_default            (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" title="bamf_control_insert_desktop_file ()">
+<a name="bamf-control-insert-desktop-file"></a><h3>bamf_control_insert_desktop_file ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                bamf_control_insert_desktop_file    (<em class="parameter"><code><a class="link" href="BamfControl.html" title="BamfControl"><span class="type">BamfControl</span></a> *control</code></em>,
+                                                         <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *desktop_file</code></em>);</pre>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>control</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>desktop_file</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" title="bamf_control_register_application_for_pid ()">
+<a name="bamf-control-register-application-for-pid"></a><h3>bamf_control_register_application_for_pid ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                bamf_control_register_application_for_pid
+                                                        (<em class="parameter"><code><a class="link" href="BamfControl.html" title="BamfControl"><span class="type">BamfControl</span></a> *control</code></em>,
+                                                         <em class="parameter"><code>const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *application</code></em>,
+                                                         <em class="parameter"><code><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gint32"><span class="type">gint32</span></a> pid</code></em>);</pre>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>control</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>application</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>pid</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" title="bamf_control_register_tab_provider ()">
+<a name="bamf-control-register-tab-provider"></a><h3>bamf_control_register_tab_provider ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                bamf_control_register_tab_provider  (<em class="parameter"><code><a class="link" href="BamfControl.html" title="BamfControl"><span class="type">BamfControl</span></a> *control</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *path</code></em>);</pre>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>control</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>path</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.14</div>
+</body>
+</html>

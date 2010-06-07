@@ -82,7 +82,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__POINTER,
+  	              g_cclosure_marshal_VOID__OBJECT,
   	              G_TYPE_NONE, 1, 
   	              G_TYPE_OBJECT);
 
@@ -91,7 +91,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__POINTER,
+  	              g_cclosure_marshal_VOID__OBJECT,
   	              G_TYPE_NONE, 1, 
   	              G_TYPE_OBJECT);
   
@@ -101,7 +101,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
-  	              bamf_marshal_VOID__POINTER_POINTER,
+  	              bamf_marshal_VOID__OBJECT_OBJECT,
   	              G_TYPE_NONE, 2, 
   	              G_TYPE_OBJECT, G_TYPE_OBJECT);
 
@@ -110,7 +110,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
-  	              bamf_marshal_VOID__POINTER_POINTER,
+  	              bamf_marshal_VOID__OBJECT_OBJECT,
   	              G_TYPE_NONE, 2, 
   	              G_TYPE_OBJECT, G_TYPE_OBJECT);
 }
