@@ -22,6 +22,7 @@
 
 #include "bamf.h"
 #include "bamf-view.h"
+#include "bamf-window.h"
 #include <glib.h>
 #include <glib-object.h>
 
@@ -61,6 +62,9 @@ GArray          * bamf_application_get_xids              (BamfApplication *appli
 
 gboolean          bamf_application_manages_xid           (BamfApplication *application,
                                                           guint32 xid);
+
+gboolean          bamf_application_contains_similar_to_window (BamfApplication *app, 
+                                                               BamfWindow *window);
 
 BamfApplication * bamf_application_new                   (void);
 

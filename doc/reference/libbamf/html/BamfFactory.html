@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>BamfFactory</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<link rel="home" href="index.html" title="libbamf Reference Manual">
+<link rel="up" href="ch01.html" title="Classes">
+<link rel="prev" href="BamfWindow.html" title="BamfWindow">
+<link rel="next" href="BamfControl.html" title="BamfControl">
+<meta name="generator" content="GTK-Doc V1.14 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="BamfWindow.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">libbamf Reference Manual</th>
+<td><a accesskey="n" href="BamfControl.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#BamfFactory.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#BamfFactory.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#BamfFactory.object-hierarchy" class="shortcut">Object Hierarchy</a>
+</td></tr>
+</table>
+<div class="refentry" title="BamfFactory">
+<a name="BamfFactory"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="BamfFactory.top_of_page"></a>BamfFactory</span></h2>
+<p>BamfFactory — The base class for all factorys</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv" title="Synopsis">
+<a name="BamfFactory.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">                    <a class="link" href="BamfFactory.html#BamfFactory-struct" title="BamfFactory">BamfFactory</a>;
+                    <a class="link" href="BamfFactory.html#BamfFactoryClass" title="BamfFactoryClass">BamfFactoryClass</a>;
+                    <a class="link" href="BamfFactory.html#BamfFactoryPrivate" title="BamfFactoryPrivate">BamfFactoryPrivate</a>;
+<a class="link" href="BamfView.html" title="BamfView"><span class="returnvalue">BamfView</span></a> *          <a class="link" href="BamfFactory.html#bamf-factory-view-for-path" title="bamf_factory_view_for_path ()">bamf_factory_view_for_path</a>          (<em class="parameter"><code><a class="link" href="BamfFactory.html" title="BamfFactory"><span class="type">BamfFactory</span></a> *factory</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *path</code></em>);
+<a class="link" href="BamfFactory.html" title="BamfFactory"><span class="returnvalue">BamfFactory</span></a> *       <a class="link" href="BamfFactory.html#bamf-factory-get-default" title="bamf_factory_get_default ()">bamf_factory_get_default</a>            (<em class="parameter"><code><span class="type">void</span></code></em>);
+</pre>
+</div>
+<div class="refsect1" title="Object Hierarchy">
+<a name="BamfFactory.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  <a href="/usr/share/gtk-doc/html/gobject/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+   +----BamfFactory
+</pre>
+</div>
+<div class="refsect1" title="Description">
+<a name="BamfFactory.description"></a><h2>Description</h2>
+<p>
+<a class="link" href="BamfFactory.html" title="BamfFactory"><span class="type">BamfFactory</span></a> is the base class that all factorys need to derive from.
+</p>
+</div>
+<div class="refsect1" title="Details">
+<a name="BamfFactory.details"></a><h2>Details</h2>
+<div class="refsect2" title="BamfFactory">
+<a name="BamfFactory-struct"></a><h3>BamfFactory</h3>
+<pre class="programlisting">typedef struct _BamfFactory BamfFactory;</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2" title="BamfFactoryClass">
+<a name="BamfFactoryClass"></a><h3>BamfFactoryClass</h3>
+<pre class="programlisting">typedef struct {
+  GObjectClass parent_class;
+} BamfFactoryClass;
+</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2" title="BamfFactoryPrivate">
+<a name="BamfFactoryPrivate"></a><h3>BamfFactoryPrivate</h3>
+<pre class="programlisting">typedef struct _BamfFactoryPrivate BamfFactoryPrivate;</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2" title="bamf_factory_view_for_path ()">
+<a name="bamf-factory-view-for-path"></a><h3>bamf_factory_view_for_path ()</h3>
+<pre class="programlisting"><a class="link" href="BamfView.html" title="BamfView"><span class="returnvalue">BamfView</span></a> *          bamf_factory_view_for_path          (<em class="parameter"><code><a class="link" href="BamfFactory.html" title="BamfFactory"><span class="type">BamfFactory</span></a> *factory</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *path</code></em>);</pre>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>factory</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>path</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" title="bamf_factory_get_default ()">
+<a name="bamf-factory-get-default"></a><h3>bamf_factory_get_default ()</h3>
+<pre class="programlisting"><a class="link" href="BamfFactory.html" title="BamfFactory"><span class="returnvalue">BamfFactory</span></a> *       bamf_factory_get_default            (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>
+</td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.14</div>
+</body>
+</html>
