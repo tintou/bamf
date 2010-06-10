@@ -42,6 +42,7 @@
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
+#include <string.h>
 
 G_DEFINE_TYPE (BamfFactory, bamf_factory, G_TYPE_OBJECT);
 
@@ -86,6 +87,9 @@ bamf_factory_view_for_path (BamfFactory * factory,
   char *type;
 
   g_return_val_if_fail (BAMF_IS_FACTORY (factory), NULL);
+  
+  if (path == NULL || strlen (path) == 0)
+    return NULL;
 
   views = factory->priv->views;
 
