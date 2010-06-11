@@ -25,6 +25,8 @@ G_DEFINE_TYPE (BamfWindow, bamf_window, BAMF_TYPE_VIEW);
 #define BAMF_WINDOW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_WINDOW, BamfWindowPrivate))
 
+static GList *bamf_windows;
+
 enum
 {
   PROP_0,
@@ -50,6 +52,50 @@ bamf_window_get_window (BamfWindow *self)
 
   return self->priv->window;
 }
+
+BamfWindow *
+bamf_window_get_transient (BamfWindow *self)
+{
+  BamfLegacyWindow *legacy, *transient;
+  BamfWindow *other;
+  GList *l;
+  
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
+  
+  legacy = bamf_window_get_window (self);
+  
+  transient = bamf_legacy_window_get_transient (legacy);
+  
+  if (transient == NULL)
+    return NULL;
+  
+  for (l = bamf_windows; l; l = l->next)
+    {
+      other = l->data;
+      
+      if (!BAMF_IS_WINDOW (other))
+        continue;
+      
+      if (transient == bamf_window_get_window (other))
+        return other;
+    }
+  return NULL;
+}
+
+char *
+bamf_window_get_transient_path (BamfWindow *self)
+{
+  BamfWindow *transient;
+  
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
+  
+  transient = bamf_window_get_transient (self);
+  
+  if (transient == NULL)
+    return NULL;
+  
+  return g_strdup (bamf_view_get_path (BAMF_VIEW (transient)));
+} 
 
 guint32
 bamf_window_get_xid (BamfWindow *window)
@@ -164,6 +210,7 @@ bamf_window_constructed (GObject *object)
   g_object_get (object, "window", &window, NULL);
 
   self = BAMF_WINDOW (object);
+  bamf_windows = g_list_prepend (bamf_windows, self);
 
   bamf_view_set_name (BAMF_VIEW (self), bamf_legacy_window_get_name (window));
 
@@ -185,6 +232,7 @@ bamf_window_dispose (GObject *object)
   BamfWindow *self;
 
   self = BAMF_WINDOW (object);
+  bamf_windows = g_list_remove (bamf_windows, self);
 
   g_signal_handlers_disconnect_by_func (G_OBJECT (bamf_legacy_screen_get_default ()), active_window_changed, object);
 
@@ -242,6 +290,6 @@ bamf_window_new (BamfLegacyWindow *window)
 {
   BamfWindow *self;
   self = (BamfWindow *) g_object_new (BAMF_TYPE_WINDOW, "window", window, NULL);
-
+  
   return self;
 }
