@@ -35,6 +35,7 @@
 #endif
 
 #include "bamf-window.h"
+#include "bamf-factory.h"
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
@@ -50,6 +51,40 @@ struct _BamfWindowPrivate
   DBusGProxy      *proxy;
   guint32          xid;
 };
+
+BamfWindow * bamf_window_get_transient (BamfWindow *self)
+{
+  BamfWindowPrivate *priv;
+  BamfView *transient;
+  char *path = NULL;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
+  priv = self->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "Transient",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &path,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch path: %s", error->message);
+      g_error_free (error);
+      return 0;
+    }
+  
+  if (!path)
+    return NULL;
+
+  transient = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+  g_free (path);  
+
+  if (!BAMF_IS_WINDOW (transient))
+    return NULL;
+    
+  return BAMF_WINDOW (transient);
+}
 
 guint32 bamf_window_get_xid (BamfWindow *self)
 {
@@ -67,7 +102,7 @@ guint32 bamf_window_get_xid (BamfWindow *self)
                           G_TYPE_UINT, &xid,
                           G_TYPE_INVALID))
     {
-      g_warning ("Failed to fetch path: %s", error->message);
+      g_warning ("Failed to fetch xid: %s", error->message);
       g_error_free (error);
       return 0;
     }
