@@ -59,8 +59,12 @@ GType bamf_window_get_type (void) G_GNUC_CONST;
 
 BamfLegacyWindow * bamf_window_get_window (BamfWindow *self);
 
-guint32 bamf_window_get_xid (BamfWindow *window);
+BamfWindow       * bamf_window_get_transient (BamfWindow *self);
 
-BamfWindow * bamf_window_new (BamfLegacyWindow *window);
+char             * bamf_window_get_transient_path (BamfWindow *self);
+
+guint32            bamf_window_get_xid (BamfWindow *window);
+
+BamfWindow       * bamf_window_new (BamfLegacyWindow *window);
 
 #endif
