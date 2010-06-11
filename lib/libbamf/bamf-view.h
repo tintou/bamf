@@ -130,17 +130,6 @@ gchar    * bamf_view_get_icon      (BamfView *view);
 gboolean   bamf_view_user_visible  (BamfView *self);
 
 /**
- * bamf_view_get_parent:
- * @view: a #BamfView
- *
- * Returns the current parent of a #BamfView. This parent is not the only parent, simply the primary parent
- * of a view. It may be possible to find this #BamfView in other parts of the tree.
- *
- * Returns: (transfer none): Returns a #BamfView.
- */
-BamfView * bamf_view_get_parent    (BamfView *view);
-
-/**
  * bamf_view_get_view_type:
  * @view: a #BamfView
  *

@@ -631,33 +631,6 @@ bamf_view_get_name (BamfView *view)
   return name;
 }
 
-BamfView *
-bamf_view_get_parent (BamfView *view)
-{
-  BamfViewPrivate *priv;
-  char *parent = NULL;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  priv = view->priv;
-  
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "Parent",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &parent,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch parent: %s", error->message);
-      g_error_free (error);
-      return NULL;
-    }
-
-  if (!parent)
-    return NULL;
-  return bamf_factory_view_for_path (bamf_factory_get_default (), parent);
-}
-
 gchar *
 bamf_view_get_view_type (BamfView *view)
 {
