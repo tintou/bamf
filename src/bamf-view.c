@@ -45,7 +45,6 @@ struct _BamfViewPrivate
 {
   char * name;
   char * path;
-  BamfView * parent;
   GList * children;
   gboolean disposed;
   gboolean is_active;
@@ -326,17 +325,6 @@ bamf_view_set_name (BamfView *view,
   g_return_if_fail (BAMF_IS_VIEW (view));
 
   view->priv->name = g_strdup (name);
-}
-
-char *
-bamf_view_get_parent_path (BamfView *view)
-{
-  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-
-  if (!BAMF_IS_VIEW (view->priv->parent))
-    return NULL;
-
-  return bamf_view_get_path (view->priv->parent);
 }
 
 char *
