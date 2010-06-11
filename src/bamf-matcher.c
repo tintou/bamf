@@ -998,7 +998,7 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, gpoi
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
 
-  if (bamf_legacy_window_is_desktop_window (window))
+  if (bamf_legacy_window_get_window_type (window) == BAMF_WINDOW_DESKTOP)
     return;
 
   gint pid = bamf_legacy_window_get_pid (window);

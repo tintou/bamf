@@ -39,6 +39,18 @@ typedef struct _BamfLegacyWindow BamfLegacyWindow;
 typedef struct _BamfLegacyWindowClass BamfLegacyWindowClass;
 typedef struct _BamfLegacyWindowPrivate BamfLegacyWindowPrivate;
 
+typedef enum
+{
+  BAMF_WINDOW_NORMAL,       /* document/app window */
+  BAMF_WINDOW_DESKTOP,      /* desktop background */
+  BAMF_WINDOW_DOCK,         /* panel */
+  BAMF_WINDOW_DIALOG,       /* dialog */
+  BAMF_WINDOW_TOOLBAR,      /* tearoff toolbar */
+  BAMF_WINDOW_MENU,         /* tearoff menu */
+  BAMF_WINDOW_UTILITY,      /* palette/toolbox window */
+  BAMF_WINDOW_SPLASHSCREEN  /* splash screen */
+} BamfWindowType;
+
 struct _BamfLegacyWindowClass
 {
   GObjectClass parent;
@@ -52,6 +64,7 @@ struct _BamfLegacyWindowClass
   gboolean     (*is_active)          (BamfLegacyWindow *legacy_window);
   gboolean     (*is_skip_tasklist)   (BamfLegacyWindow *legacy_window);
   gboolean     (*is_desktop)         (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_dialog)          (BamfLegacyWindow *legacy_window);
 
   /*< signals >*/
   void     (*name_changed)    (BamfLegacyWindow *legacy_window);
@@ -79,7 +92,7 @@ gboolean           bamf_legacy_window_is_skip_tasklist  (BamfLegacyWindow *self)
 
 gboolean           bamf_legacy_window_needs_attention   (BamfLegacyWindow *self);
 
-gboolean           bamf_legacy_window_is_desktop_window (BamfLegacyWindow *self);
+BamfWindowType     bamf_legacy_window_get_window_type   (BamfLegacyWindow *self);
 
 const char       * bamf_legacy_window_get_class_name    (BamfLegacyWindow *self);
 

@@ -25,6 +25,7 @@
 #include "bamf-legacy-window.h"
 #include <glib.h>
 #include <glib-object.h>
+#include <time.h>
 
 #define BAMF_TYPE_WINDOW			(bamf_window_get_type ())
 #define BAMF_WINDOW(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_WINDOW, BamfWindow))
@@ -64,6 +65,10 @@ BamfWindow       * bamf_window_get_transient (BamfWindow *self);
 char             * bamf_window_get_transient_path (BamfWindow *self);
 
 guint32            bamf_window_get_xid (BamfWindow *window);
+
+time_t             bamf_window_last_active (BamfWindow *window);
+
+time_t             bamf_window_opened (BamfWindow *window);
 
 BamfWindow       * bamf_window_new (BamfLegacyWindow *window);
 
