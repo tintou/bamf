@@ -167,6 +167,14 @@ bamf_view_get_children (BamfView *view)
   return view->priv->children;
 }
 
+GList *
+bamf_view_get_parents (BamfView *view)
+{
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+
+  return view->priv->parents;
+}
+
 static void
 bamf_view_handle_child_closed (BamfView *child,
                                BamfView *view)
