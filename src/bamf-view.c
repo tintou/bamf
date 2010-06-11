@@ -46,6 +46,7 @@ struct _BamfViewPrivate
   char * name;
   char * path;
   GList * children;
+  GList * parents;
   gboolean disposed;
   gboolean is_active;
   gboolean is_running;
@@ -185,7 +186,9 @@ bamf_view_add_child (BamfView *view,
   g_signal_connect (G_OBJECT (child), "closed",
 		    (GCallback) bamf_view_handle_child_closed, view);
 
+  /* Make sure our parent child lists are ok, pay attention to whose list you add parents to */
   view->priv->children = g_list_prepend (view->priv->children, child);
+  child->priv->parents = g_list_prepend (child->priv->parents, view);
 
   // Do this by hand so we can pass and object instead of a string
   if (BAMF_VIEW_GET_CLASS (view)->child_added)
@@ -206,7 +209,9 @@ bamf_view_remove_child (BamfView *view,
 
   g_signal_handlers_disconnect_by_func (child, bamf_view_handle_child_closed, view);
 
+  /* Make sure our parent child lists are ok, pay attention to whose list you add parents to */
   view->priv->children = g_list_remove (view->priv->children, child);
+  child->priv->parents = g_list_remove (child->priv->parents, view);
 
   // Do this by hand so we can pass and object instead of a string
   if (BAMF_VIEW_GET_CLASS (view)->child_removed)
