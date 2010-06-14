@@ -15,6 +15,7 @@ libbamf_sources = \
   bamf-window.c \
   bamf-factory.c \
   bamf-tab-source.c \
+  bamf-tab.c \
   bamf-marshal.c \
   $(NULL)
 
@@ -26,6 +27,7 @@ sources_h = \
   bamf-window.h \
   bamf-factory.h \
   bamf-tab-source.h \
+  bamf-tab.h \
   libbamf.h \
   $(NULL)
 
