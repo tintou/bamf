@@ -26,6 +26,14 @@ libbamf.so.0 libbamf0 #MINVER#
  bamf_matcher_get_tabs@Base 0.2.20
  bamf_matcher_get_type@Base 0.2.20
  bamf_matcher_get_xids_for_application@Base 0.2.20
+ bamf_tab_get_id@Base 0.2.28
+ bamf_tab_get_preview@Base 0.2.28
+ bamf_tab_get_type@Base 0.2.28
+ bamf_tab_get_uri@Base 0.2.28
+ bamf_tab_new@Base 0.2.28
+ bamf_tab_set_preview@Base 0.2.28
+ bamf_tab_set_uri@Base 0.2.28
+ bamf_tab_show@Base 0.2.28
  bamf_tab_source_get_tab_ids@Base 0.2.20
  bamf_tab_source_get_tab_preview@Base 0.2.20
  bamf_tab_source_get_tab_uri@Base 0.2.20
@@ -35,13 +43,13 @@ libbamf.so.0 libbamf0 #MINVER#
  bamf_view_get_children@Base 0.2.20
  bamf_view_get_icon@Base 0.2.20
  bamf_view_get_name@Base 0.2.20
- bamf_view_get_parent@Base 0.2.20
  bamf_view_get_type@Base 0.2.20
  bamf_view_get_view_type@Base 0.2.20
  bamf_view_is_active@Base 0.2.20
  bamf_view_is_running@Base 0.2.20
  bamf_view_is_urgent@Base 0.2.20
  bamf_view_user_visible@Base 0.2.20
+ bamf_window_get_transient@Base 0.2.28
  bamf_window_get_type@Base 0.2.20
  bamf_window_get_xid@Base 0.2.20
  bamf_window_new@Base 0.2.20
