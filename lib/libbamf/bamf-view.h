@@ -70,6 +70,15 @@ struct _BamfViewClass
   gchar      * (*get_name)            (BamfView *view);
   gchar      * (*get_icon)            (BamfView *view);
   gchar      * (*view_type)           (BamfView *view);
+  
+  /*< signals >*/
+  void (*active_changed)              (BamfView *view, gboolean active);
+  void (*closed)                      (BamfView *view);
+  void (*child_added)                 (BamfView *view, BamfView *child);
+  void (*child_removed)               (BamfView *view, BamfView *child);
+  void (*running_changed)             (BamfView *view, gboolean running);
+  void (*urgent_changed)              (BamfView *view, gboolean urgent);
+  void (*user_visible_changed)        (BamfView *view, gboolean user_visible);
 
   /*< private >*/
   void (*_view_padding1) (void);

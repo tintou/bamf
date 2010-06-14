@@ -50,7 +50,15 @@ struct _BamfWindowPrivate
   DBusGConnection *connection;
   DBusGProxy      *proxy;
   guint32          xid;
+  time_t           last_active;
 };
+
+time_t bamf_window_last_active (BamfWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), (time_t) 0);
+  
+  return self->priv->last_active;
+}
 
 BamfWindow * bamf_window_get_transient (BamfWindow *self)
 {
@@ -111,6 +119,19 @@ guint32 bamf_window_get_xid (BamfWindow *self)
 }
 
 static void
+bamf_window_active_changed (BamfView *view, gboolean active)
+{
+  BamfWindow *self;
+
+  g_return_if_fail (BAMF_IS_WINDOW (view));
+
+  self = BAMF_WINDOW (view);
+  
+  if (active)
+    self->priv->last_active = time (NULL);
+}
+
+static void
 bamf_window_constructed (GObject *object)
 {
   BamfWindow *self;
@@ -142,12 +163,13 @@ bamf_window_constructed (GObject *object)
 static void
 bamf_window_class_init (BamfWindowClass *klass)
 {
-  GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+  GObjectClass  *obj_class  = G_OBJECT_CLASS (klass);
+  BamfViewClass *view_class = BAMF_VIEW_CLASS (klass);
 
   g_type_class_add_private (obj_class, sizeof (BamfWindowPrivate));
   
   obj_class->constructed = bamf_window_constructed;
-  
+  view_class->active_changed = bamf_window_active_changed;
 }
 
 
