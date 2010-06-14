@@ -109,6 +109,12 @@ gboolean   bamf_view_is_active     (BamfView *view);
  */
 gboolean   bamf_view_is_running    (BamfView *view);
 
+/**
+ * bamf_view_is_running:
+ * @view: a #BamfView
+ *
+ * Determines if the view is currently requiring attention. Useful for a running window indicator. 
+ */
 gboolean   bamf_view_is_urgent     (BamfView *view);
 
 /**
@@ -127,7 +133,14 @@ gchar    * bamf_view_get_name      (BamfView *view);
  */
 gchar    * bamf_view_get_icon      (BamfView *view);
 
-gboolean   bamf_view_user_visible  (BamfView *self);
+/**
+ * bamf_view_user_visible:
+ * @view: a #BamfView
+ *
+ * Returns a boolean useful for determining if a particular view is "user visible". User visible
+ * is a concept relating to whether or not a window should be shown in a launcher tasklist.
+ */
+gboolean   bamf_view_user_visible  (BamfView *view);
 
 /**
  * bamf_view_get_view_type:
