@@ -300,6 +300,7 @@ bamf_matcher_get_active_application (BamfMatcher *matcher)
     return NULL;
 
   view = bamf_factory_view_for_path (bamf_factory_get_default (), app);
+  g_free (app);
 
   if (!BAMF_IS_APPLICATION (view))
     return NULL;
@@ -334,6 +335,7 @@ bamf_matcher_get_active_window (BamfMatcher *matcher)
     return NULL;
 
   view = bamf_factory_view_for_path (bamf_factory_get_default (), app);
+  g_free (app);
 
   if (!BAMF_IS_WINDOW (view))
     return NULL;
@@ -370,6 +372,8 @@ bamf_matcher_get_application_for_xid (BamfMatcher  *matcher,
     return NULL;
 
   view = bamf_factory_view_for_path (bamf_factory_get_default (), app);
+  
+  g_free (app);
 
   if (!BAMF_IS_APPLICATION (view))
     return NULL;
@@ -440,10 +444,9 @@ bamf_matcher_get_applications (BamfMatcher *matcher)
 
       if (view)
         result = g_list_prepend (result, view);
-      else
-        g_print ("DOUBLE FAIL\n");
     }
-
+  
+  g_strfreev (array);
   return result;
 }
 
@@ -482,10 +485,9 @@ bamf_matcher_get_running_applications (BamfMatcher *matcher)
 
       if (view)
         result = g_list_prepend (result, view);
-      else
-        g_print ("DOUBLE FAIL\n");
     }
 
+  g_strfreev (array);
   return result;
 }
 

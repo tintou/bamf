@@ -18,6 +18,7 @@
  */
 
 #include "bamf-legacy-window.h"
+#include "bamf-legacy-screen.h"
 #include <libgtop-2.0/glibtop.h>
 #include <glibtop/procargs.h>
 #include <glibtop/procuid.h>
@@ -60,18 +61,13 @@ bamf_legacy_window_is_active (BamfLegacyWindow *self)
   return active == self->priv->legacy_window;
 }
 
-gboolean
-bamf_legacy_window_is_desktop_window (BamfLegacyWindow *self)
+BamfWindowType
+bamf_legacy_window_get_window_type (BamfLegacyWindow *self)
 {
-  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), FALSE);
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), 0);
+  g_return_val_if_fail (self->priv->legacy_window, 0);
 
-
-  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->is_desktop)
-    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->is_desktop (self);
-
-  g_return_val_if_fail (self->priv->legacy_window, FALSE);
-
-  return (wnck_window_get_window_type (self->priv->legacy_window) == WNCK_WINDOW_DESKTOP);
+  return (BamfWindowType) wnck_window_get_window_type (self->priv->legacy_window);
 }
 
 gboolean
@@ -205,6 +201,38 @@ bamf_legacy_window_get_xid (BamfLegacyWindow *self)
     return 0;
 
   return (guint32) wnck_window_get_xid (self->priv->legacy_window);
+}
+
+BamfLegacyWindow * 
+bamf_legacy_window_get_transient (BamfLegacyWindow *self)
+{
+  BamfLegacyScreen *screen;
+  BamfLegacyWindow *other;
+  GList *windows, *l;
+  WnckWindow *transient_legacy;
+  
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
+  
+  transient_legacy = wnck_window_get_transient (self->priv->legacy_window);
+  if (transient_legacy == NULL)
+    return NULL;
+  
+  screen = bamf_legacy_screen_get_default ();
+  g_return_val_if_fail (BAMF_IS_LEGACY_SCREEN (screen), NULL);
+  
+  windows = bamf_legacy_screen_get_windows (screen);
+  for (l = windows; l; l = l->next)
+    {
+      other = l->data;
+      
+      if (!BAMF_IS_LEGACY_WINDOW (other))
+        continue;
+      
+      if (other->priv->legacy_window == transient_legacy)
+        return other;
+    }
+  
+  return NULL;
 }
 
 static void

@@ -104,7 +104,7 @@ am__objects_2 = libbamf_la-bamf-application.lo \
 	libbamf_la-bamf-control.lo libbamf_la-bamf-matcher.lo \
 	libbamf_la-bamf-view.lo libbamf_la-bamf-window.lo \
 	libbamf_la-bamf-factory.lo libbamf_la-bamf-tab-source.lo \
-	libbamf_la-bamf-marshal.lo
+	libbamf_la-bamf-tab.lo libbamf_la-bamf-marshal.lo
 am_libbamf_la_OBJECTS = $(am__objects_1) $(am__objects_2)
 libbamf_la_OBJECTS = $(am_libbamf_la_OBJECTS)
 libbamf_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -300,6 +300,7 @@ libbamf_sources = \
   bamf-window.c \
   bamf-factory.c \
   bamf-tab-source.c \
+  bamf-tab.c \
   bamf-marshal.c \
   $(NULL)
 
@@ -311,6 +312,7 @@ sources_h = \
   bamf-window.h \
   bamf-factory.h \
   bamf-tab-source.h \
+  bamf-tab.h \
   libbamf.h \
   $(NULL)
 
@@ -455,6 +457,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbamf_la-bamf-marshal.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbamf_la-bamf-matcher.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbamf_la-bamf-tab-source.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbamf_la-bamf-tab.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbamf_la-bamf-view.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbamf_la-bamf-window.Plo@am__quote@
 
@@ -527,6 +530,13 @@ libbamf_la-bamf-tab-source.lo: bamf-tab-source.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-tab-source.c' object='libbamf_la-bamf-tab-source.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbamf_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libbamf_la-bamf-tab-source.lo `test -f 'bamf-tab-source.c' || echo '$(srcdir)/'`bamf-tab-source.c
+
+libbamf_la-bamf-tab.lo: bamf-tab.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbamf_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libbamf_la-bamf-tab.lo -MD -MP -MF $(DEPDIR)/libbamf_la-bamf-tab.Tpo -c -o libbamf_la-bamf-tab.lo `test -f 'bamf-tab.c' || echo '$(srcdir)/'`bamf-tab.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libbamf_la-bamf-tab.Tpo $(DEPDIR)/libbamf_la-bamf-tab.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-tab.c' object='libbamf_la-bamf-tab.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbamf_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libbamf_la-bamf-tab.lo `test -f 'bamf-tab.c' || echo '$(srcdir)/'`bamf-tab.c
 
 libbamf_la-bamf-marshal.lo: bamf-marshal.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbamf_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libbamf_la-bamf-marshal.lo -MD -MP -MF $(DEPDIR)/libbamf_la-bamf-marshal.Tpo -c -o libbamf_la-bamf-marshal.lo `test -f 'bamf-marshal.c' || echo '$(srcdir)/'`bamf-marshal.c
