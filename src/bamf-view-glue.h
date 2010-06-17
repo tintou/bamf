@@ -197,16 +197,15 @@ static const DBusGMethodInfo dbus_glib_bamf_view_methods[] = {
   { (GCallback) bamf_view_is_urgent, dbus_glib_marshal_bamf_view_BOOLEAN__NONE, 152 },
   { (GCallback) bamf_view_get_name, dbus_glib_marshal_bamf_view_STRING__NONE, 201 },
   { (GCallback) bamf_view_get_icon, dbus_glib_marshal_bamf_view_STRING__NONE, 244 },
-  { (GCallback) bamf_view_get_parent_path, dbus_glib_marshal_bamf_view_STRING__NONE, 287 },
-  { (GCallback) bamf_view_user_visible, dbus_glib_marshal_bamf_view_BOOLEAN__NONE, 334 },
-  { (GCallback) bamf_view_get_view_type, dbus_glib_marshal_bamf_view_STRING__NONE, 387 },
+  { (GCallback) bamf_view_user_visible, dbus_glib_marshal_bamf_view_BOOLEAN__NONE, 287 },
+  { (GCallback) bamf_view_get_view_type, dbus_glib_marshal_bamf_view_STRING__NONE, 340 },
 };
 
 const DBusGObjectInfo dbus_glib_bamf_view_object_info = {
   0,
   dbus_glib_bamf_view_methods,
-  9,
-"org.ayatana.bamf.view\0Children\0S\0children\0O\0F\0R\0as\0\0org.ayatana.bamf.view\0IsActive\0S\0active\0O\0F\0R\0b\0\0org.ayatana.bamf.view\0IsRunning\0S\0running\0O\0F\0R\0b\0\0org.ayatana.bamf.view\0IsUrgent\0S\0urgent\0O\0F\0R\0b\0\0org.ayatana.bamf.view\0Name\0S\0name\0O\0F\0R\0s\0\0org.ayatana.bamf.view\0Icon\0S\0name\0O\0F\0R\0s\0\0org.ayatana.bamf.view\0Parent\0S\0parent\0O\0F\0R\0s\0\0org.ayatana.bamf.view\0UserVisible\0S\0visible\0O\0F\0R\0b\0\0org.ayatana.bamf.view\0ViewType\0S\0view_type\0O\0F\0R\0s\0\0\0",
+  8,
+"org.ayatana.bamf.view\0Children\0S\0children\0O\0F\0R\0as\0\0org.ayatana.bamf.view\0IsActive\0S\0active\0O\0F\0R\0b\0\0org.ayatana.bamf.view\0IsRunning\0S\0running\0O\0F\0R\0b\0\0org.ayatana.bamf.view\0IsUrgent\0S\0urgent\0O\0F\0R\0b\0\0org.ayatana.bamf.view\0Name\0S\0name\0O\0F\0R\0s\0\0org.ayatana.bamf.view\0Icon\0S\0name\0O\0F\0R\0s\0\0org.ayatana.bamf.view\0UserVisible\0S\0visible\0O\0F\0R\0b\0\0org.ayatana.bamf.view\0ViewType\0S\0view_type\0O\0F\0R\0s\0\0\0",
 "org.ayatana.bamf.view\0ActiveChanged\0org.ayatana.bamf.view\0Closed\0org.ayatana.bamf.view\0ChildAdded\0org.ayatana.bamf.view\0ChildRemoved\0org.ayatana.bamf.view\0RunningChanged\0org.ayatana.bamf.view\0UrgentChanged\0org.ayatana.bamf.view\0UserVisibleChanged\0\0",
 "\0"
 };

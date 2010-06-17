@@ -27,6 +27,7 @@
 #ifndef _BAMF_WINDOW_H_
 #define _BAMF_WINDOW_H_
 
+#include <time.h>
 #include <glib-object.h>
 #include <libbamf/bamf-view.h>
 
@@ -73,9 +74,13 @@ struct _BamfWindowClass
   void (*_window_padding6) (void);
 };
 
+BamfWindow      * bamf_window_get_transient        (BamfWindow *self);
+
 GType             bamf_window_get_type             (void) G_GNUC_CONST;
 
 guint32           bamf_window_get_xid              (BamfWindow *self);
+
+time_t            bamf_window_last_active          (BamfWindow *self);
 
 G_END_DECLS
 

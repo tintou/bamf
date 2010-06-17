@@ -77,7 +77,8 @@ icon_name_is_valid (char *name)
 {
   GtkIconTheme *icon_theme;
 
-  g_return_val_if_fail (name, FALSE);
+  if (name == NULL)
+    return FALSE;
 
   icon_theme = gtk_icon_theme_get_default ();
   return gtk_icon_theme_has_icon (icon_theme, name);
