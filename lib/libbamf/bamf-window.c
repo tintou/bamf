@@ -35,6 +35,7 @@
 #endif
 
 #include "bamf-window.h"
+#include "bamf-factory.h"
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
@@ -49,7 +50,49 @@ struct _BamfWindowPrivate
   DBusGConnection *connection;
   DBusGProxy      *proxy;
   guint32          xid;
+  time_t           last_active;
 };
+
+time_t bamf_window_last_active (BamfWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), (time_t) 0);
+  
+  return self->priv->last_active;
+}
+
+BamfWindow * bamf_window_get_transient (BamfWindow *self)
+{
+  BamfWindowPrivate *priv;
+  BamfView *transient;
+  char *path = NULL;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
+  priv = self->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "Transient",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &path,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch path: %s", error->message);
+      g_error_free (error);
+      return 0;
+    }
+  
+  if (!path)
+    return NULL;
+
+  transient = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+  g_free (path);  
+
+  if (!BAMF_IS_WINDOW (transient))
+    return NULL;
+    
+  return BAMF_WINDOW (transient);
+}
 
 guint32 bamf_window_get_xid (BamfWindow *self)
 {
@@ -67,12 +110,25 @@ guint32 bamf_window_get_xid (BamfWindow *self)
                           G_TYPE_UINT, &xid,
                           G_TYPE_INVALID))
     {
-      g_warning ("Failed to fetch path: %s", error->message);
+      g_warning ("Failed to fetch xid: %s", error->message);
       g_error_free (error);
       return 0;
     }
 
   return xid;
+}
+
+static void
+bamf_window_active_changed (BamfView *view, gboolean active)
+{
+  BamfWindow *self;
+
+  g_return_if_fail (BAMF_IS_WINDOW (view));
+
+  self = BAMF_WINDOW (view);
+  
+  if (active)
+    self->priv->last_active = time (NULL);
 }
 
 static void
@@ -107,12 +163,13 @@ bamf_window_constructed (GObject *object)
 static void
 bamf_window_class_init (BamfWindowClass *klass)
 {
-  GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+  GObjectClass  *obj_class  = G_OBJECT_CLASS (klass);
+  BamfViewClass *view_class = BAMF_VIEW_CLASS (klass);
 
   g_type_class_add_private (obj_class, sizeof (BamfWindowPrivate));
   
   obj_class->constructed = bamf_window_constructed;
-  
+  view_class->active_changed = bamf_window_active_changed;
 }
 
 

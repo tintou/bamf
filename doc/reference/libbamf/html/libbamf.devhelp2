@@ -71,7 +71,6 @@
     <keyword type="function" name="bamf_view_get_name ()" link="BamfView.html#bamf-view-get-name"/>
     <keyword type="function" name="bamf_view_get_icon ()" link="BamfView.html#bamf-view-get-icon"/>
     <keyword type="function" name="bamf_view_user_visible ()" link="BamfView.html#bamf-view-user-visible"/>
-    <keyword type="function" name="bamf_view_get_parent ()" link="BamfView.html#bamf-view-get-parent"/>
     <keyword type="function" name="bamf_view_get_view_type ()" link="BamfView.html#bamf-view-get-view-type"/>
     <keyword type="property" name="The &quot;path&quot; property" link="BamfView.html#BamfView--path"/>
     <keyword type="signal" name="The &quot;active-changed&quot; signal" link="BamfView.html#BamfView-active-changed"/>
