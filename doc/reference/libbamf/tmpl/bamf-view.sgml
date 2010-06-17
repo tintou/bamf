@@ -9,12 +9,10 @@ BamfView
 
 </para>
 
-
 <!-- ##### SECTION See_Also ##### -->
 <para>
 
 </para>
-
 
 <!-- ##### SECTION Stability_Level ##### -->
 
@@ -101,6 +99,13 @@ BamfView
 @get_name: 
 @get_icon: 
 @view_type: 
+@active_changed: 
+@closed: 
+@child_added: 
+@child_removed: 
+@running_changed: 
+@urgent_changed: 
+@user_visible_changed: 
 
 <!-- ##### STRUCT BamfViewPrivate ##### -->
 <para>
@@ -163,15 +168,6 @@ BamfView
 
 
 <!-- ##### FUNCTION bamf_view_user_visible ##### -->
-<para>
-
-</para>
-
-@self: 
-@Returns: 
-
-
-<!-- ##### FUNCTION bamf_view_get_parent ##### -->
 <para>
 
 </para>

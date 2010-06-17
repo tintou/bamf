@@ -71,7 +71,6 @@
     <function name="bamf_view_get_name ()" link="BamfView.html#bamf-view-get-name"/>
     <function name="bamf_view_get_icon ()" link="BamfView.html#bamf-view-get-icon"/>
     <function name="bamf_view_user_visible ()" link="BamfView.html#bamf-view-user-visible"/>
-    <function name="bamf_view_get_parent ()" link="BamfView.html#bamf-view-get-parent"/>
     <function name="bamf_view_get_view_type ()" link="BamfView.html#bamf-view-get-view-type"/>
     <function name="The &quot;path&quot; property" link="BamfView.html#BamfView--path"/>
     <function name="The &quot;active-changed&quot; signal" link="BamfView.html#BamfView-active-changed"/>

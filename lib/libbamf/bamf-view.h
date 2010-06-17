@@ -70,6 +70,15 @@ struct _BamfViewClass
   gchar      * (*get_name)            (BamfView *view);
   gchar      * (*get_icon)            (BamfView *view);
   gchar      * (*view_type)           (BamfView *view);
+  
+  /*< signals >*/
+  void (*active_changed)              (BamfView *view, gboolean active);
+  void (*closed)                      (BamfView *view);
+  void (*child_added)                 (BamfView *view, BamfView *child);
+  void (*child_removed)               (BamfView *view, BamfView *child);
+  void (*running_changed)             (BamfView *view, gboolean running);
+  void (*urgent_changed)              (BamfView *view, gboolean urgent);
+  void (*user_visible_changed)        (BamfView *view, gboolean user_visible);
 
   /*< private >*/
   void (*_view_padding1) (void);
@@ -109,6 +118,12 @@ gboolean   bamf_view_is_active     (BamfView *view);
  */
 gboolean   bamf_view_is_running    (BamfView *view);
 
+/**
+ * bamf_view_is_running:
+ * @view: a #BamfView
+ *
+ * Determines if the view is currently requiring attention. Useful for a running window indicator. 
+ */
 gboolean   bamf_view_is_urgent     (BamfView *view);
 
 /**
@@ -127,18 +142,14 @@ gchar    * bamf_view_get_name      (BamfView *view);
  */
 gchar    * bamf_view_get_icon      (BamfView *view);
 
-gboolean   bamf_view_user_visible  (BamfView *self);
-
 /**
- * bamf_view_get_parent:
+ * bamf_view_user_visible:
  * @view: a #BamfView
  *
- * Returns the current parent of a #BamfView. This parent is not the only parent, simply the primary parent
- * of a view. It may be possible to find this #BamfView in other parts of the tree.
- *
- * Returns: (transfer none): Returns a #BamfView.
+ * Returns a boolean useful for determining if a particular view is "user visible". User visible
+ * is a concept relating to whether or not a window should be shown in a launcher tasklist.
  */
-BamfView * bamf_view_get_parent    (BamfView *view);
+gboolean   bamf_view_user_visible  (BamfView *view);
 
 /**
  * bamf_view_get_view_type:

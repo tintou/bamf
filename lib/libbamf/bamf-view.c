@@ -337,8 +337,9 @@ bamf_view_class_init (BamfViewClass *klass)
   view_signals [ACTIVE_CHANGED] = 
   	g_signal_new ("active-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
+  	              G_SIGNAL_RUN_FIRST,
+  	              G_STRUCT_OFFSET (BamfViewClass, active_changed), 
+  	              NULL, NULL,
   	              g_cclosure_marshal_VOID__BOOLEAN,
   	              G_TYPE_NONE, 1, 
   	              G_TYPE_BOOLEAN);
@@ -346,16 +347,18 @@ bamf_view_class_init (BamfViewClass *klass)
   view_signals [CLOSED] = 
   	g_signal_new ("closed",
   	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
+  	              G_SIGNAL_RUN_FIRST,
+  	              G_STRUCT_OFFSET (BamfViewClass, closed), 
+  	              NULL, NULL,
   	              g_cclosure_marshal_VOID__VOID,
   	              G_TYPE_NONE, 0);
 
   view_signals [CHILD_ADDED] = 
   	g_signal_new ("child-added",
   	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
+  	              G_SIGNAL_RUN_FIRST,
+  	              G_STRUCT_OFFSET (BamfViewClass, child_added), 
+  	              NULL, NULL,
   	              g_cclosure_marshal_VOID__OBJECT,
   	              G_TYPE_NONE, 1, 
   	              BAMF_TYPE_VIEW);
@@ -363,8 +366,9 @@ bamf_view_class_init (BamfViewClass *klass)
   view_signals [CHILD_REMOVED] = 
   	g_signal_new ("child-removed",
   	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
+  	              G_SIGNAL_RUN_FIRST,
+  	              G_STRUCT_OFFSET (BamfViewClass, child_removed), 
+  	              NULL, NULL,
   	              g_cclosure_marshal_VOID__OBJECT,
   	              G_TYPE_NONE, 1, 
   	              BAMF_TYPE_VIEW);
@@ -372,8 +376,9 @@ bamf_view_class_init (BamfViewClass *klass)
   view_signals [CHILD_ADDED] = 
   	g_signal_new ("running-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
+  	              G_SIGNAL_RUN_FIRST,
+  	              G_STRUCT_OFFSET (BamfViewClass, running_changed), 
+  	              NULL, NULL,
   	              g_cclosure_marshal_VOID__BOOLEAN,
   	              G_TYPE_NONE, 1, 
   	              G_TYPE_BOOLEAN);
@@ -381,8 +386,9 @@ bamf_view_class_init (BamfViewClass *klass)
   view_signals [URGENT_CHANGED] = 
   	g_signal_new ("urgent-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
+  	              G_SIGNAL_RUN_FIRST,
+  	              G_STRUCT_OFFSET (BamfViewClass, urgent_changed), 
+  	              NULL, NULL,
   	              g_cclosure_marshal_VOID__BOOLEAN,
   	              G_TYPE_NONE, 1, 
   	              G_TYPE_BOOLEAN);
@@ -390,8 +396,9 @@ bamf_view_class_init (BamfViewClass *klass)
   view_signals [VISIBLE_CHANGED] = 
   	g_signal_new ("user-visible-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
+  	              G_SIGNAL_RUN_FIRST,
+  	              G_STRUCT_OFFSET (BamfViewClass, user_visible_changed), 
+  	              NULL, NULL,
   	              g_cclosure_marshal_VOID__BOOLEAN,
   	              G_TYPE_NONE, 1, 
   	              G_TYPE_BOOLEAN);
@@ -629,33 +636,6 @@ bamf_view_get_name (BamfView *view)
     }
 
   return name;
-}
-
-BamfView *
-bamf_view_get_parent (BamfView *view)
-{
-  BamfViewPrivate *priv;
-  char *parent = NULL;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  priv = view->priv;
-  
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "Parent",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &parent,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch parent: %s", error->message);
-      g_error_free (error);
-      return NULL;
-    }
-
-  if (!parent)
-    return NULL;
-  return bamf_factory_view_for_path (bamf_factory_get_default (), parent);
 }
 
 gchar *

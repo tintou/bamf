@@ -53,6 +53,50 @@ G_BEGIN_DECLS
 #endif /* !G_ENABLE_DEBUG */
 
 
+/* STRING:NONE */
+extern void dbus_glib_marshal_bamf_window_STRING__VOID (GClosure     *closure,
+                                                        GValue       *return_value,
+                                                        guint         n_param_values,
+                                                        const GValue *param_values,
+                                                        gpointer      invocation_hint,
+                                                        gpointer      marshal_data);
+void
+dbus_glib_marshal_bamf_window_STRING__VOID (GClosure     *closure,
+                                            GValue       *return_value G_GNUC_UNUSED,
+                                            guint         n_param_values,
+                                            const GValue *param_values,
+                                            gpointer      invocation_hint G_GNUC_UNUSED,
+                                            gpointer      marshal_data)
+{
+  typedef gchar* (*GMarshalFunc_STRING__VOID) (gpointer     data1,
+                                               gpointer     data2);
+  register GMarshalFunc_STRING__VOID callback;
+  register GCClosure *cc = (GCClosure*) closure;
+  register gpointer data1, data2;
+  gchar* v_return;
+
+  g_return_if_fail (return_value != NULL);
+  g_return_if_fail (n_param_values == 1);
+
+  if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+      data1 = closure->data;
+      data2 = g_value_peek_pointer (param_values + 0);
+    }
+  else
+    {
+      data1 = g_value_peek_pointer (param_values + 0);
+      data2 = closure->data;
+    }
+  callback = (GMarshalFunc_STRING__VOID) (marshal_data ? marshal_data : cc->callback);
+
+  v_return = callback (data1,
+                       data2);
+
+  g_value_take_string (return_value, v_return);
+}
+#define dbus_glib_marshal_bamf_window_STRING__NONE	dbus_glib_marshal_bamf_window_STRING__VOID
+
 /* UINT:NONE */
 extern void dbus_glib_marshal_bamf_window_UINT__VOID (GClosure     *closure,
                                                       GValue       *return_value,
@@ -103,14 +147,15 @@ G_END_DECLS
 
 #include <dbus/dbus-glib.h>
 static const DBusGMethodInfo dbus_glib_bamf_window_methods[] = {
-  { (GCallback) bamf_window_get_xid, dbus_glib_marshal_bamf_window_UINT__NONE, 0 },
+  { (GCallback) bamf_window_get_transient_path, dbus_glib_marshal_bamf_window_STRING__NONE, 0 },
+  { (GCallback) bamf_window_get_xid, dbus_glib_marshal_bamf_window_UINT__NONE, 50 },
 };
 
 const DBusGObjectInfo dbus_glib_bamf_window_object_info = {
   0,
   dbus_glib_bamf_window_methods,
-  1,
-"org.ayatana.bamf.window\0GetXid\0S\0xid\0O\0F\0R\0u\0\0\0",
+  2,
+"org.ayatana.bamf.window\0Transient\0S\0path\0O\0F\0R\0s\0\0org.ayatana.bamf.window\0GetXid\0S\0xid\0O\0F\0R\0u\0\0\0",
 "\0",
 "\0"
 };
