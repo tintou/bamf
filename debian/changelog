@@ -1,6 +1,8 @@
 bamf (0.2.30-0ubuntu1) UNRELEASED; urgency=low
 
-  * New upstream release.
+  * New upstream release:
+    - fix KDE applications not showing up in the Unity Launcher
+      (LP: #592502)
   * debian/libbamf0.symbols:
     - adding new symbols
 
