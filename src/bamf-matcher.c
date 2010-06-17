@@ -556,7 +556,10 @@ load_index_file_to_table (BamfMatcher * self,
 static GList *
 get_desktop_file_directories (BamfMatcher *self)
 {
-  GList *dirs = NULL;
+  GFile *file;
+  GFileInfo *info;
+  GFileEnumerator *enumerator;
+  GList *dirs = NULL, *l;
   const char *env;
   char  *path;
   char **data_dirs = NULL;
@@ -586,6 +589,45 @@ get_desktop_file_directories (BamfMatcher *self)
   
   if (data_dirs)
     g_strfreev (data_dirs);
+  
+  /* include subdirs */
+  for (l = dirs; l; l = l->next)
+    {
+      path = l->data;
+      
+      file = g_file_new_for_path (path);
+      
+      if (!g_file_query_exists (file, NULL))
+        {
+          g_object_unref (file);
+          continue;
+        }
+      
+      enumerator = g_file_enumerate_children (file,
+                                              "standard::*",
+                                              G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                              NULL,
+                                              NULL);
+      
+      if (!enumerator)
+        continue;
+
+      info = g_file_enumerator_next_file (enumerator, NULL, NULL);
+      for (; info; info = g_file_enumerator_next_file (enumerator, NULL, NULL))
+        {
+          if (g_file_info_get_file_type (info) != G_FILE_TYPE_DIRECTORY)
+            continue;
+          path = g_build_filename (path, g_file_info_get_name (info), NULL);
+          
+          /* append for non-recursive recursion love */
+          dirs = g_list_append (dirs, path);
+
+          g_object_unref (info);
+        }
+
+      g_object_unref (enumerator);
+      g_object_unref (file);
+    }
   
   return dirs;
 }
