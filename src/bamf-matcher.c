@@ -43,6 +43,16 @@ enum
 
 static guint matcher_signals[LAST_SIGNAL] = { 0 };
 
+typedef struct _OpenOfficeTimeoutArgs OpenOfficeTimeoutArgs;
+
+struct _OpenOfficeTimeoutArgs
+{
+  BamfMatcher *matcher;
+  BamfLegacyWindow *window;
+  int count;
+};
+
+
 struct _BamfMatcherPrivate
 {
   GArray          * bad_prefixes;
@@ -1031,17 +1041,12 @@ ensure_window_hint_set (BamfMatcher *self,
 }
 
 static void
-handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, gpointer data)
+handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
 {
   BamfWindow *bamfwindow;
-  BamfMatcher *self;
-  self = (BamfMatcher *) data;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
-
-  if (bamf_legacy_window_get_window_type (window) == BAMF_WINDOW_DESKTOP)
-    return;
 
   gint pid = bamf_legacy_window_get_pid (window);
   if (pid > 1)
@@ -1057,6 +1062,46 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, gpoi
   bamf_matcher_register_view (self, BAMF_VIEW (bamfwindow));
 
   bamf_matcher_setup_window_state (self, bamfwindow);
+}
+
+static gboolean
+open_office_window_setup_timer (OpenOfficeTimeoutArgs *args)
+{
+  args->count++;
+  if (args->count > 20 || get_open_office_window_hint (args->matcher, args->window))  
+    {
+      handle_raw_window (args->matcher, args->window);
+      return FALSE;
+    }
+  
+  return TRUE;
+}
+
+static void
+handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, gpointer data)
+{
+  BamfMatcher *self;
+  self = (BamfMatcher *) data;
+
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
+
+  if (bamf_legacy_window_get_window_type (window) == BAMF_WINDOW_DESKTOP)
+    return;
+
+  if (is_open_office_window (self, window) && get_open_office_window_hint (self, window) == NULL)
+    {
+      OpenOfficeTimeoutArgs* args = (OpenOfficeTimeoutArgs*) g_malloc0 (sizeof (OpenOfficeTimeoutArgs));
+      args->matcher = self;
+      args->window = window;
+      /* we have an open office window who is not ready to match yet */
+      g_timeout_add (100, (GSourceFunc) open_office_window_setup_timer, args);
+    }
+  else
+    {
+      /* we have a window who is ready to be matched */
+      handle_raw_window (self, window); 
+    }
 }
 
 void
