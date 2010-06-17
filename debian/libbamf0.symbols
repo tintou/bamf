@@ -52,6 +52,7 @@ libbamf.so.0 libbamf0 #MINVER#
  bamf_window_get_transient@Base 0.2.28
  bamf_window_get_type@Base 0.2.20
  bamf_window_get_xid@Base 0.2.20
+ bamf_window_last_active@Base 0.2.30
  bamf_window_new@Base 0.2.20
  dbus_glib_bamf_tab_source_object_info@Base 0.2.20
  dbus_glib_marshal_bamf_tab_source_BOOLEAN__STRING_POINTER@Base 0.2.20
