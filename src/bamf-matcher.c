@@ -830,7 +830,7 @@ process_name (BamfLegacyWindow *window)
   char *contents;
   char **lines;
   char **sections;
-  char *result;
+  char *result = NULL;
   
   pid = bamf_legacy_window_get_pid (window);
   
@@ -929,13 +929,17 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
         {
           /* got nothing so far, check on process name */
           name = process_name (window);
-          file = g_hash_table_lookup (priv->desktop_file_table, name);
-          if (file)
+          
+          if (name)
             {
-              file = g_strdup (file);
-              g_array_append_val (desktop_files, file);
+              file = g_hash_table_lookup (priv->desktop_file_table, name);
+              if (file)
+                {
+                  file = g_strdup (file);
+                  g_array_append_val (desktop_files, file);
+                }
+              g_free (name);
             }
-          g_free (name);
         }
     }
 
