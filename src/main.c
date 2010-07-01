@@ -21,6 +21,7 @@
 #include "bamf-control.h"
 #include "bamf-matcher.h"
 #include "bamf-legacy-screen.h"
+#include "bamf-notification-approver.h"
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
@@ -33,6 +34,7 @@ main (int argc, char **argv)
   GOptionContext *options;
   BamfControl *control;
   BamfMatcher *matcher;
+  BamfNotificationApprover *approver;
   DBusGConnection *bus;
   DBusGProxy *bus_proxy;
   GError *error = NULL;
@@ -89,8 +91,9 @@ main (int argc, char **argv)
 
   g_object_unref (G_OBJECT (bus_proxy));
 
-  matcher = bamf_matcher_get_default ();
-  control = bamf_control_get_default ();
+  matcher  = bamf_matcher_get_default ();
+  control  = bamf_control_get_default ();
+  approver = bamf_notification_approver_get_default ();
 
   if (state_file)
     {
