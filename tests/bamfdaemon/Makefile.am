@@ -37,8 +37,8 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/bamf-view-glue.h \
 		$(top_srcdir)/src/bamf-marshal.h \
 		$(top_srcdir)/src/bamf-indicator.h \
-		$(top_srcdir)/src/bamf-notification-approver.h \
 		$(top_srcdir)/src/bamf-indicator-glue.h \
+		$(top_srcdir)/src/bamf-notification-approver.h \
 		$(top_srcdir)/src/bamf-notification-approver-glue.h \
 		$(NULL)
 
