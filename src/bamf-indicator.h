@@ -52,17 +52,18 @@ struct _BamfIndicatorClass {
 
 GType bamf_indicator_get_type (void) G_GNUC_CONST;
 
-char   * bamf_indicator_get_id        (BamfIndicator *self);
+char       * bamf_indicator_get_id        (BamfIndicator *self);
 
-char   * bamf_indicator_get_path      (BamfIndicator *self);
+DBusGProxy * bamf_indicator_get_path      (BamfIndicator *self);
 
-char   * bamf_indicator_get_address   (BamfIndicator *self);
+char       * bamf_indicator_get_address   (BamfIndicator *self);
 
-char   * bamf_indicator_get_category  (BamfIndicator *self);
+guint32      bamf_indicator_get_pid       (BamfIndicator *self);
 
-guint32  bamf_indicator_get_pid       (BamfIndicator *self);
-
-BamfIndicator *bamf_indicator_new (char *id, char* path, char *address, char *category, guint32 pid);
+BamfIndicator *bamf_indicator_new (const char *id, 
+                                   DBusGProxy *proxy, 
+                                   const char *address, 
+                                   guint32 pid);
 
 G_END_DECLS
 
