@@ -72,6 +72,9 @@ bamf_notification_approver_approve_item (BamfNotificationApprover *self,
   
   g_signal_emit (self, notification_approver_signals[INDICATOR_OPENED], 0, indicator);
 
+  if (g_list_length (bamf_view_get_parents (BAMF_VIEW (indicator))) > 0)
+    *approve = FALSE;
+
   return TRUE;
 }
 
