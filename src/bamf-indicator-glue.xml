@@ -13,7 +13,7 @@
 
 		<method name="Path">
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_indicator_get_path" />
-			<arg type="s" name="path" direction="out">
+			<arg type="o" name="path" direction="out">
 				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
 			</arg>
 		</method>
@@ -21,13 +21,6 @@
 		<method name="Pid">
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_indicator_get_pid" />
 			<arg type="u" name="pid" direction="out">
-				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
-			</arg>
-		</method>
-
-		<method name="Category">
-			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_indicator_get_category" />
-			<arg type="s" name="category" direction="out">
 				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
 			</arg>
 		</method>

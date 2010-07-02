@@ -24,6 +24,7 @@
 #define __BAMF_NOTIFICATION_APPROVER_H__
 
 #include <glib-object.h>
+#include "bamf-indicator.h"
 
 G_BEGIN_DECLS
 
@@ -47,16 +48,28 @@ struct _BamfNotificationApprover {
 
 struct _BamfNotificationApproverClass {
   GObjectClass parent_class;
+  
+  /*< signals >*/
+  void (*indicator_opened) (BamfNotificationApprover *approver, BamfIndicator *indicator);
+  void (*indicator_closed) (BamfNotificationApprover *approver, BamfIndicator *indicator);
+  
+  void (*padding1) (void);
+  void (*padding2) (void);
+  void (*padding3) (void);
+  void (*padding4) (void);
+  void (*padding5) (void);
 };
 
 GType bamf_notification_approver_get_type (void) G_GNUC_CONST;
+
+GList * bamf_notification_approver_get_indicators (BamfNotificationApprover *self);
 
 gboolean bamf_notification_approver_approve_item (BamfNotificationApprover *self,
                                                   const char *id,
                                                   const char *category,
                                                   const guint32 pid,
                                                   const char *address,
-                                                  const char *path,
+                                                  DBusGProxy *proxy,
                                                   gboolean *approve,
                                                   GError **error);
 
