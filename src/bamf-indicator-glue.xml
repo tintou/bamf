@@ -4,23 +4,9 @@
 
 	<interface name="org.ayatana.bamf.indicator">
 
-		<method name="Id">
-			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_indicator_get_id" />
-			<arg type="s" name="id" direction="out">
-				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
-			</arg>
-		</method>
-
 		<method name="Path">
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_indicator_get_path" />
-			<arg type="o" name="path" direction="out">
-				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
-			</arg>
-		</method>
-
-		<method name="Pid">
-			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_indicator_get_pid" />
-			<arg type="u" name="pid" direction="out">
+			<arg type="s" name="path" direction="out">
 				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
 			</arg>
 		</method>

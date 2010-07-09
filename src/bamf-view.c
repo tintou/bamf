@@ -107,9 +107,12 @@ bamf_view_urgent_changed (BamfView *view, gboolean urgent)
     g_signal_emit (view, view_signals[URGENT_CHANGED], 0, urgent);
 }
 
-static void
-bamf_view_closed (BamfView *view)
+void
+bamf_view_close (BamfView *view)
 {
+  if (view->priv->disposed)
+    return;
+
   gboolean emit = TRUE;
   if (BAMF_VIEW_GET_CLASS (view)->closed)
     {
@@ -408,9 +411,6 @@ bamf_view_dispose (GObject *object)
   BamfView *view = BAMF_VIEW (object);
   BamfViewPrivate *priv = view->priv;
 
-  if (!priv->disposed)
-    bamf_view_closed (view);
-
   bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
   if (bus && priv->path)
@@ -423,10 +423,11 @@ bamf_view_dispose (GObject *object)
     {
       for (l = priv->children; l; l = l->next)
         {
-          bamf_view_remove_child (view, l->data);
+          if (BAMF_IS_VIEW (l->data))
+            bamf_view_remove_child (view, l->data);
         }
       g_list_free (priv->children);
-      view->priv->children = NULL;
+      priv->children = NULL;
     }
 
   if (priv->name)

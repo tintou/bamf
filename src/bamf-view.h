@@ -70,6 +70,8 @@ struct _BamfView
 
 GType      bamf_view_get_type           (void) G_GNUC_CONST;
 
+void       bamf_view_close              (BamfView *view);
+
 char    ** bamf_view_get_children_paths (BamfView *view);
 
 GList    * bamf_view_get_children       (BamfView *view);

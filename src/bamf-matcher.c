@@ -26,7 +26,7 @@
 #include "bamf-legacy-window.h"
 #include "bamf-legacy-window-test.h"
 #include "bamf-legacy-screen.h"
-#include "bamf-notification-approver.h"
+#include "bamf-indicator-source.h"
 
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, G_TYPE_OBJECT);
 #define BAMF_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -151,9 +151,9 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
                     (GCallback) on_view_active_changed, self);
 
   self->priv->views = g_list_prepend (self->priv->views, view);
+  g_object_ref (view);
 
   g_signal_emit (self, matcher_signals[VIEW_OPENED],0, path, type);
-
   g_free (type);
 }
 
@@ -171,6 +171,7 @@ bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
   g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_active_changed, self);
 
   self->priv->views = g_list_remove (self->priv->views, view);
+  g_object_unref (view);
 
   g_free (type);
 }
@@ -1060,6 +1061,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
         best = bamf_application_new ();
 
       bamf_matcher_register_view (self, BAMF_VIEW (best));
+      g_object_unref (best);
     }
 
  for (l = possible_apps; l; l = l->next)
@@ -1157,6 +1159,7 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
 
   bamfwindow = bamf_window_new (window);
   bamf_matcher_register_view (self, BAMF_VIEW (bamfwindow));
+  g_object_unref (bamfwindow);
 
   bamf_matcher_setup_window_state (self, bamfwindow);
 }
@@ -1256,6 +1259,7 @@ bamf_matcher_setup_indicator_state (BamfMatcher *self, BamfIndicator *indicator)
         {
           best = bamf_application_new_from_desktop_file (desktop_file);
           bamf_matcher_register_view (self, BAMF_VIEW (best));
+          g_object_unref (best);
         }
     }
 
@@ -1273,7 +1277,7 @@ bamf_matcher_setup_indicator_state (BamfMatcher *self, BamfIndicator *indicator)
 }
 
 static void
-handle_indicator_opened (BamfNotificationApprover *approver, BamfIndicator *indicator, BamfMatcher *self)
+handle_indicator_opened (BamfIndicatorSource *approver, BamfIndicator *indicator, BamfMatcher *self)
 {
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_INDICATOR (indicator));
@@ -1599,7 +1603,7 @@ bamf_matcher_init (BamfMatcher * self)
   GError *error = NULL;
   BamfMatcherPrivate *priv;
   BamfLegacyScreen *screen;
-  BamfNotificationApprover *approver;
+  BamfIndicatorSource *approver;
 
   priv = self->priv = BAMF_MATCHER_GET_PRIVATE (self);
 
@@ -1624,7 +1628,7 @@ bamf_matcher_init (BamfMatcher * self)
   g_signal_connect (G_OBJECT (screen), "window-opened",
 		    (GCallback) handle_window_opened, self);
 
-  approver = bamf_notification_approver_get_default ();
+  approver = bamf_indicator_source_get_default ();
   g_signal_connect (G_OBJECT (approver), "indicator-opened",
                     (GCallback) handle_indicator_opened, self);
 
