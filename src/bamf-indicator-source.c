@@ -29,9 +29,6 @@
 #define BAMF_INDICATOR_SOURCE_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE((object), BAMF_TYPE_INDICATOR_SOURCE, BamfIndicatorSourcePrivate))
 #define BAMF_INDICATOR_SOURCE_PATH "/org/ayatana/bamf/IndicatorSource"
 
-#define DBUS_G_STRUCT_IND (dbus_g_type_get_struct("GValueArray", G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING, DBUS_TYPE_G_PROXY, G_TYPE_STRING, G_TYPE_INVALID))
-#define DBUS_G_COLLECT_IND (dbus_g_type_get_collection ("GPtrArray", DBUS_G_STRUCT_IND))
-
 enum
 {
   INDICATOR_OPENED,
