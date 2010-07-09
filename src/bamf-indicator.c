@@ -32,12 +32,14 @@ enum
   
   PROP_ADDRESS,
   PROP_PID,
-  PROP_PROXY,
+  PROP_PATH,
+  PROP_ID,
 };
 
 
 struct _BamfIndicatorPrivate
 {
+  char *id;
   char *path;
   char *address;
   guint32 pid;
@@ -58,6 +60,13 @@ bamf_indicator_get_address (BamfIndicator *self)
 {
   g_return_val_if_fail (BAMF_IS_INDICATOR (self), NULL);
   return g_strdup (self->priv->address);
+}
+
+char *
+bamf_indicator_get_id (BamfIndicator *self)
+{
+  g_return_val_if_fail (BAMF_IS_INDICATOR (self), NULL);
+  return g_strdup (self->priv->id);
 }
 
 guint32
@@ -96,8 +105,12 @@ bamf_indicator_set_property (GObject *object, guint property_id, const GValue *v
         self->priv->address = g_value_dup_string (value);
         break;
       
-      case PROP_PROXY:
+      case PROP_PATH:
         self->priv->path = g_value_dup_string (value);
+        break;
+        
+      case PROP_ID:
+        self->priv->id = g_value_dup_string (value);
         break;
       
       case PROP_PID:
@@ -122,8 +135,12 @@ bamf_indicator_get_property (GObject *object, guint property_id, GValue *value, 
         g_value_set_string (value, self->priv->address);
         break;
       
-      case PROP_PROXY:
+      case PROP_PATH:
         g_value_set_string (value, self->priv->path);
+        break;
+      
+      case PROP_ID:
+        g_value_set_string (value, self->priv->id);
         break;
       
       case PROP_PID:
@@ -204,6 +221,12 @@ bamf_indicator_dispose (GObject *object)
       g_free (priv->address);
       priv->address = NULL;
     }
+    
+  if (priv->id)
+    {
+      g_free (priv->id);
+      priv->id = NULL;
+    }  
 
   G_OBJECT_CLASS (bamf_indicator_parent_class)->dispose (object);
 }
@@ -225,7 +248,10 @@ bamf_indicator_class_init (BamfIndicatorClass *klass)
   g_object_class_install_property (object_class, PROP_ADDRESS, pspec);
   
   pspec = g_param_spec_string ("path", "path", "path", NULL, G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
-  g_object_class_install_property (object_class, PROP_PROXY, pspec);
+  g_object_class_install_property (object_class, PROP_PATH, pspec);
+  
+  pspec = g_param_spec_string ("id", "id", "id", NULL, G_PARAM_READWRITE);
+  g_object_class_install_property (object_class, PROP_ID, pspec);
   
   pspec = g_param_spec_uint ("pid", "pid", "pid", 0, G_MAXUINT32, 0, G_PARAM_READWRITE);
   g_object_class_install_property (object_class, PROP_PID, pspec);
@@ -243,13 +269,14 @@ bamf_indicator_init (BamfIndicator *self)
 }
 
 BamfIndicator *
-bamf_indicator_new (const char *path, const char *address, guint32 pid)
+bamf_indicator_new (const char *id, const char *path, const char *address, guint32 pid)
 {
   BamfIndicator *self;
   self = g_object_new (BAMF_TYPE_INDICATOR, 
                        "address", address,
                        "path", path,
                        "pid", pid,
+                       "id", id,
                        NULL);
                        
   return self;

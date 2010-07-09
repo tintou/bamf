@@ -58,37 +58,6 @@ bamf_indicator_source_get_indicators (BamfIndicatorSource *self)
   return self->priv->indicators;
 }
 
-gboolean 
-bamf_indicator_source_approve_item (BamfIndicatorSource *self,
-                                         const char *id,
-                                         const char *category,
-                                         const guint32 pid,
-                                         const char *address,
-                                         DBusGProxy *proxy,
-                                         gboolean *approve,
-                                         GError **error)
-{
-  GList *l;
-  BamfIndicator *indicator;
-  *approve = TRUE;
-  
-  g_return_val_if_fail (BAMF_IS_INDICATOR_SOURCE (self), TRUE);
-  
-  for (l = self->priv->indicators; l; l = l->next)
-    {
-      indicator = BAMF_INDICATOR (l->data);
-      
-      if (bamf_indicator_matches_signature (indicator, pid, address, dbus_g_proxy_get_path (proxy)))
-        {
-          if (g_list_length (bamf_view_get_parents (BAMF_VIEW (indicator))) > 0)
-            *approve = FALSE;
-          break;
-        }
-    }  
-  
-  return TRUE;
-}
-
 static void
 on_indicator_closed (BamfView *view, BamfIndicatorSource *self)
 {
@@ -105,103 +74,78 @@ on_indicator_closed (BamfView *view, BamfIndicatorSource *self)
   g_object_unref (G_OBJECT (indicator));
 }
 
-static void
-on_application_added (DBusGProxy *proxy, // may be null
-                      char *icon,        // may be null
-                      int order,         // may be whatever
-                      char *address,     // may not be null
-                      char *path,        // may not be null
-                      char *icon_path,   // may be null
-                      BamfIndicatorSource *self)
+gboolean 
+bamf_indicator_source_approve_item (BamfIndicatorSource *self,
+                                    const char *id,
+                                    const char *category,
+                                    guint32 pid,
+                                    const char *address,
+                                    const char *path,
+                                    gboolean *approve,
+                                    GError **remote_error)
 {
-  BamfIndicator *indicator;
   DBusGConnection *bus;
   DBusGProxy *dbus_proxy;
-  guint pid;
+  GList *l;
   GError *error = NULL;
-
-  g_return_if_fail (BAMF_IS_INDICATOR_SOURCE (self));
+  BamfIndicator *indicator = NULL;
+  *approve = TRUE;
+  guint remote_pid;
   
-  bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-  g_return_if_fail (bus);
-
-  dbus_proxy = dbus_g_proxy_new_for_name (bus,
-                                          DBUS_SERVICE_DBUS,
-                                          DBUS_PATH_DBUS,
-                                          DBUS_INTERFACE_DBUS);
-  g_return_if_fail (dbus_proxy);
+  g_return_val_if_fail (category, TRUE);
+  g_return_val_if_fail (path, TRUE);
+  g_return_val_if_fail (address, TRUE);
+  g_return_val_if_fail (BAMF_IS_INDICATOR_SOURCE (self), TRUE);
   
-  if (!org_freedesktop_DBus_get_connection_unix_process_id (dbus_proxy, address, &pid, &error))
+  if (g_strcmp0 (category, "ApplicationStatus") != 0)
+    return TRUE;
+    
+  if (pid == 0)
     {
-      g_warning ("Could not get indicator process id: %s\n", error->message);
-      g_error_free (error);
-      goto out;
+      g_warning ("Remote service passed indicator with pid of 0, manually fetching pid\n");
+      
+      bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+      g_return_val_if_fail (bus, TRUE);
+ 
+      dbus_proxy = dbus_g_proxy_new_for_name (bus,
+                                              DBUS_SERVICE_DBUS,
+                                              DBUS_PATH_DBUS,
+                                              DBUS_INTERFACE_DBUS);
+      g_return_val_if_fail (dbus_proxy, TRUE);
+   
+      error = NULL;
+      if (!org_freedesktop_DBus_get_connection_unix_process_id (dbus_proxy, address, &remote_pid, &error))
+        {
+          g_warning ("Could not get indicator process id: %s\n", error->message);
+          g_error_free (error);
+        }
+     
+      g_object_unref (G_OBJECT (dbus_proxy));
+      pid = (guint32) remote_pid;
     }
   
-  indicator = bamf_indicator_new (path, address, (guint32) pid);
-  self->priv->indicators = g_list_prepend (self->priv->indicators, indicator);
-  
-  g_signal_connect (G_OBJECT (indicator), "closed", (GCallback) on_indicator_closed, self);
-  
-  g_signal_emit (self, indicator_source_signals[INDICATOR_OPENED], 0, indicator);
-  
-out:
-  g_object_unref (dbus_proxy);
-}
-
-static void
-bamf_indicator_source_load_value (gpointer *data, gpointer *user_data)
-{
-  DBusGProxy *proxy;
-  char *address;
-  char *path;
-  GValue *value;
-  GValueArray *arr;
-  BamfIndicatorSource *self;
-  
-  self = BAMF_INDICATOR_SOURCE (user_data);
-  arr = (GValueArray *) data;
-  
-  value = g_value_array_get_nth (arr, 2);
-  address = g_value_dup_string (value);
-  
-  value = g_value_array_get_nth (arr, 3);
-  proxy = DBUS_G_PROXY (g_value_get_object (value));
-  path = g_strdup (dbus_g_proxy_get_path (proxy));
-  
-  on_application_added (NULL, NULL, 0, address, path, NULL, self);
-  
-  g_free (address);
-  g_free (path);
-  g_value_array_free (arr);
-}
-
-static gboolean
-bamf_indicator_source_load_existing (BamfIndicatorSource *self)
-{
-  DBusGProxy *proxy;
-  GPtrArray *arr;
-  GError *error = NULL;
-  
-  g_return_val_if_fail (BAMF_IS_INDICATOR_SOURCE (self), FALSE);
-  
-  proxy = self->priv->proxy;
-  
-  if (!dbus_g_proxy_call (proxy,
-                          "GetApplications",
-                          &error,
-                          G_TYPE_INVALID,
-                          DBUS_G_COLLECT_IND, &arr,
-                          G_TYPE_INVALID))
+  for (l = self->priv->indicators; l; l = l->next)
     {
-      g_warning ("Failed to fetch applications: %s", error->message);
-      g_error_free (error);
-      return FALSE;
+      if (bamf_indicator_matches_signature (BAMF_INDICATOR (l->data), pid, address, path))
+        {
+          indicator = BAMF_INDICATOR (l->data);
+          break;
+        }
     }
   
-  g_ptr_array_foreach (arr, (GFunc) bamf_indicator_source_load_value, self);   
+  if (!indicator)
+    {
+      indicator = bamf_indicator_new (id, path, address,  pid);
+      self->priv->indicators = g_list_prepend (self->priv->indicators, indicator);
   
-  return FALSE;
+      g_signal_connect (G_OBJECT (indicator), "closed", (GCallback) on_indicator_closed, self);
+      g_signal_emit (self, indicator_source_signals[INDICATOR_OPENED], 0, indicator);
+    }
+  
+  if (indicator && g_list_length (bamf_view_get_parents (BAMF_VIEW (indicator))) > 0)
+    *approve = FALSE;
+  
+  return TRUE;
 }
 
 static void
@@ -221,33 +165,23 @@ bamf_indicator_source_constructed (GObject *object)
 
   self->priv->proxy = dbus_g_proxy_new_for_name (bus,
                                                  "org.ayatana.indicator.application",
-                                                 "/org/ayatana/indicator/application/service",
-                                                 "org.ayatana.indicator.application.service");
+                                                 "/StatusNotifierWatcher",
+                                                 "org.kde.StatusNotifierWatcher");
   g_return_if_fail (self->priv->proxy);
-  
-  dbus_g_object_register_marshaller ((GClosureMarshal) bamf_marshal_VOID__STRING_INT_STRING_STRING_STRING,
-                                     G_TYPE_NONE, 
-                                     G_TYPE_STRING, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-                                     G_TYPE_INVALID);
-  
-  dbus_g_proxy_add_signal (self->priv->proxy,
-                           "ApplicationAdded",
-                           G_TYPE_STRING,
-                           G_TYPE_INT,
-                           G_TYPE_STRING,
-                           G_TYPE_STRING,
-                           G_TYPE_STRING,
-                           G_TYPE_INVALID);
-  
-  dbus_g_proxy_connect_signal (self->priv->proxy,
-                               "ApplicationAdded",
-                               (GCallback) on_application_added,
-                               self,
-                               NULL);
   
   dbus_g_connection_register_g_object (bus, BAMF_INDICATOR_SOURCE_PATH, object);
   
-  g_idle_add ((GSourceFunc) bamf_indicator_source_load_existing, self);
+  if (!dbus_g_proxy_call (self->priv->proxy,
+                          "RegisterNotificationApprover",
+                          &error,
+                          DBUS_TYPE_G_OBJECT_PATH, BAMF_INDICATOR_SOURCE_PATH,
+                          G_TYPE_STRV, NULL,
+                          G_TYPE_INVALID,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to register as approver: %s", error->message);
+      g_error_free (error);
+    }
 }
 
 static void

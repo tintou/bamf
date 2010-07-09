@@ -52,6 +52,8 @@ struct _BamfIndicatorClass {
 
 GType bamf_indicator_get_type (void) G_GNUC_CONST;
 
+char       * bamf_indicator_get_id            (BamfIndicator *self);
+
 char       * bamf_indicator_get_path          (BamfIndicator *self);
 
 char       * bamf_indicator_get_address       (BamfIndicator *self);
@@ -63,7 +65,8 @@ gboolean     bamf_indicator_matches_signature (BamfIndicator *self,
                                                const char *address, 
                                                const char *path);
 
-BamfIndicator *bamf_indicator_new (const char *proxy, 
+BamfIndicator *bamf_indicator_new (const char *id,
+                                   const char *proxy, 
                                    const char *address, 
                                    guint32 pid);
 
