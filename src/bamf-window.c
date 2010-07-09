@@ -140,7 +140,7 @@ handle_window_closed (BamfLegacyWindow * window, gpointer data)
 
   if (window == self->priv->window)
     {
-      g_object_unref (G_OBJECT (self));
+      bamf_view_close (BAMF_VIEW (self));
     }
 }
 

@@ -372,7 +372,9 @@ bamf_application_child_added (BamfView *view, BamfView *child)
 static gboolean
 on_empty (GObject *object)
 {
-  g_object_unref (object);
+  g_return_val_if_fail (BAMF_IS_VIEW (object), FALSE);
+
+  bamf_view_close (BAMF_VIEW (object));
   return FALSE;
 }
 

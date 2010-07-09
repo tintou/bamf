@@ -23,7 +23,7 @@ bamfdaemon_glue_files = \
 		bamf-window-glue.h \
 		bamf-view-glue.h \
 		bamf-tab-glue.h \
-		bamf-notification-approver-glue.h \
+		bamf-indicator-source-glue.h \
 		bamf-indicator-glue.h \
 		$(NULL)
 		
@@ -34,7 +34,7 @@ bamfdaemon_xml_glue_files = \
 		bamf-window-glue.xml \
 		bamf-view-glue.xml \
 		bamf-tab-glue.xml \
-		bamf-notification-approver-glue.xml \
+		bamf-indicator-source-glue.xml \
 		bamf-indicator-glue.xml \
 		$(NULL)
 
@@ -56,7 +56,7 @@ bamfdaemon_sources = \
 		bamf-window.c \
 		bamf-tab.c \
 		bamf-tab-source.c \
-		bamf-notification-approver.c \
+		bamf-indicator-source.c \
 		bamf-indicator.c \
 		$(NULL)
 
@@ -73,7 +73,7 @@ bamfdaemon_headers = \
 		bamf-application.h \
 		bamf-tab.h \
 		bamf-tab-source.h \
-		bamf-notification-approver.h \
+		bamf-indicator-source.h \
 		bamf-indicator.h \
 		$(NULL)
 
@@ -136,8 +136,8 @@ bamf-view-glue.h: bamf-view-glue.xml Makefile
 bamf-tab-glue.h: bamf-tab-glue.xml Makefile
 		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_tab --mode=glib-server --output=$@ $<
 
-bamf-notification-approver-glue.h: bamf-notification-approver-glue.xml Makefile
-		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_notification_approver --mode=glib-server --output=$@ $<
+bamf-indicator-source-glue.h: bamf-indicator-source-glue.xml Makefile
+		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_indicator_source --mode=glib-server --output=$@ $<
 
 bamf-indicator-glue.h: bamf-indicator-glue.xml Makefile
 		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_indicator --mode=glib-server --output=$@ $<

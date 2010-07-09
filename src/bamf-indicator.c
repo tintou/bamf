@@ -30,41 +30,34 @@ enum
 {
   PROP_0,
   
-  PROP_ID,
   PROP_ADDRESS,
   PROP_PID,
+  PROP_PROXY,
 };
 
 
 struct _BamfIndicatorPrivate
 {
-  char *id;
-  DBusGProxy *proxy;
+  char *path;
   char *address;
   guint32 pid;
+  DBusGProxy *proxy;
 };
 
 G_DEFINE_TYPE (BamfIndicator, bamf_indicator, BAMF_TYPE_VIEW)
 
 char *
-bamf_indicator_get_id (BamfIndicator *self)
-{
-  g_return_val_if_fail (BAMF_IS_INDICATOR (self), NULL);
-  return self->priv->id;
-}
-
-DBusGProxy *
 bamf_indicator_get_path (BamfIndicator *self)
 {
   g_return_val_if_fail (BAMF_IS_INDICATOR (self), NULL);
-  return self->priv->proxy;
+  return g_strdup (self->priv->path);
 }
 
 char *
 bamf_indicator_get_address (BamfIndicator *self)
 {
   g_return_val_if_fail (BAMF_IS_INDICATOR (self), NULL);
-  return self->priv->address;
+  return g_strdup (self->priv->address);
 }
 
 guint32
@@ -89,12 +82,12 @@ bamf_indicator_set_property (GObject *object, guint property_id, const GValue *v
 
   switch (property_id)
     {
-      case PROP_ID:
-        self->priv->id = g_value_dup_string (value);
-        break;
-      
       case PROP_ADDRESS:
         self->priv->address = g_value_dup_string (value);
+        break;
+      
+      case PROP_PROXY:
+        self->priv->path = g_value_dup_string (value);
         break;
       
       case PROP_PID:
@@ -115,12 +108,12 @@ bamf_indicator_get_property (GObject *object, guint property_id, GValue *value, 
 
   switch (property_id)
     {
-      case PROP_ID:
-        g_value_set_string (value, self->priv->id);
-        break;
-      
       case PROP_ADDRESS:
         g_value_set_string (value, self->priv->address);
+        break;
+      
+      case PROP_PROXY:
+        g_value_set_string (value, self->priv->path);
         break;
       
       case PROP_PID:
@@ -133,15 +126,75 @@ bamf_indicator_get_property (GObject *object, guint property_id, GValue *value, 
 }
 
 static void
+bamf_indicator_on_destroy (DBusGProxy *proxy, BamfIndicator *self)
+{
+  bamf_view_close (BAMF_VIEW (self));
+}
+
+static void
 bamf_indicator_constructed (GObject *object)
 {
+  BamfIndicator *self;
+  BamfIndicatorPrivate *priv;
+  DBusGProxy *proxy;
+  DBusGConnection *bus;
+  GError *error = NULL;
+
   if (G_OBJECT_CLASS (bamf_indicator_parent_class)->constructed)
     G_OBJECT_CLASS (bamf_indicator_parent_class)->constructed (object);
+  
+  self = BAMF_INDICATOR (object);
+  priv = self->priv;
+  
+  bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+  
+  if (!bus)
+    {
+      g_warning ("Could not get session bus\n");
+      return;
+    }
+  
+  error = NULL;
+  if (!(proxy = dbus_g_proxy_new_for_name_owner (bus, 
+                                                 priv->address,
+                                                 priv->path,
+                                                 "org.ayatana.indicator.application.service",
+                                                 &error)))
+    {
+      g_warning ("Could not setup proxy: %s %s\n", priv->address, priv->path);
+      return;
+    }
+  
+  priv->proxy = proxy;
+  
+  g_signal_connect (G_OBJECT (proxy), "destroy", (GCallback) bamf_indicator_on_destroy, self);
 }
 
 static void
 bamf_indicator_dispose (GObject *object)
 {
+  BamfIndicatorPrivate *priv;
+  
+  priv = BAMF_INDICATOR (object)->priv;
+
+  if (priv->proxy)
+    {
+      g_object_unref (priv->proxy);
+      priv->proxy = NULL;
+    }
+  
+  if (priv->path)
+    {
+      g_free (priv->path);
+      priv->path = NULL;
+    }
+
+  if (priv->address)
+    {
+      g_free (priv->address);
+      priv->address = NULL;
+    }
+
   G_OBJECT_CLASS (bamf_indicator_parent_class)->dispose (object);
 }
 
@@ -158,11 +211,11 @@ bamf_indicator_class_init (BamfIndicatorClass *klass)
   object_class->dispose      = bamf_indicator_dispose;
   view_class->view_type      = bamf_indicator_get_view_type;
 
-  pspec = g_param_spec_string ("id", "id", "id", NULL, G_PARAM_READWRITE);
-  g_object_class_install_property (object_class, PROP_ID, pspec);
-  
-  pspec = g_param_spec_string ("address", "address", "address", NULL, G_PARAM_READWRITE);
+  pspec = g_param_spec_string ("address", "address", "address", NULL, G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
   g_object_class_install_property (object_class, PROP_ADDRESS, pspec);
+  
+  pspec = g_param_spec_string ("path", "path", "path", NULL, G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+  g_object_class_install_property (object_class, PROP_PROXY, pspec);
   
   pspec = g_param_spec_uint ("pid", "pid", "pid", 0, G_MAXUINT32, 0, G_PARAM_READWRITE);
   g_object_class_install_property (object_class, PROP_PID, pspec);
@@ -180,15 +233,14 @@ bamf_indicator_init (BamfIndicator *self)
 }
 
 BamfIndicator *
-bamf_indicator_new (const char *id, DBusGProxy *proxy, const char *address, guint32 pid)
+bamf_indicator_new (const char *path, const char *address, guint32 pid)
 {
   BamfIndicator *self;
   self = g_object_new (BAMF_TYPE_INDICATOR, 
-                       "id", id,
                        "address", address,
+                       "path", path,
                        "pid", pid,
                        NULL);
                        
-  self->priv->proxy = proxy;
   return self;
 }
