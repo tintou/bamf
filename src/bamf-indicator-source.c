@@ -68,8 +68,41 @@ bamf_indicator_source_approve_item (BamfIndicatorSource *self,
                                          gboolean *approve,
                                          GError **error)
 {
+  GList *l;
+  BamfIndicator *indicator;
   *approve = TRUE;
+  
+  g_return_val_if_fail (BAMF_IS_INDICATOR_SOURCE (self), TRUE);
+  
+  for (l = self->priv->indicators; l; l = l->next)
+    {
+      indicator = BAMF_INDICATOR (l->data);
+      
+      if (bamf_indicator_matches_signature (indicator, pid, address, dbus_g_proxy_get_path (proxy)))
+        {
+          if (g_list_length (bamf_view_get_parents (BAMF_VIEW (indicator))) > 0)
+            *approve = FALSE;
+          break;
+        }
+    }  
+  
   return TRUE;
+}
+
+static void
+on_indicator_closed (BamfView *view, BamfIndicatorSource *self)
+{
+  BamfIndicator *indicator;
+ 
+  g_return_if_fail (BAMF_IS_INDICATOR (view));
+  g_return_if_fail (BAMF_IS_INDICATOR_SOURCE (self));
+  
+  indicator = BAMF_INDICATOR (view);
+  
+  self->priv->indicators = g_list_remove (self->priv->indicators, indicator);
+  g_signal_emit (self, indicator_source_signals[INDICATOR_CLOSED], 0, indicator);
+  
+  g_object_unref (G_OBJECT (indicator));
 }
 
 static void
@@ -88,7 +121,7 @@ on_application_added (DBusGProxy *proxy, // may be null
   GError *error = NULL;
 
   g_return_if_fail (BAMF_IS_INDICATOR_SOURCE (self));
-
+  
   bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   g_return_if_fail (bus);
 
@@ -107,6 +140,8 @@ on_application_added (DBusGProxy *proxy, // may be null
   
   indicator = bamf_indicator_new (path, address, (guint32) pid);
   self->priv->indicators = g_list_prepend (self->priv->indicators, indicator);
+  
+  g_signal_connect (G_OBJECT (indicator), "closed", (GCallback) on_indicator_closed, self);
   
   g_signal_emit (self, indicator_source_signals[INDICATOR_OPENED], 0, indicator);
   

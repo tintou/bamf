@@ -67,6 +67,16 @@ bamf_indicator_get_pid (BamfIndicator *self)
   return self->priv->pid;
 }
 
+gboolean
+bamf_indicator_matches_signature (BamfIndicator *self, gint pid, const char *address, const char *path)
+{
+  g_return_val_if_fail (BAMF_IS_INDICATOR (self), FALSE);
+
+  return g_strcmp0 (self->priv->address, address) == 0 &&
+         g_strcmp0 (self->priv->path, path) == 0 &&
+         pid == self->priv->pid;         
+}
+
 static char *
 bamf_indicator_get_view_type (BamfView *view)
 {
