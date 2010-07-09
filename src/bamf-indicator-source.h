@@ -67,9 +67,9 @@ GList * bamf_indicator_source_get_indicators (BamfIndicatorSource *self);
 gboolean bamf_indicator_source_approve_item (BamfIndicatorSource *self,
                                                   const char *id,
                                                   const char *category,
-                                                  const guint32 pid,
+                                                  guint32 pid,
                                                   const char *address,
-                                                  DBusGProxy *proxy,
+                                                  const char *proxy,
                                                   gboolean *approve,
                                                   GError **error);
 
