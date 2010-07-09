@@ -288,10 +288,13 @@ bamf_application_ensure_flags (BamfApplication *self)
     {
       view = l->data;
 
-      if (!BAMF_IS_WINDOW (view))
+      if (!BAMF_IS_VIEW (view))
         continue;
 
       running = TRUE;
+
+      if (!BAMF_IS_WINDOW (view))
+        continue;
 
       if (bamf_view_is_urgent (view))
         urgent = TRUE;
