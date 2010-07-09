@@ -170,6 +170,37 @@ bamf_view_get_children (BamfView *view)
   return view->priv->children;
 }
 
+char **
+bamf_view_get_parent_paths (BamfView *view)
+{
+  char ** paths;
+  char *path;
+  int n_items, i;
+  GList *parent;
+  BamfView *pview;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+
+  n_items = g_list_length (view->priv->parents);
+
+  paths = g_malloc0 (sizeof (char *) * (n_items + 1));
+
+  i = 0;
+  for (parent = view->priv->parents; parent; parent = parent->next)
+    {
+      pview = parent->data;
+      path = bamf_view_get_path (pview);
+
+      if (!path)
+        continue;
+
+      paths[i] = g_strdup (path);
+      i++;
+    }
+
+  return paths;
+}
+
 GList *
 bamf_view_get_parents (BamfView *view)
 {
