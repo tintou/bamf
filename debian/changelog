@@ -1,6 +1,9 @@
 bamf (0.2.34-0ubuntu1) UNRELEASED; urgency=low
 
   * New upstream release.
+    - Hangs when nautilus device detected dialog are displayed (LP: #601017)
+    - Netbeans does not show in Unity when open (LP: #598083)
+    - The launcher doesn't list some running softwares (LP: #601082)
 
  -- Didier Roche <didrocks@ubuntu.com>  Mon, 12 Jul 2010 14:32:16 +0200
 
