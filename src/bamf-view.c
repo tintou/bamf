@@ -107,9 +107,12 @@ bamf_view_urgent_changed (BamfView *view, gboolean urgent)
     g_signal_emit (view, view_signals[URGENT_CHANGED], 0, urgent);
 }
 
-static void
-bamf_view_closed (BamfView *view)
+void
+bamf_view_close (BamfView *view)
 {
+  if (view->priv->disposed)
+    return;
+
   gboolean emit = TRUE;
   if (BAMF_VIEW_GET_CLASS (view)->closed)
     {
@@ -165,6 +168,37 @@ bamf_view_get_children (BamfView *view)
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
 
   return view->priv->children;
+}
+
+char **
+bamf_view_get_parent_paths (BamfView *view)
+{
+  char ** paths;
+  char *path;
+  int n_items, i;
+  GList *parent;
+  BamfView *pview;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+
+  n_items = g_list_length (view->priv->parents);
+
+  paths = g_malloc0 (sizeof (char *) * (n_items + 1));
+
+  i = 0;
+  for (parent = view->priv->parents; parent; parent = parent->next)
+    {
+      pview = parent->data;
+      path = bamf_view_get_path (pview);
+
+      if (!path)
+        continue;
+
+      paths[i] = g_strdup (path);
+      i++;
+    }
+
+  return paths;
 }
 
 GList *
@@ -408,9 +442,6 @@ bamf_view_dispose (GObject *object)
   BamfView *view = BAMF_VIEW (object);
   BamfViewPrivate *priv = view->priv;
 
-  if (!priv->disposed)
-    bamf_view_closed (view);
-
   bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
   if (bus && priv->path)
@@ -423,10 +454,11 @@ bamf_view_dispose (GObject *object)
     {
       for (l = priv->children; l; l = l->next)
         {
-          bamf_view_remove_child (view, l->data);
+          if (BAMF_IS_VIEW (l->data))
+            bamf_view_remove_child (view, l->data);
         }
       g_list_free (priv->children);
-      view->priv->children = NULL;
+      priv->children = NULL;
     }
 
   if (priv->name)

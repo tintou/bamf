@@ -13,6 +13,8 @@ bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-tab.c \
 		$(top_srcdir)/src/bamf-tab-source.c \
 		$(top_srcdir)/src/bamf-marshal.c \
+		$(top_srcdir)/src/bamf-indicator.c \
+		$(top_srcdir)/src/bamf-indicator-source.c \
 		$(NULL)
 
 bamf_test_extra_headers = \
@@ -34,6 +36,10 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/bamf-window-glue.h \
 		$(top_srcdir)/src/bamf-view-glue.h \
 		$(top_srcdir)/src/bamf-marshal.h \
+		$(top_srcdir)/src/bamf-indicator.h \
+		$(top_srcdir)/src/bamf-indicator-glue.h \
+		$(top_srcdir)/src/bamf-indicator-source.h \
+		$(top_srcdir)/src/bamf-indicator-source-glue.h \
 		$(NULL)
 
 test_bamf_SOURCES = \

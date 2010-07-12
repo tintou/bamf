@@ -58,7 +58,9 @@ am__objects_1 = test_bamf-bamf-legacy-window.$(OBJEXT) \
 	test_bamf-bamf-application.$(OBJEXT) \
 	test_bamf-bamf-window.$(OBJEXT) test_bamf-bamf-tab.$(OBJEXT) \
 	test_bamf-bamf-tab-source.$(OBJEXT) \
-	test_bamf-bamf-marshal.$(OBJEXT)
+	test_bamf-bamf-marshal.$(OBJEXT) \
+	test_bamf-bamf-indicator.$(OBJEXT) \
+	test_bamf-bamf-indicator-source.$(OBJEXT)
 am__objects_2 =
 am_test_bamf_OBJECTS = $(am__objects_1) $(am__objects_2) \
 	test_bamf-test-bamf.$(OBJEXT) test_bamf-test-view.$(OBJEXT) \
@@ -254,6 +256,8 @@ bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-tab.c \
 		$(top_srcdir)/src/bamf-tab-source.c \
 		$(top_srcdir)/src/bamf-marshal.c \
+		$(top_srcdir)/src/bamf-indicator.c \
+		$(top_srcdir)/src/bamf-indicator-source.c \
 		$(NULL)
 
 bamf_test_extra_headers = \
@@ -275,6 +279,10 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/bamf-window-glue.h \
 		$(top_srcdir)/src/bamf-view-glue.h \
 		$(top_srcdir)/src/bamf-marshal.h \
+		$(top_srcdir)/src/bamf-indicator.h \
+		$(top_srcdir)/src/bamf-indicator-glue.h \
+		$(top_srcdir)/src/bamf-indicator-source.h \
+		$(top_srcdir)/src/bamf-indicator-source-glue.h \
 		$(NULL)
 
 test_bamf_SOURCES = \
@@ -367,6 +375,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-application.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-control.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-indicator-source.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-indicator.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-legacy-screen.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-legacy-window-test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-legacy-window.Po@am__quote@
@@ -556,6 +566,34 @@ test_bamf-bamf-marshal.obj: $(top_srcdir)/src/bamf-marshal.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/bamf-marshal.c' object='test_bamf-bamf-marshal.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-marshal.obj `if test -f '$(top_srcdir)/src/bamf-marshal.c'; then $(CYGPATH_W) '$(top_srcdir)/src/bamf-marshal.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/bamf-marshal.c'; fi`
+
+test_bamf-bamf-indicator.o: $(top_srcdir)/src/bamf-indicator.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-indicator.o -MD -MP -MF $(DEPDIR)/test_bamf-bamf-indicator.Tpo -c -o test_bamf-bamf-indicator.o `test -f '$(top_srcdir)/src/bamf-indicator.c' || echo '$(srcdir)/'`$(top_srcdir)/src/bamf-indicator.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-indicator.Tpo $(DEPDIR)/test_bamf-bamf-indicator.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/bamf-indicator.c' object='test_bamf-bamf-indicator.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-indicator.o `test -f '$(top_srcdir)/src/bamf-indicator.c' || echo '$(srcdir)/'`$(top_srcdir)/src/bamf-indicator.c
+
+test_bamf-bamf-indicator.obj: $(top_srcdir)/src/bamf-indicator.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-indicator.obj -MD -MP -MF $(DEPDIR)/test_bamf-bamf-indicator.Tpo -c -o test_bamf-bamf-indicator.obj `if test -f '$(top_srcdir)/src/bamf-indicator.c'; then $(CYGPATH_W) '$(top_srcdir)/src/bamf-indicator.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/bamf-indicator.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-indicator.Tpo $(DEPDIR)/test_bamf-bamf-indicator.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/bamf-indicator.c' object='test_bamf-bamf-indicator.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-indicator.obj `if test -f '$(top_srcdir)/src/bamf-indicator.c'; then $(CYGPATH_W) '$(top_srcdir)/src/bamf-indicator.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/bamf-indicator.c'; fi`
+
+test_bamf-bamf-indicator-source.o: $(top_srcdir)/src/bamf-indicator-source.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-indicator-source.o -MD -MP -MF $(DEPDIR)/test_bamf-bamf-indicator-source.Tpo -c -o test_bamf-bamf-indicator-source.o `test -f '$(top_srcdir)/src/bamf-indicator-source.c' || echo '$(srcdir)/'`$(top_srcdir)/src/bamf-indicator-source.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-indicator-source.Tpo $(DEPDIR)/test_bamf-bamf-indicator-source.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/bamf-indicator-source.c' object='test_bamf-bamf-indicator-source.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-indicator-source.o `test -f '$(top_srcdir)/src/bamf-indicator-source.c' || echo '$(srcdir)/'`$(top_srcdir)/src/bamf-indicator-source.c
+
+test_bamf-bamf-indicator-source.obj: $(top_srcdir)/src/bamf-indicator-source.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-indicator-source.obj -MD -MP -MF $(DEPDIR)/test_bamf-bamf-indicator-source.Tpo -c -o test_bamf-bamf-indicator-source.obj `if test -f '$(top_srcdir)/src/bamf-indicator-source.c'; then $(CYGPATH_W) '$(top_srcdir)/src/bamf-indicator-source.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/bamf-indicator-source.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-indicator-source.Tpo $(DEPDIR)/test_bamf-bamf-indicator-source.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/bamf-indicator-source.c' object='test_bamf-bamf-indicator-source.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-indicator-source.obj `if test -f '$(top_srcdir)/src/bamf-indicator-source.c'; then $(CYGPATH_W) '$(top_srcdir)/src/bamf-indicator-source.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/bamf-indicator-source.c'; fi`
 
 test_bamf-test-bamf.o: test-bamf.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-test-bamf.o -MD -MP -MF $(DEPDIR)/test_bamf-test-bamf.Tpo -c -o test_bamf-test-bamf.o `test -f 'test-bamf.c' || echo '$(srcdir)/'`test-bamf.c

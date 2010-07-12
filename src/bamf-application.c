@@ -88,6 +88,7 @@ static void
 bamf_application_setup_icon_and_name (BamfApplication *self)
 {
   BamfView *view;
+  BamfWindow *window = NULL;
   GDesktopAppInfo *desktop;
   GIcon *gicon;
   GList *children, *l;
@@ -115,32 +116,46 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
     }
   else if ((children = bamf_view_get_children (BAMF_VIEW (self))) != NULL)
     {
-      for (l = children; l; l = l->next)
+      for (l = children; l && !icon; l = l->next)
         {
           view = l->data;
-          if (BAMF_IS_WINDOW (view))
+          if (!BAMF_IS_WINDOW (view))
+            continue;
+          
+          window = BAMF_WINDOW (view);
+          
+          do
             {
-              do
-                {
-                  class = bamf_legacy_window_get_class_name (bamf_window_get_window (BAMF_WINDOW (view)));
-                  icon = g_utf8_strdown (class, -1);
+              class = bamf_legacy_window_get_class_name (bamf_window_get_window (window));
+              icon = g_utf8_strdown (class, -1);
 
-                  if (icon_name_is_valid (icon))
-                    break;
+              if (icon_name_is_valid (icon))
+                break;
 
-                  g_free (icon);
-                  icon = bamf_legacy_window_get_exec_string (bamf_window_get_window (BAMF_WINDOW (view)));
+              g_free (icon);
+              icon = bamf_legacy_window_get_exec_string (bamf_window_get_window (window));
 
-                  if (icon_name_is_valid (icon))
-                    break;
+              if (icon_name_is_valid (icon))
+                break;
 
-                  g_free (icon);
-                  icon = g_strdup ("application-default-icon");
-                }
-              while (FALSE);
+              g_free (icon);
+              icon = NULL;
+            }
+          while (FALSE);
 
-              name = g_strdup (bamf_legacy_window_get_class_name (bamf_window_get_window (BAMF_WINDOW (view))));
-              break;
+          name = g_strdup (bamf_legacy_window_get_class_name (bamf_window_get_window (window)));
+        }
+        
+      if (!icon)
+        {
+          if (window)
+            {
+              icon = g_strdup (bamf_legacy_window_save_mini_icon (bamf_window_get_window (window)));
+            }
+          
+          if (!icon)
+            {
+              icon = g_strdup ("application-default-icon");
             }
         }
     }
@@ -273,10 +288,13 @@ bamf_application_ensure_flags (BamfApplication *self)
     {
       view = l->data;
 
-      if (!BAMF_IS_WINDOW (view))
+      if (!BAMF_IS_VIEW (view))
         continue;
 
       running = TRUE;
+
+      if (!BAMF_IS_WINDOW (view))
+        continue;
 
       if (bamf_view_is_urgent (view))
         urgent = TRUE;
@@ -357,7 +375,9 @@ bamf_application_child_added (BamfView *view, BamfView *child)
 static gboolean
 on_empty (GObject *object)
 {
-  g_object_unref (object);
+  g_return_val_if_fail (BAMF_IS_VIEW (object), FALSE);
+
+  bamf_view_close (BAMF_VIEW (object));
   return FALSE;
 }
 
