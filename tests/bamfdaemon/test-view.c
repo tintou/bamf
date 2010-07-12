@@ -189,15 +189,19 @@ test_children (void)
   bamf_view_add_child (parent, child3);
   g_assert (g_list_length (bamf_view_get_children (parent)) == 3);
 
+  bamf_view_close (child1);
   g_object_unref (child1);
   g_assert (g_list_length (bamf_view_get_children (parent)) == 2);
 
+  bamf_view_close (child2);
   g_object_unref (child2);
   g_assert (g_list_length (bamf_view_get_children (parent)) == 1);
 
+  bamf_view_close (child3);
   g_object_unref (child3);
   g_assert (g_list_length (bamf_view_get_children (parent)) == 0);
 
+  bamf_view_close (parent);
   g_object_unref (parent);
 }
 
@@ -394,6 +398,9 @@ test_child_added_event (void)
   g_assert (child_added_event_fired);
   g_assert (g_strcmp0 (bamf_view_get_path (child), child_added_event_result) == 0);
 
+  bamf_view_close (child);
+  bamf_view_close (parent);
+  
   g_object_unref (child);
   g_object_unref (parent);
 }
@@ -455,9 +462,10 @@ test_closed_event (void)
 
   closed_event_fired = FALSE;
 
-  g_object_unref (view);
-
+  bamf_view_close (view);
   g_assert (closed_event_fired);
+
+  g_object_unref (view);
 }
 
 static void

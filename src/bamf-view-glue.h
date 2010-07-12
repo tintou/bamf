@@ -194,20 +194,21 @@ G_END_DECLS
 #include <dbus/dbus-glib.h>
 static const DBusGMethodInfo dbus_glib_bamf_view_methods[] = {
   { (GCallback) bamf_view_get_children_paths, dbus_glib_marshal_bamf_view_BOXED__NONE, 0 },
-  { (GCallback) bamf_view_is_active, dbus_glib_marshal_bamf_view_BOOLEAN__NONE, 52 },
-  { (GCallback) bamf_view_is_running, dbus_glib_marshal_bamf_view_BOOLEAN__NONE, 101 },
-  { (GCallback) bamf_view_is_urgent, dbus_glib_marshal_bamf_view_BOOLEAN__NONE, 152 },
-  { (GCallback) bamf_view_get_name, dbus_glib_marshal_bamf_view_STRING__NONE, 201 },
-  { (GCallback) bamf_view_get_icon, dbus_glib_marshal_bamf_view_STRING__NONE, 244 },
-  { (GCallback) bamf_view_user_visible, dbus_glib_marshal_bamf_view_BOOLEAN__NONE, 287 },
-  { (GCallback) bamf_view_get_view_type, dbus_glib_marshal_bamf_view_STRING__NONE, 340 },
+  { (GCallback) bamf_view_get_parent_paths, dbus_glib_marshal_bamf_view_BOXED__NONE, 52 },
+  { (GCallback) bamf_view_is_active, dbus_glib_marshal_bamf_view_BOOLEAN__NONE, 102 },
+  { (GCallback) bamf_view_is_running, dbus_glib_marshal_bamf_view_BOOLEAN__NONE, 151 },
+  { (GCallback) bamf_view_is_urgent, dbus_glib_marshal_bamf_view_BOOLEAN__NONE, 202 },
+  { (GCallback) bamf_view_get_name, dbus_glib_marshal_bamf_view_STRING__NONE, 251 },
+  { (GCallback) bamf_view_get_icon, dbus_glib_marshal_bamf_view_STRING__NONE, 294 },
+  { (GCallback) bamf_view_user_visible, dbus_glib_marshal_bamf_view_BOOLEAN__NONE, 337 },
+  { (GCallback) bamf_view_get_view_type, dbus_glib_marshal_bamf_view_STRING__NONE, 390 },
 };
 
 const DBusGObjectInfo dbus_glib_bamf_view_object_info = {
   0,
   dbus_glib_bamf_view_methods,
-  8,
-"org.ayatana.bamf.view\0Children\0S\0children\0O\0F\0R\0as\0\0org.ayatana.bamf.view\0IsActive\0S\0active\0O\0F\0R\0b\0\0org.ayatana.bamf.view\0IsRunning\0S\0running\0O\0F\0R\0b\0\0org.ayatana.bamf.view\0IsUrgent\0S\0urgent\0O\0F\0R\0b\0\0org.ayatana.bamf.view\0Name\0S\0name\0O\0F\0R\0s\0\0org.ayatana.bamf.view\0Icon\0S\0name\0O\0F\0R\0s\0\0org.ayatana.bamf.view\0UserVisible\0S\0visible\0O\0F\0R\0b\0\0org.ayatana.bamf.view\0ViewType\0S\0view_type\0O\0F\0R\0s\0\0\0",
+  9,
+"org.ayatana.bamf.view\0Children\0S\0children\0O\0F\0R\0as\0\0org.ayatana.bamf.view\0Parents\0S\0parents\0O\0F\0R\0as\0\0org.ayatana.bamf.view\0IsActive\0S\0active\0O\0F\0R\0b\0\0org.ayatana.bamf.view\0IsRunning\0S\0running\0O\0F\0R\0b\0\0org.ayatana.bamf.view\0IsUrgent\0S\0urgent\0O\0F\0R\0b\0\0org.ayatana.bamf.view\0Name\0S\0name\0O\0F\0R\0s\0\0org.ayatana.bamf.view\0Icon\0S\0name\0O\0F\0R\0s\0\0org.ayatana.bamf.view\0UserVisible\0S\0visible\0O\0F\0R\0b\0\0org.ayatana.bamf.view\0ViewType\0S\0view_type\0O\0F\0R\0s\0\0\0",
 "org.ayatana.bamf.view\0ActiveChanged\0org.ayatana.bamf.view\0Closed\0org.ayatana.bamf.view\0ChildAdded\0org.ayatana.bamf.view\0ChildRemoved\0org.ayatana.bamf.view\0RunningChanged\0org.ayatana.bamf.view\0UrgentChanged\0org.ayatana.bamf.view\0UserVisibleChanged\0\0",
 "\0"
 };

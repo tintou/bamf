@@ -22,6 +22,7 @@
 #include <libgtop-2.0/glibtop.h>
 #include <glibtop/procargs.h>
 #include <glibtop/procuid.h>
+#include <stdio.h>
 
 G_DEFINE_TYPE (BamfLegacyWindow, bamf_legacy_window, G_TYPE_OBJECT);
 #define BAMF_LEGACY_WINDOW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -41,6 +42,7 @@ static guint legacy_window_signals[LAST_SIGNAL] = { 0 };
 struct _BamfLegacyWindowPrivate
 {
   WnckWindow * legacy_window;
+  char       * mini_icon_path;
   gulong       closed_id;
   gulong       name_changed_id;
   gulong       state_changed_id;
@@ -172,6 +174,40 @@ bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
   result = g_strdup (exec->str);
   g_string_free (exec, TRUE);
   return result;
+}
+
+const char *
+bamf_legacy_window_save_mini_icon (BamfLegacyWindow *self)
+{
+  WnckWindow *window;
+  GdkPixbuf *pbuf;
+  char *tmp;
+  
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
+  
+  if (self->priv->mini_icon_path)
+    {
+      if (g_file_test (self->priv->mini_icon_path, G_FILE_TEST_EXISTS))
+        return self->priv->mini_icon_path;
+      else
+        g_free (self->priv->mini_icon_path);
+    }
+  
+  window = self->priv->legacy_window;
+  
+  if (wnck_window_get_icon_is_fallback (window))
+    return NULL;
+  
+  tmp = tmpnam (NULL);
+  if (!tmp)
+    return NULL;
+  
+  pbuf = wnck_window_get_icon (window);
+  if (!gdk_pixbuf_save (pbuf, tmp, "png", NULL, NULL))
+    return NULL;
+  
+  self->priv->mini_icon_path = g_strdup (tmp);
+  return self->priv->mini_icon_path;
 }
 
 gint
