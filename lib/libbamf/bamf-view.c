@@ -459,7 +459,6 @@ bamf_view_get_children (BamfView *view)
   for (i = 0; i < len; i++)
     {
       BamfView *view = bamf_factory_view_for_path (bamf_factory_get_default (), children[i]);
-      if (BAMF_IS_WINDOW (view))
       results = g_list_prepend (results, view);
     }
 
