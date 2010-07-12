@@ -90,7 +90,7 @@ bamf_factory_view_for_path (BamfFactory * factory,
   char *type;
 
   g_return_val_if_fail (BAMF_IS_FACTORY (factory), NULL);
-  g_return_val_if_fail (path || strlen (path) > 0, NULL);
+  g_return_val_if_fail (path && strlen (path) > 0, NULL);
 
   views = factory->priv->views;
 
