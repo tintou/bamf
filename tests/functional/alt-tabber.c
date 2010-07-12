@@ -69,7 +69,7 @@ void populate_tree_store (GtkTreeStore *store)
         }
       else if (BAMF_IS_INDICATOR (c->data))
         {
-          const gchar *path = bamf_indicator_get_remote_path (BAMF_INDICATOR (c->data));
+          const gchar *path = bamf_indicator_get_dbus_menu_path (BAMF_INDICATOR (c->data));
           gtk_tree_store_append (store, &child, &position);
           gtk_tree_store_set (store, &child, 0, path, -1);
         }

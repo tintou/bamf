@@ -50,8 +50,51 @@ struct _BamfIndicatorPrivate
   DBusGConnection *connection;
   DBusGProxy      *proxy;
   gchar *path;
+  gchar *dbus_menu;
   gchar *address;
 };
+
+const gchar * 
+bamf_indicator_get_dbus_menu_path (BamfIndicator *self)
+{
+  BamfIndicatorPrivate *priv;
+  gchar *path = NULL;
+  DBusGProxy *proxy;
+  GValue value = {0};
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_INDICATOR (self), NULL);
+  priv = self->priv;
+  
+  if (priv->dbus_menu)
+    return priv->dbus_menu;
+  
+  proxy = dbus_g_proxy_new_for_name (priv->connection,
+                                     bamf_indicator_get_remote_address (self),
+                                     bamf_indicator_get_remote_path (self),
+                                     "org.freedesktop.DBus.Properties");
+  
+  if (!dbus_g_proxy_call (proxy,
+                          "Get",
+                          &error,
+                          G_TYPE_STRING, "org.kde.StatusNotifierItem",
+                          G_TYPE_STRING, "Menu",
+                          G_TYPE_INVALID,
+                          G_TYPE_VALUE, &value,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch remote path: %s", error->message);
+      g_error_free (error);
+      
+      return NULL;
+    }
+  
+  path = g_value_get_boxed (&value);
+  priv->dbus_menu = path;
+
+  g_object_unref (proxy);
+  return priv->dbus_menu;
+}
 
 const gchar * 
 bamf_indicator_get_remote_path (BamfIndicator *self)
@@ -98,7 +141,7 @@ bamf_indicator_get_remote_address (BamfIndicator *self)
     return priv->address;
   
   if (!dbus_g_proxy_call (priv->proxy,
-                          "Adress",
+                          "Address",
                           &error,
                           G_TYPE_INVALID,
                           G_TYPE_STRING, &address,
