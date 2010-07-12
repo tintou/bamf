@@ -49,6 +49,14 @@ G_DEFINE_TYPE (BamfView, bamf_view, G_TYPE_OBJECT);
 
 enum
 {
+  BAMF_VIEW_RUNNING_FLAG = 1 << 0,
+  BAMF_VIEW_URGENT_FLAG  = 1 << 1,
+  BAMF_VIEW_VISIBLE_FLAG = 1 << 2,
+  BAMF_VIEW_ACTIVE_FLAG  = 1 << 3,
+};
+
+enum
+{
   ACTIVE_CHANGED,
   CLOSED,
   CHILD_ADDED,
@@ -75,6 +83,8 @@ struct _BamfViewPrivate
   DBusGProxy      *proxy;
   gchar           *path;
   gchar           *type;
+  int              checked_flags;
+  int              set_flags;
 };
 
 GList *
@@ -131,6 +141,9 @@ bamf_view_is_active (BamfView *view)
   if (BAMF_VIEW_GET_CLASS (view)->is_active)
     return BAMF_VIEW_GET_CLASS (view)->is_active (view);
 
+  if (priv->checked_flags & BAMF_VIEW_ACTIVE_FLAG)
+    return priv->set_flags & BAMF_VIEW_ACTIVE_FLAG;
+
   if (!dbus_g_proxy_call (priv->proxy,
                           "IsActive",
                           &error,
@@ -144,6 +157,11 @@ bamf_view_is_active (BamfView *view)
       return FALSE;
     }
 
+  if (active)
+    priv->set_flags |= BAMF_VIEW_ACTIVE_FLAG;
+  else
+    priv->set_flags = priv->set_flags & ~BAMF_VIEW_ACTIVE_FLAG;
+    
   return active;
 }
 
@@ -157,6 +175,9 @@ bamf_view_user_visible (BamfView *self)
   g_return_val_if_fail (BAMF_IS_VIEW (self), FALSE);
   priv = self->priv;
 
+  if (priv->checked_flags & BAMF_VIEW_VISIBLE_FLAG)
+    return priv->set_flags & BAMF_VIEW_VISIBLE_FLAG;
+
   if (!dbus_g_proxy_call (priv->proxy,
                           "UserVisible",
                           &error,
@@ -169,6 +190,11 @@ bamf_view_user_visible (BamfView *self)
       
       return FALSE;
     }
+
+  if (result)
+    priv->set_flags |= BAMF_VIEW_VISIBLE_FLAG;
+  else
+    priv->set_flags = priv->set_flags & ~BAMF_VIEW_VISIBLE_FLAG;
 
   return result;
 }
@@ -186,6 +212,9 @@ bamf_view_is_running (BamfView *view)
   if (BAMF_VIEW_GET_CLASS (view)->is_running)
     return BAMF_VIEW_GET_CLASS (view)->is_running (view);
 
+  if (priv->checked_flags & BAMF_VIEW_RUNNING_FLAG)
+    return priv->set_flags & BAMF_VIEW_RUNNING_FLAG;
+
   if (!dbus_g_proxy_call (priv->proxy,
                           "IsRunning",
                           &error,
@@ -198,7 +227,12 @@ bamf_view_is_running (BamfView *view)
       
       return FALSE;
     }
-
+  
+  if (running)
+    priv->set_flags |= BAMF_VIEW_RUNNING_FLAG;
+  else
+    priv->set_flags = priv->set_flags & ~BAMF_VIEW_RUNNING_FLAG;
+  
   return running;
 }
 
@@ -215,6 +249,9 @@ bamf_view_is_urgent (BamfView *view)
   if (BAMF_VIEW_GET_CLASS (view)->is_urgent)
     return BAMF_VIEW_GET_CLASS (view)->is_urgent (view);
 
+  if (priv->checked_flags & BAMF_VIEW_URGENT_FLAG)
+    return priv->set_flags & BAMF_VIEW_URGENT_FLAG;
+
   if (!dbus_g_proxy_call (priv->proxy,
                           "IsUrgent",
                           &error,
@@ -227,6 +264,11 @@ bamf_view_is_urgent (BamfView *view)
       
       return FALSE;
     }
+
+  if (urgent)
+    priv->set_flags |= BAMF_VIEW_URGENT_FLAG;
+  else
+    priv->set_flags = priv->set_flags & ~BAMF_VIEW_URGENT_FLAG;
 
   return urgent;
 }
@@ -325,6 +367,13 @@ bamf_view_get_view_type (BamfView *view)
 static void
 bamf_view_on_active_changed (DBusGProxy *proxy, gboolean active, BamfView *self)
 {
+  BamfViewPrivate *priv = self->priv;
+
+  if (active)
+    priv->set_flags |= BAMF_VIEW_ACTIVE_FLAG;
+  else
+    priv->set_flags = priv->set_flags & ~BAMF_VIEW_ACTIVE_FLAG;
+
   g_signal_emit (G_OBJECT(self), view_signals[ACTIVE_CHANGED], 0, active);
 }
 
@@ -359,18 +408,39 @@ bamf_view_on_child_removed (DBusGProxy *proxy, char *path, BamfView *self)
 static void
 bamf_view_on_running_changed (DBusGProxy *proxy, gboolean running, BamfView *self)
 {
+  BamfViewPrivate *priv = self->priv;
+
+  if (running)
+    priv->set_flags |= BAMF_VIEW_RUNNING_FLAG;
+  else
+    priv->set_flags = priv->set_flags & ~BAMF_VIEW_RUNNING_FLAG;
+
   g_signal_emit (G_OBJECT (self), view_signals[ACTIVE_CHANGED], 0, running);
 }
 
 static void
 bamf_view_on_urgent_changed (DBusGProxy *proxy, gboolean urgent, BamfView *self)
 {
+  BamfViewPrivate *priv = self->priv;
+
+  if (urgent)
+    priv->set_flags |= BAMF_VIEW_URGENT_FLAG;
+  else
+    priv->set_flags = priv->set_flags & ~BAMF_VIEW_URGENT_FLAG;
+
   g_signal_emit (G_OBJECT (self), view_signals[URGENT_CHANGED], 0, urgent);
 }
 
 static void
 bamf_view_on_user_visible_changed (DBusGProxy *proxy, gboolean visible, BamfView *self)
 {
+  BamfViewPrivate *priv = self->priv;
+
+  if (visible)
+    priv->set_flags |= BAMF_VIEW_VISIBLE_FLAG;
+  else
+    priv->set_flags = priv->set_flags & ~BAMF_VIEW_VISIBLE_FLAG;
+
   g_signal_emit (G_OBJECT (self), view_signals[VISIBLE_CHANGED], 0, visible);
 }
 
