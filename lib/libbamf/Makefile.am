@@ -16,22 +16,24 @@ libbamf_sources = \
   bamf-factory.c \
   bamf-tab-source.c \
   bamf-tab.c \
+  bamf-indicator.c \
   bamf-marshal.c \
   $(NULL)
 
 sources_h = \
   bamf-application.h \
+  bamf-indicator.h \
   bamf-control.h \
   bamf-matcher.h \
   bamf-view.h \
   bamf-window.h \
-  bamf-factory.h \
   bamf-tab-source.h \
   bamf-tab.h \
   libbamf.h \
   $(NULL)
 
 libbamf_la_SOURCES = \
+  bamf-factory.h \
   $(sources_h) \
   $(libbamf_sources) \
   bamf-tab-source-glue.h \

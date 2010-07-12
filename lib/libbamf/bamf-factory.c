@@ -38,6 +38,7 @@
 #include "bamf-view.h"
 #include "bamf-window.h"
 #include "bamf-application.h"
+#include "bamf-indicator.h"
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
@@ -58,6 +59,8 @@ struct _BamfFactoryPrivate
 BamfApplication * bamf_application_new              (const char *path);
 
 BamfWindow      * bamf_window_new                   (const char *path);
+
+BamfIndicator   * bamf_indicator_new                (const char *path);
 
 static void
 bamf_factory_class_init (BamfFactoryClass *klass)
@@ -114,6 +117,10 @@ bamf_factory_view_for_path (BamfFactory * factory,
   else if (g_strcmp0 (type, "window") == 0)
     {
       view = BAMF_VIEW (bamf_window_new (path));
+    }
+  else if (g_strcmp0 (type, "indicator") == 0)
+    {
+      view = BAMF_VIEW (bamf_indicator_new (path));
     }
   
   if (view)
