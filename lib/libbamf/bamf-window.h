@@ -74,9 +74,9 @@ struct _BamfWindowClass
   void (*_window_padding6) (void);
 };
 
-BamfWindow      * bamf_window_get_transient        (BamfWindow *self);
-
 GType             bamf_window_get_type             (void) G_GNUC_CONST;
+
+BamfWindow      * bamf_window_get_transient        (BamfWindow *self);
 
 guint32           bamf_window_get_xid              (BamfWindow *self);
 
