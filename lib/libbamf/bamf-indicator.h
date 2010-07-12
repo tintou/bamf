@@ -80,6 +80,8 @@ const gchar * bamf_indicator_get_remote_path    (BamfIndicator *self);
 
 const gchar * bamf_indicator_get_remote_address (BamfIndicator *self);
 
+const gchar * bamf_indicator_get_dbus_menu_path (BamfIndicator *self);
+
 G_END_DECLS
 
 #endif
