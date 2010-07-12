@@ -59,91 +59,16 @@ bamf_window_get_window (BamfWindow *self)
 BamfWindow *
 bamf_window_get_transient (BamfWindow *self)
 {
-  BamfWindowType type, b_type;
   BamfLegacyWindow *legacy, *transient;
   BamfWindow *other;
-  GList *parents, *l;
-  GList *children, *c;
-  BamfView *child, *parent, *best = NULL;
-  gint pid;
+  GList *l;
   
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
   
   legacy = bamf_window_get_window (self);
-  
   transient = bamf_legacy_window_get_transient (legacy);
   
-  if (transient == NULL)
-    {
-      type = bamf_legacy_window_get_window_type (legacy);
-      /* window has declared no transients, lets find out if its lying */
-      if (!bamf_legacy_window_is_skip_tasklist (legacy) && type == BAMF_WINDOW_NORMAL)
-        {
-          /* turns out it was telling the truth we thinks  */
-          return NULL;
-        }
-          
-      /* we might have a liar of a transient window, let's look for a mommy or a daddy */
-      pid = bamf_legacy_window_get_pid (legacy);
-    
-      parents = bamf_view_get_parents (BAMF_VIEW (self));
-      /* I am told this control structure makes babies cry
-       * TODO: Stop crying babies
-       */
-      for (l = parents; l; l = l->next)
-        {
-          parent = l->data;
-          
-          if (!BAMF_IS_APPLICATION (parent))
-            continue;
-          
-          children = bamf_view_get_children (parent);
-          
-          for (c = children; c; c = c->next)
-            {
-              child = c->data;
-              
-              if (!BAMF_IS_WINDOW (child) || BAMF_VIEW (self) == child)
-                continue;
-              
-              transient = bamf_window_get_window (BAMF_WINDOW (child));
-              
-              /* if it doesn't have the right pid or is skip tasklist, we dont want it */
-              if (bamf_legacy_window_get_pid (transient) != pid || bamf_legacy_window_is_skip_tasklist (transient))
-                continue;
-              
-              /* check if we found anything yet */
-              if (best == NULL)
-                {
-                  best = child;
-                  continue;
-                }
-              
-              /* prefer NORMAL window */
-              b_type = bamf_legacy_window_get_window_type (bamf_window_get_window (BAMF_WINDOW (best)));
-              if (b_type != BAMF_WINDOW_NORMAL && bamf_legacy_window_get_window_type (transient) == BAMF_WINDOW_NORMAL)
-                {
-                  /* found better window, it was normal */
-                  best = child;
-                  continue;
-                }
-              else if (bamf_legacy_window_get_window_type (transient) == BAMF_WINDOW_NORMAL)
-                {
-                  /* we are of equal weight, compare times */             
-                  if (bamf_window_last_active (BAMF_WINDOW (child)) < bamf_window_last_active (BAMF_WINDOW (best)))
-                    {
-                      /* found better window by time */
-                      best = child;
-                      continue;
-                    }
-                }
-            }
-          break;
-        }
-      if (best)
-        return BAMF_WINDOW (best);
-    }
-  else
+  if (transient)
     {
       for (l = bamf_windows; l; l = l->next)
         {
@@ -215,7 +140,7 @@ handle_window_closed (BamfLegacyWindow * window, gpointer data)
 
   if (window == self->priv->window)
     {
-      g_object_unref (G_OBJECT (self));
+      bamf_view_close (BAMF_VIEW (self));
     }
 }
 
