@@ -103,8 +103,7 @@ introspection_sources = $(library_include_HEADERS)
 
 Bamf-0.2.gir: libbamf.la
 Bamf_0_2_gir_INCLUDES = \
-	GObject-2.0 \
-	Wnck-1.0
+	GObject-2.0
 Bamf_0_2_gir_CFLAGS = --c-include='libbamf/libbamf.h' $(LIBBAMF_CFLAGS) -I ../
 Bamf_0_2_gir_LIBS = libbamf.la 
 Bamf_0_2_gir_FILES = $(addprefix $(srcdir)/, $(introspection_sources))
