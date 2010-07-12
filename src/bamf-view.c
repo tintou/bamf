@@ -133,7 +133,7 @@ bamf_view_close (BamfView *view)
     g_signal_emit (view, view_signals[CLOSED], 0);
 }
 
-char *
+const char *
 bamf_view_get_path (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
@@ -145,7 +145,7 @@ char **
 bamf_view_get_children_paths (BamfView *view)
 {
   char ** paths;
-  char *path;
+  const char *path;
   int n_items, i;
   GList *child;
   BamfView *cview;
@@ -184,7 +184,7 @@ char **
 bamf_view_get_parent_paths (BamfView *view)
 {
   char ** paths;
-  char *path;
+  const char *path;
   int n_items, i;
   GList *parent;
   BamfView *pview;
@@ -230,7 +230,7 @@ void
 bamf_view_add_child (BamfView *view,
                      BamfView *child)
 {
-  char * added;
+  const char * added;
 
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (BAMF_IS_VIEW (child));
@@ -254,7 +254,7 @@ void
 bamf_view_remove_child (BamfView *view,
                         BamfView *child)
 {
-  char * removed;
+  const char * removed;
 
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (BAMF_IS_VIEW (child));

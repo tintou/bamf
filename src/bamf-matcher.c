@@ -160,7 +160,8 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
 static void
 bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
 {
-  char * path, * type;
+  const char * path;
+  char * type;
 
   path = bamf_view_get_path (view);
   type = bamf_view_get_view_type (view);
