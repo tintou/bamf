@@ -98,6 +98,8 @@ const char       * bamf_legacy_window_get_class_name    (BamfLegacyWindow *self)
 
 const char       * bamf_legacy_window_get_name          (BamfLegacyWindow *self);
 
+const char       * bamf_legacy_window_save_mini_icon    (BamfLegacyWindow *self);
+
 char             * bamf_legacy_window_get_exec_string   (BamfLegacyWindow *self);
 
 BamfLegacyWindow * bamf_legacy_window_get_transient     (BamfLegacyWindow *self);

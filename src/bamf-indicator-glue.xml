@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<node name="/org/ayatana/bamf">
+
+	<interface name="org.ayatana.bamf.indicator">
+
+		<method name="Path">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_indicator_get_path" />
+			<arg type="s" name="path" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+
+		<method name="Address">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_indicator_get_address" />
+			<arg type="s" name="address" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+		
+	</interface>
+	
+</node>

@@ -41,6 +41,7 @@
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
+#include <string.h>
 
 G_DEFINE_TYPE (BamfApplication, bamf_application, BAMF_TYPE_VIEW);
 

@@ -68,8 +68,9 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bamfdaemondir)"
 PROGRAMS = $(bamfdaemon_PROGRAMS)
-am__objects_1 = bamfdaemon-bamf-marshal.$(OBJEXT)
-am__objects_2 = bamfdaemon-main.$(OBJEXT) \
+am__objects_1 =
+am__objects_2 = bamfdaemon-bamf-marshal.$(OBJEXT) $(am__objects_1)
+am__objects_3 = bamfdaemon-main.$(OBJEXT) \
 	bamfdaemon-bamf-legacy-window.$(OBJEXT) \
 	bamfdaemon-bamf-legacy-window-test.$(OBJEXT) \
 	bamfdaemon-bamf-legacy-screen.$(OBJEXT) \
@@ -78,10 +79,11 @@ am__objects_2 = bamfdaemon-main.$(OBJEXT) \
 	bamfdaemon-bamf-matcher.$(OBJEXT) \
 	bamfdaemon-bamf-application.$(OBJEXT) \
 	bamfdaemon-bamf-window.$(OBJEXT) bamfdaemon-bamf-tab.$(OBJEXT) \
-	bamfdaemon-bamf-tab-source.$(OBJEXT)
-am__objects_3 =
-am_bamfdaemon_OBJECTS = $(am__objects_1) $(am__objects_2) \
-	$(am__objects_3)
+	bamfdaemon-bamf-tab-source.$(OBJEXT) \
+	bamfdaemon-bamf-indicator-source.$(OBJEXT) \
+	bamfdaemon-bamf-indicator.$(OBJEXT)
+am_bamfdaemon_OBJECTS = $(am__objects_2) $(am__objects_3) \
+	$(am__objects_1)
 bamfdaemon_OBJECTS = $(am_bamfdaemon_OBJECTS)
 am__DEPENDENCIES_1 =
 bamfdaemon_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
@@ -260,16 +262,11 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 CLEANFILES = stamp-marshal
-DISTCLEANFILES = $(marshal_h) $(marshal_c) bamf-application-glue.h \
-	bamf-control-glue.h bamf-matcher-glue.h bamf-window-glue.h \
-	bamf-view-glue.h bamf-tab-glue.h $(NULL)
-BUILT_SOURCES = $(marshal_h) $(marshal_c) bamf-application-glue.h \
-	bamf-control-glue.h bamf-matcher-glue.h bamf-window-glue.h \
-	bamf-view-glue.h bamf-tab-glue.h $(NULL)
-EXTRA_DIST = $(glib_marshal_list) bamf-application-glue.xml \
-	bamf-control-glue.xml bamf-matcher-glue.xml \
-	bamf-window-glue.xml bamf-view-glue.xml bamf-tab-glue.xml \
+DISTCLEANFILES = $(marshal_h) $(marshal_c) $(bamfdaemon_glue_files) \
 	$(NULL)
+BUILT_SOURCES = $(marshal_h) $(marshal_c) $(bamfdaemon_glue_files) \
+	$(NULL)
+EXTRA_DIST = $(glib_marshal_list) $(bamfdaemon_xml_glue_files) $(NULL)
 marshal_h = $(glib_marshal_list:.list=.h)
 marshal_c = $(glib_marshal_list:.list=.c)
 INCLUDE = \
@@ -278,15 +275,32 @@ INCLUDE = \
 	$(NULL)
 
 bamfdaemondir = $(libexecdir)
-bamfdaemon_built_sources = \
-		bamf-marshal.c \
-		bamf-marshal.h \
-		bamf-application-glue.h \
+bamfdaemon_glue_files = \
+                bamf-application-glue.h \
 		bamf-control-glue.h \
 		bamf-matcher-glue.h \
 		bamf-window-glue.h \
 		bamf-view-glue.h \
 		bamf-tab-glue.h \
+		bamf-indicator-source-glue.h \
+		bamf-indicator-glue.h \
+		$(NULL)
+
+bamfdaemon_xml_glue_files = \
+                bamf-application-glue.xml \
+		bamf-control-glue.xml \
+		bamf-matcher-glue.xml \
+		bamf-window-glue.xml \
+		bamf-view-glue.xml \
+		bamf-tab-glue.xml \
+		bamf-indicator-source-glue.xml \
+		bamf-indicator-glue.xml \
+		$(NULL)
+
+bamfdaemon_built_sources = \
+		bamf-marshal.c \
+		bamf-marshal.h \
+		$(bamfdaemon_glue_files) \
 		$(NULL)
 
 bamfdaemon_sources = \
@@ -301,6 +315,8 @@ bamfdaemon_sources = \
 		bamf-window.c \
 		bamf-tab.c \
 		bamf-tab-source.c \
+		bamf-indicator-source.c \
+		bamf-indicator.c \
 		$(NULL)
 
 bamfdaemon_headers = \
@@ -316,6 +332,8 @@ bamfdaemon_headers = \
 		bamf-application.h \
 		bamf-tab.h \
 		bamf-tab-source.h \
+		bamf-indicator-source.h \
+		bamf-indicator.h \
 		$(NULL)
 
 bamfdaemon_SOURCES = \
@@ -325,12 +343,7 @@ bamfdaemon_SOURCES = \
 		$(NULL)
 
 nodist_EXTRA_bamfdaemon_SOURCES = \
-	bamf-application-glue.h \
-	bamf-control-glue.h \
-	bamf-matcher-glue.h \
-        bamf-window-glue.h \
-        bamf-view-glue.h \
-        bamf-tab-glue.h \
+	$(bamfdaemon_glue_files) \
 	$(NULL)
 
 glib_marshal_list = bamf-marshal.list
@@ -449,6 +462,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-application.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-control.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-indicator-source.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-indicator.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-legacy-screen.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-legacy-window-test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-legacy-window.Po@am__quote@
@@ -648,6 +663,34 @@ bamfdaemon-bamf-tab-source.obj: bamf-tab-source.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-tab-source.c' object='bamfdaemon-bamf-tab-source.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-tab-source.obj `if test -f 'bamf-tab-source.c'; then $(CYGPATH_W) 'bamf-tab-source.c'; else $(CYGPATH_W) '$(srcdir)/bamf-tab-source.c'; fi`
+
+bamfdaemon-bamf-indicator-source.o: bamf-indicator-source.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-indicator-source.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-indicator-source.Tpo -c -o bamfdaemon-bamf-indicator-source.o `test -f 'bamf-indicator-source.c' || echo '$(srcdir)/'`bamf-indicator-source.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-indicator-source.Tpo $(DEPDIR)/bamfdaemon-bamf-indicator-source.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-indicator-source.c' object='bamfdaemon-bamf-indicator-source.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-indicator-source.o `test -f 'bamf-indicator-source.c' || echo '$(srcdir)/'`bamf-indicator-source.c
+
+bamfdaemon-bamf-indicator-source.obj: bamf-indicator-source.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-indicator-source.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-indicator-source.Tpo -c -o bamfdaemon-bamf-indicator-source.obj `if test -f 'bamf-indicator-source.c'; then $(CYGPATH_W) 'bamf-indicator-source.c'; else $(CYGPATH_W) '$(srcdir)/bamf-indicator-source.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-indicator-source.Tpo $(DEPDIR)/bamfdaemon-bamf-indicator-source.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-indicator-source.c' object='bamfdaemon-bamf-indicator-source.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-indicator-source.obj `if test -f 'bamf-indicator-source.c'; then $(CYGPATH_W) 'bamf-indicator-source.c'; else $(CYGPATH_W) '$(srcdir)/bamf-indicator-source.c'; fi`
+
+bamfdaemon-bamf-indicator.o: bamf-indicator.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-indicator.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-indicator.Tpo -c -o bamfdaemon-bamf-indicator.o `test -f 'bamf-indicator.c' || echo '$(srcdir)/'`bamf-indicator.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-indicator.Tpo $(DEPDIR)/bamfdaemon-bamf-indicator.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-indicator.c' object='bamfdaemon-bamf-indicator.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-indicator.o `test -f 'bamf-indicator.c' || echo '$(srcdir)/'`bamf-indicator.c
+
+bamfdaemon-bamf-indicator.obj: bamf-indicator.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-indicator.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-indicator.Tpo -c -o bamfdaemon-bamf-indicator.obj `if test -f 'bamf-indicator.c'; then $(CYGPATH_W) 'bamf-indicator.c'; else $(CYGPATH_W) '$(srcdir)/bamf-indicator.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-indicator.Tpo $(DEPDIR)/bamfdaemon-bamf-indicator.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-indicator.c' object='bamfdaemon-bamf-indicator.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-indicator.obj `if test -f 'bamf-indicator.c'; then $(CYGPATH_W) 'bamf-indicator.c'; else $(CYGPATH_W) '$(srcdir)/bamf-indicator.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -901,6 +944,12 @@ bamf-view-glue.h: bamf-view-glue.xml Makefile
 
 bamf-tab-glue.h: bamf-tab-glue.xml Makefile
 		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_tab --mode=glib-server --output=$@ $<
+
+bamf-indicator-source-glue.h: bamf-indicator-source-glue.xml Makefile
+		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_indicator_source --mode=glib-server --output=$@ $<
+
+bamf-indicator-glue.h: bamf-indicator-glue.xml Makefile
+		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_indicator --mode=glib-server --output=$@ $<
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
