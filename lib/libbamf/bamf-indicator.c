@@ -159,6 +159,43 @@ bamf_indicator_get_remote_address (BamfIndicator *self)
 }
 
 static void
+bamf_indicator_dispose (GObject *object)
+{
+  BamfIndicator *self;
+  BamfIndicatorPrivate *priv;
+  
+  self = BAMF_INDICATOR (object);
+  priv = self->priv;
+
+  if (priv->proxy)
+    {
+      g_object_unref (priv->proxy);
+      priv->proxy = NULL;
+    }
+  
+  if (priv->path)
+    {
+      g_free (priv->path);
+      priv->path = NULL;
+    }
+  
+  if (priv->dbus_menu)
+    {
+      g_free (priv->dbus_menu);
+      priv->dbus_menu = NULL;
+    }
+  
+  if (priv->address)
+    {
+      g_free (priv->address);
+      priv->address = NULL;
+    }
+  
+  if (G_OBJECT_CLASS (bamf_indicator_parent_class)->dispose)
+    G_OBJECT_CLASS (bamf_indicator_parent_class)->dispose (object);
+}
+
+static void
 bamf_indicator_constructed (GObject *object)
 {
   BamfIndicator *self;
@@ -194,6 +231,7 @@ bamf_indicator_class_init (BamfIndicatorClass *klass)
   g_type_class_add_private (obj_class, sizeof (BamfIndicatorPrivate));
   
   obj_class->constructed = bamf_indicator_constructed;
+  obj_class->dispose     = bamf_indicator_dispose;
 }
 
 

@@ -90,9 +90,7 @@ bamf_factory_view_for_path (BamfFactory * factory,
   char *type;
 
   g_return_val_if_fail (BAMF_IS_FACTORY (factory), NULL);
-  
-  if (path == NULL || strlen (path) == 0)
-    return NULL;
+  g_return_val_if_fail (path || strlen (path) > 0, NULL);
 
   views = factory->priv->views;
 
@@ -104,9 +102,7 @@ bamf_factory_view_for_path (BamfFactory * factory,
     }  
 
   view = g_object_new (BAMF_TYPE_VIEW, "path", path, NULL);
-
-  type = bamf_view_get_view_type (view);
-
+  type = g_strdup (bamf_view_get_view_type (view));
   g_object_unref (view);
 
   view = NULL;
@@ -127,7 +123,8 @@ bamf_factory_view_for_path (BamfFactory * factory,
     {
       g_hash_table_insert (views, g_strdup (path), view);
     }
-
+  
+  g_free (type);
   return view;
 }
 
