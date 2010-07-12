@@ -30,6 +30,11 @@
 		<signal name="UserVisibleChanged">
 			<arg type="b" name="new_state" direction="out" />
 		</signal>
+		
+		<property name="Active" type="b" access="read" />
+		<property name="Urgent" type="b" access="read" />
+		<property name="Running" type="b" access="read" />
+		<property name="UserVisible" type="b" access="read" />
 
 		<method name="Children">
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_view_get_children_paths" />
@@ -44,7 +49,6 @@
 				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
 			</arg>
 		</method>
-
 
 		<method name="IsActive">
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_view_is_active" />
