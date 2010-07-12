@@ -105,7 +105,7 @@ Bamf-0.2.gir: libbamf.la
 Bamf_0_2_gir_INCLUDES = \
 	GObject-2.0 \
 	Wnck-1.0
-Bamf_0_2_gir_CFLAGS = --c-include='libbamf/libbamf.h' $(LIBBAMF_CFLAGS) -I ../ $(WNCK_CFLAGS) $(WNCK_LIBS) 
+Bamf_0_2_gir_CFLAGS = --c-include='libbamf/libbamf.h' $(LIBBAMF_CFLAGS) -I ../
 Bamf_0_2_gir_LIBS = libbamf.la 
 Bamf_0_2_gir_FILES = $(addprefix $(srcdir)/, $(introspection_sources))
 
@@ -131,7 +131,7 @@ vapidir = $(datadir)/vala/vapi
 vapi_DATA = Bamf-0.2.vapi
 
 Bamf-0.2.vapi: Bamf-0.2.gir
-	$(VALA_API_GEN) --pkg libwnck-1.0 --library=Bamf-0.2 $<
+	$(VALA_API_GEN) --library=Bamf-0.2 $<
 
 CLEANFILES += $(vapi_DATA)
 

@@ -216,6 +216,12 @@ bamf_application_dispose (GObject *object)
       g_free (priv->desktop_file);
       priv->desktop_file = NULL;
     }  
+  
+  if (priv->proxy)
+    {
+      g_object_unref (priv->proxy);
+      priv->proxy = NULL;
+    }
 
   if (G_OBJECT_CLASS (bamf_application_parent_class)->dispose)
     G_OBJECT_CLASS (bamf_application_parent_class)->dispose (object);
