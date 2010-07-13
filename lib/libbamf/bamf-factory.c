@@ -86,12 +86,9 @@ static void
 on_weak_unref (char *path, BamfView *dead_object)
 {
   BamfFactory *self = factory;
-  
   g_return_if_fail (BAMF_IS_FACTORY (self));
   
-  g_warning ("Weak unref %s\n", path);
   g_hash_table_remove (self->priv->views, path);
-  
   g_free (path);
 }
 
