@@ -381,8 +381,6 @@ static void
 bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
 {
   g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
-
-  g_object_unref (self);
 }
 
 static void
@@ -391,7 +389,7 @@ bamf_view_on_child_added (DBusGProxy *proxy, char *path, BamfView *self)
   BamfView *view;
 
   view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
-
+  
   g_signal_emit (G_OBJECT (self), view_signals[CHILD_ADDED], 0, view);
 }
 

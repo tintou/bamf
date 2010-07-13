@@ -55,6 +55,7 @@ struct _BamfFactoryPrivate
   GHashTable *views;
 };
 
+static BamfFactory *factory = NULL;
 
 BamfApplication * bamf_application_new              (const char *path);
 
@@ -81,13 +82,40 @@ bamf_factory_init (BamfFactory *self)
   priv->views = g_hash_table_new_full ((GHashFunc) g_str_hash, (GEqualFunc) g_str_equal, (GDestroyNotify) g_free, NULL);
 }
 
+static void
+on_weak_unref (char *path, BamfView *dead_object)
+{
+  BamfFactory *self = factory;
+  
+  g_return_if_fail (BAMF_IS_FACTORY (self));
+  
+  g_warning ("Weak unref %s\n", path);
+  g_hash_table_remove (self->priv->views, path);
+  
+  g_free (path);
+}
+
+static void
+on_view_closed (BamfView *view, BamfFactory *self)
+{
+  gchar *path;
+
+  g_return_if_fail (BAMF_IS_FACTORY (self));
+  g_return_if_fail (BAMF_IS_VIEW (view));
+  
+  g_object_get (view, "path", &path, NULL);  
+  
+  g_object_unref (view);
+  g_free (path);
+}
+
 BamfView * 
 bamf_factory_view_for_path (BamfFactory * factory,
                             const char * path)
 {
   BamfView *view;
   GHashTable *views;
-  char *type;
+  gchar *type;
 
   g_return_val_if_fail (BAMF_IS_FACTORY (factory), NULL);
   
@@ -98,15 +126,15 @@ bamf_factory_view_for_path (BamfFactory * factory,
 
   view = g_hash_table_lookup (views, path);
 
-  if (view)
+  if (BAMF_IS_VIEW (view))
     {
       return view;
-    }  
-
+    }
+  
   view = g_object_new (BAMF_TYPE_VIEW, "path", path, NULL);
   type = g_strdup (bamf_view_get_view_type (view));
   g_object_unref (view);
-
+  
   view = NULL;
   if (g_strcmp0 (type, "application") == 0)
     {
@@ -123,14 +151,14 @@ bamf_factory_view_for_path (BamfFactory * factory,
   
   if (view)
     {
+      g_object_weak_ref (G_OBJECT (view), (GWeakNotify) on_weak_unref, g_strdup (path));
       g_hash_table_insert (views, g_strdup (path), view);
+      g_signal_connect (G_OBJECT (view), "closed", (GCallback) on_view_closed, factory);
     }
   
   g_free (type);
   return view;
 }
-
-static BamfFactory *factory = NULL;
 
 BamfFactory * 
 bamf_factory_get_default (void)
