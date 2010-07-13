@@ -39,6 +39,7 @@ enum
 {
   ACTIVE_CHANGED,
   CLOSED,
+  CLOSED_INTERNAL,
   CHILD_ADDED,
   CHILD_REMOVED,
   EXPORTED,
@@ -57,7 +58,7 @@ struct _BamfViewPrivate
   char * path;
   GList * children;
   GList * parents;
-  gboolean disposed;
+  gboolean closed;
   gboolean is_active;
   gboolean is_running;
   gboolean is_urgent;
@@ -120,8 +121,10 @@ bamf_view_urgent_changed (BamfView *view, gboolean urgent)
 void
 bamf_view_close (BamfView *view)
 {
-  if (view->priv->disposed)
+  if (view->priv->closed)
     return;
+    
+  view->priv->closed = TRUE;
 
   gboolean emit = TRUE;
   if (BAMF_VIEW_GET_CLASS (view)->closed)
@@ -130,7 +133,12 @@ bamf_view_close (BamfView *view)
     }
 
   if (emit)
-    g_signal_emit (view, view_signals[CLOSED], 0);
+    {
+      g_object_ref (G_OBJECT (view));
+      g_signal_emit (view, view_signals[CLOSED_INTERNAL], 0);
+      g_signal_emit (view, view_signals[CLOSED], 0);
+      g_object_unref (G_OBJECT (view));
+    }
 }
 
 const char *
@@ -235,7 +243,7 @@ bamf_view_add_child (BamfView *view,
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (BAMF_IS_VIEW (child));
 
-  g_signal_connect (G_OBJECT (child), "closed",
+  g_signal_connect (G_OBJECT (child), "closed-internal",
 		    (GCallback) bamf_view_handle_child_closed, view);
 
   /* Make sure our parent child lists are ok, pay attention to whose list you add parents to */
@@ -483,7 +491,6 @@ bamf_view_dispose (GObject *object)
       priv->path = NULL;
     }
 
-  priv->disposed = TRUE;
   G_OBJECT_CLASS (bamf_view_parent_class)->dispose (object);
 }
 
@@ -572,6 +579,14 @@ bamf_view_class_init (BamfViewClass * klass)
 
   view_signals [CLOSED] =
   	g_signal_new ("closed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__VOID,
+  	              G_TYPE_NONE, 0);
+  
+  view_signals [CLOSED_INTERNAL] =
+  	g_signal_new ("closed-internal",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,
