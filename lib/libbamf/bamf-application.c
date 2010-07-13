@@ -219,6 +219,16 @@ bamf_application_dispose (GObject *object)
   
   if (priv->proxy)
     {
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                     "WindowAdded",
+                                     (GCallback) bamf_application_on_window_added,
+                                     self);
+                                     
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                     "WindowRemoved",
+                                     (GCallback) bamf_application_on_window_removed,
+                                     self);
+
       g_object_unref (priv->proxy);
       priv->proxy = NULL;
     }
