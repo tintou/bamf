@@ -49,6 +49,14 @@ G_DEFINE_TYPE (BamfView, bamf_view, G_TYPE_OBJECT);
 
 enum
 {
+  BAMF_VIEW_RUNNING_FLAG = 1 << 0,
+  BAMF_VIEW_URGENT_FLAG  = 1 << 1,
+  BAMF_VIEW_VISIBLE_FLAG = 1 << 2,
+  BAMF_VIEW_ACTIVE_FLAG  = 1 << 3,
+};
+
+enum
+{
   ACTIVE_CHANGED,
   CLOSED,
   CHILD_ADDED,
@@ -60,15 +68,6 @@ enum
   LAST_SIGNAL,
 };
 
-static guint view_signals[LAST_SIGNAL] = { 0 };
-
-struct _BamfViewPrivate
-{
-  DBusGConnection *connection;
-  DBusGProxy      *proxy;
-  gchar           *path;
-};
-
 enum
 {
   PROP_0,
@@ -76,9 +75,305 @@ enum
   PROP_PATH,
 };
 
+static guint view_signals[LAST_SIGNAL] = { 0 };
+
+struct _BamfViewPrivate
+{
+  DBusGConnection *connection;
+  DBusGProxy      *proxy;
+  gchar           *path;
+  gchar           *type;
+  int              checked_flags;
+  int              set_flags;
+};
+
+GList *
+bamf_view_get_children (BamfView *view)
+{
+  char ** children;
+  int i, len;
+  GList *results = NULL;
+  GError *error = NULL;
+  BamfViewPrivate *priv;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+  
+  if (BAMF_VIEW_GET_CLASS (view)->get_children)
+    return BAMF_VIEW_GET_CLASS (view)->get_children (view);
+
+  priv = view->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "Children",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRV, &children,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Unable to fetch children: %s\n", error->message);
+      return NULL;
+    }
+
+  if (!children)
+    return NULL;
+
+  len = g_strv_length (children);
+
+  for (i = 0; i < len; i++)
+    {
+      BamfView *view = bamf_factory_view_for_path (bamf_factory_get_default (), children[i]);
+      results = g_list_prepend (results, view);
+    }
+
+  return results;
+}
+
+gboolean
+bamf_view_is_active (BamfView *view)
+{
+  BamfViewPrivate *priv;
+  gboolean active = FALSE;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
+  priv = view->priv;
+  
+  if (BAMF_VIEW_GET_CLASS (view)->is_active)
+    return BAMF_VIEW_GET_CLASS (view)->is_active (view);
+
+  if (priv->checked_flags & BAMF_VIEW_ACTIVE_FLAG)
+    return priv->set_flags & BAMF_VIEW_ACTIVE_FLAG;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "IsActive",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_BOOLEAN, &active,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch active: %s", error->message);
+      g_error_free (error);
+      
+      return FALSE;
+    }
+
+  if (active)
+    priv->set_flags |= BAMF_VIEW_ACTIVE_FLAG;
+  else
+    priv->set_flags = priv->set_flags & ~BAMF_VIEW_ACTIVE_FLAG;
+    
+  return active;
+}
+
+gboolean          
+bamf_view_user_visible (BamfView *self)
+{
+  BamfViewPrivate *priv;
+  gboolean result = FALSE;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (self), FALSE);
+  priv = self->priv;
+
+  if (priv->checked_flags & BAMF_VIEW_VISIBLE_FLAG)
+    return priv->set_flags & BAMF_VIEW_VISIBLE_FLAG;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "UserVisible",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_BOOLEAN, &result,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch urgent: %s", error->message);
+      g_error_free (error);
+      
+      return FALSE;
+    }
+
+  if (result)
+    priv->set_flags |= BAMF_VIEW_VISIBLE_FLAG;
+  else
+    priv->set_flags = priv->set_flags & ~BAMF_VIEW_VISIBLE_FLAG;
+
+  return result;
+}
+
+gboolean
+bamf_view_is_running (BamfView *view)
+{
+  BamfViewPrivate *priv;
+  gboolean running = FALSE;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
+  priv = view->priv;
+  
+  if (BAMF_VIEW_GET_CLASS (view)->is_running)
+    return BAMF_VIEW_GET_CLASS (view)->is_running (view);
+
+  if (priv->checked_flags & BAMF_VIEW_RUNNING_FLAG)
+    return priv->set_flags & BAMF_VIEW_RUNNING_FLAG;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "IsRunning",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_BOOLEAN, &running,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch running: %s", error->message);
+      g_error_free (error);
+      
+      return FALSE;
+    }
+  
+  if (running)
+    priv->set_flags |= BAMF_VIEW_RUNNING_FLAG;
+  else
+    priv->set_flags = priv->set_flags & ~BAMF_VIEW_RUNNING_FLAG;
+  
+  return running;
+}
+
+gboolean
+bamf_view_is_urgent (BamfView *view)
+{
+  BamfViewPrivate *priv;
+  gboolean urgent = FALSE;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
+  priv = view->priv;
+  
+  if (BAMF_VIEW_GET_CLASS (view)->is_urgent)
+    return BAMF_VIEW_GET_CLASS (view)->is_urgent (view);
+
+  if (priv->checked_flags & BAMF_VIEW_URGENT_FLAG)
+    return priv->set_flags & BAMF_VIEW_URGENT_FLAG;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "IsUrgent",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_BOOLEAN, &urgent,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch urgent: %s", error->message);
+      g_error_free (error);
+      
+      return FALSE;
+    }
+
+  if (urgent)
+    priv->set_flags |= BAMF_VIEW_URGENT_FLAG;
+  else
+    priv->set_flags = priv->set_flags & ~BAMF_VIEW_URGENT_FLAG;
+
+  return urgent;
+}
+
+
+gchar *
+bamf_view_get_icon (BamfView *view)
+{
+  BamfViewPrivate *priv;
+  char *icon = NULL;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+  priv = view->priv;
+  
+  if (BAMF_VIEW_GET_CLASS (view)->get_icon)
+    return BAMF_VIEW_GET_CLASS (view)->get_icon (view);
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "Icon",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &icon,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch icon: %s", error->message);
+      g_error_free (error);
+      
+      return NULL;
+    }
+
+  return icon;
+}
+
+gchar *
+bamf_view_get_name (BamfView *view)
+{
+  BamfViewPrivate *priv;
+  char *name = NULL;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+  priv = view->priv;
+  
+  if (BAMF_VIEW_GET_CLASS (view)->get_name)
+    return BAMF_VIEW_GET_CLASS (view)->get_name (view);
+    
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "Name",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &name,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch name: %s", error->message);
+      g_error_free (error);
+      
+      return NULL;
+    }
+
+  return name;
+}
+
+const gchar *
+bamf_view_get_view_type (BamfView *view)
+{
+  BamfViewPrivate *priv;
+  char *type = NULL;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+  priv = view->priv;
+  
+  if (BAMF_VIEW_GET_CLASS (view)->view_type)
+    return BAMF_VIEW_GET_CLASS (view)->view_type (view);
+  
+  if (priv->type)
+    return priv->type;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "ViewType",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &type,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch view type: %s", error->message);
+      g_error_free (error);
+      return NULL;
+    }
+
+  priv->type = type;
+  return type;
+}
+
 static void
 bamf_view_on_active_changed (DBusGProxy *proxy, gboolean active, BamfView *self)
 {
+  BamfViewPrivate *priv = self->priv;
+
+  if (active)
+    priv->set_flags |= BAMF_VIEW_ACTIVE_FLAG;
+  else
+    priv->set_flags = priv->set_flags & ~BAMF_VIEW_ACTIVE_FLAG;
+
   g_signal_emit (G_OBJECT(self), view_signals[ACTIVE_CHANGED], 0, active);
 }
 
@@ -86,8 +381,6 @@ static void
 bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
 {
   g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
-
-  g_object_unref (self);
 }
 
 static void
@@ -96,7 +389,7 @@ bamf_view_on_child_added (DBusGProxy *proxy, char *path, BamfView *self)
   BamfView *view;
 
   view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
-
+  
   g_signal_emit (G_OBJECT (self), view_signals[CHILD_ADDED], 0, view);
 }
 
@@ -113,18 +406,39 @@ bamf_view_on_child_removed (DBusGProxy *proxy, char *path, BamfView *self)
 static void
 bamf_view_on_running_changed (DBusGProxy *proxy, gboolean running, BamfView *self)
 {
+  BamfViewPrivate *priv = self->priv;
+
+  if (running)
+    priv->set_flags |= BAMF_VIEW_RUNNING_FLAG;
+  else
+    priv->set_flags = priv->set_flags & ~BAMF_VIEW_RUNNING_FLAG;
+
   g_signal_emit (G_OBJECT (self), view_signals[ACTIVE_CHANGED], 0, running);
 }
 
 static void
 bamf_view_on_urgent_changed (DBusGProxy *proxy, gboolean urgent, BamfView *self)
 {
+  BamfViewPrivate *priv = self->priv;
+
+  if (urgent)
+    priv->set_flags |= BAMF_VIEW_URGENT_FLAG;
+  else
+    priv->set_flags = priv->set_flags & ~BAMF_VIEW_URGENT_FLAG;
+
   g_signal_emit (G_OBJECT (self), view_signals[URGENT_CHANGED], 0, urgent);
 }
 
 static void
 bamf_view_on_user_visible_changed (DBusGProxy *proxy, gboolean visible, BamfView *self)
 {
+  BamfViewPrivate *priv = self->priv;
+
+  if (visible)
+    priv->set_flags |= BAMF_VIEW_VISIBLE_FLAG;
+  else
+    priv->set_flags = priv->set_flags & ~BAMF_VIEW_VISIBLE_FLAG;
+
   g_signal_emit (G_OBJECT (self), view_signals[VISIBLE_CHANGED], 0, visible);
 }
 
@@ -175,41 +489,59 @@ bamf_view_dispose (GObject *object)
   view = BAMF_VIEW (object);
 
   priv = view->priv;
-
-  dbus_g_proxy_disconnect_signal (priv->proxy,
-                                  "ActiveChanged",
-                                  (GCallback) bamf_view_on_active_changed,
-                                  view);
-
-  dbus_g_proxy_disconnect_signal (priv->proxy,
-                                  "Closed",
-                                  (GCallback) bamf_view_on_closed,
-                                  view);
-
-  dbus_g_proxy_disconnect_signal (priv->proxy,
-                                  "ChildAdded",
-                                  (GCallback) bamf_view_on_child_added,
-                                  view);
-
-  dbus_g_proxy_disconnect_signal (priv->proxy,
-                                  "ChildRemoved",
-                                  (GCallback) bamf_view_on_child_removed,
-                                  view);
-
-  dbus_g_proxy_disconnect_signal (priv->proxy,
-                                  "RunningChanged",
-                                  (GCallback) bamf_view_on_running_changed,
-                                   view);
-
-  dbus_g_proxy_disconnect_signal (priv->proxy,
-                                 "UrgentChanged",
-                                 (GCallback) bamf_view_on_urgent_changed,
-                                 view);
   
-  dbus_g_proxy_disconnect_signal (priv->proxy,
-                                 "UserVisibleChanged",
-                                 (GCallback) bamf_view_on_user_visible_changed,
-                                 view);
+  if (priv->path)
+    {
+      g_free (priv->path);
+      priv->path = NULL;
+    }
+  
+    
+  if (priv->type)
+    {
+      g_free (priv->type);
+      priv->type = NULL;
+    }
+
+  if (priv->proxy)
+    {
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                      "ActiveChanged",
+                                      (GCallback) bamf_view_on_active_changed,
+                                      view);
+
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                      "Closed",
+                                      (GCallback) bamf_view_on_closed,
+                                      view);
+
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                      "ChildAdded",
+                                      (GCallback) bamf_view_on_child_added,
+                                      view);
+
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                      "ChildRemoved",
+                                      (GCallback) bamf_view_on_child_removed,
+                                      view);
+
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                      "RunningChanged",
+                                      (GCallback) bamf_view_on_running_changed,
+                                       view);
+
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                     "UrgentChanged",
+                                     (GCallback) bamf_view_on_urgent_changed,
+                                     view);
+  
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                     "UserVisibleChanged",
+                                     (GCallback) bamf_view_on_user_visible_changed,
+                                     view);
+      g_object_unref (priv->proxy);
+      priv->proxy = NULL;
+    }
 }
 
 static void
@@ -422,246 +754,4 @@ bamf_view_init (BamfView *self)
         g_error_free (error);
       return;
     }
-}
-
-GList *
-bamf_view_get_children (BamfView *view)
-{
-  char ** children;
-  int i, len;
-  GList *results = NULL;
-  GError *error = NULL;
-  BamfViewPrivate *priv;
-
-  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  
-  if (BAMF_VIEW_GET_CLASS (view)->get_children)
-    return BAMF_VIEW_GET_CLASS (view)->get_children (view);
-
-  priv = view->priv;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "Children",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRV, &children,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Unable to fetch children: %s\n", error->message);
-      return NULL;
-    }
-
-  if (!children)
-    return NULL;
-
-  len = g_strv_length (children);
-
-  for (i = 0; i < len; i++)
-    {
-      BamfView *view = bamf_factory_view_for_path (bamf_factory_get_default (), children[i]);
-      if (BAMF_IS_WINDOW (view))
-      results = g_list_prepend (results, view);
-    }
-
-  return results;
-}
-
-gboolean
-bamf_view_is_active (BamfView *view)
-{
-  BamfViewPrivate *priv;
-  gboolean active = FALSE;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-  priv = view->priv;
-  
-  if (BAMF_VIEW_GET_CLASS (view)->is_active)
-    return BAMF_VIEW_GET_CLASS (view)->is_active (view);
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "IsActive",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_BOOLEAN, &active,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch active: %s", error->message);
-      g_error_free (error);
-      
-      return FALSE;
-    }
-
-  return active;
-}
-
-gboolean          
-bamf_view_user_visible (BamfView *self)
-{
-  BamfViewPrivate *priv;
-  gboolean result = FALSE;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_VIEW (self), FALSE);
-  priv = self->priv;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "UserVisible",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_BOOLEAN, &result,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch urgent: %s", error->message);
-      g_error_free (error);
-      
-      return FALSE;
-    }
-
-  return result;
-}
-
-gboolean
-bamf_view_is_running (BamfView *view)
-{
-  BamfViewPrivate *priv;
-  gboolean running = FALSE;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-  priv = view->priv;
-  
-  if (BAMF_VIEW_GET_CLASS (view)->is_running)
-    return BAMF_VIEW_GET_CLASS (view)->is_running (view);
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "IsRunning",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_BOOLEAN, &running,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch running: %s", error->message);
-      g_error_free (error);
-      
-      return FALSE;
-    }
-
-  return running;
-}
-
-gboolean
-bamf_view_is_urgent (BamfView *view)
-{
-  BamfViewPrivate *priv;
-  gboolean urgent = FALSE;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-  priv = view->priv;
-  
-  if (BAMF_VIEW_GET_CLASS (view)->is_urgent)
-    return BAMF_VIEW_GET_CLASS (view)->is_urgent (view);
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "IsUrgent",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_BOOLEAN, &urgent,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch urgent: %s", error->message);
-      g_error_free (error);
-      
-      return FALSE;
-    }
-
-  return urgent;
-}
-
-
-gchar *
-bamf_view_get_icon (BamfView *view)
-{
-  BamfViewPrivate *priv;
-  char *icon = NULL;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  priv = view->priv;
-  
-  if (BAMF_VIEW_GET_CLASS (view)->get_icon)
-    return BAMF_VIEW_GET_CLASS (view)->get_icon (view);
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "Icon",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &icon,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch icon: %s", error->message);
-      g_error_free (error);
-      
-      return NULL;
-    }
-
-  return icon;
-}
-
-gchar *
-bamf_view_get_name (BamfView *view)
-{
-  BamfViewPrivate *priv;
-  char *name = NULL;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  priv = view->priv;
-  
-  if (BAMF_VIEW_GET_CLASS (view)->get_name)
-    return BAMF_VIEW_GET_CLASS (view)->get_name (view);
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "Name",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &name,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch name: %s", error->message);
-      g_error_free (error);
-      
-      return NULL;
-    }
-
-  return name;
-}
-
-gchar *
-bamf_view_get_view_type (BamfView *view)
-{
-  BamfViewPrivate *priv;
-  char *type = NULL;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  priv = view->priv;
-  
-  if (BAMF_VIEW_GET_CLASS (view)->view_type)
-    return BAMF_VIEW_GET_CLASS (view)->view_type (view);
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "ViewType",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &type,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch view type: %s", error->message);
-      g_error_free (error);
-      return NULL;
-    }
-
-  return type;
 }

@@ -160,6 +160,26 @@ bamf_window_constructed (GObject *object)
   
 }
 
+
+static void
+bamf_window_dispose (GObject *object)
+{
+  BamfWindow *self;
+  BamfWindowPrivate *priv;
+  
+  self = BAMF_WINDOW (object);
+  priv = self->priv;
+  
+  if (priv->proxy)
+    {
+      g_object_unref (priv->proxy);
+      priv->proxy = NULL;
+    }
+  
+  if (G_OBJECT_CLASS (bamf_window_parent_class)->dispose)
+    G_OBJECT_CLASS (bamf_window_parent_class)->dispose (object);
+}
+
 static void
 bamf_window_class_init (BamfWindowClass *klass)
 {
@@ -169,6 +189,7 @@ bamf_window_class_init (BamfWindowClass *klass)
   g_type_class_add_private (obj_class, sizeof (BamfWindowPrivate));
   
   obj_class->constructed = bamf_window_constructed;
+  obj_class->dispose     = bamf_window_dispose;
   view_class->active_changed = bamf_window_active_changed;
 }
 

@@ -31,16 +31,13 @@ void populate_tree_store (GtkTreeStore *store)
 {
   GtkTreeIter position; 
   GtkTreeIter child;
-  GList *windows, *w; 
+  GList *children, *c; 
   GList *apps, *l;
   BamfApplication *app;
   BamfWindow *window;
   const char *filename;
   
   apps = bamf_matcher_get_applications (bamf_matcher_get_default ());
-
-  if (apps == NULL)
-    g_print ("FAIL\n");
 
   for (l = apps; l; l = l->next) 
   {
@@ -53,20 +50,29 @@ void populate_tree_store (GtkTreeStore *store)
     filename = bamf_view_get_name (BAMF_VIEW (app));
     gtk_tree_store_set (store, &position, 0, filename, -1);
 
-    windows = bamf_application_get_windows (app);
+    children = bamf_view_get_children (BAMF_VIEW (app));
     
-    g_print("%i    %s\n", g_list_length (windows), filename);
+    g_print("%i    %s\n", g_list_length (children), filename);
 
-    for (w = windows; w; w = w->next) 
+    for (c = children; c; c = c->next) 
     {
-      window = BAMF_WINDOW (w->data);
+      if (BAMF_IS_WINDOW (c->data))
+        {
+          window = BAMF_WINDOW (c->data);
       
-      if (!bamf_view_user_visible (BAMF_VIEW (window)))
-        continue;
+          if (!bamf_view_user_visible (BAMF_VIEW (window)))
+            continue;
       
-      const gchar *name = bamf_view_get_name (BAMF_VIEW (window));
-      gtk_tree_store_append (store, &child, &position);
-      gtk_tree_store_set (store, &child, 0, name, -1);
+          const gchar *name = bamf_view_get_name (BAMF_VIEW (window));
+          gtk_tree_store_append (store, &child, &position);
+          gtk_tree_store_set (store, &child, 0, name, -1);
+        }
+      else if (BAMF_IS_INDICATOR (c->data))
+        {
+          const gchar *path = bamf_indicator_get_dbus_menu_path (BAMF_INDICATOR (c->data));
+          gtk_tree_store_append (store, &child, &position);
+          gtk_tree_store_set (store, &child, 0, path, -1);
+        }
     }
   }
 }
