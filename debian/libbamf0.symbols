@@ -13,6 +13,11 @@ libbamf.so.0 libbamf0 #MINVER#
  bamf_factory_get_default@Base 0.2.20
  bamf_factory_get_type@Base 0.2.20
  bamf_factory_view_for_path@Base 0.2.20
+ bamf_indicator_get_dbus_menu_path@Base 0.2.36
+ bamf_indicator_get_remote_address@Base 0.2.36
+ bamf_indicator_get_remote_path@Base 0.2.36
+ bamf_indicator_get_type@Base 0.2.36
+ bamf_indicator_new@Base 0.2.36
  bamf_marshal_VOID__OBJECT_OBJECT@Base 0.2.24
  bamf_marshal_VOID__STRING_STRING@Base 0.2.20
  bamf_marshal_VOID__STRING_STRING_STRING@Base 0.2.20
