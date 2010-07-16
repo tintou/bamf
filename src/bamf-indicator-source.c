@@ -125,6 +125,7 @@ bamf_indicator_source_approve_item (BamfIndicatorSource *self,
     {
       if (bamf_indicator_matches_signature (BAMF_INDICATOR (l->data), pid, address, path))
         {
+          g_debug ("NotifierWatcher service passed already known indicator, ignoring\n");
           indicator = BAMF_INDICATOR (l->data);
           break;
         }
@@ -145,6 +146,73 @@ bamf_indicator_source_approve_item (BamfIndicatorSource *self,
   return TRUE;
 }
 
+static void on_proxy_destroy (DBusGProxy *proxy, BamfIndicatorSource *self);
+
+static gboolean
+bamf_indicator_source_register_notification_approver (BamfIndicatorSource *self)
+{
+  DBusGConnection *bus;
+  GError *error = NULL;
+  static int retry_count = 0;
+
+  bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+  g_return_val_if_fail (bus, FALSE);
+
+  self->priv->proxy = dbus_g_proxy_new_for_name_owner (bus,
+                                                       "org.ayatana.indicator.application",
+                                                       "/StatusNotifierWatcher",
+                                                       "org.kde.StatusNotifierWatcher",
+                                                       &error);
+  
+  if (self->priv->proxy)
+    {
+      if (dbus_g_proxy_call (self->priv->proxy,
+                             "RegisterNotificationApprover",
+                             &error,
+                             DBUS_TYPE_G_OBJECT_PATH, BAMF_INDICATOR_SOURCE_PATH,
+                             G_TYPE_STRV, NULL,
+                             G_TYPE_INVALID,
+                             G_TYPE_INVALID))
+        {
+          g_debug ("Remote notification approver registered\n");
+          g_signal_connect (G_OBJECT (self->priv->proxy), "destroy", (GCallback) on_proxy_destroy, self);
+          retry_count = 0;
+          return FALSE;
+        }
+      else
+        {
+          g_warning ("Failed to register as approver: %s\n", error->message);
+          g_error_free (error);
+        }
+    }
+  else
+    {
+      g_warning ("Failed to get notification approver proxy: %s\n", error->message);
+      g_error_free (error);
+    }
+  retry_count++;
+      
+  if (retry_count > 10)
+    {
+      g_warning ("Retry count expired\n");
+      return FALSE;
+    }
+  
+  g_debug ("Retrying registration in 2 seconds\n");
+  return TRUE;
+}
+
+static void
+on_proxy_destroy (DBusGProxy *proxy, BamfIndicatorSource *self)
+{
+  g_return_if_fail (BAMF_IS_INDICATOR_SOURCE (self));
+ 
+  g_debug ("Remote approver service died, re-establishing connection\n");
+  
+  if (bamf_indicator_source_register_notification_approver (self))
+    g_timeout_add (2 * 1000, (GSourceFunc) bamf_indicator_source_register_notification_approver, self);
+}
+
 static void
 bamf_indicator_source_constructed (GObject *object)
 {
@@ -152,33 +220,19 @@ bamf_indicator_source_constructed (GObject *object)
   DBusGConnection *bus;
   GError *error = NULL;
 
+  bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+  g_return_if_fail (bus);
+
   self = BAMF_INDICATOR_SOURCE (object);
 
   if (G_OBJECT_CLASS (bamf_indicator_source_parent_class)->constructed)
     G_OBJECT_CLASS (bamf_indicator_source_parent_class)->constructed (object);
 
-  bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-  g_return_if_fail (bus);
-
-  self->priv->proxy = dbus_g_proxy_new_for_name (bus,
-                                                 "org.ayatana.indicator.application",
-                                                 "/StatusNotifierWatcher",
-                                                 "org.kde.StatusNotifierWatcher");
-  g_return_if_fail (self->priv->proxy);
   
   dbus_g_connection_register_g_object (bus, BAMF_INDICATOR_SOURCE_PATH, object);
   
-  if (!dbus_g_proxy_call (self->priv->proxy,
-                          "RegisterNotificationApprover",
-                          &error,
-                          DBUS_TYPE_G_OBJECT_PATH, BAMF_INDICATOR_SOURCE_PATH,
-                          G_TYPE_STRV, NULL,
-                          G_TYPE_INVALID,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to register as approver: %s", error->message);
-      g_error_free (error);
-    }
+  if (bamf_indicator_source_register_notification_approver (self))
+    g_timeout_add (10 * 1000, (GSourceFunc) bamf_indicator_source_register_notification_approver, self);
 }
 
 static void

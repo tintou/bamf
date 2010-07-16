@@ -27,8 +27,19 @@ BAMF_TYPE_VIEW, BamfViewPrivate))
 
 enum
 {
+  PROP_0,
+  
+  PROP_ACTIVE,
+  PROP_RUNNING,
+  PROP_URGENT,
+  PROP_USER_VISIBLE,
+};
+
+enum
+{
   ACTIVE_CHANGED,
   CLOSED,
+  CLOSED_INTERNAL,
   CHILD_ADDED,
   CHILD_REMOVED,
   EXPORTED,
@@ -47,7 +58,7 @@ struct _BamfViewPrivate
   char * path;
   GList * children;
   GList * parents;
-  gboolean disposed;
+  gboolean closed;
   gboolean is_active;
   gboolean is_running;
   gboolean is_urgent;
@@ -110,8 +121,10 @@ bamf_view_urgent_changed (BamfView *view, gboolean urgent)
 void
 bamf_view_close (BamfView *view)
 {
-  if (view->priv->disposed)
+  if (view->priv->closed)
     return;
+    
+  view->priv->closed = TRUE;
 
   gboolean emit = TRUE;
   if (BAMF_VIEW_GET_CLASS (view)->closed)
@@ -120,10 +133,15 @@ bamf_view_close (BamfView *view)
     }
 
   if (emit)
-    g_signal_emit (view, view_signals[CLOSED], 0);
+    {
+      g_object_ref (G_OBJECT (view));
+      g_signal_emit (view, view_signals[CLOSED_INTERNAL], 0);
+      g_signal_emit (view, view_signals[CLOSED], 0);
+      g_object_unref (G_OBJECT (view));
+    }
 }
 
-char *
+const char *
 bamf_view_get_path (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
@@ -135,7 +153,7 @@ char **
 bamf_view_get_children_paths (BamfView *view)
 {
   char ** paths;
-  char *path;
+  const char *path;
   int n_items, i;
   GList *child;
   BamfView *cview;
@@ -174,7 +192,7 @@ char **
 bamf_view_get_parent_paths (BamfView *view)
 {
   char ** paths;
-  char *path;
+  const char *path;
   int n_items, i;
   GList *parent;
   BamfView *pview;
@@ -220,12 +238,12 @@ void
 bamf_view_add_child (BamfView *view,
                      BamfView *child)
 {
-  char * added;
+  const char * added;
 
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (BAMF_IS_VIEW (child));
 
-  g_signal_connect (G_OBJECT (child), "closed",
+  g_signal_connect (G_OBJECT (child), "closed-internal",
 		    (GCallback) bamf_view_handle_child_closed, view);
 
   /* Make sure our parent child lists are ok, pay attention to whose list you add parents to */
@@ -244,7 +262,7 @@ void
 bamf_view_remove_child (BamfView *view,
                         BamfView *child)
 {
-  char * removed;
+  const char * removed;
 
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (BAMF_IS_VIEW (child));
@@ -473,8 +491,47 @@ bamf_view_dispose (GObject *object)
       priv->path = NULL;
     }
 
-  priv->disposed = TRUE;
   G_OBJECT_CLASS (bamf_view_parent_class)->dispose (object);
+}
+
+static void
+bamf_view_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+{
+  BamfView *self;
+
+  self = BAMF_VIEW (object);
+
+  switch (property_id)
+    {
+      case PROP_ACTIVE:
+        g_value_set_boolean (value, self->priv->is_active);
+        break;
+      case PROP_URGENT:
+        g_value_set_boolean (value, self->priv->is_urgent);
+        break;
+      case PROP_USER_VISIBLE:
+        g_value_set_boolean (value, self->priv->user_visible);
+        break;
+      case PROP_RUNNING:
+        g_value_set_boolean (value, self->priv->is_running);
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+    }
+}
+
+static void
+bamf_view_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+{
+  BamfView *self;
+
+  self = BAMF_VIEW (object);
+
+  switch (property_id)
+    {
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+    }
 }
 
 static void
@@ -487,9 +544,24 @@ bamf_view_init (BamfView * self)
 static void
 bamf_view_class_init (BamfViewClass * klass)
 {
+  GParamSpec *pspec;
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = bamf_view_dispose;
+  object_class->get_property = bamf_view_get_property;
+  object_class->set_property = bamf_view_set_property;
+  
+  pspec = g_param_spec_boolean ("active", "active", "active", FALSE, G_PARAM_READABLE);
+  g_object_class_install_property (object_class, PROP_ACTIVE, pspec);
+
+  pspec = g_param_spec_boolean ("urgent", "urgent", "urgent", FALSE, G_PARAM_READABLE);
+  g_object_class_install_property (object_class, PROP_URGENT, pspec);
+  
+  pspec = g_param_spec_boolean ("running", "running", "running", FALSE, G_PARAM_READABLE);
+  g_object_class_install_property (object_class, PROP_RUNNING, pspec);
+  
+  pspec = g_param_spec_boolean ("user-visible", "user-visible", "user-visible", FALSE, G_PARAM_READABLE);
+  g_object_class_install_property (object_class, PROP_USER_VISIBLE, pspec);
 
   dbus_g_object_type_install_info (BAMF_TYPE_VIEW,
 				   &dbus_glib_bamf_view_object_info);
@@ -507,6 +579,14 @@ bamf_view_class_init (BamfViewClass * klass)
 
   view_signals [CLOSED] =
   	g_signal_new ("closed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__VOID,
+  	              G_TYPE_NONE, 0);
+  
+  view_signals [CLOSED_INTERNAL] =
+  	g_signal_new ("closed-internal",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              0,
   	              0, NULL, NULL,

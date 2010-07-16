@@ -53,7 +53,7 @@
 <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             <a class="link" href="BamfView.html#bamf-view-get-name" title="bamf_view_get_name ()">bamf_view_get_name</a>                  (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
 <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             <a class="link" href="BamfView.html#bamf-view-get-icon" title="bamf_view_get_icon ()">bamf_view_get_icon</a>                  (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
 <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfView.html#bamf-view-user-visible" title="bamf_view_user_visible ()">bamf_view_user_visible</a>              (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
-<a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             <a class="link" href="BamfView.html#bamf-view-get-view-type" title="bamf_view_get_view_type ()">bamf_view_get_view_type</a>             (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
+const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="BamfView.html#bamf-view-get-view-type" title="bamf_view_get_view_type ()">bamf_view_get_view_type</a>             (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
 </pre>
 </div>
 <div class="refsect1" title="Object Hierarchy">
@@ -103,13 +103,13 @@
 <pre class="programlisting">typedef struct {
   GObjectClass parent_class;
   
-  GList      * (*get_children)        (BamfView *view);
-  gboolean     (*is_active)           (BamfView *view);
-  gboolean     (*is_running)          (BamfView *view);
-  gboolean     (*is_urgent)           (BamfView *view);
-  gchar      * (*get_name)            (BamfView *view);
-  gchar      * (*get_icon)            (BamfView *view);
-  gchar      * (*view_type)           (BamfView *view);
+  GList            * (*get_children)        (BamfView *view);
+  gboolean           (*is_active)           (BamfView *view);
+  gboolean           (*is_running)          (BamfView *view);
+  gboolean           (*is_urgent)           (BamfView *view);
+  gchar            * (*get_name)            (BamfView *view);
+  gchar            * (*get_icon)            (BamfView *view);
+  const gchar      * (*view_type)           (BamfView *view);
   
   /*&lt; signals &gt;*/
   void (*active_changed)              (BamfView *view, gboolean active);
@@ -293,7 +293,7 @@ is a concept relating to whether or not a window should be shown in a launcher t
 <hr>
 <div class="refsect2" title="bamf_view_get_view_type ()">
 <a name="bamf-view-get-view-type"></a><h3>bamf_view_get_view_type ()</h3>
-<pre class="programlisting"><a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             bamf_view_get_view_type             (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
+<pre class="programlisting">const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       bamf_view_get_view_type             (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
 The view type of a window is a short string used to represent all views of the same class. These
 descriptions should not be used to do casting as they are not considered stable.
