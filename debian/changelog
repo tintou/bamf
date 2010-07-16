@@ -1,10 +1,10 @@
-bamf (0.2.36-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.36-0ubuntu1) maverick; urgency=low
 
   * New upstream release.
   * debian/libbamf0.symbols:
     - update to latest 
 
- -- Didier Roche <didrocks@ubuntu.com>  Fri, 16 Jul 2010 13:20:49 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 16 Jul 2010 14:44:16 +0200
 
 bamf (0.2.34-0ubuntu1) maverick; urgency=low
 
