@@ -104,7 +104,8 @@ am__objects_2 = libbamf_la-bamf-application.lo \
 	libbamf_la-bamf-control.lo libbamf_la-bamf-matcher.lo \
 	libbamf_la-bamf-view.lo libbamf_la-bamf-window.lo \
 	libbamf_la-bamf-factory.lo libbamf_la-bamf-tab-source.lo \
-	libbamf_la-bamf-tab.lo libbamf_la-bamf-marshal.lo
+	libbamf_la-bamf-tab.lo libbamf_la-bamf-indicator.lo \
+	libbamf_la-bamf-marshal.lo
 am_libbamf_la_OBJECTS = $(am__objects_1) $(am__objects_2)
 libbamf_la_OBJECTS = $(am_libbamf_la_OBJECTS)
 libbamf_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -301,22 +302,24 @@ libbamf_sources = \
   bamf-factory.c \
   bamf-tab-source.c \
   bamf-tab.c \
+  bamf-indicator.c \
   bamf-marshal.c \
   $(NULL)
 
 sources_h = \
   bamf-application.h \
+  bamf-indicator.h \
   bamf-control.h \
   bamf-matcher.h \
   bamf-view.h \
   bamf-window.h \
-  bamf-factory.h \
   bamf-tab-source.h \
   bamf-tab.h \
   libbamf.h \
   $(NULL)
 
 libbamf_la_SOURCES = \
+  bamf-factory.h \
   $(sources_h) \
   $(libbamf_sources) \
   bamf-tab-source-glue.h \
@@ -358,10 +361,9 @@ INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)
 INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
 @HAVE_INTROSPECTION_TRUE@introspection_sources = $(library_include_HEADERS)
 @HAVE_INTROSPECTION_TRUE@Bamf_0_2_gir_INCLUDES = \
-@HAVE_INTROSPECTION_TRUE@	GObject-2.0 \
-@HAVE_INTROSPECTION_TRUE@	Wnck-1.0
+@HAVE_INTROSPECTION_TRUE@	GObject-2.0
 
-@HAVE_INTROSPECTION_TRUE@Bamf_0_2_gir_CFLAGS = --c-include='libbamf/libbamf.h' $(LIBBAMF_CFLAGS) -I ../ $(WNCK_CFLAGS) $(WNCK_LIBS) 
+@HAVE_INTROSPECTION_TRUE@Bamf_0_2_gir_CFLAGS = --c-include='libbamf/libbamf.h' $(LIBBAMF_CFLAGS) -I ../
 @HAVE_INTROSPECTION_TRUE@Bamf_0_2_gir_LIBS = libbamf.la 
 @HAVE_INTROSPECTION_TRUE@Bamf_0_2_gir_FILES = $(addprefix $(srcdir)/, $(introspection_sources))
 @HAVE_INTROSPECTION_TRUE@girdir = $(datadir)/gir-1.0
@@ -454,6 +456,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbamf_la-bamf-application.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbamf_la-bamf-control.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbamf_la-bamf-factory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbamf_la-bamf-indicator.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbamf_la-bamf-marshal.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbamf_la-bamf-matcher.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbamf_la-bamf-tab-source.Plo@am__quote@
@@ -537,6 +540,13 @@ libbamf_la-bamf-tab.lo: bamf-tab.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-tab.c' object='libbamf_la-bamf-tab.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbamf_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libbamf_la-bamf-tab.lo `test -f 'bamf-tab.c' || echo '$(srcdir)/'`bamf-tab.c
+
+libbamf_la-bamf-indicator.lo: bamf-indicator.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbamf_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libbamf_la-bamf-indicator.lo -MD -MP -MF $(DEPDIR)/libbamf_la-bamf-indicator.Tpo -c -o libbamf_la-bamf-indicator.lo `test -f 'bamf-indicator.c' || echo '$(srcdir)/'`bamf-indicator.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libbamf_la-bamf-indicator.Tpo $(DEPDIR)/libbamf_la-bamf-indicator.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-indicator.c' object='libbamf_la-bamf-indicator.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbamf_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libbamf_la-bamf-indicator.lo `test -f 'bamf-indicator.c' || echo '$(srcdir)/'`bamf-indicator.c
 
 libbamf_la-bamf-marshal.lo: bamf-marshal.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbamf_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libbamf_la-bamf-marshal.lo -MD -MP -MF $(DEPDIR)/libbamf_la-bamf-marshal.Tpo -c -o libbamf_la-bamf-marshal.lo `test -f 'bamf-marshal.c' || echo '$(srcdir)/'`bamf-marshal.c
@@ -900,7 +910,7 @@ bamf-tab-source-glue.h: bamf-tab-source-glue.xml
 @HAVE_INTROSPECTION_TRUE@Bamf-0.2.gir: libbamf.la
 
 @HAVE_INTROSPECTION_TRUE@Bamf-0.2.vapi: Bamf-0.2.gir
-@HAVE_INTROSPECTION_TRUE@	$(VALA_API_GEN) --pkg libwnck-1.0 --library=Bamf-0.2 $<
+@HAVE_INTROSPECTION_TRUE@	$(VALA_API_GEN) --library=Bamf-0.2 $<
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

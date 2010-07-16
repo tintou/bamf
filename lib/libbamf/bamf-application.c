@@ -62,7 +62,119 @@ struct _BamfApplicationPrivate
 {
   DBusGConnection *connection;
   DBusGProxy      *proxy;
+  gchar           *application_type;
+  gchar           *desktop_file;
 };
+
+const gchar *
+bamf_application_get_desktop_file (BamfApplication *application)
+{
+  BamfApplicationPrivate *priv;
+  gchar *file;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+  priv = application->priv;
+  
+  if (priv->desktop_file)
+    return priv->desktop_file;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "DesktopFile",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &file,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch path: %s", error->message);
+      g_error_free (error);
+      
+      return NULL;
+    }
+
+  priv->desktop_file = file;
+  return file;
+}
+
+const gchar *
+bamf_application_get_application_type (BamfApplication *application)
+{
+  BamfApplicationPrivate *priv;
+  gchar *type;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+  priv = application->priv;
+
+  if (priv->application_type)
+    return priv->application_type;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "ApplicationType",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &type,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch path: %s", error->message);
+      g_error_free (error);
+      
+      return NULL;
+    }
+  
+  priv->application_type = type;
+  return type;
+}
+
+GArray *
+bamf_application_get_xids (BamfApplication *application)
+{
+  BamfApplicationPrivate *priv;
+  GArray *xids;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+  priv = application->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "Xids",
+                          &error,
+                          G_TYPE_INVALID,
+                          DBUS_TYPE_G_UINT_ARRAY, &xids,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch xids: %s", error->message);
+      g_error_free (error);
+      
+      return NULL;
+    }
+
+  return xids;
+}
+
+GList *
+bamf_application_get_windows (BamfApplication *application)
+{
+  GList *children, *l;
+  GList *windows = NULL;
+  BamfView *view;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
+
+  children = bamf_view_get_children (BAMF_VIEW (application));
+
+  for (l = children; l; l = l->next)
+    {
+      view = l->data;
+    
+      if (BAMF_IS_WINDOW (view));
+        {
+          windows = g_list_prepend (windows, view);
+        }
+    }
+
+  return windows;
+}
 
 static void
 bamf_application_on_window_added (DBusGProxy *proxy, char *path, BamfApplication *self)
@@ -82,6 +194,47 @@ bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplicati
   view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
 
   g_signal_emit (G_OBJECT (self), application_signals[WINDOW_REMOVED], 0, view);
+}
+
+static void
+bamf_application_dispose (GObject *object)
+{
+  BamfApplication *self;
+  BamfApplicationPrivate *priv;
+  
+  self = BAMF_APPLICATION (object);
+  priv = self->priv;
+  
+  if (priv->application_type)
+    {
+      g_free (priv->application_type);
+      priv->application_type = NULL;
+    }
+  
+  if (priv->desktop_file)
+    {
+      g_free (priv->desktop_file);
+      priv->desktop_file = NULL;
+    }  
+  
+  if (priv->proxy)
+    {
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                     "WindowAdded",
+                                     (GCallback) bamf_application_on_window_added,
+                                     self);
+                                     
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                     "WindowRemoved",
+                                     (GCallback) bamf_application_on_window_removed,
+                                     self);
+
+      g_object_unref (priv->proxy);
+      priv->proxy = NULL;
+    }
+
+  if (G_OBJECT_CLASS (bamf_application_parent_class)->dispose)
+    G_OBJECT_CLASS (bamf_application_parent_class)->dispose (object);
 }
 
 static void
@@ -137,6 +290,7 @@ bamf_application_class_init (BamfApplicationClass *klass)
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
   
   obj_class->constructed = bamf_application_constructed;
+  obj_class->dispose     = bamf_application_dispose;
 
   g_type_class_add_private (obj_class, sizeof (BamfApplicationPrivate));
 
@@ -186,106 +340,4 @@ bamf_application_new (const char * path)
   self = g_object_new (BAMF_TYPE_APPLICATION, "path", path, NULL);
 
   return self;
-}
-
-const gchar *
-bamf_application_get_desktop_file (BamfApplication *application)
-{
-  BamfApplicationPrivate *priv;
-  gchar *file;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
-  priv = application->priv;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "DesktopFile",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &file,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch path: %s", error->message);
-      g_error_free (error);
-      
-      return NULL;
-    }
-
-  return file;
-}
-
-const gchar *
-bamf_application_get_application_type (BamfApplication *application)
-{
-  BamfApplicationPrivate *priv;
-  gchar *type;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
-  priv = application->priv;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "ApplicationType",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &type,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch path: %s", error->message);
-      g_error_free (error);
-      
-      return NULL;
-    }
-
-  return type;
-}
-
-GArray *
-bamf_application_get_xids (BamfApplication *application)
-{
-  BamfApplicationPrivate *priv;
-  GArray *xids;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
-  priv = application->priv;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "Xids",
-                          &error,
-                          G_TYPE_INVALID,
-                          DBUS_TYPE_G_UINT_ARRAY, &xids,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch xids: %s", error->message);
-      g_error_free (error);
-      
-      return NULL;
-    }
-
-  return xids;
-}
-
-GList *
-bamf_application_get_windows (BamfApplication *application)
-{
-  GList *children, *l;
-  GList *windows = NULL;
-  BamfView *view;
-
-  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
-
-  children = bamf_view_get_children (BAMF_VIEW (application));
-
-  for (l = children; l; l = l->next)
-    {
-      view = l->data;
-    
-      if (BAMF_IS_WINDOW (view));
-        {
-          windows = g_list_prepend (windows, view);
-        }
-    }
-
-  return windows;
 }

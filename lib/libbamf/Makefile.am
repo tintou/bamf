@@ -16,22 +16,24 @@ libbamf_sources = \
   bamf-factory.c \
   bamf-tab-source.c \
   bamf-tab.c \
+  bamf-indicator.c \
   bamf-marshal.c \
   $(NULL)
 
 sources_h = \
   bamf-application.h \
+  bamf-indicator.h \
   bamf-control.h \
   bamf-matcher.h \
   bamf-view.h \
   bamf-window.h \
-  bamf-factory.h \
   bamf-tab-source.h \
   bamf-tab.h \
   libbamf.h \
   $(NULL)
 
 libbamf_la_SOURCES = \
+  bamf-factory.h \
   $(sources_h) \
   $(libbamf_sources) \
   bamf-tab-source-glue.h \
@@ -101,9 +103,8 @@ introspection_sources = $(library_include_HEADERS)
 
 Bamf-0.2.gir: libbamf.la
 Bamf_0_2_gir_INCLUDES = \
-	GObject-2.0 \
-	Wnck-1.0
-Bamf_0_2_gir_CFLAGS = --c-include='libbamf/libbamf.h' $(LIBBAMF_CFLAGS) -I ../ $(WNCK_CFLAGS) $(WNCK_LIBS) 
+	GObject-2.0
+Bamf_0_2_gir_CFLAGS = --c-include='libbamf/libbamf.h' $(LIBBAMF_CFLAGS) -I ../
 Bamf_0_2_gir_LIBS = libbamf.la 
 Bamf_0_2_gir_FILES = $(addprefix $(srcdir)/, $(introspection_sources))
 
@@ -129,7 +130,7 @@ vapidir = $(datadir)/vala/vapi
 vapi_DATA = Bamf-0.2.vapi
 
 Bamf-0.2.vapi: Bamf-0.2.gir
-	$(VALA_API_GEN) --pkg libwnck-1.0 --library=Bamf-0.2 $<
+	$(VALA_API_GEN) --library=Bamf-0.2 $<
 
 CLEANFILES += $(vapi_DATA)
 

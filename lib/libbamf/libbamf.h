@@ -28,6 +28,7 @@
 
 #include <libbamf/bamf-application.h>
 #include <libbamf/bamf-window.h>
+#include <libbamf/bamf-indicator.h>
 #include <libbamf/bamf-view.h>
 #include <libbamf/bamf-control.h>
 #include <libbamf/bamf-matcher.h>
