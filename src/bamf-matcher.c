@@ -145,7 +145,7 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
   path = bamf_view_export_on_bus (view);
   type = bamf_view_get_view_type (view);
 
-  g_signal_connect (G_OBJECT (view), "closed",
+  g_signal_connect (G_OBJECT (view), "closed-internal",
 	      	    (GCallback) on_view_closed, self);
   g_signal_connect (G_OBJECT (view), "active-changed",
                     (GCallback) on_view_active_changed, self);
@@ -160,7 +160,8 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
 static void
 bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
 {
-  char * path, * type;
+  const char * path;
+  char * type;
 
   path = bamf_view_get_path (view);
   type = bamf_view_get_view_type (view);

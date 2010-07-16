@@ -80,7 +80,7 @@ char    ** bamf_view_get_parent_paths (BamfView *view);
 
 GList    * bamf_view_get_parents        (BamfView *view);
 
-char     * bamf_view_get_path           (BamfView *view);
+const char * bamf_view_get_path           (BamfView *view);
 
 void       bamf_view_add_child          (BamfView *view,
                                          BamfView *child);

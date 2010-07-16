@@ -6,21 +6,12 @@ and/or use gtk-doc annotations.  -->
             xmlns="http://www.gtk.org/introspection/core/1.0"
             xmlns:c="http://www.gtk.org/introspection/c/1.0"
             xmlns:glib="http://www.gtk.org/introspection/glib/1.0">
-  <include name="Atk" version="1.0"/>
   <include name="GLib" version="2.0"/>
-  <include name="GModule" version="2.0"/>
   <include name="GObject" version="2.0"/>
-  <include name="Gdk" version="2.0"/>
-  <include name="GdkPixbuf" version="2.0"/>
-  <include name="Gio" version="2.0"/>
-  <include name="Gtk" version="2.0"/>
-  <include name="Pango" version="1.0"/>
-  <include name="Wnck" version="1.0"/>
-  <include name="cairo" version="1.0"/>
   <c:include name="libbamf/libbamf.h"/>
   <namespace name="Bamf"
              version="0.2"
-             shared-library="libbamf.so.0,libwnck-1.so.22,libgtk-x11-2.0.so.0,libgdk-x11-2.0.so.0,libatk-1.0.so.0,libpangoft2-1.0.so.0,libgdk_pixbuf-2.0.so.0,libm.so.6,libpangocairo-1.0.so.0,libcairo.so.2,libpango-1.0.so.0,libfreetype.so.6,libfontconfig.so.1,libgio-2.0.so.0,libgobject-2.0.so.0,libgmodule-2.0.so.0,libgthread-2.0.so.0,librt.so.1,libglib-2.0.so.0"
+             shared-library="libbamf.so.0"
              c:prefix="Bamf">
     <class name="Application"
            c:type="BamfApplication"
@@ -243,42 +234,87 @@ none exists, the result is NULL.">
     </record>
     <record name="ControlPrivate" c:type="BamfControlPrivate">
     </record>
-    <class name="Factory"
-           c:type="BamfFactory"
-           parent="GObject.Object"
-           glib:type-name="BamfFactory"
-           glib:get-type="bamf_factory_get_type"
-           glib:type-struct="FactoryClass">
-      <function name="get_default" c:identifier="bamf_factory_get_default">
-        <return-value transfer-ownership="full">
-          <type name="Factory" c:type="BamfFactory*"/>
+    <class name="Indicator"
+           c:type="BamfIndicator"
+           parent="View"
+           glib:type-name="BamfIndicator"
+           glib:get-type="bamf_indicator_get_type"
+           glib:type-struct="IndicatorClass">
+      <method name="get_remote_path"
+              c:identifier="bamf_indicator_get_remote_path">
+        <return-value transfer-ownership="none">
+          <type name="utf8" c:type="gchar*"/>
         </return-value>
-      </function>
-      <method name="view_for_path" c:identifier="bamf_factory_view_for_path">
-        <return-value transfer-ownership="full">
-          <type name="View" c:type="BamfView*"/>
+      </method>
+      <method name="get_remote_address"
+              c:identifier="bamf_indicator_get_remote_address">
+        <return-value transfer-ownership="none">
+          <type name="utf8" c:type="gchar*"/>
         </return-value>
-        <parameters>
-          <parameter name="path" transfer-ownership="none">
-            <type name="utf8" c:type="char*"/>
-          </parameter>
-        </parameters>
+      </method>
+      <method name="get_dbus_menu_path"
+              c:identifier="bamf_indicator_get_dbus_menu_path">
+        <return-value transfer-ownership="none">
+          <type name="utf8" c:type="gchar*"/>
+        </return-value>
       </method>
       <field name="parent">
-        <type name="GObject.Object" c:type="GObject"/>
+        <type name="View" c:type="BamfView"/>
       </field>
       <field name="priv">
-        <type name="FactoryPrivate" c:type="BamfFactoryPrivate*"/>
+        <type name="IndicatorPrivate" c:type="BamfIndicatorPrivate*"/>
       </field>
     </class>
-    <record name="FactoryClass"
-            c:type="BamfFactoryClass"
-            glib:is-gtype-struct-for="Factory">
+    <record name="IndicatorClass"
+            c:type="BamfIndicatorClass"
+            glib:is-gtype-struct-for="Indicator">
       <field name="parent_class">
-        <type name="GObject.ObjectClass" c:type="GObjectClass"/>
+        <type name="ViewClass" c:type="BamfViewClass"/>
+      </field>
+      <field name="indicator_padding1">
+        <callback name="indicator_padding1" c:type="_indicator_padding1">
+          <return-value transfer-ownership="none">
+            <type name="none" c:type="void"/>
+          </return-value>
+        </callback>
+      </field>
+      <field name="indicator_padding2">
+        <callback name="indicator_padding2" c:type="_indicator_padding2">
+          <return-value transfer-ownership="none">
+            <type name="none" c:type="void"/>
+          </return-value>
+        </callback>
+      </field>
+      <field name="indicator_padding3">
+        <callback name="indicator_padding3" c:type="_indicator_padding3">
+          <return-value transfer-ownership="none">
+            <type name="none" c:type="void"/>
+          </return-value>
+        </callback>
+      </field>
+      <field name="indicator_padding4">
+        <callback name="indicator_padding4" c:type="_indicator_padding4">
+          <return-value transfer-ownership="none">
+            <type name="none" c:type="void"/>
+          </return-value>
+        </callback>
+      </field>
+      <field name="indicator_padding5">
+        <callback name="indicator_padding5" c:type="_indicator_padding5">
+          <return-value transfer-ownership="none">
+            <type name="none" c:type="void"/>
+          </return-value>
+        </callback>
+      </field>
+      <field name="indicator_padding6">
+        <callback name="indicator_padding6" c:type="_indicator_padding6">
+          <return-value transfer-ownership="none">
+            <type name="none" c:type="void"/>
+          </return-value>
+        </callback>
       </field>
     </record>
-    <record name="FactoryPrivate" c:type="BamfFactoryPrivate">
+    <record name="IndicatorPrivate" c:type="BamfIndicatorPrivate">
     </record>
     <class name="Matcher"
            c:type="BamfMatcher"
@@ -930,7 +966,7 @@ none exists, the result is NULL.">
         </return-value>
       </virtual-method>
       <virtual-method name="view_type">
-        <return-value transfer-ownership="full">
+        <return-value transfer-ownership="none">
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </virtual-method>
@@ -1148,7 +1184,7 @@ descriptions should not be used to do casting as they are not considered stable.
       </field>
       <field name="view_type">
         <callback name="view_type" c:type="view_type">
-          <return-value transfer-ownership="full">
+          <return-value transfer-ownership="none">
             <type name="utf8" c:type="gchar*"/>
           </return-value>
           <parameters>

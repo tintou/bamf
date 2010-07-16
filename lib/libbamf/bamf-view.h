@@ -63,13 +63,13 @@ struct _BamfViewClass
 {
   GObjectClass parent_class;
   
-  GList      * (*get_children)        (BamfView *view);
-  gboolean     (*is_active)           (BamfView *view);
-  gboolean     (*is_running)          (BamfView *view);
-  gboolean     (*is_urgent)           (BamfView *view);
-  gchar      * (*get_name)            (BamfView *view);
-  gchar      * (*get_icon)            (BamfView *view);
-  gchar      * (*view_type)           (BamfView *view);
+  GList            * (*get_children)        (BamfView *view);
+  gboolean           (*is_active)           (BamfView *view);
+  gboolean           (*is_running)          (BamfView *view);
+  gboolean           (*is_urgent)           (BamfView *view);
+  gchar            * (*get_name)            (BamfView *view);
+  gchar            * (*get_icon)            (BamfView *view);
+  const gchar      * (*view_type)           (BamfView *view);
   
   /*< signals >*/
   void (*active_changed)              (BamfView *view, gboolean active);
@@ -160,7 +160,7 @@ gboolean   bamf_view_user_visible  (BamfView *view);
  *
  * Returns: (transfer full): A gchar*
  */
-gchar    * bamf_view_get_view_type (BamfView *view);
+const gchar    * bamf_view_get_view_type (BamfView *view);
 
 G_END_DECLS
 
