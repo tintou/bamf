@@ -400,7 +400,7 @@ bamf_view_on_child_removed (DBusGProxy *proxy, char *path, BamfView *self)
 
   view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
 
-  g_signal_emit (G_OBJECT (self), view_signals[CHILD_ADDED], 0, view);
+  g_signal_emit (G_OBJECT (self), view_signals[CHILD_REMOVED], 0, view);
 }
 
 static void
