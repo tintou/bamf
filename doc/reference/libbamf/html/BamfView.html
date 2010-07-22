@@ -8,7 +8,7 @@
 <link rel="up" href="ch01.html" title="Classes">
 <link rel="prev" href="BamfTabSource.html" title="BamfTabSource">
 <link rel="next" href="BamfApplication.html" title="BamfApplication">
-<meta name="generator" content="GTK-Doc V1.15 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.14 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -68,7 +68,11 @@ const <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span c
 <div class="refsect1" title="Properties">
 <a name="BamfView.properties"></a><h2>Properties</h2>
 <pre class="synopsis">
+  "<a class="link" href="BamfView.html#BamfView--active" title='The "active" property'>active</a>"                   <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read
   "<a class="link" href="BamfView.html#BamfView--path" title='The "path" property'>path</a>"                     <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write / Construct
+  "<a class="link" href="BamfView.html#BamfView--running" title='The "running" property'>running</a>"                  <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read
+  "<a class="link" href="BamfView.html#BamfView--urgent" title='The "urgent" property'>urgent</a>"                   <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read
+  "<a class="link" href="BamfView.html#BamfView--user-visible" title='The "user-visible" property'>user-visible</a>"             <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read
 </pre>
 </div>
 <div class="refsect1" title="Signals">
@@ -149,8 +153,7 @@ Note: Makes sever dbus calls the first time this is called on a view. Dbus messa
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
 <td> Returns a list of <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> which must be
-          freed after usage. Elements of the list are owned by bamf and should not be unreffed. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> Bamf.View][<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym> Bamf.View]</span>
-</td>
+          freed after usage. Elements of the list are owned by bamf and should not be unreffed.. <acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> Bamf.View. <acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym> Bamf.View. </td>
 </tr>
 </tbody>
 </table></div>
@@ -308,8 +311,7 @@ descriptions should not be used to do casting as they are not considered stable.
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> A gchar*. <span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span>
-</td>
+<td> A gchar*. <acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>. </td>
 </tr>
 </tbody>
 </table></div>
@@ -317,11 +319,39 @@ descriptions should not be used to do casting as they are not considered stable.
 </div>
 <div class="refsect1" title="Property Details">
 <a name="BamfView.property-details"></a><h2>Property Details</h2>
+<div class="refsect2" title='The "active" property'>
+<a name="BamfView--active"></a><h3>The <code class="literal">"active"</code> property</h3>
+<pre class="programlisting">  "active"                   <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read</pre>
+<p>active.</p>
+<p>Default value: FALSE</p>
+</div>
+<hr>
 <div class="refsect2" title='The "path" property'>
 <a name="BamfView--path"></a><h3>The <code class="literal">"path"</code> property</h3>
 <pre class="programlisting">  "path"                     <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write / Construct</pre>
 <p>path.</p>
 <p>Default value: NULL</p>
+</div>
+<hr>
+<div class="refsect2" title='The "running" property'>
+<a name="BamfView--running"></a><h3>The <code class="literal">"running"</code> property</h3>
+<pre class="programlisting">  "running"                  <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read</pre>
+<p>running.</p>
+<p>Default value: FALSE</p>
+</div>
+<hr>
+<div class="refsect2" title='The "urgent" property'>
+<a name="BamfView--urgent"></a><h3>The <code class="literal">"urgent"</code> property</h3>
+<pre class="programlisting">  "urgent"                   <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read</pre>
+<p>urgent.</p>
+<p>Default value: FALSE</p>
+</div>
+<hr>
+<div class="refsect2" title='The "user-visible" property'>
+<a name="BamfView--user-visible"></a><h3>The <code class="literal">"user-visible"</code> property</h3>
+<pre class="programlisting">  "user-visible"             <a href="/usr/share/gtk-doc/html/glib/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read</pre>
+<p>user-visible.</p>
+<p>Default value: FALSE</p>
 </div>
 </div>
 <div class="refsect1" title="Signal Details">
@@ -519,6 +549,6 @@ descriptions should not be used to do casting as they are not considered stable.
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.15</div>
+          Generated by GTK-Doc V1.14</div>
 </body>
 </html>

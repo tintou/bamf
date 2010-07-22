@@ -29,7 +29,9 @@
 <ANCHOR id="BamfWindow-struct" href="libbamf/BamfWindow.html#BamfWindow-struct">
 <ANCHOR id="BamfWindowClass" href="libbamf/BamfWindow.html#BamfWindowClass">
 <ANCHOR id="BamfWindowPrivate" href="libbamf/BamfWindow.html#BamfWindowPrivate">
+<ANCHOR id="bamf-window-get-transient" href="libbamf/BamfWindow.html#bamf-window-get-transient">
 <ANCHOR id="bamf-window-get-xid" href="libbamf/BamfWindow.html#bamf-window-get-xid">
+<ANCHOR id="bamf-window-last-active" href="libbamf/BamfWindow.html#bamf-window-last-active">
 <ANCHOR id="BamfFactory" href="libbamf/BamfFactory.html">
 <ANCHOR id="BamfFactory.synopsis" href="libbamf/BamfFactory.html#BamfFactory.synopsis">
 <ANCHOR id="BamfFactory.object-hierarchy" href="libbamf/BamfFactory.html#BamfFactory.object-hierarchy">
@@ -93,7 +95,11 @@
 <ANCHOR id="bamf-view-user-visible" href="libbamf/BamfView.html#bamf-view-user-visible">
 <ANCHOR id="bamf-view-get-view-type" href="libbamf/BamfView.html#bamf-view-get-view-type">
 <ANCHOR id="BamfView.property-details" href="libbamf/BamfView.html#BamfView.property-details">
+<ANCHOR id="BamfView--active" href="libbamf/BamfView.html#BamfView--active">
 <ANCHOR id="BamfView--path" href="libbamf/BamfView.html#BamfView--path">
+<ANCHOR id="BamfView--running" href="libbamf/BamfView.html#BamfView--running">
+<ANCHOR id="BamfView--urgent" href="libbamf/BamfView.html#BamfView--urgent">
+<ANCHOR id="BamfView--user-visible" href="libbamf/BamfView.html#BamfView--user-visible">
 <ANCHOR id="BamfView.signal-details" href="libbamf/BamfView.html#BamfView.signal-details">
 <ANCHOR id="BamfView-active-changed" href="libbamf/BamfView.html#BamfView-active-changed">
 <ANCHOR id="BamfView-child-added" href="libbamf/BamfView.html#BamfView-child-added">

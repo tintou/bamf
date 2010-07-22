@@ -35,7 +35,9 @@
     <keyword type="struct" name="BamfWindow" link="BamfWindow.html#BamfWindow-struct"/>
     <keyword type="struct" name="BamfWindowClass" link="BamfWindow.html#BamfWindowClass"/>
     <keyword type="struct" name="BamfWindowPrivate" link="BamfWindow.html#BamfWindowPrivate"/>
+    <keyword type="function" name="bamf_window_get_transient ()" link="BamfWindow.html#bamf-window-get-transient"/>
     <keyword type="function" name="bamf_window_get_xid ()" link="BamfWindow.html#bamf-window-get-xid"/>
+    <keyword type="function" name="bamf_window_last_active ()" link="BamfWindow.html#bamf-window-last-active"/>
     <keyword type="struct" name="BamfFactory" link="BamfFactory.html#BamfFactory-struct"/>
     <keyword type="struct" name="BamfFactoryClass" link="BamfFactory.html#BamfFactoryClass"/>
     <keyword type="struct" name="BamfFactoryPrivate" link="BamfFactory.html#BamfFactoryPrivate"/>
@@ -72,7 +74,11 @@
     <keyword type="function" name="bamf_view_get_icon ()" link="BamfView.html#bamf-view-get-icon"/>
     <keyword type="function" name="bamf_view_user_visible ()" link="BamfView.html#bamf-view-user-visible"/>
     <keyword type="function" name="bamf_view_get_view_type ()" link="BamfView.html#bamf-view-get-view-type"/>
+    <keyword type="property" name="The &quot;active&quot; property" link="BamfView.html#BamfView--active"/>
     <keyword type="property" name="The &quot;path&quot; property" link="BamfView.html#BamfView--path"/>
+    <keyword type="property" name="The &quot;running&quot; property" link="BamfView.html#BamfView--running"/>
+    <keyword type="property" name="The &quot;urgent&quot; property" link="BamfView.html#BamfView--urgent"/>
+    <keyword type="property" name="The &quot;user-visible&quot; property" link="BamfView.html#BamfView--user-visible"/>
     <keyword type="signal" name="The &quot;active-changed&quot; signal" link="BamfView.html#BamfView-active-changed"/>
     <keyword type="signal" name="The &quot;child-added&quot; signal" link="BamfView.html#BamfView-child-added"/>
     <keyword type="signal" name="The &quot;child-removed&quot; signal" link="BamfView.html#BamfView-child-removed"/>
