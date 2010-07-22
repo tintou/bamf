@@ -35,7 +35,9 @@
     <function name="BamfWindow" link="BamfWindow.html#BamfWindow-struct"/>
     <function name="BamfWindowClass" link="BamfWindow.html#BamfWindowClass"/>
     <function name="BamfWindowPrivate" link="BamfWindow.html#BamfWindowPrivate"/>
+    <function name="bamf_window_get_transient ()" link="BamfWindow.html#bamf-window-get-transient"/>
     <function name="bamf_window_get_xid ()" link="BamfWindow.html#bamf-window-get-xid"/>
+    <function name="bamf_window_last_active ()" link="BamfWindow.html#bamf-window-last-active"/>
     <function name="BamfFactory" link="BamfFactory.html#BamfFactory-struct"/>
     <function name="BamfFactoryClass" link="BamfFactory.html#BamfFactoryClass"/>
     <function name="BamfFactoryPrivate" link="BamfFactory.html#BamfFactoryPrivate"/>
@@ -72,7 +74,11 @@
     <function name="bamf_view_get_icon ()" link="BamfView.html#bamf-view-get-icon"/>
     <function name="bamf_view_user_visible ()" link="BamfView.html#bamf-view-user-visible"/>
     <function name="bamf_view_get_view_type ()" link="BamfView.html#bamf-view-get-view-type"/>
+    <function name="The &quot;active&quot; property" link="BamfView.html#BamfView--active"/>
     <function name="The &quot;path&quot; property" link="BamfView.html#BamfView--path"/>
+    <function name="The &quot;running&quot; property" link="BamfView.html#BamfView--running"/>
+    <function name="The &quot;urgent&quot; property" link="BamfView.html#BamfView--urgent"/>
+    <function name="The &quot;user-visible&quot; property" link="BamfView.html#BamfView--user-visible"/>
     <function name="The &quot;active-changed&quot; signal" link="BamfView.html#BamfView-active-changed"/>
     <function name="The &quot;child-added&quot; signal" link="BamfView.html#BamfView-child-added"/>
     <function name="The &quot;child-removed&quot; signal" link="BamfView.html#BamfView-child-removed"/>

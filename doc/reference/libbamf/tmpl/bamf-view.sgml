@@ -81,7 +81,27 @@ BamfView
 @bamfview: the object which received the signal.
 @arg1: 
 
+<!-- ##### ARG BamfView:active ##### -->
+<para>
+
+</para>
+
 <!-- ##### ARG BamfView:path ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG BamfView:running ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG BamfView:urgent ##### -->
+<para>
+
+</para>
+
+<!-- ##### ARG BamfView:user-visible ##### -->
 <para>
 
 </para>

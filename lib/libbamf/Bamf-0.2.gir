@@ -47,8 +47,7 @@ none exists, the result is NULL.">
               c:identifier="bamf_application_get_xids"
               doc="Used to fetch all #BamfWindow&apos;s xids associated with the passed #BamfApplication.">
         <return-value transfer-ownership="full" doc="An array of xids.">
-          <array name="GLib.Array" c:type="GArray*">
-          </array>
+          <type name="GLib.Array" c:type="GArray*"/>
         </return-value>
       </method>
       <field name="parent">
@@ -397,8 +396,7 @@ none exists, the result is NULL.">
       <method name="get_xids_for_application"
               c:identifier="bamf_matcher_get_xids_for_application">
         <return-value transfer-ownership="full">
-          <array name="GLib.Array" c:type="GArray*">
-          </array>
+          <type name="GLib.Array" c:type="GArray*"/>
         </return-value>
         <parameters>
           <parameter name="application" transfer-ownership="none">
@@ -718,8 +716,7 @@ none exists, the result is NULL.">
       </virtual-method>
       <virtual-method name="tab_preview">
         <return-value transfer-ownership="full">
-          <array name="GLib.Array" c:type="GArray*">
-          </array>
+          <type name="GLib.Array" c:type="GArray*"/>
         </return-value>
         <parameters>
           <parameter name="tab_id" transfer-ownership="full">
@@ -770,8 +767,7 @@ none exists, the result is NULL.">
       <method name="get_tab_preview"
               c:identifier="bamf_tab_source_get_tab_preview">
         <return-value transfer-ownership="full">
-          <array name="GLib.Array" c:type="GArray*">
-          </array>
+          <type name="GLib.Array" c:type="GArray*"/>
         </return-value>
         <parameters>
           <parameter name="tab_id" transfer-ownership="full">
@@ -883,8 +879,7 @@ none exists, the result is NULL.">
       <field name="tab_preview">
         <callback name="tab_preview" c:type="tab_preview">
           <return-value transfer-ownership="full">
-            <array name="GLib.Array" c:type="GArray*">
-            </array>
+            <type name="GLib.Array" c:type="GArray*"/>
           </return-value>
           <parameters>
             <parameter name="source" transfer-ownership="none">
@@ -1029,8 +1024,20 @@ descriptions should not be used to do casting as they are not considered stable.
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </method>
+      <property name="active">
+        <type name="boolean" c:type="gboolean"/>
+      </property>
       <property name="path" writable="1" construct="1">
         <type name="utf8" c:type="gchararray"/>
+      </property>
+      <property name="running">
+        <type name="boolean" c:type="gboolean"/>
+      </property>
+      <property name="urgent">
+        <type name="boolean" c:type="gboolean"/>
+      </property>
+      <property name="user-visible">
+        <type name="boolean" c:type="gboolean"/>
       </property>
       <field name="parent">
         <type name="GObject.Object" c:type="GObject"/>
