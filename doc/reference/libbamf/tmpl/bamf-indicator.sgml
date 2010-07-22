@@ -1,5 +1,5 @@
 <!-- ##### SECTION Title ##### -->
-BamfWindow
+BamfIndicator
 
 <!-- ##### SECTION Short_Description ##### -->
 
@@ -20,35 +20,28 @@ BamfWindow
 <!-- ##### SECTION Image ##### -->
 
 
-<!-- ##### STRUCT BamfWindow ##### -->
+<!-- ##### STRUCT BamfIndicator ##### -->
 <para>
 
 </para>
 
+@parent: 
+@priv: 
 
-<!-- ##### STRUCT BamfWindowClass ##### -->
+<!-- ##### STRUCT BamfIndicatorClass ##### -->
 <para>
 
 </para>
 
 @parent_class: 
 
-<!-- ##### STRUCT BamfWindowPrivate ##### -->
+<!-- ##### STRUCT BamfIndicatorPrivate ##### -->
 <para>
 
 </para>
 
 
-<!-- ##### FUNCTION bamf_window_get_transient ##### -->
-<para>
-
-</para>
-
-@self: 
-@Returns: 
-
-
-<!-- ##### FUNCTION bamf_window_get_xid ##### -->
+<!-- ##### FUNCTION bamf_indicator_get_remote_path ##### -->
 <para>
 
 </para>
@@ -57,7 +50,16 @@ BamfWindow
 @Returns: 
 
 
-<!-- ##### FUNCTION bamf_window_last_active ##### -->
+<!-- ##### FUNCTION bamf_indicator_get_remote_address ##### -->
+<para>
+
+</para>
+
+@self: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_indicator_get_dbus_menu_path ##### -->
 <para>
 
 </para>
