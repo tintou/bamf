@@ -86,8 +86,24 @@ GType             bamf_matcher_get_type                 (void) G_GNUC_CONST;
  */
 BamfMatcher     * bamf_matcher_get_default              (void);
 
+/**
+ * bamf_matcher_get_active_application:
+ * @matcher: a #BamfMatcher
+ *
+ * Used to fetch the active #BamfApplication.
+ *
+ * Returns: (transfer none): The active #BamfApplication.
+ */
 BamfApplication * bamf_matcher_get_active_application   (BamfMatcher *matcher);
 
+/**
+ * bamf_matcher_get_active_window:
+ * @matcher: a #BamfMatcher
+ *
+ * Used to fetch the active #BamfWindow.
+ *
+ * Returns: (transfer none): The active #BamfWindow.
+ */
 BamfWindow      * bamf_matcher_get_active_window        (BamfMatcher *matcher);
 
 /**
@@ -144,7 +160,7 @@ GList *           bamf_matcher_get_tabs                 (BamfMatcher *matcher);
  * Used to fetch all xid's associated with an application. Useful for performing window
  * 
  *
- * Returns: (element-type guint32) (transfer container): A list of xids.
+ * Returns: (element-type guint32) (transfer none): A list of xids.
  */
 GArray *          bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
                                                          const gchar *application);
