@@ -1,8 +1,8 @@
-bamf (0.2.40-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.40-0ubuntu1) maverick; urgency=low
 
   * New upstream release.
 
- -- Didier Roche <didrocks@ubuntu.com>  Mon, 02 Aug 2010 13:55:38 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Mon, 02 Aug 2010 15:54:41 +0200
 
 bamf (0.2.38-0ubuntu1) maverick; urgency=low
 
