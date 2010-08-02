@@ -47,7 +47,8 @@ none exists, the result is NULL.">
               c:identifier="bamf_application_get_xids"
               doc="Used to fetch all #BamfWindow&apos;s xids associated with the passed #BamfApplication.">
         <return-value transfer-ownership="full" doc="An array of xids.">
-          <type name="GLib.Array" c:type="GArray*"/>
+          <array name="GLib.Array" c:type="GArray*">
+          </array>
         </return-value>
       </method>
       <field name="parent">
@@ -329,14 +330,17 @@ none exists, the result is NULL.">
         </return-value>
       </function>
       <method name="get_active_application"
-              c:identifier="bamf_matcher_get_active_application">
-        <return-value transfer-ownership="full">
+              c:identifier="bamf_matcher_get_active_application"
+              doc="Used to fetch the active #BamfApplication.">
+        <return-value transfer-ownership="none"
+                      doc="The active #BamfApplication.">
           <type name="Application" c:type="BamfApplication*"/>
         </return-value>
       </method>
       <method name="get_active_window"
-              c:identifier="bamf_matcher_get_active_window">
-        <return-value transfer-ownership="full">
+              c:identifier="bamf_matcher_get_active_window"
+              doc="Used to fetch the active #BamfWindow.">
+        <return-value transfer-ownership="none" doc="The active #BamfWindow.">
           <type name="Window" c:type="BamfWindow*"/>
         </return-value>
       </method>
@@ -367,7 +371,7 @@ none exists, the result is NULL.">
       <method name="get_applications"
               c:identifier="bamf_matcher_get_applications"
               doc="Used to fetch all xid&apos;s associated with an application. Useful for performing window">
-        <return-value transfer-ownership="container" doc="A list of xids.">
+        <return-value transfer-ownership="none" doc="A list of xids.">
           <type name="GLib.List" c:type="GList*">
             <type name="uint32"/>
           </type>
@@ -396,7 +400,8 @@ none exists, the result is NULL.">
       <method name="get_xids_for_application"
               c:identifier="bamf_matcher_get_xids_for_application">
         <return-value transfer-ownership="full">
-          <type name="GLib.Array" c:type="GArray*"/>
+          <array name="GLib.Array" c:type="GArray*">
+          </array>
         </return-value>
         <parameters>
           <parameter name="application" transfer-ownership="none">
@@ -716,7 +721,8 @@ none exists, the result is NULL.">
       </virtual-method>
       <virtual-method name="tab_preview">
         <return-value transfer-ownership="full">
-          <type name="GLib.Array" c:type="GArray*"/>
+          <array name="GLib.Array" c:type="GArray*">
+          </array>
         </return-value>
         <parameters>
           <parameter name="tab_id" transfer-ownership="full">
@@ -767,7 +773,8 @@ none exists, the result is NULL.">
       <method name="get_tab_preview"
               c:identifier="bamf_tab_source_get_tab_preview">
         <return-value transfer-ownership="full">
-          <type name="GLib.Array" c:type="GArray*"/>
+          <array name="GLib.Array" c:type="GArray*">
+          </array>
         </return-value>
         <parameters>
           <parameter name="tab_id" transfer-ownership="full">
@@ -879,7 +886,8 @@ none exists, the result is NULL.">
       <field name="tab_preview">
         <callback name="tab_preview" c:type="tab_preview">
           <return-value transfer-ownership="full">
-            <type name="GLib.Array" c:type="GArray*"/>
+            <array name="GLib.Array" c:type="GArray*">
+            </array>
           </return-value>
           <parameters>
             <parameter name="source" transfer-ownership="none">
