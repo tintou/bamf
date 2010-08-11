@@ -9,6 +9,7 @@ LDFLAGS += -Wl,-z,defs -Wl,--as-needed
 DEB_CONFIGURE_EXTRA_FLAGS += --enable-introspection=no --enable-gtk-doc
 DEB_DBG_PACKAGE_bamfdaemon = bamf-dbg
 DEB_DBG_PACKAGE_libbamf0 = bamf-dbg
+DEB_MAKE_CHECK_TARGET := check
 
 common-binary-post-install-arch::
 	find debian/tmp/usr/lib -name \*.la -exec rm {} \;
