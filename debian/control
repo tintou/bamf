@@ -19,7 +19,7 @@ Build-Depends: debhelper (>= 5.0),
                gir1.0-wnck-1.0,
                gir-repository-dev,
                valac,
-Standards-Version: 3.8.4
+Standards-Version: 3.9.1
 Homepage: https://launchpad.net/bamf
 
 Package: bamfdaemon

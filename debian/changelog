@@ -2,6 +2,8 @@ bamf (0.2.40-0ubuntu2) UNRELEASED; urgency=low
 
   * debian/rules:
     - enjoying and running testsuite during build (LP: #586340)
+  * debian/control:
+    - bumping Standards-Version to latest
 
  -- Didier Roche <didrocks@ubuntu.com>  Wed, 11 Aug 2010 18:06:31 +0200
 
