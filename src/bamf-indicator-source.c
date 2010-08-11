@@ -181,20 +181,20 @@ bamf_indicator_source_register_notification_approver (BamfIndicatorSource *self)
         }
       else
         {
-          g_warning ("Failed to register as approver: %s\n", error->message);
+          g_debug ("Failed to register as approver: %s\n", error->message);
           g_error_free (error);
         }
     }
   else
     {
-      g_warning ("Failed to get notification approver proxy: %s\n", error->message);
+      g_debug ("Failed to get notification approver proxy: %s\n", error->message);
       g_error_free (error);
     }
   retry_count++;
       
   if (retry_count > 10)
     {
-      g_warning ("Retry count expired\n");
+      g_debug ("Retry count expired\n");
       return FALSE;
     }
   
@@ -232,7 +232,7 @@ bamf_indicator_source_constructed (GObject *object)
   dbus_g_connection_register_g_object (bus, BAMF_INDICATOR_SOURCE_PATH, object);
   
   if (bamf_indicator_source_register_notification_approver (self))
-    g_timeout_add (10 * 1000, (GSourceFunc) bamf_indicator_source_register_notification_approver, self);
+    g_timeout_add (2 * 1000, (GSourceFunc) bamf_indicator_source_register_notification_approver, self);
 }
 
 static void
