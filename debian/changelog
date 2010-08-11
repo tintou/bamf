@@ -1,3 +1,10 @@
+bamf (0.2.40-0ubuntu2) UNRELEASED; urgency=low
+
+  * debian/rules:
+    - enjoying and running testsuite during build (LP: #586340)
+
+ -- Didier Roche <didrocks@ubuntu.com>  Wed, 11 Aug 2010 18:06:31 +0200
+
 bamf (0.2.40-0ubuntu1) maverick; urgency=low
 
   * New upstream release.
@@ -6,7 +13,6 @@ bamf (0.2.40-0ubuntu1) maverick; urgency=low
 
 bamf (0.2.38-0ubuntu1) maverick; urgency=low
 
-  * New upstream release.
   * New upstream release.
 
  -- Didier Roche <didrocks@ubuntu.com>  Thu, 22 Jul 2010 19:07:31 +0200
