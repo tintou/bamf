@@ -1,4 +1,4 @@
-bamf (0.2.42-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.42-0ubuntu1) maverick; urgency=low
 
   * New upstream release.
   * debian/rules:
@@ -7,7 +7,7 @@ bamf (0.2.42-0ubuntu1) UNRELEASED; urgency=low
     - bumping Standards-Version to latest
     - remove gir-repository-dev from build-dep
 
- -- Didier Roche <didrocks@ubuntu.com>  Fri, 13 Aug 2010 12:02:31 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 13 Aug 2010 12:44:39 +0200
 
 bamf (0.2.40-0ubuntu1) maverick; urgency=low
 
