@@ -2,7 +2,7 @@
 <!-- This file was automatically generated from C sources - DO NOT EDIT!
 To affect the contents of this file, edit the original C definitions,
 and/or use gtk-doc annotations.  -->
-<repository version="1.0"
+<repository version="1.1"
             xmlns="http://www.gtk.org/introspection/core/1.0"
             xmlns:c="http://www.gtk.org/introspection/c/1.0"
             xmlns:glib="http://www.gtk.org/introspection/glib/1.0">
@@ -26,28 +26,29 @@ and/or use gtk-doc annotations.  -->
         </return-value>
       </method>
       <method name="get_desktop_file"
-              c:identifier="bamf_application_get_desktop_file"
-              doc="Used to fetch the path to the .desktop file associated with the passed application. If
-none exists, the result is NULL.">
+              c:identifier="bamf_application_get_desktop_file">
+        <doc xml:whitespace="preserve">Used to fetch the path to the .desktop file associated with the passed application. If
+none exists, the result is NULL.</doc>
         <return-value transfer-ownership="none">
+          <doc xml:whitespace="preserve">A string representing the path to the desktop file.</doc>
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </method>
-      <method name="get_windows"
-              c:identifier="bamf_application_get_windows"
-              doc="Used to fetch all #BamfWindow&apos;s associated with the passed #BamfApplication.">
-        <return-value transfer-ownership="container"
-                      doc="A list of #BamfWindow&apos;s.">
+      <method name="get_windows" c:identifier="bamf_application_get_windows">
+        <doc xml:whitespace="preserve">Used to fetch all #BamfWindow's associated with the passed #BamfApplication.</doc>
+        <return-value transfer-ownership="container">
+          <doc xml:whitespace="preserve">A list of #BamfWindow's.</doc>
           <type name="GLib.List" c:type="GList*">
             <type name="Bamf.Window"/>
           </type>
         </return-value>
       </method>
-      <method name="get_xids"
-              c:identifier="bamf_application_get_xids"
-              doc="Used to fetch all #BamfWindow&apos;s xids associated with the passed #BamfApplication.">
-        <return-value transfer-ownership="full" doc="An array of xids.">
+      <method name="get_xids" c:identifier="bamf_application_get_xids">
+        <doc xml:whitespace="preserve">Used to fetch all #BamfWindow's xids associated with the passed #BamfApplication.</doc>
+        <return-value transfer-ownership="full">
+          <doc xml:whitespace="preserve">An array of xids.</doc>
           <array name="GLib.Array" c:type="GArray*">
+            <type name="any" c:type="gpointer"/>
           </array>
         </return-value>
       </method>
@@ -322,33 +323,34 @@ none exists, the result is NULL.">
            glib:type-name="BamfMatcher"
            glib:get-type="bamf_matcher_get_type"
            glib:type-struct="MatcherClass">
-      <function name="get_default"
-                c:identifier="bamf_matcher_get_default"
-                doc="Returns the default matcher. This matcher is owned by bamf and shared between other callers.">
-        <return-value transfer-ownership="none" doc="A new #BamfMatcher">
+      <function name="get_default" c:identifier="bamf_matcher_get_default">
+        <doc xml:whitespace="preserve">Returns the default matcher. This matcher is owned by bamf and shared between other callers.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:whitespace="preserve">A new #BamfMatcher</doc>
           <type name="Matcher" c:type="BamfMatcher*"/>
         </return-value>
       </function>
       <method name="get_active_application"
-              c:identifier="bamf_matcher_get_active_application"
-              doc="Used to fetch the active #BamfApplication.">
-        <return-value transfer-ownership="none"
-                      doc="The active #BamfApplication.">
+              c:identifier="bamf_matcher_get_active_application">
+        <doc xml:whitespace="preserve">Used to fetch the active #BamfApplication.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:whitespace="preserve">The active #BamfApplication.</doc>
           <type name="Application" c:type="BamfApplication*"/>
         </return-value>
       </method>
       <method name="get_active_window"
-              c:identifier="bamf_matcher_get_active_window"
-              doc="Used to fetch the active #BamfWindow.">
-        <return-value transfer-ownership="none" doc="The active #BamfWindow.">
+              c:identifier="bamf_matcher_get_active_window">
+        <doc xml:whitespace="preserve">Used to fetch the active #BamfWindow.</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:whitespace="preserve">The active #BamfWindow.</doc>
           <type name="Window" c:type="BamfWindow*"/>
         </return-value>
       </method>
       <method name="get_application_for_xid"
-              c:identifier="bamf_matcher_get_application_for_xid"
-              doc="Used to fetch the #BamfApplication containing the passed xid.">
-        <return-value transfer-ownership="container"
-                      doc="The #BamfApplication representing the xid passed, or NULL if none exists.">
+              c:identifier="bamf_matcher_get_application_for_xid">
+        <doc xml:whitespace="preserve">Used to fetch the #BamfApplication containing the passed xid.</doc>
+        <return-value transfer-ownership="container">
+          <doc xml:whitespace="preserve">The #BamfApplication representing the xid passed, or NULL if none exists.</doc>
           <type name="Application" c:type="BamfApplication*"/>
         </return-value>
         <parameters>
@@ -369,29 +371,29 @@ none exists, the result is NULL.">
         </parameters>
       </method>
       <method name="get_applications"
-              c:identifier="bamf_matcher_get_applications"
-              doc="Used to fetch all xid&apos;s associated with an application. Useful for performing window">
-        <return-value transfer-ownership="none" doc="A list of xids.">
+              c:identifier="bamf_matcher_get_applications">
+        <doc xml:whitespace="preserve">Used to fetch all xid's associated with an application. Useful for performing window</doc>
+        <return-value transfer-ownership="none">
+          <doc xml:whitespace="preserve">A list of xids.</doc>
           <type name="GLib.List" c:type="GList*">
             <type name="uint32"/>
           </type>
         </return-value>
       </method>
       <method name="get_running_applications"
-              c:identifier="bamf_matcher_get_running_applications"
-              doc="Used to fetch all #BamfApplication&apos;s which are running.">
-        <return-value transfer-ownership="container"
-                      doc="A list of #BamfApplication&apos;s.">
+              c:identifier="bamf_matcher_get_running_applications">
+        <doc xml:whitespace="preserve">Used to fetch all #BamfApplication's which are running.</doc>
+        <return-value transfer-ownership="container">
+          <doc xml:whitespace="preserve">A list of #BamfApplication's.</doc>
           <type name="GLib.List" c:type="GList*">
             <type name="Bamf.Application"/>
           </type>
         </return-value>
       </method>
-      <method name="get_tabs"
-              c:identifier="bamf_matcher_get_tabs"
-              doc="Used to fetch all #BamfView&apos;s representing tabs. Currently unused.">
-        <return-value transfer-ownership="container"
-                      doc="A list of #BamfViews&apos;s.">
+      <method name="get_tabs" c:identifier="bamf_matcher_get_tabs">
+        <doc xml:whitespace="preserve">Used to fetch all #BamfView's representing tabs. Currently unused.</doc>
+        <return-value transfer-ownership="container">
+          <doc xml:whitespace="preserve">A list of #BamfViews's.</doc>
           <type name="GLib.List" c:type="GList*">
             <type name="Bamf.View"/>
           </type>
@@ -401,6 +403,7 @@ none exists, the result is NULL.">
               c:identifier="bamf_matcher_get_xids_for_application">
         <return-value transfer-ownership="full">
           <array name="GLib.Array" c:type="GArray*">
+            <type name="any" c:type="gpointer"/>
           </array>
         </return-value>
         <parameters>
@@ -577,13 +580,16 @@ none exists, the result is NULL.">
           <type name="none" c:type="void"/>
         </return-value>
       </method>
-      <property name="id" writable="1" construct="1">
+      <property name="id" writable="1" construct="1" transfer-ownership="none">
         <type name="utf8" c:type="gchararray"/>
       </property>
-      <property name="preview" writable="1">
+      <property name="preview" writable="1" transfer-ownership="none">
         <type name="utf8" c:type="gchararray"/>
       </property>
-      <property name="uri" writable="1" construct="1">
+      <property name="uri"
+                writable="1"
+                construct="1"
+                transfer-ownership="none">
         <type name="utf8" c:type="gchararray"/>
       </property>
       <field name="parent">
@@ -722,6 +728,7 @@ none exists, the result is NULL.">
       <virtual-method name="tab_preview">
         <return-value transfer-ownership="full">
           <array name="GLib.Array" c:type="GArray*">
+            <type name="any" c:type="gpointer"/>
           </array>
         </return-value>
         <parameters>
@@ -774,6 +781,7 @@ none exists, the result is NULL.">
               c:identifier="bamf_tab_source_get_tab_preview">
         <return-value transfer-ownership="full">
           <array name="GLib.Array" c:type="GArray*">
+            <type name="any" c:type="gpointer"/>
           </array>
         </return-value>
         <parameters>
@@ -802,7 +810,7 @@ none exists, the result is NULL.">
           </parameter>
         </parameters>
       </method>
-      <property name="id" writable="1" construct="1">
+      <property name="id" writable="1" construct="1" transfer-ownership="none">
         <type name="utf8" c:type="gchararray"/>
       </property>
       <field name="parent">
@@ -887,6 +895,7 @@ none exists, the result is NULL.">
         <callback name="tab_preview" c:type="tab_preview">
           <return-value transfer-ownership="full">
             <array name="GLib.Array" c:type="GArray*">
+              <type name="any" c:type="gpointer"/>
             </array>
           </return-value>
           <parameters>
@@ -939,16 +948,22 @@ none exists, the result is NULL.">
            glib:get-type="bamf_view_get_type"
            glib:type-struct="ViewClass">
       <virtual-method name="get_children" invoker="get_children">
-        <return-value transfer-ownership="full">
-          <type name="GLib.List" c:type="GList*"/>
+        <doc xml:whitespace="preserve">freed after usage. Elements of the list are owned by bamf and should not be unreffed.</doc>
+        <return-value transfer-ownership="container">
+          <doc xml:whitespace="preserve">Returns a list of #BamfView which must be</doc>
+          <type name="GLib.List" c:type="GList*">
+            <type name="Bamf.View"/>
+          </type>
         </return-value>
       </virtual-method>
       <virtual-method name="is_active" invoker="is_active">
+        <doc xml:whitespace="preserve">Determines if the view is currently active and focused by the user. Useful for an active window indicator.</doc>
         <return-value transfer-ownership="none">
           <type name="boolean" c:type="gboolean"/>
         </return-value>
       </virtual-method>
       <virtual-method name="is_running" invoker="is_running">
+        <doc xml:whitespace="preserve">Determines if the view is currently requiring attention. Useful for a running window indicator.</doc>
         <return-value transfer-ownership="none">
           <type name="boolean" c:type="gboolean"/>
         </return-value>
@@ -959,11 +974,13 @@ none exists, the result is NULL.">
         </return-value>
       </virtual-method>
       <virtual-method name="get_name" invoker="get_name">
+        <doc xml:whitespace="preserve">Gets the name of a view. This name is a short name best used to represent the view with text.</doc>
         <return-value transfer-ownership="full">
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </virtual-method>
       <virtual-method name="get_icon" invoker="get_icon">
+        <doc xml:whitespace="preserve">Gets the icon of a view. This icon is used to visually represent the view.</doc>
         <return-value transfer-ownership="full">
           <type name="utf8" c:type="gchar*"/>
         </return-value>
@@ -973,26 +990,23 @@ none exists, the result is NULL.">
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </virtual-method>
-      <method name="get_children"
-              c:identifier="bamf_view_get_children"
-              doc="freed after usage. Elements of the list are owned by bamf and should not be unreffed.">
-        <return-value transfer-ownership="container"
-                      doc="Returns a list of #BamfView which must be">
+      <method name="get_children" c:identifier="bamf_view_get_children">
+        <doc xml:whitespace="preserve">freed after usage. Elements of the list are owned by bamf and should not be unreffed.</doc>
+        <return-value transfer-ownership="container">
+          <doc xml:whitespace="preserve">Returns a list of #BamfView which must be</doc>
           <type name="GLib.List" c:type="GList*">
             <type name="Bamf.View"/>
           </type>
         </return-value>
       </method>
-      <method name="is_active"
-              c:identifier="bamf_view_is_active"
-              doc="Determines if the view is currently active and focused by the user. Useful for an active window indicator.">
+      <method name="is_active" c:identifier="bamf_view_is_active">
+        <doc xml:whitespace="preserve">Determines if the view is currently active and focused by the user. Useful for an active window indicator.</doc>
         <return-value transfer-ownership="none">
           <type name="boolean" c:type="gboolean"/>
         </return-value>
       </method>
-      <method name="is_running"
-              c:identifier="bamf_view_is_running"
-              doc="Determines if the view is currently requiring attention. Useful for a running window indicator.">
+      <method name="is_running" c:identifier="bamf_view_is_running">
+        <doc xml:whitespace="preserve">Determines if the view is currently requiring attention. Useful for a running window indicator.</doc>
         <return-value transfer-ownership="none">
           <type name="boolean" c:type="gboolean"/>
         </return-value>
@@ -1002,49 +1016,49 @@ none exists, the result is NULL.">
           <type name="boolean" c:type="gboolean"/>
         </return-value>
       </method>
-      <method name="get_name"
-              c:identifier="bamf_view_get_name"
-              doc="Gets the name of a view. This name is a short name best used to represent the view with text.">
+      <method name="get_name" c:identifier="bamf_view_get_name">
+        <doc xml:whitespace="preserve">Gets the name of a view. This name is a short name best used to represent the view with text.</doc>
         <return-value transfer-ownership="full">
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </method>
-      <method name="get_icon"
-              c:identifier="bamf_view_get_icon"
-              doc="Gets the icon of a view. This icon is used to visually represent the view.">
+      <method name="get_icon" c:identifier="bamf_view_get_icon">
+        <doc xml:whitespace="preserve">Gets the icon of a view. This icon is used to visually represent the view.</doc>
         <return-value transfer-ownership="full">
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </method>
-      <method name="user_visible"
-              c:identifier="bamf_view_user_visible"
-              doc="Returns a boolean useful for determining if a particular view is &quot;user visible&quot;. User visible
-is a concept relating to whether or not a window should be shown in a launcher tasklist.">
+      <method name="user_visible" c:identifier="bamf_view_user_visible">
+        <doc xml:whitespace="preserve">Returns a boolean useful for determining if a particular view is "user visible". User visible
+is a concept relating to whether or not a window should be shown in a launcher tasklist.</doc>
         <return-value transfer-ownership="none">
           <type name="boolean" c:type="gboolean"/>
         </return-value>
       </method>
-      <method name="get_view_type"
-              c:identifier="bamf_view_get_view_type"
-              doc="The view type of a window is a short string used to represent all views of the same class. These
-descriptions should not be used to do casting as they are not considered stable.">
-        <return-value transfer-ownership="full" doc="A gchar*">
+      <method name="get_view_type" c:identifier="bamf_view_get_view_type">
+        <doc xml:whitespace="preserve">The view type of a window is a short string used to represent all views of the same class. These
+descriptions should not be used to do casting as they are not considered stable.</doc>
+        <return-value transfer-ownership="full">
+          <doc xml:whitespace="preserve">A gchar*</doc>
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </method>
-      <property name="active">
+      <property name="active" transfer-ownership="none">
         <type name="boolean" c:type="gboolean"/>
       </property>
-      <property name="path" writable="1" construct="1">
+      <property name="path"
+                writable="1"
+                construct="1"
+                transfer-ownership="none">
         <type name="utf8" c:type="gchararray"/>
       </property>
-      <property name="running">
+      <property name="running" transfer-ownership="none">
         <type name="boolean" c:type="gboolean"/>
       </property>
-      <property name="urgent">
+      <property name="urgent" transfer-ownership="none">
         <type name="boolean" c:type="gboolean"/>
       </property>
-      <property name="user-visible">
+      <property name="user-visible" transfer-ownership="none">
         <type name="boolean" c:type="gboolean"/>
       </property>
       <field name="parent">
@@ -1127,8 +1141,11 @@ descriptions should not be used to do casting as they are not considered stable.
       </field>
       <field name="get_children">
         <callback name="get_children" c:type="get_children">
-          <return-value transfer-ownership="full">
-            <type name="GLib.List" c:type="GList*"/>
+          <return-value transfer-ownership="container">
+            <doc xml:whitespace="preserve">Returns a list of #BamfView which must be</doc>
+            <type name="GLib.List" c:type="GList*">
+              <type name="Bamf.View"/>
+            </type>
           </return-value>
           <parameters>
             <parameter name="view" transfer-ownership="none">
@@ -1374,7 +1391,7 @@ descriptions should not be used to do casting as they are not considered stable.
       </method>
       <method name="last_active" c:identifier="bamf_window_last_active">
         <return-value transfer-ownership="none">
-          <type name="time_t" c:type="time_t"/>
+          <type name="long" c:type="time_t"/>
         </return-value>
       </method>
       <field name="parent">
