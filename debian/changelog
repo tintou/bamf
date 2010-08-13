@@ -1,10 +1,11 @@
 bamf (0.2.42-0ubuntu1) UNRELEASED; urgency=low
 
+  * New upstream release.
   * debian/rules:
     - enjoying and running testsuite during build (LP: #586340)
   * debian/control:
     - bumping Standards-Version to latest
-  * New upstream release.
+    - remove gir-repository-dev from build-dep
 
  -- Didier Roche <didrocks@ubuntu.com>  Fri, 13 Aug 2010 12:02:31 +0200
 
