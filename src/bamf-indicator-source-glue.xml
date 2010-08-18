@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <node name="/org/ayatana/bamf">
 	<interface name="org.ayatana.StatusNotifierApprover">
+		<signal name="ReviseJudgement">
+			<arg type="b" name="approved" direction="out" />
+			<arg type="s" name="address" direction="out" />
+			<arg type="s" name="path" direction="out" />
+		</signal>
+	
 		<!-- Methods -->
 		<method name="ApproveItem">
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_indicator_source_approve_item" />
