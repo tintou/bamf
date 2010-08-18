@@ -40,6 +40,13 @@ typedef struct _BamfIndicatorSource	BamfIndicatorSource;
 typedef struct _BamfIndicatorSourceClass	BamfIndicatorSourceClass;
 typedef struct _BamfIndicatorSourcePrivate	BamfIndicatorSourcePrivate;
 
+enum
+{
+  BAMF_INDICATOR_SOURCE_APPROVE_NONE,
+  BAMF_INDICATOR_SOURCE_APPROVE_MATCHED,
+  BAMF_INDICATOR_SOURCE_APPROVE_ALL
+};
+
 struct _BamfIndicatorSource {
   GObject parent;
 	
@@ -52,6 +59,7 @@ struct _BamfIndicatorSourceClass {
   /*< signals >*/
   void (*indicator_opened) (BamfIndicatorSource *approver, BamfIndicator *indicator);
   void (*indicator_closed) (BamfIndicatorSource *approver, BamfIndicator *indicator);
+  void (*revise_judgement) (BamfIndicatorSource *approver, gboolean approve, char *addr, char *path);
   
   void (*padding1) (void);
   void (*padding2) (void);
@@ -72,6 +80,9 @@ gboolean bamf_indicator_source_approve_item (BamfIndicatorSource *self,
                                                   const char *proxy,
                                                   gboolean *approve,
                                                   GError **error);
+                                                  
+void bamf_indicator_source_set_behavior (BamfIndicatorSource *self,
+                                         gint32 behavior);
 
 BamfIndicatorSource *bamf_indicator_source_get_default (void);
 

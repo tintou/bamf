@@ -33,6 +33,7 @@ enum
 {
   INDICATOR_OPENED,
   INDICATOR_CLOSED,
+  REVISE_JUDGEMENT,
 
   LAST_SIGNAL,
 };
@@ -43,6 +44,7 @@ struct _BamfIndicatorSourcePrivate
 {
   GList *indicators;
   DBusGProxy *proxy;
+  gboolean behavior;
 };
 
 G_DEFINE_TYPE (BamfIndicatorSource, bamf_indicator_source, G_TYPE_OBJECT)
@@ -69,6 +71,53 @@ on_indicator_closed (BamfView *view, BamfIndicatorSource *self)
   g_signal_emit (self, indicator_source_signals[INDICATOR_CLOSED], 0, indicator);
   
   g_object_unref (G_OBJECT (indicator));
+}
+
+void
+rejudge_approval (BamfIndicator *indicator, BamfIndicatorSource *self)
+{
+  g_return_if_fail (BAMF_IS_INDICATOR (indicator));
+  g_return_if_fail (BAMF_IS_INDICATOR_SOURCE (self));
+  
+  char *address = bamf_indicator_get_address (indicator);
+  char *path = bamf_indicator_get_path (indicator);
+  gboolean approve = TRUE;
+
+  switch (self->priv->behavior)
+    {
+      case BAMF_INDICATOR_SOURCE_APPROVE_NONE:
+        approve = FALSE;
+        break;
+      case BAMF_INDICATOR_SOURCE_APPROVE_MATCHED:
+        approve = g_list_length (bamf_view_get_parents (BAMF_VIEW (indicator))) == 0;
+        break;
+      case BAMF_INDICATOR_SOURCE_APPROVE_ALL:
+        approve = TRUE;
+        break;
+    }
+  
+  g_signal_emit (self, indicator_source_signals[REVISE_JUDGEMENT], 0, approve, address, path);
+  
+  g_free (address);
+  g_free (path); 
+}
+
+void 
+bamf_indicator_source_set_behavior (BamfIndicatorSource *self,
+                                    gint32 behavior)
+{
+  BamfIndicatorSourcePrivate *priv;
+
+  g_return_if_fail (BAMF_IS_INDICATOR_SOURCE (self));
+  
+  priv = self->priv;
+  
+  if (priv->behavior == behavior)
+    return;
+  
+  priv->behavior = behavior;
+  
+  g_list_foreach (priv->indicators, (GFunc) rejudge_approval, self);
 }
 
 gboolean 
@@ -140,8 +189,20 @@ bamf_indicator_source_approve_item (BamfIndicatorSource *self,
       g_signal_emit (self, indicator_source_signals[INDICATOR_OPENED], 0, indicator);
     }
   
-  if (indicator && g_list_length (bamf_view_get_parents (BAMF_VIEW (indicator))) > 0)
-    *approve = FALSE;
+  switch (self->priv->behavior)
+    {
+      case BAMF_INDICATOR_SOURCE_APPROVE_NONE:
+        *approve = FALSE;
+        break;
+        
+      case BAMF_INDICATOR_SOURCE_APPROVE_MATCHED:
+        *approve = !(indicator && g_list_length (bamf_view_get_parents (BAMF_VIEW (indicator))) > 0);
+        break;
+        
+      case BAMF_INDICATOR_SOURCE_APPROVE_ALL:
+        *approve = TRUE;
+        break;
+    }
   
   return TRUE;
 }
@@ -228,6 +289,7 @@ bamf_indicator_source_constructed (GObject *object)
   if (G_OBJECT_CLASS (bamf_indicator_source_parent_class)->constructed)
     G_OBJECT_CLASS (bamf_indicator_source_parent_class)->constructed (object);
 
+  self->priv->behavior = BAMF_INDICATOR_SOURCE_APPROVE_ALL;
   
   dbus_g_connection_register_g_object (bus, BAMF_INDICATOR_SOURCE_PATH, object);
   
@@ -248,6 +310,16 @@ bamf_indicator_source_class_init (BamfIndicatorSourceClass *klass)
 	
   object_class->dispose = bamf_indicator_source_dispose;
   object_class->constructed = bamf_indicator_source_constructed;
+
+  indicator_source_signals [REVISE_JUDGEMENT] =
+  	g_signal_new ("revise-judgement",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              G_SIGNAL_RUN_FIRST,
+  	              G_STRUCT_OFFSET (BamfIndicatorSourceClass, revise_judgement),
+  	              NULL, NULL,
+  	              bamf_marshal_VOID__BOOL_STRING_STRING,
+  	              G_TYPE_NONE, 3,
+  	              G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING);
 
   indicator_source_signals [INDICATOR_OPENED] =
   	g_signal_new ("indicator-opened",
