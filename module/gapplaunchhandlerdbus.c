@@ -97,13 +97,23 @@ g_app_launch_handler_bamf_class_init (GAppLaunchHandlerBamfClass *klass)
 
 static void
 on_launched (GDesktopAppInfoLaunchHandler *launch_handler,
-             const char  *desktop_file_path,
-             gint pid)
+             GDesktopAppInfo              *app_info,
+             GList                        *uris,
+             GAppLaunchContext            *launch_ctx,
+             gint                          pid)
 {
   DBusGConnection *connection;
   GError *error = NULL;
   DBusGProxy *proxy;
-
+  const gchar *desktop_file_path;
+  
+  desktop_file_path = g_desktop_app_info_get_filename (app_info);
+  
+  /* A GDesktopAppInfo may be created without ref to a specific file,
+   * in which case we have lost */
+  if (desktop_file_path == NULL)
+    return;
+  
   connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
   if (connection == NULL)
