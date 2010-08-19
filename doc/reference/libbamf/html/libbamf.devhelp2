@@ -50,6 +50,7 @@
     <keyword type="function" name="bamf_control_insert_desktop_file ()" link="BamfControl.html#bamf-control-insert-desktop-file"/>
     <keyword type="function" name="bamf_control_register_application_for_pid ()" link="BamfControl.html#bamf-control-register-application-for-pid"/>
     <keyword type="function" name="bamf_control_register_tab_provider ()" link="BamfControl.html#bamf-control-register-tab-provider"/>
+    <keyword type="function" name="bamf_control_set_approver_behavior ()" link="BamfControl.html#bamf-control-set-approver-behavior"/>
     <keyword type="macro" name="BAMF_TAB_SOURCE_CONST()" link="BamfTabSource.html#BAMF-TAB-SOURCE-CONST:CAPS"/>
     <keyword type="struct" name="BamfTabSource" link="BamfTabSource.html#BamfTabSource-struct"/>
     <keyword type="struct" name="BamfTabSourceClass" link="BamfTabSource.html#BamfTabSourceClass"/>

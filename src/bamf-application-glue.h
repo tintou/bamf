@@ -154,8 +154,7 @@ static const DBusGMethodInfo dbus_glib_bamf_application_methods[] = {
   { (GCallback) bamf_application_get_xids, dbus_glib_marshal_bamf_application_BOXED__NONE, 126 },
 };
 
-const DBusGObjectInfo dbus_glib_bamf_application_object_info = {
-  0,
+const DBusGObjectInfo dbus_glib_bamf_application_object_info = {  1,
   dbus_glib_bamf_application_methods,
   3,
 "org.ayatana.bamf.application\0ApplicationType\0S\0type\0O\0F\0R\0s\0\0org.ayatana.bamf.application\0DesktopFile\0S\0desktop_file\0O\0F\0R\0s\0\0org.ayatana.bamf.application\0Xids\0S\0xids\0O\0F\0R\0au\0\0\0",

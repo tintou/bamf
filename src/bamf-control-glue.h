@@ -99,31 +99,32 @@ dbus_glib_marshal_bamf_control_VOID__STRING_POINTER (GClosure     *closure,
 }
 #define dbus_glib_marshal_bamf_control_NONE__STRING_POINTER	dbus_glib_marshal_bamf_control_VOID__STRING_POINTER
 
-/* BOOLEAN:POINTER */
-extern void dbus_glib_marshal_bamf_control_BOOLEAN__POINTER (GClosure     *closure,
-                                                             GValue       *return_value,
-                                                             guint         n_param_values,
-                                                             const GValue *param_values,
-                                                             gpointer      invocation_hint,
-                                                             gpointer      marshal_data);
+/* BOOLEAN:INT,POINTER */
+extern void dbus_glib_marshal_bamf_control_BOOLEAN__INT_POINTER (GClosure     *closure,
+                                                                 GValue       *return_value,
+                                                                 guint         n_param_values,
+                                                                 const GValue *param_values,
+                                                                 gpointer      invocation_hint,
+                                                                 gpointer      marshal_data);
 void
-dbus_glib_marshal_bamf_control_BOOLEAN__POINTER (GClosure     *closure,
-                                                 GValue       *return_value G_GNUC_UNUSED,
-                                                 guint         n_param_values,
-                                                 const GValue *param_values,
-                                                 gpointer      invocation_hint G_GNUC_UNUSED,
-                                                 gpointer      marshal_data)
+dbus_glib_marshal_bamf_control_BOOLEAN__INT_POINTER (GClosure     *closure,
+                                                     GValue       *return_value G_GNUC_UNUSED,
+                                                     guint         n_param_values,
+                                                     const GValue *param_values,
+                                                     gpointer      invocation_hint G_GNUC_UNUSED,
+                                                     gpointer      marshal_data)
 {
-  typedef gboolean (*GMarshalFunc_BOOLEAN__POINTER) (gpointer     data1,
-                                                     gpointer     arg_1,
-                                                     gpointer     data2);
-  register GMarshalFunc_BOOLEAN__POINTER callback;
+  typedef gboolean (*GMarshalFunc_BOOLEAN__INT_POINTER) (gpointer     data1,
+                                                         gint         arg_1,
+                                                         gpointer     arg_2,
+                                                         gpointer     data2);
+  register GMarshalFunc_BOOLEAN__INT_POINTER callback;
   register GCClosure *cc = (GCClosure*) closure;
   register gpointer data1, data2;
   gboolean v_return;
 
   g_return_if_fail (return_value != NULL);
-  g_return_if_fail (n_param_values == 2);
+  g_return_if_fail (n_param_values == 3);
 
   if (G_CCLOSURE_SWAP_DATA (closure))
     {
@@ -135,10 +136,11 @@ dbus_glib_marshal_bamf_control_BOOLEAN__POINTER (GClosure     *closure,
       data1 = g_value_peek_pointer (param_values + 0);
       data2 = closure->data;
     }
-  callback = (GMarshalFunc_BOOLEAN__POINTER) (marshal_data ? marshal_data : cc->callback);
+  callback = (GMarshalFunc_BOOLEAN__INT_POINTER) (marshal_data ? marshal_data : cc->callback);
 
   v_return = callback (data1,
-                       g_marshal_value_peek_pointer (param_values + 1),
+                       g_marshal_value_peek_int (param_values + 1),
+                       g_marshal_value_peek_pointer (param_values + 2),
                        data2);
 
   g_value_set_boolean (return_value, v_return);
@@ -240,6 +242,51 @@ dbus_glib_marshal_bamf_control_BOOLEAN__STRING_POINTER (GClosure     *closure,
   g_value_set_boolean (return_value, v_return);
 }
 
+/* BOOLEAN:POINTER */
+extern void dbus_glib_marshal_bamf_control_BOOLEAN__POINTER (GClosure     *closure,
+                                                             GValue       *return_value,
+                                                             guint         n_param_values,
+                                                             const GValue *param_values,
+                                                             gpointer      invocation_hint,
+                                                             gpointer      marshal_data);
+void
+dbus_glib_marshal_bamf_control_BOOLEAN__POINTER (GClosure     *closure,
+                                                 GValue       *return_value G_GNUC_UNUSED,
+                                                 guint         n_param_values,
+                                                 const GValue *param_values,
+                                                 gpointer      invocation_hint G_GNUC_UNUSED,
+                                                 gpointer      marshal_data)
+{
+  typedef gboolean (*GMarshalFunc_BOOLEAN__POINTER) (gpointer     data1,
+                                                     gpointer     arg_1,
+                                                     gpointer     data2);
+  register GMarshalFunc_BOOLEAN__POINTER callback;
+  register GCClosure *cc = (GCClosure*) closure;
+  register gpointer data1, data2;
+  gboolean v_return;
+
+  g_return_if_fail (return_value != NULL);
+  g_return_if_fail (n_param_values == 2);
+
+  if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+      data1 = closure->data;
+      data2 = g_value_peek_pointer (param_values + 0);
+    }
+  else
+    {
+      data1 = g_value_peek_pointer (param_values + 0);
+      data2 = closure->data;
+    }
+  callback = (GMarshalFunc_BOOLEAN__POINTER) (marshal_data ? marshal_data : cc->callback);
+
+  v_return = callback (data1,
+                       g_marshal_value_peek_pointer (param_values + 1),
+                       data2);
+
+  g_value_set_boolean (return_value, v_return);
+}
+
 G_END_DECLS
 
 #endif /* __dbus_glib_marshal_bamf_control_MARSHAL_H__ */
@@ -249,14 +296,14 @@ static const DBusGMethodInfo dbus_glib_bamf_control_methods[] = {
   { (GCallback) bamf_control_register_application_for_pid, dbus_glib_marshal_bamf_control_BOOLEAN__STRING_INT_POINTER, 0 },
   { (GCallback) bamf_control_register_tab_provider, dbus_glib_marshal_bamf_control_NONE__STRING_POINTER, 78 },
   { (GCallback) bamf_control_insert_desktop_file, dbus_glib_marshal_bamf_control_BOOLEAN__STRING_POINTER, 139 },
-  { (GCallback) bamf_control_quit, dbus_glib_marshal_bamf_control_BOOLEAN__POINTER, 200 },
+  { (GCallback) bamf_control_set_approver_behavior, dbus_glib_marshal_bamf_control_BOOLEAN__INT_POINTER, 200 },
+  { (GCallback) bamf_control_quit, dbus_glib_marshal_bamf_control_BOOLEAN__POINTER, 261 },
 };
 
-const DBusGObjectInfo dbus_glib_bamf_control_object_info = {
-  0,
+const DBusGObjectInfo dbus_glib_bamf_control_object_info = {  1,
   dbus_glib_bamf_control_methods,
-  4,
-"org.ayatana.bamf.control\0RegisterApplicationForPid\0S\0application\0I\0s\0pid\0I\0i\0\0org.ayatana.bamf.control\0RegisterTabProvider\0A\0tab_path\0I\0s\0\0org.ayatana.bamf.control\0OmNomNomDesktopFile\0S\0tab_path\0I\0s\0\0org.ayatana.bamf.control\0Quit\0S\0\0\0",
+  5,
+"org.ayatana.bamf.control\0RegisterApplicationForPid\0S\0application\0I\0s\0pid\0I\0i\0\0org.ayatana.bamf.control\0RegisterTabProvider\0A\0tab_path\0I\0s\0\0org.ayatana.bamf.control\0OmNomNomDesktopFile\0S\0tab_path\0I\0s\0\0org.ayatana.bamf.control\0SetApproverBehavior\0S\0behavior\0I\0i\0\0org.ayatana.bamf.control\0Quit\0S\0\0\0",
 "\0",
 "\0"
 };

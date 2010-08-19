@@ -50,6 +50,7 @@
     <function name="bamf_control_insert_desktop_file ()" link="BamfControl.html#bamf-control-insert-desktop-file"/>
     <function name="bamf_control_register_application_for_pid ()" link="BamfControl.html#bamf-control-register-application-for-pid"/>
     <function name="bamf_control_register_tab_provider ()" link="BamfControl.html#bamf-control-register-tab-provider"/>
+    <function name="bamf_control_set_approver_behavior ()" link="BamfControl.html#bamf-control-set-approver-behavior"/>
     <function name="BAMF_TAB_SOURCE_CONST()" link="BamfTabSource.html#BAMF-TAB-SOURCE-CONST:CAPS"/>
     <function name="BamfTabSource" link="BamfTabSource.html#BamfTabSource-struct"/>
     <function name="BamfTabSourceClass" link="BamfTabSource.html#BamfTabSourceClass"/>

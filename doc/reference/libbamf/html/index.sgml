@@ -54,6 +54,7 @@
 <ANCHOR id="bamf-control-insert-desktop-file" href="libbamf/BamfControl.html#bamf-control-insert-desktop-file">
 <ANCHOR id="bamf-control-register-application-for-pid" href="libbamf/BamfControl.html#bamf-control-register-application-for-pid">
 <ANCHOR id="bamf-control-register-tab-provider" href="libbamf/BamfControl.html#bamf-control-register-tab-provider">
+<ANCHOR id="bamf-control-set-approver-behavior" href="libbamf/BamfControl.html#bamf-control-set-approver-behavior">
 <ANCHOR id="BamfTabSource" href="libbamf/BamfTabSource.html">
 <ANCHOR id="BamfTabSource.synopsis" href="libbamf/BamfTabSource.html#BamfTabSource.synopsis">
 <ANCHOR id="BamfTabSource.object-hierarchy" href="libbamf/BamfTabSource.html#BamfTabSource.object-hierarchy">

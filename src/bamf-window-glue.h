@@ -153,8 +153,7 @@ static const DBusGMethodInfo dbus_glib_bamf_window_methods[] = {
   { (GCallback) bamf_window_get_xid, dbus_glib_marshal_bamf_window_UINT__NONE, 50 },
 };
 
-const DBusGObjectInfo dbus_glib_bamf_window_object_info = {
-  0,
+const DBusGObjectInfo dbus_glib_bamf_window_object_info = {  1,
   dbus_glib_bamf_window_methods,
   2,
 "org.ayatana.bamf.window\0Transient\0S\0path\0O\0F\0R\0s\0\0org.ayatana.bamf.window\0GetXid\0S\0xid\0O\0F\0R\0u\0\0\0",

@@ -66,6 +66,10 @@ gboolean      bamf_control_insert_desktop_file          (BamfControl *control,
                                                          char *path,
                                                          GError **error);
 
+gboolean      bamf_control_set_approver_behavior        (BamfControl *control,
+                                                         gint32 behavior,
+                                                         GError **error);
+
 gboolean      bamf_control_quit                         (BamfControl *control,
                                                          GError **error);
 
