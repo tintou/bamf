@@ -340,8 +340,7 @@ static const DBusGMethodInfo dbus_glib_bamf_matcher_methods[] = {
   { (GCallback) bamf_matcher_xids_for_application, dbus_glib_marshal_bamf_matcher_BOXED__STRING, 528 },
 };
 
-const DBusGObjectInfo dbus_glib_bamf_matcher_object_info = {
-  0,
+const DBusGObjectInfo dbus_glib_bamf_matcher_object_info = {  1,
   dbus_glib_bamf_matcher_methods,
   9,
 "org.ayatana.bamf.matcher\0ActiveApplication\0S\0application\0O\0F\0R\0s\0\0org.ayatana.bamf.matcher\0ActiveWindow\0S\0window\0O\0F\0R\0s\0\0org.ayatana.bamf.matcher\0ApplicationForXid\0S\0xid\0I\0u\0application\0O\0F\0R\0s\0\0org.ayatana.bamf.matcher\0ApplicationIsRunning\0S\0application\0I\0s\0running\0O\0F\0R\0b\0\0org.ayatana.bamf.matcher\0ApplicationPaths\0S\0paths\0O\0F\0R\0as\0\0org.ayatana.bamf.matcher\0PathForApplication\0S\0applicaiton\0I\0s\0path\0O\0F\0R\0s\0\0org.ayatana.bamf.matcher\0RunningApplications\0S\0paths\0O\0F\0R\0as\0\0org.ayatana.bamf.matcher\0TabPaths\0S\0paths\0O\0F\0R\0as\0\0org.ayatana.bamf.matcher\0XidsForApplication\0S\0application\0I\0s\0xids\0O\0F\0R\0au\0\0\0",

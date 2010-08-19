@@ -244,8 +244,7 @@ static const DBusGMethodInfo dbus_glib_bamf_tab_methods[] = {
   { (GCallback) bamf_tab_get_preview, dbus_glib_marshal_bamf_tab_BOXED__NONE, 125 },
 };
 
-const DBusGObjectInfo dbus_glib_bamf_tab_object_info = {
-  0,
+const DBusGObjectInfo dbus_glib_bamf_tab_object_info = {  1,
   dbus_glib_bamf_tab_methods,
   4,
 "org.ayatana.bamf.tab\0ShowTab\0S\0\0org.ayatana.bamf.tab\0ParentXid\0S\0xid\0O\0F\0R\0u\0\0org.ayatana.bamf.tab\0CurrentUri\0S\0uri\0O\0F\0R\0s\0\0org.ayatana.bamf.tab\0Preview\0S\0data\0O\0F\0R\0ay\0\0\0",

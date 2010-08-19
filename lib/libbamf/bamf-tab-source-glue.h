@@ -294,8 +294,7 @@ static const DBusGMethodInfo dbus_glib_bamf_tab_source_methods[] = {
   { (GCallback) bamf_tab_source_get_tab_xid, dbus_glib_marshal_bamf_tab_source_UINT__STRING, 229 },
 };
 
-const DBusGObjectInfo dbus_glib_bamf_tab_source_object_info = {
-  0,
+const DBusGObjectInfo dbus_glib_bamf_tab_source_object_info = {  1,
   dbus_glib_bamf_tab_source_methods,
   5,
 "org.ayatana.bamf.tabsource\0ShowTab\0S\0tab_id\0I\0s\0\0org.ayatana.bamf.tabsource\0TabIds\0S\0tab_ids\0O\0F\0R\0as\0\0org.ayatana.bamf.tabsource\0TabPreview\0S\0tab_id\0I\0s\0data\0O\0F\0R\0ay\0\0org.ayatana.bamf.tabsource\0TabUri\0S\0tab_id\0I\0s\0uri\0O\0F\0R\0s\0\0org.ayatana.bamf.tabsource\0TabXid\0S\0tab_id\0I\0s\0xid\0O\0F\0R\0u\0\0\0",
