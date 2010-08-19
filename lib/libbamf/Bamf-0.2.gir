@@ -177,6 +177,17 @@ none exists, the result is NULL.</doc>
           </parameter>
         </parameters>
       </method>
+      <method name="set_approver_behavior"
+              c:identifier="bamf_control_set_approver_behavior">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="behavior" transfer-ownership="none">
+            <type name="int32" c:type="gint32"/>
+          </parameter>
+        </parameters>
+      </method>
       <field name="parent">
         <type name="GObject.Object" c:type="GObject"/>
       </field>

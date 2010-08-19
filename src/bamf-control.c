@@ -22,6 +22,7 @@
 #include "bamf-matcher.h"
 #include "bamf-control.h"
 #include "bamf-control-glue.h"
+#include "bamf-indicator-source.h"
 #include <gtk/gtk.h>
 
 G_DEFINE_TYPE (BamfControl, bamf_control, G_TYPE_OBJECT);
@@ -71,6 +72,16 @@ bamf_control_class_init (BamfControlClass * klass)
 				   &dbus_glib_bamf_control_object_info);
 
   g_type_class_add_private (klass, sizeof (BamfControlPrivate));
+}
+
+gboolean
+bamf_control_set_approver_behavior (BamfControl *control,
+                                    gint32 behavior,
+                                    GError **error)
+{
+  bamf_indicator_source_set_behavior (bamf_indicator_source_get_default (), behavior);
+  
+  return TRUE;
 }
 
 gboolean

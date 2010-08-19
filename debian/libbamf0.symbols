@@ -10,6 +10,7 @@ libbamf.so.0 libbamf0 #MINVER#
  bamf_control_insert_desktop_file@Base 0.2.20
  bamf_control_register_application_for_pid@Base 0.2.20
  bamf_control_register_tab_provider@Base 0.2.20
+ bamf_control_set_approver_behavior@Base 0.2.44
  bamf_factory_get_default@Base 0.2.20
  bamf_factory_get_type@Base 0.2.20
  bamf_factory_view_for_path@Base 0.2.20

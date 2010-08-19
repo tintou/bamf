@@ -113,6 +113,7 @@ bamf_control_get_default
 bamf_control_insert_desktop_file
 bamf_control_register_application_for_pid
 bamf_control_register_tab_provider
+bamf_control_set_approver_behavior
 <SUBSECTION Standard>
 BAMF_CONTROL
 BAMF_IS_CONTROL

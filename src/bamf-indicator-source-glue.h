@@ -121,12 +121,11 @@ static const DBusGMethodInfo dbus_glib_bamf_indicator_source_methods[] = {
   { (GCallback) bamf_indicator_source_approve_item, dbus_glib_marshal_bamf_indicator_source_BOOLEAN__STRING_STRING_UINT_STRING_BOXED_POINTER_POINTER, 0 },
 };
 
-const DBusGObjectInfo dbus_glib_bamf_indicator_source_object_info = {
-  0,
+const DBusGObjectInfo dbus_glib_bamf_indicator_source_object_info = {  1,
   dbus_glib_bamf_indicator_source_methods,
   1,
 "org.ayatana.StatusNotifierApprover\0ApproveItem\0S\0id\0I\0s\0category\0I\0s\0pid\0I\0u\0address\0I\0s\0path\0I\0o\0approved\0O\0F\0N\0b\0\0\0",
-"\0",
+"org.ayatana.StatusNotifierApprover\0ReviseJudgement\0\0",
 "\0"
 };
 
