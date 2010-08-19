@@ -78,3 +78,12 @@ BamfControl
 @path: 
 
 
+<!-- ##### FUNCTION bamf_control_set_approver_behavior ##### -->
+<para>
+
+</para>
+
+@control: 
+@behavior: 
+
+

@@ -109,8 +109,7 @@ static const DBusGMethodInfo dbus_glib_bamf_indicator_methods[] = {
   { (GCallback) bamf_indicator_get_address, dbus_glib_marshal_bamf_indicator_STRING__NONE, 48 },
 };
 
-const DBusGObjectInfo dbus_glib_bamf_indicator_object_info = {
-  0,
+const DBusGObjectInfo dbus_glib_bamf_indicator_object_info = {  1,
   dbus_glib_bamf_indicator_methods,
   2,
 "org.ayatana.bamf.indicator\0Path\0S\0path\0O\0F\0R\0s\0\0org.ayatana.bamf.indicator\0Address\0S\0address\0O\0F\0R\0s\0\0\0",
