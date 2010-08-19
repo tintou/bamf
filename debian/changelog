@@ -1,3 +1,9 @@
+bamf (0.2.42-0ubuntu2) maverick; urgency=low
+
+  * Update by Mikkel Kamstrup Erlandsen to match gio changes (lp: #616737)
+
+ -- Sebastien Bacher <seb128@ubuntu.com>  Wed, 18 Aug 2010 22:31:44 +0200
+
 bamf (0.2.42-0ubuntu1) maverick; urgency=low
 
   * New upstream release.
