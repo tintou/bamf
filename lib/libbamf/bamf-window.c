@@ -94,6 +94,30 @@ BamfWindow * bamf_window_get_transient (BamfWindow *self)
   return BAMF_WINDOW (transient);
 }
 
+BamfWindowType bamf_window_get_window_type (BamfWindow *self)
+{
+  BamfWindowPrivate *priv;
+  guint32 type = 0;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
+  priv = self->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "WindowType",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_UINT, &type,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch type: %s", error->message);
+      g_error_free (error);
+      return 0;
+    }
+
+  return (BamfWindowType) type;
+}
+
 guint32 bamf_window_get_xid (BamfWindow *self)
 {
   BamfWindowPrivate *priv;

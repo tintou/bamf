@@ -64,6 +64,8 @@ BamfWindow       * bamf_window_get_transient (BamfWindow *self);
 
 char             * bamf_window_get_transient_path (BamfWindow *self);
 
+guint32            bamf_window_get_window_type (BamfWindow *self);
+
 guint32            bamf_window_get_xid (BamfWindow *window);
 
 time_t             bamf_window_last_active (BamfWindow *window);

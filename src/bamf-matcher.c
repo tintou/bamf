@@ -1187,7 +1187,15 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
 
   if (bamf_legacy_window_get_window_type (window) == BAMF_WINDOW_DESKTOP)
-    return;
+    {
+      BamfWindow *bamfwindow;
+      
+      bamfwindow = bamf_window_new (window);
+      bamf_matcher_register_view (self, BAMF_VIEW (bamfwindow));
+      g_object_unref (bamfwindow);
+      
+      return;    
+    }
 
   if (is_open_office_window (self, window) && get_open_office_window_hint (self, window) == NULL)
     {
