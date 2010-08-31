@@ -1472,6 +1472,36 @@ bamf_matcher_application_is_running (BamfMatcher *matcher,
 }
 
 char **
+bamf_matcher_window_dbus_paths (BamfMatcher *matcher)
+{
+  char ** paths;
+  int i;
+  GList *l;
+  BamfView *view;
+  BamfMatcherPrivate *priv;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+
+  priv = matcher->priv;
+
+  paths = g_malloc0 (sizeof (char *) * (g_list_length (priv->views) + 1));
+
+  i = 0;
+  for (l = priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_WINDOW (view))
+        continue;
+
+      paths[i] = g_strdup (bamf_view_get_path (view));
+      i++;
+    }
+
+  return paths;
+}
+
+char **
 bamf_matcher_application_dbus_paths (BamfMatcher *matcher)
 {
   char ** paths;

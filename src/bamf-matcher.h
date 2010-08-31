@@ -87,6 +87,8 @@ gboolean      bamf_matcher_application_is_running        (BamfMatcher *matcher,
 
 char       ** bamf_matcher_application_dbus_paths        (BamfMatcher *matcher);
 
+char       ** bamf_matcher_window_dbus_paths             (BamfMatcher *matcher);
+
 char        * bamf_matcher_dbus_path_for_application     (BamfMatcher *matcher,
                                                           char *application);
 
