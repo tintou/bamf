@@ -165,6 +165,16 @@ GList *           bamf_matcher_get_tabs                 (BamfMatcher *matcher);
 GArray *          bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
                                                          const gchar *application);
 
+/**
+ * bamf_matcher_get_windows:
+ * @matcher: a #BamfMatcher
+ *
+ * Used to fetch all windows that BAMF knows about.
+ *
+ * Returns: (element-type Bamf.View) (transfer container): A list of windows.
+ */
+GList *           bamf_matcher_get_windows (BamfMatcher *matcher);
+
 G_END_DECLS
 
 #endif
