@@ -166,7 +166,7 @@ GArray *          bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
                                                          const gchar *application);
 
 /**
- * bamf_matcher_get_applications:
+ * bamf_matcher_get_windows:
  * @matcher: a #BamfMatcher
  *
  * Used to fetch all windows that BAMF knows about.
