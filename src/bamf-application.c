@@ -423,12 +423,8 @@ bamf_application_set_desktop_file_from_list (BamfApplication *self, GList *list)
 
   priv = self->priv;
   
-  g_print ("\n\n");
   for (l = list; l; l = l->next)
-    {
-      g_print ("%s\n", (char *) l->data);
-      priv->desktop_file_list = g_list_prepend (priv->desktop_file_list, g_strdup (l->data));
-    }
+    priv->desktop_file_list = g_list_prepend (priv->desktop_file_list, g_strdup (l->data));
   
   /* items come in priority order */
   bamf_application_set_desktop_file (self, list->data);
