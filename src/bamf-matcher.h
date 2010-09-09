@@ -87,8 +87,16 @@ gboolean      bamf_matcher_application_is_running        (BamfMatcher *matcher,
 
 char       ** bamf_matcher_application_dbus_paths        (BamfMatcher *matcher);
 
+char       ** bamf_matcher_window_dbus_paths             (BamfMatcher *matcher);
+
 char        * bamf_matcher_dbus_path_for_application     (BamfMatcher *matcher,
                                                           char *application);
+
+gboolean      bamf_matcher_register_favorites            (BamfMatcher *matcher,
+                                                          char **favorites,
+                                                          GError *error);
+                                                          
+GList       * bamf_matcher_get_favorites                 (BamfMatcher *matcher);
 
 char       ** bamf_matcher_running_application_paths     (BamfMatcher *matcher);
 

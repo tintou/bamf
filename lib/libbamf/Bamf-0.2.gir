@@ -391,6 +391,22 @@ none exists, the result is NULL.</doc>
           </type>
         </return-value>
       </method>
+      <method name="register_favorites"
+              c:identifier="bamf_matcher_register_favorites">
+        <doc xml:whitespace="preserve">Used to effect how bamf performs matching. Desktop files passed to this method will
+be prefered by bamf to system desktop files.</doc>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="favorites" transfer-ownership="none">
+            <doc xml:whitespace="preserve">an array of strings, each containing an absolute path to a .desktop file</doc>
+            <array c:type="gchar**">
+              <type name="utf8"/>
+            </array>
+          </parameter>
+        </parameters>
+      </method>
       <method name="get_running_applications"
               c:identifier="bamf_matcher_get_running_applications">
         <doc xml:whitespace="preserve">Used to fetch all #BamfApplication's which are running.</doc>
@@ -422,6 +438,15 @@ none exists, the result is NULL.</doc>
             <type name="utf8" c:type="gchar*"/>
           </parameter>
         </parameters>
+      </method>
+      <method name="get_windows" c:identifier="bamf_matcher_get_windows">
+        <doc xml:whitespace="preserve">Used to fetch all windows that BAMF knows about.</doc>
+        <return-value transfer-ownership="container">
+          <doc xml:whitespace="preserve">A list of windows.</doc>
+          <type name="GLib.List" c:type="GList*">
+            <type name="Bamf.View"/>
+          </type>
+        </return-value>
       </method>
       <field name="parent">
         <type name="GObject.Object" c:type="GObject"/>
@@ -1395,6 +1420,12 @@ descriptions should not be used to do casting as they are not considered stable.
           <type name="Window" c:type="BamfWindow*"/>
         </return-value>
       </method>
+      <method name="get_window_type"
+              c:identifier="bamf_window_get_window_type">
+        <return-value transfer-ownership="full">
+          <type name="WindowType" c:type="BamfWindowType"/>
+        </return-value>
+      </method>
       <method name="get_xid" c:identifier="bamf_window_get_xid">
         <return-value transfer-ownership="none">
           <type name="uint32" c:type="guint32"/>
@@ -1463,5 +1494,17 @@ descriptions should not be used to do casting as they are not considered stable.
     </record>
     <record name="WindowPrivate" c:type="BamfWindowPrivate">
     </record>
+    <enumeration name="WindowType" c:type="BamfWindowType">
+      <member name="normal" value="0" c:identifier="BAMF_WINDOW_NORMAL"/>
+      <member name="desktop" value="1" c:identifier="BAMF_WINDOW_DESKTOP"/>
+      <member name="dock" value="2" c:identifier="BAMF_WINDOW_DOCK"/>
+      <member name="dialog" value="3" c:identifier="BAMF_WINDOW_DIALOG"/>
+      <member name="toolbar" value="4" c:identifier="BAMF_WINDOW_TOOLBAR"/>
+      <member name="menu" value="5" c:identifier="BAMF_WINDOW_MENU"/>
+      <member name="utility" value="6" c:identifier="BAMF_WINDOW_UTILITY"/>
+      <member name="splashscreen"
+              value="7"
+              c:identifier="BAMF_WINDOW_SPLASHSCREEN"/>
+    </enumeration>
   </namespace>
 </repository>

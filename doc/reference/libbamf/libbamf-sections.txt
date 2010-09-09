@@ -10,9 +10,11 @@ bamf_matcher_get_active_window
 bamf_matcher_get_application_for_xid
 bamf_matcher_application_is_running
 bamf_matcher_get_applications
+bamf_matcher_register_favorites
 bamf_matcher_get_running_applications
 bamf_matcher_get_tabs
 bamf_matcher_get_xids_for_application
+bamf_matcher_get_windows
 <SUBSECTION Standard>
 BAMF_MATCHER
 BAMF_IS_MATCHER
@@ -29,7 +31,9 @@ BAMF_MATCHER_GET_CLASS
 BamfWindow
 BamfWindowClass
 BamfWindowPrivate
+BamfWindowType
 bamf_window_get_transient
+bamf_window_get_window_type
 bamf_window_get_xid
 bamf_window_last_active
 <SUBSECTION Standard>
