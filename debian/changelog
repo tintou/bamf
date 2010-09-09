@@ -1,6 +1,7 @@
 bamf (0.2.46-0ubuntu1) UNRELEASED; urgency=low
 
   * New upstream release.
+  * Handle non system launchers (LP: #622146)
 
  -- Didier Roche <didrocks@ubuntu.com>  Thu, 09 Sep 2010 17:45:14 +0200
 
