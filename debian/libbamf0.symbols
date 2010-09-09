@@ -31,7 +31,9 @@ libbamf.so.0 libbamf0 #MINVER#
  bamf_matcher_get_running_applications@Base 0.2.20
  bamf_matcher_get_tabs@Base 0.2.20
  bamf_matcher_get_type@Base 0.2.20
+ bamf_matcher_get_windows@Base 0.2.46
  bamf_matcher_get_xids_for_application@Base 0.2.20
+ bamf_matcher_register_favorites@Base 0.2.46
  bamf_tab_get_id@Base 0.2.28
  bamf_tab_get_preview@Base 0.2.28
  bamf_tab_get_type@Base 0.2.28
@@ -57,6 +59,7 @@ libbamf.so.0 libbamf0 #MINVER#
  bamf_view_user_visible@Base 0.2.20
  bamf_window_get_transient@Base 0.2.28
  bamf_window_get_type@Base 0.2.20
+ bamf_window_get_window_type@Base 0.2.46
  bamf_window_get_xid@Base 0.2.20
  bamf_window_last_active@Base 0.2.30
  bamf_window_new@Base 0.2.20
