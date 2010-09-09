@@ -135,6 +135,9 @@ int main (int argc, char **argv)
 
   treeView = make_tree_view ();
   gtk_container_add (GTK_CONTAINER (window), treeView);
+  
+  gchar *favs [] = { "/usr/share/applications/evolution-mail.desktop", NULL };
+  bamf_matcher_register_favorites (matcher, (const gchar **) favs);
 
   gtk_widget_show_all (window);
   gtk_main ();
