@@ -984,6 +984,9 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
       
       pid_list = bamf_matcher_possible_applications_for_pid (self, pid);
       
+      /* Append these files to the end to give preference to class_name style picking.
+         This style of matching is prefered and used by GNOME Shell however does not work
+         very well in practice, thus requiring the fallback here */
       for (l = pid_list; l; l = l->next)
         {
           if (g_list_find_custom (desktop_files, l->data, (GCompareFunc) g_strcmp0))
