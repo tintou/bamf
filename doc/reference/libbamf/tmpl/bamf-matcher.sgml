@@ -131,6 +131,15 @@ BamfMatcher
 @Returns: 
 
 
+<!-- ##### FUNCTION bamf_matcher_register_favorites ##### -->
+<para>
+
+</para>
+
+@matcher: 
+@favorites: 
+
+
 <!-- ##### FUNCTION bamf_matcher_get_running_applications ##### -->
 <para>
 
@@ -156,6 +165,15 @@ BamfMatcher
 
 @matcher: 
 @application: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_matcher_get_windows ##### -->
+<para>
+
+</para>
+
+@matcher: 
 @Returns: 
 
 

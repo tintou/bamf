@@ -4,6 +4,13 @@
 
 	<interface name="org.ayatana.bamf.window">
 	
+	        <method name="WindowType">
+	        	<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_window_get_window_type" />
+	        	<arg type="u" name="type" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+	
 		<method name="Transient">
 	        	<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_window_get_transient_path" />
 			<arg type="s" name="path" direction="out">

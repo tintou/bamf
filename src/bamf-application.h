@@ -70,4 +70,6 @@ BamfApplication * bamf_application_new                   (void);
 
 BamfApplication * bamf_application_new_from_desktop_file (char * desktop_file);
 
+BamfApplication * bamf_application_new_from_desktop_files (GList * desktop_files);
+
 #endif
