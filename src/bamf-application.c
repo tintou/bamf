@@ -460,6 +460,7 @@ bamf_application_dispose (GObject *object)
 {
   BamfApplication *app;
   BamfApplicationPrivate *priv;
+  GList *l;
 
   app = BAMF_APPLICATION (object);
   priv = app->priv;
@@ -472,6 +473,9 @@ bamf_application_dispose (GObject *object)
     
   if (priv->desktop_file_list)
     {
+      for (l = priv->desktop_file_list; l; l = l->next)
+        g_free (l->data);
+       
       g_list_free (priv->desktop_file_list);
       priv->desktop_file_list = NULL;
     }

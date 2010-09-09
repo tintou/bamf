@@ -136,7 +136,7 @@ GList *           bamf_matcher_get_applications         (BamfMatcher *matcher);
 /**
  * bamf_matcher_register_favorites:
  * @matcher: a #BamfMatcher
- * @favorites: an array of strings, each containing a path to a .desktop file
+ * @favorites: an array of strings, each containing an absolute path to a .desktop file
  *
  * Used to effect how bamf performs matching. Desktop files passed to this method will
  * be prefered by bamf to system desktop files.

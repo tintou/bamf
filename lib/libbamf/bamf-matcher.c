@@ -496,21 +496,16 @@ bamf_matcher_register_favorites (BamfMatcher *matcher,
                                  const gchar **favorites)
 {
   BamfMatcherPrivate *priv;
-  GError *error = NULL;
 
   g_return_if_fail (BAMF_IS_MATCHER (matcher));
+  g_return_if_fail (favorites);
+  
   priv = matcher->priv;
 
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "RegisterFavorites",
-                          &error,
-                          G_TYPE_STRV, favorites,
-                          G_TYPE_INVALID,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch paths: %s", error->message);
-      g_error_free (error);
-    }
+  dbus_g_proxy_call_no_reply (priv->proxy,
+                              "RegisterFavorites",
+                              G_TYPE_STRV, favorites,
+                              G_TYPE_INVALID);
 }
 
 GList *
