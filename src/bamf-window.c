@@ -100,6 +100,14 @@ bamf_window_get_transient_path (BamfWindow *self)
 } 
 
 guint32
+bamf_window_get_window_type (BamfWindow *window)
+{
+  g_return_val_if_fail (BAMF_IS_WINDOW (window), 0);
+  
+  return (guint32) bamf_legacy_window_get_window_type (window->priv->window);
+}
+
+guint32
 bamf_window_get_xid (BamfWindow *window)
 {
   g_return_val_if_fail (BAMF_IS_WINDOW (window), 0);

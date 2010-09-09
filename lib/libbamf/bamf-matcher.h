@@ -134,6 +134,17 @@ gboolean          bamf_matcher_application_is_running   (BamfMatcher *matcher,
 GList *           bamf_matcher_get_applications         (BamfMatcher *matcher);
 
 /**
+ * bamf_matcher_register_favorites:
+ * @matcher: a #BamfMatcher
+ * @favorites: an array of strings, each containing an absolute path to a .desktop file
+ *
+ * Used to effect how bamf performs matching. Desktop files passed to this method will
+ * be prefered by bamf to system desktop files.
+ */
+void              bamf_matcher_register_favorites       (BamfMatcher *matcher,
+                                                         const gchar **favorites);
+
+/**
  * bamf_matcher_get_running_applications:
  * @matcher: a #BamfMatcher
  *
@@ -164,6 +175,16 @@ GList *           bamf_matcher_get_tabs                 (BamfMatcher *matcher);
  */
 GArray *          bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
                                                          const gchar *application);
+
+/**
+ * bamf_matcher_get_windows:
+ * @matcher: a #BamfMatcher
+ *
+ * Used to fetch all windows that BAMF knows about.
+ *
+ * Returns: (element-type Bamf.View) (transfer container): A list of windows.
+ */
+GList *           bamf_matcher_get_windows (BamfMatcher *matcher);
 
 G_END_DECLS
 

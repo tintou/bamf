@@ -61,6 +61,19 @@ struct _BamfWindow
   BamfWindowPrivate *priv;
 };
 
+typedef enum
+{
+  BAMF_WINDOW_NORMAL,       /* document/app window */
+  BAMF_WINDOW_DESKTOP,      /* desktop background */
+  BAMF_WINDOW_DOCK,         /* panel */
+  BAMF_WINDOW_DIALOG,       /* dialog */
+  BAMF_WINDOW_TOOLBAR,      /* tearoff toolbar */
+  BAMF_WINDOW_MENU,         /* tearoff menu */
+  BAMF_WINDOW_UTILITY,      /* palette/toolbox window */
+  BAMF_WINDOW_SPLASHSCREEN  /* splash screen */
+} BamfWindowType;
+
+
 struct _BamfWindowClass
 {
   BamfViewClass parent_class;
@@ -77,6 +90,8 @@ struct _BamfWindowClass
 GType             bamf_window_get_type             (void) G_GNUC_CONST;
 
 BamfWindow      * bamf_window_get_transient        (BamfWindow *self);
+
+BamfWindowType    bamf_window_get_window_type      (BamfWindow *self);
 
 guint32           bamf_window_get_xid              (BamfWindow *self);
 
