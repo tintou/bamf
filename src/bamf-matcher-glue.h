@@ -279,6 +279,53 @@ dbus_glib_marshal_bamf_matcher_STRING__STRING (GClosure     *closure,
   g_value_take_string (return_value, v_return);
 }
 
+/* BOOLEAN:BOXED,POINTER */
+extern void dbus_glib_marshal_bamf_matcher_BOOLEAN__BOXED_POINTER (GClosure     *closure,
+                                                                   GValue       *return_value,
+                                                                   guint         n_param_values,
+                                                                   const GValue *param_values,
+                                                                   gpointer      invocation_hint,
+                                                                   gpointer      marshal_data);
+void
+dbus_glib_marshal_bamf_matcher_BOOLEAN__BOXED_POINTER (GClosure     *closure,
+                                                       GValue       *return_value G_GNUC_UNUSED,
+                                                       guint         n_param_values,
+                                                       const GValue *param_values,
+                                                       gpointer      invocation_hint G_GNUC_UNUSED,
+                                                       gpointer      marshal_data)
+{
+  typedef gboolean (*GMarshalFunc_BOOLEAN__BOXED_POINTER) (gpointer     data1,
+                                                           gpointer     arg_1,
+                                                           gpointer     arg_2,
+                                                           gpointer     data2);
+  register GMarshalFunc_BOOLEAN__BOXED_POINTER callback;
+  register GCClosure *cc = (GCClosure*) closure;
+  register gpointer data1, data2;
+  gboolean v_return;
+
+  g_return_if_fail (return_value != NULL);
+  g_return_if_fail (n_param_values == 3);
+
+  if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+      data1 = closure->data;
+      data2 = g_value_peek_pointer (param_values + 0);
+    }
+  else
+    {
+      data1 = g_value_peek_pointer (param_values + 0);
+      data2 = closure->data;
+    }
+  callback = (GMarshalFunc_BOOLEAN__BOXED_POINTER) (marshal_data ? marshal_data : cc->callback);
+
+  v_return = callback (data1,
+                       g_marshal_value_peek_boxed (param_values + 1),
+                       g_marshal_value_peek_pointer (param_values + 2),
+                       data2);
+
+  g_value_set_boolean (return_value, v_return);
+}
+
 /* BOXED:NONE */
 extern void dbus_glib_marshal_bamf_matcher_BOXED__VOID (GClosure     *closure,
                                                         GValue       *return_value,
@@ -334,16 +381,18 @@ static const DBusGMethodInfo dbus_glib_bamf_matcher_methods[] = {
   { (GCallback) bamf_matcher_application_for_xid, dbus_glib_marshal_bamf_matcher_STRING__UINT, 122 },
   { (GCallback) bamf_matcher_application_is_running, dbus_glib_marshal_bamf_matcher_BOOLEAN__STRING, 196 },
   { (GCallback) bamf_matcher_application_dbus_paths, dbus_glib_marshal_bamf_matcher_BOXED__NONE, 277 },
-  { (GCallback) bamf_matcher_dbus_path_for_application, dbus_glib_marshal_bamf_matcher_STRING__STRING, 337 },
-  { (GCallback) bamf_matcher_running_application_paths, dbus_glib_marshal_bamf_matcher_BOXED__NONE, 413 },
-  { (GCallback) bamf_matcher_tab_dbus_paths, dbus_glib_marshal_bamf_matcher_BOXED__NONE, 476 },
-  { (GCallback) bamf_matcher_xids_for_application, dbus_glib_marshal_bamf_matcher_BOXED__STRING, 528 },
+  { (GCallback) bamf_matcher_window_dbus_paths, dbus_glib_marshal_bamf_matcher_BOXED__NONE, 337 },
+  { (GCallback) bamf_matcher_dbus_path_for_application, dbus_glib_marshal_bamf_matcher_STRING__STRING, 392 },
+  { (GCallback) bamf_matcher_register_favorites, dbus_glib_marshal_bamf_matcher_BOOLEAN__BOXED_POINTER, 468 },
+  { (GCallback) bamf_matcher_running_application_paths, dbus_glib_marshal_bamf_matcher_BOXED__NONE, 529 },
+  { (GCallback) bamf_matcher_tab_dbus_paths, dbus_glib_marshal_bamf_matcher_BOXED__NONE, 592 },
+  { (GCallback) bamf_matcher_xids_for_application, dbus_glib_marshal_bamf_matcher_BOXED__STRING, 644 },
 };
 
 const DBusGObjectInfo dbus_glib_bamf_matcher_object_info = {  1,
   dbus_glib_bamf_matcher_methods,
-  9,
-"org.ayatana.bamf.matcher\0ActiveApplication\0S\0application\0O\0F\0R\0s\0\0org.ayatana.bamf.matcher\0ActiveWindow\0S\0window\0O\0F\0R\0s\0\0org.ayatana.bamf.matcher\0ApplicationForXid\0S\0xid\0I\0u\0application\0O\0F\0R\0s\0\0org.ayatana.bamf.matcher\0ApplicationIsRunning\0S\0application\0I\0s\0running\0O\0F\0R\0b\0\0org.ayatana.bamf.matcher\0ApplicationPaths\0S\0paths\0O\0F\0R\0as\0\0org.ayatana.bamf.matcher\0PathForApplication\0S\0applicaiton\0I\0s\0path\0O\0F\0R\0s\0\0org.ayatana.bamf.matcher\0RunningApplications\0S\0paths\0O\0F\0R\0as\0\0org.ayatana.bamf.matcher\0TabPaths\0S\0paths\0O\0F\0R\0as\0\0org.ayatana.bamf.matcher\0XidsForApplication\0S\0application\0I\0s\0xids\0O\0F\0R\0au\0\0\0",
+  11,
+"org.ayatana.bamf.matcher\0ActiveApplication\0S\0application\0O\0F\0R\0s\0\0org.ayatana.bamf.matcher\0ActiveWindow\0S\0window\0O\0F\0R\0s\0\0org.ayatana.bamf.matcher\0ApplicationForXid\0S\0xid\0I\0u\0application\0O\0F\0R\0s\0\0org.ayatana.bamf.matcher\0ApplicationIsRunning\0S\0application\0I\0s\0running\0O\0F\0R\0b\0\0org.ayatana.bamf.matcher\0ApplicationPaths\0S\0paths\0O\0F\0R\0as\0\0org.ayatana.bamf.matcher\0WindowPaths\0S\0paths\0O\0F\0R\0as\0\0org.ayatana.bamf.matcher\0PathForApplication\0S\0applicaiton\0I\0s\0path\0O\0F\0R\0s\0\0org.ayatana.bamf.matcher\0RegisterFavorites\0S\0favorites\0I\0as\0\0org.ayatana.bamf.matcher\0RunningApplications\0S\0paths\0O\0F\0R\0as\0\0org.ayatana.bamf.matcher\0TabPaths\0S\0paths\0O\0F\0R\0as\0\0org.ayatana.bamf.matcher\0XidsForApplication\0S\0application\0I\0s\0xids\0O\0F\0R\0au\0\0\0",
 "org.ayatana.bamf.matcher\0ViewOpened\0org.ayatana.bamf.matcher\0ViewClosed\0org.ayatana.bamf.matcher\0ActiveWindowChanged\0org.ayatana.bamf.matcher\0ActiveApplicationChanged\0\0",
 "\0"
 };

@@ -60,6 +60,13 @@
 				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
 			</arg>
 		</method>
+		
+		<method name="WindowPaths">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_matcher_window_dbus_paths" />
+			<arg type="as" name="paths" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
 
 		<method name="PathForApplication">
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_matcher_dbus_path_for_application" />
@@ -67,6 +74,11 @@
 			<arg type="s" name="path" direction="out">
 				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
 			</arg>
+		</method>
+
+		<method name="RegisterFavorites">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_matcher_register_favorites" />
+			<arg type="as" name="favorites" direction="in" />
 		</method>
 
 		<method name="RunningApplications">

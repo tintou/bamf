@@ -25,9 +25,11 @@
     <keyword type="function" name="bamf_matcher_get_application_for_xid ()" link="BamfMatcher.html#bamf-matcher-get-application-for-xid"/>
     <keyword type="function" name="bamf_matcher_application_is_running ()" link="BamfMatcher.html#bamf-matcher-application-is-running"/>
     <keyword type="function" name="bamf_matcher_get_applications ()" link="BamfMatcher.html#bamf-matcher-get-applications"/>
+    <keyword type="function" name="bamf_matcher_register_favorites ()" link="BamfMatcher.html#bamf-matcher-register-favorites"/>
     <keyword type="function" name="bamf_matcher_get_running_applications ()" link="BamfMatcher.html#bamf-matcher-get-running-applications"/>
     <keyword type="function" name="bamf_matcher_get_tabs ()" link="BamfMatcher.html#bamf-matcher-get-tabs"/>
     <keyword type="function" name="bamf_matcher_get_xids_for_application ()" link="BamfMatcher.html#bamf-matcher-get-xids-for-application"/>
+    <keyword type="function" name="bamf_matcher_get_windows ()" link="BamfMatcher.html#bamf-matcher-get-windows"/>
     <keyword type="signal" name="The &quot;active-application-changed&quot; signal" link="BamfMatcher.html#BamfMatcher-active-application-changed"/>
     <keyword type="signal" name="The &quot;active-window-changed&quot; signal" link="BamfMatcher.html#BamfMatcher-active-window-changed"/>
     <keyword type="signal" name="The &quot;view-closed&quot; signal" link="BamfMatcher.html#BamfMatcher-view-closed"/>
@@ -35,7 +37,9 @@
     <keyword type="struct" name="BamfWindow" link="BamfWindow.html#BamfWindow-struct"/>
     <keyword type="struct" name="BamfWindowClass" link="BamfWindow.html#BamfWindowClass"/>
     <keyword type="struct" name="BamfWindowPrivate" link="BamfWindow.html#BamfWindowPrivate"/>
+    <keyword type="enum" name="enum BamfWindowType" link="BamfWindow.html#BamfWindowType"/>
     <keyword type="function" name="bamf_window_get_transient ()" link="BamfWindow.html#bamf-window-get-transient"/>
+    <keyword type="function" name="bamf_window_get_window_type ()" link="BamfWindow.html#bamf-window-get-window-type"/>
     <keyword type="function" name="bamf_window_get_xid ()" link="BamfWindow.html#bamf-window-get-xid"/>
     <keyword type="function" name="bamf_window_last_active ()" link="BamfWindow.html#bamf-window-last-active"/>
     <keyword type="struct" name="BamfFactory" link="BamfFactory.html#BamfFactory-struct"/>

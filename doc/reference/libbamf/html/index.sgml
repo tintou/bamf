@@ -13,9 +13,11 @@
 <ANCHOR id="bamf-matcher-get-application-for-xid" href="libbamf/BamfMatcher.html#bamf-matcher-get-application-for-xid">
 <ANCHOR id="bamf-matcher-application-is-running" href="libbamf/BamfMatcher.html#bamf-matcher-application-is-running">
 <ANCHOR id="bamf-matcher-get-applications" href="libbamf/BamfMatcher.html#bamf-matcher-get-applications">
+<ANCHOR id="bamf-matcher-register-favorites" href="libbamf/BamfMatcher.html#bamf-matcher-register-favorites">
 <ANCHOR id="bamf-matcher-get-running-applications" href="libbamf/BamfMatcher.html#bamf-matcher-get-running-applications">
 <ANCHOR id="bamf-matcher-get-tabs" href="libbamf/BamfMatcher.html#bamf-matcher-get-tabs">
 <ANCHOR id="bamf-matcher-get-xids-for-application" href="libbamf/BamfMatcher.html#bamf-matcher-get-xids-for-application">
+<ANCHOR id="bamf-matcher-get-windows" href="libbamf/BamfMatcher.html#bamf-matcher-get-windows">
 <ANCHOR id="BamfMatcher.signal-details" href="libbamf/BamfMatcher.html#BamfMatcher.signal-details">
 <ANCHOR id="BamfMatcher-active-application-changed" href="libbamf/BamfMatcher.html#BamfMatcher-active-application-changed">
 <ANCHOR id="BamfMatcher-active-window-changed" href="libbamf/BamfMatcher.html#BamfMatcher-active-window-changed">
@@ -29,7 +31,9 @@
 <ANCHOR id="BamfWindow-struct" href="libbamf/BamfWindow.html#BamfWindow-struct">
 <ANCHOR id="BamfWindowClass" href="libbamf/BamfWindow.html#BamfWindowClass">
 <ANCHOR id="BamfWindowPrivate" href="libbamf/BamfWindow.html#BamfWindowPrivate">
+<ANCHOR id="BamfWindowType" href="libbamf/BamfWindow.html#BamfWindowType">
 <ANCHOR id="bamf-window-get-transient" href="libbamf/BamfWindow.html#bamf-window-get-transient">
+<ANCHOR id="bamf-window-get-window-type" href="libbamf/BamfWindow.html#bamf-window-get-window-type">
 <ANCHOR id="bamf-window-get-xid" href="libbamf/BamfWindow.html#bamf-window-get-xid">
 <ANCHOR id="bamf-window-last-active" href="libbamf/BamfWindow.html#bamf-window-last-active">
 <ANCHOR id="BamfFactory" href="libbamf/BamfFactory.html">
