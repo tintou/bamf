@@ -76,6 +76,11 @@
 			</arg>
 		</method>
 
+		<method name="RegisterFavorites">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_matcher_register_favorites" />
+			<arg type="as" name="favorites" direction="in" />
+		</method>
+
 		<method name="RunningApplications">
 			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_matcher_running_application_paths" />
 			<arg type="as" name="paths" direction="out">
