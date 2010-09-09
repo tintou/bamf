@@ -1,9 +1,10 @@
-bamf (0.2.46-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.46-0ubuntu1) maverick; urgency=low
 
   * New upstream release.
-  * Handle non system launchers (LP: #622146)
+    - Handle non system launchers (LP: #622146)
+  * Add new symbols to debian/libbamf0.symbols
 
- -- Didier Roche <didrocks@ubuntu.com>  Thu, 09 Sep 2010 17:45:14 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Thu, 09 Sep 2010 19:15:45 +0200
 
 bamf (0.2.44-0ubuntu1) maverick; urgency=low
 
