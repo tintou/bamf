@@ -50,6 +50,8 @@ struct _BamfApplicationPrivate
   gboolean show_stubs;
 };
 
+#define STUB_KEY  "X-Ayatana-Appmenu-Show-Stubs"
+
 static char *
 bamf_application_get_icon (BamfView *view)
 {
@@ -122,6 +124,13 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
 
       name = g_strdup (g_app_info_get_display_name (G_APP_INFO (desktop)));
       icon = g_icon_to_string (gicon);
+
+	  if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, STUB_KEY, NULL)) {
+		/* This will error to return false, which is okay as it seems
+		   unlikely anyone will want to set this flag except to turn
+		   off the stub menus. */
+	    self->priv->show_stubs = g_key_file_get_boolean(keyfile, G_KEY_FILE_DESKTOP_GROUP, STUB_KEY, NULL);
+	  }
 
       g_object_unref (desktop);
 	  g_key_file_free(keyfile);
