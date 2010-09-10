@@ -176,6 +176,14 @@ bamf_application_get_windows (BamfApplication *application)
   return windows;
 }
 
+gboolean
+bamf_application_get_show_stubs (BamfApplication * application)
+{
+	g_return_val_if_fail (BAMF_IS_APPLICATION (application), TRUE);
+
+	return TRUE;
+}
+
 static void
 bamf_application_on_window_added (DBusGProxy *proxy, char *path, BamfApplication *self)
 {
