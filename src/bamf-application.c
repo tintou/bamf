@@ -47,6 +47,7 @@ struct _BamfApplicationPrivate
   char * app_type;
   char * icon;
   gboolean is_tab_container;
+  gboolean show_stubs;
 };
 
 static char *
@@ -443,6 +444,7 @@ bamf_application_init (BamfApplication * self)
 
   priv->is_tab_container = FALSE;
   priv->app_type = g_strdup ("system");
+  priv->show_stubs = TRUE;
 }
 
 static void
@@ -517,6 +519,5 @@ gboolean
 bamf_application_get_show_stubs (BamfApplication *application)
 {
 	g_return_val_if_fail(BAMF_IS_APPLICATION(application), TRUE);
-
-	return TRUE;
+	return application->priv->show_stubs;
 }
