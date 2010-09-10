@@ -32,6 +32,13 @@
 				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
 			</arg>
 		</method>
+
+		<method name="ShowStubs">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_application_get_show_stubs" />
+			<arg type="b" name="show_stubs" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
 		
 	</interface>
 
