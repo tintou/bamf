@@ -92,6 +92,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
   BamfView *view;
   BamfWindow *window = NULL;
   GDesktopAppInfo *desktop;
+  GKeyFile * keyfile;
   GIcon *gicon;
   GList *children, *l;
   const char *class;
@@ -104,10 +105,18 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
 
   if (self->priv->desktop_file)
     {
-      desktop = g_desktop_app_info_new_from_filename (self->priv->desktop_file);
+      keyfile = g_key_file_new();
+	  if (!g_key_file_load_from_file(keyfile, self->priv->desktop_file, G_KEY_FILE_NONE, NULL)) {
+	  	g_key_file_free(keyfile);
+		return;
+	  }
 
-      if (!G_IS_APP_INFO (desktop))
+      desktop = g_desktop_app_info_new_from_keyfile (keyfile);
+
+      if (!G_IS_APP_INFO (desktop)) {
+	    g_key_file_free(keyfile);
         return;
+	  }
 
       gicon = g_app_info_get_icon (G_APP_INFO (desktop));
 
@@ -115,6 +124,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
       icon = g_icon_to_string (gicon);
 
       g_object_unref (desktop);
+	  g_key_file_free(keyfile);
     }
   else if ((children = bamf_view_get_children (BAMF_VIEW (self))) != NULL)
     {
