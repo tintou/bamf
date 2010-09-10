@@ -501,3 +501,22 @@ bamf_application_new_from_desktop_file (char * desktop_file)
 
   return application;
 }
+
+/**
+	bamf_application_get_show_stubs:
+	@application: Application to check for menu stubs
+
+	Checks to see if the application should show menu stubs or not.
+	This is specified with the "X-Ayatana-Appmenu-Show-Stubs" desktop
+	file key.
+
+	Return Value: Defaults to TRUE, else FALSE if specified in
+	  .desktop file.
+*/
+gboolean
+bamf_application_get_show_stubs (BamfApplication *application)
+{
+	g_return_val_if_fail(BAMF_IS_APPLICATION(application), TRUE);
+
+	return TRUE;
+}

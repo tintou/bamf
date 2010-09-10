@@ -69,5 +69,6 @@ gboolean          bamf_application_contains_similar_to_window (BamfApplication *
 BamfApplication * bamf_application_new                   (void);
 
 BamfApplication * bamf_application_new_from_desktop_file (char * desktop_file);
+gboolean          bamf_application_get_show_stubs        (BamfApplication *application);
 
 #endif
