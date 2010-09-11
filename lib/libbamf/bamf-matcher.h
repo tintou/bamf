@@ -109,6 +109,7 @@ BamfWindow      * bamf_matcher_get_active_window        (BamfMatcher *matcher);
 /**
  * bamf_matcher_get_application_for_xid:
  * @matcher: a #BamfMatcher
+ * @xid: The XID to search for
  *
  * Used to fetch the #BamfApplication containing the passed xid.
  *
@@ -116,6 +117,17 @@ BamfWindow      * bamf_matcher_get_active_window        (BamfMatcher *matcher);
  */
 BamfApplication * bamf_matcher_get_application_for_xid  (BamfMatcher *matcher,
                                                          guint32      xid);
+/**
+ * bamf_matcher_get_application_for_window:
+ * @matcher: a #BamfMatcher
+ * @window: The window to look for
+ *
+ * Used to fetch the #BamfApplication containing the passed window.
+ *
+ * Returns: (transfer container): The #BamfApplication representing the xid passed, or NULL if none exists.
+ */
+BamfApplication * bamf_matcher_get_application_for_window  (BamfMatcher *matcher,
+                                                            BamfWindow *window);
 
 gboolean          bamf_matcher_application_is_running   (BamfMatcher *matcher,
                                                          const gchar *application);
