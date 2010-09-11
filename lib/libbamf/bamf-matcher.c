@@ -343,6 +343,16 @@ bamf_matcher_get_active_window (BamfMatcher *matcher)
   return BAMF_WINDOW (view);
 }
 
+/* Looks up the window's XID and calls the application_for_xid
+   function just below here. */
+BamfApplication * 
+bamf_matcher_get_application_for_window  (BamfMatcher *matcher,
+                                          BamfWindow *window)
+{
+	g_return_val_if_fail(BAMF_IS_WINDOW(window), NULL);
+	return bamf_matcher_get_application_for_xid (matcher, bamf_window_get_xid(window));
+}
+
 BamfApplication *
 bamf_matcher_get_application_for_xid (BamfMatcher  *matcher,
                                       guint32       xid)
