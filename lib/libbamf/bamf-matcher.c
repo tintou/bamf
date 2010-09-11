@@ -491,6 +491,23 @@ bamf_matcher_get_windows (BamfMatcher *matcher)
   return result;
 }
 
+void
+bamf_matcher_register_favorites (BamfMatcher *matcher,
+                                 const gchar **favorites)
+{
+  BamfMatcherPrivate *priv;
+
+  g_return_if_fail (BAMF_IS_MATCHER (matcher));
+  g_return_if_fail (favorites);
+  
+  priv = matcher->priv;
+
+  dbus_g_proxy_call_no_reply (priv->proxy,
+                              "RegisterFavorites",
+                              G_TYPE_STRV, favorites,
+                              G_TYPE_INVALID);
+}
+
 GList *
 bamf_matcher_get_running_applications (BamfMatcher *matcher)
 {

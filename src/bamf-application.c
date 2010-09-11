@@ -21,6 +21,7 @@
 #include "bamf-application.h"
 #include "bamf-application-glue.h"
 #include "bamf-window.h"
+#include "bamf-matcher.h"
 #include "bamf-indicator.h"
 #include "bamf-legacy-window.h"
 #include "bamf-legacy-screen.h"
@@ -44,6 +45,7 @@ static guint application_signals[LAST_SIGNAL] = { 0 };
 struct _BamfApplicationPrivate
 {
   char * desktop_file;
+  GList * desktop_file_list;
   char * app_type;
   char * icon;
   gboolean is_tab_container;
@@ -71,9 +73,34 @@ bamf_application_get_application_type (BamfApplication *application)
 char *
 bamf_application_get_desktop_file (BamfApplication *application)
 {
-  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
+  BamfMatcher *matcher;
+  BamfApplicationPrivate *priv;
+  GList *favs, *l;
+  char *result = NULL;
 
-  return g_strdup (application->priv->desktop_file);
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
+  priv = application->priv;
+
+  matcher = bamf_matcher_get_default ();
+  favs = bamf_matcher_get_favorites (matcher);
+  
+  /* Could be faster */
+  if (favs)
+    {
+      for (l = favs; l; l = l->next)
+        {
+          if (g_list_find_custom (priv->desktop_file_list, l->data, (GCompareFunc) g_strcmp0))
+            {
+              result = g_strdup (l->data);
+              break;
+            }
+        }
+    }
+    
+  if (!result)
+    result = g_strdup (priv->desktop_file);
+    
+  return result;
 }
 
 static gboolean
@@ -406,6 +433,24 @@ on_empty (GObject *object)
 }
 
 static void
+bamf_application_set_desktop_file_from_list (BamfApplication *self, GList *list)
+{
+  BamfApplicationPrivate *priv;
+  GList *l;
+
+  g_return_if_fail (BAMF_IS_APPLICATION (self));
+  g_return_if_fail (list);
+
+  priv = self->priv;
+  
+  for (l = list; l; l = l->next)
+    priv->desktop_file_list = g_list_prepend (priv->desktop_file_list, g_strdup (l->data));
+  
+  /* items come in priority order */
+  bamf_application_set_desktop_file (self, list->data);
+}
+
+static void
 bamf_application_child_removed (BamfView *view, BamfView *child)
 {
   BamfApplication *application;
@@ -435,6 +480,7 @@ bamf_application_dispose (GObject *object)
 {
   BamfApplication *app;
   BamfApplicationPrivate *priv;
+  GList *l;
 
   app = BAMF_APPLICATION (object);
   priv = app->priv;
@@ -443,6 +489,15 @@ bamf_application_dispose (GObject *object)
     {
       g_free (priv->desktop_file);
       priv->desktop_file = NULL;
+    }
+    
+  if (priv->desktop_file_list)
+    {
+      for (l = priv->desktop_file_list; l; l = l->next)
+        g_free (l->data);
+       
+      g_list_free (priv->desktop_file_list);
+      priv->desktop_file_list = NULL;
     }
 
   if (priv->app_type)
@@ -521,6 +576,17 @@ bamf_application_new_from_desktop_file (char * desktop_file)
   bamf_application_set_desktop_file (application, desktop_file);
 
   return application;
+}
+
+BamfApplication *
+bamf_application_new_from_desktop_files (GList *desktop_files)
+{
+  BamfApplication *application;
+  application = (BamfApplication *) g_object_new (BAMF_TYPE_APPLICATION, NULL);
+  
+  bamf_application_set_desktop_file_from_list (application, desktop_files);
+  
+  return application;  
 }
 
 /**
