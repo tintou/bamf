@@ -176,6 +176,28 @@ bamf_application_get_windows (BamfApplication *application)
   return windows;
 }
 
+gboolean
+bamf_application_get_show_stubs (BamfApplication * application)
+{
+	g_return_val_if_fail (BAMF_IS_APPLICATION (application), TRUE);
+	GError *error = NULL;
+	gboolean show_stubs = TRUE;
+
+	if (!dbus_g_proxy_call (application->priv->proxy,
+	                        "ShowStubs",
+	                        &error,
+	                        G_TYPE_INVALID,
+	                        G_TYPE_BOOLEAN, &show_stubs,
+	                        G_TYPE_INVALID)) {
+		g_warning ("Failed to fetch show_stubs: %s", error->message);
+		g_error_free (error);
+
+		return TRUE;
+	}
+
+	return show_stubs;
+}
+
 static void
 bamf_application_on_window_added (DBusGProxy *proxy, char *path, BamfApplication *self)
 {
