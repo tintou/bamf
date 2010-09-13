@@ -177,7 +177,7 @@ bamf_application_get_windows (BamfApplication *application)
 }
 
 gboolean
-bamf_application_get_show_stubs (BamfApplication * application)
+bamf_application_get_show_menu_stubs (BamfApplication * application)
 {
 	g_return_val_if_fail (BAMF_IS_APPLICATION (application), TRUE);
 	GError *error = NULL;
