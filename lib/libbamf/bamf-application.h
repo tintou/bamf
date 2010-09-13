@@ -126,7 +126,7 @@ GArray * bamf_application_get_xids (BamfApplication *application);
  *
  * Returns: Whether the stubs should be shown.
  */
-gboolean bamf_application_get_show_stubs (BamfApplication *application);
+gboolean bamf_application_get_show_menu_stubs (BamfApplication *application);
 
 G_END_DECLS
 
