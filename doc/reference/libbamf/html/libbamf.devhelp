@@ -23,6 +23,7 @@
     <function name="bamf_matcher_get_active_application ()" link="BamfMatcher.html#bamf-matcher-get-active-application"/>
     <function name="bamf_matcher_get_active_window ()" link="BamfMatcher.html#bamf-matcher-get-active-window"/>
     <function name="bamf_matcher_get_application_for_xid ()" link="BamfMatcher.html#bamf-matcher-get-application-for-xid"/>
+    <function name="bamf_matcher_get_application_for_window ()" link="BamfMatcher.html#bamf-matcher-get-application-for-window"/>
     <function name="bamf_matcher_application_is_running ()" link="BamfMatcher.html#bamf-matcher-application-is-running"/>
     <function name="bamf_matcher_get_applications ()" link="BamfMatcher.html#bamf-matcher-get-applications"/>
     <function name="bamf_matcher_register_favorites ()" link="BamfMatcher.html#bamf-matcher-register-favorites"/>
@@ -98,6 +99,7 @@
     <function name="bamf_application_get_desktop_file ()" link="BamfApplication.html#bamf-application-get-desktop-file"/>
     <function name="bamf_application_get_windows ()" link="BamfApplication.html#bamf-application-get-windows"/>
     <function name="bamf_application_get_xids ()" link="BamfApplication.html#bamf-application-get-xids"/>
+    <function name="bamf_application_get_show_menu_stubs ()" link="BamfApplication.html#bamf-application-get-show-menu-stubs"/>
     <function name="The &quot;window-added&quot; signal" link="BamfApplication.html#BamfApplication-window-added"/>
     <function name="The &quot;window-removed&quot; signal" link="BamfApplication.html#BamfApplication-window-removed"/>
   </functions>
