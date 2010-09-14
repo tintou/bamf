@@ -1,10 +1,10 @@
-bamf (0.2.48-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.48-0ubuntu1) maverick; urgency=low
 
   * New upstream release:
     - Dropbox 0.8.90 build shows in the launcher (LP: #610226)
   * update debian/libbamf0.symbols
 
- -- Didier Roche <didrocks@ubuntu.com>  Tue, 14 Sep 2010 18:44:50 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Tue, 14 Sep 2010 19:13:51 +0200
 
 bamf (0.2.46-0ubuntu1) maverick; urgency=low
 
