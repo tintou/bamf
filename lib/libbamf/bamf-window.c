@@ -121,11 +121,14 @@ BamfWindowType bamf_window_get_window_type (BamfWindow *self)
 guint32 bamf_window_get_xid (BamfWindow *self)
 {
   BamfWindowPrivate *priv;
-  guint32 xid = 0;
+  static guint32 xid = 0;
   GError *error = NULL;
-
+  
   g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
   priv = self->priv;
+  
+  if (xid != 0)
+    return xid;
 
   if (!dbus_g_proxy_call (priv->proxy,
                           "GetXid",
