@@ -93,3 +93,12 @@ BamfApplication
 @Returns: 
 
 
+<!-- ##### FUNCTION bamf_application_get_show_menu_stubs ##### -->
+<para>
+
+</para>
+
+@application: 
+@Returns: 
+
+
