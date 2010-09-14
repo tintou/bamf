@@ -1,6 +1,7 @@
 bamf (0.2.48-0ubuntu1) UNRELEASED; urgency=low
 
-  * New upstream release.
+  * New upstream release:
+    - Dropbox 0.8.90 build shows in the launcher (LP: #610226)
 
  -- Didier Roche <didrocks@ubuntu.com>  Tue, 14 Sep 2010 18:44:50 +0200
 
