@@ -1593,7 +1593,9 @@ bamf_matcher_register_favorites (BamfMatcher *matcher,
       if (g_list_find_custom (priv->favorites, fav, (GCompareFunc) g_strcmp0))
         continue;
       
+      
       priv->favorites = g_list_prepend (priv->favorites, g_strdup (fav));
+      bamf_matcher_load_desktop_file (matcher, fav);
     }
 
   return TRUE;
