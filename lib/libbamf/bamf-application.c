@@ -179,23 +179,33 @@ bamf_application_get_windows (BamfApplication *application)
 gboolean
 bamf_application_get_show_menu_stubs (BamfApplication * application)
 {
-	g_return_val_if_fail (BAMF_IS_APPLICATION (application), TRUE);
-	GError *error = NULL;
-	gboolean show_stubs = TRUE;
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), TRUE);
+  GError *error = NULL;
+  static int show_stubs = -1;
+  gboolean result;
 
-	if (!dbus_g_proxy_call (application->priv->proxy,
-	                        "ShowStubs",
-	                        &error,
-	                        G_TYPE_INVALID,
-	                        G_TYPE_BOOLEAN, &show_stubs,
-	                        G_TYPE_INVALID)) {
-		g_warning ("Failed to fetch show_stubs: %s", error->message);
-		g_error_free (error);
+  if (show_stubs == -1)
+    {
+      if (!dbus_g_proxy_call (application->priv->proxy,
+                              "ShowStubs",
+                              &error,
+                              G_TYPE_INVALID,
+                              G_TYPE_BOOLEAN, &result,
+                              G_TYPE_INVALID)) 
+        {
+          g_warning ("Failed to fetch show_stubs: %s", error->message);
+          g_error_free (error);
 
-		return TRUE;
-	}
-
-	return show_stubs;
+          return TRUE;
+        }
+      
+      if (result)
+        show_stubs = 1;
+      else
+        show_stubs = 0;
+    }
+    
+  return show_stubs;
 }
 
 static void
