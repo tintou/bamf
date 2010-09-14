@@ -1,6 +1,7 @@
 libbamf.so.0 libbamf0 #MINVER#
  bamf_application_get_application_type@Base 0.2.20
  bamf_application_get_desktop_file@Base 0.2.20
+ bamf_application_get_show_menu_stubs@Base 0.2.48
  bamf_application_get_type@Base 0.2.20
  bamf_application_get_windows@Base 0.2.20
  bamf_application_get_xids@Base 0.2.20
@@ -25,6 +26,7 @@ libbamf.so.0 libbamf0 #MINVER#
  bamf_matcher_application_is_running@Base 0.2.20
  bamf_matcher_get_active_application@Base 0.2.20
  bamf_matcher_get_active_window@Base 0.2.20
+ bamf_matcher_get_application_for_window@Base 0.2.48
  bamf_matcher_get_application_for_xid@Base 0.2.20
  bamf_matcher_get_applications@Base 0.2.20
  bamf_matcher_get_default@Base 0.2.20
