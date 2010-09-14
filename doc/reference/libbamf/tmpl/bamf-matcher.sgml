@@ -112,6 +112,16 @@ BamfMatcher
 @Returns: 
 
 
+<!-- ##### FUNCTION bamf_matcher_get_application_for_window ##### -->
+<para>
+
+</para>
+
+@matcher: 
+@window: 
+@Returns: 
+
+
 <!-- ##### FUNCTION bamf_matcher_application_is_running ##### -->
 <para>
 

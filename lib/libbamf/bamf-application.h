@@ -118,6 +118,16 @@ GList * bamf_application_get_windows (BamfApplication *application);
  */
 GArray * bamf_application_get_xids (BamfApplication *application);
 
+/**
+ * bamf_application_get_show_stubs:
+ * @application: a #BamfApplication
+ *
+ * Used to discover whether the application wants menu stubs shown.
+ *
+ * Returns: Whether the stubs should be shown.
+ */
+gboolean bamf_application_get_show_menu_stubs (BamfApplication *application);
+
 G_END_DECLS
 
 #endif

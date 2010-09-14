@@ -49,7 +49,10 @@ struct _BamfApplicationPrivate
   char * app_type;
   char * icon;
   gboolean is_tab_container;
+  gboolean show_stubs;
 };
+
+#define STUB_KEY  "X-Ayatana-Appmenu-Show-Stubs"
 
 static char *
 bamf_application_get_icon (BamfView *view)
@@ -118,6 +121,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
   BamfView *view;
   BamfWindow *window = NULL;
   GDesktopAppInfo *desktop;
+  GKeyFile * keyfile;
   GIcon *gicon;
   GList *children, *l;
   const char *class;
@@ -130,17 +134,33 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
 
   if (self->priv->desktop_file)
     {
-      desktop = g_desktop_app_info_new_from_filename (self->priv->desktop_file);
-
-      if (!G_IS_APP_INFO (desktop))
+      keyfile = g_key_file_new();
+      if (!g_key_file_load_from_file(keyfile, self->priv->desktop_file, G_KEY_FILE_NONE, NULL)) {
+          g_key_file_free(keyfile);
         return;
+      }
+
+      desktop = g_desktop_app_info_new_from_keyfile (keyfile);
+
+      if (!G_IS_APP_INFO (desktop)) {
+        g_key_file_free(keyfile);
+        return;
+      }
 
       gicon = g_app_info_get_icon (G_APP_INFO (desktop));
 
       name = g_strdup (g_app_info_get_display_name (G_APP_INFO (desktop)));
       icon = g_icon_to_string (gicon);
 
+      if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, STUB_KEY, NULL)) {
+        /* This will error to return false, which is okay as it seems
+           unlikely anyone will want to set this flag except to turn
+           off the stub menus. */
+        self->priv->show_stubs = g_key_file_get_boolean(keyfile, G_KEY_FILE_DESKTOP_GROUP, STUB_KEY, NULL);
+      }
+
       g_object_unref (desktop);
+      g_key_file_free(keyfile);
     }
   else if ((children = bamf_view_get_children (BAMF_VIEW (self))) != NULL)
     {
@@ -498,6 +518,7 @@ bamf_application_init (BamfApplication * self)
 
   priv->is_tab_container = FALSE;
   priv->app_type = g_strdup ("system");
+  priv->show_stubs = TRUE;
 }
 
 static void
@@ -516,25 +537,25 @@ bamf_application_class_init (BamfApplicationClass * klass)
   g_type_class_add_private (klass, sizeof (BamfApplicationPrivate));
 
   dbus_g_object_type_install_info (BAMF_TYPE_APPLICATION,
-				   &dbus_glib_bamf_application_object_info);
+                   &dbus_glib_bamf_application_object_info);
 
   application_signals [WINDOW_ADDED] =
-  	g_signal_new ("window-added",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__STRING,
-  	              G_TYPE_NONE, 1,
-  	              G_TYPE_STRING);
+      g_signal_new ("window-added",
+                    G_OBJECT_CLASS_TYPE (klass),
+                    0,
+                    0, NULL, NULL,
+                    g_cclosure_marshal_VOID__STRING,
+                    G_TYPE_NONE, 1,
+                    G_TYPE_STRING);
 
   application_signals [WINDOW_REMOVED] =
-  	g_signal_new ("window-removed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__STRING,
-  	              G_TYPE_NONE, 1,
-  	              G_TYPE_STRING);
+      g_signal_new ("window-removed",
+                    G_OBJECT_CLASS_TYPE (klass),
+                    0,
+                    0, NULL, NULL,
+                    g_cclosure_marshal_VOID__STRING,
+                    G_TYPE_NONE, 1,
+                    G_TYPE_STRING);
 }
 
 BamfApplication *
@@ -566,4 +587,22 @@ bamf_application_new_from_desktop_files (GList *desktop_files)
   bamf_application_set_desktop_file_from_list (application, desktop_files);
   
   return application;  
+}
+
+/**
+    bamf_application_get_show_stubs:
+    @application: Application to check for menu stubs
+
+    Checks to see if the application should show menu stubs or not.
+    This is specified with the "X-Ayatana-Appmenu-Show-Stubs" desktop
+    file key.
+
+    Return Value: Defaults to TRUE, else FALSE if specified in
+      .desktop file.
+*/
+gboolean
+bamf_application_get_show_stubs (BamfApplication *application)
+{
+    g_return_val_if_fail(BAMF_IS_APPLICATION(application), TRUE);
+    return application->priv->show_stubs;
 }

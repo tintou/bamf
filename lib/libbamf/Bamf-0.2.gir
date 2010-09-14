@@ -52,6 +52,12 @@ none exists, the result is NULL.</doc>
           </array>
         </return-value>
       </method>
+      <method name="get_show_menu_stubs"
+              c:identifier="bamf_application_get_show_menu_stubs">
+        <return-value transfer-ownership="none">
+          <type name="boolean" c:type="gboolean"/>
+        </return-value>
+      </method>
       <field name="parent">
         <type name="View" c:type="BamfView"/>
       </field>
@@ -366,7 +372,22 @@ none exists, the result is NULL.</doc>
         </return-value>
         <parameters>
           <parameter name="xid" transfer-ownership="none">
+            <doc xml:whitespace="preserve">The XID to search for</doc>
             <type name="uint32" c:type="guint32"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="get_application_for_window"
+              c:identifier="bamf_matcher_get_application_for_window">
+        <doc xml:whitespace="preserve">Used to fetch the #BamfApplication containing the passed window.</doc>
+        <return-value transfer-ownership="container">
+          <doc xml:whitespace="preserve">The #BamfApplication representing the xid passed, or NULL if none exists.</doc>
+          <type name="Application" c:type="BamfApplication*"/>
+        </return-value>
+        <parameters>
+          <parameter name="window" transfer-ownership="none">
+            <doc xml:whitespace="preserve">The window to look for</doc>
+            <type name="Window" c:type="BamfWindow*"/>
           </parameter>
         </parameters>
       </method>

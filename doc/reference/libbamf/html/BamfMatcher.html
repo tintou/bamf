@@ -50,6 +50,9 @@
 <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="returnvalue">BamfApplication</span></a> *   <a class="link" href="BamfMatcher.html#bamf-matcher-get-application-for-xid" title="bamf_matcher_get_application_for_xid ()">bamf_matcher_get_application_for_xid</a>
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> xid</code></em>);
+<a class="link" href="BamfApplication.html" title="BamfApplication"><span class="returnvalue">BamfApplication</span></a> *   <a class="link" href="BamfMatcher.html#bamf-matcher-get-application-for-window" title="bamf_matcher_get_application_for_window ()">bamf_matcher_get_application_for_window</a>
+                                                        (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="BamfWindow.html" title="BamfWindow"><span class="type">BamfWindow</span></a> *window</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfMatcher.html#bamf-matcher-application-is-running" title="bamf_matcher_application_is_running ()">bamf_matcher_application_is_running</a> (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *application</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             <a class="link" href="BamfMatcher.html#bamf-matcher-get-applications" title="bamf_matcher_get_applications ()">bamf_matcher_get_applications</a>       (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);
@@ -192,7 +195,37 @@ Used to fetch the <a class="link" href="BamfApplication.html" title="BamfApplica
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>xid</code></em> :</span></p></td>
-<td>
+<td>The XID to search for
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td> The <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> representing the xid passed, or NULL if none exists. <span class="annotation">[<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym>]</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" title="bamf_matcher_get_application_for_window ()">
+<a name="bamf-matcher-get-application-for-window"></a><h3>bamf_matcher_get_application_for_window ()</h3>
+<pre class="programlisting"><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="returnvalue">BamfApplication</span></a> *   bamf_matcher_get_application_for_window
+                                                        (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="BamfWindow.html" title="BamfWindow"><span class="type">BamfWindow</span></a> *window</code></em>);</pre>
+<p>
+Used to fetch the <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> containing the passed window.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>matcher</code></em> :</span></p></td>
+<td>a <a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>window</code></em> :</span></p></td>
+<td>The window to look for
 </td>
 </tr>
 <tr>
