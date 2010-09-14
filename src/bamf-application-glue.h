@@ -99,6 +99,50 @@ dbus_glib_marshal_bamf_application_STRING__VOID (GClosure     *closure,
 }
 #define dbus_glib_marshal_bamf_application_STRING__NONE	dbus_glib_marshal_bamf_application_STRING__VOID
 
+/* BOOLEAN:NONE */
+extern void dbus_glib_marshal_bamf_application_BOOLEAN__VOID (GClosure     *closure,
+                                                              GValue       *return_value,
+                                                              guint         n_param_values,
+                                                              const GValue *param_values,
+                                                              gpointer      invocation_hint,
+                                                              gpointer      marshal_data);
+void
+dbus_glib_marshal_bamf_application_BOOLEAN__VOID (GClosure     *closure,
+                                                  GValue       *return_value G_GNUC_UNUSED,
+                                                  guint         n_param_values,
+                                                  const GValue *param_values,
+                                                  gpointer      invocation_hint G_GNUC_UNUSED,
+                                                  gpointer      marshal_data)
+{
+  typedef gboolean (*GMarshalFunc_BOOLEAN__VOID) (gpointer     data1,
+                                                  gpointer     data2);
+  register GMarshalFunc_BOOLEAN__VOID callback;
+  register GCClosure *cc = (GCClosure*) closure;
+  register gpointer data1, data2;
+  gboolean v_return;
+
+  g_return_if_fail (return_value != NULL);
+  g_return_if_fail (n_param_values == 1);
+
+  if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+      data1 = closure->data;
+      data2 = g_value_peek_pointer (param_values + 0);
+    }
+  else
+    {
+      data1 = g_value_peek_pointer (param_values + 0);
+      data2 = closure->data;
+    }
+  callback = (GMarshalFunc_BOOLEAN__VOID) (marshal_data ? marshal_data : cc->callback);
+
+  v_return = callback (data1,
+                       data2);
+
+  g_value_set_boolean (return_value, v_return);
+}
+#define dbus_glib_marshal_bamf_application_BOOLEAN__NONE	dbus_glib_marshal_bamf_application_BOOLEAN__VOID
+
 /* BOXED:NONE */
 extern void dbus_glib_marshal_bamf_application_BOXED__VOID (GClosure     *closure,
                                                             GValue       *return_value,
@@ -152,12 +196,13 @@ static const DBusGMethodInfo dbus_glib_bamf_application_methods[] = {
   { (GCallback) bamf_application_get_application_type, dbus_glib_marshal_bamf_application_STRING__NONE, 0 },
   { (GCallback) bamf_application_get_desktop_file, dbus_glib_marshal_bamf_application_STRING__NONE, 61 },
   { (GCallback) bamf_application_get_xids, dbus_glib_marshal_bamf_application_BOXED__NONE, 126 },
+  { (GCallback) bamf_application_get_show_stubs, dbus_glib_marshal_bamf_application_BOOLEAN__NONE, 177 },
 };
 
 const DBusGObjectInfo dbus_glib_bamf_application_object_info = {  1,
   dbus_glib_bamf_application_methods,
-  3,
-"org.ayatana.bamf.application\0ApplicationType\0S\0type\0O\0F\0R\0s\0\0org.ayatana.bamf.application\0DesktopFile\0S\0desktop_file\0O\0F\0R\0s\0\0org.ayatana.bamf.application\0Xids\0S\0xids\0O\0F\0R\0au\0\0\0",
+  4,
+"org.ayatana.bamf.application\0ApplicationType\0S\0type\0O\0F\0R\0s\0\0org.ayatana.bamf.application\0DesktopFile\0S\0desktop_file\0O\0F\0R\0s\0\0org.ayatana.bamf.application\0Xids\0S\0xids\0O\0F\0R\0au\0\0org.ayatana.bamf.application\0ShowStubs\0S\0show_stubs\0O\0F\0R\0b\0\0\0",
 "org.ayatana.bamf.application\0WindowAdded\0org.ayatana.bamf.application\0WindowRemoved\0\0",
 "\0"
 };

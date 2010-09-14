@@ -1416,7 +1416,6 @@ char *
 bamf_matcher_application_for_xid (BamfMatcher *matcher,
                                   guint32 xid)
 {
-  char * desktop_file;
   GList *l;
   BamfView *view;
   BamfMatcherPrivate *priv;
@@ -1432,10 +1431,9 @@ bamf_matcher_application_for_xid (BamfMatcher *matcher,
       if (!BAMF_IS_APPLICATION (view))
         continue;
 
-      desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
       if (bamf_application_manages_xid (BAMF_APPLICATION (view), xid))
         {
-          return desktop_file;
+          return g_strdup (bamf_view_get_path (view));
         }
     }
 

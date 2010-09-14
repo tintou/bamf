@@ -11,6 +11,7 @@
 <ANCHOR id="bamf-matcher-get-active-application" href="libbamf/BamfMatcher.html#bamf-matcher-get-active-application">
 <ANCHOR id="bamf-matcher-get-active-window" href="libbamf/BamfMatcher.html#bamf-matcher-get-active-window">
 <ANCHOR id="bamf-matcher-get-application-for-xid" href="libbamf/BamfMatcher.html#bamf-matcher-get-application-for-xid">
+<ANCHOR id="bamf-matcher-get-application-for-window" href="libbamf/BamfMatcher.html#bamf-matcher-get-application-for-window">
 <ANCHOR id="bamf-matcher-application-is-running" href="libbamf/BamfMatcher.html#bamf-matcher-application-is-running">
 <ANCHOR id="bamf-matcher-get-applications" href="libbamf/BamfMatcher.html#bamf-matcher-get-applications">
 <ANCHOR id="bamf-matcher-register-favorites" href="libbamf/BamfMatcher.html#bamf-matcher-register-favorites">
@@ -126,6 +127,7 @@
 <ANCHOR id="bamf-application-get-desktop-file" href="libbamf/BamfApplication.html#bamf-application-get-desktop-file">
 <ANCHOR id="bamf-application-get-windows" href="libbamf/BamfApplication.html#bamf-application-get-windows">
 <ANCHOR id="bamf-application-get-xids" href="libbamf/BamfApplication.html#bamf-application-get-xids">
+<ANCHOR id="bamf-application-get-show-menu-stubs" href="libbamf/BamfApplication.html#bamf-application-get-show-menu-stubs">
 <ANCHOR id="BamfApplication.signal-details" href="libbamf/BamfApplication.html#BamfApplication.signal-details">
 <ANCHOR id="BamfApplication-window-added" href="libbamf/BamfApplication.html#BamfApplication-window-added">
 <ANCHOR id="BamfApplication-window-removed" href="libbamf/BamfApplication.html#BamfApplication-window-removed">

@@ -143,7 +143,8 @@ bamf_indicator_source_approve_item (BamfIndicatorSource *self,
   g_return_val_if_fail (address, TRUE);
   g_return_val_if_fail (BAMF_IS_INDICATOR_SOURCE (self), TRUE);
   
-  if (g_strcmp0 (category, "ApplicationStatus") != 0)
+  if (g_strcmp0 (category, "ApplicationStatus") != 0 || 
+      g_strcmp0 (path, "/org/ayatana/NotificationItem/dropbox_client") == 0)
     return TRUE;
     
   if (pid == 0)
@@ -228,7 +229,7 @@ bamf_indicator_source_register_notification_approver (BamfIndicatorSource *self)
   if (self->priv->proxy)
     {
       if (dbus_g_proxy_call (self->priv->proxy,
-                             "RegisterNotificationApprover",
+                             "XAyatanaRegisterNotificationApprover",
                              &error,
                              DBUS_TYPE_G_OBJECT_PATH, BAMF_INDICATOR_SOURCE_PATH,
                              G_TYPE_STRV, NULL,
