@@ -64,6 +64,7 @@ struct _BamfApplicationPrivate
   DBusGProxy      *proxy;
   gchar           *application_type;
   gchar           *desktop_file;
+  int              show_stubs;
 };
 
 const gchar *
@@ -179,23 +180,36 @@ bamf_application_get_windows (BamfApplication *application)
 gboolean
 bamf_application_get_show_menu_stubs (BamfApplication * application)
 {
-	g_return_val_if_fail (BAMF_IS_APPLICATION (application), TRUE);
-	GError *error = NULL;
-	gboolean show_stubs = TRUE;
+  BamfApplicationPrivate *priv;
+  GError *error = NULL;
+  gboolean result;
 
-	if (!dbus_g_proxy_call (application->priv->proxy,
-	                        "ShowStubs",
-	                        &error,
-	                        G_TYPE_INVALID,
-	                        G_TYPE_BOOLEAN, &show_stubs,
-	                        G_TYPE_INVALID)) {
-		g_warning ("Failed to fetch show_stubs: %s", error->message);
-		g_error_free (error);
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), TRUE);
 
-		return TRUE;
-	}
+  priv = application->priv;
 
-	return show_stubs;
+  if (priv->show_stubs == -1)
+    {
+      if (!dbus_g_proxy_call (application->priv->proxy,
+                              "ShowStubs",
+                              &error,
+                              G_TYPE_INVALID,
+                              G_TYPE_BOOLEAN, &result,
+                              G_TYPE_INVALID)) 
+        {
+          g_warning ("Failed to fetch show_stubs: %s", error->message);
+          g_error_free (error);
+
+          return TRUE;
+        }
+      
+      if (result)
+        priv->show_stubs = 1;
+      else
+        priv->show_stubs = 0;
+    }
+    
+  return priv->show_stubs;
 }
 
 static void
@@ -343,6 +357,7 @@ bamf_application_init (BamfApplication *self)
   GError           *error = NULL;
 
   priv = self->priv = BAMF_APPLICATION_GET_PRIVATE (self);
+  priv->show_stubs = -1;
 
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   if (priv->connection == NULL)
