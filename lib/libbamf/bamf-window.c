@@ -123,9 +123,12 @@ guint32 bamf_window_get_xid (BamfWindow *self)
   BamfWindowPrivate *priv;
   guint32 xid = 0;
   GError *error = NULL;
-
+  
   g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
   priv = self->priv;
+  
+  if (priv->xid != 0)
+    return priv->xid;
 
   if (!dbus_g_proxy_call (priv->proxy,
                           "GetXid",
@@ -226,6 +229,7 @@ bamf_window_init (BamfWindow *self)
 
   priv = self->priv = BAMF_WINDOW_GET_PRIVATE (self);
 
+  priv->xid = 0;
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   if (priv->connection == NULL)
     {
