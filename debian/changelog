@@ -1,3 +1,11 @@
+bamf (0.2.50-0ubuntu1) maverick; urgency=low
+
+  * New upstream release.
+    - Caching fixes
+    - Ensure we ship proper strings to open office windows
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Wed, 15 Sep 2010 17:23:41 -0400
+
 bamf (0.2.48-0ubuntu1) maverick; urgency=low
 
   * New upstream release:

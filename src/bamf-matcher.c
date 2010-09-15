@@ -184,7 +184,7 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
   const gchar *name;
   char *exec;
   GHashTable *desktopFileTable;
-  char *file;
+  GList *list;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
@@ -220,11 +220,11 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
     }
 
   desktopFileTable = self->priv->desktop_file_table;
-  file = g_hash_table_lookup (desktopFileTable, exec);
+  list = g_hash_table_lookup (desktopFileTable, exec);
 
-  g_return_val_if_fail (file, NULL);
+  g_return_val_if_fail (list, NULL);
 
-  return file;
+  return (char *) list->data;
 }
 
 /* Attempts to return the binary name for a particular execution string */
@@ -789,7 +789,7 @@ set_window_hint (BamfMatcher * self,
   g_return_if_fail (BAMF_LEGACY_WINDOW (window));
   g_return_if_fail (atom_name);
   g_return_if_fail (data);
-
+  
   XDisplay = XOpenDisplay (NULL);
 
   XChangeProperty (XDisplay,
@@ -1593,7 +1593,9 @@ bamf_matcher_register_favorites (BamfMatcher *matcher,
       if (g_list_find_custom (priv->favorites, fav, (GCompareFunc) g_strcmp0))
         continue;
       
+      
       priv->favorites = g_list_prepend (priv->favorites, g_strdup (fav));
+      bamf_matcher_load_desktop_file (matcher, fav);
     }
 
   return TRUE;
