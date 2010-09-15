@@ -64,6 +64,7 @@ struct _BamfApplicationPrivate
   DBusGProxy      *proxy;
   gchar           *application_type;
   gchar           *desktop_file;
+  int              show_stubs;
 };
 
 const gchar *
@@ -179,12 +180,15 @@ bamf_application_get_windows (BamfApplication *application)
 gboolean
 bamf_application_get_show_menu_stubs (BamfApplication * application)
 {
-  g_return_val_if_fail (BAMF_IS_APPLICATION (application), TRUE);
+  BamfApplicationPrivate *priv;
   GError *error = NULL;
-  static int show_stubs = -1;
   gboolean result;
 
-  if (show_stubs == -1)
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), TRUE);
+
+  priv = application->priv;
+
+  if (priv->show_stubs == -1)
     {
       if (!dbus_g_proxy_call (application->priv->proxy,
                               "ShowStubs",
@@ -200,12 +204,12 @@ bamf_application_get_show_menu_stubs (BamfApplication * application)
         }
       
       if (result)
-        show_stubs = 1;
+        priv->show_stubs = 1;
       else
-        show_stubs = 0;
+        priv->show_stubs = 0;
     }
     
-  return show_stubs;
+  return priv->show_stubs;
 }
 
 static void
@@ -353,6 +357,7 @@ bamf_application_init (BamfApplication *self)
   GError           *error = NULL;
 
   priv = self->priv = BAMF_APPLICATION_GET_PRIVATE (self);
+  priv->show_stubs = -1;
 
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   if (priv->connection == NULL)
