@@ -229,6 +229,7 @@ bamf_window_init (BamfWindow *self)
 
   priv = self->priv = BAMF_WINDOW_GET_PRIVATE (self);
 
+  priv->xid = 0;
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   if (priv->connection == NULL)
     {
