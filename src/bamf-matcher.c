@@ -417,6 +417,9 @@ load_desktop_file_to_table (BamfMatcher * self,
     return;
 
   exec = g_strdup (g_app_info_get_commandline (desktop_file));
+  
+  if (!exec)
+    return;
 
   g_object_unref (desktop_file);
 
