@@ -73,33 +73,13 @@ bamf_application_get_application_type (BamfApplication *application)
 char *
 bamf_application_get_desktop_file (BamfApplication *application)
 {
-  BamfMatcher *matcher;
   BamfApplicationPrivate *priv;
-  GList *favs, *l;
   char *result = NULL;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
   priv = application->priv;
 
-  matcher = bamf_matcher_get_default ();
-  favs = bamf_matcher_get_favorites (matcher);
-  
-  /* Could be faster */
-  if (favs)
-    {
-      for (l = favs; l; l = l->next)
-        {
-          if (g_list_find_custom (priv->desktop_file_list, l->data, (GCompareFunc) g_strcmp0))
-            {
-              result = g_strdup (l->data);
-              break;
-            }
-        }
-    }
-    
-  if (!result)
-    result = g_strdup (priv->desktop_file);
-    
+  result = g_strdup (priv->desktop_file);
   return result;
 }
 
@@ -432,11 +412,39 @@ on_empty (GObject *object)
   return FALSE;
 }
 
+static char *
+bamf_application_favorite_from_list (BamfApplication *self, GList *list)
+{
+  BamfMatcher *matcher;
+  GList *favs, *l;
+  char *result = NULL;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (self), NULL);
+
+  matcher = bamf_matcher_get_default ();
+  favs = bamf_matcher_get_favorites (matcher);
+  
+  if (favs)
+    {
+      for (l = favs; l; l = l->next)
+        {
+          if (g_list_find_custom (list, l->data, (GCompareFunc) g_strcmp0))
+            {
+              result = l->data;
+              break;
+            }
+        }
+    }
+    
+  return result;
+}
+
 static void
 bamf_application_set_desktop_file_from_list (BamfApplication *self, GList *list)
 {
   BamfApplicationPrivate *priv;
   GList *l;
+  char *desktop_file;
 
   g_return_if_fail (BAMF_IS_APPLICATION (self));
   g_return_if_fail (list);
@@ -446,8 +454,13 @@ bamf_application_set_desktop_file_from_list (BamfApplication *self, GList *list)
   for (l = list; l; l = l->next)
     priv->desktop_file_list = g_list_prepend (priv->desktop_file_list, g_strdup (l->data));
   
+  desktop_file = bamf_application_favorite_from_list (self, priv->desktop_file_list);
+  
   /* items come in priority order */
-  bamf_application_set_desktop_file (self, list->data);
+  if (!desktop_file)
+    desktop_file = list->data;
+  
+  bamf_application_set_desktop_file (self, desktop_file);
 }
 
 static void
@@ -472,6 +485,22 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
   if (g_list_length (bamf_view_get_children (view)) == 0)
     {
       g_idle_add ((GSourceFunc) on_empty, view);
+    }
+}
+
+static void
+matcher_favorites_changed (BamfMatcher *matcher, BamfApplication *self)
+{
+  char *new_desktop_file = NULL;
+  
+  g_return_if_fail (BAMF_IS_APPLICATION (self));
+  g_return_if_fail (BAMF_IS_MATCHER (matcher));
+  
+  new_desktop_file = bamf_application_favorite_from_list (self, self->priv->desktop_file_list);
+  
+  if (new_desktop_file)
+    {
+      bamf_application_set_desktop_file (self, new_desktop_file);
     }
 }
 
@@ -505,9 +534,10 @@ bamf_application_dispose (GObject *object)
       g_free (priv->app_type);
       priv->app_type = NULL;
     }
+  
+  g_signal_handlers_disconnect_by_func (G_OBJECT (bamf_matcher_get_default ()), matcher_favorites_changed, object);
 
   G_OBJECT_CLASS (bamf_application_parent_class)->dispose (object);
-
 }
 
 static void
@@ -519,6 +549,9 @@ bamf_application_init (BamfApplication * self)
   priv->is_tab_container = FALSE;
   priv->app_type = g_strdup ("system");
   priv->show_stubs = TRUE;
+  
+  g_signal_connect (G_OBJECT (bamf_matcher_get_default ()), "favorites-changed", 
+                    (GCallback) matcher_favorites_changed, self);
 }
 
 static void
