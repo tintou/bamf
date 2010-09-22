@@ -56,6 +56,7 @@ libbamf.so.0 libbamf0 #MINVER#
  bamf_view_get_type@Base 0.2.20
  bamf_view_get_view_type@Base 0.2.20
  bamf_view_is_active@Base 0.2.20
+ bamf_view_is_closed@Base 0.2.54
  bamf_view_is_running@Base 0.2.20
  bamf_view_is_urgent@Base 0.2.20
  bamf_view_user_visible@Base 0.2.20
