@@ -89,6 +89,7 @@ struct _BamfViewPrivate
   gchar           *type;
   guint            checked_flags;
   guint            set_flags;
+  gboolean         is_closed;
 };
 
 static void
@@ -201,6 +202,14 @@ bamf_view_get_boolean (BamfView *self, const char *method_name, guint flag)
   
   bamf_view_set_flag (self, flag, result);
   return result;
+}
+
+gboolean
+bamf_view_is_closed (BamfView *view)
+{
+  g_return_val_if_fail (BAMF_IS_VIEW (view), TRUE);
+  
+  return view->priv->is_closed;
 }
 
 gboolean
@@ -340,6 +349,7 @@ bamf_view_get_view_type (BamfView *self)
 static void
 bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
 {
+  self->priv->is_closed = TRUE;
   g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
 }
 
