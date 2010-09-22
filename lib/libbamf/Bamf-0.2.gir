@@ -1056,6 +1056,11 @@ be prefered by bamf to system desktop files.</doc>
           </type>
         </return-value>
       </method>
+      <method name="is_closed" c:identifier="bamf_view_is_closed">
+        <return-value transfer-ownership="none">
+          <type name="boolean" c:type="gboolean"/>
+        </return-value>
+      </method>
       <method name="is_active" c:identifier="bamf_view_is_active">
         <doc xml:whitespace="preserve">Determines if the view is currently active and focused by the user. Useful for an active window indicator.</doc>
         <return-value transfer-ownership="none">

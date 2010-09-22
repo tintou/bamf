@@ -106,6 +106,14 @@ GList    * bamf_view_get_children  (BamfView *view);
  * bamf_view_is_active:
  * @view: a #BamfView
  *
+ * Determines if the view is closed or not.
+ */
+gboolean   bamf_view_is_closed     (BamfView *view);
+
+/**
+ * bamf_view_is_active:
+ * @view: a #BamfView
+ *
  * Determines if the view is currently active and focused by the user. Useful for an active window indicator. 
  */
 gboolean   bamf_view_is_active     (BamfView *view);
