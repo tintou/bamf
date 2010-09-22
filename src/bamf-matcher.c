@@ -38,6 +38,7 @@ enum
   VIEW_CLOSED,
   ACTIVE_APPLICATION_CHANGED,
   ACTIVE_WINDOW_CHANGED,
+  FAVORITES_CHANGED,
 
   LAST_SIGNAL,
 };
@@ -1600,6 +1601,8 @@ bamf_matcher_register_favorites (BamfMatcher *matcher,
       priv->favorites = g_list_prepend (priv->favorites, g_strdup (fav));
       bamf_matcher_load_desktop_file (matcher, fav);
     }
+  
+  g_signal_emit (matcher, matcher_signals[FAVORITES_CHANGED], 0);
 
   return TRUE;
 }
@@ -1764,6 +1767,14 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
   	              bamf_marshal_VOID__STRING_STRING,
   	              G_TYPE_NONE, 2,
   	              G_TYPE_STRING, G_TYPE_STRING);
+  	              
+  matcher_signals [FAVORITES_CHANGED] =
+  	g_signal_new ("favorites-changed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              g_cclosure_marshal_VOID__VOID,
+  	              G_TYPE_NONE, 0);
 }
 
 BamfMatcher *
