@@ -3,6 +3,8 @@ bamf (0.2.54-0ubuntu1) maverick; urgency=low
   * New upstream release.
   * cherry pick some patches from upstream too for more fixes in special
     launchers (LP: #622146)
+  * debian/libbamf0.symbols:
+    - update to latest version
 
  -- Didier Roche <didrocks@ubuntu.com>  Wed, 22 Sep 2010 19:21:45 +0200
 
