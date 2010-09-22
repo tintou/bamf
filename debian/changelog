@@ -1,6 +1,8 @@
 bamf (0.2.54-0ubuntu1) UNRELEASED; urgency=low
 
   * New upstream release.
+  * cherry pick some patches from upstream too for more fixes in special
+    launchers (LP: #622146)
 
  -- Didier Roche <didrocks@ubuntu.com>  Wed, 22 Sep 2010 19:12:37 +0200
 
