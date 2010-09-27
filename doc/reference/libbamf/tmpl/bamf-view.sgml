@@ -9,10 +9,12 @@ BamfView
 
 </para>
 
+
 <!-- ##### SECTION See_Also ##### -->
 <para>
 
 </para>
+
 
 <!-- ##### SECTION Stability_Level ##### -->
 
@@ -134,6 +136,15 @@ BamfView
 
 
 <!-- ##### FUNCTION bamf_view_get_children ##### -->
+<para>
+
+</para>
+
+@view: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_view_is_closed ##### -->
 <para>
 
 </para>
