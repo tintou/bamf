@@ -376,6 +376,9 @@ insert_data_into_tables (BamfMatcher *self,
 {
   GList *file_list, *id_list;
   char *datadup;
+  
+  g_return_if_fail (exec);
+  g_return_if_fail (desktop_id);
 
   file_list = g_hash_table_lookup (desktop_file_table, exec);
   id_list   = g_hash_table_lookup (desktop_id_table, desktop_id);

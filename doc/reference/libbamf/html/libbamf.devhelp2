@@ -73,6 +73,7 @@
     <keyword type="struct" name="BamfViewClass" link="BamfView.html#BamfViewClass"/>
     <keyword type="struct" name="BamfViewPrivate" link="BamfView.html#BamfViewPrivate"/>
     <keyword type="function" name="bamf_view_get_children ()" link="BamfView.html#bamf-view-get-children"/>
+    <keyword type="function" name="bamf_view_is_closed ()" link="BamfView.html#bamf-view-is-closed"/>
     <keyword type="function" name="bamf_view_is_active ()" link="BamfView.html#bamf-view-is-active"/>
     <keyword type="function" name="bamf_view_is_running ()" link="BamfView.html#bamf-view-is-running"/>
     <keyword type="function" name="bamf_view_is_urgent ()" link="BamfView.html#bamf-view-is-urgent"/>
