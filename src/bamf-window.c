@@ -171,7 +171,12 @@ bamf_window_ensure_flags (BamfWindow *self)
   
   bamf_view_set_active       (BAMF_VIEW (self), bamf_legacy_window_is_active (self->priv->window));
   bamf_view_set_urgent       (BAMF_VIEW (self), bamf_legacy_window_needs_attention (self->priv->window));
-  bamf_view_set_user_visible (BAMF_VIEW (self), !bamf_legacy_window_is_skip_tasklist (self->priv->window));
+  
+  if (g_strcmp0 (bamf_legacy_window_get_class_name (self->priv->window), "Nautilus") == 0 &&
+      g_strcmp0 (bamf_legacy_window_get_name (self->priv->window), "File Operations") == 0)
+    bamf_view_set_user_visible (BAMF_VIEW (self), FALSE);
+  else    
+    bamf_view_set_user_visible (BAMF_VIEW (self), !bamf_legacy_window_is_skip_tasklist (self->priv->window));
 }
 
 static void
