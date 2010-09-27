@@ -73,6 +73,7 @@
     <function name="BamfViewClass" link="BamfView.html#BamfViewClass"/>
     <function name="BamfViewPrivate" link="BamfView.html#BamfViewPrivate"/>
     <function name="bamf_view_get_children ()" link="BamfView.html#bamf-view-get-children"/>
+    <function name="bamf_view_is_closed ()" link="BamfView.html#bamf-view-is-closed"/>
     <function name="bamf_view_is_active ()" link="BamfView.html#bamf-view-is-active"/>
     <function name="bamf_view_is_running ()" link="BamfView.html#bamf-view-is-running"/>
     <function name="bamf_view_is_urgent ()" link="BamfView.html#bamf-view-is-urgent"/>

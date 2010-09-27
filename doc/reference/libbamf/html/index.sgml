@@ -93,6 +93,7 @@
 <ANCHOR id="BamfViewClass" href="libbamf/BamfView.html#BamfViewClass">
 <ANCHOR id="BamfViewPrivate" href="libbamf/BamfView.html#BamfViewPrivate">
 <ANCHOR id="bamf-view-get-children" href="libbamf/BamfView.html#bamf-view-get-children">
+<ANCHOR id="bamf-view-is-closed" href="libbamf/BamfView.html#bamf-view-is-closed">
 <ANCHOR id="bamf-view-is-active" href="libbamf/BamfView.html#bamf-view-is-active">
 <ANCHOR id="bamf-view-is-running" href="libbamf/BamfView.html#bamf-view-is-running">
 <ANCHOR id="bamf-view-is-urgent" href="libbamf/BamfView.html#bamf-view-is-urgent">
