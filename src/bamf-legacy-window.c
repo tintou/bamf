@@ -308,11 +308,22 @@ static void
 bamf_legacy_window_dispose (GObject *object)
 {
   BamfLegacyWindow *self;
+  GFile *file;
 
   self = BAMF_LEGACY_WINDOW (object);
 
   g_signal_handler_disconnect (wnck_screen_get_default (),
                                self->priv->closed_id);
+                               
+  if (self->priv->mini_icon_path)
+    {
+      file = g_file_new_for_path (self->priv->mini_icon_path);
+      g_file_delete (file, NULL, NULL);
+      g_object_unref (file);
+      
+      g_free (self->priv->mini_icon_path);
+      self->priv->mini_icon_path = NULL;
+    }
 
   if (self->priv->legacy_window)
     {
