@@ -48,6 +48,17 @@ G_BEGIN_DECLS
 #define BAMF_VIEW_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj),\
         BAMF_TYPE_VIEW, BamfViewClass))
 
+typedef enum
+{
+  BAMF_CLICK_BEHAVIOR_OPEN,
+  BAMF_CLICK_BEHAVIOR_FOCUS,
+  BAMF_CLICK_BEHAVIOR_FOCUS_ALL,
+  BAMF_CLICK_BEHAVIOR_MINIMIZE,
+  BAMF_CLICK_BEHAVIOR_RESTORE,
+  BAMF_CLICK_BEHAVIOR_RESTORE_ALL,
+  BAMF_CLICK_BEHAVIOR_PICKER,
+} BamfClickBehavior;
+
 typedef struct _BamfView        BamfView;
 typedef struct _BamfViewClass   BamfViewClass;
 typedef struct _BamfViewPrivate BamfViewPrivate;
@@ -70,6 +81,7 @@ struct _BamfViewClass
   gchar            * (*get_name)            (BamfView *view);
   gchar            * (*get_icon)            (BamfView *view);
   const gchar      * (*view_type)           (BamfView *view);
+  void               (*set_path)            (BamfView *view, const gchar *path);
   
   /*< signals >*/
   void (*active_changed)              (BamfView *view, gboolean active);
@@ -169,6 +181,10 @@ gboolean   bamf_view_user_visible  (BamfView *view);
  * Returns: (transfer full): A gchar*
  */
 const gchar    * bamf_view_get_view_type (BamfView *view);
+
+void bamf_view_set_sticky (BamfView *view, gboolean value);
+
+gboolean bamf_view_is_sticky (BamfView *view);
 
 G_END_DECLS
 
