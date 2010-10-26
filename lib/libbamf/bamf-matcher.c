@@ -36,6 +36,7 @@
 
 #include "bamf-matcher.h"
 #include "bamf-view.h"
+#include "bamf-view-private.h"
 #include "bamf-factory.h"
 #include "bamf-marshal.h"
 
@@ -126,8 +127,9 @@ bamf_matcher_on_view_opened (DBusGProxy *proxy,
 
   view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
   g_object_ref (view);
-
-  g_signal_emit (matcher, matcher_signals[VIEW_OPENED],0, view);
+  
+  if (!bamf_view_is_sticky (view))
+    g_signal_emit (matcher, matcher_signals[VIEW_OPENED],0, view);
 }
 
 static void
@@ -140,8 +142,11 @@ bamf_matcher_on_view_closed (DBusGProxy *proxy,
 
   view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
 
-  g_signal_emit (matcher, matcher_signals[VIEW_CLOSED],0, view);
-  g_object_unref (view);
+  if (!bamf_view_is_sticky (view))
+    {
+      g_signal_emit (matcher, matcher_signals[VIEW_CLOSED],0, view);
+      g_object_unref (view);
+    }
 }
 
 static void
@@ -574,3 +579,10 @@ bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
   return NULL;
 }
 
+BamfApplication * 
+bamf_matcher_get_application_for_desktop_file (BamfMatcher *matcher,
+                                               const gchar *desktop_file_path,
+                                               gboolean create_if_not_found)
+{
+  return bamf_factory_app_for_file (bamf_factory_get_default (), desktop_file_path, create_if_not_found);
+}
