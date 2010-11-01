@@ -226,6 +226,14 @@ bamf_application_get_show_menu_stubs (BamfApplication * application)
   return priv->show_stubs;
 }
 
+static BamfClickBehavior
+bamf_application_get_click_suggestion (BamfView *view)
+{
+  if (!bamf_view_is_running (view))
+    return BAMF_CLICK_BEHAVIOR_OPEN;
+  return 0;
+}
+
 static void
 bamf_application_on_window_added (DBusGProxy *proxy, char *path, BamfApplication *self)
 {
@@ -359,6 +367,7 @@ bamf_application_class_init (BamfApplicationClass *klass)
   
   obj_class->dispose     = bamf_application_dispose;
   view_class->set_path   = bamf_application_set_path;
+  view_class->click_behavior = bamf_application_get_click_suggestion;
 
   g_type_class_add_private (obj_class, sizeof (BamfApplicationPrivate));
 
