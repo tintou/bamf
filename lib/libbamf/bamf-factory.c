@@ -54,7 +54,8 @@ G_DEFINE_TYPE (BamfFactory, bamf_factory, G_TYPE_OBJECT);
 struct _BamfFactoryPrivate
 {
   GHashTable *views;
-  GList *applications;
+  GList *local_views;
+  GList *registered_views;
 };
 
 static BamfFactory *factory = NULL;
@@ -87,22 +88,19 @@ bamf_factory_init (BamfFactory *self)
 }
 
 static void
-on_weak_unref (char *path, BamfView *dead_object)
-{
-  BamfFactory *self = factory;
-  g_return_if_fail (BAMF_IS_FACTORY (self));
-  
-  if (BAMF_IS_APPLICATION (dead_object))
-    self->priv->applications = g_list_remove (self->priv->applications, dead_object);
-
-  g_hash_table_remove (self->priv->views, path);
-  g_free (path);
-}
-
-static void
 on_view_closed (BamfView *view, BamfFactory *self)
 {
+  const char *path;
+  
   g_return_if_fail (BAMF_IS_VIEW (view));
+  
+  if (!bamf_view_is_sticky (view))
+    self->priv->local_views = g_list_remove (self->priv->local_views, view);
+
+  path = bamf_view_get_path (view);
+  if (path)
+    g_hash_table_remove (self->priv->views, path);
+  
   g_object_unref (view);
 }
 
@@ -111,11 +109,15 @@ bamf_factory_register_view (BamfFactory *self, BamfView *view, const char *path)
 {
   GHashTable *views;
   views = self->priv->views;
-
-  g_object_weak_ref (G_OBJECT (view), (GWeakNotify) on_weak_unref, g_strdup (path));
-  g_signal_connect (G_OBJECT (view), "closed", (GCallback) on_view_closed, self);
-    
+  
   g_hash_table_insert (views, g_strdup (path), view);
+
+  if (g_list_find (self->priv->registered_views, view))
+    return;
+  
+  self->priv->registered_views = g_list_prepend (self->priv->registered_views, view);
+  
+  g_signal_connect (G_OBJECT (view), "closed", (GCallback) on_view_closed, self);
 }
 
 BamfApplication * 
@@ -126,8 +128,8 @@ bamf_factory_app_for_file (BamfFactory * factory,
   BamfApplication *result = NULL, *app;
   GList *l;
   
-  /* check if result is available in known applications */
-  for (l = factory->priv->applications; l; l = l->next)
+  /* check if result is available in known local_views */
+  for (l = factory->priv->local_views; l; l = l->next)
     {
       app = BAMF_APPLICATION (l->data);
       if (g_strcmp0 (bamf_application_get_desktop_file (app), path) == 0)
@@ -142,7 +144,8 @@ bamf_factory_app_for_file (BamfFactory * factory,
     {
       /* delay registration until match time */
       result = bamf_application_new_favorite (path);
-      factory->priv->applications = g_list_prepend (factory->priv->applications, result);
+      factory->priv->local_views = g_list_prepend (factory->priv->local_views, result);
+      g_object_ref_sink (result);
     }
   
   return result;
@@ -156,6 +159,7 @@ bamf_factory_view_for_path (BamfFactory * factory,
   BamfView *view;
   GList *l;
   gchar *type;
+  gboolean created = FALSE;
 
   g_return_val_if_fail (BAMF_IS_FACTORY (factory), NULL);
   
@@ -165,11 +169,9 @@ bamf_factory_view_for_path (BamfFactory * factory,
   views = factory->priv->views;
 
   view = g_hash_table_lookup (views, path);
-
+  
   if (BAMF_IS_VIEW (view))
-    {
-      return view;
-    }
+    return view;
   
   view = g_object_new (BAMF_TYPE_VIEW, NULL);
   bamf_view_set_path (view, path);
@@ -184,33 +186,43 @@ bamf_factory_view_for_path (BamfFactory * factory,
   else if (g_strcmp0 (type, "indicator") == 0)
     view = BAMF_VIEW (bamf_indicator_new (path));
   
+  created = TRUE;
+  
   if (BAMF_IS_APPLICATION (view))
     {
       /* handle case where a favorite exists and this matches it */
       const char *local_desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
-      for (l = factory->priv->applications; l; l = l->next)
+      for (l = factory->priv->local_views; l; l = l->next)
         {
           /* remote ready views are already matched */
-          if (bamf_view_remote_ready (BAMF_VIEW (l->data)))
+          if (bamf_view_remote_ready (BAMF_VIEW (l->data)) || !BAMF_IS_APPLICATION (l->data))
             continue;
           
-          const char *list_desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (l->data));\
-          g_print ("Comparing: %s and %s\n", local_desktop_file, list_desktop_file);
+          const char *list_desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (l->data));
           
           if (g_strcmp0 (local_desktop_file, list_desktop_file) == 0)
             {
-              g_print ("Match Found\n");
-              bamf_view_set_path (BAMF_VIEW (l->data), path);
-              
+              created = FALSE;
               g_object_unref (view);
+
               view = BAMF_VIEW (l->data);
+              bamf_view_set_path (view, path);
+              g_object_ref (view);
               break;
             }
         }
     }
   
   if (view)
-    bamf_factory_register_view (factory, view, path);
+    {
+      bamf_factory_register_view (factory, view, path);
+      
+      if (created)
+        {
+          factory->priv->local_views = g_list_prepend (factory->priv->local_views, view);
+          g_object_ref_sink (view);
+        }
+    }
   
   g_free (type);
   return view;

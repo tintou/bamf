@@ -27,6 +27,8 @@
 
 void bamf_view_set_path (BamfView *view, const char *dbus_path);
 
+const char * bamf_view_get_path (BamfView *view);
+
 gboolean bamf_view_remote_ready (BamfView *view);
 
 void bamf_view_set_name (BamfView *view, const char *name);

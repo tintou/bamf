@@ -50,6 +50,7 @@ G_BEGIN_DECLS
 
 typedef enum
 {
+  BAMF_CLICK_BEHAVIOR_NONE,
   BAMF_CLICK_BEHAVIOR_OPEN,
   BAMF_CLICK_BEHAVIOR_FOCUS,
   BAMF_CLICK_BEHAVIOR_FOCUS_ALL,
@@ -82,6 +83,8 @@ struct _BamfViewClass
   gchar            * (*get_icon)            (BamfView *view);
   const gchar      * (*view_type)           (BamfView *view);
   void               (*set_path)            (BamfView *view, const gchar *path);
+  BamfClickBehavior  (*click_behavior)      (BamfView *view);
+  
   
   /*< signals >*/
   void (*active_changed)              (BamfView *view, gboolean active);
@@ -185,6 +188,8 @@ const gchar    * bamf_view_get_view_type (BamfView *view);
 void bamf_view_set_sticky (BamfView *view, gboolean value);
 
 gboolean bamf_view_is_sticky (BamfView *view);
+
+BamfClickBehavior bamf_view_get_click_suggestion (BamfView *view);
 
 G_END_DECLS
 

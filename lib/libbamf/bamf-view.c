@@ -294,6 +294,15 @@ bamf_view_set_sticky (BamfView *view, gboolean value)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
   
+  if (value == view->priv->sticky)
+    return;
+  
+  if (value)
+    g_object_ref (view);
+  else
+    g_object_unref (view);
+  
+  
   view->priv->sticky = value;
 }
 
@@ -399,6 +408,16 @@ bamf_view_get_view_type (BamfView *self)
   return type;
 }
 
+BamfClickBehavior 
+bamf_view_get_click_suggestion (BamfView *self)
+{
+  g_return_val_if_fail (BAMF_IS_VIEW (self), BAMF_CLICK_BEHAVIOR_NONE);
+
+  if (BAMF_VIEW_GET_CLASS (self)->click_behavior)
+    return BAMF_VIEW_GET_CLASS (self)->click_behavior (self);
+    
+  return BAMF_CLICK_BEHAVIOR_NONE;
+}
 
 static void
 bamf_view_on_child_added (DBusGProxy *proxy, char *path, BamfView *self)
@@ -506,6 +525,12 @@ bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
     }
   
   g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
+  
+  if (priv->path)
+  {
+    g_free (priv->path);
+    priv->path = NULL;
+  }
 }
 
 static void
@@ -618,6 +643,14 @@ bamf_view_dispose (GObject *object)
       g_object_unref (priv->proxy);
       priv->proxy = NULL;
     }
+}
+
+const char * 
+bamf_view_get_path (BamfView *view)
+{
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+  
+  return view->priv->path;
 }
 
 void
