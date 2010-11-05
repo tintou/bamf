@@ -29,6 +29,7 @@
 
 #include <glib-object.h>
 #include <libbamf/bamf-view.h>
+#include <libbamf/bamf-application.h>
 
 G_BEGIN_DECLS
 
@@ -69,6 +70,10 @@ GType             bamf_factory_get_type             (void) G_GNUC_CONST;
 
 BamfView        * bamf_factory_view_for_path        (BamfFactory * factory,
                                                      const char * path);
+
+BamfApplication * bamf_factory_app_for_file         (BamfFactory * factory,
+                                                     const char * path,
+                                                     gboolean create);
 
 BamfFactory     * bamf_factory_get_default          (void);
 

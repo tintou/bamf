@@ -37,7 +37,9 @@
 #include "bamf-application.h"
 #include "bamf-window.h"
 #include "bamf-factory.h"
+#include "bamf-view-private.h"
 
+#include <gio/gdesktopappinfo.h>
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
@@ -79,6 +81,9 @@ bamf_application_get_desktop_file (BamfApplication *application)
   
   if (priv->desktop_file)
     return priv->desktop_file;
+    
+  if (!bamf_view_remote_ready (BAMF_VIEW (application)))
+    return NULL;
 
   if (!dbus_g_proxy_call (priv->proxy,
                           "DesktopFile",
@@ -109,6 +114,9 @@ bamf_application_get_application_type (BamfApplication *application)
 
   if (priv->application_type)
     return priv->application_type;
+  
+  if (!bamf_view_remote_ready (BAMF_VIEW (application)))
+    return NULL;
 
   if (!dbus_g_proxy_call (priv->proxy,
                           "ApplicationType",
@@ -136,6 +144,9 @@ bamf_application_get_xids (BamfApplication *application)
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
   priv = application->priv;
+  
+  if (!bamf_view_remote_ready (BAMF_VIEW (application)))
+    return NULL;
 
   if (!dbus_g_proxy_call (priv->proxy,
                           "Xids",
@@ -161,7 +172,7 @@ bamf_application_get_windows (BamfApplication *application)
   BamfView *view;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
-
+  
   children = bamf_view_get_children (BAMF_VIEW (application));
 
   for (l = children; l; l = l->next)
@@ -187,6 +198,9 @@ bamf_application_get_show_menu_stubs (BamfApplication * application)
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), TRUE);
 
   priv = application->priv;
+  
+  if (!bamf_view_remote_ready (BAMF_VIEW (application)))
+    return TRUE;
 
   if (priv->show_stubs == -1)
     {
@@ -210,6 +224,14 @@ bamf_application_get_show_menu_stubs (BamfApplication * application)
     }
     
   return priv->show_stubs;
+}
+
+static BamfClickBehavior
+bamf_application_get_click_suggestion (BamfView *view)
+{
+  if (!bamf_view_is_running (view))
+    return BAMF_CLICK_BEHAVIOR_OPEN;
+  return 0;
 }
 
 static void
@@ -274,19 +296,13 @@ bamf_application_dispose (GObject *object)
 }
 
 static void
-bamf_application_constructed (GObject *object)
+bamf_application_set_path (BamfView *view, const char *path)
 {
   BamfApplication *self;
   BamfApplicationPrivate *priv;
-  char *path;
 
-  if (G_OBJECT_CLASS (bamf_application_parent_class)->constructed)
-    G_OBJECT_CLASS (bamf_application_parent_class)->constructed (object);
-  
-  self = BAMF_APPLICATION (object);
+  self = BAMF_APPLICATION (view);
   priv = self->priv;
-  
-  g_object_get (object, "path", &path, NULL);
   
   priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
                                            "org.ayatana.bamf",
@@ -321,12 +337,37 @@ bamf_application_constructed (GObject *object)
 }
 
 static void
+bamf_application_load_data_from_file (BamfApplication *self)
+{
+  GDesktopAppInfo *desktop_info;
+  GIcon *gicon;
+  const char *name;
+  char *icon;
+  
+  desktop_info = g_desktop_app_info_new_from_filename (self->priv->desktop_file);
+  
+  if (!desktop_info)
+    return;
+  
+  name = g_app_info_get_name (G_APP_INFO (desktop_info));
+  bamf_view_set_name (BAMF_VIEW (self), name);
+
+  gicon = g_app_info_get_icon (G_APP_INFO (desktop_info));
+  icon = g_icon_to_string (gicon);
+  
+  bamf_view_set_icon (BAMF_VIEW (self), icon);
+  g_free (icon);
+}
+
+static void
 bamf_application_class_init (BamfApplicationClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+  BamfViewClass *view_class = BAMF_VIEW_CLASS (klass);
   
-  obj_class->constructed = bamf_application_constructed;
   obj_class->dispose     = bamf_application_dispose;
+  view_class->set_path   = bamf_application_set_path;
+  view_class->click_behavior = bamf_application_get_click_suggestion;
 
   g_type_class_add_private (obj_class, sizeof (BamfApplicationPrivate));
 
@@ -374,7 +415,21 @@ BamfApplication *
 bamf_application_new (const char * path)
 {
   BamfApplication *self;
-  self = g_object_new (BAMF_TYPE_APPLICATION, "path", path, NULL);
+  self = g_object_new (BAMF_TYPE_APPLICATION, NULL);
+  
+  bamf_view_set_path (BAMF_VIEW (self), path);
 
+  return self;
+}
+
+BamfApplication *
+bamf_application_new_favorite (const char * favorite_path)
+{
+  BamfApplication *self;
+  self = g_object_new (BAMF_TYPE_APPLICATION, NULL);
+  
+  self->priv->desktop_file = g_strdup (favorite_path);
+  bamf_application_load_data_from_file (self);
+  
   return self;
 }

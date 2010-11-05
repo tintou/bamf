@@ -36,6 +36,7 @@
 
 #include "bamf-factory.h"
 #include "bamf-view.h"
+#include "bamf-view-private.h"
 #include "bamf-window.h"
 #include "bamf-application.h"
 #include "bamf-indicator.h"
@@ -53,9 +54,13 @@ G_DEFINE_TYPE (BamfFactory, bamf_factory, G_TYPE_OBJECT);
 struct _BamfFactoryPrivate
 {
   GHashTable *views;
+  GList *local_views;
+  GList *registered_views;
 };
 
 static BamfFactory *factory = NULL;
+
+BamfApplication * bamf_application_new_favorite     (const char *favorite_path);
 
 BamfApplication * bamf_application_new              (const char *path);
 
@@ -83,74 +88,140 @@ bamf_factory_init (BamfFactory *self)
 }
 
 static void
-on_weak_unref (char *path, BamfView *dead_object)
+on_view_closed (BamfView *view, BamfFactory *self)
 {
-  BamfFactory *self = factory;
-  g_return_if_fail (BAMF_IS_FACTORY (self));
+  const char *path;
   
-  g_hash_table_remove (self->priv->views, path);
-  g_free (path);
+  g_return_if_fail (BAMF_IS_VIEW (view));
+  
+  if (!bamf_view_is_sticky (view))
+    self->priv->local_views = g_list_remove (self->priv->local_views, view);
+
+  path = bamf_view_get_path (view);
+  if (path)
+    g_hash_table_remove (self->priv->views, path);
+  
+  g_object_unref (view);
 }
 
 static void
-on_view_closed (BamfView *view, BamfFactory *self)
+bamf_factory_register_view (BamfFactory *self, BamfView *view, const char *path)
 {
-  gchar *path;
+  GHashTable *views;
+  views = self->priv->views;
+  
+  g_hash_table_insert (views, g_strdup (path), view);
 
-  g_return_if_fail (BAMF_IS_FACTORY (self));
-  g_return_if_fail (BAMF_IS_VIEW (view));
+  if (g_list_find (self->priv->registered_views, view))
+    return;
   
-  g_object_get (view, "path", &path, NULL);  
+  self->priv->registered_views = g_list_prepend (self->priv->registered_views, view);
   
-  g_object_unref (view);
-  g_free (path);
+  g_signal_connect (G_OBJECT (view), "closed", (GCallback) on_view_closed, self);
+}
+
+BamfApplication * 
+bamf_factory_app_for_file (BamfFactory * factory,
+                           const char * path,
+                           gboolean create)
+{
+  BamfApplication *result = NULL, *app;
+  GList *l;
+  
+  /* check if result is available in known local_views */
+  for (l = factory->priv->local_views; l; l = l->next)
+    {
+      app = BAMF_APPLICATION (l->data);
+      if (g_strcmp0 (bamf_application_get_desktop_file (app), path) == 0)
+        {
+          result = app;
+          break;
+        }
+    }
+  
+  /* else create new */
+  if (!result && create)
+    {
+      /* delay registration until match time */
+      result = bamf_application_new_favorite (path);
+      factory->priv->local_views = g_list_prepend (factory->priv->local_views, result);
+      g_object_ref_sink (result);
+    }
+  
+  return result;
 }
 
 BamfView * 
 bamf_factory_view_for_path (BamfFactory * factory,
                             const char * path)
 {
-  BamfView *view;
   GHashTable *views;
+  BamfView *view;
+  GList *l;
   gchar *type;
+  gboolean created = FALSE;
 
   g_return_val_if_fail (BAMF_IS_FACTORY (factory), NULL);
   
   if (!path || strlen (path) == 0)
     return NULL;
-
+  
   views = factory->priv->views;
 
   view = g_hash_table_lookup (views, path);
-
-  if (BAMF_IS_VIEW (view))
-    {
-      return view;
-    }
   
-  view = g_object_new (BAMF_TYPE_VIEW, "path", path, NULL);
+  if (BAMF_IS_VIEW (view))
+    return view;
+  
+  view = g_object_new (BAMF_TYPE_VIEW, NULL);
+  bamf_view_set_path (view, path);
   type = g_strdup (bamf_view_get_view_type (view));
   g_object_unref (view);
   
   view = NULL;
   if (g_strcmp0 (type, "application") == 0)
-    {
-      view = BAMF_VIEW (bamf_application_new (path));
-    }
+    view = BAMF_VIEW (bamf_application_new (path));
   else if (g_strcmp0 (type, "window") == 0)
-    {
-      view = BAMF_VIEW (bamf_window_new (path));
-    }
+    view = BAMF_VIEW (bamf_window_new (path));
   else if (g_strcmp0 (type, "indicator") == 0)
+    view = BAMF_VIEW (bamf_indicator_new (path));
+  
+  created = TRUE;
+  
+  if (BAMF_IS_APPLICATION (view))
     {
-      view = BAMF_VIEW (bamf_indicator_new (path));
+      /* handle case where a favorite exists and this matches it */
+      const char *local_desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
+      for (l = factory->priv->local_views; l; l = l->next)
+        {
+          /* remote ready views are already matched */
+          if (bamf_view_remote_ready (BAMF_VIEW (l->data)) || !BAMF_IS_APPLICATION (l->data))
+            continue;
+          
+          const char *list_desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (l->data));
+          
+          if (g_strcmp0 (local_desktop_file, list_desktop_file) == 0)
+            {
+              created = FALSE;
+              g_object_unref (view);
+
+              view = BAMF_VIEW (l->data);
+              bamf_view_set_path (view, path);
+              g_object_ref (view);
+              break;
+            }
+        }
     }
   
   if (view)
     {
-      g_object_weak_ref (G_OBJECT (view), (GWeakNotify) on_weak_unref, g_strdup (path));
-      g_hash_table_insert (views, g_strdup (path), view);
-      g_signal_connect (G_OBJECT (view), "closed", (GCallback) on_view_closed, factory);
+      bamf_factory_register_view (factory, view, path);
+      
+      if (created)
+        {
+          factory->priv->local_views = g_list_prepend (factory->priv->local_views, view);
+          g_object_ref_sink (view);
+        }
     }
   
   g_free (type);
