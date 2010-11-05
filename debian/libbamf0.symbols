@@ -6,12 +6,14 @@ libbamf.so.0 libbamf0 #MINVER#
  bamf_application_get_windows@Base 0.2.20
  bamf_application_get_xids@Base 0.2.20
  bamf_application_new@Base 0.2.20
+ bamf_application_new_favorite@Base 0.2.58-0ubuntu3
  bamf_control_get_default@Base 0.2.20
  bamf_control_get_type@Base 0.2.20
  bamf_control_insert_desktop_file@Base 0.2.20
  bamf_control_register_application_for_pid@Base 0.2.20
  bamf_control_register_tab_provider@Base 0.2.20
  bamf_control_set_approver_behavior@Base 0.2.44
+ bamf_factory_app_for_file@Base 0.2.58-0ubuntu3
  bamf_factory_get_default@Base 0.2.20
  bamf_factory_get_type@Base 0.2.20
  bamf_factory_view_for_path@Base 0.2.20
@@ -26,6 +28,7 @@ libbamf.so.0 libbamf0 #MINVER#
  bamf_matcher_application_is_running@Base 0.2.20
  bamf_matcher_get_active_application@Base 0.2.20
  bamf_matcher_get_active_window@Base 0.2.20
+ bamf_matcher_get_application_for_desktop_file@Base 0.2.58-0ubuntu3
  bamf_matcher_get_application_for_window@Base 0.2.48
  bamf_matcher_get_application_for_xid@Base 0.2.20
  bamf_matcher_get_applications@Base 0.2.20
@@ -51,14 +54,22 @@ libbamf.so.0 libbamf0 #MINVER#
  bamf_tab_source_get_type@Base 0.2.20
  bamf_tab_source_show_tab@Base 0.2.20
  bamf_view_get_children@Base 0.2.20
+ bamf_view_get_click_suggestion@Base 0.2.58-0ubuntu3
  bamf_view_get_icon@Base 0.2.20
  bamf_view_get_name@Base 0.2.20
+ bamf_view_get_path@Base 0.2.58-0ubuntu3
  bamf_view_get_type@Base 0.2.20
  bamf_view_get_view_type@Base 0.2.20
  bamf_view_is_active@Base 0.2.20
  bamf_view_is_closed@Base 0.2.54
  bamf_view_is_running@Base 0.2.20
+ bamf_view_is_sticky@Base 0.2.58-0ubuntu3
  bamf_view_is_urgent@Base 0.2.20
+ bamf_view_remote_ready@Base 0.2.58-0ubuntu3
+ bamf_view_set_icon@Base 0.2.58-0ubuntu3
+ bamf_view_set_name@Base 0.2.58-0ubuntu3
+ bamf_view_set_path@Base 0.2.58-0ubuntu3
+ bamf_view_set_sticky@Base 0.2.58-0ubuntu3
  bamf_view_user_visible@Base 0.2.20
  bamf_window_get_transient@Base 0.2.28
  bamf_window_get_type@Base 0.2.20
