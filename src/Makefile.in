@@ -88,7 +88,7 @@ bamfdaemon_OBJECTS = $(am_bamfdaemon_OBJECTS)
 am__DEPENDENCIES_1 =
 bamfdaemon_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 bamfdaemon_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(bamfdaemon_CFLAGS) \
 	$(CFLAGS) $(bamfdaemon_LDFLAGS) $(LDFLAGS) -o $@
@@ -205,6 +205,8 @@ VERSION = @VERSION@
 WARN_CFLAGS = @WARN_CFLAGS@
 WNCK_CFLAGS = @WNCK_CFLAGS@
 WNCK_LIBS = @WNCK_LIBS@
+X_CFLAGS = @X_CFLAGS@
+X_LIBS = @X_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
