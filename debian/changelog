@@ -1,3 +1,9 @@
+bamf (0.2.58-0ubuntu3) UNRELEASED; urgency=low
+
+  * merge back from upstream to build new unity
+
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 05 Nov 2010 14:36:16 +0100
+
 bamf (0.2.58-0ubuntu2) maverick; urgency=low
 
   * Fix tons of accuracy matching issues using the gio module

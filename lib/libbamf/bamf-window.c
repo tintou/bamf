@@ -34,6 +34,7 @@
 #include <config.h>
 #endif
 
+#include "bamf-view-private.h"
 #include "bamf-window.h"
 #include "bamf-factory.h"
 #include <dbus/dbus.h>
@@ -70,6 +71,9 @@ BamfWindow * bamf_window_get_transient (BamfWindow *self)
   g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
   priv = self->priv;
 
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
+    return NULL;
+
   if (!dbus_g_proxy_call (priv->proxy,
                           "Transient",
                           &error,
@@ -103,6 +107,9 @@ BamfWindowType bamf_window_get_window_type (BamfWindow *self)
   g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
   priv = self->priv;
 
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
+    return 0;
+
   if (!dbus_g_proxy_call (priv->proxy,
                           "WindowType",
                           &error,
@@ -129,6 +136,9 @@ guint32 bamf_window_get_xid (BamfWindow *self)
   
   if (priv->xid != 0)
     return priv->xid;
+
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
+    return 0;
 
   if (!dbus_g_proxy_call (priv->proxy,
                           "GetXid",
@@ -159,18 +169,12 @@ bamf_window_active_changed (BamfView *view, gboolean active)
 }
 
 static void
-bamf_window_constructed (GObject *object)
+bamf_window_set_path (BamfView *view, const char *path)
 {
   BamfWindow *self;
   BamfWindowPrivate *priv;
-  gchar *path;
   
-  if (G_OBJECT_CLASS (bamf_window_parent_class)->constructed)
-    G_OBJECT_CLASS (bamf_window_parent_class)->constructed (object);
-  
-  g_object_get (object, "path", &path, NULL);
-  
-  self = BAMF_WINDOW (object);
+  self = BAMF_WINDOW (view);
   priv = self->priv;
 
   priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
@@ -183,8 +187,6 @@ bamf_window_constructed (GObject *object)
     }
 
   priv->xid = bamf_window_get_xid (self);
-  g_free (path);
-  
 }
 
 
@@ -215,9 +217,9 @@ bamf_window_class_init (BamfWindowClass *klass)
 
   g_type_class_add_private (obj_class, sizeof (BamfWindowPrivate));
   
-  obj_class->constructed = bamf_window_constructed;
   obj_class->dispose     = bamf_window_dispose;
   view_class->active_changed = bamf_window_active_changed;
+  view_class->set_path   = bamf_window_set_path;
 }
 
 
@@ -245,7 +247,9 @@ BamfWindow *
 bamf_window_new (const char * path)
 {
   BamfWindow *self;
-  self = g_object_new (BAMF_TYPE_WINDOW, "path", path, NULL);
+  self = g_object_new (BAMF_TYPE_WINDOW, NULL);
+  
+  bamf_view_set_path (BAMF_VIEW (self), path);
 
   return self;
 }
