@@ -31,6 +31,7 @@
     <function name="bamf_matcher_get_tabs ()" link="BamfMatcher.html#bamf-matcher-get-tabs"/>
     <function name="bamf_matcher_get_xids_for_application ()" link="BamfMatcher.html#bamf-matcher-get-xids-for-application"/>
     <function name="bamf_matcher_get_windows ()" link="BamfMatcher.html#bamf-matcher-get-windows"/>
+    <function name="bamf_matcher_get_application_for_desktop_file ()" link="BamfMatcher.html#bamf-matcher-get-application-for-desktop-file"/>
     <function name="The &quot;active-application-changed&quot; signal" link="BamfMatcher.html#BamfMatcher-active-application-changed"/>
     <function name="The &quot;active-window-changed&quot; signal" link="BamfMatcher.html#BamfMatcher-active-window-changed"/>
     <function name="The &quot;view-closed&quot; signal" link="BamfMatcher.html#BamfMatcher-view-closed"/>
@@ -47,6 +48,7 @@
     <function name="BamfFactoryClass" link="BamfFactory.html#BamfFactoryClass"/>
     <function name="BamfFactoryPrivate" link="BamfFactory.html#BamfFactoryPrivate"/>
     <function name="bamf_factory_view_for_path ()" link="BamfFactory.html#bamf-factory-view-for-path"/>
+    <function name="bamf_factory_app_for_file ()" link="BamfFactory.html#bamf-factory-app-for-file"/>
     <function name="bamf_factory_get_default ()" link="BamfFactory.html#bamf-factory-get-default"/>
     <function name="BamfControl" link="BamfControl.html#BamfControl-struct"/>
     <function name="BamfControlClass" link="BamfControl.html#BamfControlClass"/>
@@ -69,6 +71,7 @@
     <function name="The &quot;tab-closed&quot; signal" link="BamfTabSource.html#BamfTabSource-tab-closed"/>
     <function name="The &quot;tab-opened&quot; signal" link="BamfTabSource.html#BamfTabSource-tab-opened"/>
     <function name="The &quot;tab-uri-changed&quot; signal" link="BamfTabSource.html#BamfTabSource-tab-uri-changed"/>
+    <function name="enum BamfClickBehavior" link="BamfView.html#BamfClickBehavior"/>
     <function name="BamfView" link="BamfView.html#BamfView-struct"/>
     <function name="BamfViewClass" link="BamfView.html#BamfViewClass"/>
     <function name="BamfViewPrivate" link="BamfView.html#BamfViewPrivate"/>
@@ -81,6 +84,9 @@
     <function name="bamf_view_get_icon ()" link="BamfView.html#bamf-view-get-icon"/>
     <function name="bamf_view_user_visible ()" link="BamfView.html#bamf-view-user-visible"/>
     <function name="bamf_view_get_view_type ()" link="BamfView.html#bamf-view-get-view-type"/>
+    <function name="bamf_view_set_sticky ()" link="BamfView.html#bamf-view-set-sticky"/>
+    <function name="bamf_view_is_sticky ()" link="BamfView.html#bamf-view-is-sticky"/>
+    <function name="bamf_view_get_click_suggestion ()" link="BamfView.html#bamf-view-get-click-suggestion"/>
     <function name="The &quot;active&quot; property" link="BamfView.html#BamfView--active"/>
     <function name="The &quot;path&quot; property" link="BamfView.html#BamfView--path"/>
     <function name="The &quot;running&quot; property" link="BamfView.html#BamfView--running"/>
