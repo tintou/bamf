@@ -136,6 +136,26 @@ none exists, the result is NULL.</doc>
     </record>
     <record name="ApplicationPrivate" c:type="BamfApplicationPrivate">
     </record>
+    <enumeration name="ClickBehavior" c:type="BamfClickBehavior">
+      <member name="none" value="0" c:identifier="BAMF_CLICK_BEHAVIOR_NONE"/>
+      <member name="open" value="1" c:identifier="BAMF_CLICK_BEHAVIOR_OPEN"/>
+      <member name="focus" value="2" c:identifier="BAMF_CLICK_BEHAVIOR_FOCUS"/>
+      <member name="focus_all"
+              value="3"
+              c:identifier="BAMF_CLICK_BEHAVIOR_FOCUS_ALL"/>
+      <member name="minimize"
+              value="4"
+              c:identifier="BAMF_CLICK_BEHAVIOR_MINIMIZE"/>
+      <member name="restore"
+              value="5"
+              c:identifier="BAMF_CLICK_BEHAVIOR_RESTORE"/>
+      <member name="restore_all"
+              value="6"
+              c:identifier="BAMF_CLICK_BEHAVIOR_RESTORE_ALL"/>
+      <member name="picker"
+              value="7"
+              c:identifier="BAMF_CLICK_BEHAVIOR_PICKER"/>
+    </enumeration>
     <class name="Control"
            c:type="BamfControl"
            parent="GObject.Object"
@@ -468,6 +488,20 @@ be prefered by bamf to system desktop files.</doc>
             <type name="Bamf.View"/>
           </type>
         </return-value>
+      </method>
+      <method name="get_application_for_desktop_file"
+              c:identifier="bamf_matcher_get_application_for_desktop_file">
+        <return-value transfer-ownership="full">
+          <type name="Application" c:type="BamfApplication*"/>
+        </return-value>
+        <parameters>
+          <parameter name="desktop_file_path" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+          <parameter name="create_if_not_found" transfer-ownership="none">
+            <type name="boolean" c:type="gboolean"/>
+          </parameter>
+        </parameters>
       </method>
       <field name="parent">
         <type name="GObject.Object" c:type="GObject"/>
@@ -1047,6 +1081,21 @@ be prefered by bamf to system desktop files.</doc>
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </virtual-method>
+      <virtual-method name="set_path">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="path" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+        </parameters>
+      </virtual-method>
+      <virtual-method name="click_behavior">
+        <return-value transfer-ownership="full">
+          <type name="ClickBehavior" c:type="BamfClickBehavior"/>
+        </return-value>
+      </virtual-method>
       <method name="get_children" c:identifier="bamf_view_get_children">
         <doc xml:whitespace="preserve">freed after usage. Elements of the list are owned by bamf and should not be unreffed.</doc>
         <return-value transfer-ownership="container">
@@ -1105,13 +1154,31 @@ descriptions should not be used to do casting as they are not considered stable.
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </method>
+      <method name="set_sticky" c:identifier="bamf_view_set_sticky">
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="value" transfer-ownership="none">
+            <type name="boolean" c:type="gboolean"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="is_sticky" c:identifier="bamf_view_is_sticky">
+        <return-value transfer-ownership="none">
+          <type name="boolean" c:type="gboolean"/>
+        </return-value>
+      </method>
+      <method name="get_click_suggestion"
+              c:identifier="bamf_view_get_click_suggestion">
+        <return-value transfer-ownership="full">
+          <type name="ClickBehavior" c:type="BamfClickBehavior"/>
+        </return-value>
+      </method>
       <property name="active" transfer-ownership="none">
         <type name="boolean" c:type="gboolean"/>
       </property>
-      <property name="path"
-                writable="1"
-                construct="1"
-                transfer-ownership="none">
+      <property name="path" transfer-ownership="none">
         <type name="utf8" c:type="gchararray"/>
       </property>
       <property name="running" transfer-ownership="none">
@@ -1280,6 +1347,33 @@ descriptions should not be used to do casting as they are not considered stable.
         <callback name="view_type" c:type="view_type">
           <return-value transfer-ownership="none">
             <type name="utf8" c:type="gchar*"/>
+          </return-value>
+          <parameters>
+            <parameter name="view" transfer-ownership="none">
+              <type name="View" c:type="BamfView*"/>
+            </parameter>
+          </parameters>
+        </callback>
+      </field>
+      <field name="set_path">
+        <callback name="set_path" c:type="set_path">
+          <return-value transfer-ownership="none">
+            <type name="none" c:type="void"/>
+          </return-value>
+          <parameters>
+            <parameter name="view" transfer-ownership="none">
+              <type name="View" c:type="BamfView*"/>
+            </parameter>
+            <parameter name="path" transfer-ownership="none">
+              <type name="utf8" c:type="gchar*"/>
+            </parameter>
+          </parameters>
+        </callback>
+      </field>
+      <field name="click_behavior">
+        <callback name="click_behavior" c:type="click_behavior">
+          <return-value transfer-ownership="full">
+            <type name="ClickBehavior" c:type="BamfClickBehavior"/>
           </return-value>
           <parameters>
             <parameter name="view" transfer-ownership="none">

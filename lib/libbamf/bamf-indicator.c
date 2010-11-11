@@ -34,6 +34,7 @@
 #include <config.h>
 #endif
 
+#include "bamf-view-private.h"
 #include "bamf-indicator.h"
 #include "bamf-factory.h"
 #include <dbus/dbus.h>
@@ -68,6 +69,9 @@ bamf_indicator_get_dbus_menu_path (BamfIndicator *self)
   
   if (priv->dbus_menu)
     return priv->dbus_menu;
+  
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
+    return NULL;
   
   proxy = dbus_g_proxy_new_for_name (priv->connection,
                                      bamf_indicator_get_remote_address (self),
@@ -109,6 +113,9 @@ bamf_indicator_get_remote_path (BamfIndicator *self)
   if (priv->path)
     return priv->path;
   
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
+    return NULL;
+  
   if (!dbus_g_proxy_call (priv->proxy,
                           "Path",
                           &error,
@@ -139,6 +146,9 @@ bamf_indicator_get_remote_address (BamfIndicator *self)
   
   if (priv->address)
     return priv->address;
+  
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
+    return NULL;
   
   if (!dbus_g_proxy_call (priv->proxy,
                           "Address",
@@ -196,18 +206,12 @@ bamf_indicator_dispose (GObject *object)
 }
 
 static void
-bamf_indicator_constructed (GObject *object)
+bamf_indicator_set_path (BamfView *view, const char *path)
 {
   BamfIndicator *self;
   BamfIndicatorPrivate *priv;
-  gchar *path;
   
-  if (G_OBJECT_CLASS (bamf_indicator_parent_class)->constructed)
-    G_OBJECT_CLASS (bamf_indicator_parent_class)->constructed (object);
-  
-  g_object_get (object, "path", &path, NULL);
-  
-  self = BAMF_INDICATOR (object);
+  self = BAMF_INDICATOR (view);
   priv = self->priv;
 
   priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
@@ -218,20 +222,18 @@ bamf_indicator_constructed (GObject *object)
     {
       g_error ("Unable to get org.ayatana.bamf.indicator indicator");
     }
-
-  g_free (path);
-  
 }
 
 static void
 bamf_indicator_class_init (BamfIndicatorClass *klass)
 {
   GObjectClass  *obj_class  = G_OBJECT_CLASS (klass);
+  BamfViewClass *view_class = BAMF_VIEW_CLASS (klass);
 
   g_type_class_add_private (obj_class, sizeof (BamfIndicatorPrivate));
   
-  obj_class->constructed = bamf_indicator_constructed;
   obj_class->dispose     = bamf_indicator_dispose;
+  view_class->set_path   = bamf_indicator_set_path;
 }
 
 
@@ -258,7 +260,9 @@ BamfIndicator *
 bamf_indicator_new (const char * path)
 {
   BamfIndicator *self;
-  self = g_object_new (BAMF_TYPE_INDICATOR, "path", path, NULL);
+  self = g_object_new (BAMF_TYPE_INDICATOR, NULL);
+
+  bamf_view_set_path (BAMF_VIEW (self), path);
 
   return self;
 }
