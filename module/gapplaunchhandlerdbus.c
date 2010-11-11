@@ -128,7 +128,7 @@ on_launched (GDesktopAppInfoLaunchHandler *launch_handler,
 
   proxy = dbus_g_proxy_new_for_name (connection,
                                      "org.ayatana.bamf",
-                                     "/org/ayatana/bamf",
+                                     "/org/ayatana/bamf/control",
                                      "org.ayatana.bamf.control");
 
   g_return_if_fail (proxy);

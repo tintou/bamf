@@ -31,6 +31,7 @@
     <keyword type="function" name="bamf_matcher_get_tabs ()" link="BamfMatcher.html#bamf-matcher-get-tabs"/>
     <keyword type="function" name="bamf_matcher_get_xids_for_application ()" link="BamfMatcher.html#bamf-matcher-get-xids-for-application"/>
     <keyword type="function" name="bamf_matcher_get_windows ()" link="BamfMatcher.html#bamf-matcher-get-windows"/>
+    <keyword type="function" name="bamf_matcher_get_application_for_desktop_file ()" link="BamfMatcher.html#bamf-matcher-get-application-for-desktop-file"/>
     <keyword type="signal" name="The &quot;active-application-changed&quot; signal" link="BamfMatcher.html#BamfMatcher-active-application-changed"/>
     <keyword type="signal" name="The &quot;active-window-changed&quot; signal" link="BamfMatcher.html#BamfMatcher-active-window-changed"/>
     <keyword type="signal" name="The &quot;view-closed&quot; signal" link="BamfMatcher.html#BamfMatcher-view-closed"/>
@@ -47,6 +48,7 @@
     <keyword type="struct" name="BamfFactoryClass" link="BamfFactory.html#BamfFactoryClass"/>
     <keyword type="struct" name="BamfFactoryPrivate" link="BamfFactory.html#BamfFactoryPrivate"/>
     <keyword type="function" name="bamf_factory_view_for_path ()" link="BamfFactory.html#bamf-factory-view-for-path"/>
+    <keyword type="function" name="bamf_factory_app_for_file ()" link="BamfFactory.html#bamf-factory-app-for-file"/>
     <keyword type="function" name="bamf_factory_get_default ()" link="BamfFactory.html#bamf-factory-get-default"/>
     <keyword type="struct" name="BamfControl" link="BamfControl.html#BamfControl-struct"/>
     <keyword type="struct" name="BamfControlClass" link="BamfControl.html#BamfControlClass"/>
@@ -69,6 +71,7 @@
     <keyword type="signal" name="The &quot;tab-closed&quot; signal" link="BamfTabSource.html#BamfTabSource-tab-closed"/>
     <keyword type="signal" name="The &quot;tab-opened&quot; signal" link="BamfTabSource.html#BamfTabSource-tab-opened"/>
     <keyword type="signal" name="The &quot;tab-uri-changed&quot; signal" link="BamfTabSource.html#BamfTabSource-tab-uri-changed"/>
+    <keyword type="enum" name="enum BamfClickBehavior" link="BamfView.html#BamfClickBehavior"/>
     <keyword type="struct" name="BamfView" link="BamfView.html#BamfView-struct"/>
     <keyword type="struct" name="BamfViewClass" link="BamfView.html#BamfViewClass"/>
     <keyword type="struct" name="BamfViewPrivate" link="BamfView.html#BamfViewPrivate"/>
@@ -81,6 +84,9 @@
     <keyword type="function" name="bamf_view_get_icon ()" link="BamfView.html#bamf-view-get-icon"/>
     <keyword type="function" name="bamf_view_user_visible ()" link="BamfView.html#bamf-view-user-visible"/>
     <keyword type="function" name="bamf_view_get_view_type ()" link="BamfView.html#bamf-view-get-view-type"/>
+    <keyword type="function" name="bamf_view_set_sticky ()" link="BamfView.html#bamf-view-set-sticky"/>
+    <keyword type="function" name="bamf_view_is_sticky ()" link="BamfView.html#bamf-view-is-sticky"/>
+    <keyword type="function" name="bamf_view_get_click_suggestion ()" link="BamfView.html#bamf-view-get-click-suggestion"/>
     <keyword type="property" name="The &quot;active&quot; property" link="BamfView.html#BamfView--active"/>
     <keyword type="property" name="The &quot;path&quot; property" link="BamfView.html#BamfView--path"/>
     <keyword type="property" name="The &quot;running&quot; property" link="BamfView.html#BamfView--running"/>

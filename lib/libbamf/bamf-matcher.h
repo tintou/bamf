@@ -198,6 +198,10 @@ GArray *          bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
  */
 GList *           bamf_matcher_get_windows (BamfMatcher *matcher);
 
+BamfApplication * bamf_matcher_get_application_for_desktop_file (BamfMatcher *matcher,
+                                                                 const gchar *desktop_file_path,
+                                                                 gboolean create_if_not_found);
+
 G_END_DECLS
 
 #endif

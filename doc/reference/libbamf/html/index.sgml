@@ -19,6 +19,7 @@
 <ANCHOR id="bamf-matcher-get-tabs" href="libbamf/BamfMatcher.html#bamf-matcher-get-tabs">
 <ANCHOR id="bamf-matcher-get-xids-for-application" href="libbamf/BamfMatcher.html#bamf-matcher-get-xids-for-application">
 <ANCHOR id="bamf-matcher-get-windows" href="libbamf/BamfMatcher.html#bamf-matcher-get-windows">
+<ANCHOR id="bamf-matcher-get-application-for-desktop-file" href="libbamf/BamfMatcher.html#bamf-matcher-get-application-for-desktop-file">
 <ANCHOR id="BamfMatcher.signal-details" href="libbamf/BamfMatcher.html#BamfMatcher.signal-details">
 <ANCHOR id="BamfMatcher-active-application-changed" href="libbamf/BamfMatcher.html#BamfMatcher-active-application-changed">
 <ANCHOR id="BamfMatcher-active-window-changed" href="libbamf/BamfMatcher.html#BamfMatcher-active-window-changed">
@@ -46,6 +47,7 @@
 <ANCHOR id="BamfFactoryClass" href="libbamf/BamfFactory.html#BamfFactoryClass">
 <ANCHOR id="BamfFactoryPrivate" href="libbamf/BamfFactory.html#BamfFactoryPrivate">
 <ANCHOR id="bamf-factory-view-for-path" href="libbamf/BamfFactory.html#bamf-factory-view-for-path">
+<ANCHOR id="bamf-factory-app-for-file" href="libbamf/BamfFactory.html#bamf-factory-app-for-file">
 <ANCHOR id="bamf-factory-get-default" href="libbamf/BamfFactory.html#bamf-factory-get-default">
 <ANCHOR id="BamfControl" href="libbamf/BamfControl.html">
 <ANCHOR id="BamfControl.synopsis" href="libbamf/BamfControl.html#BamfControl.synopsis">
@@ -89,6 +91,7 @@
 <ANCHOR id="BamfView.signals" href="libbamf/BamfView.html#BamfView.signals">
 <ANCHOR id="BamfView.description" href="libbamf/BamfView.html#BamfView.description">
 <ANCHOR id="BamfView.details" href="libbamf/BamfView.html#BamfView.details">
+<ANCHOR id="BamfClickBehavior" href="libbamf/BamfView.html#BamfClickBehavior">
 <ANCHOR id="BamfView-struct" href="libbamf/BamfView.html#BamfView-struct">
 <ANCHOR id="BamfViewClass" href="libbamf/BamfView.html#BamfViewClass">
 <ANCHOR id="BamfViewPrivate" href="libbamf/BamfView.html#BamfViewPrivate">
@@ -101,6 +104,9 @@
 <ANCHOR id="bamf-view-get-icon" href="libbamf/BamfView.html#bamf-view-get-icon">
 <ANCHOR id="bamf-view-user-visible" href="libbamf/BamfView.html#bamf-view-user-visible">
 <ANCHOR id="bamf-view-get-view-type" href="libbamf/BamfView.html#bamf-view-get-view-type">
+<ANCHOR id="bamf-view-set-sticky" href="libbamf/BamfView.html#bamf-view-set-sticky">
+<ANCHOR id="bamf-view-is-sticky" href="libbamf/BamfView.html#bamf-view-is-sticky">
+<ANCHOR id="bamf-view-get-click-suggestion" href="libbamf/BamfView.html#bamf-view-get-click-suggestion">
 <ANCHOR id="BamfView.property-details" href="libbamf/BamfView.html#BamfView.property-details">
 <ANCHOR id="BamfView--active" href="libbamf/BamfView.html#BamfView--active">
 <ANCHOR id="BamfView--path" href="libbamf/BamfView.html#BamfView--path">

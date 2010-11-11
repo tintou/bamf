@@ -34,6 +34,7 @@ sources_h = \
 
 libbamf_la_SOURCES = \
   bamf-factory.h \
+  bamf-view-private.h \
   $(sources_h) \
   $(libbamf_sources) \
   bamf-tab-source-glue.h \

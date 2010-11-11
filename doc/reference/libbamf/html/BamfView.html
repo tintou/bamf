@@ -43,7 +43,8 @@
 </tr></table></div>
 <div class="refsynopsisdiv" title="Synopsis">
 <a name="BamfView.synopsis"></a><h2>Synopsis</h2>
-<pre class="synopsis">                    <a class="link" href="BamfView.html#BamfView-struct" title="BamfView">BamfView</a>;
+<pre class="synopsis">enum                <a class="link" href="BamfView.html#BamfClickBehavior" title="enum BamfClickBehavior">BamfClickBehavior</a>;
+                    <a class="link" href="BamfView.html#BamfView-struct" title="BamfView">BamfView</a>;
                     <a class="link" href="BamfView.html#BamfViewClass" title="BamfViewClass">BamfViewClass</a>;
                     <a class="link" href="BamfView.html#BamfViewPrivate" title="BamfViewPrivate">BamfViewPrivate</a>;
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             <a class="link" href="BamfView.html#bamf-view-get-children" title="bamf_view_get_children ()">bamf_view_get_children</a>              (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
@@ -55,6 +56,10 @@
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             <a class="link" href="BamfView.html#bamf-view-get-icon" title="bamf_view_get_icon ()">bamf_view_get_icon</a>                  (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfView.html#bamf-view-user-visible" title="bamf_view_user_visible ()">bamf_view_user_visible</a>              (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
 const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="BamfView.html#bamf-view-get-view-type" title="bamf_view_get_view_type ()">bamf_view_get_view_type</a>             (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="BamfView.html#bamf-view-set-sticky" title="bamf_view_set_sticky ()">bamf_view_set_sticky</a>                (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>,
+                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> value</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfView.html#bamf-view-is-sticky" title="bamf_view_is_sticky ()">bamf_view_is_sticky</a>                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
+<a class="link" href="BamfView.html#BamfClickBehavior" title="enum BamfClickBehavior"><span class="returnvalue">BamfClickBehavior</span></a>   <a class="link" href="BamfView.html#bamf-view-get-click-suggestion" title="bamf_view_get_click_suggestion ()">bamf_view_get_click_suggestion</a>      (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
 </pre>
 </div>
 <div class="refsect1" title="Object Hierarchy">
@@ -70,7 +75,7 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.htm
 <a name="BamfView.properties"></a><h2>Properties</h2>
 <pre class="synopsis">
   "<a class="link" href="BamfView.html#BamfView--active" title='The "active" property'>active</a>"                   <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read
-  "<a class="link" href="BamfView.html#BamfView--path" title='The "path" property'>path</a>"                     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write / Construct
+  "<a class="link" href="BamfView.html#BamfView--path" title='The "path" property'>path</a>"                     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read
   "<a class="link" href="BamfView.html#BamfView--running" title='The "running" property'>running</a>"                  <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read
   "<a class="link" href="BamfView.html#BamfView--urgent" title='The "urgent" property'>urgent</a>"                   <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read
   "<a class="link" href="BamfView.html#BamfView--user-visible" title='The "user-visible" property'>user-visible</a>"             <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read
@@ -96,6 +101,24 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.htm
 </div>
 <div class="refsect1" title="Details">
 <a name="BamfView.details"></a><h2>Details</h2>
+<div class="refsect2" title="enum BamfClickBehavior">
+<a name="BamfClickBehavior"></a><h3>enum BamfClickBehavior</h3>
+<pre class="programlisting">typedef enum
+{
+  BAMF_CLICK_BEHAVIOR_NONE,
+  BAMF_CLICK_BEHAVIOR_OPEN,
+  BAMF_CLICK_BEHAVIOR_FOCUS,
+  BAMF_CLICK_BEHAVIOR_FOCUS_ALL,
+  BAMF_CLICK_BEHAVIOR_MINIMIZE,
+  BAMF_CLICK_BEHAVIOR_RESTORE,
+  BAMF_CLICK_BEHAVIOR_RESTORE_ALL,
+  BAMF_CLICK_BEHAVIOR_PICKER,
+} BamfClickBehavior;
+</pre>
+<p>
+</p>
+</div>
+<hr>
 <div class="refsect2" title="BamfView">
 <a name="BamfView-struct"></a><h3>BamfView</h3>
 <pre class="programlisting">typedef struct _BamfView BamfView;</pre>
@@ -115,6 +138,9 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.htm
   gchar            * (*get_name)            (BamfView *view);
   gchar            * (*get_icon)            (BamfView *view);
   const gchar      * (*view_type)           (BamfView *view);
+  void               (*set_path)            (BamfView *view, const gchar *path);
+  BamfClickBehavior  (*click_behavior)      (BamfView *view);
+  
   
   /*&lt; signals &gt;*/
   void (*active_changed)              (BamfView *view, gboolean active);
@@ -341,6 +367,73 @@ descriptions should not be used to do casting as they are not considered stable.
 </tbody>
 </table></div>
 </div>
+<hr>
+<div class="refsect2" title="bamf_view_set_sticky ()">
+<a name="bamf-view-set-sticky"></a><h3>bamf_view_set_sticky ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                bamf_view_set_sticky                (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>,
+                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> value</code></em>);</pre>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>value</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" title="bamf_view_is_sticky ()">
+<a name="bamf-view-is-sticky"></a><h3>bamf_view_is_sticky ()</h3>
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_is_sticky                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" title="bamf_view_get_click_suggestion ()">
+<a name="bamf-view-get-click-suggestion"></a><h3>bamf_view_get_click_suggestion ()</h3>
+<pre class="programlisting"><a class="link" href="BamfView.html#BamfClickBehavior" title="enum BamfClickBehavior"><span class="returnvalue">BamfClickBehavior</span></a>   bamf_view_get_click_suggestion      (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
 </div>
 <div class="refsect1" title="Property Details">
 <a name="BamfView.property-details"></a><h2>Property Details</h2>
@@ -353,7 +446,7 @@ descriptions should not be used to do casting as they are not considered stable.
 <hr>
 <div class="refsect2" title='The "path" property'>
 <a name="BamfView--path"></a><h3>The <code class="literal">"path"</code> property</h3>
-<pre class="programlisting">  "path"                     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write / Construct</pre>
+<pre class="programlisting">  "path"                     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read</pre>
 <p>path.</p>
 <p>Default value: NULL</p>
 </div>
