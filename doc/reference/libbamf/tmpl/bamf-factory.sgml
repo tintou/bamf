@@ -51,6 +51,17 @@ BamfFactory
 @Returns: 
 
 
+<!-- ##### FUNCTION bamf_factory_app_for_file ##### -->
+<para>
+
+</para>
+
+@factory: 
+@path: 
+@create: 
+@Returns: 
+
+
 <!-- ##### FUNCTION bamf_factory_get_default ##### -->
 <para>
 
