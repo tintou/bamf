@@ -1,9 +1,8 @@
 bamf (0.2.60-0ubuntu1) UNRELEASED; urgency=low
 
-  * merge back from upstream to build new unity
+  * new upstream release
   * debian/libbamf0.symbols:
     - add the new symbols
-  * New upstream release.
 
  -- Didier Roche <didrocks@ubuntu.com>  Thu, 11 Nov 2010 18:28:58 +0100
 
