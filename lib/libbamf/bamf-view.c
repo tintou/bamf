@@ -524,13 +524,13 @@ bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
       priv->proxy = NULL;
     }
   
-  g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
-  
   if (priv->path)
-  {
-    g_free (priv->path);
-    priv->path = NULL;
-  }
+    {
+      g_free (priv->path);
+      priv->path = NULL;
+    }
+  
+  g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
 }
 
 static void
