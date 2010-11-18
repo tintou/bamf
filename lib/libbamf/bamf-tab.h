@@ -25,7 +25,7 @@
 #ifndef __BAMF_TAB_H__
 #define __BAMF_TAB_H__
 
-#include <bamf-view.h>
+#include <libbamf/bamf-view.h>
 #include <glib-object.h>
 
 G_BEGIN_DECLS

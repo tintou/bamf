@@ -2,19 +2,19 @@ noinst_PROGRAMS = \
   test-bamf
 
 bamf_test_extra_sources = \
-                $(top_srcdir)/src/bamf-legacy-window.c \
-                $(top_srcdir)/src/bamf-legacy-window-test.c \
-     		$(top_srcdir)/src/bamf-legacy-screen.c \
+		$(top_srcdir)/src/bamf-legacy-window.c \
+		$(top_srcdir)/src/bamf-legacy-window-test.c \
+		$(top_srcdir)/src/bamf-legacy-screen.c \
 		$(top_srcdir)/src/bamf-view.c \
 		$(top_srcdir)/src/bamf-control.c \
 		$(top_srcdir)/src/bamf-matcher.c \
 		$(top_srcdir)/src/bamf-application.c \
 		$(top_srcdir)/src/bamf-window.c \
 		$(top_srcdir)/src/bamf-tab.c \
-		$(top_srcdir)/src/bamf-tab-source.c \
-		$(top_srcdir)/src/bamf-marshal.c \
+		$(top_srcdir)/src/bamf-tab-source.c \		
 		$(top_srcdir)/src/bamf-indicator.c \
 		$(top_srcdir)/src/bamf-indicator-source.c \
+		$(top_builddir)/src/bamf-marshal.c \
 		$(NULL)
 
 bamf_test_extra_headers = \
@@ -22,7 +22,7 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/bamf.h \
 		$(top_srcdir)/src/bamf-legacy-window.h \
 		$(top_srcdir)/src/bamf-legacy-window-test.h \
-	        $(top_srcdir)/src/bamf-legacy-screen.h \
+	  $(top_srcdir)/src/bamf-legacy-screen.h \
 		$(top_srcdir)/src/bamf-view.h \
 		$(top_srcdir)/src/bamf-control.h \
 		$(top_srcdir)/src/bamf-matcher.h \
@@ -30,16 +30,16 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/bamf-tab.h \
 		$(top_srcdir)/src/bamf-tab-source.h \
 		$(top_srcdir)/src/bamf-application.h \
-		$(top_srcdir)/src/bamf-application-glue.h \
-		$(top_srcdir)/src/bamf-control-glue.h \
-		$(top_srcdir)/src/bamf-matcher-glue.h \
-		$(top_srcdir)/src/bamf-window-glue.h \
-		$(top_srcdir)/src/bamf-view-glue.h \
-		$(top_srcdir)/src/bamf-marshal.h \
-		$(top_srcdir)/src/bamf-indicator.h \
-		$(top_srcdir)/src/bamf-indicator-glue.h \
 		$(top_srcdir)/src/bamf-indicator-source.h \
-		$(top_srcdir)/src/bamf-indicator-source-glue.h \
+		$(top_srcdir)/src/bamf-indicator.h \
+		$(top_builddir)/src/bamf-application-glue.h \
+		$(top_builddir)/src/bamf-control-glue.h \
+		$(top_builddir)/src/bamf-matcher-glue.h \
+		$(top_builddir)/src/bamf-window-glue.h \
+		$(top_builddir)/src/bamf-view-glue.h \
+		$(top_builddir)/src/bamf-marshal.h \
+		$(top_builddir)/src/bamf-indicator-glue.h \
+		$(top_builddir)/src/bamf-indicator-source-glue.h \
 		$(NULL)
 
 test_bamf_SOURCES = \
