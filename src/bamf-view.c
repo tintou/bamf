@@ -121,15 +121,31 @@ bamf_view_urgent_changed (BamfView *view, gboolean urgent)
 void
 bamf_view_close (BamfView *view)
 {
-  if (view->priv->closed)
+  BamfViewPrivate *priv;
+  gboolean emit = TRUE;
+  GList *l;
+  
+  priv = view->priv;
+
+  if (priv->closed)
     return;
     
-  view->priv->closed = TRUE;
+  priv->closed = TRUE;
 
-  gboolean emit = TRUE;
   if (BAMF_VIEW_GET_CLASS (view)->closed)
     {
       emit = !BAMF_VIEW_GET_CLASS (view)->closed (view);
+    }
+  
+  if (priv->children)
+    {
+      for (l = priv->children; l; l = l->next)
+        {
+          if (BAMF_IS_VIEW (l->data))
+            bamf_view_remove_child (view, l->data);
+        }
+      g_list_free (priv->children);
+      priv->children = NULL;
     }
 
   if (emit)
@@ -455,7 +471,6 @@ bamf_view_dispose (GObject *object)
 {
   DBusGConnection *bus;
   GError *error = NULL;
-  GList *l;
 
   BamfView *view = BAMF_VIEW (object);
   BamfViewPrivate *priv = view->priv;
@@ -466,17 +481,6 @@ bamf_view_dispose (GObject *object)
     {
       dbus_g_connection_unregister_g_object (bus, object);
       BAMF_VIEW_GET_CLASS (view)->names = g_list_remove (BAMF_VIEW_GET_CLASS (view)->names, priv->path);
-    }
-
-  if (priv->children)
-    {
-      for (l = priv->children; l; l = l->next)
-        {
-          if (BAMF_IS_VIEW (l->data))
-            bamf_view_remove_child (view, l->data);
-        }
-      g_list_free (priv->children);
-      priv->children = NULL;
     }
 
   if (priv->name)
