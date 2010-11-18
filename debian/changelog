@@ -1,8 +1,8 @@
-bamf (0.2.62-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.62-0ubuntu1) natty; urgency=low
 
   * New upstream release.
 
- -- Didier Roche <didrocks@ubuntu.com>  Thu, 18 Nov 2010 17:03:14 +0100
+ -- Didier Roche <didrocks@ubuntu.com>  Thu, 18 Nov 2010 18:28:10 +0100
 
 bamf (0.2.60-0ubuntu1) natty; urgency=low
 
