@@ -52,6 +52,7 @@ libbamf_la_CPPFLAGS = \
   -fPIC \
   -DDATADIR=\""$(datadir)"\" \
   -I$(top_srcdir)/lib \
+  -I$(top_builddir)/lib \
   $(LIBWSBIND_CFLAGS) \
   $(GLIB_CFLAGS) \
   $(DBUS_CFLAGS) \
@@ -105,7 +106,7 @@ introspection_sources = $(library_include_HEADERS)
 Bamf-0.2.gir: libbamf.la
 Bamf_0_2_gir_INCLUDES = \
 	GObject-2.0
-Bamf_0_2_gir_CFLAGS = --c-include='libbamf/libbamf.h' $(LIBBAMF_CFLAGS) -I ../
+Bamf_0_2_gir_CFLAGS = --c-include='libbamf/libbamf.h' $(LIBBAMF_CFLAGS) -I$(top_srcdir)/lib -I$(top_builddir)/lib
 Bamf_0_2_gir_LIBS = libbamf.la 
 Bamf_0_2_gir_FILES = $(addprefix $(srcdir)/, $(introspection_sources))
 
