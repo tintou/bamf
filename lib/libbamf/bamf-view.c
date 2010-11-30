@@ -901,6 +901,8 @@ bamf_view_init (BamfView *self)
 
   priv = self->priv = BAMF_VIEW_GET_PRIVATE (self);
 
+  priv->is_closed = TRUE;
+
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   if (priv->connection == NULL)
     {
