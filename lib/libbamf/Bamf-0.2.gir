@@ -2,7 +2,7 @@
 <!-- This file was automatically generated from C sources - DO NOT EDIT!
 To affect the contents of this file, edit the original C definitions,
 and/or use gtk-doc annotations.  -->
-<repository version="1.1"
+<repository version="1.2"
             xmlns="http://www.gtk.org/introspection/core/1.0"
             xmlns:c="http://www.gtk.org/introspection/c/1.0"
             xmlns:glib="http://www.gtk.org/introspection/glib/1.0">
@@ -12,8 +12,10 @@ and/or use gtk-doc annotations.  -->
   <namespace name="Bamf"
              version="0.2"
              shared-library="libbamf.so.0"
-             c:prefix="Bamf">
+             c:identifier-prefixes="Bamf"
+             c:symbol-prefixes="bamf">
     <class name="Application"
+           c:symbol-prefix="application"
            c:type="BamfApplication"
            parent="View"
            glib:type-name="BamfApplication"
@@ -34,12 +36,18 @@ none exists, the result is NULL.</doc>
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </method>
+      <method name="get_show_menu_stubs"
+              c:identifier="bamf_application_get_show_menu_stubs">
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+      </method>
       <method name="get_windows" c:identifier="bamf_application_get_windows">
         <doc xml:whitespace="preserve">Used to fetch all #BamfWindow's associated with the passed #BamfApplication.</doc>
         <return-value transfer-ownership="container">
           <doc xml:whitespace="preserve">A list of #BamfWindow's.</doc>
           <type name="GLib.List" c:type="GList*">
-            <type name="Bamf.Window"/>
+            <type name="Window"/>
           </type>
         </return-value>
       </method>
@@ -48,14 +56,8 @@ none exists, the result is NULL.</doc>
         <return-value transfer-ownership="full">
           <doc xml:whitespace="preserve">An array of xids.</doc>
           <array name="GLib.Array" c:type="GArray*">
-            <type name="any" c:type="gpointer"/>
+            <type name="gpointer" c:type="gpointer"/>
           </array>
-        </return-value>
-      </method>
-      <method name="get_show_menu_stubs"
-              c:identifier="bamf_application_get_show_menu_stubs">
-        <return-value transfer-ownership="none">
-          <type name="boolean" c:type="gboolean"/>
         </return-value>
       </method>
       <field name="parent">
@@ -65,22 +67,22 @@ none exists, the result is NULL.</doc>
         <type name="ApplicationPrivate" c:type="BamfApplicationPrivate*"/>
       </field>
       <glib:signal name="window-added">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
         <parameters>
           <parameter name="object" transfer-ownership="none">
-            <type name="View" c:type="BamfView"/>
+            <type name="View"/>
           </parameter>
         </parameters>
       </glib:signal>
       <glib:signal name="window-removed">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
         <parameters>
           <parameter name="object" transfer-ownership="none">
-            <type name="View" c:type="BamfView"/>
+            <type name="View"/>
           </parameter>
         </parameters>
       </glib:signal>
@@ -91,50 +93,52 @@ none exists, the result is NULL.</doc>
       <field name="parent_class">
         <type name="ViewClass" c:type="BamfViewClass"/>
       </field>
-      <field name="application_padding1">
-        <callback name="application_padding1" c:type="_application_padding1">
+      <field name="_application_padding1" introspectable="0">
+        <callback name="_application_padding1">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="application_padding2">
-        <callback name="application_padding2" c:type="_application_padding2">
+      <field name="_application_padding2" introspectable="0">
+        <callback name="_application_padding2">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="application_padding3">
-        <callback name="application_padding3" c:type="_application_padding3">
+      <field name="_application_padding3" introspectable="0">
+        <callback name="_application_padding3">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="application_padding4">
-        <callback name="application_padding4" c:type="_application_padding4">
+      <field name="_application_padding4" introspectable="0">
+        <callback name="_application_padding4">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="application_padding5">
-        <callback name="application_padding5" c:type="_application_padding5">
+      <field name="_application_padding5" introspectable="0">
+        <callback name="_application_padding5">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="application_padding6">
-        <callback name="application_padding6" c:type="_application_padding6">
+      <field name="_application_padding6" introspectable="0">
+        <callback name="_application_padding6">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
     </record>
-    <record name="ApplicationPrivate" c:type="BamfApplicationPrivate">
+    <record name="ApplicationPrivate"
+            c:type="BamfApplicationPrivate"
+            disguised="1">
     </record>
     <enumeration name="ClickBehavior" c:type="BamfClickBehavior">
       <member name="none" value="0" c:identifier="BAMF_CLICK_BEHAVIOR_NONE"/>
@@ -157,13 +161,16 @@ none exists, the result is NULL.</doc>
               c:identifier="BAMF_CLICK_BEHAVIOR_PICKER"/>
     </enumeration>
     <class name="Control"
+           c:symbol-prefix="control"
            c:type="BamfControl"
            parent="GObject.Object"
            glib:type-name="BamfControl"
            glib:get-type="bamf_control_get_type"
            glib:type-struct="ControlClass">
-      <function name="get_default" c:identifier="bamf_control_get_default">
-        <return-value transfer-ownership="full">
+      <function name="get_default"
+                c:identifier="bamf_control_get_default"
+                introspectable="0">
+        <return-value>
           <type name="Control" c:type="BamfControl*"/>
         </return-value>
       </function>
@@ -188,7 +195,7 @@ none exists, the result is NULL.</doc>
             <type name="utf8" c:type="gchar*"/>
           </parameter>
           <parameter name="pid" transfer-ownership="none">
-            <type name="int32" c:type="gint32"/>
+            <type name="gint32" c:type="gint32"/>
           </parameter>
         </parameters>
       </method>
@@ -210,7 +217,7 @@ none exists, the result is NULL.</doc>
         </return-value>
         <parameters>
           <parameter name="behavior" transfer-ownership="none">
-            <type name="int32" c:type="gint32"/>
+            <type name="gint32" c:type="gint32"/>
           </parameter>
         </parameters>
       </method>
@@ -227,59 +234,60 @@ none exists, the result is NULL.</doc>
       <field name="parent_class">
         <type name="GObject.ObjectClass" c:type="GObjectClass"/>
       </field>
-      <field name="control_padding1">
-        <callback name="control_padding1" c:type="_control_padding1">
+      <field name="_control_padding1" introspectable="0">
+        <callback name="_control_padding1">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="control_padding2">
-        <callback name="control_padding2" c:type="_control_padding2">
+      <field name="_control_padding2" introspectable="0">
+        <callback name="_control_padding2">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="control_padding3">
-        <callback name="control_padding3" c:type="_control_padding3">
+      <field name="_control_padding3" introspectable="0">
+        <callback name="_control_padding3">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="control_padding4">
-        <callback name="control_padding4" c:type="_control_padding4">
+      <field name="_control_padding4" introspectable="0">
+        <callback name="_control_padding4">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="control_padding5">
-        <callback name="control_padding5" c:type="_control_padding5">
+      <field name="_control_padding5" introspectable="0">
+        <callback name="_control_padding5">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="control_padding6">
-        <callback name="control_padding6" c:type="_control_padding6">
+      <field name="_control_padding6" introspectable="0">
+        <callback name="_control_padding6">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
     </record>
-    <record name="ControlPrivate" c:type="BamfControlPrivate">
+    <record name="ControlPrivate" c:type="BamfControlPrivate" disguised="1">
     </record>
     <class name="Indicator"
+           c:symbol-prefix="indicator"
            c:type="BamfIndicator"
            parent="View"
            glib:type-name="BamfIndicator"
            glib:get-type="bamf_indicator_get_type"
            glib:type-struct="IndicatorClass">
-      <method name="get_remote_path"
-              c:identifier="bamf_indicator_get_remote_path">
+      <method name="get_dbus_menu_path"
+              c:identifier="bamf_indicator_get_dbus_menu_path">
         <return-value transfer-ownership="none">
           <type name="utf8" c:type="gchar*"/>
         </return-value>
@@ -290,8 +298,8 @@ none exists, the result is NULL.</doc>
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </method>
-      <method name="get_dbus_menu_path"
-              c:identifier="bamf_indicator_get_dbus_menu_path">
+      <method name="get_remote_path"
+              c:identifier="bamf_indicator_get_remote_path">
         <return-value transfer-ownership="none">
           <type name="utf8" c:type="gchar*"/>
         </return-value>
@@ -309,52 +317,55 @@ none exists, the result is NULL.</doc>
       <field name="parent_class">
         <type name="ViewClass" c:type="BamfViewClass"/>
       </field>
-      <field name="indicator_padding1">
-        <callback name="indicator_padding1" c:type="_indicator_padding1">
+      <field name="_indicator_padding1" introspectable="0">
+        <callback name="_indicator_padding1">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="indicator_padding2">
-        <callback name="indicator_padding2" c:type="_indicator_padding2">
+      <field name="_indicator_padding2" introspectable="0">
+        <callback name="_indicator_padding2">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="indicator_padding3">
-        <callback name="indicator_padding3" c:type="_indicator_padding3">
+      <field name="_indicator_padding3" introspectable="0">
+        <callback name="_indicator_padding3">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="indicator_padding4">
-        <callback name="indicator_padding4" c:type="_indicator_padding4">
+      <field name="_indicator_padding4" introspectable="0">
+        <callback name="_indicator_padding4">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="indicator_padding5">
-        <callback name="indicator_padding5" c:type="_indicator_padding5">
+      <field name="_indicator_padding5" introspectable="0">
+        <callback name="_indicator_padding5">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="indicator_padding6">
-        <callback name="indicator_padding6" c:type="_indicator_padding6">
+      <field name="_indicator_padding6" introspectable="0">
+        <callback name="_indicator_padding6">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
     </record>
-    <record name="IndicatorPrivate" c:type="BamfIndicatorPrivate">
+    <record name="IndicatorPrivate"
+            c:type="BamfIndicatorPrivate"
+            disguised="1">
     </record>
     <class name="Matcher"
+           c:symbol-prefix="matcher"
            c:type="BamfMatcher"
            parent="GObject.Object"
            glib:type-name="BamfMatcher"
@@ -367,6 +378,17 @@ none exists, the result is NULL.</doc>
           <type name="Matcher" c:type="BamfMatcher*"/>
         </return-value>
       </function>
+      <method name="application_is_running"
+              c:identifier="bamf_matcher_application_is_running">
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <parameter name="application" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+        </parameters>
+      </method>
       <method name="get_active_application"
               c:identifier="bamf_matcher_get_active_application">
         <doc xml:whitespace="preserve">Used to fetch the active #BamfApplication.</doc>
@@ -383,17 +405,18 @@ none exists, the result is NULL.</doc>
           <type name="Window" c:type="BamfWindow*"/>
         </return-value>
       </method>
-      <method name="get_application_for_xid"
-              c:identifier="bamf_matcher_get_application_for_xid">
-        <doc xml:whitespace="preserve">Used to fetch the #BamfApplication containing the passed xid.</doc>
-        <return-value transfer-ownership="container">
-          <doc xml:whitespace="preserve">The #BamfApplication representing the xid passed, or NULL if none exists.</doc>
+      <method name="get_application_for_desktop_file"
+              c:identifier="bamf_matcher_get_application_for_desktop_file"
+              introspectable="0">
+        <return-value>
           <type name="Application" c:type="BamfApplication*"/>
         </return-value>
         <parameters>
-          <parameter name="xid" transfer-ownership="none">
-            <doc xml:whitespace="preserve">The XID to search for</doc>
-            <type name="uint32" c:type="guint32"/>
+          <parameter name="desktop_file_path" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+          <parameter name="create_if_not_found" transfer-ownership="none">
+            <type name="gboolean" c:type="gboolean"/>
           </parameter>
         </parameters>
       </method>
@@ -411,14 +434,17 @@ none exists, the result is NULL.</doc>
           </parameter>
         </parameters>
       </method>
-      <method name="application_is_running"
-              c:identifier="bamf_matcher_application_is_running">
-        <return-value transfer-ownership="none">
-          <type name="boolean" c:type="gboolean"/>
+      <method name="get_application_for_xid"
+              c:identifier="bamf_matcher_get_application_for_xid">
+        <doc xml:whitespace="preserve">Used to fetch the #BamfApplication containing the passed xid.</doc>
+        <return-value transfer-ownership="container">
+          <doc xml:whitespace="preserve">The #BamfApplication representing the xid passed, or NULL if none exists.</doc>
+          <type name="Application" c:type="BamfApplication*"/>
         </return-value>
         <parameters>
-          <parameter name="application" transfer-ownership="none">
-            <type name="utf8" c:type="gchar*"/>
+          <parameter name="xid" transfer-ownership="none">
+            <doc xml:whitespace="preserve">The XID to search for</doc>
+            <type name="guint32" c:type="guint32"/>
           </parameter>
         </parameters>
       </method>
@@ -428,9 +454,51 @@ none exists, the result is NULL.</doc>
         <return-value transfer-ownership="none">
           <doc xml:whitespace="preserve">A list of xids.</doc>
           <type name="GLib.List" c:type="GList*">
-            <type name="uint32"/>
+            <type name="guint32"/>
           </type>
         </return-value>
+      </method>
+      <method name="get_running_applications"
+              c:identifier="bamf_matcher_get_running_applications">
+        <doc xml:whitespace="preserve">Used to fetch all #BamfApplication's which are running.</doc>
+        <return-value transfer-ownership="container">
+          <doc xml:whitespace="preserve">A list of #BamfApplication's.</doc>
+          <type name="GLib.List" c:type="GList*">
+            <type name="Application"/>
+          </type>
+        </return-value>
+      </method>
+      <method name="get_tabs" c:identifier="bamf_matcher_get_tabs">
+        <doc xml:whitespace="preserve">Used to fetch all #BamfView's representing tabs. Currently unused.</doc>
+        <return-value transfer-ownership="container">
+          <doc xml:whitespace="preserve">A list of #BamfViews's.</doc>
+          <type name="GLib.List" c:type="GList*">
+            <type name="View"/>
+          </type>
+        </return-value>
+      </method>
+      <method name="get_windows" c:identifier="bamf_matcher_get_windows">
+        <doc xml:whitespace="preserve">Used to fetch all windows that BAMF knows about.</doc>
+        <return-value transfer-ownership="container">
+          <doc xml:whitespace="preserve">A list of windows.</doc>
+          <type name="GLib.List" c:type="GList*">
+            <type name="View"/>
+          </type>
+        </return-value>
+      </method>
+      <method name="get_xids_for_application"
+              c:identifier="bamf_matcher_get_xids_for_application"
+              introspectable="0">
+        <return-value>
+          <array name="GLib.Array" c:type="GArray*">
+            <type name="gpointer" c:type="gpointer"/>
+          </array>
+        </return-value>
+        <parameters>
+          <parameter name="application" transfer-ownership="none">
+            <type name="utf8" c:type="gchar*"/>
+          </parameter>
+        </parameters>
       </method>
       <method name="register_favorites"
               c:identifier="bamf_matcher_register_favorites">
@@ -442,64 +510,7 @@ be prefered by bamf to system desktop files.</doc>
         <parameters>
           <parameter name="favorites" transfer-ownership="none">
             <doc xml:whitespace="preserve">an array of strings, each containing an absolute path to a .desktop file</doc>
-            <array c:type="gchar**">
-              <type name="utf8"/>
-            </array>
-          </parameter>
-        </parameters>
-      </method>
-      <method name="get_running_applications"
-              c:identifier="bamf_matcher_get_running_applications">
-        <doc xml:whitespace="preserve">Used to fetch all #BamfApplication's which are running.</doc>
-        <return-value transfer-ownership="container">
-          <doc xml:whitespace="preserve">A list of #BamfApplication's.</doc>
-          <type name="GLib.List" c:type="GList*">
-            <type name="Bamf.Application"/>
-          </type>
-        </return-value>
-      </method>
-      <method name="get_tabs" c:identifier="bamf_matcher_get_tabs">
-        <doc xml:whitespace="preserve">Used to fetch all #BamfView's representing tabs. Currently unused.</doc>
-        <return-value transfer-ownership="container">
-          <doc xml:whitespace="preserve">A list of #BamfViews's.</doc>
-          <type name="GLib.List" c:type="GList*">
-            <type name="Bamf.View"/>
-          </type>
-        </return-value>
-      </method>
-      <method name="get_xids_for_application"
-              c:identifier="bamf_matcher_get_xids_for_application">
-        <return-value transfer-ownership="full">
-          <array name="GLib.Array" c:type="GArray*">
-            <type name="any" c:type="gpointer"/>
-          </array>
-        </return-value>
-        <parameters>
-          <parameter name="application" transfer-ownership="none">
-            <type name="utf8" c:type="gchar*"/>
-          </parameter>
-        </parameters>
-      </method>
-      <method name="get_windows" c:identifier="bamf_matcher_get_windows">
-        <doc xml:whitespace="preserve">Used to fetch all windows that BAMF knows about.</doc>
-        <return-value transfer-ownership="container">
-          <doc xml:whitespace="preserve">A list of windows.</doc>
-          <type name="GLib.List" c:type="GList*">
-            <type name="Bamf.View"/>
-          </type>
-        </return-value>
-      </method>
-      <method name="get_application_for_desktop_file"
-              c:identifier="bamf_matcher_get_application_for_desktop_file">
-        <return-value transfer-ownership="full">
-          <type name="Application" c:type="BamfApplication*"/>
-        </return-value>
-        <parameters>
-          <parameter name="desktop_file_path" transfer-ownership="none">
-            <type name="utf8" c:type="gchar*"/>
-          </parameter>
-          <parameter name="create_if_not_found" transfer-ownership="none">
-            <type name="boolean" c:type="gboolean"/>
+            <type name="utf8" c:type="gchar**"/>
           </parameter>
         </parameters>
       </method>
@@ -510,48 +521,48 @@ be prefered by bamf to system desktop files.</doc>
         <type name="MatcherPrivate" c:type="BamfMatcherPrivate*"/>
       </field>
       <glib:signal name="active-application-changed">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
         <parameters>
           <parameter name="object" transfer-ownership="none">
-            <type name="GObject.Object" c:type="GObject"/>
+            <type name="GObject.Object"/>
           </parameter>
           <parameter name="p0" transfer-ownership="none">
-            <type name="GObject.Object" c:type="GObject"/>
+            <type name="GObject.Object"/>
           </parameter>
         </parameters>
       </glib:signal>
       <glib:signal name="active-window-changed">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
         <parameters>
           <parameter name="object" transfer-ownership="none">
-            <type name="GObject.Object" c:type="GObject"/>
+            <type name="GObject.Object"/>
           </parameter>
           <parameter name="p0" transfer-ownership="none">
-            <type name="GObject.Object" c:type="GObject"/>
+            <type name="GObject.Object"/>
           </parameter>
         </parameters>
       </glib:signal>
       <glib:signal name="view-closed">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
         <parameters>
           <parameter name="object" transfer-ownership="none">
-            <type name="GObject.Object" c:type="GObject"/>
+            <type name="GObject.Object"/>
           </parameter>
         </parameters>
       </glib:signal>
       <glib:signal name="view-opened">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
         <parameters>
           <parameter name="object" transfer-ownership="none">
-            <type name="GObject.Object" c:type="GObject"/>
+            <type name="GObject.Object"/>
           </parameter>
         </parameters>
       </glib:signal>
@@ -562,52 +573,53 @@ be prefered by bamf to system desktop files.</doc>
       <field name="parent_class">
         <type name="GObject.ObjectClass" c:type="GObjectClass"/>
       </field>
-      <field name="matcher_padding1">
-        <callback name="matcher_padding1" c:type="_matcher_padding1">
+      <field name="_matcher_padding1" introspectable="0">
+        <callback name="_matcher_padding1">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="matcher_padding2">
-        <callback name="matcher_padding2" c:type="_matcher_padding2">
+      <field name="_matcher_padding2" introspectable="0">
+        <callback name="_matcher_padding2">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="matcher_padding3">
-        <callback name="matcher_padding3" c:type="_matcher_padding3">
+      <field name="_matcher_padding3" introspectable="0">
+        <callback name="_matcher_padding3">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="matcher_padding4">
-        <callback name="matcher_padding4" c:type="_matcher_padding4">
+      <field name="_matcher_padding4" introspectable="0">
+        <callback name="_matcher_padding4">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="matcher_padding5">
-        <callback name="matcher_padding5" c:type="_matcher_padding5">
+      <field name="_matcher_padding5" introspectable="0">
+        <callback name="_matcher_padding5">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="matcher_padding6">
-        <callback name="matcher_padding6" c:type="_matcher_padding6">
+      <field name="_matcher_padding6" introspectable="0">
+        <callback name="_matcher_padding6">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
     </record>
-    <record name="MatcherPrivate" c:type="BamfMatcherPrivate">
+    <record name="MatcherPrivate" c:type="BamfMatcherPrivate" disguised="1">
     </record>
     <class name="Tab"
+           c:symbol-prefix="tab"
            c:type="BamfTab"
            parent="View"
            glib:type-name="BamfTab"
@@ -618,10 +630,10 @@ be prefered by bamf to system desktop files.</doc>
           <type name="Tab" c:type="BamfTab*"/>
         </return-value>
         <parameters>
-          <parameter name="id" transfer-ownership="full">
+          <parameter name="id" transfer-ownership="none">
             <type name="utf8" c:type="gchar*"/>
           </parameter>
-          <parameter name="uri" transfer-ownership="full">
+          <parameter name="uri" transfer-ownership="none">
             <type name="utf8" c:type="gchar*"/>
           </parameter>
         </parameters>
@@ -641,27 +653,27 @@ be prefered by bamf to system desktop files.</doc>
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </method>
+      <method name="get_uri" c:identifier="bamf_tab_get_uri">
+        <return-value transfer-ownership="full">
+          <type name="utf8" c:type="gchar*"/>
+        </return-value>
+      </method>
       <method name="set_preview" c:identifier="bamf_tab_set_preview">
         <return-value transfer-ownership="none">
           <type name="none" c:type="void"/>
         </return-value>
         <parameters>
-          <parameter name="uri" transfer-ownership="full">
+          <parameter name="uri" transfer-ownership="none">
             <type name="utf8" c:type="gchar*"/>
           </parameter>
         </parameters>
-      </method>
-      <method name="get_uri" c:identifier="bamf_tab_get_uri">
-        <return-value transfer-ownership="full">
-          <type name="utf8" c:type="gchar*"/>
-        </return-value>
       </method>
       <method name="set_uri" c:identifier="bamf_tab_set_uri">
         <return-value transfer-ownership="none">
           <type name="none" c:type="void"/>
         </return-value>
         <parameters>
-          <parameter name="uri" transfer-ownership="full">
+          <parameter name="uri" transfer-ownership="none">
             <type name="utf8" c:type="gchar*"/>
           </parameter>
         </parameters>
@@ -672,16 +684,16 @@ be prefered by bamf to system desktop files.</doc>
         </return-value>
       </method>
       <property name="id" writable="1" construct="1" transfer-ownership="none">
-        <type name="utf8" c:type="gchararray"/>
+        <type name="utf8"/>
       </property>
       <property name="preview" writable="1" transfer-ownership="none">
-        <type name="utf8" c:type="gchararray"/>
+        <type name="utf8"/>
       </property>
       <property name="uri"
                 writable="1"
                 construct="1"
                 transfer-ownership="none">
-        <type name="utf8" c:type="gchararray"/>
+        <type name="utf8"/>
       </property>
       <field name="parent">
         <type name="View" c:type="BamfView"/>
@@ -690,20 +702,20 @@ be prefered by bamf to system desktop files.</doc>
         <type name="TabPrivate" c:type="BamfTabPrivate*"/>
       </field>
       <glib:signal name="preview-updated">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
       </glib:signal>
       <glib:signal name="uri-changed">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
         <parameters>
           <parameter name="object" transfer-ownership="none">
-            <type name="utf8" c:type="gchararray"/>
+            <type name="utf8"/>
           </parameter>
           <parameter name="p0" transfer-ownership="none">
-            <type name="utf8" c:type="gchararray"/>
+            <type name="utf8"/>
           </parameter>
         </parameters>
       </glib:signal>
@@ -715,7 +727,7 @@ be prefered by bamf to system desktop files.</doc>
         <type name="ViewClass" c:type="BamfViewClass"/>
       </field>
       <field name="show">
-        <callback name="show" c:type="show">
+        <callback name="show">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
@@ -727,73 +739,74 @@ be prefered by bamf to system desktop files.</doc>
         </callback>
       </field>
       <field name="uri_changed">
-        <callback name="uri_changed" c:type="uri_changed">
+        <callback name="uri_changed">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
           <parameters>
-            <parameter name="old_uri" transfer-ownership="full">
+            <parameter name="old_uri" transfer-ownership="none">
               <type name="utf8" c:type="char*"/>
             </parameter>
-            <parameter name="new_uri" transfer-ownership="full">
+            <parameter name="new_uri" transfer-ownership="none">
               <type name="utf8" c:type="char*"/>
             </parameter>
           </parameters>
         </callback>
       </field>
       <field name="preview_updated">
-        <callback name="preview_updated" c:type="preview_updated">
+        <callback name="preview_updated">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="tab_padding1">
-        <callback name="tab_padding1" c:type="_tab_padding1">
+      <field name="_tab_padding1" introspectable="0">
+        <callback name="_tab_padding1">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="tab_padding2">
-        <callback name="tab_padding2" c:type="_tab_padding2">
+      <field name="_tab_padding2" introspectable="0">
+        <callback name="_tab_padding2">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="tab_padding3">
-        <callback name="tab_padding3" c:type="_tab_padding3">
+      <field name="_tab_padding3" introspectable="0">
+        <callback name="_tab_padding3">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="tab_padding4">
-        <callback name="tab_padding4" c:type="_tab_padding4">
+      <field name="_tab_padding4" introspectable="0">
+        <callback name="_tab_padding4">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="tab_padding5">
-        <callback name="tab_padding5" c:type="_tab_padding5">
+      <field name="_tab_padding5" introspectable="0">
+        <callback name="_tab_padding5">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="tab_padding6">
-        <callback name="tab_padding6" c:type="_tab_padding6">
+      <field name="_tab_padding6" introspectable="0">
+        <callback name="_tab_padding6">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
     </record>
-    <record name="TabPrivate" c:type="BamfTabPrivate">
+    <record name="TabPrivate" c:type="BamfTabPrivate" disguised="1">
     </record>
     <class name="TabSource"
+           c:symbol-prefix="tab_source"
            c:type="BamfTabSource"
            parent="GObject.Object"
            glib:type-name="BamfTabSource"
@@ -804,26 +817,26 @@ be prefered by bamf to system desktop files.</doc>
           <type name="none" c:type="void"/>
         </return-value>
         <parameters>
-          <parameter name="tab_id" transfer-ownership="full">
+          <parameter name="tab_id" transfer-ownership="none">
             <type name="utf8" c:type="char*"/>
           </parameter>
         </parameters>
       </virtual-method>
-      <virtual-method name="tab_ids">
-        <return-value transfer-ownership="full">
+      <virtual-method name="tab_ids" introspectable="0">
+        <return-value>
           <array c:type="char**">
             <type name="utf8"/>
           </array>
         </return-value>
       </virtual-method>
-      <virtual-method name="tab_preview">
-        <return-value transfer-ownership="full">
+      <virtual-method name="tab_preview" introspectable="0">
+        <return-value>
           <array name="GLib.Array" c:type="GArray*">
-            <type name="any" c:type="gpointer"/>
+            <type name="gpointer" c:type="gpointer"/>
           </array>
         </return-value>
         <parameters>
-          <parameter name="tab_id" transfer-ownership="full">
+          <parameter name="tab_id" transfer-ownership="none">
             <type name="utf8" c:type="char*"/>
           </parameter>
         </parameters>
@@ -833,50 +846,40 @@ be prefered by bamf to system desktop files.</doc>
           <type name="utf8" c:type="char*"/>
         </return-value>
         <parameters>
-          <parameter name="tab_id" transfer-ownership="full">
+          <parameter name="tab_id" transfer-ownership="none">
             <type name="utf8" c:type="char*"/>
           </parameter>
         </parameters>
       </virtual-method>
       <virtual-method name="tab_xid">
         <return-value transfer-ownership="none">
-          <type name="uint32" c:type="guint32"/>
+          <type name="guint32" c:type="guint32"/>
         </return-value>
         <parameters>
-          <parameter name="tab_id" transfer-ownership="full">
+          <parameter name="tab_id" transfer-ownership="none">
             <type name="utf8" c:type="char*"/>
           </parameter>
         </parameters>
       </virtual-method>
-      <method name="show_tab" c:identifier="bamf_tab_source_show_tab">
-        <return-value transfer-ownership="none">
-          <type name="boolean" c:type="gboolean"/>
-        </return-value>
-        <parameters>
-          <parameter name="tab_id" transfer-ownership="full">
-            <type name="utf8" c:type="char*"/>
-          </parameter>
-          <parameter name="error" transfer-ownership="none">
-            <type name="GLib.Error" c:type="GError*"/>
-          </parameter>
-        </parameters>
-      </method>
-      <method name="get_tab_ids" c:identifier="bamf_tab_source_get_tab_ids">
-        <return-value transfer-ownership="full">
+      <method name="get_tab_ids"
+              c:identifier="bamf_tab_source_get_tab_ids"
+              introspectable="0">
+        <return-value>
           <array c:type="char**">
             <type name="utf8"/>
           </array>
         </return-value>
       </method>
       <method name="get_tab_preview"
-              c:identifier="bamf_tab_source_get_tab_preview">
-        <return-value transfer-ownership="full">
+              c:identifier="bamf_tab_source_get_tab_preview"
+              introspectable="0">
+        <return-value>
           <array name="GLib.Array" c:type="GArray*">
-            <type name="any" c:type="gpointer"/>
+            <type name="gpointer" c:type="gpointer"/>
           </array>
         </return-value>
         <parameters>
-          <parameter name="tab_id" transfer-ownership="full">
+          <parameter name="tab_id" transfer-ownership="none">
             <type name="utf8" c:type="char*"/>
           </parameter>
         </parameters>
@@ -886,23 +889,36 @@ be prefered by bamf to system desktop files.</doc>
           <type name="utf8" c:type="char*"/>
         </return-value>
         <parameters>
-          <parameter name="tab_id" transfer-ownership="full">
+          <parameter name="tab_id" transfer-ownership="none">
             <type name="utf8" c:type="char*"/>
           </parameter>
         </parameters>
       </method>
       <method name="get_tab_xid" c:identifier="bamf_tab_source_get_tab_xid">
         <return-value transfer-ownership="none">
-          <type name="uint32" c:type="guint32"/>
+          <type name="guint32" c:type="guint32"/>
         </return-value>
         <parameters>
-          <parameter name="tab_id" transfer-ownership="full">
+          <parameter name="tab_id" transfer-ownership="none">
             <type name="utf8" c:type="char*"/>
           </parameter>
         </parameters>
       </method>
+      <method name="show_tab" c:identifier="bamf_tab_source_show_tab">
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <parameter name="tab_id" transfer-ownership="none">
+            <type name="utf8" c:type="char*"/>
+          </parameter>
+          <parameter name="error" transfer-ownership="none">
+            <type name="GLib.Error" c:type="GError*"/>
+          </parameter>
+        </parameters>
+      </method>
       <property name="id" writable="1" construct="1" transfer-ownership="none">
-        <type name="utf8" c:type="gchararray"/>
+        <type name="utf8"/>
       </property>
       <field name="parent">
         <type name="GObject.Object" c:type="GObject"/>
@@ -911,38 +927,38 @@ be prefered by bamf to system desktop files.</doc>
         <type name="TabSourcePrivate" c:type="BamfTabSourcePrivate*"/>
       </field>
       <glib:signal name="tab-closed">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
         <parameters>
           <parameter name="object" transfer-ownership="none">
-            <type name="utf8" c:type="gchararray"/>
+            <type name="utf8"/>
           </parameter>
         </parameters>
       </glib:signal>
       <glib:signal name="tab-opened">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
         <parameters>
           <parameter name="object" transfer-ownership="none">
-            <type name="utf8" c:type="gchararray"/>
+            <type name="utf8"/>
           </parameter>
         </parameters>
       </glib:signal>
       <glib:signal name="tab-uri-changed">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
         <parameters>
           <parameter name="object" transfer-ownership="none">
-            <type name="utf8" c:type="gchararray"/>
+            <type name="utf8"/>
           </parameter>
           <parameter name="p0" transfer-ownership="none">
-            <type name="utf8" c:type="gchararray"/>
+            <type name="utf8"/>
           </parameter>
           <parameter name="p1" transfer-ownership="none">
-            <type name="utf8" c:type="gchararray"/>
+            <type name="utf8"/>
           </parameter>
         </parameters>
       </glib:signal>
@@ -954,7 +970,7 @@ be prefered by bamf to system desktop files.</doc>
         <type name="GObject.ObjectClass" c:type="GObjectClass"/>
       </field>
       <field name="show_tab">
-        <callback name="show_tab" c:type="show_tab">
+        <callback name="show_tab">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
@@ -962,15 +978,15 @@ be prefered by bamf to system desktop files.</doc>
             <parameter name="source" transfer-ownership="none">
               <type name="TabSource" c:type="BamfTabSource*"/>
             </parameter>
-            <parameter name="tab_id" transfer-ownership="full">
+            <parameter name="tab_id" transfer-ownership="none">
               <type name="utf8" c:type="char*"/>
             </parameter>
           </parameters>
         </callback>
       </field>
-      <field name="tab_ids">
-        <callback name="tab_ids" c:type="tab_ids">
-          <return-value transfer-ownership="full">
+      <field name="tab_ids" introspectable="0">
+        <callback name="tab_ids" introspectable="0">
+          <return-value>
             <array c:type="char**">
               <type name="utf8"/>
             </array>
@@ -982,25 +998,25 @@ be prefered by bamf to system desktop files.</doc>
           </parameters>
         </callback>
       </field>
-      <field name="tab_preview">
-        <callback name="tab_preview" c:type="tab_preview">
-          <return-value transfer-ownership="full">
+      <field name="tab_preview" introspectable="0">
+        <callback name="tab_preview" introspectable="0">
+          <return-value>
             <array name="GLib.Array" c:type="GArray*">
-              <type name="any" c:type="gpointer"/>
+              <type name="gpointer" c:type="gpointer"/>
             </array>
           </return-value>
           <parameters>
             <parameter name="source" transfer-ownership="none">
               <type name="TabSource" c:type="BamfTabSource*"/>
             </parameter>
-            <parameter name="tab_id" transfer-ownership="full">
+            <parameter name="tab_id" transfer-ownership="none">
               <type name="utf8" c:type="char*"/>
             </parameter>
           </parameters>
         </callback>
       </field>
       <field name="tab_uri">
-        <callback name="tab_uri" c:type="tab_uri">
+        <callback name="tab_uri">
           <return-value transfer-ownership="full">
             <type name="utf8" c:type="char*"/>
           </return-value>
@@ -1008,66 +1024,51 @@ be prefered by bamf to system desktop files.</doc>
             <parameter name="source" transfer-ownership="none">
               <type name="TabSource" c:type="BamfTabSource*"/>
             </parameter>
-            <parameter name="tab_id" transfer-ownership="full">
+            <parameter name="tab_id" transfer-ownership="none">
               <type name="utf8" c:type="char*"/>
             </parameter>
           </parameters>
         </callback>
       </field>
       <field name="tab_xid">
-        <callback name="tab_xid" c:type="tab_xid">
+        <callback name="tab_xid">
           <return-value transfer-ownership="none">
-            <type name="uint32" c:type="guint32"/>
+            <type name="guint32" c:type="guint32"/>
           </return-value>
           <parameters>
             <parameter name="source" transfer-ownership="none">
               <type name="TabSource" c:type="BamfTabSource*"/>
             </parameter>
-            <parameter name="tab_id" transfer-ownership="full">
+            <parameter name="tab_id" transfer-ownership="none">
               <type name="utf8" c:type="char*"/>
             </parameter>
           </parameters>
         </callback>
       </field>
     </record>
-    <record name="TabSourcePrivate" c:type="BamfTabSourcePrivate">
+    <record name="TabSourcePrivate"
+            c:type="BamfTabSourcePrivate"
+            disguised="1">
     </record>
     <class name="View"
+           c:symbol-prefix="view"
            c:type="BamfView"
            parent="GObject.Object"
            glib:type-name="BamfView"
            glib:get-type="bamf_view_get_type"
            glib:type-struct="ViewClass">
+      <virtual-method name="click_behavior">
+        <return-value transfer-ownership="none">
+          <type name="ClickBehavior" c:type="BamfClickBehavior"/>
+        </return-value>
+      </virtual-method>
       <virtual-method name="get_children" invoker="get_children">
         <doc xml:whitespace="preserve">freed after usage. Elements of the list are owned by bamf and should not be unreffed.</doc>
         <return-value transfer-ownership="container">
           <doc xml:whitespace="preserve">Returns a list of #BamfView which must be</doc>
           <type name="GLib.List" c:type="GList*">
-            <type name="Bamf.View"/>
+            <type name="View"/>
           </type>
-        </return-value>
-      </virtual-method>
-      <virtual-method name="is_active" invoker="is_active">
-        <doc xml:whitespace="preserve">Determines if the view is currently active and focused by the user. Useful for an active window indicator.</doc>
-        <return-value transfer-ownership="none">
-          <type name="boolean" c:type="gboolean"/>
-        </return-value>
-      </virtual-method>
-      <virtual-method name="is_running" invoker="is_running">
-        <doc xml:whitespace="preserve">Determines if the view is currently requiring attention. Useful for a running window indicator.</doc>
-        <return-value transfer-ownership="none">
-          <type name="boolean" c:type="gboolean"/>
-        </return-value>
-      </virtual-method>
-      <virtual-method name="is_urgent" invoker="is_urgent">
-        <return-value transfer-ownership="none">
-          <type name="boolean" c:type="gboolean"/>
-        </return-value>
-      </virtual-method>
-      <virtual-method name="get_name" invoker="get_name">
-        <doc xml:whitespace="preserve">Gets the name of a view. This name is a short name best used to represent the view with text.</doc>
-        <return-value transfer-ownership="full">
-          <type name="utf8" c:type="gchar*"/>
         </return-value>
       </virtual-method>
       <virtual-method name="get_icon" invoker="get_icon">
@@ -1076,9 +1077,27 @@ be prefered by bamf to system desktop files.</doc>
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </virtual-method>
-      <virtual-method name="view_type">
-        <return-value transfer-ownership="none">
+      <virtual-method name="get_name" invoker="get_name">
+        <doc xml:whitespace="preserve">Gets the name of a view. This name is a short name best used to represent the view with text.</doc>
+        <return-value transfer-ownership="full">
           <type name="utf8" c:type="gchar*"/>
+        </return-value>
+      </virtual-method>
+      <virtual-method name="is_active" invoker="is_active">
+        <doc xml:whitespace="preserve">Determines if the view is currently active and focused by the user. Useful for an active window indicator.</doc>
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+      </virtual-method>
+      <virtual-method name="is_running" invoker="is_running">
+        <doc xml:whitespace="preserve">Determines if the view is currently requiring attention. Useful for a running window indicator.</doc>
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+      </virtual-method>
+      <virtual-method name="is_urgent" invoker="is_urgent">
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
         </return-value>
       </virtual-method>
       <virtual-method name="set_path">
@@ -1091,9 +1110,9 @@ be prefered by bamf to system desktop files.</doc>
           </parameter>
         </parameters>
       </virtual-method>
-      <virtual-method name="click_behavior">
-        <return-value transfer-ownership="full">
-          <type name="ClickBehavior" c:type="BamfClickBehavior"/>
+      <virtual-method name="view_type">
+        <return-value transfer-ownership="none">
+          <type name="utf8" c:type="gchar*"/>
         </return-value>
       </virtual-method>
       <method name="get_children" c:identifier="bamf_view_get_children">
@@ -1101,36 +1120,14 @@ be prefered by bamf to system desktop files.</doc>
         <return-value transfer-ownership="container">
           <doc xml:whitespace="preserve">Returns a list of #BamfView which must be</doc>
           <type name="GLib.List" c:type="GList*">
-            <type name="Bamf.View"/>
+            <type name="View"/>
           </type>
         </return-value>
       </method>
-      <method name="is_closed" c:identifier="bamf_view_is_closed">
+      <method name="get_click_suggestion"
+              c:identifier="bamf_view_get_click_suggestion">
         <return-value transfer-ownership="none">
-          <type name="boolean" c:type="gboolean"/>
-        </return-value>
-      </method>
-      <method name="is_active" c:identifier="bamf_view_is_active">
-        <doc xml:whitespace="preserve">Determines if the view is currently active and focused by the user. Useful for an active window indicator.</doc>
-        <return-value transfer-ownership="none">
-          <type name="boolean" c:type="gboolean"/>
-        </return-value>
-      </method>
-      <method name="is_running" c:identifier="bamf_view_is_running">
-        <doc xml:whitespace="preserve">Determines if the view is currently requiring attention. Useful for a running window indicator.</doc>
-        <return-value transfer-ownership="none">
-          <type name="boolean" c:type="gboolean"/>
-        </return-value>
-      </method>
-      <method name="is_urgent" c:identifier="bamf_view_is_urgent">
-        <return-value transfer-ownership="none">
-          <type name="boolean" c:type="gboolean"/>
-        </return-value>
-      </method>
-      <method name="get_name" c:identifier="bamf_view_get_name">
-        <doc xml:whitespace="preserve">Gets the name of a view. This name is a short name best used to represent the view with text.</doc>
-        <return-value transfer-ownership="full">
-          <type name="utf8" c:type="gchar*"/>
+          <type name="ClickBehavior" c:type="BamfClickBehavior"/>
         </return-value>
       </method>
       <method name="get_icon" c:identifier="bamf_view_get_icon">
@@ -1139,11 +1136,10 @@ be prefered by bamf to system desktop files.</doc>
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </method>
-      <method name="user_visible" c:identifier="bamf_view_user_visible">
-        <doc xml:whitespace="preserve">Returns a boolean useful for determining if a particular view is "user visible". User visible
-is a concept relating to whether or not a window should be shown in a launcher tasklist.</doc>
-        <return-value transfer-ownership="none">
-          <type name="boolean" c:type="gboolean"/>
+      <method name="get_name" c:identifier="bamf_view_get_name">
+        <doc xml:whitespace="preserve">Gets the name of a view. This name is a short name best used to represent the view with text.</doc>
+        <return-value transfer-ownership="full">
+          <type name="utf8" c:type="gchar*"/>
         </return-value>
       </method>
       <method name="get_view_type" c:identifier="bamf_view_get_view_type">
@@ -1154,41 +1150,64 @@ descriptions should not be used to do casting as they are not considered stable.
           <type name="utf8" c:type="gchar*"/>
         </return-value>
       </method>
+      <method name="is_active" c:identifier="bamf_view_is_active">
+        <doc xml:whitespace="preserve">Determines if the view is currently active and focused by the user. Useful for an active window indicator.</doc>
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+      </method>
+      <method name="is_closed" c:identifier="bamf_view_is_closed">
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+      </method>
+      <method name="is_running" c:identifier="bamf_view_is_running">
+        <doc xml:whitespace="preserve">Determines if the view is currently requiring attention. Useful for a running window indicator.</doc>
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+      </method>
+      <method name="is_sticky" c:identifier="bamf_view_is_sticky">
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+      </method>
+      <method name="is_urgent" c:identifier="bamf_view_is_urgent">
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+      </method>
       <method name="set_sticky" c:identifier="bamf_view_set_sticky">
         <return-value transfer-ownership="none">
           <type name="none" c:type="void"/>
         </return-value>
         <parameters>
           <parameter name="value" transfer-ownership="none">
-            <type name="boolean" c:type="gboolean"/>
+            <type name="gboolean" c:type="gboolean"/>
           </parameter>
         </parameters>
       </method>
-      <method name="is_sticky" c:identifier="bamf_view_is_sticky">
+      <method name="user_visible" c:identifier="bamf_view_user_visible">
+        <doc xml:whitespace="preserve">Returns a boolean useful for determining if a particular view is "user visible". User visible
+is a concept relating to whether or not a window should be shown in a launcher tasklist.</doc>
         <return-value transfer-ownership="none">
-          <type name="boolean" c:type="gboolean"/>
-        </return-value>
-      </method>
-      <method name="get_click_suggestion"
-              c:identifier="bamf_view_get_click_suggestion">
-        <return-value transfer-ownership="full">
-          <type name="ClickBehavior" c:type="BamfClickBehavior"/>
+          <type name="gboolean" c:type="gboolean"/>
         </return-value>
       </method>
       <property name="active" transfer-ownership="none">
-        <type name="boolean" c:type="gboolean"/>
+        <type name="gboolean"/>
       </property>
       <property name="path" transfer-ownership="none">
-        <type name="utf8" c:type="gchararray"/>
+        <type name="utf8"/>
       </property>
       <property name="running" transfer-ownership="none">
-        <type name="boolean" c:type="gboolean"/>
+        <type name="gboolean"/>
       </property>
       <property name="urgent" transfer-ownership="none">
-        <type name="boolean" c:type="gboolean"/>
+        <type name="gboolean"/>
       </property>
       <property name="user-visible" transfer-ownership="none">
-        <type name="boolean" c:type="gboolean"/>
+        <type name="gboolean"/>
       </property>
       <field name="parent">
         <type name="GObject.Object" c:type="GObject"/>
@@ -1197,67 +1216,67 @@ descriptions should not be used to do casting as they are not considered stable.
         <type name="ViewPrivate" c:type="BamfViewPrivate*"/>
       </field>
       <glib:signal name="active-changed">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
         <parameters>
           <parameter name="object" transfer-ownership="none">
-            <type name="boolean" c:type="gboolean"/>
+            <type name="gboolean"/>
           </parameter>
         </parameters>
       </glib:signal>
       <glib:signal name="child-added">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
         <parameters>
           <parameter name="object" transfer-ownership="none">
-            <type name="View" c:type="BamfView"/>
+            <type name="View"/>
           </parameter>
         </parameters>
       </glib:signal>
       <glib:signal name="child-removed">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
         <parameters>
           <parameter name="object" transfer-ownership="none">
-            <type name="View" c:type="BamfView"/>
+            <type name="View"/>
           </parameter>
         </parameters>
       </glib:signal>
       <glib:signal name="closed">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
       </glib:signal>
       <glib:signal name="running-changed">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
         <parameters>
           <parameter name="object" transfer-ownership="none">
-            <type name="boolean" c:type="gboolean"/>
+            <type name="gboolean"/>
           </parameter>
         </parameters>
       </glib:signal>
       <glib:signal name="urgent-changed">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
         <parameters>
           <parameter name="object" transfer-ownership="none">
-            <type name="boolean" c:type="gboolean"/>
+            <type name="gboolean"/>
           </parameter>
         </parameters>
       </glib:signal>
       <glib:signal name="user-visible-changed">
-        <return-value transfer-ownership="full">
-          <type name="none" c:type="void"/>
+        <return-value transfer-ownership="none">
+          <type name="none"/>
         </return-value>
         <parameters>
           <parameter name="object" transfer-ownership="none">
-            <type name="boolean" c:type="gboolean"/>
+            <type name="gboolean"/>
           </parameter>
         </parameters>
       </glib:signal>
@@ -1269,11 +1288,11 @@ descriptions should not be used to do casting as they are not considered stable.
         <type name="GObject.ObjectClass" c:type="GObjectClass"/>
       </field>
       <field name="get_children">
-        <callback name="get_children" c:type="get_children">
+        <callback name="get_children">
           <return-value transfer-ownership="container">
             <doc xml:whitespace="preserve">Returns a list of #BamfView which must be</doc>
             <type name="GLib.List" c:type="GList*">
-              <type name="Bamf.View"/>
+              <type name="View"/>
             </type>
           </return-value>
           <parameters>
@@ -1284,9 +1303,9 @@ descriptions should not be used to do casting as they are not considered stable.
         </callback>
       </field>
       <field name="is_active">
-        <callback name="is_active" c:type="is_active">
+        <callback name="is_active">
           <return-value transfer-ownership="none">
-            <type name="boolean" c:type="gboolean"/>
+            <type name="gboolean" c:type="gboolean"/>
           </return-value>
           <parameters>
             <parameter name="view" transfer-ownership="none">
@@ -1296,9 +1315,9 @@ descriptions should not be used to do casting as they are not considered stable.
         </callback>
       </field>
       <field name="is_running">
-        <callback name="is_running" c:type="is_running">
+        <callback name="is_running">
           <return-value transfer-ownership="none">
-            <type name="boolean" c:type="gboolean"/>
+            <type name="gboolean" c:type="gboolean"/>
           </return-value>
           <parameters>
             <parameter name="view" transfer-ownership="none">
@@ -1308,9 +1327,9 @@ descriptions should not be used to do casting as they are not considered stable.
         </callback>
       </field>
       <field name="is_urgent">
-        <callback name="is_urgent" c:type="is_urgent">
+        <callback name="is_urgent">
           <return-value transfer-ownership="none">
-            <type name="boolean" c:type="gboolean"/>
+            <type name="gboolean" c:type="gboolean"/>
           </return-value>
           <parameters>
             <parameter name="view" transfer-ownership="none">
@@ -1320,7 +1339,7 @@ descriptions should not be used to do casting as they are not considered stable.
         </callback>
       </field>
       <field name="get_name">
-        <callback name="get_name" c:type="get_name">
+        <callback name="get_name">
           <return-value transfer-ownership="full">
             <type name="utf8" c:type="gchar*"/>
           </return-value>
@@ -1332,7 +1351,7 @@ descriptions should not be used to do casting as they are not considered stable.
         </callback>
       </field>
       <field name="get_icon">
-        <callback name="get_icon" c:type="get_icon">
+        <callback name="get_icon">
           <return-value transfer-ownership="full">
             <type name="utf8" c:type="gchar*"/>
           </return-value>
@@ -1344,7 +1363,7 @@ descriptions should not be used to do casting as they are not considered stable.
         </callback>
       </field>
       <field name="view_type">
-        <callback name="view_type" c:type="view_type">
+        <callback name="view_type">
           <return-value transfer-ownership="none">
             <type name="utf8" c:type="gchar*"/>
           </return-value>
@@ -1356,7 +1375,7 @@ descriptions should not be used to do casting as they are not considered stable.
         </callback>
       </field>
       <field name="set_path">
-        <callback name="set_path" c:type="set_path">
+        <callback name="set_path">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
@@ -1371,8 +1390,8 @@ descriptions should not be used to do casting as they are not considered stable.
         </callback>
       </field>
       <field name="click_behavior">
-        <callback name="click_behavior" c:type="click_behavior">
-          <return-value transfer-ownership="full">
+        <callback name="click_behavior">
+          <return-value transfer-ownership="none">
             <type name="ClickBehavior" c:type="BamfClickBehavior"/>
           </return-value>
           <parameters>
@@ -1383,7 +1402,7 @@ descriptions should not be used to do casting as they are not considered stable.
         </callback>
       </field>
       <field name="active_changed">
-        <callback name="active_changed" c:type="active_changed">
+        <callback name="active_changed">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
@@ -1392,13 +1411,13 @@ descriptions should not be used to do casting as they are not considered stable.
               <type name="View" c:type="BamfView*"/>
             </parameter>
             <parameter name="active" transfer-ownership="none">
-              <type name="boolean" c:type="gboolean"/>
+              <type name="gboolean" c:type="gboolean"/>
             </parameter>
           </parameters>
         </callback>
       </field>
       <field name="closed">
-        <callback name="closed" c:type="closed">
+        <callback name="closed">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
@@ -1410,7 +1429,7 @@ descriptions should not be used to do casting as they are not considered stable.
         </callback>
       </field>
       <field name="child_added">
-        <callback name="child_added" c:type="child_added">
+        <callback name="child_added">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
@@ -1425,7 +1444,7 @@ descriptions should not be used to do casting as they are not considered stable.
         </callback>
       </field>
       <field name="child_removed">
-        <callback name="child_removed" c:type="child_removed">
+        <callback name="child_removed">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
@@ -1440,7 +1459,7 @@ descriptions should not be used to do casting as they are not considered stable.
         </callback>
       </field>
       <field name="running_changed">
-        <callback name="running_changed" c:type="running_changed">
+        <callback name="running_changed">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
@@ -1449,13 +1468,13 @@ descriptions should not be used to do casting as they are not considered stable.
               <type name="View" c:type="BamfView*"/>
             </parameter>
             <parameter name="running" transfer-ownership="none">
-              <type name="boolean" c:type="gboolean"/>
+              <type name="gboolean" c:type="gboolean"/>
             </parameter>
           </parameters>
         </callback>
       </field>
       <field name="urgent_changed">
-        <callback name="urgent_changed" c:type="urgent_changed">
+        <callback name="urgent_changed">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
@@ -1464,13 +1483,13 @@ descriptions should not be used to do casting as they are not considered stable.
               <type name="View" c:type="BamfView*"/>
             </parameter>
             <parameter name="urgent" transfer-ownership="none">
-              <type name="boolean" c:type="gboolean"/>
+              <type name="gboolean" c:type="gboolean"/>
             </parameter>
           </parameters>
         </callback>
       </field>
       <field name="user_visible_changed">
-        <callback name="user_visible_changed" c:type="user_visible_changed">
+        <callback name="user_visible_changed">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
@@ -1479,81 +1498,84 @@ descriptions should not be used to do casting as they are not considered stable.
               <type name="View" c:type="BamfView*"/>
             </parameter>
             <parameter name="user_visible" transfer-ownership="none">
-              <type name="boolean" c:type="gboolean"/>
+              <type name="gboolean" c:type="gboolean"/>
             </parameter>
           </parameters>
         </callback>
       </field>
-      <field name="view_padding1">
-        <callback name="view_padding1" c:type="_view_padding1">
+      <field name="_view_padding1" introspectable="0">
+        <callback name="_view_padding1">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="view_padding2">
-        <callback name="view_padding2" c:type="_view_padding2">
+      <field name="_view_padding2" introspectable="0">
+        <callback name="_view_padding2">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="view_padding3">
-        <callback name="view_padding3" c:type="_view_padding3">
+      <field name="_view_padding3" introspectable="0">
+        <callback name="_view_padding3">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="view_padding4">
-        <callback name="view_padding4" c:type="_view_padding4">
+      <field name="_view_padding4" introspectable="0">
+        <callback name="_view_padding4">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="view_padding5">
-        <callback name="view_padding5" c:type="_view_padding5">
+      <field name="_view_padding5" introspectable="0">
+        <callback name="_view_padding5">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="view_padding6">
-        <callback name="view_padding6" c:type="_view_padding6">
+      <field name="_view_padding6" introspectable="0">
+        <callback name="_view_padding6">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
     </record>
-    <record name="ViewPrivate" c:type="BamfViewPrivate">
+    <record name="ViewPrivate" c:type="BamfViewPrivate" disguised="1">
     </record>
     <class name="Window"
+           c:symbol-prefix="window"
            c:type="BamfWindow"
            parent="View"
            glib:type-name="BamfWindow"
            glib:get-type="bamf_window_get_type"
            glib:type-struct="WindowClass">
-      <method name="get_transient" c:identifier="bamf_window_get_transient">
-        <return-value transfer-ownership="full">
+      <method name="get_transient"
+              c:identifier="bamf_window_get_transient"
+              introspectable="0">
+        <return-value>
           <type name="Window" c:type="BamfWindow*"/>
         </return-value>
       </method>
       <method name="get_window_type"
               c:identifier="bamf_window_get_window_type">
-        <return-value transfer-ownership="full">
+        <return-value transfer-ownership="none">
           <type name="WindowType" c:type="BamfWindowType"/>
         </return-value>
       </method>
       <method name="get_xid" c:identifier="bamf_window_get_xid">
         <return-value transfer-ownership="none">
-          <type name="uint32" c:type="guint32"/>
+          <type name="guint32" c:type="guint32"/>
         </return-value>
       </method>
       <method name="last_active" c:identifier="bamf_window_last_active">
         <return-value transfer-ownership="none">
-          <type name="long" c:type="time_t"/>
+          <type name="glong" c:type="time_t"/>
         </return-value>
       </method>
       <field name="parent">
@@ -1569,50 +1591,50 @@ descriptions should not be used to do casting as they are not considered stable.
       <field name="parent_class">
         <type name="ViewClass" c:type="BamfViewClass"/>
       </field>
-      <field name="window_padding1">
-        <callback name="window_padding1" c:type="_window_padding1">
+      <field name="_window_padding1" introspectable="0">
+        <callback name="_window_padding1">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="window_padding2">
-        <callback name="window_padding2" c:type="_window_padding2">
+      <field name="_window_padding2" introspectable="0">
+        <callback name="_window_padding2">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="window_padding3">
-        <callback name="window_padding3" c:type="_window_padding3">
+      <field name="_window_padding3" introspectable="0">
+        <callback name="_window_padding3">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="window_padding4">
-        <callback name="window_padding4" c:type="_window_padding4">
+      <field name="_window_padding4" introspectable="0">
+        <callback name="_window_padding4">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="window_padding5">
-        <callback name="window_padding5" c:type="_window_padding5">
+      <field name="_window_padding5" introspectable="0">
+        <callback name="_window_padding5">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
-      <field name="window_padding6">
-        <callback name="window_padding6" c:type="_window_padding6">
+      <field name="_window_padding6" introspectable="0">
+        <callback name="_window_padding6">
           <return-value transfer-ownership="none">
             <type name="none" c:type="void"/>
           </return-value>
         </callback>
       </field>
     </record>
-    <record name="WindowPrivate" c:type="BamfWindowPrivate">
+    <record name="WindowPrivate" c:type="BamfWindowPrivate" disguised="1">
     </record>
     <enumeration name="WindowType" c:type="BamfWindowType">
       <member name="normal" value="0" c:identifier="BAMF_WINDOW_NORMAL"/>
