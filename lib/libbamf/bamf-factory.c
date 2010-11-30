@@ -207,7 +207,6 @@ bamf_factory_view_for_path (BamfFactory * factory,
 
               view = BAMF_VIEW (l->data);
               bamf_view_set_path (view, path);
-              g_object_ref (view);
               break;
             }
         }
