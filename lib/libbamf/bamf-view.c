@@ -43,7 +43,7 @@
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
 
-G_DEFINE_TYPE (BamfView, bamf_view, G_TYPE_OBJECT);
+G_DEFINE_TYPE (BamfView, bamf_view, G_TYPE_INITIALLY_UNOWNED);
 
 #define BAMF_VIEW_GET_PRIVATE(o) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((o), BAMF_TYPE_VIEW, BamfViewPrivate))
@@ -524,13 +524,14 @@ bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
       priv->proxy = NULL;
     }
   
+  // must be emitted before path is cleared as path is utilized in cleanup
+  g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
+
   if (priv->path)
     {
       g_free (priv->path);
       priv->path = NULL;
     }
-  
-  g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
 }
 
 static void
