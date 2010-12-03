@@ -426,6 +426,25 @@ BamfApplication *
 bamf_application_new_favorite (const char * favorite_path)
 {
   BamfApplication *self;
+  GKeyFile        *desktop_keyfile;
+  GKeyFileFlags    flags;
+  const gchar     *type;
+  gboolean         supported = FALSE;
+  
+  // check that we support this kind of desktop file
+  desktop_keyfile = g_key_file_new ();
+  flags = G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS;
+  if (g_key_file_load_from_file (desktop_keyfile, favorite_path, flags, NULL))
+    {
+      type = g_key_file_get_string (desktop_keyfile, "Desktop Entry", "Type", NULL);
+      if (g_strcmp0 (type, "Application") == 0)
+        supported = TRUE;
+
+      g_key_file_free (desktop_keyfile);
+    }
+  if (!supported)
+    return NULL;
+    
   self = g_object_new (BAMF_TYPE_APPLICATION, NULL);
   
   self->priv->desktop_file = g_strdup (favorite_path);

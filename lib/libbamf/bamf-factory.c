@@ -144,7 +144,8 @@ bamf_factory_app_for_file (BamfFactory * factory,
     {
       /* delay registration until match time */
       result = bamf_application_new_favorite (path);
-      factory->priv->local_views = g_list_prepend (factory->priv->local_views, result);
+      if (result)
+        factory->priv->local_views = g_list_prepend (factory->priv->local_views, result);
     }
   
   return result;
