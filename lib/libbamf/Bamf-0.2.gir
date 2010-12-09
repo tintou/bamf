@@ -626,7 +626,7 @@ be prefered by bamf to system desktop files.</doc>
            glib:get-type="bamf_tab_get_type"
            glib:type-struct="TabClass">
       <constructor name="new" c:identifier="bamf_tab_new">
-        <return-value transfer-ownership="full">
+        <return-value transfer-ownership="none">
           <type name="Tab" c:type="BamfTab*"/>
         </return-value>
         <parameters>
@@ -1053,7 +1053,7 @@ be prefered by bamf to system desktop files.</doc>
     <class name="View"
            c:symbol-prefix="view"
            c:type="BamfView"
-           parent="GObject.Object"
+           parent="GObject.InitiallyUnowned"
            glib:type-name="BamfView"
            glib:get-type="bamf_view_get_type"
            glib:type-struct="ViewClass">
@@ -1210,7 +1210,7 @@ is a concept relating to whether or not a window should be shown in a launcher t
         <type name="gboolean"/>
       </property>
       <field name="parent">
-        <type name="GObject.Object" c:type="GObject"/>
+        <type name="GObject.InitiallyUnowned" c:type="GInitiallyUnowned"/>
       </field>
       <field name="priv">
         <type name="ViewPrivate" c:type="BamfViewPrivate*"/>
@@ -1285,7 +1285,8 @@ is a concept relating to whether or not a window should be shown in a launcher t
             c:type="BamfViewClass"
             glib:is-gtype-struct-for="View">
       <field name="parent_class">
-        <type name="GObject.ObjectClass" c:type="GObjectClass"/>
+        <type name="GObject.InitiallyUnownedClass"
+              c:type="GInitiallyUnownedClass"/>
       </field>
       <field name="get_children">
         <callback name="get_children">
