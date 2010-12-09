@@ -144,8 +144,8 @@ bamf_factory_app_for_file (BamfFactory * factory,
     {
       /* delay registration until match time */
       result = bamf_application_new_favorite (path);
-      factory->priv->local_views = g_list_prepend (factory->priv->local_views, result);
-      g_object_ref_sink (result);
+      if (result)
+        factory->priv->local_views = g_list_prepend (factory->priv->local_views, result);
     }
   
   return result;
@@ -207,6 +207,7 @@ bamf_factory_view_for_path (BamfFactory * factory,
 
               view = BAMF_VIEW (l->data);
               bamf_view_set_path (view, path);
+              g_object_ref_sink (view);
               break;
             }
         }

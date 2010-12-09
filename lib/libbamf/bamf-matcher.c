@@ -583,11 +583,16 @@ bamf_matcher_get_application_for_desktop_file (BamfMatcher *matcher,
                                                const gchar *desktop_file_path,
                                                gboolean create_if_not_found)
 {
-  const gchar ** favs = g_malloc0 (sizeof (gchar *) * 2);
-  favs[0] = desktop_file_path;
+  BamfApplication *app;
+  const gchar ** favs;
   
-  bamf_matcher_register_favorites (matcher, favs);
-  g_free (favs);
-  
-  return bamf_factory_app_for_file (bamf_factory_get_default (), desktop_file_path, create_if_not_found);
+  app = bamf_factory_app_for_file (bamf_factory_get_default (), desktop_file_path, create_if_not_found);
+  if (app)
+    {
+      favs = g_malloc0 (sizeof (gchar *) * 2),
+      favs[0] = desktop_file_path;      
+      bamf_matcher_register_favorites (matcher, favs);
+      g_free (favs);
+    }
+  return app;
 }

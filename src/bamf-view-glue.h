@@ -55,50 +55,6 @@ G_BEGIN_DECLS
 #endif /* !G_ENABLE_DEBUG */
 
 
-/* STRING:NONE */
-extern void dbus_glib_marshal_bamf_view_STRING__VOID (GClosure     *closure,
-                                                      GValue       *return_value,
-                                                      guint         n_param_values,
-                                                      const GValue *param_values,
-                                                      gpointer      invocation_hint,
-                                                      gpointer      marshal_data);
-void
-dbus_glib_marshal_bamf_view_STRING__VOID (GClosure     *closure,
-                                          GValue       *return_value G_GNUC_UNUSED,
-                                          guint         n_param_values,
-                                          const GValue *param_values,
-                                          gpointer      invocation_hint G_GNUC_UNUSED,
-                                          gpointer      marshal_data)
-{
-  typedef gchar* (*GMarshalFunc_STRING__VOID) (gpointer     data1,
-                                               gpointer     data2);
-  register GMarshalFunc_STRING__VOID callback;
-  register GCClosure *cc = (GCClosure*) closure;
-  register gpointer data1, data2;
-  gchar* v_return;
-
-  g_return_if_fail (return_value != NULL);
-  g_return_if_fail (n_param_values == 1);
-
-  if (G_CCLOSURE_SWAP_DATA (closure))
-    {
-      data1 = closure->data;
-      data2 = g_value_peek_pointer (param_values + 0);
-    }
-  else
-    {
-      data1 = g_value_peek_pointer (param_values + 0);
-      data2 = closure->data;
-    }
-  callback = (GMarshalFunc_STRING__VOID) (marshal_data ? marshal_data : cc->callback);
-
-  v_return = callback (data1,
-                       data2);
-
-  g_value_take_string (return_value, v_return);
-}
-#define dbus_glib_marshal_bamf_view_STRING__NONE	dbus_glib_marshal_bamf_view_STRING__VOID
-
 /* BOOLEAN:NONE */
 extern void dbus_glib_marshal_bamf_view_BOOLEAN__VOID (GClosure     *closure,
                                                        GValue       *return_value,
@@ -142,6 +98,50 @@ dbus_glib_marshal_bamf_view_BOOLEAN__VOID (GClosure     *closure,
   g_value_set_boolean (return_value, v_return);
 }
 #define dbus_glib_marshal_bamf_view_BOOLEAN__NONE	dbus_glib_marshal_bamf_view_BOOLEAN__VOID
+
+/* STRING:NONE */
+extern void dbus_glib_marshal_bamf_view_STRING__VOID (GClosure     *closure,
+                                                      GValue       *return_value,
+                                                      guint         n_param_values,
+                                                      const GValue *param_values,
+                                                      gpointer      invocation_hint,
+                                                      gpointer      marshal_data);
+void
+dbus_glib_marshal_bamf_view_STRING__VOID (GClosure     *closure,
+                                          GValue       *return_value G_GNUC_UNUSED,
+                                          guint         n_param_values,
+                                          const GValue *param_values,
+                                          gpointer      invocation_hint G_GNUC_UNUSED,
+                                          gpointer      marshal_data)
+{
+  typedef gchar* (*GMarshalFunc_STRING__VOID) (gpointer     data1,
+                                               gpointer     data2);
+  register GMarshalFunc_STRING__VOID callback;
+  register GCClosure *cc = (GCClosure*) closure;
+  register gpointer data1, data2;
+  gchar* v_return;
+
+  g_return_if_fail (return_value != NULL);
+  g_return_if_fail (n_param_values == 1);
+
+  if (G_CCLOSURE_SWAP_DATA (closure))
+    {
+      data1 = closure->data;
+      data2 = g_value_peek_pointer (param_values + 0);
+    }
+  else
+    {
+      data1 = g_value_peek_pointer (param_values + 0);
+      data2 = closure->data;
+    }
+  callback = (GMarshalFunc_STRING__VOID) (marshal_data ? marshal_data : cc->callback);
+
+  v_return = callback (data1,
+                       data2);
+
+  g_value_take_string (return_value, v_return);
+}
+#define dbus_glib_marshal_bamf_view_STRING__NONE	dbus_glib_marshal_bamf_view_STRING__VOID
 
 /* BOXED:NONE */
 extern void dbus_glib_marshal_bamf_view_BOXED__VOID (GClosure     *closure,
