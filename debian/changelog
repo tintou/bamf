@@ -1,4 +1,4 @@
-bamf (0.2.66-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.66-0ubuntu1) natty; urgency=low
 
   * New upstream release.
    - Fix the Ubuntu Starter Edition bug (LP: #683623)
@@ -6,7 +6,7 @@ bamf (0.2.66-0ubuntu1) UNRELEASED; urgency=low
      favorite (LP: #682345)
    - unity-panel-service crashed with SIGSEGV in free() (LP: #677580)
 
- -- Didier Roche <didrocks@ubuntu.com>  Thu, 09 Dec 2010 18:36:45 +0100
+ -- Didier Roche <didrocks@ubuntu.com>  Thu, 09 Dec 2010 19:37:54 +0100
 
 bamf (0.2.64-0ubuntu1) natty; urgency=low
 
