@@ -4,6 +4,7 @@ bamf (0.2.66-0ubuntu1) UNRELEASED; urgency=low
    - Fix the Ubuntu Starter Edition bug (LP: #683623)
    - check that desktop file is currently supported before creating the
      favorite (LP: #682345)
+   - unity-panel-service crashed with SIGSEGV in free() (LP: #677580)
 
  -- Didier Roche <didrocks@ubuntu.com>  Thu, 09 Dec 2010 18:36:45 +0100
 
