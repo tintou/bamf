@@ -408,24 +408,35 @@ load_desktop_file_to_table (BamfMatcher * self,
                             GHashTable *desktop_file_table,
                             GHashTable *desktop_id_table)
 {
-  GAppInfo *desktop_file;
+  GKeyFile *desktop_file;
   char *exec;
   char *path;
   GString *desktop_id; /* is ok... really */
+  gchar *desktop_id_char;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
 
-  desktop_file = G_APP_INFO (g_desktop_app_info_new_from_filename (file));
-
-  if (!G_IS_APP_INFO (desktop_file))
+  desktop_file = g_key_file_new ();
+  if (!desktop_file)
     return;
+  if (!g_key_file_load_from_file (desktop_file, file, G_KEY_FILE_NONE, NULL)) {
+    g_key_file_free (desktop_file);
+    return;
+  }
 
-  exec = g_strdup (g_app_info_get_commandline (desktop_file));
+  exec = g_key_file_get_value (desktop_file, "Desktop Entry", "Exec", NULL);
   
   if (!exec)
     return;
 
-  g_object_unref (desktop_file);
+  desktop_id_char = g_key_file_get_value (desktop_file, "Desktop Entry", "StartupWMClass", NULL);
+  if (desktop_id_char) {
+    desktop_id = g_string_new (g_ascii_strdown (desktop_id_char, -1));
+    g_free (desktop_id_char);
+  } else {
+    desktop_id = NULL;
+  }
+  g_key_file_free (desktop_file);
 
   if (exec_string_should_be_processed (self, exec))
     {
@@ -440,11 +451,13 @@ load_desktop_file_to_table (BamfMatcher * self,
       exec = tmp;
     }
 
-  path = g_path_get_basename (file);
-  desktop_id = g_string_new (path);
-  g_free (path);
-
-  desktop_id = g_string_truncate (desktop_id, desktop_id->len - 8); /* remove last 8 characters for .desktop */
+  /* if StartupWMClass didnt exist, go for .desktop path as heuristic */
+  if (!desktop_id) {
+    path = g_path_get_basename (file);
+    desktop_id = g_string_new (path);
+    desktop_id = g_string_truncate (desktop_id, desktop_id->len - 8); /* remove last 8 characters for .desktop */
+    g_free (path);
+  }
   
   insert_data_into_tables (self, file, exec, desktop_id->str, desktop_file_table, desktop_id_table);
 
@@ -530,6 +543,7 @@ load_index_file_to_table (BamfMatcher * self,
       char *exec;
       GString *desktop_id;
       GString *filename;
+      char *bamf_wm_class;
 
       gchar **parts = g_strsplit (line, "\t", 3);
 
@@ -545,9 +559,21 @@ load_index_file_to_table (BamfMatcher * self,
       filename = g_string_new (name);
       g_free ((gpointer) name);
 
-      desktop_id = g_string_new (parts[0]);
-      g_string_truncate (desktop_id, desktop_id->len - 8);
-      
+      /*
+       * if we have a third column in index file it means we have a StatupWMClass which
+       * is a better desktop_id/window_class than the desktop filename stripped by .desktop.
+       * e.g. firefox-4.0.desktop dailies have window class "Minefield"
+       * since Exec can be a multi whitespace token we expect a BAMF_WM_CLASS:: to indicate
+       * a StartupWMClass info
+       */
+      bamf_wm_class = parts[2] ? strstr(parts[2], "BAMF_WM_CLASS::") : NULL;
+      if (!bamf_wm_class) {
+        desktop_id = g_string_new (parts[0]);
+        g_string_truncate (desktop_id, desktop_id->len - 8);
+      } else {
+        desktop_id = g_string_new (g_ascii_strdown(bamf_wm_class + 15 /* strlen ("BAMF_WM_CLASS::") */, -1));
+      }
+
       insert_data_into_tables (self, filename->str, exec, desktop_id->str, desktop_file_table, desktop_id_table);
 
       g_string_free (desktop_id, TRUE);
