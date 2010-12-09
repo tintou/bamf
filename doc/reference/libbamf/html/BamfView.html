@@ -66,9 +66,10 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.htm
 <a name="BamfView.object-hierarchy"></a><h2>Object Hierarchy</h2>
 <pre class="synopsis">
   <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
-   +----BamfView
-         +----<a class="link" href="BamfApplication.html" title="BamfApplication">BamfApplication</a>
-         +----<a class="link" href="BamfWindow.html" title="BamfWindow">BamfWindow</a>
+   +----<a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+         +----BamfView
+               +----<a class="link" href="BamfApplication.html" title="BamfApplication">BamfApplication</a>
+               +----<a class="link" href="BamfWindow.html" title="BamfWindow">BamfWindow</a>
 </pre>
 </div>
 <div class="refsect1" title="Properties">
@@ -129,7 +130,7 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.htm
 <div class="refsect2" title="BamfViewClass">
 <a name="BamfViewClass"></a><h3>BamfViewClass</h3>
 <pre class="programlisting">typedef struct {
-  GObjectClass parent_class;
+  GInitiallyUnownedClass parent_class;
   
   GList            * (*get_children)        (BamfView *view);
   gboolean           (*is_active)           (BamfView *view);

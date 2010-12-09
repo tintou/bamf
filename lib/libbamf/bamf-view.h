@@ -66,14 +66,14 @@ typedef struct _BamfViewPrivate BamfViewPrivate;
 
 struct _BamfView
 {
-  GObject parent;
+  GInitiallyUnowned parent;
 
   BamfViewPrivate *priv;
 };
 
 struct _BamfViewClass
 {
-  GObjectClass parent_class;
+  GInitiallyUnownedClass parent_class;
   
   GList            * (*get_children)        (BamfView *view);
   gboolean           (*is_active)           (BamfView *view);
