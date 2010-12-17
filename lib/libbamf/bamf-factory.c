@@ -94,14 +94,18 @@ on_view_closed (BamfView *view, BamfFactory *self)
   
   g_return_if_fail (BAMF_IS_VIEW (view));
   
-  if (!bamf_view_is_sticky (view))
-    self->priv->local_views = g_list_remove (self->priv->local_views, view);
-
   path = bamf_view_get_path (view);
   if (path)
     g_hash_table_remove (self->priv->views, path);
   
   g_object_unref (view);
+}
+
+static void
+on_view_weak_unref (BamfFactory *self, BamfView *view)
+{
+  g_return_if_fail (BAMF_IS_VIEW (view));
+  self->priv->local_views = g_list_remove (self->priv->local_views, view);
 }
 
 static void
@@ -118,6 +122,7 @@ bamf_factory_register_view (BamfFactory *self, BamfView *view, const char *path)
   self->priv->registered_views = g_list_prepend (self->priv->registered_views, view);
   
   g_signal_connect (G_OBJECT (view), "closed", (GCallback) on_view_closed, self);
+  g_object_weak_ref (G_OBJECT (view), (GWeakNotify) on_view_weak_unref, self);
 }
 
 BamfApplication * 
