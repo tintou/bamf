@@ -302,7 +302,6 @@ bamf_view_set_sticky (BamfView *view, gboolean value)
   else
     g_object_unref (view);
   
-  
   view->priv->sticky = value;
 }
 
