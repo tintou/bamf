@@ -52,12 +52,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-DIST_COMMON = $(am__dist_gir_DATA_DIST) $(library_include_HEADERS) \
-	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/libbamf.pc.in $(top_srcdir)/Makefile.am.marshal
-@HAVE_INTROSPECTION_TRUE@am__append_1 = Bamf-0.2.gir
-@HAVE_INTROSPECTION_TRUE@am__append_2 = $(dist_gir_DATA) \
-@HAVE_INTROSPECTION_TRUE@	$(typelib_DATA) $(vapi_DATA)
+DIST_COMMON = $(library_include_HEADERS) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in $(srcdir)/libbamf.pc.in \
+	$(top_srcdir)/Makefile.am.marshal
 subdir = lib/libbamf
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/expansions.m4 \
@@ -92,9 +89,8 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(girdir)" \
-	"$(DESTDIR)$(libbamf_pcdir)" "$(DESTDIR)$(typelibdir)" \
-	"$(DESTDIR)$(vapidir)" "$(DESTDIR)$(library_includedir)"
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libbamf_pcdir)" \
+	"$(DESTDIR)$(library_includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libbamf_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
@@ -126,9 +122,7 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(libbamf_la_SOURCES)
 DIST_SOURCES = $(libbamf_la_SOURCES)
-am__dist_gir_DATA_DIST = Bamf-0.2.gir
-DATA = $(dist_gir_DATA) $(libbamf_pc_DATA) $(typelib_DATA) \
-	$(vapi_DATA)
+DATA = $(libbamf_pc_DATA)
 HEADERS = $(library_include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -287,7 +281,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libbamf.la
-CLEANFILES = stamp-marshal $(am__append_2)
+CLEANFILES = stamp-marshal
 DISTCLEANFILES = $(marshal_h) $(marshal_c) bamf-tab-source-glue.h \
 	$(NULL)
 BUILT_SOURCES = $(marshal_h) $(marshal_c) bamf-tab-source-glue.h \
@@ -360,26 +354,6 @@ libbamf_pcdir = $(libdir)/pkgconfig
 libbamf_pc_DATA = \
   libbamf.pc
 
-INTROSPECTION_GIRS = $(am__append_1)
-INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)
-INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
-@HAVE_INTROSPECTION_TRUE@introspection_sources = $(library_include_HEADERS)
-@HAVE_INTROSPECTION_TRUE@Bamf_0_2_gir_INCLUDES = \
-@HAVE_INTROSPECTION_TRUE@	GObject-2.0
-
-@HAVE_INTROSPECTION_TRUE@Bamf_0_2_gir_CFLAGS = --c-include='libbamf/libbamf.h' $(LIBBAMF_CFLAGS) -I$(top_srcdir)/lib -I$(top_builddir)/lib
-@HAVE_INTROSPECTION_TRUE@Bamf_0_2_gir_LIBS = libbamf.la 
-@HAVE_INTROSPECTION_TRUE@Bamf_0_2_gir_FILES = $(addprefix $(srcdir)/, $(introspection_sources))
-@HAVE_INTROSPECTION_TRUE@girdir = $(datadir)/gir-1.0
-@HAVE_INTROSPECTION_TRUE@dist_gir_DATA = $(INTROSPECTION_GIRS)
-@HAVE_INTROSPECTION_TRUE@typelibdir = $(libdir)/girepository-1.0
-@HAVE_INTROSPECTION_TRUE@typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
-
-#########################
-# VAPI Files
-#########################
-@HAVE_INTROSPECTION_TRUE@vapidir = $(datadir)/vala/vapi
-@HAVE_INTROSPECTION_TRUE@vapi_DATA = Bamf-0.2.vapi
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -564,26 +538,6 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-dist_girDATA: $(dist_gir_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(girdir)" || $(MKDIR_P) "$(DESTDIR)$(girdir)"
-	@list='$(dist_gir_DATA)'; test -n "$(girdir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(girdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(girdir)" || exit $$?; \
-	done
-
-uninstall-dist_girDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(dist_gir_DATA)'; test -n "$(girdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(girdir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(girdir)" && rm -f $$files
 install-libbamf_pcDATA: $(libbamf_pc_DATA)
 	@$(NORMAL_INSTALL)
 	test -z "$(libbamf_pcdir)" || $(MKDIR_P) "$(DESTDIR)$(libbamf_pcdir)"
@@ -604,46 +558,6 @@ uninstall-libbamf_pcDATA:
 	test -n "$$files" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(libbamf_pcdir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(libbamf_pcdir)" && rm -f $$files
-install-typelibDATA: $(typelib_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(typelibdir)" || $(MKDIR_P) "$(DESTDIR)$(typelibdir)"
-	@list='$(typelib_DATA)'; test -n "$(typelibdir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(typelibdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(typelibdir)" || exit $$?; \
-	done
-
-uninstall-typelibDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(typelib_DATA)'; test -n "$(typelibdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(typelibdir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(typelibdir)" && rm -f $$files
-install-vapiDATA: $(vapi_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(vapidir)" || $(MKDIR_P) "$(DESTDIR)$(vapidir)"
-	@list='$(vapi_DATA)'; test -n "$(vapidir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(vapidir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(vapidir)" || exit $$?; \
-	done
-
-uninstall-vapiDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(vapi_DATA)'; test -n "$(vapidir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(vapidir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(vapidir)" && rm -f $$files
 install-library_includeHEADERS: $(library_include_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(library_includedir)" || $(MKDIR_P) "$(DESTDIR)$(library_includedir)"
@@ -752,7 +666,7 @@ check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(LTLIBRARIES) $(DATA) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(girdir)" "$(DESTDIR)$(libbamf_pcdir)" "$(DESTDIR)$(typelibdir)" "$(DESTDIR)$(vapidir)" "$(DESTDIR)$(library_includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(libbamf_pcdir)" "$(DESTDIR)$(library_includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -807,9 +721,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-dist_girDATA install-libbamf_pcDATA \
-	install-library_includeHEADERS install-typelibDATA \
-	install-vapiDATA
+install-data-am: install-libbamf_pcDATA install-library_includeHEADERS
 
 install-dvi: install-dvi-am
 
@@ -855,9 +767,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-dist_girDATA uninstall-libLTLIBRARIES \
-	uninstall-libbamf_pcDATA uninstall-library_includeHEADERS \
-	uninstall-typelibDATA uninstall-vapiDATA
+uninstall-am: uninstall-libLTLIBRARIES uninstall-libbamf_pcDATA \
+	uninstall-library_includeHEADERS
 
 .MAKE: all check install install-am install-strip
 
@@ -865,20 +776,17 @@ uninstall-am: uninstall-dist_girDATA uninstall-libLTLIBRARIES \
 	clean-libLTLIBRARIES clean-libtool ctags distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am \
-	install-dist_girDATA install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-libLTLIBRARIES install-libbamf_pcDATA \
+	install install-am install-data install-data-am install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am \
+	install-libLTLIBRARIES install-libbamf_pcDATA \
 	install-library_includeHEADERS install-man install-pdf \
 	install-pdf-am install-ps install-ps-am install-strip \
-	install-typelibDATA install-vapiDATA installcheck \
-	installcheck-am installdirs maintainer-clean \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-dist_girDATA \
-	uninstall-libLTLIBRARIES uninstall-libbamf_pcDATA \
-	uninstall-library_includeHEADERS uninstall-typelibDATA \
-	uninstall-vapiDATA
+	tags uninstall uninstall-am uninstall-libLTLIBRARIES \
+	uninstall-libbamf_pcDATA uninstall-library_includeHEADERS
 
 
 stamp-marshal: $(glib_marshal_list)
@@ -909,12 +817,49 @@ bamf-tab-source-glue.h: bamf-tab-source-glue.xml
 # GObject Introsepction 
 #########################
 
--include $(INTROSPECTION_MAKEFILE)
+#-include $(INTROSPECTION_MAKEFILE)
+#INTROSPECTION_GIRS = 
+#INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)
+#INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
 
-@HAVE_INTROSPECTION_TRUE@Bamf-0.2.gir: libbamf.la
+#if HAVE_INTROSPECTION
 
-@HAVE_INTROSPECTION_TRUE@Bamf-0.2.vapi: Bamf-0.2.gir
-@HAVE_INTROSPECTION_TRUE@	$(VALA_API_GEN) --library=Bamf-0.2 $<
+#introspection_sources = $(library_include_HEADERS)
+
+#Bamf-0.2.gir: libbamf.la
+#Bamf_0_2_gir_INCLUDES = \
+#	GObject-2.0
+#Bamf_0_2_gir_CFLAGS = --c-include='libbamf/libbamf.h' $(LIBBAMF_CFLAGS) -I$(top_srcdir)/lib -I$(top_builddir)/lib
+#Bamf_0_2_gir_LIBS = libbamf.la 
+#Bamf_0_2_gir_FILES = $(addprefix $(srcdir)/, $(introspection_sources))
+#
+#INTROSPECTION_GIRS += Bamf-0.2.gir
+#
+#girdir = $(datadir)/gir-1.0
+#dist_gir_DATA = $(INTROSPECTION_GIRS)
+
+#typelibdir = $(libdir)/girepository-1.0
+#typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
+
+#CLEANFILES += $(dist_gir_DATA) $(typelib_DATA)
+
+#endif
+
+#########################
+# VAPI Files
+#########################
+
+#if HAVE_INTROSPECTION
+
+#vapidir = $(datadir)/vala/vapi
+#vapi_DATA = Bamf-0.2.vapi
+
+#Bamf-0.2.vapi: Bamf-0.2.gir
+#	$(VALA_API_GEN) --library=Bamf-0.2 $<
+
+#CLEANFILES += $(vapi_DATA)
+
+#endif
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
