@@ -45,6 +45,7 @@ struct _BamfViewClass
 
   /*< methods >*/
   char *         (*view_type)                 (BamfView *view);
+  char *         (*stable_bus_name)           (BamfView *view);
   char *         (*get_icon)                  (BamfView *view);
 
   /*< random stuff >*/

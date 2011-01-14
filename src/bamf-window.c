@@ -192,6 +192,17 @@ bamf_window_get_view_type (BamfView *view)
   return g_strdup ("window");
 }
 
+static char *
+bamf_window_get_stable_bus_name (BamfView *view)
+{
+  BamfWindow *self;
+
+  g_return_val_if_fail (BAMF_IS_WINDOW (view), NULL);  
+  self = BAMF_WINDOW (view);
+  
+  return g_strdup_printf ("window%i", bamf_legacy_window_get_xid (self->priv->window));
+}
+
 static void
 active_window_changed (BamfLegacyScreen *screen, BamfWindow *window)
 {
@@ -309,11 +320,12 @@ bamf_window_class_init (BamfWindowClass * klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   BamfViewClass *view_class = BAMF_VIEW_CLASS (klass);
 
-  object_class->dispose      = bamf_window_dispose;
-  object_class->get_property = bamf_window_get_property;
-  object_class->set_property = bamf_window_set_property;
-  object_class->constructed  = bamf_window_constructed;
-  view_class->view_type      = bamf_window_get_view_type;
+  object_class->dispose       = bamf_window_dispose;
+  object_class->get_property  = bamf_window_get_property;
+  object_class->set_property  = bamf_window_set_property;
+  object_class->constructed   = bamf_window_constructed;
+  view_class->view_type       = bamf_window_get_view_type;
+  view_class->stable_bus_name = bamf_window_get_stable_bus_name;
 
   pspec = g_param_spec_object ("window", "window", "window", BAMF_TYPE_LEGACY_WINDOW, G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
   g_object_class_install_property (object_class, PROP_WINDOW, pspec);

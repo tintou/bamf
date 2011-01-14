@@ -420,27 +420,32 @@ bamf_view_get_view_type (BamfView *view)
 }
 
 char *
+bamf_view_get_stable_bus_name (BamfView *view)
+{
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+
+  if (BAMF_VIEW_GET_CLASS (view)->stable_bus_name)
+    return BAMF_VIEW_GET_CLASS (view)->stable_bus_name (view);
+    
+  return g_strdup_printf ("view%p", view);
+}
+
+char *
 bamf_view_export_on_bus (BamfView *view)
 {
   char *path = NULL;
-  int  num;
   DBusGConnection *bus;
   GError *error = NULL;
-  GList *l = NULL;
 
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
 
   if (!view->priv->path)
     {
-      num = g_random_int_range (1000, 9999);
-      do
-        {
-          if (path)
-            g_free (path);
-          num++;
-          path = g_strdup_printf ("%s/%s%i", BAMF_DBUS_PATH, bamf_view_get_view_type (view), num);
-        }
-      while ((l = g_list_find_custom (BAMF_VIEW_GET_CLASS (view)->names, path, (GCompareFunc) g_strcmp0)) != NULL);
+      char *stable_name = bamf_view_get_stable_bus_name (view);
+      path = g_strdup_printf ("%s/%s", BAMF_DBUS_PATH, stable_name);
+      g_free (stable_name);
+
+      g_print ("Export Path: %s\n", path);
 
       BAMF_VIEW_GET_CLASS (view)->names = g_list_prepend (BAMF_VIEW_GET_CLASS (view)->names, path);
 
