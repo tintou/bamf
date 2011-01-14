@@ -94,47 +94,47 @@ libbamf_pc_DATA = \
 # GObject Introsepction 
 #########################
 
--include $(INTROSPECTION_MAKEFILE)
-INTROSPECTION_GIRS = 
-INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)
-INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
+#-include $(INTROSPECTION_MAKEFILE)
+#INTROSPECTION_GIRS = 
+#INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)
+#INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
 
-if HAVE_INTROSPECTION
+#if HAVE_INTROSPECTION
 
-introspection_sources = $(library_include_HEADERS)
+#introspection_sources = $(library_include_HEADERS)
 
-Bamf-0.2.gir: libbamf.la
-Bamf_0_2_gir_INCLUDES = \
-	GObject-2.0
-Bamf_0_2_gir_CFLAGS = --c-include='libbamf/libbamf.h' $(LIBBAMF_CFLAGS) -I$(top_srcdir)/lib -I$(top_builddir)/lib
-Bamf_0_2_gir_LIBS = libbamf.la 
-Bamf_0_2_gir_FILES = $(addprefix $(srcdir)/, $(introspection_sources))
+#Bamf-0.2.gir: libbamf.la
+#Bamf_0_2_gir_INCLUDES = \
+#	GObject-2.0
+#Bamf_0_2_gir_CFLAGS = --c-include='libbamf/libbamf.h' $(LIBBAMF_CFLAGS) -I$(top_srcdir)/lib -I$(top_builddir)/lib
+#Bamf_0_2_gir_LIBS = libbamf.la 
+#Bamf_0_2_gir_FILES = $(addprefix $(srcdir)/, $(introspection_sources))
+#
+#INTROSPECTION_GIRS += Bamf-0.2.gir
+#
+#girdir = $(datadir)/gir-1.0
+#dist_gir_DATA = $(INTROSPECTION_GIRS)
 
-INTROSPECTION_GIRS += Bamf-0.2.gir
+#typelibdir = $(libdir)/girepository-1.0
+#typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
-girdir = $(datadir)/gir-1.0
-dist_gir_DATA = $(INTROSPECTION_GIRS)
+#CLEANFILES += $(dist_gir_DATA) $(typelib_DATA)
 
-typelibdir = $(libdir)/girepository-1.0
-typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
-
-CLEANFILES += $(dist_gir_DATA) $(typelib_DATA)
-
-endif
+#endif
 
 #########################
 # VAPI Files
 #########################
 
-if HAVE_INTROSPECTION
+#if HAVE_INTROSPECTION
 
-vapidir = $(datadir)/vala/vapi
-vapi_DATA = Bamf-0.2.vapi
+#vapidir = $(datadir)/vala/vapi
+#vapi_DATA = Bamf-0.2.vapi
 
-Bamf-0.2.vapi: Bamf-0.2.gir
-	$(VALA_API_GEN) --library=Bamf-0.2 $<
+#Bamf-0.2.vapi: Bamf-0.2.gir
+#	$(VALA_API_GEN) --library=Bamf-0.2 $<
 
-CLEANFILES += $(vapi_DATA)
+#CLEANFILES += $(vapi_DATA)
 
-endif
+#endif
 
