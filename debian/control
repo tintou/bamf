@@ -38,6 +38,7 @@ Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          bamfdaemon (= ${binary:Version}),
+Breaks: unity (<< 3.2.12)
 Description: Window matching library - shared library
  bamf matches application windows to desktop files
  .
