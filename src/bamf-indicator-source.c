@@ -144,7 +144,7 @@ bamf_indicator_source_approve_item (BamfIndicatorSource *self,
   g_return_val_if_fail (BAMF_IS_INDICATOR_SOURCE (self), TRUE);
   
   if (g_strcmp0 (category, "ApplicationStatus") != 0 || 
-      g_strcmp0 (path, "/org/ayatana/NotificationItem/dropbox_client") == 0)
+      g_strcmp0 (path, "/com/canonical/NotificationItem/dropbox_client") == 0)
     return TRUE;
     
   if (pid == 0)
@@ -221,7 +221,7 @@ bamf_indicator_source_register_notification_approver (BamfIndicatorSource *self)
   g_return_val_if_fail (bus, FALSE);
 
   self->priv->proxy = dbus_g_proxy_new_for_name_owner (bus,
-                                                       "org.ayatana.indicator.application",
+                                                       "com.canonical.indicator.application",
                                                        "/StatusNotifierWatcher",
                                                        "org.kde.StatusNotifierWatcher",
                                                        &error);
