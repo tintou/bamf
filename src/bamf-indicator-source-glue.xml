@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <node name="/org/ayatana/bamf">
-	<interface name="org.ayatana.StatusNotifierApprover">
+	<interface name="com.canonical.StatusNotifierApprover">
 		<signal name="ReviseJudgement">
 			<arg type="b" name="approved" direction="out" />
 			<arg type="s" name="address" direction="out" />
