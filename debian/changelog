@@ -1,3 +1,11 @@
+bamf (0.2.70-0ubuntu1) UNRELEASED; urgency=low
+
+  * New upstream release.
+  * debian/control:
+    bamf dbus protocol changed. Breaks: on old unity
+
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 14 Jan 2011 17:25:02 +0100
+
 bamf (0.2.68-0ubuntu1) natty; urgency=low
 
   [ Didier Roche ]
