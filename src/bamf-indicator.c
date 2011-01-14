@@ -92,6 +92,17 @@ bamf_indicator_get_view_type (BamfView *view)
   return g_strdup ("indicator");
 }
 
+static char *
+bamf_indicator_get_stable_bus_name (BamfView *view)
+{
+  BamfIndicator *self;
+
+  g_return_val_if_fail (BAMF_IS_INDICATOR (view), NULL);  
+  self = BAMF_INDICATOR (view);
+  
+  return g_strdup_printf ("indicator%i", bamf_indicator_get_pid (self));
+}
+
 static void
 bamf_indicator_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
@@ -243,6 +254,7 @@ bamf_indicator_class_init (BamfIndicatorClass *klass)
   object_class->set_property = bamf_indicator_set_property;
   object_class->dispose      = bamf_indicator_dispose;
   view_class->view_type      = bamf_indicator_get_view_type;
+  view_class->stable_bus_name = bamf_indicator_get_stable_bus_name;
 
   pspec = g_param_spec_string ("address", "address", "address", NULL, G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
   g_object_class_install_property (object_class, PROP_ADDRESS, pspec);
