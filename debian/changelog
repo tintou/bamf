@@ -1,4 +1,4 @@
-bamf (0.2.74-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.74-0ubuntu1) natty; urgency=low
 
   * New upstream release.
     - Set the default application icon when the application desktop file has no icon=
@@ -6,7 +6,7 @@ bamf (0.2.74-0ubuntu1) UNRELEASED; urgency=low
   * debian/control:
     - remove vala build-dep, not needed anymore
 
- -- Didier Roche <didrocks@ubuntu.com>  Thu, 20 Jan 2011 17:31:39 +0100
+ -- Didier Roche <didrocks@ubuntu.com>  Thu, 20 Jan 2011 17:45:45 +0100
 
 bamf (0.2.72-0ubuntu1) natty; urgency=low
 
