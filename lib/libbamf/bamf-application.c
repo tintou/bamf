@@ -354,6 +354,9 @@ bamf_application_load_data_from_file (BamfApplication *self)
 
   gicon = g_app_info_get_icon (G_APP_INFO (desktop_info));
   icon = g_icon_to_string (gicon);
+
+  if (!icon)
+    icon = g_strdup ("application-default-icon");
   
   bamf_view_set_icon (BAMF_VIEW (self), icon);
   g_free (icon);
