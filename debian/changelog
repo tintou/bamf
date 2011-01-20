@@ -1,3 +1,9 @@
+bamf (0.2.74-0ubuntu1) UNRELEASED; urgency=low
+
+  * New upstream release.
+
+ -- Didier Roche <didrocks@ubuntu.com>  Thu, 20 Jan 2011 17:31:39 +0100
+
 bamf (0.2.72-0ubuntu1) natty; urgency=low
 
   * New upstream release.
