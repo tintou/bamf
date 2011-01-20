@@ -1,6 +1,10 @@
 bamf (0.2.74-0ubuntu1) UNRELEASED; urgency=low
 
   * New upstream release.
+    - Set the default application icon when the application desktop file has no icon=
+      key. It was appearing fully black. (LP: #703521)
+  * debian/control:
+    - remove vala build-dep, not needed anymore
 
  -- Didier Roche <didrocks@ubuntu.com>  Thu, 20 Jan 2011 17:31:39 +0100
 

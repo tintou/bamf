@@ -17,7 +17,6 @@ Build-Depends: debhelper (>= 5.0),
                gir1.2-gtk-2.0 (>= 2.19.5),
                gir1.2-pango-1.0,
                gir1.2-wnck-1.0,
-               valac-0.10,
 Standards-Version: 3.9.1
 Homepage: https://launchpad.net/bamf
 Vcs-Bzr: https://code.launchpad.net/~ubuntu-desktop/bamf/ubuntu
