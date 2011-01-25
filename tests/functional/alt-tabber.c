@@ -27,6 +27,13 @@ GtkWidget *window;
 GtkWidget *treeView;
 guint timer;
 
+void
+on_name_changed (BamfView* bamfview,
+                 gpointer  data)
+{
+  g_print ("%s() called\n", G_STRFUNC);
+}
+
 void populate_tree_store (GtkTreeStore *store)
 {
   GtkTreeIter position; 
@@ -42,6 +49,11 @@ void populate_tree_store (GtkTreeStore *store)
   for (l = apps; l; l = l->next) 
   {
     app = BAMF_APPLICATION (l->data);
+
+    g_signal_connect (G_OBJECT (app),
+                      "name-changed",
+                      (GCallback) on_name_changed,
+                      NULL);
     
     if (!bamf_view_user_visible (BAMF_VIEW (app)))
       continue;
@@ -62,7 +74,7 @@ void populate_tree_store (GtkTreeStore *store)
       
           if (!bamf_view_user_visible (BAMF_VIEW (window)))
             continue;
-      
+
           const gchar *name = bamf_view_get_name (BAMF_VIEW (window));
           gtk_tree_store_append (store, &child, &position);
           gtk_tree_store_set (store, &child, 0, name, -1);
