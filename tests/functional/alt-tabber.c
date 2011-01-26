@@ -53,11 +53,6 @@ void populate_tree_store (GtkTreeStore *store)
   for (l = apps; l; l = l->next) 
   {
     app = BAMF_APPLICATION (l->data);
-
-    g_signal_connect (G_OBJECT (app),
-                      "name-changed",
-                      (GCallback) on_name_changed,
-                      NULL);
     
     if (!bamf_view_user_visible (BAMF_VIEW (app)))
       continue;
@@ -75,6 +70,11 @@ void populate_tree_store (GtkTreeStore *store)
       if (BAMF_IS_WINDOW (c->data))
         {
           window = BAMF_WINDOW (c->data);
+
+          g_signal_connect (G_OBJECT (window),
+                            "name-changed",
+                            (GCallback) on_name_changed,
+                            NULL);
       
           if (!bamf_view_user_visible (BAMF_VIEW (window)))
             continue;
