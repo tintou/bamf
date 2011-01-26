@@ -85,9 +85,12 @@ bamf_view_name_changed (BamfView*    view,
                         const gchar* old_name,
                         const gchar* new_name)
 {
-  view->priv->name = g_strdup (new_name);
-
   g_signal_emit (view, view_signals[NAME_CHANGED], 0, old_name, new_name);
+
+  if (view->priv->name)
+    g_free (view->priv->name);
+
+  view->priv->name = g_strdup (new_name);
 }
 
 static void
