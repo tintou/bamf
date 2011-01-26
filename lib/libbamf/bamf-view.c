@@ -462,8 +462,6 @@ bamf_view_on_name_changed (DBusGProxy *proxy, gchar* old_name, gchar* new_name, 
   g_print ("new-name: \"%s\"\n", new_name);
 
   g_signal_emit (self, view_signals[NAME_CHANGED], 0, old_name, new_name);
-  // would we need a property "name" in BamfView
-  //g_object_notify (G_OBJECT (self), "name");  
 }
 
 static void
