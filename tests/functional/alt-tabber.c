@@ -30,7 +30,8 @@ guint timer;
 void
 on_name_changed (BamfView* bamfview,
                  gchar*    old_name,
-                 gchar*    new_name)
+                 gchar*    new_name,
+                 gpointer  data)
 {
   g_print ("%s() called\n", G_STRFUNC);
   g_print ("old-name: \"%s\"\n", old_name);
