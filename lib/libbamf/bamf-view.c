@@ -742,6 +742,12 @@ bamf_view_set_path (BamfView *view, const char *path)
                            G_TYPE_BOOLEAN, 
                            G_TYPE_INVALID);
 
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "NameChanged",
+                           G_TYPE_STRING,
+                           G_TYPE_STRING,
+                           G_TYPE_INVALID);
+
   dbus_g_proxy_connect_signal (priv->proxy,
                                "ActiveChanged",
                                (GCallback) bamf_view_on_active_changed,
@@ -784,10 +790,11 @@ bamf_view_set_path (BamfView *view, const char *path)
                                view,
                                NULL);
 
-  dbus_g_proxy_disconnect_signal (priv->proxy,
-                                  "NameChanged",
-                                  (GCallback) bamf_view_on_name_changed,
-                                  view);
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "NameChanged",
+                               (GCallback) bamf_view_on_name_changed,
+                               view,
+                               NULL);
 
   if (bamf_view_is_sticky (view))
     {
