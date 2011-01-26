@@ -682,7 +682,7 @@ bamf_view_class_init (BamfViewClass * klass)
   	              0,
   	              0, NULL, NULL,
   	              bamf_marshal_VOID__STRING_STRING,
-  	              G_TYPE_NONE, 0,
+  	              G_TYPE_NONE, 2,
                       G_TYPE_STRING,
                       G_TYPE_STRING);
 
