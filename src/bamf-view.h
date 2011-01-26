@@ -59,7 +59,7 @@ struct _BamfViewClass
   void   (*child_added)   (BamfView *view, BamfView *child);
   void   (*child_removed) (BamfView *view, BamfView *child);
   void   (*exported)      (BamfView *view);
-  void   (*name_changed)  (BamfView *view, gchar* old_name, gchar* new_name);
+  void   (*name_changed)  (BamfView *view, const gchar* old_name, const gchar* new_name);
 };
 
 struct _BamfView
