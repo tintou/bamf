@@ -453,13 +453,12 @@ bamf_view_on_active_changed (DBusGProxy *proxy, gboolean active, BamfView *self)
 }
 
 static void
-bamf_view_on_name_changed (DBusGProxy *proxy, gchar* old_name, gchar* new_name, BamfView *self)
+bamf_view_on_name_changed (DBusGProxy*  proxy,
+                           const gchar* old_name,
+                           const gchar* new_name,
+                           BamfView*    self)
 {
   self->priv->local_name = g_strdup (new_name);
-
-  g_print ("%s() called\n", G_STRFUNC);
-  g_print ("old-name: \"%s\"\n", old_name);
-  g_print ("new-name: \"%s\"\n", new_name);
 
   g_signal_emit (self, view_signals[NAME_CHANGED], 0, old_name, new_name);
 }
