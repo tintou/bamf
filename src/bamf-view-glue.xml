@@ -30,6 +30,11 @@
 		<signal name="UserVisibleChanged">
 			<arg type="b" name="new_state" direction="out" />
 		</signal>
+
+		<signal name="NameChanged">
+			<arg type="s" name="old_name" direction="out" />
+			<arg type="s" name="new_name" direction="out" />
+		</signal>
 		
 		<property name="Active" type="b" access="read" />
 		<property name="Urgent" type="b" access="read" />

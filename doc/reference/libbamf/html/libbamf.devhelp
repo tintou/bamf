@@ -96,6 +96,7 @@
     <function name="The &quot;child-added&quot; signal" link="BamfView.html#BamfView-child-added"/>
     <function name="The &quot;child-removed&quot; signal" link="BamfView.html#BamfView-child-removed"/>
     <function name="The &quot;closed&quot; signal" link="BamfView.html#BamfView-closed"/>
+    <function name="The &quot;name-changed&quot; signal" link="BamfView.html#BamfView-name-changed"/>
     <function name="The &quot;running-changed&quot; signal" link="BamfView.html#BamfView-running-changed"/>
     <function name="The &quot;urgent-changed&quot; signal" link="BamfView.html#BamfView-urgent-changed"/>
     <function name="The &quot;user-visible-changed&quot; signal" link="BamfView.html#BamfView-user-visible-changed"/>

@@ -38,6 +38,7 @@
 #include "bamf-view-private.h"
 #include "bamf-factory.h"
 #include "bamf-window.h"
+#include "bamf-marshal.h"
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
@@ -65,7 +66,8 @@ enum
   RUNNING_CHANGED,
   URGENT_CHANGED,
   VISIBLE_CHANGED,
-  
+  NAME_CHANGED,
+ 
   LAST_SIGNAL,
 };
 
@@ -270,6 +272,9 @@ bamf_view_set_name (BamfView *view, const char *name)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
   
+  if (!g_strcmp0 (name, view->priv->local_name))
+    return;
+
   view->priv->local_name = g_strdup (name);
 }
 
@@ -445,6 +450,17 @@ bamf_view_on_active_changed (DBusGProxy *proxy, gboolean active, BamfView *self)
 
   g_signal_emit (G_OBJECT(self), view_signals[ACTIVE_CHANGED], 0, active);
   g_object_notify (G_OBJECT (self), "active");
+}
+
+static void
+bamf_view_on_name_changed (DBusGProxy*  proxy,
+                           const gchar* old_name,
+                           const gchar* new_name,
+                           BamfView*    self)
+{
+  self->priv->local_name = g_strdup (new_name);
+
+  g_signal_emit (self, view_signals[NAME_CHANGED], 0, old_name, new_name);
 }
 
 static void
@@ -644,6 +660,12 @@ bamf_view_dispose (GObject *object)
                                      "UserVisibleChanged",
                                      (GCallback) bamf_view_on_user_visible_changed,
                                      view);
+
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                     "NameChanged",
+                                     (GCallback) bamf_view_on_name_changed,
+                                     view);
+
       g_object_unref (priv->proxy);
       priv->proxy = NULL;
     }
@@ -717,6 +739,12 @@ bamf_view_set_path (BamfView *view, const char *path)
                            G_TYPE_BOOLEAN, 
                            G_TYPE_INVALID);
 
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "NameChanged",
+                           G_TYPE_STRING,
+                           G_TYPE_STRING,
+                           G_TYPE_INVALID);
+
   dbus_g_proxy_connect_signal (priv->proxy,
                                "ActiveChanged",
                                (GCallback) bamf_view_on_active_changed,
@@ -756,6 +784,12 @@ bamf_view_set_path (BamfView *view, const char *path)
   dbus_g_proxy_connect_signal (priv->proxy,
                                "UserVisibleChanged",
                                (GCallback) bamf_view_on_user_visible_changed,
+                               view,
+                               NULL);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "NameChanged",
+                               (GCallback) bamf_view_on_name_changed,
                                view,
                                NULL);
 
@@ -894,6 +928,16 @@ bamf_view_class_init (BamfViewClass *klass)
   	              g_cclosure_marshal_VOID__BOOLEAN,
   	              G_TYPE_NONE, 1, 
   	              G_TYPE_BOOLEAN);
+
+  view_signals [NAME_CHANGED] =
+        g_signal_new ("name-changed",
+                      G_OBJECT_CLASS_TYPE (klass),
+                      0,
+                      0, NULL, NULL,
+                      bamf_marshal_VOID__STRING_STRING,
+  	              G_TYPE_NONE, 2,
+  	              G_TYPE_STRING,
+                      G_TYPE_STRING);
 }
 
 
