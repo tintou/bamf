@@ -1,6 +1,7 @@
 bamf (0.2.76-0ubuntu1) UNRELEASED; urgency=low
 
   * New upstream release.
+    - add a new signal to detect tab changes (LP: #691651)
 
  -- Didier Roche <didrocks@ubuntu.com>  Thu, 27 Jan 2011 13:31:20 +0100
 
