@@ -89,6 +89,7 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.htm
   "<a class="link" href="BamfView.html#BamfView-child-added" title='The "child-added" signal'>child-added</a>"                                    : Run First
   "<a class="link" href="BamfView.html#BamfView-child-removed" title='The "child-removed" signal'>child-removed</a>"                                  : Run First
   "<a class="link" href="BamfView.html#BamfView-closed" title='The "closed" signal'>closed</a>"                                         : Run First
+  "<a class="link" href="BamfView.html#BamfView-name-changed" title='The "name-changed" signal'>name-changed</a>"                                   
   "<a class="link" href="BamfView.html#BamfView-running-changed" title='The "running-changed" signal'>running-changed</a>"                                : Run First
   "<a class="link" href="BamfView.html#BamfView-urgent-changed" title='The "urgent-changed" signal'>urgent-changed</a>"                                 : Run First
   "<a class="link" href="BamfView.html#BamfView-user-visible-changed" title='The "user-visible-changed" signal'>user-visible-changed</a>"                           : Run First
@@ -151,6 +152,7 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.htm
   void (*running_changed)             (BamfView *view, gboolean running);
   void (*urgent_changed)              (BamfView *view, gboolean urgent);
   void (*user_visible_changed)        (BamfView *view, gboolean user_visible);
+  void (*name_changed)                (BamfView *view, gchar* old_name, gchar* new_name);
 } BamfViewClass;
 </pre>
 <p>
@@ -571,6 +573,40 @@ descriptions should not be used to do casting as they are not considered stable.
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bamfview</code></em> :</span></p></td>
 <td>the object which received the signal.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
+<td>user data set when the signal handler was connected.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2" title='The "name-changed" signal'>
+<a name="BamfView-name-changed"></a><h3>The <code class="literal">"name-changed"</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *bamfview,
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>    *arg1,
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>    *arg2,
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)</pre>
+<p>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>bamfview</code></em> :</span></p></td>
+<td>the object which received the signal.
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>arg1</code></em> :</span></p></td>
+<td>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>arg2</code></em> :</span></p></td>
+<td>
 </td>
 </tr>
 <tr>

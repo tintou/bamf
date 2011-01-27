@@ -73,6 +73,15 @@ BamfView
 
 @bamfview: the object which received the signal.
 
+<!-- ##### SIGNAL BamfView::name-changed ##### -->
+<para>
+
+</para>
+
+@bamfview: the object which received the signal.
+@arg1: 
+@arg2: 
+
 <!-- ##### SIGNAL BamfView::running-changed ##### -->
 <para>
 
@@ -144,6 +153,7 @@ BamfView
 @running_changed: 
 @urgent_changed: 
 @user_visible_changed: 
+@name_changed: 
 
 <!-- ##### STRUCT BamfViewPrivate ##### -->
 <para>
