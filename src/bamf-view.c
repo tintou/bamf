@@ -46,6 +46,7 @@ enum
   RUNNING_CHANGED,
   URGENT_CHANGED,
   USER_VISIBLE_CHANGED,
+  NAME_CHANGED,
 
   LAST_SIGNAL,
 };
@@ -77,6 +78,19 @@ bamf_view_active_changed (BamfView *view, gboolean active)
   if (emit)
     g_signal_emit (view, view_signals[ACTIVE_CHANGED], 0, active);
 
+}
+
+static void
+bamf_view_name_changed (BamfView*    view,
+                        const gchar* old_name,
+                        const gchar* new_name)
+{
+  g_signal_emit (view, view_signals[NAME_CHANGED], 0, old_name, new_name);
+
+  if (view->priv->name)
+    g_free (view->priv->name);
+
+  view->priv->name = g_strdup (new_name);
 }
 
 static void
@@ -405,7 +419,10 @@ bamf_view_set_name (BamfView *view,
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
 
-  view->priv->name = g_strdup (name);
+  if (!g_strcmp0 (name, view->priv->name))
+    return;
+
+  bamf_view_name_changed (view, view->priv->name, (gchar*) name);
 }
 
 char *
@@ -656,4 +673,15 @@ bamf_view_class_init (BamfViewClass * klass)
   	              g_cclosure_marshal_VOID__BOOLEAN,
   	              G_TYPE_NONE, 1,
   	              G_TYPE_BOOLEAN);
+
+  view_signals [NAME_CHANGED] =
+  	g_signal_new ("name-changed",
+  	              G_OBJECT_CLASS_TYPE (klass),
+  	              0,
+  	              0, NULL, NULL,
+  	              bamf_marshal_VOID__STRING_STRING,
+  	              G_TYPE_NONE, 2,
+                      G_TYPE_STRING,
+                      G_TYPE_STRING);
+
 }
