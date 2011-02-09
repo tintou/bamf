@@ -44,7 +44,7 @@ struct _BamfIndicatorSourcePrivate
 {
   GList *indicators;
   DBusGProxy *proxy;
-  gboolean behavior;
+  int behavior;
 };
 
 G_DEFINE_TYPE (BamfIndicatorSource, bamf_indicator_source, G_TYPE_OBJECT)
