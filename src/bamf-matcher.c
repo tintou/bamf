@@ -757,7 +757,7 @@ static gboolean
 is_open_office_window (BamfMatcher * self, BamfLegacyWindow * window)
 {
   return g_str_has_prefix (bamf_legacy_window_get_class_name (window), "OpenOffice") ||
-	 g_str_has_prefix (bamf_legacy_window_get_class_name (window), "LibreOffice") ||
+         g_str_has_prefix (bamf_legacy_window_get_class_name (window), "LibreOffice") ||
          g_str_has_prefix (bamf_legacy_window_get_class_name (window), "libreoffice");
 }
 
