@@ -8,7 +8,7 @@
 <link rel="up" href="ch01.html" title="Classes">
 <link rel="prev" href="ch01.html" title="Classes">
 <link rel="next" href="BamfWindow.html" title="BamfWindow">
-<meta name="generator" content="GTK-Doc V1.15 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.16 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -30,7 +30,7 @@
                   <a href="#BamfMatcher.signals" class="shortcut">Signals</a>
 </td></tr>
 </table>
-<div class="refentry" title="BamfMatcher">
+<div class="refentry">
 <a name="BamfMatcher"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
@@ -39,10 +39,10 @@
 </td>
 <td valign="top" align="right"></td>
 </tr></table></div>
-<div class="refsynopsisdiv" title="Synopsis">
+<div class="refsynopsisdiv">
 <a name="BamfMatcher.synopsis"></a><h2>Synopsis</h2>
-<pre class="synopsis">                    <a class="link" href="BamfMatcher.html#BamfMatcher-struct" title="BamfMatcher">BamfMatcher</a>;
-                    <a class="link" href="BamfMatcher.html#BamfMatcherClass" title="BamfMatcherClass">BamfMatcherClass</a>;
+<pre class="synopsis">struct              <a class="link" href="BamfMatcher.html#BamfMatcher-struct" title="struct BamfMatcher">BamfMatcher</a>;
+struct              <a class="link" href="BamfMatcher.html#BamfMatcherClass" title="struct BamfMatcherClass">BamfMatcherClass</a>;
                     <a class="link" href="BamfMatcher.html#BamfMatcherPrivate" title="BamfMatcherPrivate">BamfMatcherPrivate</a>;
 <a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="returnvalue">BamfMatcher</span></a> *       <a class="link" href="BamfMatcher.html#bamf-matcher-get-default" title="bamf_matcher_get_default ()">bamf_matcher_get_default</a>            (<em class="parameter"><code><span class="type">void</span></code></em>);
 <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="returnvalue">BamfApplication</span></a> *   <a class="link" href="BamfMatcher.html#bamf-matcher-get-active-application" title="bamf_matcher_get_active_application ()">bamf_matcher_get_active_application</a> (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);
@@ -71,14 +71,14 @@
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> create_if_not_found</code></em>);
 </pre>
 </div>
-<div class="refsect1" title="Object Hierarchy">
+<div class="refsect1">
 <a name="BamfMatcher.object-hierarchy"></a><h2>Object Hierarchy</h2>
 <pre class="synopsis">
   <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
    +----BamfMatcher
 </pre>
 </div>
-<div class="refsect1" title="Signals">
+<div class="refsect1">
 <a name="BamfMatcher.signals"></a><h2>Signals</h2>
 <pre class="synopsis">
   "<a class="link" href="BamfMatcher.html#BamfMatcher-active-application-changed" title='The "active-application-changed" signal'>active-application-changed</a>"                     
@@ -87,39 +87,39 @@
   "<a class="link" href="BamfMatcher.html#BamfMatcher-view-opened" title='The "view-opened" signal'>view-opened</a>"                                    
 </pre>
 </div>
-<div class="refsect1" title="Description">
+<div class="refsect1">
 <a name="BamfMatcher.description"></a><h2>Description</h2>
 <p>
 <a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> is the base class that all matchers need to derive from.
 </p>
 </div>
-<div class="refsect1" title="Details">
+<div class="refsect1">
 <a name="BamfMatcher.details"></a><h2>Details</h2>
-<div class="refsect2" title="BamfMatcher">
-<a name="BamfMatcher-struct"></a><h3>BamfMatcher</h3>
-<pre class="programlisting">typedef struct _BamfMatcher BamfMatcher;</pre>
+<div class="refsect2">
+<a name="BamfMatcher-struct"></a><h3>struct BamfMatcher</h3>
+<pre class="programlisting">struct BamfMatcher;</pre>
 <p>
 </p>
 </div>
 <hr>
-<div class="refsect2" title="BamfMatcherClass">
-<a name="BamfMatcherClass"></a><h3>BamfMatcherClass</h3>
-<pre class="programlisting">typedef struct {
+<div class="refsect2">
+<a name="BamfMatcherClass"></a><h3>struct BamfMatcherClass</h3>
+<pre class="programlisting">struct BamfMatcherClass {
   GObjectClass parent_class;
-} BamfMatcherClass;
+};
 </pre>
 <p>
 </p>
 </div>
 <hr>
-<div class="refsect2" title="BamfMatcherPrivate">
+<div class="refsect2">
 <a name="BamfMatcherPrivate"></a><h3>BamfMatcherPrivate</h3>
 <pre class="programlisting">typedef struct _BamfMatcherPrivate BamfMatcherPrivate;</pre>
 <p>
 </p>
 </div>
 <hr>
-<div class="refsect2" title="bamf_matcher_get_default ()">
+<div class="refsect2">
 <a name="bamf-matcher-get-default"></a><h3>bamf_matcher_get_default ()</h3>
 <pre class="programlisting"><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="returnvalue">BamfMatcher</span></a> *       bamf_matcher_get_default            (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
 <p>
@@ -129,13 +129,13 @@ Returns the default matcher. This matcher is owned by bamf and shared between ot
 <col align="left" valign="top">
 <tbody><tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> A new <a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a>. <span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span>
+<td>A new <a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a>. <span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span>
 </td>
 </tr></tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_matcher_get_active_application ()">
+<div class="refsect2">
 <a name="bamf-matcher-get-active-application"></a><h3>bamf_matcher_get_active_application ()</h3>
 <pre class="programlisting"><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="returnvalue">BamfApplication</span></a> *   bamf_matcher_get_active_application (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);</pre>
 <p>
@@ -151,14 +151,14 @@ Used to fetch the active <a class="link" href="BamfApplication.html" title="Bamf
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> The active <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a>. <span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span>
+<td>The active <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a>. <span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span>
 </td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_matcher_get_active_window ()">
+<div class="refsect2">
 <a name="bamf-matcher-get-active-window"></a><h3>bamf_matcher_get_active_window ()</h3>
 <pre class="programlisting"><a class="link" href="BamfWindow.html" title="BamfWindow"><span class="returnvalue">BamfWindow</span></a> *        bamf_matcher_get_active_window      (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);</pre>
 <p>
@@ -174,14 +174,14 @@ Used to fetch the active <a class="link" href="BamfWindow.html" title="BamfWindo
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> The active <a class="link" href="BamfWindow.html" title="BamfWindow"><span class="type">BamfWindow</span></a>. <span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span>
+<td>The active <a class="link" href="BamfWindow.html" title="BamfWindow"><span class="type">BamfWindow</span></a>. <span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span>
 </td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_matcher_get_application_for_xid ()">
+<div class="refsect2">
 <a name="bamf-matcher-get-application-for-xid"></a><h3>bamf_matcher_get_application_for_xid ()</h3>
 <pre class="programlisting"><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="returnvalue">BamfApplication</span></a> *   bamf_matcher_get_application_for_xid
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
@@ -199,19 +199,18 @@ Used to fetch the <a class="link" href="BamfApplication.html" title="BamfApplica
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>xid</code></em> :</span></p></td>
-<td>The XID to search for
-</td>
+<td>The XID to search for</td>
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> The <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> representing the xid passed, or NULL if none exists. <span class="annotation">[<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym>]</span>
+<td>The <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> representing the xid passed, or NULL if none exists. <span class="annotation">[<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym>]</span>
 </td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_matcher_get_application_for_window ()">
+<div class="refsect2">
 <a name="bamf-matcher-get-application-for-window"></a><h3>bamf_matcher_get_application_for_window ()</h3>
 <pre class="programlisting"><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="returnvalue">BamfApplication</span></a> *   bamf_matcher_get_application_for_window
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
@@ -229,47 +228,26 @@ Used to fetch the <a class="link" href="BamfApplication.html" title="BamfApplica
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>window</code></em> :</span></p></td>
-<td>The window to look for
-</td>
+<td>The window to look for</td>
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> The <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> representing the xid passed, or NULL if none exists. <span class="annotation">[<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym>]</span>
+<td>The <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> representing the xid passed, or NULL if none exists. <span class="annotation">[<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym>]</span>
 </td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_matcher_application_is_running ()">
+<div class="refsect2">
 <a name="bamf-matcher-application-is-running"></a><h3>bamf_matcher_application_is_running ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_matcher_application_is_running (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *application</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>matcher</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>application</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_matcher_get_applications ()">
+<div class="refsect2">
 <a name="bamf-matcher-get-applications"></a><h3>bamf_matcher_get_applications ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             bamf_matcher_get_applications       (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);</pre>
 <p>
@@ -285,14 +263,14 @@ Used to fetch all xid's associated with an application. Useful for performing wi
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> A list of xids. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> guint32][<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym> guint32]</span>
+<td>A list of xids. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> guint32][<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span>
 </td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_matcher_register_favorites ()">
+<div class="refsect2">
 <a name="bamf-matcher-register-favorites"></a><h3>bamf_matcher_register_favorites ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                bamf_matcher_register_favorites     (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **favorites</code></em>);</pre>
@@ -310,14 +288,13 @@ be prefered by bamf to system desktop files.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>favorites</code></em> :</span></p></td>
-<td>an array of strings, each containing an absolute path to a .desktop file
-</td>
+<td>an array of strings, each containing an absolute path to a .desktop file</td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_matcher_get_running_applications ()">
+<div class="refsect2">
 <a name="bamf-matcher-get-running-applications"></a><h3>bamf_matcher_get_running_applications ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             bamf_matcher_get_running_applications
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);</pre>
@@ -334,14 +311,14 @@ Used to fetch all <a class="link" href="BamfApplication.html" title="BamfApplica
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> A list of <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a>'s. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> Bamf.Application][<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym> Bamf.Application]</span>
+<td>A list of <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a>'s. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> Bamf.Application][<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym>]</span>
 </td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_matcher_get_tabs ()">
+<div class="refsect2">
 <a name="bamf-matcher-get-tabs"></a><h3>bamf_matcher_get_tabs ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             bamf_matcher_get_tabs               (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);</pre>
 <p>
@@ -357,43 +334,23 @@ Used to fetch all <a class="link" href="BamfView.html" title="BamfView"><span cl
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> A list of <a href="BamfView.html"><span class="type">BamfViews</span></a>'s. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> Bamf.View][<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym> Bamf.View]</span>
+<td>A list of <a href="BamfView.html"><span class="type">BamfViews</span></a>'s. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> Bamf.View][<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym>]</span>
 </td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_matcher_get_xids_for_application ()">
+<div class="refsect2">
 <a name="bamf-matcher-get-xids-for-application"></a><h3>bamf_matcher_get_xids_for_application ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="returnvalue">GArray</span></a> *            bamf_matcher_get_xids_for_application
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *application</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>matcher</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>application</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_matcher_get_windows ()">
+<div class="refsect2">
 <a name="bamf-matcher-get-windows"></a><h3>bamf_matcher_get_windows ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             bamf_matcher_get_windows            (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);</pre>
 <p>
@@ -409,14 +366,14 @@ Used to fetch all windows that BAMF knows about.
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> A list of windows. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> Bamf.View][<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym> Bamf.View]</span>
+<td>A list of windows. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> Bamf.View][<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym>]</span>
 </td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_matcher_get_application_for_desktop_file ()">
+<div class="refsect2">
 <a name="bamf-matcher-get-application-for-desktop-file"></a><h3>bamf_matcher_get_application_for_desktop_file ()</h3>
 <pre class="programlisting"><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="returnvalue">BamfApplication</span></a> *   bamf_matcher_get_application_for_desktop_file
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
@@ -424,36 +381,11 @@ Used to fetch all windows that BAMF knows about.
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> create_if_not_found</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>matcher</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>desktop_file_path</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>create_if_not_found</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 </div>
-<div class="refsect1" title="Signal Details">
+<div class="refsect1">
 <a name="BamfMatcher.signal-details"></a><h2>Signal Details</h2>
-<div class="refsect2" title='The "active-application-changed" signal'>
+<div class="refsect2">
 <a name="BamfMatcher-active-application-changed"></a><h3>The <code class="literal">"active-application-changed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *bamfmatcher,
                                                         <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject"><span class="type">GObject</span></a>     *arg1,
@@ -466,18 +398,7 @@ Used to fetch all windows that BAMF knows about.
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bamfmatcher</code></em> :</span></p></td>
-<td>the object which received the signal.
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg1</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg2</code></em> :</span></p></td>
-<td>
-</td>
+<td>the object which received the signal.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -487,7 +408,7 @@ Used to fetch all windows that BAMF knows about.
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title='The "active-window-changed" signal'>
+<div class="refsect2">
 <a name="BamfMatcher-active-window-changed"></a><h3>The <code class="literal">"active-window-changed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *bamfmatcher,
                                                         <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject"><span class="type">GObject</span></a>     *arg1,
@@ -500,18 +421,7 @@ Used to fetch all windows that BAMF knows about.
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bamfmatcher</code></em> :</span></p></td>
-<td>the object which received the signal.
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg1</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg2</code></em> :</span></p></td>
-<td>
-</td>
+<td>the object which received the signal.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -521,7 +431,7 @@ Used to fetch all windows that BAMF knows about.
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title='The "view-closed" signal'>
+<div class="refsect2">
 <a name="BamfMatcher-view-closed"></a><h3>The <code class="literal">"view-closed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *bamfmatcher,
                                                         <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject"><span class="type">GObject</span></a>     *arg1,
@@ -533,13 +443,7 @@ Used to fetch all windows that BAMF knows about.
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bamfmatcher</code></em> :</span></p></td>
-<td>the object which received the signal.
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg1</code></em> :</span></p></td>
-<td>
-</td>
+<td>the object which received the signal.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -549,7 +453,7 @@ Used to fetch all windows that BAMF knows about.
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title='The "view-opened" signal'>
+<div class="refsect2">
 <a name="BamfMatcher-view-opened"></a><h3>The <code class="literal">"view-opened"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *bamfmatcher,
                                                         <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject"><span class="type">GObject</span></a>     *arg1,
@@ -561,13 +465,7 @@ Used to fetch all windows that BAMF knows about.
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bamfmatcher</code></em> :</span></p></td>
-<td>the object which received the signal.
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg1</code></em> :</span></p></td>
-<td>
-</td>
+<td>the object which received the signal.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -580,6 +478,6 @@ Used to fetch all windows that BAMF knows about.
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.15</div>
+          Generated by GTK-Doc V1.16</div>
 </body>
 </html>

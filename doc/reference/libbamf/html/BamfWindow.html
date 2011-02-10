@@ -8,7 +8,7 @@
 <link rel="up" href="ch01.html" title="Classes">
 <link rel="prev" href="BamfMatcher.html" title="BamfMatcher">
 <link rel="next" href="BamfFactory.html" title="BamfFactory">
-<meta name="generator" content="GTK-Doc V1.15 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.16 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -28,7 +28,7 @@
                   <a href="#BamfWindow.object-hierarchy" class="shortcut">Object Hierarchy</a>
 </td></tr>
 </table>
-<div class="refentry" title="BamfWindow">
+<div class="refentry">
 <a name="BamfWindow"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
@@ -37,10 +37,10 @@
 </td>
 <td valign="top" align="right"></td>
 </tr></table></div>
-<div class="refsynopsisdiv" title="Synopsis">
+<div class="refsynopsisdiv">
 <a name="BamfWindow.synopsis"></a><h2>Synopsis</h2>
-<pre class="synopsis">                    <a class="link" href="BamfWindow.html#BamfWindow-struct" title="BamfWindow">BamfWindow</a>;
-                    <a class="link" href="BamfWindow.html#BamfWindowClass" title="BamfWindowClass">BamfWindowClass</a>;
+<pre class="synopsis">struct              <a class="link" href="BamfWindow.html#BamfWindow-struct" title="struct BamfWindow">BamfWindow</a>;
+struct              <a class="link" href="BamfWindow.html#BamfWindowClass" title="struct BamfWindowClass">BamfWindowClass</a>;
                     <a class="link" href="BamfWindow.html#BamfWindowPrivate" title="BamfWindowPrivate">BamfWindowPrivate</a>;
 enum                <a class="link" href="BamfWindow.html#BamfWindowType" title="enum BamfWindowType">BamfWindowType</a>;
 <a class="link" href="BamfWindow.html" title="BamfWindow"><span class="returnvalue">BamfWindow</span></a> *        <a class="link" href="BamfWindow.html#bamf-window-get-transient" title="bamf_window_get_transient ()">bamf_window_get_transient</a>           (<em class="parameter"><code><a class="link" href="BamfWindow.html" title="BamfWindow"><span class="type">BamfWindow</span></a> *self</code></em>);
@@ -49,7 +49,7 @@ enum                <a class="link" href="BamfWindow.html#BamfWindowType" title=
 <span class="returnvalue">time_t</span>              <a class="link" href="BamfWindow.html#bamf-window-last-active" title="bamf_window_last_active ()">bamf_window_last_active</a>             (<em class="parameter"><code><a class="link" href="BamfWindow.html" title="BamfWindow"><span class="type">BamfWindow</span></a> *self</code></em>);
 </pre>
 </div>
-<div class="refsect1" title="Object Hierarchy">
+<div class="refsect1">
 <a name="BamfWindow.object-hierarchy"></a><h2>Object Hierarchy</h2>
 <pre class="synopsis">
   <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
@@ -58,39 +58,39 @@ enum                <a class="link" href="BamfWindow.html#BamfWindowType" title=
                +----BamfWindow
 </pre>
 </div>
-<div class="refsect1" title="Description">
+<div class="refsect1">
 <a name="BamfWindow.description"></a><h2>Description</h2>
 <p>
 <a class="link" href="BamfWindow.html" title="BamfWindow"><span class="type">BamfWindow</span></a> is the base class that all windows need to derive from.
 </p>
 </div>
-<div class="refsect1" title="Details">
+<div class="refsect1">
 <a name="BamfWindow.details"></a><h2>Details</h2>
-<div class="refsect2" title="BamfWindow">
-<a name="BamfWindow-struct"></a><h3>BamfWindow</h3>
-<pre class="programlisting">typedef struct _BamfWindow BamfWindow;</pre>
+<div class="refsect2">
+<a name="BamfWindow-struct"></a><h3>struct BamfWindow</h3>
+<pre class="programlisting">struct BamfWindow;</pre>
 <p>
 </p>
 </div>
 <hr>
-<div class="refsect2" title="BamfWindowClass">
-<a name="BamfWindowClass"></a><h3>BamfWindowClass</h3>
-<pre class="programlisting">typedef struct {
+<div class="refsect2">
+<a name="BamfWindowClass"></a><h3>struct BamfWindowClass</h3>
+<pre class="programlisting">struct BamfWindowClass {
   BamfViewClass parent_class;
-} BamfWindowClass;
+};
 </pre>
 <p>
 </p>
 </div>
 <hr>
-<div class="refsect2" title="BamfWindowPrivate">
+<div class="refsect2">
 <a name="BamfWindowPrivate"></a><h3>BamfWindowPrivate</h3>
 <pre class="programlisting">typedef struct _BamfWindowPrivate BamfWindowPrivate;</pre>
 <p>
 </p>
 </div>
 <hr>
-<div class="refsect2" title="enum BamfWindowType">
+<div class="refsect2">
 <a name="BamfWindowType"></a><h3>enum BamfWindowType</h3>
 <pre class="programlisting">typedef enum
 {
@@ -108,97 +108,37 @@ enum                <a class="link" href="BamfWindow.html#BamfWindowType" title=
 </p>
 </div>
 <hr>
-<div class="refsect2" title="bamf_window_get_transient ()">
+<div class="refsect2">
 <a name="bamf-window-get-transient"></a><h3>bamf_window_get_transient ()</h3>
 <pre class="programlisting"><a class="link" href="BamfWindow.html" title="BamfWindow"><span class="returnvalue">BamfWindow</span></a> *        bamf_window_get_transient           (<em class="parameter"><code><a class="link" href="BamfWindow.html" title="BamfWindow"><span class="type">BamfWindow</span></a> *self</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>self</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_window_get_window_type ()">
+<div class="refsect2">
 <a name="bamf-window-get-window-type"></a><h3>bamf_window_get_window_type ()</h3>
 <pre class="programlisting"><a class="link" href="BamfWindow.html#BamfWindowType" title="enum BamfWindowType"><span class="returnvalue">BamfWindowType</span></a>      bamf_window_get_window_type         (<em class="parameter"><code><a class="link" href="BamfWindow.html" title="BamfWindow"><span class="type">BamfWindow</span></a> *self</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>self</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_window_get_xid ()">
+<div class="refsect2">
 <a name="bamf-window-get-xid"></a><h3>bamf_window_get_xid ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>             bamf_window_get_xid                 (<em class="parameter"><code><a class="link" href="BamfWindow.html" title="BamfWindow"><span class="type">BamfWindow</span></a> *self</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>self</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_window_last_active ()">
+<div class="refsect2">
 <a name="bamf-window-last-active"></a><h3>bamf_window_last_active ()</h3>
 <pre class="programlisting"><span class="returnvalue">time_t</span>              bamf_window_last_active             (<em class="parameter"><code><a class="link" href="BamfWindow.html" title="BamfWindow"><span class="type">BamfWindow</span></a> *self</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>self</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 </div>
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.15</div>
+          Generated by GTK-Doc V1.16</div>
 </body>
 </html>
