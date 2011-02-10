@@ -8,7 +8,7 @@
 <link rel="up" href="ch01.html" title="Classes">
 <link rel="prev" href="BamfTabSource.html" title="BamfTabSource">
 <link rel="next" href="BamfApplication.html" title="BamfApplication">
-<meta name="generator" content="GTK-Doc V1.15 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.16 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -32,7 +32,7 @@
                   <a href="#BamfView.signals" class="shortcut">Signals</a>
 </td></tr>
 </table>
-<div class="refentry" title="BamfView">
+<div class="refentry">
 <a name="BamfView"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
@@ -41,11 +41,11 @@
 </td>
 <td valign="top" align="right"></td>
 </tr></table></div>
-<div class="refsynopsisdiv" title="Synopsis">
+<div class="refsynopsisdiv">
 <a name="BamfView.synopsis"></a><h2>Synopsis</h2>
 <pre class="synopsis">enum                <a class="link" href="BamfView.html#BamfClickBehavior" title="enum BamfClickBehavior">BamfClickBehavior</a>;
-                    <a class="link" href="BamfView.html#BamfView-struct" title="BamfView">BamfView</a>;
-                    <a class="link" href="BamfView.html#BamfViewClass" title="BamfViewClass">BamfViewClass</a>;
+struct              <a class="link" href="BamfView.html#BamfView-struct" title="struct BamfView">BamfView</a>;
+struct              <a class="link" href="BamfView.html#BamfViewClass" title="struct BamfViewClass">BamfViewClass</a>;
                     <a class="link" href="BamfView.html#BamfViewPrivate" title="BamfViewPrivate">BamfViewPrivate</a>;
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             <a class="link" href="BamfView.html#bamf-view-get-children" title="bamf_view_get_children ()">bamf_view_get_children</a>              (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfView.html#bamf-view-is-closed" title="bamf_view_is_closed ()">bamf_view_is_closed</a>                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
@@ -62,7 +62,7 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.htm
 <a class="link" href="BamfView.html#BamfClickBehavior" title="enum BamfClickBehavior"><span class="returnvalue">BamfClickBehavior</span></a>   <a class="link" href="BamfView.html#bamf-view-get-click-suggestion" title="bamf_view_get_click_suggestion ()">bamf_view_get_click_suggestion</a>      (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
 </pre>
 </div>
-<div class="refsect1" title="Object Hierarchy">
+<div class="refsect1">
 <a name="BamfView.object-hierarchy"></a><h2>Object Hierarchy</h2>
 <pre class="synopsis">
   <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
@@ -72,7 +72,7 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.htm
                +----<a class="link" href="BamfWindow.html" title="BamfWindow">BamfWindow</a>
 </pre>
 </div>
-<div class="refsect1" title="Properties">
+<div class="refsect1">
 <a name="BamfView.properties"></a><h2>Properties</h2>
 <pre class="synopsis">
   "<a class="link" href="BamfView.html#BamfView--active" title='The "active" property'>active</a>"                   <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read
@@ -82,28 +82,28 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.htm
   "<a class="link" href="BamfView.html#BamfView--user-visible" title='The "user-visible" property'>user-visible</a>"             <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read
 </pre>
 </div>
-<div class="refsect1" title="Signals">
+<div class="refsect1">
 <a name="BamfView.signals"></a><h2>Signals</h2>
 <pre class="synopsis">
-  "<a class="link" href="BamfView.html#BamfView-active-changed" title='The "active-changed" signal'>active-changed</a>"                                 : Run First
-  "<a class="link" href="BamfView.html#BamfView-child-added" title='The "child-added" signal'>child-added</a>"                                    : Run First
-  "<a class="link" href="BamfView.html#BamfView-child-removed" title='The "child-removed" signal'>child-removed</a>"                                  : Run First
-  "<a class="link" href="BamfView.html#BamfView-closed" title='The "closed" signal'>closed</a>"                                         : Run First
+  "<a class="link" href="BamfView.html#BamfView-active-changed" title='The "active-changed" signal'>active-changed</a>"                                 : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a>
+  "<a class="link" href="BamfView.html#BamfView-child-added" title='The "child-added" signal'>child-added</a>"                                    : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a>
+  "<a class="link" href="BamfView.html#BamfView-child-removed" title='The "child-removed" signal'>child-removed</a>"                                  : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a>
+  "<a class="link" href="BamfView.html#BamfView-closed" title='The "closed" signal'>closed</a>"                                         : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a>
   "<a class="link" href="BamfView.html#BamfView-name-changed" title='The "name-changed" signal'>name-changed</a>"                                   
-  "<a class="link" href="BamfView.html#BamfView-running-changed" title='The "running-changed" signal'>running-changed</a>"                                : Run First
-  "<a class="link" href="BamfView.html#BamfView-urgent-changed" title='The "urgent-changed" signal'>urgent-changed</a>"                                 : Run First
-  "<a class="link" href="BamfView.html#BamfView-user-visible-changed" title='The "user-visible-changed" signal'>user-visible-changed</a>"                           : Run First
+  "<a class="link" href="BamfView.html#BamfView-running-changed" title='The "running-changed" signal'>running-changed</a>"                                : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a>
+  "<a class="link" href="BamfView.html#BamfView-urgent-changed" title='The "urgent-changed" signal'>urgent-changed</a>"                                 : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a>
+  "<a class="link" href="BamfView.html#BamfView-user-visible-changed" title='The "user-visible-changed" signal'>user-visible-changed</a>"                           : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a>
 </pre>
 </div>
-<div class="refsect1" title="Description">
+<div class="refsect1">
 <a name="BamfView.description"></a><h2>Description</h2>
 <p>
 <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> is the base class that all views need to derive from.
 </p>
 </div>
-<div class="refsect1" title="Details">
+<div class="refsect1">
 <a name="BamfView.details"></a><h2>Details</h2>
-<div class="refsect2" title="enum BamfClickBehavior">
+<div class="refsect2">
 <a name="BamfClickBehavior"></a><h3>enum BamfClickBehavior</h3>
 <pre class="programlisting">typedef enum
 {
@@ -121,16 +121,16 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.htm
 </p>
 </div>
 <hr>
-<div class="refsect2" title="BamfView">
-<a name="BamfView-struct"></a><h3>BamfView</h3>
-<pre class="programlisting">typedef struct _BamfView BamfView;</pre>
+<div class="refsect2">
+<a name="BamfView-struct"></a><h3>struct BamfView</h3>
+<pre class="programlisting">struct BamfView;</pre>
 <p>
 </p>
 </div>
 <hr>
-<div class="refsect2" title="BamfViewClass">
-<a name="BamfViewClass"></a><h3>BamfViewClass</h3>
-<pre class="programlisting">typedef struct {
+<div class="refsect2">
+<a name="BamfViewClass"></a><h3>struct BamfViewClass</h3>
+<pre class="programlisting">struct BamfViewClass {
   GInitiallyUnownedClass parent_class;
   
   GList            * (*get_children)        (BamfView *view);
@@ -153,20 +153,20 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.htm
   void (*urgent_changed)              (BamfView *view, gboolean urgent);
   void (*user_visible_changed)        (BamfView *view, gboolean user_visible);
   void (*name_changed)                (BamfView *view, gchar* old_name, gchar* new_name);
-} BamfViewClass;
+};
 </pre>
 <p>
 </p>
 </div>
 <hr>
-<div class="refsect2" title="BamfViewPrivate">
+<div class="refsect2">
 <a name="BamfViewPrivate"></a><h3>BamfViewPrivate</h3>
 <pre class="programlisting">typedef struct _BamfViewPrivate BamfViewPrivate;</pre>
 <p>
 </p>
 </div>
 <hr>
-<div class="refsect2" title="bamf_view_get_children ()">
+<div class="refsect2">
 <a name="bamf-view-get-children"></a><h3>bamf_view_get_children ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             bamf_view_get_children              (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
@@ -182,37 +182,22 @@ Note: Makes sever dbus calls the first time this is called on a view. Dbus messa
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> Returns a list of <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> which must be
-          freed after usage. Elements of the list are owned by bamf and should not be unreffed. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> Bamf.View][<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym> Bamf.View]</span>
+<td>Returns a list of <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> which must be
+freed after usage. Elements of the list are owned by bamf and should not be unreffed. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> Bamf.View][<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym>]</span>
 </td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_view_is_closed ()">
+<div class="refsect2">
 <a name="bamf-view-is-closed"></a><h3>bamf_view_is_closed ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_is_closed                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_view_is_active ()">
+<div class="refsect2">
 <a name="bamf-view-is-active"></a><h3>bamf_view_is_active ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_is_active                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
@@ -220,22 +205,15 @@ Determines if the view is currently active and focused by the user. Useful for a
 </p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
-<tbody>
-<tr>
+<tbody><tr>
 <td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
 <td>a <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>
 </td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
+</tr></tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_view_is_running ()">
+<div class="refsect2">
 <a name="bamf-view-is-running"></a><h3>bamf_view_is_running ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_is_running                (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
@@ -243,44 +221,22 @@ Determines if the view is currently requiring attention. Useful for a running wi
 </p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
-<tbody>
-<tr>
+<tbody><tr>
 <td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
 <td>a <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>
 </td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
+</tr></tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_view_is_urgent ()">
+<div class="refsect2">
 <a name="bamf-view-is-urgent"></a><h3>bamf_view_is_urgent ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_is_urgent                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_view_get_name ()">
+<div class="refsect2">
 <a name="bamf-view-get-name"></a><h3>bamf_view_get_name ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             bamf_view_get_name                  (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
@@ -288,22 +244,15 @@ Gets the name of a view. This name is a short name best used to represent the vi
 </p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
-<tbody>
-<tr>
+<tbody><tr>
 <td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
 <td>a <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>
 </td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
+</tr></tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_view_get_icon ()">
+<div class="refsect2">
 <a name="bamf-view-get-icon"></a><h3>bamf_view_get_icon ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             bamf_view_get_icon                  (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
@@ -311,22 +260,15 @@ Gets the icon of a view. This icon is used to visually represent the view.
 </p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
-<tbody>
-<tr>
+<tbody><tr>
 <td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
 <td>a <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>
 </td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
+</tr></tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_view_user_visible ()">
+<div class="refsect2">
 <a name="bamf-view-user-visible"></a><h3>bamf_view_user_visible ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_user_visible              (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <div class="variablelist"><table border="0">
@@ -340,14 +282,13 @@ Gets the icon of a view. This icon is used to visually represent the view.
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
 <td>a boolean useful for determining if a particular view is "user visible". User visible
-is a concept relating to whether or not a window should be shown in a launcher tasklist.
-</td>
+is a concept relating to whether or not a window should be shown in a launcher tasklist.</td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_view_get_view_type ()">
+<div class="refsect2">
 <a name="bamf-view-get-view-type"></a><h3>bamf_view_get_view_type ()</h3>
 <pre class="programlisting">const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       bamf_view_get_view_type             (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
@@ -364,124 +305,79 @@ descriptions should not be used to do casting as they are not considered stable.
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td> A gchar*. <span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span>
+<td>A gchar*. <span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span>
 </td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_view_set_sticky ()">
+<div class="refsect2">
 <a name="bamf-view-set-sticky"></a><h3>bamf_view_set_sticky ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                bamf_view_set_sticky                (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> value</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>value</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_view_is_sticky ()">
+<div class="refsect2">
 <a name="bamf-view-is-sticky"></a><h3>bamf_view_is_sticky ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_is_sticky                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_view_get_click_suggestion ()">
+<div class="refsect2">
 <a name="bamf-view-get-click-suggestion"></a><h3>bamf_view_get_click_suggestion ()</h3>
 <pre class="programlisting"><a class="link" href="BamfView.html#BamfClickBehavior" title="enum BamfClickBehavior"><span class="returnvalue">BamfClickBehavior</span></a>   bamf_view_get_click_suggestion      (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 </div>
-<div class="refsect1" title="Property Details">
+<div class="refsect1">
 <a name="BamfView.property-details"></a><h2>Property Details</h2>
-<div class="refsect2" title='The "active" property'>
+<div class="refsect2">
 <a name="BamfView--active"></a><h3>The <code class="literal">"active"</code> property</h3>
 <pre class="programlisting">  "active"                   <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read</pre>
 <p>active.</p>
 <p>Default value: FALSE</p>
 </div>
 <hr>
-<div class="refsect2" title='The "path" property'>
+<div class="refsect2">
 <a name="BamfView--path"></a><h3>The <code class="literal">"path"</code> property</h3>
 <pre class="programlisting">  "path"                     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read</pre>
 <p>path.</p>
 <p>Default value: NULL</p>
 </div>
 <hr>
-<div class="refsect2" title='The "running" property'>
+<div class="refsect2">
 <a name="BamfView--running"></a><h3>The <code class="literal">"running"</code> property</h3>
 <pre class="programlisting">  "running"                  <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read</pre>
 <p>running.</p>
 <p>Default value: FALSE</p>
 </div>
 <hr>
-<div class="refsect2" title='The "urgent" property'>
+<div class="refsect2">
 <a name="BamfView--urgent"></a><h3>The <code class="literal">"urgent"</code> property</h3>
 <pre class="programlisting">  "urgent"                   <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read</pre>
 <p>urgent.</p>
 <p>Default value: FALSE</p>
 </div>
 <hr>
-<div class="refsect2" title='The "user-visible" property'>
+<div class="refsect2">
 <a name="BamfView--user-visible"></a><h3>The <code class="literal">"user-visible"</code> property</h3>
 <pre class="programlisting">  "user-visible"             <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read</pre>
 <p>user-visible.</p>
 <p>Default value: FALSE</p>
 </div>
 </div>
-<div class="refsect1" title="Signal Details">
+<div class="refsect1">
 <a name="BamfView.signal-details"></a><h2>Signal Details</h2>
-<div class="refsect2" title='The "active-changed" signal'>
+<div class="refsect2">
 <a name="BamfView-active-changed"></a><h3>The <code class="literal">"active-changed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *bamfview,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>  arg1,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)      : Run First</pre>
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)      : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a></pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -489,13 +385,7 @@ descriptions should not be used to do casting as they are not considered stable.
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bamfview</code></em> :</span></p></td>
-<td>the object which received the signal.
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg1</code></em> :</span></p></td>
-<td>
-</td>
+<td>the object which received the signal.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -505,11 +395,11 @@ descriptions should not be used to do casting as they are not considered stable.
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title='The "child-added" signal'>
+<div class="refsect2">
 <a name="BamfView-child-added"></a><h3>The <code class="literal">"child-added"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *bamfview,
                                                         <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *arg1,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)      : Run First</pre>
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)      : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a></pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -517,13 +407,7 @@ descriptions should not be used to do casting as they are not considered stable.
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bamfview</code></em> :</span></p></td>
-<td>the object which received the signal.
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg1</code></em> :</span></p></td>
-<td>
-</td>
+<td>the object which received the signal.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -533,11 +417,11 @@ descriptions should not be used to do casting as they are not considered stable.
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title='The "child-removed" signal'>
+<div class="refsect2">
 <a name="BamfView-child-removed"></a><h3>The <code class="literal">"child-removed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *bamfview,
                                                         <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *arg1,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)      : Run First</pre>
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)      : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a></pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -545,13 +429,7 @@ descriptions should not be used to do casting as they are not considered stable.
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bamfview</code></em> :</span></p></td>
-<td>the object which received the signal.
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg1</code></em> :</span></p></td>
-<td>
-</td>
+<td>the object which received the signal.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -561,10 +439,10 @@ descriptions should not be used to do casting as they are not considered stable.
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title='The "closed" signal'>
+<div class="refsect2">
 <a name="BamfView-closed"></a><h3>The <code class="literal">"closed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *bamfview,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)      : Run First</pre>
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)      : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a></pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -572,8 +450,7 @@ descriptions should not be used to do casting as they are not considered stable.
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bamfview</code></em> :</span></p></td>
-<td>the object which received the signal.
-</td>
+<td>the object which received the signal.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -583,7 +460,7 @@ descriptions should not be used to do casting as they are not considered stable.
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title='The "name-changed" signal'>
+<div class="refsect2">
 <a name="BamfView-name-changed"></a><h3>The <code class="literal">"name-changed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *bamfview,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>    *arg1,
@@ -596,18 +473,7 @@ descriptions should not be used to do casting as they are not considered stable.
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bamfview</code></em> :</span></p></td>
-<td>the object which received the signal.
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg1</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg2</code></em> :</span></p></td>
-<td>
-</td>
+<td>the object which received the signal.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -617,11 +483,11 @@ descriptions should not be used to do casting as they are not considered stable.
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title='The "running-changed" signal'>
+<div class="refsect2">
 <a name="BamfView-running-changed"></a><h3>The <code class="literal">"running-changed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *bamfview,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>  arg1,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)      : Run First</pre>
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)      : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a></pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -629,13 +495,7 @@ descriptions should not be used to do casting as they are not considered stable.
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bamfview</code></em> :</span></p></td>
-<td>the object which received the signal.
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg1</code></em> :</span></p></td>
-<td>
-</td>
+<td>the object which received the signal.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -645,11 +505,11 @@ descriptions should not be used to do casting as they are not considered stable.
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title='The "urgent-changed" signal'>
+<div class="refsect2">
 <a name="BamfView-urgent-changed"></a><h3>The <code class="literal">"urgent-changed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *bamfview,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>  arg1,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)      : Run First</pre>
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)      : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a></pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -657,13 +517,7 @@ descriptions should not be used to do casting as they are not considered stable.
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bamfview</code></em> :</span></p></td>
-<td>the object which received the signal.
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg1</code></em> :</span></p></td>
-<td>
-</td>
+<td>the object which received the signal.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -673,11 +527,11 @@ descriptions should not be used to do casting as they are not considered stable.
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title='The "user-visible-changed" signal'>
+<div class="refsect2">
 <a name="BamfView-user-visible-changed"></a><h3>The <code class="literal">"user-visible-changed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *bamfview,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>  arg1,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)      : Run First</pre>
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>  user_data)      : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a></pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -685,13 +539,7 @@ descriptions should not be used to do casting as they are not considered stable.
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bamfview</code></em> :</span></p></td>
-<td>the object which received the signal.
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg1</code></em> :</span></p></td>
-<td>
-</td>
+<td>the object which received the signal.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -704,6 +552,6 @@ descriptions should not be used to do casting as they are not considered stable.
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.15</div>
+          Generated by GTK-Doc V1.16</div>
 </body>
 </html>
