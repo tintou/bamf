@@ -215,6 +215,26 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
     {
       exec = "ooffice -draw %F";
     }
+  else if (g_str_has_suffix (name, "LibreOffice Writer"))
+    {
+      exec = "libreoffice -writer %U";
+    }
+  else if (g_str_has_suffix (name, "LibreOffice Math"))
+    {
+      exec = "libreoffice -math %U";
+    }
+  else if (g_str_has_suffix (name, "LibreOffice Calc"))
+    {
+      exec = "libreoffice -calc %U";
+    }
+  else if (g_str_has_suffix (name, "LibreOffice Impress"))
+    {
+      exec = "libreoffice -impress %U";
+    }
+  else if (g_str_has_suffix (name, "LibreOffice Draw"))
+    {
+      exec = "libreoffice -draw %U";
+    }
   else
     {
       return NULL;
@@ -363,7 +383,7 @@ static gboolean
 exec_string_should_be_processed (BamfMatcher *self,
                                  char *exec)
 {
-  return !g_str_has_prefix (exec, "ooffice");
+  return !g_str_has_prefix (exec, "ooffice") && !g_str_has_prefix (exec, "libreoffice");
 }
 
 static void
@@ -736,7 +756,9 @@ create_desktop_file_table (BamfMatcher * self, GHashTable **desktop_file_table, 
 static gboolean
 is_open_office_window (BamfMatcher * self, BamfLegacyWindow * window)
 {
-  return g_str_has_prefix (bamf_legacy_window_get_class_name (window), "OpenOffice");
+  return g_str_has_prefix (bamf_legacy_window_get_class_name (window), "OpenOffice") ||
+	 g_str_has_prefix (bamf_legacy_window_get_class_name (window), "LibreOffice") ||
+         g_str_has_prefix (bamf_legacy_window_get_class_name (window), "libreoffice");
 }
 
 static char *
