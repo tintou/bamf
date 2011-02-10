@@ -8,7 +8,7 @@
 <link rel="up" href="ch01.html" title="Classes">
 <link rel="prev" href="BamfControl.html" title="BamfControl">
 <link rel="next" href="BamfView.html" title="BamfView">
-<meta name="generator" content="GTK-Doc V1.15 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.16 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -32,7 +32,7 @@
                   <a href="#BamfTabSource.signals" class="shortcut">Signals</a>
 </td></tr>
 </table>
-<div class="refentry" title="BamfTabSource">
+<div class="refentry">
 <a name="BamfTabSource"></a><div class="titlepage"></div>
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
@@ -41,11 +41,11 @@
 </td>
 <td valign="top" align="right"></td>
 </tr></table></div>
-<div class="refsynopsisdiv" title="Synopsis">
+<div class="refsynopsisdiv">
 <a name="BamfTabSource.synopsis"></a><h2>Synopsis</h2>
 <pre class="synopsis">#define             <a class="link" href="BamfTabSource.html#BAMF-TAB-SOURCE-CONST:CAPS" title="BAMF_TAB_SOURCE_CONST()">BAMF_TAB_SOURCE_CONST</a>               (obj)
-                    <a class="link" href="BamfTabSource.html#BamfTabSource-struct" title="BamfTabSource">BamfTabSource</a>;
-                    <a class="link" href="BamfTabSource.html#BamfTabSourceClass" title="BamfTabSourceClass">BamfTabSourceClass</a>;
+struct              <a class="link" href="BamfTabSource.html#BamfTabSource-struct" title="struct BamfTabSource">BamfTabSource</a>;
+struct              <a class="link" href="BamfTabSource.html#BamfTabSourceClass" title="struct BamfTabSourceClass">BamfTabSourceClass</a>;
                     <a class="link" href="BamfTabSource.html#BamfTabSourcePrivate" title="BamfTabSourcePrivate">BamfTabSourcePrivate</a>;
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfTabSource.html#bamf-tab-source-show-tab" title="bamf_tab_source_show_tab ()">bamf_tab_source_show_tab</a>            (<em class="parameter"><code><a class="link" href="BamfTabSource.html" title="BamfTabSource"><span class="type">BamfTabSource</span></a> *source</code></em>,
                                                          <em class="parameter"><code><span class="type">char</span> *tab_id</code></em>,
@@ -59,60 +59,52 @@
                                                          <em class="parameter"><code><span class="type">char</span> *tab_id</code></em>);
 </pre>
 </div>
-<div class="refsect1" title="Object Hierarchy">
+<div class="refsect1">
 <a name="BamfTabSource.object-hierarchy"></a><h2>Object Hierarchy</h2>
 <pre class="synopsis">
   <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
    +----BamfTabSource
 </pre>
 </div>
-<div class="refsect1" title="Properties">
+<div class="refsect1">
 <a name="BamfTabSource.properties"></a><h2>Properties</h2>
 <pre class="synopsis">
   "<a class="link" href="BamfTabSource.html#BamfTabSource--id" title='The "id" property'>id</a>"                       <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write / Construct
 </pre>
 </div>
-<div class="refsect1" title="Signals">
+<div class="refsect1">
 <a name="BamfTabSource.signals"></a><h2>Signals</h2>
 <pre class="synopsis">
-  "<a class="link" href="BamfTabSource.html#BamfTabSource-tab-closed" title='The "tab-closed" signal'>tab-closed</a>"                                     : Run First
-  "<a class="link" href="BamfTabSource.html#BamfTabSource-tab-opened" title='The "tab-opened" signal'>tab-opened</a>"                                     : Run First
-  "<a class="link" href="BamfTabSource.html#BamfTabSource-tab-uri-changed" title='The "tab-uri-changed" signal'>tab-uri-changed</a>"                                : Run First
+  "<a class="link" href="BamfTabSource.html#BamfTabSource-tab-closed" title='The "tab-closed" signal'>tab-closed</a>"                                     : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a>
+  "<a class="link" href="BamfTabSource.html#BamfTabSource-tab-opened" title='The "tab-opened" signal'>tab-opened</a>"                                     : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a>
+  "<a class="link" href="BamfTabSource.html#BamfTabSource-tab-uri-changed" title='The "tab-uri-changed" signal'>tab-uri-changed</a>"                                : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a>
 </pre>
 </div>
-<div class="refsect1" title="Description">
+<div class="refsect1">
 <a name="BamfTabSource.description"></a><h2>Description</h2>
 <p>
 </p>
 </div>
-<div class="refsect1" title="Details">
+<div class="refsect1">
 <a name="BamfTabSource.details"></a><h2>Details</h2>
-<div class="refsect2" title="BAMF_TAB_SOURCE_CONST()">
+<div class="refsect2">
 <a name="BAMF-TAB-SOURCE-CONST:CAPS"></a><h3>BAMF_TAB_SOURCE_CONST()</h3>
 <pre class="programlisting">#define BAMF_TAB_SOURCE_CONST(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_TAB_SOURCE, BamfTabSource const))
 </pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody><tr>
-<td><p><span class="term"><em class="parameter"><code>obj</code></em> :</span></p></td>
-<td>
-</td>
-</tr></tbody>
-</table></div>
 </div>
 <hr>
-<div class="refsect2" title="BamfTabSource">
-<a name="BamfTabSource-struct"></a><h3>BamfTabSource</h3>
-<pre class="programlisting">typedef struct _BamfTabSource BamfTabSource;</pre>
+<div class="refsect2">
+<a name="BamfTabSource-struct"></a><h3>struct BamfTabSource</h3>
+<pre class="programlisting">struct BamfTabSource;</pre>
 <p>
 </p>
 </div>
 <hr>
-<div class="refsect2" title="BamfTabSourceClass">
-<a name="BamfTabSourceClass"></a><h3>BamfTabSourceClass</h3>
-<pre class="programlisting">typedef struct {
+<div class="refsect2">
+<a name="BamfTabSourceClass"></a><h3>struct BamfTabSourceClass</h3>
+<pre class="programlisting">struct BamfTabSourceClass {
 	GObjectClass parent_class;
 
 	/*&lt; methods &gt;*/
@@ -121,175 +113,75 @@
 	GArray  * (*tab_preview)   (BamfTabSource *source, char *tab_id);
 	char    * (*tab_uri)       (BamfTabSource *source, char *tab_id);
 	guint32   (*tab_xid)       (BamfTabSource *source, char *tab_id);
-} BamfTabSourceClass;
+};
 </pre>
 <p>
 </p>
 </div>
 <hr>
-<div class="refsect2" title="BamfTabSourcePrivate">
+<div class="refsect2">
 <a name="BamfTabSourcePrivate"></a><h3>BamfTabSourcePrivate</h3>
 <pre class="programlisting">typedef struct _BamfTabSourcePrivate BamfTabSourcePrivate;</pre>
 <p>
 </p>
 </div>
 <hr>
-<div class="refsect2" title="bamf_tab_source_show_tab ()">
+<div class="refsect2">
 <a name="bamf-tab-source-show-tab"></a><h3>bamf_tab_source_show_tab ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_tab_source_show_tab            (<em class="parameter"><code><a class="link" href="BamfTabSource.html" title="BamfTabSource"><span class="type">BamfTabSource</span></a> *source</code></em>,
                                                          <em class="parameter"><code><span class="type">char</span> *tab_id</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> *error</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>source</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>tab_id</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>error</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_tab_source_get_tab_ids ()">
+<div class="refsect2">
 <a name="bamf-tab-source-get-tab-ids"></a><h3>bamf_tab_source_get_tab_ids ()</h3>
 <pre class="programlisting"><span class="returnvalue">char</span> **             bamf_tab_source_get_tab_ids         (<em class="parameter"><code><a class="link" href="BamfTabSource.html" title="BamfTabSource"><span class="type">BamfTabSource</span></a> *source</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>source</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_tab_source_get_tab_preview ()">
+<div class="refsect2">
 <a name="bamf-tab-source-get-tab-preview"></a><h3>bamf_tab_source_get_tab_preview ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="returnvalue">GArray</span></a> *            bamf_tab_source_get_tab_preview     (<em class="parameter"><code><a class="link" href="BamfTabSource.html" title="BamfTabSource"><span class="type">BamfTabSource</span></a> *source</code></em>,
                                                          <em class="parameter"><code><span class="type">char</span> *tab_id</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>source</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>tab_id</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_tab_source_get_tab_uri ()">
+<div class="refsect2">
 <a name="bamf-tab-source-get-tab-uri"></a><h3>bamf_tab_source_get_tab_uri ()</h3>
 <pre class="programlisting"><span class="returnvalue">char</span> *              bamf_tab_source_get_tab_uri         (<em class="parameter"><code><a class="link" href="BamfTabSource.html" title="BamfTabSource"><span class="type">BamfTabSource</span></a> *source</code></em>,
                                                          <em class="parameter"><code><span class="type">char</span> *tab_id</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>source</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>tab_id</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 <hr>
-<div class="refsect2" title="bamf_tab_source_get_tab_xid ()">
+<div class="refsect2">
 <a name="bamf-tab-source-get-tab-xid"></a><h3>bamf_tab_source_get_tab_xid ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>             bamf_tab_source_get_tab_xid         (<em class="parameter"><code><a class="link" href="BamfTabSource.html" title="BamfTabSource"><span class="type">BamfTabSource</span></a> *source</code></em>,
                                                          <em class="parameter"><code><span class="type">char</span> *tab_id</code></em>);</pre>
 <p>
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>source</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>tab_id</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 </div>
-<div class="refsect1" title="Property Details">
+<div class="refsect1">
 <a name="BamfTabSource.property-details"></a><h2>Property Details</h2>
-<div class="refsect2" title='The "id" property'>
+<div class="refsect2">
 <a name="BamfTabSource--id"></a><h3>The <code class="literal">"id"</code> property</h3>
 <pre class="programlisting">  "id"                       <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>*                : Read / Write / Construct</pre>
 <p>id.</p>
 <p>Default value: NULL</p>
 </div>
 </div>
-<div class="refsect1" title="Signal Details">
+<div class="refsect1">
 <a name="BamfTabSource.signal-details"></a><h2>Signal Details</h2>
-<div class="refsect2" title='The "tab-closed" signal'>
+<div class="refsect2">
 <a name="BamfTabSource-tab-closed"></a><h3>The <code class="literal">"tab-closed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfTabSource.html" title="BamfTabSource"><span class="type">BamfTabSource</span></a> *bamftabsource,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>         *arg1,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)          : Run First</pre>
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)          : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a></pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -297,13 +189,7 @@
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bamftabsource</code></em> :</span></p></td>
-<td>the object which received the signal.
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg1</code></em> :</span></p></td>
-<td>
-</td>
+<td>the object which received the signal.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -313,11 +199,11 @@
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title='The "tab-opened" signal'>
+<div class="refsect2">
 <a name="BamfTabSource-tab-opened"></a><h3>The <code class="literal">"tab-opened"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfTabSource.html" title="BamfTabSource"><span class="type">BamfTabSource</span></a> *bamftabsource,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>         *arg1,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)          : Run First</pre>
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)          : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a></pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -325,13 +211,7 @@
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bamftabsource</code></em> :</span></p></td>
-<td>the object which received the signal.
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg1</code></em> :</span></p></td>
-<td>
-</td>
+<td>the object which received the signal.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -341,13 +221,13 @@
 </table></div>
 </div>
 <hr>
-<div class="refsect2" title='The "tab-uri-changed" signal'>
+<div class="refsect2">
 <a name="BamfTabSource-tab-uri-changed"></a><h3>The <code class="literal">"tab-uri-changed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfTabSource.html" title="BamfTabSource"><span class="type">BamfTabSource</span></a> *bamftabsource,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>         *arg1,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>         *arg2,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a>         *arg3,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)          : Run First</pre>
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)          : <a href="http://library.gnome.org/devel/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS"><code class="literal">Run First</code></a></pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -355,23 +235,7 @@
 <tbody>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>bamftabsource</code></em> :</span></p></td>
-<td>the object which received the signal.
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg1</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg2</code></em> :</span></p></td>
-<td>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>arg3</code></em> :</span></p></td>
-<td>
-</td>
+<td>the object which received the signal.</td>
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>user_data</code></em> :</span></p></td>
@@ -384,6 +248,6 @@
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.15</div>
+          Generated by GTK-Doc V1.16</div>
 </body>
 </html>
