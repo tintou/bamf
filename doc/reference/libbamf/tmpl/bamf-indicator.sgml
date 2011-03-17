@@ -35,12 +35,6 @@ BamfIndicator
 
 @parent_class: 
 
-<!-- ##### STRUCT BamfIndicatorPrivate ##### -->
-<para>
-
-</para>
-
-
 <!-- ##### FUNCTION bamf_indicator_get_remote_path ##### -->
 <para>
 
@@ -66,5 +60,11 @@ BamfIndicator
 
 @self: 
 @Returns: 
+
+
+<!-- ##### STRUCT BamfIndicatorPrivate ##### -->
+<para>
+
+</para>
 
 
