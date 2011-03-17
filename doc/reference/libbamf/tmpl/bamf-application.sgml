@@ -49,12 +49,6 @@ BamfApplication
 
 @parent_class: 
 
-<!-- ##### STRUCT BamfApplicationPrivate ##### -->
-<para>
-
-</para>
-
-
 <!-- ##### FUNCTION bamf_application_get_application_type ##### -->
 <para>
 
@@ -98,5 +92,11 @@ BamfApplication
 
 @application: 
 @Returns: 
+
+
+<!-- ##### STRUCT BamfApplicationPrivate ##### -->
+<para>
+
+</para>
 
 

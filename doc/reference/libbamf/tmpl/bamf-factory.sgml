@@ -33,12 +33,6 @@ BamfFactory
 
 @parent_class: 
 
-<!-- ##### STRUCT BamfFactoryPrivate ##### -->
-<para>
-
-</para>
-
-
 <!-- ##### FUNCTION bamf_factory_view_for_path ##### -->
 <para>
 
@@ -67,5 +61,11 @@ BamfFactory
 
 @void: 
 @Returns: 
+
+
+<!-- ##### STRUCT BamfFactoryPrivate ##### -->
+<para>
+
+</para>
 
 

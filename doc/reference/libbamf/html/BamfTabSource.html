@@ -46,7 +46,6 @@
 <pre class="synopsis">#define             <a class="link" href="BamfTabSource.html#BAMF-TAB-SOURCE-CONST:CAPS" title="BAMF_TAB_SOURCE_CONST()">BAMF_TAB_SOURCE_CONST</a>               (obj)
 struct              <a class="link" href="BamfTabSource.html#BamfTabSource-struct" title="struct BamfTabSource">BamfTabSource</a>;
 struct              <a class="link" href="BamfTabSource.html#BamfTabSourceClass" title="struct BamfTabSourceClass">BamfTabSourceClass</a>;
-                    <a class="link" href="BamfTabSource.html#BamfTabSourcePrivate" title="BamfTabSourcePrivate">BamfTabSourcePrivate</a>;
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfTabSource.html#bamf-tab-source-show-tab" title="bamf_tab_source_show_tab ()">bamf_tab_source_show_tab</a>            (<em class="parameter"><code><a class="link" href="BamfTabSource.html" title="BamfTabSource"><span class="type">BamfTabSource</span></a> *source</code></em>,
                                                          <em class="parameter"><code><span class="type">char</span> *tab_id</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Error-Reporting.html#GError"><span class="type">GError</span></a> *error</code></em>);
@@ -57,6 +56,7 @@ struct              <a class="link" href="BamfTabSource.html#BamfTabSourceClass"
                                                          <em class="parameter"><code><span class="type">char</span> *tab_id</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>             <a class="link" href="BamfTabSource.html#bamf-tab-source-get-tab-xid" title="bamf_tab_source_get_tab_xid ()">bamf_tab_source_get_tab_xid</a>         (<em class="parameter"><code><a class="link" href="BamfTabSource.html" title="BamfTabSource"><span class="type">BamfTabSource</span></a> *source</code></em>,
                                                          <em class="parameter"><code><span class="type">char</span> *tab_id</code></em>);
+                    <a class="link" href="BamfTabSource.html#BamfTabSourcePrivate" title="BamfTabSourcePrivate">BamfTabSourcePrivate</a>;
 </pre>
 </div>
 <div class="refsect1">
@@ -120,13 +120,6 @@ struct              <a class="link" href="BamfTabSource.html#BamfTabSourceClass"
 </div>
 <hr>
 <div class="refsect2">
-<a name="BamfTabSourcePrivate"></a><h3>BamfTabSourcePrivate</h3>
-<pre class="programlisting">typedef struct _BamfTabSourcePrivate BamfTabSourcePrivate;</pre>
-<p>
-</p>
-</div>
-<hr>
-<div class="refsect2">
 <a name="bamf-tab-source-show-tab"></a><h3>bamf_tab_source_show_tab ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_tab_source_show_tab            (<em class="parameter"><code><a class="link" href="BamfTabSource.html" title="BamfTabSource"><span class="type">BamfTabSource</span></a> *source</code></em>,
                                                          <em class="parameter"><code><span class="type">char</span> *tab_id</code></em>,
@@ -162,6 +155,13 @@ struct              <a class="link" href="BamfTabSource.html#BamfTabSourceClass"
 <a name="bamf-tab-source-get-tab-xid"></a><h3>bamf_tab_source_get_tab_xid ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>             bamf_tab_source_get_tab_xid         (<em class="parameter"><code><a class="link" href="BamfTabSource.html" title="BamfTabSource"><span class="type">BamfTabSource</span></a> *source</code></em>,
                                                          <em class="parameter"><code><span class="type">char</span> *tab_id</code></em>);</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="BamfTabSourcePrivate"></a><h3>BamfTabSourcePrivate</h3>
+<pre class="programlisting">typedef struct _BamfTabSourcePrivate BamfTabSourcePrivate;</pre>
 <p>
 </p>
 </div>

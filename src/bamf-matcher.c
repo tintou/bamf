@@ -586,6 +586,7 @@ get_desktop_file_directories (BamfMatcher *self)
   GList *dirs = NULL, *l;
   const char *env;
   char  *path;
+  char  *subpath;
   char **data_dirs = NULL;
   char **data;
   
@@ -643,10 +644,10 @@ get_desktop_file_directories (BamfMatcher *self)
         {
           if (g_file_info_get_file_type (info) != G_FILE_TYPE_DIRECTORY)
             continue;
-          path = g_build_filename (path, g_file_info_get_name (info), NULL);
           
+          subpath = g_build_filename (path, g_file_info_get_name (info), NULL);
           /* append for non-recursive recursion love */
-          dirs = g_list_append (dirs, path);
+          dirs = g_list_append (dirs, subpath);
 
           g_object_unref (info);
         }
