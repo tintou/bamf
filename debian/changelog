@@ -1,10 +1,10 @@
-bamf (0.2.80-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.80-0ubuntu1) natty; urgency=low
 
   * New upstream release.
     - 'Keep in launcher' item missing for some applications (LP: #657771)
     - can't pin KTouch to the launcher (LP: #693755)
 
- -- Didier Roche <didrocks@ubuntu.com>  Thu, 17 Mar 2011 16:47:07 +0100
+ -- Didier Roche <didrocks@ubuntu.com>  Thu, 17 Mar 2011 17:51:00 +0100
 
 bamf (0.2.78-0ubuntu1) natty; urgency=low
 
