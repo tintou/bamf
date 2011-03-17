@@ -153,12 +153,6 @@ BamfView
 @user_visible_changed: 
 @name_changed: 
 
-<!-- ##### STRUCT BamfViewPrivate ##### -->
-<para>
-
-</para>
-
-
 <!-- ##### FUNCTION bamf_view_get_children ##### -->
 <para>
 
@@ -265,5 +259,11 @@ BamfView
 
 @view: 
 @Returns: 
+
+
+<!-- ##### STRUCT BamfViewPrivate ##### -->
+<para>
+
+</para>
 
 
