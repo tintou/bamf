@@ -1039,6 +1039,8 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
   BamfLegacyWindow *window;
   GList *views, *a;
   char *desktop_file;
+  char *win_class;
+  char *app_class;
   BamfApplication *app = NULL, *best = NULL;
   BamfView *view;
 
@@ -1049,6 +1051,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
   views = self->priv->views;
 
   possible_apps = bamf_matcher_possible_applications_for_window (self, bamf_window);
+  win_class = window_class_name(window);
 
   /* Loop over every application, inside that application see if its .desktop file
    * matches with any of our possible hits. If so we match it. If we have no possible hits
@@ -1062,8 +1065,16 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
         continue;
 
       app = BAMF_APPLICATION (view);
+      app_class = bamf_application_get_class (app);
+
+      if (app_class != NULL && g_strcmp0 (win_class, app_class) != 0)
+        {
+          g_free (app_class);
+          continue;
+        }
+
       desktop_file = bamf_application_get_desktop_file (app);
-      
+
       if (possible_apps)
         {
           /* primary matching */
@@ -1084,7 +1095,8 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
           if (bamf_application_contains_similar_to_window (app, bamf_window))
             best = app;
         }
-        
+
+      g_free (app_class);
       g_free (desktop_file);
     }
 
@@ -1095,16 +1107,19 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
       else
         best = bamf_application_new ();
 
+      bamf_application_set_class (best, win_class);
+
       bamf_matcher_register_view (self, BAMF_VIEW (best));
       g_object_unref (best);
     }
 
- for (l = possible_apps; l; l = l->next)
-  {
-    char *str = l->data;
-    g_free (str);
-  }
+  g_free (win_class);
 
+  for (l = possible_apps; l; l = l->next)
+    {
+      char *str = l->data;
+      g_free (str);
+    }
 
   g_list_free (possible_apps);
 
