@@ -612,7 +612,7 @@ get_desktop_file_directories (BamfMatcher *self)
   if (!g_list_find_custom (dirs, "/usr/local/share/applications", (GCompareFunc) g_strcmp0))
     dirs = g_list_prepend (dirs, g_strdup ("/usr/local/share/applications"));
   
-  dirs = g_list_prepend (dirs, g_strdup (g_build_filename (g_get_home_dir (), ".share/applications", NULL)));
+  dirs = g_list_prepend (dirs, g_strdup (g_build_filename (g_get_home_dir (), ".local/share/applications", NULL)));
   
   if (data_dirs)
     g_strfreev (data_dirs);
