@@ -61,6 +61,7 @@ struct _BamfMatcherPrivate
   GArray          * known_pids;
   GHashTable      * desktop_id_table;
   GHashTable      * desktop_file_table;
+  GHashTable      * desktop_class_table;
   GHashTable      * exec_list;
   GHashTable      * registered_pids;
   GList           * views;
@@ -416,17 +417,41 @@ insert_data_into_tables (BamfMatcher *self,
       file_list = g_list_append (file_list, datadup);
       id_list   = g_list_append (id_list,   datadup);
     }
-      
+
   g_hash_table_insert (desktop_file_table, g_strdup (exec),       file_list);
   g_hash_table_insert (desktop_id_table,   g_strdup (desktop_id), id_list);
+}
 
+static void
+insert_desktop_file_class_into_table (BamfMatcher *self,
+                                      const char *desktop_file,
+                                      GHashTable *desktop_class_table)
+{
+  GKeyFile *desktop_keyfile;
+  char *class;
+
+  g_return_if_fail (desktop_file);
+
+  desktop_keyfile = g_key_file_new ();
+
+  if (g_key_file_load_from_file (desktop_keyfile, desktop_file, G_KEY_FILE_NONE, NULL))
+    {
+      class = g_key_file_get_string (desktop_keyfile,
+                                     G_KEY_FILE_DESKTOP_GROUP,
+                                     G_KEY_FILE_DESKTOP_KEY_STARTUP_WM_CLASS, NULL);
+      if (class)
+        g_hash_table_insert (desktop_class_table, g_strdup (desktop_file), class);
+
+      g_key_file_free (desktop_keyfile);
+    }
 }
 
 static void
 load_desktop_file_to_table (BamfMatcher * self,
                             const char *file,
                             GHashTable *desktop_file_table,
-                            GHashTable *desktop_id_table)
+                            GHashTable *desktop_id_table,
+                            GHashTable *desktop_class_table)
 {
   GAppInfo *desktop_file;
   char *exec;
@@ -467,6 +492,7 @@ load_desktop_file_to_table (BamfMatcher * self,
   desktop_id = g_string_truncate (desktop_id, desktop_id->len - 8); /* remove last 8 characters for .desktop */
   
   insert_data_into_tables (self, file, exec, desktop_id->str, desktop_file_table, desktop_id_table);
+  insert_desktop_file_class_into_table (self, file, desktop_class_table);
 
   g_free (exec);
   g_string_free (desktop_id, TRUE);
@@ -476,7 +502,8 @@ static void
 load_directory_to_table (BamfMatcher * self,
                          const char *directory,
                          GHashTable *desktop_file_table,
-                         GHashTable *desktop_id_table)
+                         GHashTable *desktop_id_table,
+                         GHashTable *desktop_class_table)
 {
   GFile *dir;
   GFileEnumerator *enumerator;
@@ -506,7 +533,8 @@ load_directory_to_table (BamfMatcher * self,
         load_desktop_file_to_table (self,
                                     path,
                                     desktop_file_table,
-                                    desktop_id_table);
+                                    desktop_id_table,
+                                    desktop_class_table);
 
       g_free ((gpointer) path);
       g_object_unref (info);
@@ -520,7 +548,8 @@ static void
 load_index_file_to_table (BamfMatcher * self,
                           const char *index_file,
                           GHashTable *desktop_file_table,
-                          GHashTable *desktop_id_table)
+                          GHashTable *desktop_id_table,
+                          GHashTable *desktop_class_table)
 {
   GFile *file;
   GFileInputStream *stream;
@@ -569,6 +598,7 @@ load_index_file_to_table (BamfMatcher * self,
       g_string_truncate (desktop_id, desktop_id->len - 8);
       
       insert_data_into_tables (self, filename->str, exec, desktop_id->str, desktop_file_table, desktop_id_table);
+      insert_desktop_file_class_into_table (self, filename->str, desktop_class_table);
 
       g_string_free (desktop_id, TRUE);
       length = 0;
@@ -690,6 +720,7 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
     {
       g_hash_table_foreach_remove (self->priv->desktop_id_table, (GHRFunc) hash_table_remove_values, path);
       g_hash_table_foreach_remove (self->priv->desktop_file_table, (GHRFunc) hash_table_remove_values, path);
+      g_hash_table_remove (self->priv->desktop_class_table, path);
     }
 
 out:
@@ -697,7 +728,10 @@ out:
 }
 
 static void
-create_desktop_file_table (BamfMatcher * self, GHashTable **desktop_file_table, GHashTable **desktop_id_table)
+create_desktop_file_table (BamfMatcher * self,
+                           GHashTable **desktop_file_table,
+                           GHashTable **desktop_id_table,
+                           GHashTable **desktop_class_table)
 {
   GList *directories;
   GList *l;
@@ -717,6 +751,12 @@ create_desktop_file_table (BamfMatcher * self, GHashTable **desktop_file_table, 
                            (GEqualFunc) g_str_equal,
                            (GDestroyNotify) g_free,
                            NULL);
+
+  *desktop_class_table =
+    g_hash_table_new_full ((GHashFunc) g_str_hash,
+                           (GEqualFunc) g_str_equal,
+                           (GDestroyNotify) g_free,
+                           (GDestroyNotify) g_free);
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
 
@@ -740,11 +780,11 @@ create_desktop_file_table (BamfMatcher * self, GHashTable **desktop_file_table, 
 
       if (g_file_test (bamf_file, G_FILE_TEST_EXISTS))
         {
-          load_index_file_to_table (self, bamf_file, *desktop_file_table, *desktop_id_table);
+          load_index_file_to_table (self, bamf_file, *desktop_file_table, *desktop_id_table, *desktop_class_table);
         }
       else
         {
-          load_directory_to_table (self, directory, *desktop_file_table, *desktop_id_table);
+          load_directory_to_table (self, directory, *desktop_file_table, *desktop_id_table, *desktop_class_table);
         }
 
       g_free (directory);
@@ -1355,7 +1395,8 @@ bamf_matcher_load_desktop_file (BamfMatcher * self,
   load_desktop_file_to_table (self,
                               desktop_file,
                               self->priv->desktop_file_table,
-                              self->priv->desktop_id_table);
+                              self->priv->desktop_id_table,
+                              self->priv->desktop_class_table);
 }
 
 void
@@ -1746,7 +1787,7 @@ bamf_matcher_init (BamfMatcher * self)
 
   g_array_free (prefixstrings, TRUE);
 
-  create_desktop_file_table (self, &(priv->desktop_file_table), &(priv->desktop_id_table));
+  create_desktop_file_table (self, &(priv->desktop_file_table), &(priv->desktop_id_table), &(priv->desktop_class_table));
 
   screen = bamf_legacy_screen_get_default ();
   g_signal_connect (G_OBJECT (screen), "window-opened",
