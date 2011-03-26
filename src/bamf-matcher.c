@@ -1059,8 +1059,25 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
                 }
             }
 
-           desktop_files = g_list_reverse (desktop_files);
-       }
+          desktop_files = g_list_reverse (desktop_files);
+        }
+
+      /* Iterate over the desktop class table, and add matching desktop files */
+      gpointer key;
+      gpointer value;
+      GHashTableIter iter;
+      g_hash_table_iter_init (&iter, priv->desktop_class_table);
+
+      while (g_hash_table_iter_next (&iter, &key, &value))
+        {
+          desktop_file = g_strdup (key);
+          desktop_class = value;
+          if (g_strcmp0 (desktop_class, window_class) == 0 &&
+              !g_list_find_custom (desktop_files, desktop_file, (GCompareFunc) g_strcmp0))
+            {
+              desktop_files = g_list_prepend (desktop_files, desktop_file);
+            }
+        }
 
       pid = bamf_legacy_window_get_pid (window);
       pid_list = bamf_matcher_possible_applications_for_pid (self, pid);
