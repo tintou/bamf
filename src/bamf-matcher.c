@@ -1033,38 +1033,64 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
     }
   else
     {
-      char *class_name = window_class_name (window);
-
-      if (class_name)
+      char *window_class = window_class_name (window);
+      
+      char *desktop_file;
+      char *desktop_class;
+      
+      if (window_class)
         {
-          class_name = g_ascii_strdown (class_name, -1);
-          l = g_hash_table_lookup (priv->desktop_id_table, class_name);
+          char *window_class_down = g_ascii_strdown (g_strdup(window_class), -1);
+          l = g_hash_table_lookup (priv->desktop_id_table, window_class_down);
+          g_free (window_class_down);
 
           for (; l; l = l->next)
             {
-              if (l->data && !g_list_find_custom (desktop_files, l->data, (GCompareFunc) g_strcmp0))
-                desktop_files = g_list_prepend (desktop_files, g_strdup (l->data));
+              desktop_file = l->data;
+              if (desktop_file)
+                {
+                  desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
+                  if ((desktop_class == NULL || g_strcmp0 (desktop_class, window_class) == 0) &&
+                      !g_list_find_custom (desktop_files, desktop_file,
+                                           (GCompareFunc) g_strcmp0))
+                    {
+                      desktop_files = g_list_prepend (desktop_files, g_strdup (desktop_file));
+                    }
+                }
             }
 
-         desktop_files = g_list_reverse (desktop_files);
-         g_free (class_name);
+           desktop_files = g_list_reverse (desktop_files);
        }
 
       pid = bamf_legacy_window_get_pid (window);
-      
       pid_list = bamf_matcher_possible_applications_for_pid (self, pid);
       
-      /* Append these files to the end to give preference to class_name style picking.
+      /* Append these files to the end to give preference to window_class style picking.
          This style of matching is prefered and used by GNOME Shell however does not work
          very well in practice, thus requiring the fallback here */
       for (l = pid_list; l; l = l->next)
         {
+          desktop_file = l->data;
           if (g_list_find_custom (desktop_files, l->data, (GCompareFunc) g_strcmp0))
-            g_free (l->data);
+            g_free (desktop_file);
           else
-            desktop_files = g_list_append (desktop_files, l->data);
+            {
+              if (window_class)
+                {
+                  desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
+                  if ((desktop_class == NULL || g_strcmp0 (desktop_class, window_class) == 0) &&
+                      !g_list_find_custom (desktop_files, desktop_file,
+                                           (GCompareFunc) g_strcmp0))
+                    {
+                      desktop_files = g_list_append (desktop_files, desktop_file);
+                    }
+                }
+              else
+                desktop_files = g_list_append (desktop_files, desktop_file);
+            }
         }
-      
+
+      g_free (window_class);
       g_list_free (pid_list);
     }
   
