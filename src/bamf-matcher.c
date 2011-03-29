@@ -1148,7 +1148,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
         continue;
 
       app = BAMF_APPLICATION (view);
-      app_class = bamf_application_get_class (app);
+      app_class = bamf_application_get_wmclass (app);
 
       if (app_class != NULL && g_strcmp0 (win_class, app_class) != 0)
         {
@@ -1190,7 +1190,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
       else
         best = bamf_application_new ();
 
-      bamf_application_set_class (best, win_class);
+      bamf_application_set_wmclass (best, win_class);
 
       bamf_matcher_register_view (self, BAMF_VIEW (best));
       g_object_unref (best);
