@@ -2,8 +2,8 @@ Source: bamf
 Section: libs
 Priority: optional
 Maintainer: Ubuntu Core Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-Build-Depends: debhelper (>= 5.0),
-               cdbs (>= 0.4.41~),
+Build-Depends: debhelper (>= 8.1.2ubuntu2),
+               cdbs (>= 0.4.90ubuntu9),
                libglib2.0-dev (>= 2.23.0-1ubuntu3~),
                libwnck-dev,
                libgtop2-dev,
@@ -25,6 +25,7 @@ Package: bamfdaemon
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
+Multi-Arch: foreign
 Description: Window matching library - daemon
  bamf matches application windows to desktop files
  .
@@ -38,6 +39,8 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          bamfdaemon (= ${binary:Version}),
 Breaks: unity (<< 3.2.12)
+Pre-Depends: ${misc:Pre-Depends}
+Multi-Arch: same
 Description: Window matching library - shared library
  bamf matches application windows to desktop files
  .
@@ -78,6 +81,7 @@ Priority: extra
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          libbamf0 (= ${binary:Version}),
+Multi-Arch: same
 Description: Window matching library - debugging symbols
  bamf matches application windows to desktop files
  .

@@ -1,3 +1,13 @@
+bamf (0.2.80-0ubuntu2) natty; urgency=low
+
+  * Fix a FTBFS with current libglib2.0 due to the giomodules path changing
+    for multiarch.
+  * As long as we're in here, multiarch the whole package; bamf has no
+    reverse-depends, so there's no risk of causing other build failures, and
+    moving the giomodules takes us halfway there anyway.
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Tue, 29 Mar 2011 19:50:12 +0000
+
 bamf (0.2.80-0ubuntu1) natty; urgency=low
 
   * New upstream release.
