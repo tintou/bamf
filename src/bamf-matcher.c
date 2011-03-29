@@ -434,11 +434,13 @@ insert_desktop_file_class_into_table (BamfMatcher *self,
 
   desktop_keyfile = g_key_file_new ();
 
-  if (g_key_file_load_from_file (desktop_keyfile, desktop_file, G_KEY_FILE_NONE, NULL))
+  if (g_key_file_load_from_file (desktop_keyfile, desktop_file, G_KEY_FILE_NONE,
+                                 NULL))
     {
       class = g_key_file_get_string (desktop_keyfile,
                                      G_KEY_FILE_DESKTOP_GROUP,
-                                     G_KEY_FILE_DESKTOP_KEY_STARTUP_WM_CLASS, NULL);
+                                     G_KEY_FILE_DESKTOP_KEY_STARTUP_WM_CLASS,
+                                     NULL);
       if (class)
         g_hash_table_insert (desktop_class_table, g_strdup (desktop_file), class);
 
@@ -780,11 +782,13 @@ create_desktop_file_table (BamfMatcher * self,
 
       if (g_file_test (bamf_file, G_FILE_TEST_EXISTS))
         {
-          load_index_file_to_table (self, bamf_file, *desktop_file_table, *desktop_id_table, *desktop_class_table);
+          load_index_file_to_table (self, bamf_file, *desktop_file_table,
+                                    *desktop_id_table, *desktop_class_table);
         }
       else
         {
-          load_directory_to_table (self, directory, *desktop_file_table, *desktop_id_table, *desktop_class_table);
+          load_directory_to_table (self, directory, *desktop_file_table,
+                                   *desktop_id_table, *desktop_class_table);
         }
 
       g_free (directory);
@@ -1830,11 +1834,13 @@ bamf_matcher_init (BamfMatcher * self)
 
   g_array_free (prefixstrings, TRUE);
 
-  create_desktop_file_table (self, &(priv->desktop_file_table), &(priv->desktop_id_table), &(priv->desktop_class_table));
+  create_desktop_file_table (self, &(priv->desktop_file_table),
+                             &(priv->desktop_id_table),
+                             &(priv->desktop_class_table));
 
   screen = bamf_legacy_screen_get_default ();
   g_signal_connect (G_OBJECT (screen), "window-opened",
-		    (GCallback) handle_window_opened, self);
+                    (GCallback) handle_window_opened, self);
 
   approver = bamf_indicator_source_get_default ();
   g_signal_connect (G_OBJECT (approver), "indicator-opened",
