@@ -17,6 +17,7 @@
  *
  */
 
+#include <gdk/gdkx.h>
 
 #include "bamf-marshal.h"
 #include "bamf-matcher.h"
@@ -775,12 +776,25 @@ get_window_hint (BamfMatcher *self,
   gulong numItems;
   gulong bytesAfter;
   unsigned char *buffer;
+  gboolean close_display = TRUE;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
   g_return_val_if_fail (atom_name, NULL);
 
   XDisplay = XOpenDisplay (NULL);
+  if (!XDisplay)
+  {
+    XDisplay = gdk_x11_get_default_xdisplay ();
+    if (!XDisplay)
+    {
+      g_warning ("%s: Unable to get a valid XDisplay", G_STRFUNC);
+      return hint;
+    }
+    
+    close_display = FALSE;
+  }
+
   atom = XInternAtom (XDisplay, atom_name, FALSE);
 
   int result = XGetWindowProperty (XDisplay,
@@ -796,7 +810,8 @@ get_window_hint (BamfMatcher *self,
 				   &bytesAfter,
 				   &buffer);
 
-  XCloseDisplay (XDisplay);
+  if (close_display)
+    XCloseDisplay (XDisplay);
 
   if (result == Success && numItems > 0)
     {
@@ -814,6 +829,7 @@ set_window_hint (BamfMatcher * self,
                  const char *data)
 {
   Display *XDisplay;
+  gboolean close_display = TRUE;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_LEGACY_WINDOW (window));
@@ -821,6 +837,16 @@ set_window_hint (BamfMatcher * self,
   g_return_if_fail (data);
   
   XDisplay = XOpenDisplay (NULL);
+  if (!XDisplay)
+  {
+    XDisplay = gdk_x11_get_default_xdisplay ();
+    if (!XDisplay)
+    {
+      g_warning ("%s: Unable to get a valid XDisplay", G_STRFUNC);
+      return;
+    }
+    close_display = FALSE;
+  }
 
   XChangeProperty (XDisplay,
 		   bamf_legacy_window_get_xid (window),
@@ -832,6 +858,8 @@ set_window_hint (BamfMatcher * self,
 		   PropModeReplace,
 		   (unsigned char *) data,
 		   strlen (data));
+
+  if (close_display)
   XCloseDisplay (XDisplay);
 }
 
