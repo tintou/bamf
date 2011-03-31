@@ -48,6 +48,7 @@ struct _BamfApplicationPrivate
   GList * desktop_file_list;
   char * app_type;
   char * icon;
+  char * wmclass;
   gboolean is_tab_container;
   gboolean show_stubs;
 };
@@ -80,6 +81,19 @@ bamf_application_get_desktop_file (BamfApplication *application)
   priv = application->priv;
 
   result = g_strdup (priv->desktop_file);
+  return result;
+}
+
+char *
+bamf_application_get_wmclass (BamfApplication *application)
+{
+  BamfApplicationPrivate *priv;
+  char *result = NULL;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
+  priv = application->priv;
+
+  result = g_strdup (priv->wmclass);
   return result;
 }
 
@@ -212,6 +226,18 @@ bamf_application_set_desktop_file (BamfApplication *application,
   bamf_application_setup_icon_and_name (application);
 }
 
+void
+bamf_application_set_wmclass (BamfApplication *application,
+                            char *wmclass)
+{
+  g_return_if_fail (BAMF_IS_APPLICATION (application));
+
+  if (wmclass && wmclass[0] != '\0')
+    application->priv->wmclass = g_strdup (wmclass);
+  else
+    application->priv->wmclass = NULL;
+}
+
 GArray *
 bamf_application_get_xids (BamfApplication *application)
 {
@@ -312,12 +338,15 @@ bamf_application_get_stable_bus_name (BamfView *view)
   GList *children, *l;
   BamfView *child;
 
-  g_return_val_if_fail (BAMF_IS_APPLICATION (view), NULL);  
+  g_return_val_if_fail (BAMF_IS_APPLICATION (view), NULL);
   self = BAMF_APPLICATION (view);
-  
+
+  if (self->priv->wmclass)
+    return g_strdup_printf ("application%i", abs (g_str_hash (self->priv->wmclass)));
+
   if (self->priv->desktop_file)
     return g_strdup_printf ("application%i", abs (g_str_hash (self->priv->desktop_file)));
-  
+
   children = bamf_view_get_children (BAMF_VIEW (self));
   for (l = children; l; l = l->next)
     {
@@ -562,6 +591,12 @@ bamf_application_dispose (GObject *object)
       g_free (priv->app_type);
       priv->app_type = NULL;
     }
+
+  if (priv->wmclass)
+    {
+      g_free (priv->wmclass);
+      priv->wmclass = NULL;
+    }
   
   g_signal_handlers_disconnect_by_func (G_OBJECT (bamf_matcher_get_default ()), matcher_favorites_changed, object);
 
@@ -577,6 +612,7 @@ bamf_application_init (BamfApplication * self)
   priv->is_tab_container = FALSE;
   priv->app_type = g_strdup ("system");
   priv->show_stubs = TRUE;
+  priv->wmclass = NULL;
   
   g_signal_connect (G_OBJECT (bamf_matcher_get_default ()), "favorites-changed", 
                     (GCallback) matcher_favorites_changed, self);
@@ -649,6 +685,17 @@ bamf_application_new_from_desktop_files (GList *desktop_files)
   bamf_application_set_desktop_file_from_list (application, desktop_files);
   
   return application;  
+}
+
+BamfApplication *
+bamf_application_new_with_wmclass (char *wmclass)
+{
+  BamfApplication *application;
+  application = (BamfApplication *) g_object_new (BAMF_TYPE_APPLICATION, NULL);
+
+  bamf_application_set_wmclass (application, wmclass);
+
+  return application;
 }
 
 /**
