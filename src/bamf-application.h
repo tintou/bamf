@@ -66,11 +66,17 @@ gboolean          bamf_application_manages_xid           (BamfApplication *appli
 gboolean          bamf_application_contains_similar_to_window (BamfApplication *app, 
                                                                BamfWindow *window);
 
+char            * bamf_application_get_wmclass             (BamfApplication *application);
+void              bamf_application_set_wmclass             (BamfApplication *application,
+                                                            char *wmclass);
+
 BamfApplication * bamf_application_new                   (void);
 
 BamfApplication * bamf_application_new_from_desktop_file (char * desktop_file);
 gboolean          bamf_application_get_show_stubs        (BamfApplication *application);
 
 BamfApplication * bamf_application_new_from_desktop_files (GList * desktop_files);
+
+BamfApplication * bamf_application_new_with_wmclass (char *wmclass);
 
 #endif
