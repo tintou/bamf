@@ -1,6 +1,9 @@
 bamf (0.2.82-0ubuntu1) UNRELEASED; urgency=low
 
   * New upstream release.
+    - bamfdaemon crashed with SIGSEGV in XInternAtom() (LP: #743407)
+    - catch more cases for 'Keep in Launcher' by recognizing StatupWMClass
+      from .desktop file (LP: #693231)
 
  -- Didier Roche <didrocks@ubuntu.com>  Fri, 01 Apr 2011 08:28:03 +0200
 
