@@ -1,4 +1,4 @@
-bamf (0.2.84-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.84-0ubuntu1) natty; urgency=low
 
   * New upstream release.
     - unity-panel-service crashed with SIGSEGV in bamf_factory_view_for_path()
@@ -7,7 +7,7 @@ bamf (0.2.84-0ubuntu1) UNRELEASED; urgency=low
       (LP: #739218)
     - compiz crashed with SIGSEGV in g_utf8_validate() (LP: #736792)
 
- -- Didier Roche <didrocks@ubuntu.com>  Thu, 07 Apr 2011 16:34:33 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Thu, 07 Apr 2011 17:17:54 +0200
 
 bamf (0.2.82-0ubuntu1) natty; urgency=low
 
