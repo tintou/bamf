@@ -46,6 +46,7 @@ struct _BamfLegacyWindowPrivate
   gulong       closed_id;
   gulong       name_changed_id;
   gulong       state_changed_id;
+  gboolean     is_closed;
 };
 
 gboolean
@@ -290,6 +291,14 @@ handle_state_changed (WnckWindow *window,
   g_signal_emit (self, legacy_window_signals[STATE_CHANGED], 0);
 }
 
+gboolean 
+bamf_legacy_window_is_closed (BamfLegacyWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), TRUE);
+  
+  return self->priv->is_closed;
+}
+
 static void
 handle_window_closed (WnckScreen *screen,
                       WnckWindow *window,
@@ -297,6 +306,8 @@ handle_window_closed (WnckScreen *screen,
 {
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
   g_return_if_fail (WNCK_IS_WINDOW (window));
+  
+  self->priv->is_closed = TRUE;
 
   if (window == self->priv->legacy_window)
     {
