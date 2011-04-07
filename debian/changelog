@@ -1,6 +1,11 @@
 bamf (0.2.84-0ubuntu1) UNRELEASED; urgency=low
 
   * New upstream release.
+    - unity-panel-service crashed with SIGSEGV in bamf_factory_view_for_path()
+      (LP: #717684)
+    - bamfdaemon crashed with SIGABRT in dbus_g_connection_register_g_object()
+      (LP: #739218)
+    - compiz crashed with SIGSEGV in g_utf8_validate() (LP: #736792)
 
  -- Didier Roche <didrocks@ubuntu.com>  Thu, 07 Apr 2011 16:34:33 +0200
 
