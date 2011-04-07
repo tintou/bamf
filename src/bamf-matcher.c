@@ -1334,9 +1334,16 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
 static gboolean
 open_office_window_setup_timer (OpenOfficeTimeoutArgs *args)
 {
+  if (bamf_legacy_window_is_closed (args->window))
+  {
+    g_object_unref (args->window);
+    return FALSE;
+  }
+
   args->count++;
   if (args->count > 20 || get_open_office_window_hint (args->matcher, args->window))  
     {
+      g_object_unref (args->window);
       handle_raw_window (args->matcher, args->window);
       return FALSE;
     }
@@ -1366,6 +1373,8 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
       OpenOfficeTimeoutArgs* args = (OpenOfficeTimeoutArgs*) g_malloc0 (sizeof (OpenOfficeTimeoutArgs));
       args->matcher = self;
       args->window = window;
+      
+      g_object_ref (window);
       /* we have an open office window who is not ready to match yet */
       g_timeout_add (100, (GSourceFunc) open_office_window_setup_timer, args);
     }
