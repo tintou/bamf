@@ -104,7 +104,7 @@ on_view_closed (BamfView *view, BamfFactory *self)
 static void
 on_view_weak_unref (BamfFactory *self, BamfView *view)
 {
-  g_return_if_fail (BAMF_IS_VIEW (view));
+  g_return_if_fail (BAMF_IS_FACTORY (self));
   self->priv->local_views = g_list_remove (self->priv->local_views, view);
 }
 

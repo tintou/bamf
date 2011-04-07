@@ -92,6 +92,8 @@ gboolean           bamf_legacy_window_is_skip_tasklist  (BamfLegacyWindow *self)
 
 gboolean           bamf_legacy_window_needs_attention   (BamfLegacyWindow *self);
 
+gboolean           bamf_legacy_window_is_closed         (BamfLegacyWindow *self);
+
 BamfWindowType     bamf_legacy_window_get_window_type   (BamfLegacyWindow *self);
 
 const char       * bamf_legacy_window_get_class_name    (BamfLegacyWindow *self);
