@@ -341,9 +341,6 @@ bamf_application_get_stable_bus_name (BamfView *view)
   g_return_val_if_fail (BAMF_IS_APPLICATION (view), NULL);
   self = BAMF_APPLICATION (view);
 
-  if (self->priv->wmclass)
-    return g_strdup_printf ("application%i", abs (g_str_hash (self->priv->wmclass)));
-
   if (self->priv->desktop_file)
     return g_strdup_printf ("application%i", abs (g_str_hash (self->priv->desktop_file)));
 
