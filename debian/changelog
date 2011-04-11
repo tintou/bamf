@@ -1,4 +1,4 @@
-bamf (0.2.86-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.86-0ubuntu1) natty; urgency=low
 
   * New upstream release.
     - bamfdaemon crashed with SIGABRT in dbus_g_connection_register_g_object()
@@ -6,7 +6,7 @@ bamf (0.2.86-0ubuntu1) UNRELEASED; urgency=low
     - bamfdaemon crashed with SIGABRT in dbus_g_connection_register_g_object()
       (LP: #754225)
 
- -- Didier Roche <didrocks@ubuntu.com>  Mon, 11 Apr 2011 11:01:49 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Mon, 11 Apr 2011 12:41:48 +0200
 
 bamf (0.2.84-0ubuntu2) natty; urgency=low
 
