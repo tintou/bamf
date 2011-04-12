@@ -1172,7 +1172,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
    * matches with any of our possible hits. If so we match it. If we have no possible hits
    * fall back to secondary matching. 
    */
-  for (a = views; a && !best; a = a->next)
+  for (a = views; a; a = a->next)
     {
       view = a->data;
 
@@ -1181,12 +1181,6 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
 
       app = BAMF_APPLICATION (view);
       app_class = bamf_application_get_wmclass (app);
-
-      if (app_class != NULL && g_strcmp0 (win_class, app_class) != 0)
-        {
-          g_free (app_class);
-          continue;
-        }
 
       desktop_file = bamf_application_get_desktop_file (app);
 
@@ -1198,7 +1192,8 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
             {
               if (g_strcmp0 (desktop_file, l->data) == 0)
                 {
-                  best = app;
+                  if (!best || !g_strcmp0 (win_class, app_class))
+                    best = app;
                   break;
                 }
             }
@@ -1207,12 +1202,12 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
         {
           /* secondary matching */
           
-          if (bamf_application_contains_similar_to_window (app, bamf_window))
+          if (bamf_application_contains_similar_to_window (app, bamf_window) && (!best || !g_strcmp0 (win_class, app_class)))
             best = app;
         }
 
-      g_free (app_class);
       g_free (desktop_file);
+      g_free (app_class);
     }
 
   if (!best)
