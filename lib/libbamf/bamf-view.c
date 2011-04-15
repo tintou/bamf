@@ -324,7 +324,7 @@ bamf_view_get_icon (BamfView *self)
     return BAMF_VIEW_GET_CLASS (self)->get_icon (self);
 
   if (!bamf_view_remote_ready (self))
-    return priv->local_icon;
+    return g_strdup (priv->local_icon);
 
   if (!dbus_g_proxy_call (priv->proxy,
                           "Icon",
