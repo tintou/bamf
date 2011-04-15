@@ -1,8 +1,8 @@
-bamf (0.2.86-0ubuntu3) UNRELEASED; urgency=low
+bamf (0.2.86-0ubuntu3) natty; urgency=low
 
   * Cherry-pick a crash fix in unity with double free corruption (LP: #761372)
 
- -- Didier Roche <didrocks@ubuntu.com>  Fri, 15 Apr 2011 12:48:50 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 15 Apr 2011 12:49:24 +0200
 
 bamf (0.2.86-0ubuntu2) natty; urgency=low
 
