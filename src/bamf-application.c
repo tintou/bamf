@@ -185,7 +185,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
             }
           while (FALSE);
 
-          name = g_strdup (bamf_legacy_window_get_class_name (bamf_window_get_window (window)));
+          name = g_strdup (bamf_legacy_window_get_name (bamf_window_get_window (window)));
         }
         
       if (!icon)
@@ -436,13 +436,6 @@ bamf_application_child_added (BamfView *view, BamfView *child)
       else
         g_signal_connect (G_OBJECT (child), "exported",
                           (GCallback) view_exported, view);
-    }
-
-  // If we're not a real application, get some properties from our first child
-  if (application->priv->desktop_file == NULL)
-    {
-      if (bamf_view_get_name (view) == NULL)
-        bamf_view_set_name (view, bamf_view_get_name (child));
     }
 
   g_signal_connect (G_OBJECT (child), "active-changed",
