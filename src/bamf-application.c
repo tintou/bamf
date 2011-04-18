@@ -120,6 +120,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
   GList *children, *l;
   const char *class;
   char *icon = NULL, *name = NULL;
+  GError *error;
 
   g_return_if_fail (BAMF_IS_APPLICATION (self));
 
@@ -152,6 +153,25 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
            off the stub menus. */
         self->priv->show_stubs = g_key_file_get_boolean(keyfile, G_KEY_FILE_DESKTOP_GROUP, STUB_KEY, NULL);
       }
+      
+      if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL))
+    	  {
+    	    /* Grab the better name if its available */
+    	    gchar *fullname = NULL;
+    	    error = NULL; 
+    	    fullname = g_key_file_get_string (keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", &error);
+    	    if (error != NULL)
+    	      {
+    	        g_error_free (error);
+    	        if (fullname)
+    	          g_free (fullname);
+    	      }
+    	    else
+    	      {
+    	        g_free (name);
+    	        name = fullname;
+    	      }
+    	  }
 
       g_object_unref (desktop);
       g_key_file_free(keyfile);
