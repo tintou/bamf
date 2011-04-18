@@ -159,7 +159,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
     	    /* Grab the better name if its available */
     	    gchar *fullname = NULL;
     	    error = NULL; 
-    	    fullname = g_key_file_get_string (keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", &error);
+    	    fullname = g_key_file_get_locale_string (keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL, &error);
     	    if (error != NULL)
     	      {
     	        g_error_free (error);
