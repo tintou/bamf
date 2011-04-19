@@ -1,6 +1,10 @@
 bamf (0.2.90-0ubuntu1) UNRELEASED; urgency=low
 
   * New upstream release.
+    - compiz assert failure: *** glibc detected *** compiz: double free or
+      corruption (out): 0x0a1c5a38 *** (LP: #761372)
+    - "Authenticate" window shows in launcher as "Polkit-gnome-authentication-
+      agent-1" (LP: #740844)
 
  -- Didier Roche <didrocks@ubuntu.com>  Tue, 19 Apr 2011 18:27:23 +0200
 
