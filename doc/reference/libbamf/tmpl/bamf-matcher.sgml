@@ -67,6 +67,12 @@ BamfMatcher
 
 @parent_class: 
 
+<!-- ##### STRUCT BamfMatcherPrivate ##### -->
+<para>
+
+</para>
+
+
 <!-- ##### FUNCTION bamf_matcher_get_default ##### -->
 <para>
 
@@ -188,11 +194,5 @@ BamfMatcher
 @desktop_file_path: 
 @create_if_not_found: 
 @Returns: 
-
-
-<!-- ##### STRUCT BamfMatcherPrivate ##### -->
-<para>
-
-</para>
 
 

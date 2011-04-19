@@ -43,6 +43,7 @@
 <a name="BamfMatcher.synopsis"></a><h2>Synopsis</h2>
 <pre class="synopsis">struct              <a class="link" href="BamfMatcher.html#BamfMatcher-struct" title="struct BamfMatcher">BamfMatcher</a>;
 struct              <a class="link" href="BamfMatcher.html#BamfMatcherClass" title="struct BamfMatcherClass">BamfMatcherClass</a>;
+                    <a class="link" href="BamfMatcher.html#BamfMatcherPrivate" title="BamfMatcherPrivate">BamfMatcherPrivate</a>;
 <a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="returnvalue">BamfMatcher</span></a> *       <a class="link" href="BamfMatcher.html#bamf-matcher-get-default" title="bamf_matcher_get_default ()">bamf_matcher_get_default</a>            (<em class="parameter"><code><span class="type">void</span></code></em>);
 <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="returnvalue">BamfApplication</span></a> *   <a class="link" href="BamfMatcher.html#bamf-matcher-get-active-application" title="bamf_matcher_get_active_application ()">bamf_matcher_get_active_application</a> (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);
 <a class="link" href="BamfWindow.html" title="BamfWindow"><span class="returnvalue">BamfWindow</span></a> *        <a class="link" href="BamfMatcher.html#bamf-matcher-get-active-window" title="bamf_matcher_get_active_window ()">bamf_matcher_get_active_window</a>      (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);
@@ -68,7 +69,6 @@ struct              <a class="link" href="BamfMatcher.html#BamfMatcherClass" tit
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *desktop_file_path</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> create_if_not_found</code></em>);
-                    <a class="link" href="BamfMatcher.html#BamfMatcherPrivate" title="BamfMatcherPrivate">BamfMatcherPrivate</a>;
 </pre>
 </div>
 <div class="refsect1">
@@ -108,6 +108,13 @@ struct              <a class="link" href="BamfMatcher.html#BamfMatcherClass" tit
   GObjectClass parent_class;
 };
 </pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="BamfMatcherPrivate"></a><h3>BamfMatcherPrivate</h3>
+<pre class="programlisting">typedef struct _BamfMatcherPrivate BamfMatcherPrivate;</pre>
 <p>
 </p>
 </div>
@@ -372,13 +379,6 @@ Used to fetch all windows that BAMF knows about.
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *desktop_file_path</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> create_if_not_found</code></em>);</pre>
-<p>
-</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="BamfMatcherPrivate"></a><h3>BamfMatcherPrivate</h3>
-<pre class="programlisting">typedef struct _BamfMatcherPrivate BamfMatcherPrivate;</pre>
 <p>
 </p>
 </div>
