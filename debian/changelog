@@ -1,3 +1,9 @@
+bamf (0.2.90-0ubuntu1) UNRELEASED; urgency=low
+
+  * New upstream release.
+
+ -- Didier Roche <didrocks@ubuntu.com>  Tue, 19 Apr 2011 18:27:23 +0200
+
 bamf (0.2.86-0ubuntu3) natty; urgency=low
 
   * Cherry-pick a crash fix in unity with double free corruption (LP: #761372)

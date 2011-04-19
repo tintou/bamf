@@ -33,6 +33,12 @@ BamfControl
 
 @parent_class: 
 
+<!-- ##### STRUCT BamfControlPrivate ##### -->
+<para>
+
+</para>
+
+
 <!-- ##### FUNCTION bamf_control_get_default ##### -->
 <para>
 
@@ -77,11 +83,5 @@ BamfControl
 
 @control: 
 @behavior: 
-
-
-<!-- ##### STRUCT BamfControlPrivate ##### -->
-<para>
-
-</para>
 
 

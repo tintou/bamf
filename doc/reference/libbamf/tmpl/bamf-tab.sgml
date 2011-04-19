@@ -52,6 +52,12 @@ BamfTab
 @_tab_padding5: 
 @_tab_padding6: 
 
+<!-- ##### STRUCT BamfTabPrivate ##### -->
+<para>
+
+</para>
+
+
 <!-- ##### FUNCTION bamf_tab_get_id ##### -->
 <para>
 
@@ -113,11 +119,5 @@ BamfTab
 @id: 
 @uri: 
 @Returns: 
-
-
-<!-- ##### STRUCT BamfTabPrivate ##### -->
-<para>
-
-</para>
 
 

@@ -77,6 +77,12 @@ BamfTabSource
 @tab_uri: 
 @tab_xid: 
 
+<!-- ##### STRUCT BamfTabSourcePrivate ##### -->
+<para>
+
+</para>
+
+
 <!-- ##### FUNCTION bamf_tab_source_show_tab ##### -->
 <para>
 
@@ -125,11 +131,5 @@ BamfTabSource
 @source: 
 @tab_id: 
 @Returns: 
-
-
-<!-- ##### STRUCT BamfTabSourcePrivate ##### -->
-<para>
-
-</para>
 
 
