@@ -1,4 +1,4 @@
-bamf (0.2.90-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.90-0ubuntu1) natty; urgency=low
 
   * New upstream release.
     - compiz assert failure: *** glibc detected *** compiz: double free or
@@ -6,7 +6,7 @@ bamf (0.2.90-0ubuntu1) UNRELEASED; urgency=low
     - "Authenticate" window shows in launcher as "Polkit-gnome-authentication-
       agent-1" (LP: #740844)
 
- -- Didier Roche <didrocks@ubuntu.com>  Tue, 19 Apr 2011 18:27:23 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Tue, 19 Apr 2011 19:09:34 +0200
 
 bamf (0.2.86-0ubuntu3) natty; urgency=low
 
