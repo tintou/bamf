@@ -307,8 +307,6 @@ trim_exec_string (BamfMatcher * self, char * execString)
       regex = g_regex_new ("(\\.|-)bin$", 0, 0, NULL);
       result = g_regex_replace_literal (regex, result, -1, 0, "", 0, NULL);
       
-      printf ("Before: %s  After: %s\n", tmp, result);
-      
       g_free (tmp);
       g_regex_unref (regex);
     }
