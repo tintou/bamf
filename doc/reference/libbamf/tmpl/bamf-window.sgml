@@ -26,6 +26,19 @@ BamfWindow
 </para>
 
 
+<!-- ##### STRUCT BamfWindowClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+
+<!-- ##### STRUCT BamfWindowPrivate ##### -->
+<para>
+
+</para>
+
+
 <!-- ##### ENUM BamfWindowType ##### -->
 <para>
 
@@ -39,13 +52,6 @@ BamfWindow
 @BAMF_WINDOW_MENU: 
 @BAMF_WINDOW_UTILITY: 
 @BAMF_WINDOW_SPLASHSCREEN: 
-
-<!-- ##### STRUCT BamfWindowClass ##### -->
-<para>
-
-</para>
-
-@parent_class: 
 
 <!-- ##### FUNCTION bamf_window_get_transient ##### -->
 <para>
@@ -81,11 +87,5 @@ BamfWindow
 
 @self: 
 @Returns: 
-
-
-<!-- ##### STRUCT BamfWindowPrivate ##### -->
-<para>
-
-</para>
 
 
