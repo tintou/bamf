@@ -341,15 +341,43 @@ bamf_application_load_data_from_file (BamfApplication *self)
 {
   GDesktopAppInfo *desktop_info;
   GIcon *gicon;
-  const char *name;
+  char *name;
   char *icon;
+  GKeyFile * keyfile;
+  GError *error;
   
-  desktop_info = g_desktop_app_info_new_from_filename (self->priv->desktop_file);
+  keyfile = g_key_file_new();
+  if (!g_key_file_load_from_file(keyfile, self->priv->desktop_file, G_KEY_FILE_NONE, NULL)) {
+      g_key_file_free(keyfile);
+    return;
+  }
+
+  desktop_info = g_desktop_app_info_new_from_keyfile (keyfile);
   
   if (!desktop_info)
     return;
   
-  name = g_app_info_get_name (G_APP_INFO (desktop_info));
+  name = g_strdup (g_app_info_get_name (G_APP_INFO (desktop_info)));
+  
+  if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL))
+		{
+		  /* Grab the better name if its available */
+		  gchar *fullname = NULL;
+		  error = NULL; 
+		  fullname = g_key_file_get_locale_string (keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL, &error);
+		  if (error != NULL)
+		    {
+		      g_error_free (error);
+		      if (fullname)
+		        g_free (fullname);
+		    }
+		  else
+		    {
+		      g_free (name);
+		      name = fullname;
+		    }
+		}
+  
   bamf_view_set_name (BAMF_VIEW (self), name);
 
   gicon = g_app_info_get_icon (G_APP_INFO (desktop_info));
@@ -360,6 +388,8 @@ bamf_application_load_data_from_file (BamfApplication *self)
   
   bamf_view_set_icon (BAMF_VIEW (self), icon);
   g_free (icon);
+  g_key_file_free (keyfile);
+  g_free (name);
 }
 
 static void
