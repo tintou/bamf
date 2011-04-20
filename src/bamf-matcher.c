@@ -297,7 +297,19 @@ trim_exec_string (BamfMatcher * self, char * execString)
     }
 
   if (!result)
-    result = g_strdup (execString);
+    {
+      result = g_strdup (execString);
+    }
+  else
+    {
+      tmp = result;
+      
+      regex = g_regex_new ("(\\.|-)bin$", 0, 0, NULL);
+      result = g_regex_replace_literal (regex, result, -1, 0, "", 0, NULL);
+      
+      g_free (tmp);
+      g_regex_unref (regex);
+    }
 
   g_free (exec);
   g_strfreev (parts);
