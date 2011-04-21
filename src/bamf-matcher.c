@@ -304,7 +304,7 @@ trim_exec_string (BamfMatcher * self, char * execString)
     {
       tmp = result;
       
-      regex = g_regex_new ("(\\.|-)bin$", 0, 0, NULL);
+      regex = g_regex_new ("((\\.|-)bin|\\.py)$", 0, 0, NULL);
       result = g_regex_replace_literal (regex, result, -1, 0, "", 0, NULL);
       
       g_free (tmp);
