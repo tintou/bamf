@@ -717,16 +717,16 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
 
   g_return_if_fail (G_IS_FILE_MONITOR (monitor));
   g_return_if_fail (BAMF_IS_MATCHER (self));
-  
-  if (type != G_FILE_MONITOR_EVENT_CHANGED && type != G_FILE_MONITOR_EVENT_DELETED)
+
+  if (type != G_FILE_MONITOR_EVENT_CREATED && type != G_FILE_MONITOR_EVENT_DELETED)
     return;
-  
+
   g_return_if_fail (G_IS_FILE (file));
   path = g_file_get_path (file);
   
   if (!g_str_has_suffix (path, ".desktop"))
     goto out;
-      
+
   if (type == G_FILE_MONITOR_EVENT_CREATED)
     {
       bamf_matcher_load_desktop_file (self, path);
@@ -1193,7 +1193,6 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
 
       app = BAMF_APPLICATION (view);
       app_class = bamf_application_get_wmclass (app);
-
       desktop_file = bamf_application_get_desktop_file (app);
 
       if (possible_apps)
