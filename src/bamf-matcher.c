@@ -753,6 +753,7 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
       if (filetype == G_FILE_TYPE_DIRECTORY)
         {
           dirmonitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE, NULL, NULL);
+          g_file_monitor_set_rate_limit (dirmonitor, 1000);
           self->priv->monitors = g_list_prepend (self->priv->monitors, dirmonitor);
           g_signal_connect (dirmonitor, "changed", (GCallback) on_monitor_changed, self);
           g_object_set_data_full (G_OBJECT (dirmonitor), "root", g_strdup (path), g_free);
@@ -812,6 +813,7 @@ create_desktop_file_table (BamfMatcher * self,
       file = g_file_new_for_path (directory);
       monitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE, NULL, NULL);
       g_object_set_data_full (G_OBJECT (monitor), "root", g_strdup (directory), g_free);
+      g_file_monitor_set_rate_limit (monitor, 1000);
       
       self->priv->monitors = g_list_prepend (self->priv->monitors, monitor);
       
