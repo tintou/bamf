@@ -714,6 +714,8 @@ static void
 on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFileMonitorEvent type, BamfMatcher *self)
 {
   char *path;
+  GFileType filetype;
+  GFileMonitor *dirmonitor;
 
   g_return_if_fail (G_IS_FILE_MONITOR (monitor));
   g_return_if_fail (BAMF_IS_MATCHER (self));
@@ -725,21 +727,41 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
 
   g_return_if_fail (G_IS_FILE (file));
   path = g_file_get_path (file);
+  filetype = g_file_query_file_type (file, G_FILE_QUERY_INFO_NONE, NULL);
   
-  if (!g_str_has_suffix (path, ".desktop"))
+  if (!g_str_has_suffix (path, ".desktop") &&
+      filetype != G_FILE_TYPE_DIRECTORY &&
+      type != G_FILE_MONITOR_EVENT_DELETED)
     goto out;
 
   if (type == G_FILE_MONITOR_EVENT_DELETED || type == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT)
     {
-      g_hash_table_foreach_remove (self->priv->desktop_id_table, (GHRFunc) hash_table_remove_values, path);
-      g_hash_table_foreach_remove (self->priv->desktop_file_table, (GHRFunc) hash_table_remove_values, path);
-      g_hash_table_remove (self->priv->desktop_class_table, path);
+      if (g_str_has_suffix (path, ".desktop"))
+        {
+          g_hash_table_foreach_remove (self->priv->desktop_id_table, (GHRFunc) hash_table_remove_values, path);
+          g_hash_table_foreach_remove (self->priv->desktop_file_table, (GHRFunc) hash_table_remove_values, path);
+          g_hash_table_remove (self->priv->desktop_class_table, path);
+        } else if (g_strcmp0 (g_object_get_data (G_OBJECT (monitor), "root"), path) == 0) {
+          g_signal_handlers_disconnect_by_func (monitor, on_monitor_changed, self);
+          self->priv->monitors = g_list_remove (self->priv->monitors, monitor);
+          g_object_unref (monitor);
+        }
     }
 
   if (type == G_FILE_MONITOR_EVENT_CREATED || type == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT)
     {
-      bamf_matcher_load_desktop_file (self, path);
-    }
+      if (filetype == G_FILE_TYPE_DIRECTORY)
+        {
+          dirmonitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE, NULL, NULL);
+          self->priv->monitors = g_list_prepend (self->priv->monitors, dirmonitor);
+          g_signal_connect (dirmonitor, "changed", (GCallback) on_monitor_changed, self);
+          g_object_set_data_full (G_OBJECT (dirmonitor), "root", g_strdup (path), g_free);
+        }
+      else if (filetype != G_FILE_TYPE_UNKNOWN)
+        {
+          bamf_matcher_load_desktop_file (self, path);
+        }
+    } 
 
 out:
   g_free (path);
@@ -786,9 +808,10 @@ create_desktop_file_table (BamfMatcher * self,
       
       if (!g_file_test (directory, G_FILE_TEST_IS_DIR))
         continue;
-      
+
       file = g_file_new_for_path (directory);
       monitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE, NULL, NULL);
+      g_object_set_data_full (G_OBJECT (monitor), "root", g_strdup (directory), g_free);
       
       self->priv->monitors = g_list_prepend (self->priv->monitors, monitor);
       
