@@ -159,6 +159,10 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
 
   g_signal_emit (self, matcher_signals[VIEW_OPENED],0, path, type);
   g_free (type);
+  
+  // trigger manually since this is already active
+  if (bamf_view_is_active (view))
+    on_view_active_changed (view, TRUE, self);
 }
 
 static void
