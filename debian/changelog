@@ -1,4 +1,4 @@
-bamf (0.2.90-0ubuntu3) natty; urgency=low
+bamf (0.2.90-0ubuntu3) natty-proposed; urgency=low
 
   * Cherry-pick from upstream:
     - System Testing and Printers don't display proper menus when launched by
