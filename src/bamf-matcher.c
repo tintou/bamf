@@ -159,6 +159,10 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
 
   g_signal_emit (self, matcher_signals[VIEW_OPENED],0, path, type);
   g_free (type);
+  
+  // trigger manually since this is already active
+  if (bamf_view_is_active (view))
+    on_view_active_changed (view, TRUE, self);
 }
 
 static void
@@ -304,7 +308,7 @@ trim_exec_string (BamfMatcher * self, char * execString)
     {
       tmp = result;
       
-      regex = g_regex_new ("(\\.|-)bin$", 0, 0, NULL);
+      regex = g_regex_new ("((\\.|-)bin|\\.py)$", 0, 0, NULL);
       result = g_regex_replace_literal (regex, result, -1, 0, "", 0, NULL);
       
       g_free (tmp);
