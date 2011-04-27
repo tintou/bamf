@@ -1,4 +1,4 @@
-bamf (0.2.90-0ubuntu3) UNRELEASED; urgency=low
+bamf (0.2.90-0ubuntu3) natty; urgency=low
 
   * Cherry-pick from upstream:
     - System Testing and Printers don't display proper menus when launched by
@@ -6,7 +6,7 @@ bamf (0.2.90-0ubuntu3) UNRELEASED; urgency=low
     - Unity Min,Max,Close buttons not available in Libreoffice when opened by
       double-clicking a file (LP: #728927)
 
- -- Didier Roche <didrocks@ubuntu.com>  Wed, 27 Apr 2011 17:03:49 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Wed, 27 Apr 2011 17:07:18 +0200
 
 bamf (0.2.90-0ubuntu2) natty; urgency=low
 
