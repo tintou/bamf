@@ -417,8 +417,14 @@ insert_data_into_tables (BamfMatcher *self,
   file_list = g_hash_table_lookup (desktop_file_table, exec);
   id_list   = g_hash_table_lookup (desktop_id_table, desktop_id);
 
+  if (g_list_find_custom (file_list, data, (GCompareFunc) g_strcmp0) &&
+      g_list_find_custom (id_list, data, (GCompareFunc) g_strcmp0))
+    {
+      return;
+    }
+
   datadup = g_strdup (data);
-  
+
   /* order so that items whose desktop_id == exec string are first in the list */
   if (g_strcmp0 (exec, desktop_id) == 0)
     {
