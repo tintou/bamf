@@ -592,8 +592,8 @@ load_index_file_to_table (BamfMatcher * self,
   while ((line = g_data_input_stream_read_line (input, &length, NULL, NULL)) != NULL)
     {
       char *exec;
+      char *filename;
       GString *desktop_id;
-      GString *filename;
 
       gchar **parts = g_strsplit (line, "\t", 3);
 
@@ -605,19 +605,18 @@ load_index_file_to_table (BamfMatcher * self,
           exec = tmp;
         }
 
-      char *name = g_build_filename (directory, parts[0], NULL);
-      filename = g_string_new (name);
-      g_free ((gpointer) name);
+      filename = g_build_filename (directory, parts[0], NULL);
 
       desktop_id = g_string_new (parts[0]);
       g_string_truncate (desktop_id, desktop_id->len - 8);
       
-      insert_data_into_tables (self, filename->str, exec, desktop_id->str, desktop_file_table, desktop_id_table);
-      insert_desktop_file_class_into_table (self, filename->str, desktop_class_table);
+      insert_data_into_tables (self, filename, exec, desktop_id->str, desktop_file_table, desktop_id_table);
+      insert_desktop_file_class_into_table (self, filename, desktop_class_table);
 
       g_string_free (desktop_id, TRUE);
-      length = 0;
+      g_free (filename);
       g_strfreev (parts);
+      length = 0;
     }
   g_free ((gpointer) directory);
 }
