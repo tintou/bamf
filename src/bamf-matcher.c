@@ -709,10 +709,95 @@ get_desktop_file_directories (BamfMatcher *self)
   return dirs;
 }
 
-static gboolean
-hash_table_remove_values (gpointer key, gpointer value, gpointer target)
+static gint
+compare_sub_values (gconstpointer desktop_path, gconstpointer desktop_file)
 {
-  return g_strcmp0 ((char *) value, (char *) target) == 0;
+  gchar *path;
+  gint ret;
+
+  path = g_strconcat (desktop_path, "/", NULL);
+  ret = !g_str_has_prefix (desktop_file, path);
+
+  g_free (path);
+  return ret;
+}
+
+static void
+hash_table_remove_sub_values (GHashTable *htable, GCompareFunc compare_func,
+                             GFreeFunc free_func, gpointer target, gboolean search_all)
+{
+  g_return_if_fail (htable);
+  g_return_if_fail (compare_func);
+
+  GHashTableIter iter;
+  gpointer key;
+  gpointer value;
+
+  g_hash_table_iter_init (&iter, htable);
+
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      GList *list, *l;
+      gboolean found;
+
+      list = value;
+      found = FALSE;
+
+      l = list;
+      while (l)
+        {
+          GList *next = l->next;
+
+          if (compare_func (target, l->data) == 0)
+            {
+              found = TRUE;
+
+              if (!l->prev && !l->next)
+              {
+                if (free_func)
+                  g_list_free_full (list, free_func);
+                else
+                  g_list_free (list);
+
+                g_hash_table_iter_remove (&iter);
+
+                next = NULL;
+                break;
+              }
+            else
+              {
+                if (free_func)
+                  free_func (l->data);
+
+                /* If the target is the first element of the list (and thanks to
+                   the previous check we're also sure that it's not alone), simply
+                   switch it with its follower, not to change the first
+                   pointer and the hash table value for key */
+                if (l == list)
+                  {
+                    l->data = next->data;
+                    l = next;
+                    next = list;
+                  }
+
+                list = g_list_delete_link (list, l);
+              }
+
+              if (!search_all)
+                break;
+            }
+            l = next;
+        }
+
+      if (found && !search_all)
+         break;
+    }
+}
+
+static gboolean
+hash_table_compare_sub_values (gpointer desktop_path, gpointer desktop_class, gpointer target_path)
+{
+  return !compare_sub_values (target_path, desktop_path);
 }
 
 static void
@@ -739,35 +824,51 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
       type != G_FILE_MONITOR_EVENT_DELETED)
     goto out;
 
-  if (type == G_FILE_MONITOR_EVENT_DELETED || type == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT)
+  if (type == G_FILE_MONITOR_EVENT_DELETED ||
+      type == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT)
     {
       if (g_str_has_suffix (path, ".desktop"))
         {
-          g_hash_table_foreach_remove (self->priv->desktop_id_table, (GHRFunc) hash_table_remove_values, path);
-          g_hash_table_foreach_remove (self->priv->desktop_file_table, (GHRFunc) hash_table_remove_values, path);
+          hash_table_remove_sub_values (self->priv->desktop_id_table,
+                                       (GCompareFunc) g_strcmp0, NULL, path, FALSE);
+          hash_table_remove_sub_values (self->priv->desktop_file_table,
+                                       (GCompareFunc) g_strcmp0, g_free, path, FALSE);
           g_hash_table_remove (self->priv->desktop_class_table, path);
-        } else if (g_strcmp0 (g_object_get_data (G_OBJECT (monitor), "root"), path) == 0) {
+        }
+      else if (g_strcmp0 (g_object_get_data (G_OBJECT (monitor), "root"), path) == 0)
+        {
+          hash_table_remove_sub_values (self->priv->desktop_id_table,
+                                        compare_sub_values, NULL, path, TRUE);
+          hash_table_remove_sub_values (self->priv->desktop_file_table,
+                                        compare_sub_values, g_free, path, TRUE);
+          g_hash_table_foreach_remove (self->priv->desktop_class_table,
+                                       hash_table_compare_sub_values, path);
           g_signal_handlers_disconnect_by_func (monitor, on_monitor_changed, self);
           self->priv->monitors = g_list_remove (self->priv->monitors, monitor);
           g_object_unref (monitor);
         }
     }
 
-  if (type == G_FILE_MONITOR_EVENT_CREATED || type == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT)
+  if (type == G_FILE_MONITOR_EVENT_CREATED ||
+      type == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT)
     {
       if (filetype == G_FILE_TYPE_DIRECTORY)
         {
+          //TODO Recursive ADD!
           dirmonitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE, NULL, NULL);
           g_file_monitor_set_rate_limit (dirmonitor, 1000);
           self->priv->monitors = g_list_prepend (self->priv->monitors, dirmonitor);
           g_signal_connect (dirmonitor, "changed", (GCallback) on_monitor_changed, self);
           g_object_set_data_full (G_OBJECT (dirmonitor), "root", g_strdup (path), g_free);
+          load_directory_to_table (self, path, self->priv->desktop_file_table,
+                                   self->priv->desktop_id_table,
+                                   self->priv->desktop_class_table);
         }
       else if (filetype != G_FILE_TYPE_UNKNOWN)
         {
           bamf_matcher_load_desktop_file (self, path);
         }
-    } 
+    }
 
 out:
   g_free (path);
