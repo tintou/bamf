@@ -529,8 +529,8 @@ load_directory_to_table (BamfMatcher * self,
   GFile *dir;
   GFileEnumerator *enumerator;
   GFileInfo *info;
-  const char* name;
-  const char *path;
+  const char *name;
+  char *path;
 
   dir = g_file_new_for_path (directory);
 
@@ -902,17 +902,35 @@ out:
 }
 
 static void
+bamf_add_new_monitored_directory (BamfMatcher * self, const gchar *directory)
+{
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+
+  GFile *file;
+  GFileMonitor *monitor;
+
+  file = g_file_new_for_path (directory);
+  monitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE, NULL, NULL);
+  g_file_monitor_set_rate_limit (monitor, 1000);
+  g_object_set_data_full (G_OBJECT (monitor), "root", g_strdup (directory), g_free);
+  g_signal_connect (monitor, "changed", (GCallback) on_monitor_changed, self);
+  self->priv->monitors = g_list_prepend (self->priv->monitors, monitor);
+
+  g_object_unref (file);
+}
+
+static void
 fill_desktop_file_table (BamfMatcher * self,
                          GList *directories,
                          GHashTable *desktop_file_table,
                          GHashTable *desktop_id_table,
                          GHashTable *desktop_class_table)
 {
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+
   GList *l;
   char *directory;
   char *bamf_file;
-  GFile *file;
-  GFileMonitor *monitor;
   
   for (l = directories; l; l = l->next)
     {
@@ -921,12 +939,7 @@ fill_desktop_file_table (BamfMatcher * self,
       if (!g_file_test (directory, G_FILE_TEST_IS_DIR))
         continue;
 
-      file = g_file_new_for_path (directory);
-      monitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE, NULL, NULL);
-      g_file_monitor_set_rate_limit (monitor, 1000);
-      g_object_set_data_full (G_OBJECT (monitor), "root", g_strdup (directory), g_free);
-      g_signal_connect (monitor, "changed", (GCallback) on_monitor_changed, self);
-      self->priv->monitors = g_list_prepend (self->priv->monitors, monitor);
+      bamf_add_new_monitored_directory (self, directory);
 
       bamf_file = g_build_filename (directory, "bamf.index", NULL);
 
@@ -942,7 +955,6 @@ fill_desktop_file_table (BamfMatcher * self,
         }
 
       g_free (bamf_file);
-      g_object_unref (file);
     }
 }
 
@@ -952,6 +964,8 @@ create_desktop_file_table (BamfMatcher * self,
                            GHashTable **desktop_id_table,
                            GHashTable **desktop_class_table)
 {
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+
   GList *directories;
 
   *desktop_file_table =
@@ -970,9 +984,7 @@ create_desktop_file_table (BamfMatcher * self,
     g_hash_table_new_full ((GHashFunc) g_str_hash,
                            (GEqualFunc) g_str_equal,
                            (GDestroyNotify) g_free,
-                           (GDestroyNotify) g_free);
-
-  g_return_if_fail (BAMF_IS_MATCHER (self));
+                           (GDestroyNotify) g_free);  
 
   directories = get_desktop_file_directories (self);
   fill_desktop_file_table (self, directories, *desktop_file_table,
