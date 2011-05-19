@@ -631,7 +631,7 @@ load_index_file_to_table (BamfMatcher * self,
   g_free (directory);
 }
 
-static GList * get_directory_tree_list (GList *dirs) G_GNUC_WARN_UNUSED_RESULT;
+static GList * get_directory_tree_list (GList *) G_GNUC_WARN_UNUSED_RESULT;
 
 static GList *
 get_directory_tree_list (GList *dirs)
@@ -685,16 +685,19 @@ get_directory_tree_list (GList *dirs)
   return dirs;
 }
 
+static GList * get_desktop_file_env_directories (GList *, const gchar *) G_GNUC_WARN_UNUSED_RESULT;
+
 static GList *
-get_desktop_file_directories (BamfMatcher *self)
+get_desktop_file_env_directories (GList *dirs, const gchar *varname)
 {
-  GList *dirs = NULL;
-  const char *env;
-  char  *path;
+  g_return_val_if_fail (varname, dirs);
+
+  const gchar *env;
+  char *path;
   char **data_dirs = NULL;
   char **data;
-  
-  env = g_getenv ("XDG_DATA_DIRS");
+
+  env = g_getenv (varname);
 
   if (env)
     {
@@ -703,23 +706,47 @@ get_desktop_file_directories (BamfMatcher *self)
       for (data = data_dirs; *data; data++)
         {
           path = g_build_filename (*data, "applications", NULL);
-          if (g_file_test (path, G_FILE_TEST_IS_DIR))
-            dirs = g_list_prepend (dirs, path);
+          if (g_file_test (path, G_FILE_TEST_IS_DIR) &&
+              !g_list_find_custom (dirs, path, (GCompareFunc) g_strcmp0))
+            {
+              dirs = g_list_prepend (dirs, path);
+            }
           else
-            g_free (path);
+            {
+              g_free (path);
+            }
         }
 
       if (data_dirs)
         g_strfreev (data_dirs);
     }
-    
+
+  return dirs;
+}
+
+static GList *
+get_desktop_file_directories (BamfMatcher *self)
+{
+  GList *dirs = NULL;
+  char *path;
+  
+  dirs = get_desktop_file_env_directories(dirs, "XDG_DATA_DIRS");
+
   if (!g_list_find_custom (dirs, "/usr/share/applications", (GCompareFunc) g_strcmp0))
     dirs = g_list_prepend (dirs, g_strdup ("/usr/share/applications"));
   
   if (!g_list_find_custom (dirs, "/usr/local/share/applications", (GCompareFunc) g_strcmp0))
     dirs = g_list_prepend (dirs, g_strdup ("/usr/local/share/applications"));
+  
+  dirs = get_desktop_file_env_directories(dirs, "XDG_DATA_HOME");
 
-  dirs = g_list_prepend (dirs, g_build_filename (g_get_home_dir (), ".local/share/applications", NULL));
+  path = g_build_filename (g_get_home_dir (), ".local/share/applications", NULL);
+
+  if (!g_list_find_custom (dirs, path, (GCompareFunc) g_strcmp0))
+    dirs = g_list_prepend (dirs, path);
+  else
+    g_free (path);
+
   /* include subdirs */
   dirs = get_directory_tree_list (dirs);
 
