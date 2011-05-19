@@ -750,6 +750,9 @@ get_desktop_file_directories (BamfMatcher *self)
   /* include subdirs */
   dirs = get_directory_tree_list (dirs);
 
+  /* Include also the user desktop folder, but without its subfolders */
+  dirs = g_list_prepend (dirs, g_strdup (g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP)));
+
   return dirs;
 }
 
@@ -851,9 +854,11 @@ static void
 on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFileMonitorEvent type, BamfMatcher *self)
 {
   char *path;
+  const char *monitored_dir;
   GFileType filetype;
 
   g_return_if_fail (G_IS_FILE_MONITOR (monitor));
+  g_return_if_fail (G_IS_FILE (file));
   g_return_if_fail (BAMF_IS_MATCHER (self));
 
   if (type != G_FILE_MONITOR_EVENT_CREATED &&
@@ -861,9 +866,9 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
       type != G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT)
     return;
 
-  g_return_if_fail (G_IS_FILE (file));
   path = g_file_get_path (file);
   filetype = g_file_query_file_type (file, G_FILE_QUERY_INFO_NONE, NULL);
+  monitored_dir = g_object_get_data (G_OBJECT (monitor), "root");
   
   if (!g_str_has_suffix (path, ".desktop") &&
       filetype != G_FILE_TYPE_DIRECTORY &&
@@ -885,7 +890,7 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
                                        (GCompareFunc) g_strcmp0, g_free, path, FALSE);
           g_hash_table_remove (self->priv->desktop_class_table, path);
         }
-      else if (g_strcmp0 (g_object_get_data (G_OBJECT (monitor), "root"), path) == 0)
+      else if (g_strcmp0 (monitored_dir, path) == 0)
         {
           /* Remove all the referencies to the .desktop files placed in subfolders
            * of the current path. Free the strings itself only on the 2nd pass
@@ -908,15 +913,21 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
     {
       if (filetype == G_FILE_TYPE_DIRECTORY)
         {
-          GList *dirs = NULL;
-          dirs = g_list_prepend (dirs, g_strdup (path));
-          dirs = get_directory_tree_list (dirs);
-          fill_desktop_file_table (self, dirs,
-                                   self->priv->desktop_file_table,
-                                   self->priv->desktop_id_table,
-                                   self->priv->desktop_class_table);
-  
-          g_list_free_full (dirs, (GDestroyNotify) g_free);
+          const char *desktop_dir;
+          desktop_dir = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
+
+          if (g_strcmp0 (monitored_dir, desktop_dir) != 0)
+            {
+              GList *dirs = NULL;
+              dirs = g_list_prepend (dirs, g_strdup (path));
+              dirs = get_directory_tree_list (dirs);
+              fill_desktop_file_table (self, dirs,
+                                       self->priv->desktop_file_table,
+                                       self->priv->desktop_id_table,
+                                       self->priv->desktop_class_table);
+      
+              g_list_free_full (dirs, (GDestroyNotify) g_free);
+            }
         }
       else if (filetype != G_FILE_TYPE_UNKNOWN)
         {
