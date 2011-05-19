@@ -557,7 +557,7 @@ load_directory_to_table (BamfMatcher * self,
                                     desktop_id_table,
                                     desktop_class_table);
 
-      g_free ((gpointer) path);
+      g_free (path);
       g_object_unref (info);
     }
 
@@ -624,7 +624,11 @@ load_index_file_to_table (BamfMatcher * self,
       g_strfreev (parts);
       length = 0;
     }
-  g_free ((gpointer) directory);
+
+  g_object_unref (input);
+  g_object_unref (stream);
+  g_object_unref (file);
+  g_free (directory);
 }
 
 static GList * get_directory_tree_list (GList *dirs) G_GNUC_WARN_UNUSED_RESULT;
@@ -716,7 +720,6 @@ get_desktop_file_directories (BamfMatcher *self)
     dirs = g_list_prepend (dirs, g_strdup ("/usr/local/share/applications"));
 
   dirs = g_list_prepend (dirs, g_build_filename (g_get_home_dir (), ".local/share/applications", NULL));
-
   /* include subdirs */
   dirs = get_directory_tree_list (dirs);
 
@@ -867,7 +870,6 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
                                         compare_sub_values, g_free, path, TRUE);
           g_hash_table_foreach_remove (self->priv->desktop_class_table,
                                        hash_table_compare_sub_values, path);
-
           g_signal_handlers_disconnect_by_func (monitor, on_monitor_changed, self);
           self->priv->monitors = g_list_remove (self->priv->monitors, monitor);
           g_object_unref (monitor);
