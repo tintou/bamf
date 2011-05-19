@@ -627,47 +627,17 @@ load_index_file_to_table (BamfMatcher * self,
   g_free ((gpointer) directory);
 }
 
+static GList * get_directory_tree_list (GList *dirs) G_GNUC_WARN_UNUSED_RESULT;
+
 static GList *
-get_desktop_file_directories (BamfMatcher *self)
+get_directory_tree_list (GList *dirs)
 {
+  GList *l;
   GFile *file;
-  GFileInfo *info;
   GFileEnumerator *enumerator;
-  GList *dirs = NULL, *l;
-  const char *env;
-  char  *path;
-  char  *subpath;
-  char **data_dirs = NULL;
-  char **data;
-  
-  env = g_getenv ("XDG_DATA_DIRS");
-  
-  if (env)
-    {
-      data_dirs = g_strsplit (env, ":", 0);
-  
-      for (data = data_dirs; *data; data++)
-        {
-          path = g_build_filename (*data, "applications", NULL);
-          if (g_file_test (path, G_FILE_TEST_IS_DIR))
-            dirs = g_list_prepend (dirs, path);
-          else
-            g_free (path);
-        }
-    }
-    
-  if (!g_list_find_custom (dirs, "/usr/share/applications", (GCompareFunc) g_strcmp0))
-    dirs = g_list_prepend (dirs, g_strdup ("/usr/share/applications"));
-  
-  if (!g_list_find_custom (dirs, "/usr/local/share/applications", (GCompareFunc) g_strcmp0))
-    dirs = g_list_prepend (dirs, g_strdup ("/usr/local/share/applications"));
-  
-  dirs = g_list_prepend (dirs, g_strdup (g_build_filename (g_get_home_dir (), ".local/share/applications", NULL)));
-  
-  if (data_dirs)
-    g_strfreev (data_dirs);
-  
-  /* include subdirs */
+  GFileInfo *info;
+  gchar *path, *subpath;
+
   for (l = dirs; l; l = l->next)
     {
       path = l->data;
@@ -696,8 +666,10 @@ get_desktop_file_directories (BamfMatcher *self)
             continue;
           
           subpath = g_build_filename (path, g_file_info_get_name (info), NULL);
-          /* append for non-recursive recursion love */
-          dirs = g_list_append (dirs, subpath);
+          /* append after the current list item for non-recursive recursion love
+           * and to keep the priorities (hierarchy) of the .desktop directories.
+           */
+          dirs = g_list_insert_before (dirs, l->next, subpath);
 
           g_object_unref (info);
         }
@@ -705,7 +677,49 @@ get_desktop_file_directories (BamfMatcher *self)
       g_object_unref (enumerator);
       g_object_unref (file);
     }
+
+  return dirs;
+}
+
+static GList *
+get_desktop_file_directories (BamfMatcher *self)
+{
+  GList *dirs = NULL;
+  const char *env;
+  char  *path;
+  char **data_dirs = NULL;
+  char **data;
   
+  env = g_getenv ("XDG_DATA_DIRS");
+
+  if (env)
+    {
+      data_dirs = g_strsplit (env, ":", 0);
+  
+      for (data = data_dirs; *data; data++)
+        {
+          path = g_build_filename (*data, "applications", NULL);
+          if (g_file_test (path, G_FILE_TEST_IS_DIR))
+            dirs = g_list_prepend (dirs, path);
+          else
+            g_free (path);
+        }
+
+      if (data_dirs)
+        g_strfreev (data_dirs);
+    }
+    
+  if (!g_list_find_custom (dirs, "/usr/share/applications", (GCompareFunc) g_strcmp0))
+    dirs = g_list_prepend (dirs, g_strdup ("/usr/share/applications"));
+  
+  if (!g_list_find_custom (dirs, "/usr/local/share/applications", (GCompareFunc) g_strcmp0))
+    dirs = g_list_prepend (dirs, g_strdup ("/usr/local/share/applications"));
+
+  dirs = g_list_prepend (dirs, g_build_filename (g_get_home_dir (), ".local/share/applications", NULL));
+
+  /* include subdirs */
+  dirs = get_directory_tree_list (dirs);
+
   return dirs;
 }
 
@@ -715,7 +729,7 @@ compare_sub_values (gconstpointer desktop_path, gconstpointer desktop_file)
   gchar *path;
   gint ret;
 
-  path = g_strconcat (desktop_path, "/", NULL);
+  path = g_strconcat (desktop_path, G_DIR_SEPARATOR_S, NULL);
   ret = !g_str_has_prefix (desktop_file, path);
 
   g_free (path);
@@ -770,9 +784,10 @@ hash_table_remove_sub_values (GHashTable *htable, GCompareFunc compare_func,
                   free_func (l->data);
 
                 /* If the target is the first element of the list (and thanks to
-                   the previous check we're also sure that it's not alone), simply
-                   switch it with its follower, not to change the first
-                   pointer and the hash table value for key */
+-                * the previous check we're also sure that it's not the only one),
+                 * simply switch it with its follower, not to change the first
+                 * pointer and the hash table value for key
+                 */
                 if (l == list)
                   {
                     l->data = next->data;
@@ -800,12 +815,13 @@ hash_table_compare_sub_values (gpointer desktop_path, gpointer desktop_class, gp
   return !compare_sub_values (target_path, desktop_path);
 }
 
+static void fill_desktop_file_table (BamfMatcher *, GList *, GHashTable *, GHashTable *, GHashTable *);
+
 static void
 on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFileMonitorEvent type, BamfMatcher *self)
 {
   char *path;
   GFileType filetype;
-  GFileMonitor *dirmonitor;
 
   g_return_if_fail (G_IS_FILE_MONITOR (monitor));
   g_return_if_fail (BAMF_IS_MATCHER (self));
@@ -829,6 +845,10 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
     {
       if (g_str_has_suffix (path, ".desktop"))
         {
+          /* Remove all the .desktop file referencies from the hash tables.
+           * Free the string itself only on the 2nd pass (tables shares the same
+           * string instance)
+           */
           hash_table_remove_sub_values (self->priv->desktop_id_table,
                                        (GCompareFunc) g_strcmp0, NULL, path, FALSE);
           hash_table_remove_sub_values (self->priv->desktop_file_table,
@@ -837,12 +857,17 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
         }
       else if (g_strcmp0 (g_object_get_data (G_OBJECT (monitor), "root"), path) == 0)
         {
+          /* Remove all the referencies to the .desktop files placed in subfolders
+           * of the current path. Free the strings itself only on the 2nd pass
+           * (as before, tables shares the same string instance)
+           */
           hash_table_remove_sub_values (self->priv->desktop_id_table,
                                         compare_sub_values, NULL, path, TRUE);
           hash_table_remove_sub_values (self->priv->desktop_file_table,
                                         compare_sub_values, g_free, path, TRUE);
           g_hash_table_foreach_remove (self->priv->desktop_class_table,
                                        hash_table_compare_sub_values, path);
+
           g_signal_handlers_disconnect_by_func (monitor, on_monitor_changed, self);
           self->priv->monitors = g_list_remove (self->priv->monitors, monitor);
           g_object_unref (monitor);
@@ -854,15 +879,15 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
     {
       if (filetype == G_FILE_TYPE_DIRECTORY)
         {
-          //TODO Recursive ADD!
-          dirmonitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE, NULL, NULL);
-          g_file_monitor_set_rate_limit (dirmonitor, 1000);
-          self->priv->monitors = g_list_prepend (self->priv->monitors, dirmonitor);
-          g_signal_connect (dirmonitor, "changed", (GCallback) on_monitor_changed, self);
-          g_object_set_data_full (G_OBJECT (dirmonitor), "root", g_strdup (path), g_free);
-          load_directory_to_table (self, path, self->priv->desktop_file_table,
+          GList *dirs = NULL;
+          dirs = g_list_prepend (dirs, g_strdup (path));
+          dirs = get_directory_tree_list (dirs);
+          fill_desktop_file_table (self, dirs,
+                                   self->priv->desktop_file_table,
                                    self->priv->desktop_id_table,
                                    self->priv->desktop_class_table);
+  
+          g_list_free_full (dirs, (GDestroyNotify) g_free);
         }
       else if (filetype != G_FILE_TYPE_UNKNOWN)
         {
@@ -875,17 +900,57 @@ out:
 }
 
 static void
+fill_desktop_file_table (BamfMatcher * self,
+                         GList *directories,
+                         GHashTable *desktop_file_table,
+                         GHashTable *desktop_id_table,
+                         GHashTable *desktop_class_table)
+{
+  GList *l;
+  char *directory;
+  char *bamf_file;
+  GFile *file;
+  GFileMonitor *monitor;
+  
+  for (l = directories; l; l = l->next)
+    {
+      directory = l->data;
+
+      if (!g_file_test (directory, G_FILE_TEST_IS_DIR))
+        continue;
+
+      file = g_file_new_for_path (directory);
+      monitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE, NULL, NULL);
+      g_file_monitor_set_rate_limit (monitor, 1000);
+      g_object_set_data_full (G_OBJECT (monitor), "root", g_strdup (directory), g_free);
+      g_signal_connect (monitor, "changed", (GCallback) on_monitor_changed, self);
+      self->priv->monitors = g_list_prepend (self->priv->monitors, monitor);
+
+      bamf_file = g_build_filename (directory, "bamf.index", NULL);
+
+      if (g_file_test (bamf_file, G_FILE_TEST_EXISTS))
+        {
+          load_index_file_to_table (self, bamf_file, desktop_file_table,
+                                    desktop_id_table, desktop_class_table);
+        }
+      else
+        {
+          load_directory_to_table (self, directory, desktop_file_table,
+                                   desktop_id_table, desktop_class_table);
+        }
+
+      g_free (bamf_file);
+      g_object_unref (file);
+    }
+}
+
+static void
 create_desktop_file_table (BamfMatcher * self,
                            GHashTable **desktop_file_table,
                            GHashTable **desktop_id_table,
                            GHashTable **desktop_class_table)
 {
   GList *directories;
-  GList *l;
-  char *directory;
-  const char *bamf_file;
-  GFile *file;
-  GFileMonitor *monitor;
 
   *desktop_file_table =
     g_hash_table_new_full ((GHashFunc) g_str_hash,
@@ -908,41 +973,10 @@ create_desktop_file_table (BamfMatcher * self,
   g_return_if_fail (BAMF_IS_MATCHER (self));
 
   directories = get_desktop_file_directories (self);
-
-  for (l = directories; l; l = l->next)
-    {
-      directory = l->data;
-      
-      if (!g_file_test (directory, G_FILE_TEST_IS_DIR))
-        continue;
-
-      file = g_file_new_for_path (directory);
-      monitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE, NULL, NULL);
-      g_object_set_data_full (G_OBJECT (monitor), "root", g_strdup (directory), g_free);
-      g_file_monitor_set_rate_limit (monitor, 1000);
-      
-      self->priv->monitors = g_list_prepend (self->priv->monitors, monitor);
-      
-      g_signal_connect (monitor, "changed", (GCallback) on_monitor_changed, self);
-      
-      bamf_file = g_build_filename (directory, "bamf.index", NULL);
-
-      if (g_file_test (bamf_file, G_FILE_TEST_EXISTS))
-        {
-          load_index_file_to_table (self, bamf_file, *desktop_file_table,
-                                    *desktop_id_table, *desktop_class_table);
-        }
-      else
-        {
-          load_directory_to_table (self, directory, *desktop_file_table,
-                                   *desktop_id_table, *desktop_class_table);
-        }
-
-      g_free (directory);
-      g_free ((gpointer) bamf_file);
-    }
+  fill_desktop_file_table (self, directories, *desktop_file_table,
+                           *desktop_id_table, *desktop_class_table);
   
-  g_list_free (directories);
+  g_list_free_full (directories, (GDestroyNotify) g_free);
 }
 
 static gboolean
