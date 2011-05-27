@@ -241,7 +241,13 @@ bamf_application_set_desktop_file (BamfApplication *application,
 {
   g_return_if_fail (BAMF_IS_APPLICATION (application));
 
-  application->priv->desktop_file = g_strdup (desktop_file);
+  if (application->priv->desktop_file)
+    g_free (application->priv->desktop_file);
+
+  if (desktop_file && desktop_file[0] != '\0')
+    application->priv->desktop_file = g_strdup (desktop_file);
+  else
+    application->priv->desktop_file = NULL;
 
   bamf_application_setup_icon_and_name (application);
 }
@@ -251,6 +257,9 @@ bamf_application_set_wmclass (BamfApplication *application,
                             char *wmclass)
 {
   g_return_if_fail (BAMF_IS_APPLICATION (application));
+
+  if (application->priv->wmclass)
+    g_free (application->priv->wmclass);
 
   if (wmclass && wmclass[0] != '\0')
     application->priv->wmclass = g_strdup (wmclass);
