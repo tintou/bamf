@@ -272,7 +272,7 @@ trim_exec_string (BamfMatcher * self, char * execString)
 
       if (!g_str_has_prefix (part, "-"))
 	{
-	  tmp = g_utf8_strrchr (part, -1, '/');
+	  tmp = g_utf8_strrchr (part, -1, G_DIR_SEPARATOR);
 	  if (tmp)
             part = tmp + 1;
 
@@ -426,16 +426,49 @@ insert_data_into_tables (BamfMatcher *self,
   datadup = g_strdup (data);
 
   /* order so that items whose desktop_id == exec string are first in the list */
+
   if (g_strcmp0 (exec, desktop_id) == 0)
     {
-      file_list = g_list_prepend (file_list, datadup);
-      id_list   = g_list_prepend (id_list,   datadup);
+      GList *l, *last;
+      last = NULL;
+
+      for (l = file_list; l; l = l->next)
+        {
+          char *dpath;
+          char *dname_start, *dname_end;
+          size_t len;
+
+          dpath = l->data;
+          dname_start = strrchr (dpath, G_DIR_SEPARATOR);
+          if (!dname_start)
+            {
+              continue;
+            }
+
+          dname_start++;
+          dname_end = strrchr (dname_start, '.');
+          len = dname_end - dname_start;
+
+          if (!dname_end || len < 1)
+            {
+              continue;
+            }
+
+          if (strncmp (desktop_id, dname_start, len) != 0)
+            {
+              last = l;
+              break;
+            }
+        }
+
+      file_list = g_list_insert_before (file_list, last, datadup);
     }
   else
     {
       file_list = g_list_append (file_list, datadup);
-      id_list   = g_list_append (id_list,   datadup);
     }
+
+  id_list = g_list_append (id_list, datadup);   
 
   g_hash_table_insert (desktop_file_table, g_strdup (exec),       file_list);
   g_hash_table_insert (desktop_id_table,   g_strdup (desktop_id), id_list);
@@ -729,7 +762,7 @@ get_desktop_file_directories (BamfMatcher *self)
 {
   GList *dirs = NULL;
   char *path;
-  
+
   dirs = get_desktop_file_env_directories(dirs, "XDG_DATA_DIRS");
 
   if (!g_list_find_custom (dirs, "/usr/share/applications", (GCompareFunc) g_strcmp0))
@@ -771,7 +804,7 @@ compare_sub_values (gconstpointer desktop_path, gconstpointer desktop_file)
 
 static void
 hash_table_remove_sub_values (GHashTable *htable, GCompareFunc compare_func,
-                             GFreeFunc free_func, gpointer target, gboolean search_all)
+                              GFreeFunc free_func, gpointer target, gboolean search_all)
 {
   g_return_if_fail (htable);
   g_return_if_fail (compare_func);
@@ -881,7 +914,7 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
       if (g_str_has_suffix (path, ".desktop"))
         {
           /* Remove all the .desktop file referencies from the hash tables.
-           * Free the string itself only on the 2nd pass (tables shares the same
+           * Free the string itself only on the 2nd pass (tables share the same
            * string instance)
            */
           hash_table_remove_sub_values (self->priv->desktop_id_table,
@@ -894,7 +927,7 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
         {
           /* Remove all the referencies to the .desktop files placed in subfolders
            * of the current path. Free the strings itself only on the 2nd pass
-           * (as before, tables shares the same string instance)
+           * (as before, the tables share the same string instance)
            */
           hash_table_remove_sub_values (self->priv->desktop_id_table,
                                         compare_sub_values, NULL, path, TRUE);
@@ -902,6 +935,7 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
                                         compare_sub_values, g_free, path, TRUE);
           g_hash_table_foreach_remove (self->priv->desktop_class_table,
                                        hash_table_compare_sub_values, path);
+
           g_signal_handlers_disconnect_by_func (monitor, on_monitor_changed, self);
           self->priv->monitors = g_list_remove (self->priv->monitors, monitor);
           g_object_unref (monitor);
@@ -1025,6 +1059,7 @@ create_desktop_file_table (BamfMatcher * self,
                            (GDestroyNotify) g_free);  
 
   directories = get_desktop_file_directories (self);
+
   fill_desktop_file_table (self, directories, *desktop_file_table,
                            *desktop_id_table, *desktop_class_table);
   
@@ -1311,6 +1346,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
           for (; l; l = l->next)
             {
               desktop_file = l->data;
+
               if (desktop_file)
                 {
                   desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
