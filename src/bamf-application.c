@@ -526,16 +526,24 @@ bamf_application_set_desktop_file_from_list (BamfApplication *self, GList *list)
   g_return_if_fail (list);
 
   priv = self->priv;
-  
+
+  if (priv->desktop_file_list)
+    {
+      g_list_free_full (priv->desktop_file_list, g_free);
+      priv->desktop_file_list = NULL;
+    }
+
   for (l = list; l; l = l->next)
     priv->desktop_file_list = g_list_prepend (priv->desktop_file_list, g_strdup (l->data));
-  
+
+  priv->desktop_file_list = g_list_reverse (priv->desktop_file_list);
+
   desktop_file = bamf_application_favorite_from_list (self, priv->desktop_file_list);
   
-  /* items come in priority order */
+  /* items, after reversing them, are in priority order */
   if (!desktop_file)
     desktop_file = list->data;
-  
+
   bamf_application_set_desktop_file (self, desktop_file);
 }
 
@@ -585,7 +593,6 @@ bamf_application_dispose (GObject *object)
 {
   BamfApplication *app;
   BamfApplicationPrivate *priv;
-  GList *l;
 
   app = BAMF_APPLICATION (object);
   priv = app->priv;
@@ -598,10 +605,7 @@ bamf_application_dispose (GObject *object)
     
   if (priv->desktop_file_list)
     {
-      for (l = priv->desktop_file_list; l; l = l->next)
-        g_free (l->data);
-       
-      g_list_free (priv->desktop_file_list);
+      g_list_free_full (priv->desktop_file_list, g_free);
       priv->desktop_file_list = NULL;
     }
 
