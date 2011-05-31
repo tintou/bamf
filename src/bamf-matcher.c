@@ -400,6 +400,34 @@ exec_string_should_be_processed (BamfMatcher *self,
   return !g_str_has_prefix (exec, "ooffice") && !g_str_has_prefix (exec, "libreoffice");
 }
 
+static gboolean
+is_desktop_folder_item (const char *desktop_file_path, gssize max_len)
+{
+  gsize len;
+  const char *desktop_folder;
+
+  g_return_val_if_fail (desktop_file_path, FALSE);
+
+  if (max_len > 0)
+    {
+      len = max_len;
+    }
+  else
+    {
+      char *tmp;
+      tmp = strrchr (desktop_file_path, G_DIR_SEPARATOR);
+      g_return_val_if_fail (tmp, FALSE);
+      len = tmp - desktop_file_path;
+    }
+
+  desktop_folder = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
+
+  if (strncmp (desktop_folder, desktop_file_path, len) == 0)
+    return TRUE;
+
+  return FALSE;
+}
+
 static void
 insert_data_into_tables (BamfMatcher *self,
                          const char *data,
@@ -427,7 +455,7 @@ insert_data_into_tables (BamfMatcher *self,
 
   /* order so that items whose desktop_id == exec string are first in the list */
 
-  if (g_strcmp0 (exec, desktop_id) == 0)
+  if (g_strcmp0 (exec, desktop_id) == 0 || is_desktop_folder_item (datadup, -1))
     {
       GList *l, *last;
       last = NULL;
@@ -454,7 +482,8 @@ insert_data_into_tables (BamfMatcher *self,
               continue;
             }
 
-          if (strncmp (desktop_id, dname_start, len) != 0)
+          if (strncmp (desktop_id, dname_start, len) != 0 &&
+              !is_desktop_folder_item (dpath, (dname_start - dpath - 1)))
             {
               last = l;
               break;
@@ -1414,9 +1443,29 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
                 }
 
               if (append)
-                desktop_files = g_list_append (desktop_files, desktop_file);
+                {
+                  GList *last = NULL;
+
+                  if (is_desktop_folder_item (desktop_file, -1))
+                    {
+                      GList *ll;
+
+                      for (ll = desktop_files; ll; ll = ll->next)
+                        {
+                          if (!is_desktop_folder_item (ll->data, -1))
+                            {
+                              last = ll;
+                              break;
+                            }
+                        }
+                    }
+                  
+                  desktop_files = g_list_insert_before (desktop_files, last, desktop_file);
+                }
               else
-                g_free (desktop_file);
+                {
+                  g_free (desktop_file);
+                }
             }
         }
 
