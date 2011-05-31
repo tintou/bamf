@@ -1377,6 +1377,10 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
             {
               desktop_files = g_list_prepend (desktop_files, desktop_file);
             }
+          else
+            {
+              g_free (desktop_file);
+            }
         }
 
       pid = bamf_legacy_window_get_pid (window);
@@ -1388,22 +1392,31 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
       for (l = pid_list; l; l = l->next)
         {
           desktop_file = l->data;
-          if (g_list_find_custom (desktop_files, l->data, (GCompareFunc) g_strcmp0))
-            g_free (desktop_file);
+          if (g_list_find_custom (desktop_files, desktop_file, (GCompareFunc) g_strcmp0))
+            {
+              g_free (desktop_file);
+            }
           else
             {
+              gboolean append = FALSE;
+
               if (window_class)
                 {
                   desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
-                  if ((desktop_class == NULL || g_strcmp0 (desktop_class, window_class) == 0) &&
-                      !g_list_find_custom (desktop_files, desktop_file,
-                                           (GCompareFunc) g_strcmp0))
+                  if (desktop_class == NULL || g_strcmp0 (desktop_class, window_class) == 0)
                     {
-                      desktop_files = g_list_append (desktop_files, desktop_file);
+                      append = TRUE;
                     }
                 }
               else
+                {
+                  append = TRUE;
+                }
+
+              if (append)
                 desktop_files = g_list_append (desktop_files, desktop_file);
+              else
+                g_free (desktop_file);
             }
         }
 
