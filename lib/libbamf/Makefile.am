@@ -1,4 +1,10 @@
+if USE_GTK3
+VER=3
+lib_LTLIBRARIES = libbamf3.la
+else
+VER=
 lib_LTLIBRARIES = libbamf.la
+endif
 
 CLEANFILES =
 DISTCLEANFILES =
@@ -62,6 +68,11 @@ libbamf_la_LDFLAGS = \
   -shared -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
   $(NULL)
 
+libbamf3_la_SOURCES = $(libbamf_la_SOURCES)
+libbamf3_la_LIBADD = $(libbamf_la_LIBADD)
+libbamf3_la_CPPFLAGS = $(libbamf_la_CPPFLAGS)
+libbamf3_la_LDFLAGS = $(libbamf_la_LDFLAGS)
+
 DISTCLEANFILES += \
 	bamf-tab-source-glue.h \
 	$(NULL)
@@ -81,13 +92,13 @@ EXTRA_DIST += \
 	$(NULL)
 
 
-library_includedir=$(includedir)/libbamf/libbamf
+library_includedir=$(includedir)/libbamf$(VER)/libbamf
 library_include_HEADERS = \
   $(sources_h)
 
 libbamf_pcdir = $(libdir)/pkgconfig
 libbamf_pc_DATA = \
-  libbamf.pc
+  libbamf$(VER).pc
 
 
 #########################
