@@ -1,8 +1,10 @@
-bamf (0.2.92-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.92-0ubuntu1) oneiric; urgency=low
 
   * New upstream release.
+  * debian/control, debian/rules:
+    - Add libbamf3-0 and libbamf3-dev packages for GTK+ 3
 
- -- Michael Terry <mterry@ubuntu.com>  Fri, 17 Jun 2011 12:14:06 -0400
+ -- Michael Terry <mterry@ubuntu.com>  Fri, 17 Jun 2011 12:19:14 -0400
 
 bamf (0.2.90-0ubuntu3) natty-proposed; urgency=low
 
