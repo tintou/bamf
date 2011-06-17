@@ -1,3 +1,9 @@
+if USE_GTK3
+VER=3
+else
+VER=
+endif
+
 NULL = 
 
 noinst_PROGRAMS = \
@@ -23,7 +29,7 @@ alt_tabber_LDADD = \
   $(LIBWSBIND_LIBS) \
   $(GLIB_LIBS) \
   $(DBUS_LIBS) \
-  $(top_builddir)/lib/libbamf/libbamf.la
+  $(top_builddir)/lib/libbamf/libbamf$(VER).la
   
 # tab-source-test
 tab_source_test_SOURCES = tab-source-test.c
@@ -42,7 +48,7 @@ tab_source_test_LDADD = \
   $(LIBWSBIND_LIBS) \
   $(GLIB_LIBS) \
   $(DBUS_LIBS) \
-  $(top_builddir)/lib/libbamf/libbamf.la
+  $(top_builddir)/lib/libbamf/libbamf$(VER).la
 
 # interaction-tester
 interaction_tester_SOURCES = interaction-tester.c
@@ -61,7 +67,7 @@ interaction_tester_LDADD = \
   $(LIBWSBIND_LIBS) \
   $(GLIB_LIBS) \
   $(DBUS_LIBS) \
-  $(top_builddir)/lib/libbamf/libbamf.la
+  $(top_builddir)/lib/libbamf/libbamf$(VER).la
 
 
 # desktop-file-launcher

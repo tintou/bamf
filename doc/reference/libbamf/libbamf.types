@@ -1,7 +1,0 @@
-bamf_application_get_type
-bamf_control_get_type
-bamf_factory_get_type
-bamf_matcher_get_type
-bamf_tab_source_get_type
-bamf_view_get_type
-bamf_window_get_type
