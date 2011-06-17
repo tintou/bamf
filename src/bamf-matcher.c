@@ -159,6 +159,10 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
 
   g_signal_emit (self, matcher_signals[VIEW_OPENED],0, path, type);
   g_free (type);
+  
+  // trigger manually since this is already active
+  if (bamf_view_is_active (view))
+    on_view_active_changed (view, TRUE, self);
 }
 
 static void
@@ -297,7 +301,19 @@ trim_exec_string (BamfMatcher * self, char * execString)
     }
 
   if (!result)
-    result = g_strdup (execString);
+    {
+      result = g_strdup (execString);
+    }
+  else
+    {
+      tmp = result;
+      
+      regex = g_regex_new ("((\\.|-)bin|\\.py)$", 0, 0, NULL);
+      result = g_regex_replace_literal (regex, result, -1, 0, "", 0, NULL);
+      
+      g_free (tmp);
+      g_regex_unref (regex);
+    }
 
   g_free (exec);
   g_strfreev (parts);
@@ -466,6 +482,9 @@ load_desktop_file_to_table (BamfMatcher * self,
   desktop_file = G_APP_INFO (g_desktop_app_info_new_from_filename (file));
 
   if (!G_IS_APP_INFO (desktop_file))
+    return;
+    
+  if (g_app_info_should_show (desktop_file) == FALSE)
     return;
 
   exec = g_strdup (g_app_info_get_commandline (desktop_file));

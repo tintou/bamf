@@ -54,7 +54,8 @@ am_test_libbamf_OBJECTS = test_libbamf-test-libbamf.$(OBJEXT) \
 	test_libbamf-test-matcher.$(OBJEXT)
 test_libbamf_OBJECTS = $(am_test_libbamf_OBJECTS)
 am__DEPENDENCIES_1 =
-test_libbamf_DEPENDENCIES = $(top_builddir)/lib/libbamf/libbamf.la \
+test_libbamf_DEPENDENCIES =  \
+	$(top_builddir)/lib/libbamf/libbamf$(VER).la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
@@ -229,6 +230,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+@USE_GTK3_FALSE@VER = 
+@USE_GTK3_TRUE@VER = 3
 test_libbamf_SOURCES = \
   test-libbamf.c \
   test-matcher.c
@@ -248,7 +251,7 @@ test_libbamf_CPPFLAGS = \
   $(GLIB_CFLAGS)
 
 test_libbamf_LDADD = \
-  $(top_builddir)/lib/libbamf/libbamf.la \
+  $(top_builddir)/lib/libbamf/libbamf$(VER).la \
   $(LIBWSBIND_LIBS) \
   $(WNCK_LIBS) \
   $(GLIB_LIBS) \
