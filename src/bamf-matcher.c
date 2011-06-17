@@ -483,6 +483,9 @@ load_desktop_file_to_table (BamfMatcher * self,
 
   if (!G_IS_APP_INFO (desktop_file))
     return;
+    
+  if (g_app_info_should_show (desktop_file) == FALSE)
+    return;
 
   exec = g_strdup (g_app_info_get_commandline (desktop_file));
   

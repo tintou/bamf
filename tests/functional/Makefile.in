@@ -55,7 +55,8 @@ am_alt_tabber_OBJECTS = alt_tabber-alt-tabber.$(OBJEXT)
 alt_tabber_OBJECTS = $(am_alt_tabber_OBJECTS)
 am__DEPENDENCIES_1 =
 alt_tabber_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(top_builddir)/lib/libbamf/libbamf.la
+	$(am__DEPENDENCIES_1) \
+	$(top_builddir)/lib/libbamf/libbamf$(VER).la
 am_desktop_file_launcher_OBJECTS =  \
 	desktop_file_launcher-desktop-file-launcher.$(OBJEXT)
 desktop_file_launcher_OBJECTS = $(am_desktop_file_launcher_OBJECTS)
@@ -68,13 +69,13 @@ am_interaction_tester_OBJECTS =  \
 interaction_tester_OBJECTS = $(am_interaction_tester_OBJECTS)
 interaction_tester_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(top_builddir)/lib/libbamf/libbamf.la
+	$(top_builddir)/lib/libbamf/libbamf$(VER).la
 am_tab_source_test_OBJECTS =  \
 	tab_source_test-tab-source-test.$(OBJEXT)
 tab_source_test_OBJECTS = $(am_tab_source_test_OBJECTS)
 tab_source_test_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(top_builddir)/lib/libbamf/libbamf.la
+	$(top_builddir)/lib/libbamf/libbamf$(VER).la
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -248,6 +249,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+@USE_GTK3_FALSE@VER = 
+@USE_GTK3_TRUE@VER = 3
 NULL = 
 
 # alt-tabber
@@ -267,7 +270,7 @@ alt_tabber_LDADD = \
   $(LIBWSBIND_LIBS) \
   $(GLIB_LIBS) \
   $(DBUS_LIBS) \
-  $(top_builddir)/lib/libbamf/libbamf.la
+  $(top_builddir)/lib/libbamf/libbamf$(VER).la
 
 
 # tab-source-test
@@ -287,7 +290,7 @@ tab_source_test_LDADD = \
   $(LIBWSBIND_LIBS) \
   $(GLIB_LIBS) \
   $(DBUS_LIBS) \
-  $(top_builddir)/lib/libbamf/libbamf.la
+  $(top_builddir)/lib/libbamf/libbamf$(VER).la
 
 
 # interaction-tester
@@ -307,7 +310,7 @@ interaction_tester_LDADD = \
   $(LIBWSBIND_LIBS) \
   $(GLIB_LIBS) \
   $(DBUS_LIBS) \
-  $(top_builddir)/lib/libbamf/libbamf.la
+  $(top_builddir)/lib/libbamf/libbamf$(VER).la
 
 
 # desktop-file-launcher
