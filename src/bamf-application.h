@@ -56,7 +56,7 @@ char            * bamf_application_get_application_type  (BamfApplication *appli
 
 char            * bamf_application_get_desktop_file      (BamfApplication *application);
 void              bamf_application_set_desktop_file      (BamfApplication *application,
-                                                          char * desktop_file);
+                                                          const char * desktop_file);
 
 GArray          * bamf_application_get_xids              (BamfApplication *application);
 
@@ -68,15 +68,15 @@ gboolean          bamf_application_contains_similar_to_window (BamfApplication *
 
 char            * bamf_application_get_wmclass             (BamfApplication *application);
 void              bamf_application_set_wmclass             (BamfApplication *application,
-                                                            char *wmclass);
+                                                            const char *wmclass);
 
 BamfApplication * bamf_application_new                   (void);
 
-BamfApplication * bamf_application_new_from_desktop_file (char * desktop_file);
+BamfApplication * bamf_application_new_from_desktop_file (const char * desktop_file);
 gboolean          bamf_application_get_show_stubs        (BamfApplication *application);
 
 BamfApplication * bamf_application_new_from_desktop_files (GList * desktop_files);
 
-BamfApplication * bamf_application_new_with_wmclass (char *wmclass);
+BamfApplication * bamf_application_new_with_wmclass (const char *wmclass);
 
 #endif

@@ -1203,12 +1203,6 @@ set_window_hint (BamfMatcher * self,
     XCloseDisplay (XDisplay);
 }
 
-static char*
-window_class_name (BamfLegacyWindow *window)
-{
-  return g_strdup (bamf_legacy_window_get_class_name (window));
-}
-
 static char *
 process_exec_string (gint pid)
 {
@@ -1361,7 +1355,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
     }
   else
     {
-      char *window_class = window_class_name (window);
+      const char *window_class = bamf_legacy_window_get_class_name (window);
       
       char *desktop_file;
       char *desktop_class;
@@ -1471,7 +1465,6 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
             }
         }
 
-      g_free (window_class);
       g_list_free (pid_list);
     }
   
@@ -1485,8 +1478,8 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
   GList *possible_apps, *l;
   BamfLegacyWindow *window;
   GList *views, *a;
+  const char *win_class;
   char *desktop_file;
-  char *win_class;
   char *app_class;
   BamfApplication *app = NULL, *best = NULL;
   BamfView *view;
@@ -1498,7 +1491,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
   views = self->priv->views;
 
   possible_apps = bamf_matcher_possible_applications_for_window (self, bamf_window);
-  win_class = window_class_name(window);
+  win_class = bamf_legacy_window_get_class_name (window);
 
   /* Loop over every application, inside that application see if its .desktop file
    * matches with any of our possible hits. If so we match it. If we have no possible hits
@@ -1553,8 +1546,6 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
       bamf_matcher_register_view (self, BAMF_VIEW (best));
       g_object_unref (best);
     }
-
-  g_free (win_class);
 
   for (l = possible_apps; l; l = l->next)
     {
