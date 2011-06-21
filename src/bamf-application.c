@@ -237,7 +237,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
 
 void
 bamf_application_set_desktop_file (BamfApplication *application,
-                                   char * desktop_file)
+                                   const char * desktop_file)
 {
   g_return_if_fail (BAMF_IS_APPLICATION (application));
 
@@ -254,7 +254,7 @@ bamf_application_set_desktop_file (BamfApplication *application,
 
 void
 bamf_application_set_wmclass (BamfApplication *application,
-                            char *wmclass)
+                              const char *wmclass)
 {
   g_return_if_fail (BAMF_IS_APPLICATION (application));
 
@@ -689,7 +689,7 @@ bamf_application_new (void)
 }
 
 BamfApplication *
-bamf_application_new_from_desktop_file (char * desktop_file)
+bamf_application_new_from_desktop_file (const char * desktop_file)
 {
   BamfApplication *application;
   application = (BamfApplication *) g_object_new (BAMF_TYPE_APPLICATION, NULL);
@@ -711,7 +711,7 @@ bamf_application_new_from_desktop_files (GList *desktop_files)
 }
 
 BamfApplication *
-bamf_application_new_with_wmclass (char *wmclass)
+bamf_application_new_with_wmclass (const char *wmclass)
 {
   BamfApplication *application;
   application = (BamfApplication *) g_object_new (BAMF_TYPE_APPLICATION, NULL);
