@@ -150,7 +150,7 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
   type = bamf_view_get_view_type (view);
 
   g_signal_connect (G_OBJECT (view), "closed-internal",
-	      	    (GCallback) on_view_closed, self);
+                    (GCallback) on_view_closed, self);
   g_signal_connect (G_OBJECT (view), "active-changed",
                     (GCallback) on_view_active_changed, self);
 
@@ -271,28 +271,28 @@ trim_exec_string (BamfMatcher * self, char * execString)
       part = parts[i];
 
       if (!g_str_has_prefix (part, "-"))
-	{
-	  tmp = g_utf8_strrchr (part, -1, G_DIR_SEPARATOR);
-	  if (tmp)
-            part = tmp + 1;
+        {
+          tmp = g_utf8_strrchr (part, -1, G_DIR_SEPARATOR);
+          if (tmp)
+                  part = tmp + 1;
 
-	  regexFail = FALSE;
-	  for (j = 0; j < self->priv->bad_prefixes->len; j++)
-	    {
-	      regex = g_array_index (self->priv->bad_prefixes, GRegex *, j);
-	      if (g_regex_match (regex, part, 0, NULL))
-		{
-		  regexFail = TRUE;
-		  break;
-		}
-	    }
+          regexFail = FALSE;
+          for (j = 0; j < self->priv->bad_prefixes->len; j++)
+            {
+              regex = g_array_index (self->priv->bad_prefixes, GRegex *, j);
+              if (g_regex_match (regex, part, 0, NULL))
+                {
+                  regexFail = TRUE;
+                  break;
+                }
+            }
 
-	  if (!regexFail)
-	    {
-	      result = g_strdup (part);
-	      break;
-	    }
-	}
+          if (!regexFail)
+            {
+              result = g_strdup (part);
+              break;
+            }
+        }
       i++;
     }
 
@@ -1138,17 +1138,17 @@ get_window_hint (BamfMatcher *self,
   atom = XInternAtom (XDisplay, atom_name, FALSE);
 
   int result = XGetWindowProperty (XDisplay,
-				   (gulong) bamf_legacy_window_get_xid (window),
-				   atom,
-				   0,
-				   G_MAXINT,
-				   FALSE,
-				   XA_STRING,
-				   &type,
-				   &format,
-				   &numItems,
-				   &bytesAfter,
-				   &buffer);
+                                   (gulong) bamf_legacy_window_get_xid (window),
+                                   atom,
+                                   0,
+                                   G_MAXINT,
+                                   FALSE,
+                                   XA_STRING,
+                                   &type,
+                                   &format,
+                                   &numItems,
+                                   &bytesAfter,
+                                   &buffer);
 
   if (close_display)
     XCloseDisplay (XDisplay);
@@ -1189,18 +1189,18 @@ set_window_hint (BamfMatcher * self,
   }
 
   XChangeProperty (XDisplay,
-		   bamf_legacy_window_get_xid (window),
-		   XInternAtom (XDisplay,
-				atom_name,
-				FALSE),
-		   XA_STRING,
-		   8,
-		   PropModeReplace,
-		   (unsigned char *) data,
-		   strlen (data));
+                   bamf_legacy_window_get_xid (window),
+                   XInternAtom (XDisplay,
+                   atom_name,
+                   FALSE),
+                   XA_STRING,
+                   8,
+                   PropModeReplace,
+                   (unsigned char *) data,
+                   strlen (data));
 
   if (close_display)
-  XCloseDisplay (XDisplay);
+    XCloseDisplay (XDisplay);
 }
 
 static char*
@@ -1228,7 +1228,7 @@ process_exec_string (gint pid)
     {
       g_string_append (exec, argv[i]);
       if (argv[i + 1] != NULL)
-	g_string_append (exec, " ");
+        g_string_append (exec, " ");
       g_free (argv[i]);
       i++;
     }
@@ -1444,6 +1444,8 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
               if (append)
                 {
+                  /* If we're adding a .desktop file stored in the desktop folder,
+                     give it the priority it should have. */
                   GList *last = NULL;
 
                   if (is_desktop_folder_item (desktop_file, -1))
@@ -2222,51 +2224,51 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
   g_type_class_add_private (klass, sizeof (BamfMatcherPrivate));
 
   dbus_g_object_type_install_info (BAMF_TYPE_MATCHER,
-				   &dbus_glib_bamf_matcher_object_info);
+                                   &dbus_glib_bamf_matcher_object_info);
 
   matcher_signals [VIEW_OPENED] =
-  	g_signal_new ("view-opened",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              bamf_marshal_VOID__STRING_STRING,
-  	              G_TYPE_NONE, 2,
-  	              G_TYPE_STRING, G_TYPE_STRING);
+    g_signal_new ("view-opened",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  bamf_marshal_VOID__STRING_STRING,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_STRING, G_TYPE_STRING);
 
   matcher_signals [VIEW_CLOSED] =
-  	g_signal_new ("view-closed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              bamf_marshal_VOID__STRING_STRING,
-  	              G_TYPE_NONE, 2,
-  	              G_TYPE_STRING, G_TYPE_STRING);
+    g_signal_new ("view-closed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  bamf_marshal_VOID__STRING_STRING,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_STRING, G_TYPE_STRING);
 
   matcher_signals [ACTIVE_APPLICATION_CHANGED] =
-  	g_signal_new ("active-application-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              bamf_marshal_VOID__STRING_STRING,
-  	              G_TYPE_NONE, 2,
-  	              G_TYPE_STRING, G_TYPE_STRING);
+    g_signal_new ("active-application-changed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  bamf_marshal_VOID__STRING_STRING,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_STRING, G_TYPE_STRING);
 
   matcher_signals [ACTIVE_WINDOW_CHANGED] =
-  	g_signal_new ("active-window-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              bamf_marshal_VOID__STRING_STRING,
-  	              G_TYPE_NONE, 2,
-  	              G_TYPE_STRING, G_TYPE_STRING);
-  	              
+    g_signal_new ("active-window-changed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  bamf_marshal_VOID__STRING_STRING,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_STRING, G_TYPE_STRING);
+                  
   matcher_signals [FAVORITES_CHANGED] =
-  	g_signal_new ("favorites-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__VOID,
-  	              G_TYPE_NONE, 0);
+    g_signal_new ("favorites-changed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
 }
 
 BamfMatcher *
