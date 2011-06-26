@@ -821,14 +821,7 @@ get_desktop_file_directories (BamfMatcher *self)
 static gint
 compare_sub_values (gconstpointer desktop_path, gconstpointer desktop_file)
 {
-  gchar *path;
-  gint ret;
-
-  path = g_strconcat (desktop_path, G_DIR_SEPARATOR_S, NULL);
-  ret = !g_str_has_prefix (desktop_file, path);
-
-  g_free (path);
-  return ret;
+  return !g_str_has_prefix (desktop_file, desktop_path);
 }
 
 static void
@@ -958,16 +951,19 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
            * of the current path. Free the strings itself only on the 2nd pass
            * (as before, the tables share the same string instance)
            */
+          char *prefix = g_strconcat (path, G_DIR_SEPARATOR_S, NULL);
+
           hash_table_remove_sub_values (self->priv->desktop_id_table,
-                                        compare_sub_values, NULL, path, TRUE);
+                                        compare_sub_values, NULL, prefix, TRUE);
           hash_table_remove_sub_values (self->priv->desktop_file_table,
-                                        compare_sub_values, g_free, path, TRUE);
+                                        compare_sub_values, g_free, prefix, TRUE);
           g_hash_table_foreach_remove (self->priv->desktop_class_table,
-                                       hash_table_compare_sub_values, path);
+                                       hash_table_compare_sub_values, prefix);
 
           g_signal_handlers_disconnect_by_func (monitor, on_monitor_changed, self);
           self->priv->monitors = g_list_remove (self->priv->monitors, monitor);
           g_object_unref (monitor);
+          g_free (prefix);
         }
     }
 
