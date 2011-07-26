@@ -306,9 +306,6 @@ bamf_window_dispose (GObject *object)
 static void
 bamf_window_init (BamfWindow * self)
 {
-  BamfWindowPrivate *priv;
-  priv = self->priv = BAMF_WINDOW_GET_PRIVATE (self);
-
   g_signal_connect (G_OBJECT (bamf_legacy_screen_get_default ()), "active-window-changed",
 		    (GCallback) active_window_changed, self);
 }

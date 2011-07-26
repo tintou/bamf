@@ -92,8 +92,13 @@ main (int argc, char **argv)
   g_object_unref (G_OBJECT (bus_proxy));
 
   matcher  = bamf_matcher_get_default ();
+  g_return_val_if_fail(matcher != NULL, 1);
+
   control  = bamf_control_get_default ();
+  g_return_val_if_fail(control != NULL, 1);
+
   approver = bamf_indicator_source_get_default ();
+  g_return_val_if_fail(approver != NULL, 1);
 
   if (state_file)
     {

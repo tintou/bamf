@@ -549,10 +549,6 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
 static void
 bamf_view_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
-  BamfView *self;
-
-  self = BAMF_VIEW (object);
-
   switch (property_id)
     {
       default:
@@ -563,8 +559,7 @@ bamf_view_set_property (GObject *object, guint property_id, const GValue *value,
 static void
 bamf_view_init (BamfView * self)
 {
-  BamfViewPrivate *priv;
-  priv = self->priv = BAMF_VIEW_GET_PRIVATE (self);
+  return;
 }
 
 static void

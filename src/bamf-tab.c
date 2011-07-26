@@ -157,18 +157,13 @@ bamf_tab_constructed (GObject *object)
 static void
 bamf_tab_dispose (GObject *object)
 {
-  BamfTab *self;
-
-  self = BAMF_TAB (object);
-
   G_OBJECT_CLASS (bamf_tab_parent_class)->dispose (object);
 }
 
 static void
 bamf_tab_init (BamfTab * self)
 {
-  BamfTabPrivate *priv;
-  priv = self->priv = BAMF_TAB_GET_PRIVATE (self);
+  return;
 }
 
 static void

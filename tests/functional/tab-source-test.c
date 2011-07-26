@@ -32,8 +32,13 @@ int main (int argc, char **argv)
   gtk_init (&argc, &argv);
 
   matcher = bamf_matcher_get_default ();
+  g_return_val_if_fail(matcher != NULL, 1);
+
   control = bamf_control_get_default ();
+  g_return_val_if_fail(control != NULL, 1);
+
   source = g_object_new (BAMF_TYPE_TAB_SOURCE, "id", "testingsource", NULL);
+  g_return_val_if_fail(source != NULL, 1);
   
   gtk_main ();
   return 0;

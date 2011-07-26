@@ -339,11 +339,9 @@ bamf_tab_source_constructed (GObject *object)
 static void
 bamf_tab_source_dispose (GObject *object)
 {
-  BamfTabSource *self;
-
-  self = BAMF_TAB_SOURCE (object);
 
   G_OBJECT_CLASS (bamf_tab_source_parent_class)->dispose (object);
+  return;
 }
 
 static void

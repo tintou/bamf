@@ -536,6 +536,7 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
   BamfApplication *application;
 
   application = BAMF_APPLICATION (view);
+  g_return_if_fail(application != NULL);
 
   if (BAMF_IS_WINDOW (child))
     {
