@@ -34,6 +34,27 @@ struct _BamfControlPrivate
   GList *sources;
 };
 
+static void 
+bamf_control_on_launched_callback (GDBusConnection *connection,
+                                   const gchar *sender_name,
+                                   const gchar *object_path,
+                                   const gchar *interface_name,
+                                   const gchar *signal_name,
+                                   GVariant *parameters,
+                                   gpointer user_data)
+{
+  BamfControl *self = BAMF_CONTROL (user_data);
+
+  const gchar *desktop_file;
+  gint64 pid;
+
+  g_variant_get_child (parameters, 0, "^&ay", &desktop_file);
+  g_variant_get_child (parameters, 2, "x", &pid);
+
+  bamf_matcher_register_desktop_file_for_pid (bamf_matcher_get_default (),
+                                              desktop_file, pid);
+}
+
 static void
 bamf_control_constructed (GObject *object)
 {
@@ -52,6 +73,21 @@ bamf_control_constructed (GObject *object)
 
   dbus_g_connection_register_g_object (bus, BAMF_CONTROL_PATH,
                                        G_OBJECT (control));
+
+  
+  GDBusConnection *gbus;
+  gbus = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
+
+  g_dbus_connection_signal_subscribe  (gbus,
+                                       NULL,
+                                       "org.gtk.gio.DesktopAppInfo",
+                                       "Launched",
+                                       "/org/gtk/gio/DesktopAppInfo",
+                                       NULL,
+                                       0,
+                                       bamf_control_on_launched_callback,
+                                       control,
+                                       NULL);
 }
 
 static void
