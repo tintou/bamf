@@ -34,6 +34,8 @@ int main (int argc, char **argv)
   matcher = bamf_matcher_get_default ();
   control = bamf_control_get_default ();
   source = g_object_new (BAMF_TYPE_TAB_SOURCE, "id", "testingsource", NULL);
+
+  printf ("Avoid silly warnings %p %p %p", matcher, control, source);
   
   gtk_main ();
   return 0;

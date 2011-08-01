@@ -43,8 +43,6 @@ bamf_control_on_launched_callback (GDBusConnection *connection,
                                    GVariant *parameters,
                                    gpointer user_data)
 {
-  BamfControl *self = BAMF_CONTROL (user_data);
-
   const gchar *desktop_file;
   gint64 pid;
 
@@ -93,8 +91,7 @@ bamf_control_constructed (GObject *object)
 static void
 bamf_control_init (BamfControl * self)
 {
-  BamfControlPrivate *priv;
-  priv = self->priv = BAMF_CONTROL_GET_PRIVATE (self);
+  self->priv = BAMF_CONTROL_GET_PRIVATE (self);
 }
 
 static void
