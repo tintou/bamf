@@ -144,7 +144,6 @@ tests/functional/Makefile
 tests/bamfdaemon/Makefile
 tests/libbamf/Makefile
 data/Makefile
-module/Makefile
 doc/Makefile
 doc/reference/Makefile
 doc/reference/libbamf/Makefile
