@@ -35,8 +35,11 @@ int main (int argc, char **argv)
   control = bamf_control_get_default ();
   source = g_object_new (BAMF_TYPE_TAB_SOURCE, "id", "testingsource", NULL);
 
-  printf ("Avoid silly warnings %p %p %p", matcher, control, source);
-  
   gtk_main ();
+
+  g_object_unref (matcher);
+  g_object_unref (control);
+  g_object_unref (source);
+
   return 0;
 }
