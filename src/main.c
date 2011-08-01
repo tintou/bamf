@@ -95,14 +95,16 @@ main (int argc, char **argv)
   control  = bamf_control_get_default ();
   approver = bamf_indicator_source_get_default ();
 
-  g_print ("They make me do something with things I dont need to do stuff with %p %p %p", matcher, control, approver);
-
   if (state_file)
     {
       bamf_legacy_screen_set_state_file (bamf_legacy_screen_get_default (), state_file);
     }
 
   gtk_main ();
+
+  g_object_unref (matcher);
+  g_object_unref (control);
+  g_object_unref (approver);
 
   return 0;
 }
