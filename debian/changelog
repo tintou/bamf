@@ -6,6 +6,8 @@ bamf (0.2.94-0ubuntu1) UNRELEASED; urgency=low
   * debian/rules:
     - the new tests depends on a X server, desactivate them when building on
       buildd
+  * debian/bamfdaemon.install:
+    - do not install the gio module as it's not built anymore
 
  -- Didier Roche <didrocks@ubuntu.com>  Thu, 04 Aug 2011 09:11:39 +0200
 
