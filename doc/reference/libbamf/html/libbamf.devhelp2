@@ -18,6 +18,7 @@
   <functions>
     <keyword type="struct" name="struct BamfMatcher" link="BamfMatcher.html#BamfMatcher-struct"/>
     <keyword type="struct" name="struct BamfMatcherClass" link="BamfMatcher.html#BamfMatcherClass"/>
+    <keyword type="struct" name="BamfMatcherPrivate" link="BamfMatcher.html#BamfMatcherPrivate"/>
     <keyword type="function" name="bamf_matcher_get_default ()" link="BamfMatcher.html#bamf-matcher-get-default"/>
     <keyword type="function" name="bamf_matcher_get_active_application ()" link="BamfMatcher.html#bamf-matcher-get-active-application"/>
     <keyword type="function" name="bamf_matcher_get_active_window ()" link="BamfMatcher.html#bamf-matcher-get-active-window"/>
@@ -31,42 +32,41 @@
     <keyword type="function" name="bamf_matcher_get_xids_for_application ()" link="BamfMatcher.html#bamf-matcher-get-xids-for-application"/>
     <keyword type="function" name="bamf_matcher_get_windows ()" link="BamfMatcher.html#bamf-matcher-get-windows"/>
     <keyword type="function" name="bamf_matcher_get_application_for_desktop_file ()" link="BamfMatcher.html#bamf-matcher-get-application-for-desktop-file"/>
-    <keyword type="struct" name="BamfMatcherPrivate" link="BamfMatcher.html#BamfMatcherPrivate"/>
     <keyword type="signal" name="The &quot;active-application-changed&quot; signal" link="BamfMatcher.html#BamfMatcher-active-application-changed"/>
     <keyword type="signal" name="The &quot;active-window-changed&quot; signal" link="BamfMatcher.html#BamfMatcher-active-window-changed"/>
     <keyword type="signal" name="The &quot;view-closed&quot; signal" link="BamfMatcher.html#BamfMatcher-view-closed"/>
     <keyword type="signal" name="The &quot;view-opened&quot; signal" link="BamfMatcher.html#BamfMatcher-view-opened"/>
     <keyword type="struct" name="struct BamfWindow" link="BamfWindow.html#BamfWindow-struct"/>
-    <keyword type="enum" name="enum BamfWindowType" link="BamfWindow.html#BamfWindowType"/>
     <keyword type="struct" name="struct BamfWindowClass" link="BamfWindow.html#BamfWindowClass"/>
+    <keyword type="struct" name="BamfWindowPrivate" link="BamfWindow.html#BamfWindowPrivate"/>
+    <keyword type="enum" name="enum BamfWindowType" link="BamfWindow.html#BamfWindowType"/>
     <keyword type="function" name="bamf_window_get_transient ()" link="BamfWindow.html#bamf-window-get-transient"/>
     <keyword type="function" name="bamf_window_get_window_type ()" link="BamfWindow.html#bamf-window-get-window-type"/>
     <keyword type="function" name="bamf_window_get_xid ()" link="BamfWindow.html#bamf-window-get-xid"/>
     <keyword type="function" name="bamf_window_last_active ()" link="BamfWindow.html#bamf-window-last-active"/>
-    <keyword type="struct" name="BamfWindowPrivate" link="BamfWindow.html#BamfWindowPrivate"/>
     <keyword type="struct" name="struct BamfFactory" link="BamfFactory.html#BamfFactory-struct"/>
     <keyword type="struct" name="struct BamfFactoryClass" link="BamfFactory.html#BamfFactoryClass"/>
+    <keyword type="struct" name="BamfFactoryPrivate" link="BamfFactory.html#BamfFactoryPrivate"/>
     <keyword type="function" name="bamf_factory_view_for_path ()" link="BamfFactory.html#bamf-factory-view-for-path"/>
     <keyword type="function" name="bamf_factory_app_for_file ()" link="BamfFactory.html#bamf-factory-app-for-file"/>
     <keyword type="function" name="bamf_factory_get_default ()" link="BamfFactory.html#bamf-factory-get-default"/>
-    <keyword type="struct" name="BamfFactoryPrivate" link="BamfFactory.html#BamfFactoryPrivate"/>
     <keyword type="struct" name="struct BamfControl" link="BamfControl.html#BamfControl-struct"/>
     <keyword type="struct" name="struct BamfControlClass" link="BamfControl.html#BamfControlClass"/>
+    <keyword type="struct" name="BamfControlPrivate" link="BamfControl.html#BamfControlPrivate"/>
     <keyword type="function" name="bamf_control_get_default ()" link="BamfControl.html#bamf-control-get-default"/>
     <keyword type="function" name="bamf_control_insert_desktop_file ()" link="BamfControl.html#bamf-control-insert-desktop-file"/>
     <keyword type="function" name="bamf_control_register_application_for_pid ()" link="BamfControl.html#bamf-control-register-application-for-pid"/>
     <keyword type="function" name="bamf_control_register_tab_provider ()" link="BamfControl.html#bamf-control-register-tab-provider"/>
     <keyword type="function" name="bamf_control_set_approver_behavior ()" link="BamfControl.html#bamf-control-set-approver-behavior"/>
-    <keyword type="struct" name="BamfControlPrivate" link="BamfControl.html#BamfControlPrivate"/>
     <keyword type="macro" name="BAMF_TAB_SOURCE_CONST()" link="BamfTabSource.html#BAMF-TAB-SOURCE-CONST:CAPS"/>
     <keyword type="struct" name="struct BamfTabSource" link="BamfTabSource.html#BamfTabSource-struct"/>
     <keyword type="struct" name="struct BamfTabSourceClass" link="BamfTabSource.html#BamfTabSourceClass"/>
+    <keyword type="struct" name="BamfTabSourcePrivate" link="BamfTabSource.html#BamfTabSourcePrivate"/>
     <keyword type="function" name="bamf_tab_source_show_tab ()" link="BamfTabSource.html#bamf-tab-source-show-tab"/>
     <keyword type="function" name="bamf_tab_source_get_tab_ids ()" link="BamfTabSource.html#bamf-tab-source-get-tab-ids"/>
     <keyword type="function" name="bamf_tab_source_get_tab_preview ()" link="BamfTabSource.html#bamf-tab-source-get-tab-preview"/>
     <keyword type="function" name="bamf_tab_source_get_tab_uri ()" link="BamfTabSource.html#bamf-tab-source-get-tab-uri"/>
     <keyword type="function" name="bamf_tab_source_get_tab_xid ()" link="BamfTabSource.html#bamf-tab-source-get-tab-xid"/>
-    <keyword type="struct" name="BamfTabSourcePrivate" link="BamfTabSource.html#BamfTabSourcePrivate"/>
     <keyword type="property" name="The &quot;id&quot; property" link="BamfTabSource.html#BamfTabSource--id"/>
     <keyword type="signal" name="The &quot;tab-closed&quot; signal" link="BamfTabSource.html#BamfTabSource-tab-closed"/>
     <keyword type="signal" name="The &quot;tab-opened&quot; signal" link="BamfTabSource.html#BamfTabSource-tab-opened"/>
@@ -74,6 +74,7 @@
     <keyword type="enum" name="enum BamfClickBehavior" link="BamfView.html#BamfClickBehavior"/>
     <keyword type="struct" name="struct BamfView" link="BamfView.html#BamfView-struct"/>
     <keyword type="struct" name="struct BamfViewClass" link="BamfView.html#BamfViewClass"/>
+    <keyword type="struct" name="BamfViewPrivate" link="BamfView.html#BamfViewPrivate"/>
     <keyword type="function" name="bamf_view_get_children ()" link="BamfView.html#bamf-view-get-children"/>
     <keyword type="function" name="bamf_view_is_closed ()" link="BamfView.html#bamf-view-is-closed"/>
     <keyword type="function" name="bamf_view_is_active ()" link="BamfView.html#bamf-view-is-active"/>
@@ -86,7 +87,6 @@
     <keyword type="function" name="bamf_view_set_sticky ()" link="BamfView.html#bamf-view-set-sticky"/>
     <keyword type="function" name="bamf_view_is_sticky ()" link="BamfView.html#bamf-view-is-sticky"/>
     <keyword type="function" name="bamf_view_get_click_suggestion ()" link="BamfView.html#bamf-view-get-click-suggestion"/>
-    <keyword type="struct" name="BamfViewPrivate" link="BamfView.html#BamfViewPrivate"/>
     <keyword type="property" name="The &quot;active&quot; property" link="BamfView.html#BamfView--active"/>
     <keyword type="property" name="The &quot;path&quot; property" link="BamfView.html#BamfView--path"/>
     <keyword type="property" name="The &quot;running&quot; property" link="BamfView.html#BamfView--running"/>
@@ -102,12 +102,12 @@
     <keyword type="signal" name="The &quot;user-visible-changed&quot; signal" link="BamfView.html#BamfView-user-visible-changed"/>
     <keyword type="struct" name="struct BamfApplication" link="BamfApplication.html#BamfApplication-struct"/>
     <keyword type="struct" name="struct BamfApplicationClass" link="BamfApplication.html#BamfApplicationClass"/>
+    <keyword type="struct" name="BamfApplicationPrivate" link="BamfApplication.html#BamfApplicationPrivate"/>
     <keyword type="function" name="bamf_application_get_application_type ()" link="BamfApplication.html#bamf-application-get-application-type"/>
     <keyword type="function" name="bamf_application_get_desktop_file ()" link="BamfApplication.html#bamf-application-get-desktop-file"/>
     <keyword type="function" name="bamf_application_get_windows ()" link="BamfApplication.html#bamf-application-get-windows"/>
     <keyword type="function" name="bamf_application_get_xids ()" link="BamfApplication.html#bamf-application-get-xids"/>
     <keyword type="function" name="bamf_application_get_show_menu_stubs ()" link="BamfApplication.html#bamf-application-get-show-menu-stubs"/>
-    <keyword type="struct" name="BamfApplicationPrivate" link="BamfApplication.html#BamfApplicationPrivate"/>
     <keyword type="signal" name="The &quot;window-added&quot; signal" link="BamfApplication.html#BamfApplication-window-added"/>
     <keyword type="signal" name="The &quot;window-removed&quot; signal" link="BamfApplication.html#BamfApplication-window-removed"/>
   </functions>

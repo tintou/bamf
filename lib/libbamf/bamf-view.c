@@ -556,10 +556,6 @@ bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
 static void
 bamf_view_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
-  BamfView *self;
-
-  self = BAMF_VIEW (object);
-
   switch (property_id)
     {
       default:

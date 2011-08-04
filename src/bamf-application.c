@@ -533,10 +533,6 @@ bamf_application_set_desktop_file_from_list (BamfApplication *self, GList *list)
 static void
 bamf_application_child_removed (BamfView *view, BamfView *child)
 {
-  BamfApplication *application;
-
-  application = BAMF_APPLICATION (view);
-
   if (BAMF_IS_WINDOW (child))
     {
       if (bamf_view_is_on_bus (child))
