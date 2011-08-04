@@ -102,5 +102,9 @@ main (int argc, char **argv)
 
   gtk_main ();
 
+  g_object_unref (matcher);
+  g_object_unref (control);
+  g_object_unref (approver);
+
   return 0;
 }

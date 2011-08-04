@@ -13,18 +13,20 @@
 
 m4_ifndef([AC_AUTOCONF_VERSION],
   [m4_copy([m4_PACKAGE_VERSION], [AC_AUTOCONF_VERSION])])dnl
-m4_if(m4_defn([AC_AUTOCONF_VERSION]), [2.67],,
-[m4_warning([this file was generated for autoconf 2.67.
+m4_if(m4_defn([AC_AUTOCONF_VERSION]), [2.68],,
+[m4_warning([this file was generated for autoconf 2.68.
 You have another version of autoconf.  It may work, but is not guaranteed to.
 If you have problems, you may need to regenerate the build system entirely.
 To do so, use the procedure documented by the package, typically `autoreconf'.])])
 
 # gnome-common.m4
+#
+# serial 3
 # 
 
 dnl GNOME_COMMON_INIT
 
-AC_DEFUN([GNOME_COMMON_INIT],
+AU_DEFUN([GNOME_COMMON_INIT],
 [
   dnl this macro should come after AC_CONFIG_MACRO_DIR
   AC_BEFORE([AC_CONFIG_MACRO_DIR], [$0])
@@ -37,7 +39,10 @@ AC_DEFUN([GNOME_COMMON_INIT],
   fi
 
   AC_SUBST([ACLOCAL_AMFLAGS])
-])
+],
+[[$0: This macro is deprecated. You should set put "ACLOCAL_AMFLAGS = -I m4 ${ACLOCAL_FLAGS}"
+in your top-level Makefile.am, instead, where "m4" is the macro directory set
+with AC_CONFIG_MACRO_DIR() in your configure.ac]])
 
 AC_DEFUN([GNOME_DEBUG_CHECK],
 [
@@ -657,7 +662,8 @@ AC_DEFUN([GTK_CHECK_BACKEND],
 # ----------------------------------
 AC_DEFUN([PKG_PROG_PKG_CONFIG],
 [m4_pattern_forbid([^_?PKG_[A-Z_]+$])
-m4_pattern_allow([^PKG_CONFIG(_PATH)?$])
+m4_pattern_allow([^PKG_CONFIG(_(PATH|LIBDIR|SYSROOT_DIR|ALLOW_SYSTEM_(CFLAGS|LIBS)))?$])
+m4_pattern_allow([^PKG_CONFIG_(DISABLE_UNINSTALLED|TOP_BUILD_DIR|DEBUG_SPEW)$])
 AC_ARG_VAR([PKG_CONFIG], [path to pkg-config utility])
 AC_ARG_VAR([PKG_CONFIG_PATH], [directories to add to pkg-config's search path])
 AC_ARG_VAR([PKG_CONFIG_LIBDIR], [path overriding pkg-config's built-in search path])
@@ -703,7 +709,8 @@ m4_define([_PKG_CONFIG],
     pkg_cv_[]$1="$$1"
  elif test -n "$PKG_CONFIG"; then
     PKG_CHECK_EXISTS([$3],
-                     [pkg_cv_[]$1=`$PKG_CONFIG --[]$2 "$3" 2>/dev/null`],
+                     [pkg_cv_[]$1=`$PKG_CONFIG --[]$2 "$3" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes ],
 		     [pkg_failed=yes])
  else
     pkg_failed=untried
@@ -751,9 +758,9 @@ if test $pkg_failed = yes; then
    	AC_MSG_RESULT([no])
         _PKG_SHORT_ERRORS_SUPPORTED
         if test $_pkg_short_errors_supported = yes; then
-	        $1[]_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "$2" 2>&1`
+	        $1[]_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "$2" 2>&1`
         else 
-	        $1[]_PKG_ERRORS=`$PKG_CONFIG --print-errors "$2" 2>&1`
+	        $1[]_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "$2" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$$1[]_PKG_ERRORS" >&AS_MESSAGE_LOG_FD

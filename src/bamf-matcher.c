@@ -1499,7 +1499,7 @@ bamf_matcher_load_desktop_file (BamfMatcher * self,
 
 void
 bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
-                                            char * desktopFile,
+                                            const char * desktopFile,
                                             gint pid)
 {
   gint *key;

@@ -242,18 +242,13 @@ handle_active_window_changed (WnckScreen *screen, WnckWindow *previous, BamfLega
 static void
 bamf_legacy_screen_dispose (GObject *object)
 {
-  BamfLegacyScreen *self;
-
-  self = BAMF_LEGACY_SCREEN (object);
-
   G_OBJECT_CLASS (bamf_legacy_screen_parent_class)->dispose (object);
 }
 
 static void
 bamf_legacy_screen_init (BamfLegacyScreen * self)
 {
-  BamfLegacyScreenPrivate *priv;
-  priv = self->priv = BAMF_LEGACY_SCREEN_GET_PRIVATE (self);
+  self->priv = BAMF_LEGACY_SCREEN_GET_PRIVATE (self);
 }
 
 static void
