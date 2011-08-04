@@ -1,3 +1,11 @@
+bamf (0.2.94-0ubuntu1) UNRELEASED; urgency=low
+
+  * New upstream release:
+    - no more dependency on the gio ubuntu patch, use the upstream system now
+      (LP: #687683)
+
+ -- Didier Roche <didrocks@ubuntu.com>  Thu, 04 Aug 2011 09:11:39 +0200
+
 bamf (0.2.92-0ubuntu1) oneiric; urgency=low
 
   * New upstream release.
