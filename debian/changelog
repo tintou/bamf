@@ -1,4 +1,4 @@
-bamf (0.2.94-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.94-0ubuntu1) oneiric; urgency=low
 
   * New upstream release:
     - no more dependency on the gio ubuntu patch, use the upstream system now
@@ -9,7 +9,7 @@ bamf (0.2.94-0ubuntu1) UNRELEASED; urgency=low
   * debian/bamfdaemon.install:
     - do not install the gio module as it's not built anymore
 
- -- Didier Roche <didrocks@ubuntu.com>  Thu, 04 Aug 2011 09:11:39 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Thu, 04 Aug 2011 14:56:07 +0200
 
 bamf (0.2.92-0ubuntu1) oneiric; urgency=low
 
