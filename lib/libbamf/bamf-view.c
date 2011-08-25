@@ -356,7 +356,7 @@ bamf_view_get_name (BamfView *self)
     return BAMF_VIEW_GET_CLASS (self)->get_name (self);
 
   if (!bamf_view_remote_ready (self))
-    return priv->local_name;
+    return g_strdup(priv->local_name);
     
   if (!dbus_g_proxy_call (priv->proxy,
                           "Name",
