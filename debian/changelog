@@ -1,11 +1,11 @@
-bamf (0.2.98-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.98-0ubuntu1) oneiric; urgency=low
 
   * New upstream release.
     - Bamf doesn't recognize just installed applications (LP: #676593)
   * debian/control:
     - update Standards-Version
 
- -- Didier Roche <didrocks@ubuntu.com>  Thu, 08 Sep 2011 18:51:49 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Thu, 08 Sep 2011 20:09:28 +0200
 
 bamf (0.2.96-0ubuntu1) oneiric; urgency=low
 
