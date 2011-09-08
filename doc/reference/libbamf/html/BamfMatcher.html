@@ -52,29 +52,29 @@ struct              <a class="link" href="BamfMatcher.html#BamfMatcherClass" tit
 <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="returnvalue">BamfApplication</span></a> *   <a class="link" href="BamfMatcher.html#bamf-matcher-get-application-for-window" title="bamf_matcher_get_application_for_window ()">bamf_matcher_get_application_for_window</a>
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
                                                          <em class="parameter"><code><a class="link" href="BamfWindow.html" title="BamfWindow"><span class="type">BamfWindow</span></a> *window</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfMatcher.html#bamf-matcher-application-is-running" title="bamf_matcher_application_is_running ()">bamf_matcher_application_is_running</a> (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *application</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             <a class="link" href="BamfMatcher.html#bamf-matcher-get-applications" title="bamf_matcher_get_applications ()">bamf_matcher_get_applications</a>       (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);
+<span class="returnvalue">gboolean</span>            <a class="link" href="BamfMatcher.html#bamf-matcher-application-is-running" title="bamf_matcher_application_is_running ()">bamf_matcher_application_is_running</a> (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *application</code></em>);
+<span class="returnvalue">GList</span> *             <a class="link" href="BamfMatcher.html#bamf-matcher-get-applications" title="bamf_matcher_get_applications ()">bamf_matcher_get_applications</a>       (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="BamfMatcher.html#bamf-matcher-register-favorites" title="bamf_matcher_register_favorites ()">bamf_matcher_register_favorites</a>     (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **favorites</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             <a class="link" href="BamfMatcher.html#bamf-matcher-get-running-applications" title="bamf_matcher_get_running_applications ()">bamf_matcher_get_running_applications</a>
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> **favorites</code></em>);
+<span class="returnvalue">GList</span> *             <a class="link" href="BamfMatcher.html#bamf-matcher-get-running-applications" title="bamf_matcher_get_running_applications ()">bamf_matcher_get_running_applications</a>
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             <a class="link" href="BamfMatcher.html#bamf-matcher-get-tabs" title="bamf_matcher_get_tabs ()">bamf_matcher_get_tabs</a>               (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="returnvalue">GArray</span></a> *            <a class="link" href="BamfMatcher.html#bamf-matcher-get-xids-for-application" title="bamf_matcher_get_xids_for_application ()">bamf_matcher_get_xids_for_application</a>
+<span class="returnvalue">GList</span> *             <a class="link" href="BamfMatcher.html#bamf-matcher-get-tabs" title="bamf_matcher_get_tabs ()">bamf_matcher_get_tabs</a>               (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);
+<span class="returnvalue">GArray</span> *            <a class="link" href="BamfMatcher.html#bamf-matcher-get-xids-for-application" title="bamf_matcher_get_xids_for_application ()">bamf_matcher_get_xids_for_application</a>
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *application</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             <a class="link" href="BamfMatcher.html#bamf-matcher-get-windows" title="bamf_matcher_get_windows ()">bamf_matcher_get_windows</a>            (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *application</code></em>);
+<span class="returnvalue">GList</span> *             <a class="link" href="BamfMatcher.html#bamf-matcher-get-windows" title="bamf_matcher_get_windows ()">bamf_matcher_get_windows</a>            (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);
 <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="returnvalue">BamfApplication</span></a> *   <a class="link" href="BamfMatcher.html#bamf-matcher-get-application-for-desktop-file" title="bamf_matcher_get_application_for_desktop_file ()">bamf_matcher_get_application_for_desktop_file</a>
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *desktop_file_path</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> create_if_not_found</code></em>);
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *desktop_file_path</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> create_if_not_found</code></em>);
                     <a class="link" href="BamfMatcher.html#BamfMatcherPrivate" title="BamfMatcherPrivate">BamfMatcherPrivate</a>;
 </pre>
 </div>
 <div class="refsect1">
 <a name="BamfMatcher.object-hierarchy"></a><h2>Object Hierarchy</h2>
 <pre class="synopsis">
-  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+  GObject
    +----BamfMatcher
 </pre>
 </div>
@@ -234,15 +234,15 @@ Used to fetch the <a class="link" href="BamfApplication.html" title="BamfApplica
 <hr>
 <div class="refsect2">
 <a name="bamf-matcher-application-is-running"></a><h3>bamf_matcher_application_is_running ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_matcher_application_is_running (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *application</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">gboolean</span>            bamf_matcher_application_is_running (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *application</code></em>);</pre>
 <p>
 </p>
 </div>
 <hr>
 <div class="refsect2">
 <a name="bamf-matcher-get-applications"></a><h3>bamf_matcher_get_applications ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             bamf_matcher_get_applications       (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">GList</span> *             bamf_matcher_get_applications       (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);</pre>
 <p>
 Used to fetch all xid's associated with an application. Useful for performing window
 </p>
@@ -266,7 +266,7 @@ Used to fetch all xid's associated with an application. Useful for performing wi
 <div class="refsect2">
 <a name="bamf-matcher-register-favorites"></a><h3>bamf_matcher_register_favorites ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                bamf_matcher_register_favorites     (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **favorites</code></em>);</pre>
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> **favorites</code></em>);</pre>
 <p>
 Used to effect how bamf performs matching. Desktop files passed to this method will
 be prefered by bamf to system desktop files.
@@ -289,7 +289,7 @@ be prefered by bamf to system desktop files.
 <hr>
 <div class="refsect2">
 <a name="bamf-matcher-get-running-applications"></a><h3>bamf_matcher_get_running_applications ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             bamf_matcher_get_running_applications
+<pre class="programlisting"><span class="returnvalue">GList</span> *             bamf_matcher_get_running_applications
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);</pre>
 <p>
 Used to fetch all <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a>'s which are running.
@@ -313,7 +313,7 @@ Used to fetch all <a class="link" href="BamfApplication.html" title="BamfApplica
 <hr>
 <div class="refsect2">
 <a name="bamf-matcher-get-tabs"></a><h3>bamf_matcher_get_tabs ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             bamf_matcher_get_tabs               (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">GList</span> *             bamf_matcher_get_tabs               (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);</pre>
 <p>
 Used to fetch all <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>'s representing tabs. Currently unused.
 </p>
@@ -336,16 +336,16 @@ Used to fetch all <a class="link" href="BamfView.html" title="BamfView"><span cl
 <hr>
 <div class="refsect2">
 <a name="bamf-matcher-get-xids-for-application"></a><h3>bamf_matcher_get_xids_for_application ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="returnvalue">GArray</span></a> *            bamf_matcher_get_xids_for_application
+<pre class="programlisting"><span class="returnvalue">GArray</span> *            bamf_matcher_get_xids_for_application
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *application</code></em>);</pre>
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *application</code></em>);</pre>
 <p>
 </p>
 </div>
 <hr>
 <div class="refsect2">
 <a name="bamf-matcher-get-windows"></a><h3>bamf_matcher_get_windows ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             bamf_matcher_get_windows            (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">GList</span> *             bamf_matcher_get_windows            (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);</pre>
 <p>
 Used to fetch all windows that BAMF knows about.
 </p>
@@ -370,8 +370,8 @@ Used to fetch all windows that BAMF knows about.
 <a name="bamf-matcher-get-application-for-desktop-file"></a><h3>bamf_matcher_get_application_for_desktop_file ()</h3>
 <pre class="programlisting"><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="returnvalue">BamfApplication</span></a> *   bamf_matcher_get_application_for_desktop_file
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *desktop_file_path</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> create_if_not_found</code></em>);</pre>
+                                                         <em class="parameter"><code>const <span class="type">gchar</span> *desktop_file_path</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> create_if_not_found</code></em>);</pre>
 <p>
 </p>
 </div>
@@ -388,9 +388,9 @@ Used to fetch all windows that BAMF knows about.
 <div class="refsect2">
 <a name="BamfMatcher-active-application-changed"></a><h3>The <code class="literal">"active-application-changed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *bamfmatcher,
-                                                        <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject"><span class="type">GObject</span></a>     *arg1,
-                                                        <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject"><span class="type">GObject</span></a>     *arg2,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>     user_data)</pre>
+                                                        <span class="type">GObject</span>     *arg1,
+                                                        <span class="type">GObject</span>     *arg2,
+                                                        <span class="type">gpointer</span>     user_data)</pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -411,9 +411,9 @@ Used to fetch all windows that BAMF knows about.
 <div class="refsect2">
 <a name="BamfMatcher-active-window-changed"></a><h3>The <code class="literal">"active-window-changed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *bamfmatcher,
-                                                        <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject"><span class="type">GObject</span></a>     *arg1,
-                                                        <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject"><span class="type">GObject</span></a>     *arg2,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>     user_data)</pre>
+                                                        <span class="type">GObject</span>     *arg1,
+                                                        <span class="type">GObject</span>     *arg2,
+                                                        <span class="type">gpointer</span>     user_data)</pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -434,8 +434,8 @@ Used to fetch all windows that BAMF knows about.
 <div class="refsect2">
 <a name="BamfMatcher-view-closed"></a><h3>The <code class="literal">"view-closed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *bamfmatcher,
-                                                        <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject"><span class="type">GObject</span></a>     *arg1,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>     user_data)</pre>
+                                                        <span class="type">GObject</span>     *arg1,
+                                                        <span class="type">gpointer</span>     user_data)</pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -456,8 +456,8 @@ Used to fetch all windows that BAMF knows about.
 <div class="refsect2">
 <a name="BamfMatcher-view-opened"></a><h3>The <code class="literal">"view-opened"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *bamfmatcher,
-                                                        <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject"><span class="type">GObject</span></a>     *arg1,
-                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>     user_data)</pre>
+                                                        <span class="type">GObject</span>     *arg1,
+                                                        <span class="type">gpointer</span>     user_data)</pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
