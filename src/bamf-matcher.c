@@ -150,7 +150,7 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
   type = bamf_view_get_view_type (view);
 
   g_signal_connect (G_OBJECT (view), "closed-internal",
-	      	    (GCallback) on_view_closed, self);
+                    (GCallback) on_view_closed, self);
   g_signal_connect (G_OBJECT (view), "active-changed",
                     (GCallback) on_view_active_changed, self);
 
@@ -275,28 +275,28 @@ trim_exec_string (BamfMatcher * self, char * execString)
       part = parts[i];
 
       if (!g_str_has_prefix (part, "-"))
-	{
-	  tmp = g_utf8_strrchr (part, -1, '/');
-	  if (tmp)
-            part = tmp + 1;
+        {
+          tmp = g_utf8_strrchr (part, -1, G_DIR_SEPARATOR);
+          if (tmp)
+                  part = tmp + 1;
 
-	  regexFail = FALSE;
-	  for (j = 0; j < self->priv->bad_prefixes->len; j++)
-	    {
-	      regex = g_array_index (self->priv->bad_prefixes, GRegex *, j);
-	      if (g_regex_match (regex, part, 0, NULL))
-		{
-		  regexFail = TRUE;
-		  break;
-		}
-	    }
+          regexFail = FALSE;
+          for (j = 0; j < self->priv->bad_prefixes->len; j++)
+            {
+              regex = g_array_index (self->priv->bad_prefixes, GRegex *, j);
+              if (g_regex_match (regex, part, 0, NULL))
+                {
+                  regexFail = TRUE;
+                  break;
+                }
+            }
 
-	  if (!regexFail)
-	    {
-	      result = g_strdup (part);
-	      break;
-	    }
-	}
+          if (!regexFail)
+            {
+              result = g_strdup (part);
+              break;
+            }
+        }
       i++;
     }
 
@@ -404,6 +404,34 @@ exec_string_should_be_processed (BamfMatcher *self,
   return !g_str_has_prefix (exec, "ooffice") && !g_str_has_prefix (exec, "libreoffice");
 }
 
+static gboolean
+is_desktop_folder_item (const char *desktop_file_path, gssize max_len)
+{
+  gsize len;
+  const char *desktop_folder;
+
+  g_return_val_if_fail (desktop_file_path, FALSE);
+
+  if (max_len > 0)
+    {
+      len = max_len;
+    }
+  else
+    {
+      char *tmp;
+      tmp = strrchr (desktop_file_path, G_DIR_SEPARATOR);
+      g_return_val_if_fail (tmp, FALSE);
+      len = tmp - desktop_file_path;
+    }
+
+  desktop_folder = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
+
+  if (strncmp (desktop_folder, desktop_file_path, len) == 0)
+    return TRUE;
+
+  return FALSE;
+}
+
 static void
 insert_data_into_tables (BamfMatcher *self,
                          const char *data,
@@ -421,19 +449,59 @@ insert_data_into_tables (BamfMatcher *self,
   file_list = g_hash_table_lookup (desktop_file_table, exec);
   id_list   = g_hash_table_lookup (desktop_id_table, desktop_id);
 
-  datadup = g_strdup (data);
-  
-  /* order so that items whose desktop_id == exec string are first in the list */
-  if (g_strcmp0 (exec, desktop_id) == 0)
+  if (g_list_find_custom (file_list, data, (GCompareFunc) g_strcmp0) &&
+      g_list_find_custom (id_list, data, (GCompareFunc) g_strcmp0))
     {
-      file_list = g_list_prepend (file_list, datadup);
-      id_list   = g_list_prepend (id_list,   datadup);
+      return;
+    }
+
+  datadup = g_strdup (data);
+
+  /* order so that items whose desktop_id == exec string are first in the list */
+
+  if (g_strcmp0 (exec, desktop_id) == 0 || is_desktop_folder_item (datadup, -1))
+    {
+      GList *l, *last;
+      last = NULL;
+
+      for (l = file_list; l; l = l->next)
+        {
+          char *dpath;
+          char *dname_start, *dname_end;
+          size_t len;
+
+          dpath = l->data;
+          dname_start = strrchr (dpath, G_DIR_SEPARATOR);
+          if (!dname_start)
+            {
+              continue;
+            }
+
+          dname_start++;
+          dname_end = strrchr (dname_start, '.');
+          len = dname_end - dname_start;
+
+          if (!dname_end || len < 1)
+            {
+              continue;
+            }
+
+          if (strncmp (desktop_id, dname_start, len) != 0 &&
+              !is_desktop_folder_item (dpath, (dname_start - dpath - 1)))
+            {
+              last = l;
+              break;
+            }
+        }
+
+      file_list = g_list_insert_before (file_list, last, datadup);
     }
   else
     {
       file_list = g_list_append (file_list, datadup);
-      id_list   = g_list_append (id_list,   datadup);
     }
+
+  id_list = g_list_append (id_list, datadup);   
 
   g_hash_table_insert (desktop_file_table, g_strdup (exec),       file_list);
   g_hash_table_insert (desktop_id_table,   g_strdup (desktop_id), id_list);
@@ -530,8 +598,8 @@ load_directory_to_table (BamfMatcher * self,
   GFile *dir;
   GFileEnumerator *enumerator;
   GFileInfo *info;
-  const char* name;
-  const char *path;
+  const char *name;
+  char *path;
 
   dir = g_file_new_for_path (directory);
 
@@ -558,7 +626,7 @@ load_directory_to_table (BamfMatcher * self,
                                     desktop_id_table,
                                     desktop_class_table);
 
-      g_free ((gpointer) path);
+      g_free (path);
       g_object_unref (info);
     }
 
@@ -599,8 +667,8 @@ load_index_file_to_table (BamfMatcher * self,
   while ((line = g_data_input_stream_read_line (input, &length, NULL, NULL)) != NULL)
     {
       char *exec;
+      char *filename;
       GString *desktop_id;
-      GString *filename;
 
       gchar **parts = g_strsplit (line, "\t", 3);
 
@@ -612,64 +680,37 @@ load_index_file_to_table (BamfMatcher * self,
           exec = tmp;
         }
 
-      char *name = g_build_filename (directory, parts[0], NULL);
-      filename = g_string_new (name);
-      g_free ((gpointer) name);
+      filename = g_build_filename (directory, parts[0], NULL);
 
       desktop_id = g_string_new (parts[0]);
       g_string_truncate (desktop_id, desktop_id->len - 8);
       
-      insert_data_into_tables (self, filename->str, exec, desktop_id->str, desktop_file_table, desktop_id_table);
-      insert_desktop_file_class_into_table (self, filename->str, desktop_class_table);
+      insert_data_into_tables (self, filename, exec, desktop_id->str, desktop_file_table, desktop_id_table);
+      insert_desktop_file_class_into_table (self, filename, desktop_class_table);
 
       g_string_free (desktop_id, TRUE);
-      length = 0;
+      g_free (filename);
       g_strfreev (parts);
+      length = 0;
     }
-  g_free ((gpointer) directory);
+
+  g_object_unref (input);
+  g_object_unref (stream);
+  g_object_unref (file);
+  g_free (directory);
 }
 
+static GList * get_directory_tree_list (GList *) G_GNUC_WARN_UNUSED_RESULT;
+
 static GList *
-get_desktop_file_directories (BamfMatcher *self)
+get_directory_tree_list (GList *dirs)
 {
+  GList *l;
   GFile *file;
-  GFileInfo *info;
   GFileEnumerator *enumerator;
-  GList *dirs = NULL, *l;
-  const char *env;
-  char  *path;
-  char  *subpath;
-  char **data_dirs = NULL;
-  char **data;
-  
-  env = g_getenv ("XDG_DATA_DIRS");
-  
-  if (env)
-    {
-      data_dirs = g_strsplit (env, ":", 0);
-  
-      for (data = data_dirs; *data; data++)
-        {
-          path = g_build_filename (*data, "applications", NULL);
-          if (g_file_test (path, G_FILE_TEST_IS_DIR))
-            dirs = g_list_prepend (dirs, path);
-          else
-            g_free (path);
-        }
-    }
-    
-  if (!g_list_find_custom (dirs, "/usr/share/applications", (GCompareFunc) g_strcmp0))
-    dirs = g_list_prepend (dirs, g_strdup ("/usr/share/applications"));
-  
-  if (!g_list_find_custom (dirs, "/usr/local/share/applications", (GCompareFunc) g_strcmp0))
-    dirs = g_list_prepend (dirs, g_strdup ("/usr/local/share/applications"));
-  
-  dirs = g_list_prepend (dirs, g_strdup (g_build_filename (g_get_home_dir (), ".local/share/applications", NULL)));
-  
-  if (data_dirs)
-    g_strfreev (data_dirs);
-  
-  /* include subdirs */
+  GFileInfo *info;
+  gchar *path, *subpath;
+
   for (l = dirs; l; l = l->next)
     {
       path = l->data;
@@ -698,8 +739,10 @@ get_desktop_file_directories (BamfMatcher *self)
             continue;
           
           subpath = g_build_filename (path, g_file_info_get_name (info), NULL);
-          /* append for non-recursive recursion love */
-          dirs = g_list_append (dirs, subpath);
+          /* append after the current list item for non-recursive recursion love
+           * and to keep the priorities (hierarchy) of the .desktop directories.
+           */
+          dirs = g_list_insert_before (dirs, l->next, subpath);
 
           g_object_unref (info);
         }
@@ -707,46 +750,316 @@ get_desktop_file_directories (BamfMatcher *self)
       g_object_unref (enumerator);
       g_object_unref (file);
     }
-  
+
   return dirs;
 }
 
-static gboolean
-hash_table_remove_values (gpointer key, gpointer value, gpointer target)
+static GList * get_desktop_file_env_directories (GList *, const gchar *) G_GNUC_WARN_UNUSED_RESULT;
+
+static GList *
+get_desktop_file_env_directories (GList *dirs, const gchar *varname)
 {
-  return g_strcmp0 ((char *) value, (char *) target) == 0;
+  g_return_val_if_fail (varname, dirs);
+
+  const gchar *env;
+  char *path;
+  char **data_dirs = NULL;
+  char **data;
+
+  env = g_getenv (varname);
+
+  if (env)
+    {
+      data_dirs = g_strsplit (env, ":", 0);
+  
+      for (data = data_dirs; *data; data++)
+        {
+          path = g_build_filename (*data, "applications", NULL);
+          if (g_file_test (path, G_FILE_TEST_IS_DIR) &&
+              !g_list_find_custom (dirs, path, (GCompareFunc) g_strcmp0))
+            {
+              dirs = g_list_prepend (dirs, path);
+            }
+          else
+            {
+              g_free (path);
+            }
+        }
+
+      if (data_dirs)
+        g_strfreev (data_dirs);
+    }
+
+  return dirs;
 }
+
+static GList *
+get_desktop_file_directories (BamfMatcher *self)
+{
+  GList *dirs = NULL;
+  char *path;
+
+  dirs = get_desktop_file_env_directories(dirs, "XDG_DATA_DIRS");
+
+  if (!g_list_find_custom (dirs, "/usr/share/applications", (GCompareFunc) g_strcmp0))
+    dirs = g_list_prepend (dirs, g_strdup ("/usr/share/applications"));
+  
+  if (!g_list_find_custom (dirs, "/usr/local/share/applications", (GCompareFunc) g_strcmp0))
+    dirs = g_list_prepend (dirs, g_strdup ("/usr/local/share/applications"));
+  
+  dirs = get_desktop_file_env_directories(dirs, "XDG_DATA_HOME");
+
+  path = g_build_filename (g_get_home_dir (), ".local/share/applications", NULL);
+
+  if (!g_list_find_custom (dirs, path, (GCompareFunc) g_strcmp0))
+    dirs = g_list_prepend (dirs, path);
+  else
+    g_free (path);
+
+  /* include subdirs */
+  dirs = get_directory_tree_list (dirs);
+
+  /* Include also the user desktop folder, but without its subfolders */
+  dirs = g_list_prepend (dirs, g_strdup (g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP)));
+
+  return dirs;
+}
+
+static gint
+compare_sub_values (gconstpointer desktop_path, gconstpointer desktop_file)
+{
+  return !g_str_has_prefix (desktop_file, desktop_path);
+}
+
+static void
+hash_table_remove_sub_values (GHashTable *htable, GCompareFunc compare_func,
+                              GFreeFunc free_func, gpointer target, gboolean search_all)
+{
+  g_return_if_fail (htable);
+  g_return_if_fail (compare_func);
+
+  GHashTableIter iter;
+  gpointer key;
+  gpointer value;
+
+  g_hash_table_iter_init (&iter, htable);
+
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      GList *list, *l;
+      gboolean found;
+
+      list = value;
+      found = FALSE;
+
+      l = list;
+      while (l)
+        {
+          GList *next = l->next;
+
+          if (compare_func (target, l->data) == 0)
+            {
+              found = TRUE;
+
+              if (!l->prev && !l->next)
+              {
+                if (free_func)
+                  g_list_free_full (list, free_func);
+                else
+                  g_list_free (list);
+
+                g_hash_table_iter_remove (&iter);
+
+                next = NULL;
+                break;
+              }
+            else
+              {
+                if (free_func)
+                  free_func (l->data);
+
+                /* If the target is the first element of the list (and thanks to
+-                * the previous check we're also sure that it's not the only one),
+                 * simply switch it with its follower, not to change the first
+                 * pointer and the hash table value for key
+                 */
+                if (l == list)
+                  {
+                    l->data = next->data;
+                    l = next;
+                    next = list;
+                  }
+
+                list = g_list_delete_link (list, l);
+              }
+
+              if (!search_all)
+                break;
+            }
+            l = next;
+        }
+
+      if (found && !search_all)
+         break;
+    }
+}
+
+static gboolean
+hash_table_compare_sub_values (gpointer desktop_path, gpointer desktop_class, gpointer target_path)
+{
+  return !compare_sub_values (target_path, desktop_path);
+}
+
+static void fill_desktop_file_table (BamfMatcher *, GList *, GHashTable *, GHashTable *, GHashTable *);
 
 static void
 on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFileMonitorEvent type, BamfMatcher *self)
 {
   char *path;
+  const char *monitored_dir;
+  GFileType filetype;
 
   g_return_if_fail (G_IS_FILE_MONITOR (monitor));
-  g_return_if_fail (BAMF_IS_MATCHER (self));
-  
-  if (type != G_FILE_MONITOR_EVENT_CHANGED && type != G_FILE_MONITOR_EVENT_DELETED)
-    return;
-  
   g_return_if_fail (G_IS_FILE (file));
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+
+  if (type != G_FILE_MONITOR_EVENT_CREATED &&
+      type != G_FILE_MONITOR_EVENT_DELETED &&
+      type != G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT)
+    return;
+
   path = g_file_get_path (file);
+  filetype = g_file_query_file_type (file, G_FILE_QUERY_INFO_NONE, NULL);
+  monitored_dir = g_object_get_data (G_OBJECT (monitor), "root");
   
-  if (!g_str_has_suffix (path, ".desktop"))
+  if (!g_str_has_suffix (path, ".desktop") &&
+      filetype != G_FILE_TYPE_DIRECTORY &&
+      type != G_FILE_MONITOR_EVENT_DELETED)
     goto out;
-      
-  if (type == G_FILE_MONITOR_EVENT_CREATED)
+
+  if (type == G_FILE_MONITOR_EVENT_DELETED ||
+      type == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT)
     {
-      bamf_matcher_load_desktop_file (self, path);
+      if (g_str_has_suffix (path, ".desktop"))
+        {
+          /* Remove all the .desktop file referencies from the hash tables.
+           * Free the string itself only on the 2nd pass (tables share the same
+           * string instance)
+           */
+          hash_table_remove_sub_values (self->priv->desktop_id_table,
+                                       (GCompareFunc) g_strcmp0, NULL, path, FALSE);
+          hash_table_remove_sub_values (self->priv->desktop_file_table,
+                                       (GCompareFunc) g_strcmp0, g_free, path, FALSE);
+          g_hash_table_remove (self->priv->desktop_class_table, path);
+        }
+      else if (g_strcmp0 (monitored_dir, path) == 0)
+        {
+          /* Remove all the referencies to the .desktop files placed in subfolders
+           * of the current path. Free the strings itself only on the 2nd pass
+           * (as before, the tables share the same string instance)
+           */
+          char *prefix = g_strconcat (path, G_DIR_SEPARATOR_S, NULL);
+
+          hash_table_remove_sub_values (self->priv->desktop_id_table,
+                                        compare_sub_values, NULL, prefix, TRUE);
+          hash_table_remove_sub_values (self->priv->desktop_file_table,
+                                        compare_sub_values, g_free, prefix, TRUE);
+          g_hash_table_foreach_remove (self->priv->desktop_class_table,
+                                       hash_table_compare_sub_values, prefix);
+
+          g_signal_handlers_disconnect_by_func (monitor, on_monitor_changed, self);
+          self->priv->monitors = g_list_remove (self->priv->monitors, monitor);
+          g_object_unref (monitor);
+          g_free (prefix);
+        }
     }
-  else if (type == G_FILE_MONITOR_EVENT_DELETED)
+
+  if (type == G_FILE_MONITOR_EVENT_CREATED ||
+      type == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT)
     {
-      g_hash_table_foreach_remove (self->priv->desktop_id_table, (GHRFunc) hash_table_remove_values, path);
-      g_hash_table_foreach_remove (self->priv->desktop_file_table, (GHRFunc) hash_table_remove_values, path);
-      g_hash_table_remove (self->priv->desktop_class_table, path);
+      if (filetype == G_FILE_TYPE_DIRECTORY)
+        {
+          const char *desktop_dir;
+          desktop_dir = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
+
+          if (g_strcmp0 (monitored_dir, desktop_dir) != 0)
+            {
+              GList *dirs = NULL;
+              dirs = g_list_prepend (dirs, g_strdup (path));
+              dirs = get_directory_tree_list (dirs);
+              fill_desktop_file_table (self, dirs,
+                                       self->priv->desktop_file_table,
+                                       self->priv->desktop_id_table,
+                                       self->priv->desktop_class_table);
+      
+              g_list_free_full (dirs, (GDestroyNotify) g_free);
+            }
+        }
+      else if (filetype != G_FILE_TYPE_UNKNOWN)
+        {
+          bamf_matcher_load_desktop_file (self, path);
+        }
     }
 
 out:
   g_free (path);
+}
+
+static void
+bamf_add_new_monitored_directory (BamfMatcher * self, const gchar *directory)
+{
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+
+  GFile *file;
+  GFileMonitor *monitor;
+
+  file = g_file_new_for_path (directory);
+  monitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE, NULL, NULL);
+  g_file_monitor_set_rate_limit (monitor, 1000);
+  g_object_set_data_full (G_OBJECT (monitor), "root", g_strdup (directory), g_free);
+  g_signal_connect (monitor, "changed", (GCallback) on_monitor_changed, self);
+  self->priv->monitors = g_list_prepend (self->priv->monitors, monitor);
+
+  g_object_unref (file);
+}
+
+static void
+fill_desktop_file_table (BamfMatcher * self,
+                         GList *directories,
+                         GHashTable *desktop_file_table,
+                         GHashTable *desktop_id_table,
+                         GHashTable *desktop_class_table)
+{
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+
+  GList *l;
+  char *directory;
+  char *bamf_file;
+  
+  for (l = directories; l; l = l->next)
+    {
+      directory = l->data;
+
+      if (!g_file_test (directory, G_FILE_TEST_IS_DIR))
+        continue;
+
+      bamf_add_new_monitored_directory (self, directory);
+
+      bamf_file = g_build_filename (directory, "bamf.index", NULL);
+
+      if (g_file_test (bamf_file, G_FILE_TEST_EXISTS))
+        {
+          load_index_file_to_table (self, bamf_file, desktop_file_table,
+                                    desktop_id_table, desktop_class_table);
+        }
+      else
+        {
+          load_directory_to_table (self, directory, desktop_file_table,
+                                   desktop_id_table, desktop_class_table);
+        }
+
+      g_free (bamf_file);
+    }
 }
 
 static void
@@ -755,12 +1068,9 @@ create_desktop_file_table (BamfMatcher * self,
                            GHashTable **desktop_id_table,
                            GHashTable **desktop_class_table)
 {
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+
   GList *directories;
-  GList *l;
-  char *directory;
-  const char *bamf_file;
-  GFile *file;
-  GFileMonitor *monitor;
 
   *desktop_file_table =
     g_hash_table_new_full ((GHashFunc) g_str_hash,
@@ -778,44 +1088,14 @@ create_desktop_file_table (BamfMatcher * self,
     g_hash_table_new_full ((GHashFunc) g_str_hash,
                            (GEqualFunc) g_str_equal,
                            (GDestroyNotify) g_free,
-                           (GDestroyNotify) g_free);
-
-  g_return_if_fail (BAMF_IS_MATCHER (self));
+                           (GDestroyNotify) g_free);  
 
   directories = get_desktop_file_directories (self);
 
-  for (l = directories; l; l = l->next)
-    {
-      directory = l->data;
-      
-      if (!g_file_test (directory, G_FILE_TEST_IS_DIR))
-        continue;
-      
-      file = g_file_new_for_path (directory);
-      monitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE, NULL, NULL);
-      
-      self->priv->monitors = g_list_prepend (self->priv->monitors, monitor);
-      
-      g_signal_connect (monitor, "changed", (GCallback) on_monitor_changed, self);
-      
-      bamf_file = g_build_filename (directory, "bamf.index", NULL);
-
-      if (g_file_test (bamf_file, G_FILE_TEST_EXISTS))
-        {
-          load_index_file_to_table (self, bamf_file, *desktop_file_table,
-                                    *desktop_id_table, *desktop_class_table);
-        }
-      else
-        {
-          load_directory_to_table (self, directory, *desktop_file_table,
-                                   *desktop_id_table, *desktop_class_table);
-        }
-
-      g_free (directory);
-      g_free ((gpointer) bamf_file);
-    }
+  fill_desktop_file_table (self, directories, *desktop_file_table,
+                           *desktop_id_table, *desktop_class_table);
   
-  g_list_free (directories);
+  g_list_free_full (directories, (GDestroyNotify) g_free);
 }
 
 static gboolean
@@ -861,17 +1141,17 @@ get_window_hint (BamfMatcher *self,
   atom = XInternAtom (XDisplay, atom_name, FALSE);
 
   int result = XGetWindowProperty (XDisplay,
-				   (gulong) bamf_legacy_window_get_xid (window),
-				   atom,
-				   0,
-				   G_MAXINT,
-				   FALSE,
-				   XA_STRING,
-				   &type,
-				   &format,
-				   &numItems,
-				   &bytesAfter,
-				   &buffer);
+                                   (gulong) bamf_legacy_window_get_xid (window),
+                                   atom,
+                                   0,
+                                   G_MAXINT,
+                                   FALSE,
+                                   XA_STRING,
+                                   &type,
+                                   &format,
+                                   &numItems,
+                                   &bytesAfter,
+                                   &buffer);
 
   if (close_display)
     XCloseDisplay (XDisplay);
@@ -912,24 +1192,18 @@ set_window_hint (BamfMatcher * self,
   }
 
   XChangeProperty (XDisplay,
-		   bamf_legacy_window_get_xid (window),
-		   XInternAtom (XDisplay,
-				atom_name,
-				FALSE),
-		   XA_STRING,
-		   8,
-		   PropModeReplace,
-		   (unsigned char *) data,
-		   strlen (data));
+                   bamf_legacy_window_get_xid (window),
+                   XInternAtom (XDisplay,
+                   atom_name,
+                   FALSE),
+                   XA_STRING,
+                   8,
+                   PropModeReplace,
+                   (unsigned char *) data,
+                   strlen (data));
 
   if (close_display)
-  XCloseDisplay (XDisplay);
-}
-
-static char*
-window_class_name (BamfLegacyWindow *window)
-{
-  return g_strdup (bamf_legacy_window_get_class_name (window));
+    XCloseDisplay (XDisplay);
 }
 
 static char *
@@ -951,7 +1225,7 @@ process_exec_string (gint pid)
     {
       g_string_append (exec, argv[i]);
       if (argv[i + 1] != NULL)
-	g_string_append (exec, " ");
+        g_string_append (exec, " ");
       g_free (argv[i]);
       i++;
     }
@@ -1084,7 +1358,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
     }
   else
     {
-      char *window_class = window_class_name (window);
+      const char *window_class = bamf_legacy_window_get_class_name (window);
       
       char *desktop_file;
       char *desktop_class;
@@ -1098,6 +1372,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
           for (; l; l = l->next)
             {
               desktop_file = l->data;
+
               if (desktop_file)
                 {
                   desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
@@ -1128,6 +1403,10 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
             {
               desktop_files = g_list_prepend (desktop_files, desktop_file);
             }
+          else
+            {
+              g_free (desktop_file);
+            }
         }
 
       pid = bamf_legacy_window_get_pid (window);
@@ -1139,26 +1418,56 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
       for (l = pid_list; l; l = l->next)
         {
           desktop_file = l->data;
-          if (g_list_find_custom (desktop_files, l->data, (GCompareFunc) g_strcmp0))
-            g_free (desktop_file);
+          if (g_list_find_custom (desktop_files, desktop_file, (GCompareFunc) g_strcmp0))
+            {
+              g_free (desktop_file);
+            }
           else
             {
+              gboolean append = FALSE;
+
               if (window_class)
                 {
                   desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
-                  if ((desktop_class == NULL || g_strcmp0 (desktop_class, window_class) == 0) &&
-                      !g_list_find_custom (desktop_files, desktop_file,
-                                           (GCompareFunc) g_strcmp0))
+                  if (desktop_class == NULL || g_strcmp0 (desktop_class, window_class) == 0)
                     {
-                      desktop_files = g_list_append (desktop_files, desktop_file);
+                      append = TRUE;
                     }
                 }
               else
-                desktop_files = g_list_append (desktop_files, desktop_file);
+                {
+                  append = TRUE;
+                }
+
+              if (append)
+                {
+                  /* If we're adding a .desktop file stored in the desktop folder,
+                     give it the priority it should have. */
+                  GList *last = NULL;
+
+                  if (is_desktop_folder_item (desktop_file, -1))
+                    {
+                      GList *ll;
+
+                      for (ll = desktop_files; ll; ll = ll->next)
+                        {
+                          if (!is_desktop_folder_item (ll->data, -1))
+                            {
+                              last = ll;
+                              break;
+                            }
+                        }
+                    }
+                  
+                  desktop_files = g_list_insert_before (desktop_files, last, desktop_file);
+                }
+              else
+                {
+                  g_free (desktop_file);
+                }
             }
         }
 
-      g_free (window_class);
       g_list_free (pid_list);
     }
   
@@ -1172,8 +1481,8 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
   GList *possible_apps, *l;
   BamfLegacyWindow *window;
   GList *views, *a;
+  const char *win_class;
   char *desktop_file;
-  char *win_class;
   char *app_class;
   BamfApplication *app = NULL, *best = NULL;
   BamfView *view;
@@ -1185,7 +1494,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
   views = self->priv->views;
 
   possible_apps = bamf_matcher_possible_applications_for_window (self, bamf_window);
-  win_class = window_class_name(window);
+  win_class = bamf_legacy_window_get_class_name (window);
 
   /* Loop over every application, inside that application see if its .desktop file
    * matches with any of our possible hits. If so we match it. If we have no possible hits
@@ -1200,7 +1509,6 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
 
       app = BAMF_APPLICATION (view);
       app_class = bamf_application_get_wmclass (app);
-
       desktop_file = bamf_application_get_desktop_file (app);
 
       if (possible_apps)
@@ -1241,8 +1549,6 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
       bamf_matcher_register_view (self, BAMF_VIEW (best));
       g_object_unref (best);
     }
-
-  g_free (win_class);
 
   for (l = possible_apps; l; l = l->next)
     {
@@ -1912,51 +2218,51 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
   g_type_class_add_private (klass, sizeof (BamfMatcherPrivate));
 
   dbus_g_object_type_install_info (BAMF_TYPE_MATCHER,
-				   &dbus_glib_bamf_matcher_object_info);
+                                   &dbus_glib_bamf_matcher_object_info);
 
   matcher_signals [VIEW_OPENED] =
-  	g_signal_new ("view-opened",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              bamf_marshal_VOID__STRING_STRING,
-  	              G_TYPE_NONE, 2,
-  	              G_TYPE_STRING, G_TYPE_STRING);
+    g_signal_new ("view-opened",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  bamf_marshal_VOID__STRING_STRING,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_STRING, G_TYPE_STRING);
 
   matcher_signals [VIEW_CLOSED] =
-  	g_signal_new ("view-closed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              bamf_marshal_VOID__STRING_STRING,
-  	              G_TYPE_NONE, 2,
-  	              G_TYPE_STRING, G_TYPE_STRING);
+    g_signal_new ("view-closed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  bamf_marshal_VOID__STRING_STRING,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_STRING, G_TYPE_STRING);
 
   matcher_signals [ACTIVE_APPLICATION_CHANGED] =
-  	g_signal_new ("active-application-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              bamf_marshal_VOID__STRING_STRING,
-  	              G_TYPE_NONE, 2,
-  	              G_TYPE_STRING, G_TYPE_STRING);
+    g_signal_new ("active-application-changed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  bamf_marshal_VOID__STRING_STRING,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_STRING, G_TYPE_STRING);
 
   matcher_signals [ACTIVE_WINDOW_CHANGED] =
-  	g_signal_new ("active-window-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              bamf_marshal_VOID__STRING_STRING,
-  	              G_TYPE_NONE, 2,
-  	              G_TYPE_STRING, G_TYPE_STRING);
-  	              
+    g_signal_new ("active-window-changed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  bamf_marshal_VOID__STRING_STRING,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_STRING, G_TYPE_STRING);
+                  
   matcher_signals [FAVORITES_CHANGED] =
-  	g_signal_new ("favorites-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__VOID,
-  	              G_TYPE_NONE, 0);
+    g_signal_new ("favorites-changed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
 }
 
 BamfMatcher *
