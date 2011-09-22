@@ -1,3 +1,9 @@
+bamf (0.2.100-0ubuntu1) UNRELEASED; urgency=low
+
+  * New upstream release.
+
+ -- Didier Roche <didrocks@ubuntu.com>  Thu, 22 Sep 2011 10:26:28 +0200
+
 bamf (0.2.98-0ubuntu2) oneiric; urgency=low
 
   * Cherry-pick a crasher fix:

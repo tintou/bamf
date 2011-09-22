@@ -1,0 +1,102 @@
+<!-- ##### SECTION Title ##### -->
+BamfApplication
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### STRUCT BamfApplication ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SIGNAL BamfApplication::window-added ##### -->
+<para>
+
+</para>
+
+@bamfapplication: the object which received the signal.
+@arg1: 
+
+<!-- ##### SIGNAL BamfApplication::window-removed ##### -->
+<para>
+
+</para>
+
+@bamfapplication: the object which received the signal.
+@arg1: 
+
+<!-- ##### STRUCT BamfApplicationClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+
+<!-- ##### STRUCT BamfApplicationPrivate ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### FUNCTION bamf_application_get_application_type ##### -->
+<para>
+
+</para>
+
+@application: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_application_get_desktop_file ##### -->
+<para>
+
+</para>
+
+@application: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_application_get_windows ##### -->
+<para>
+
+</para>
+
+@application: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_application_get_xids ##### -->
+<para>
+
+</para>
+
+@application: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_application_get_show_menu_stubs ##### -->
+<para>
+
+</para>
+
+@application: 
+@Returns: 
+
+
