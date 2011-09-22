@@ -8,7 +8,7 @@
 <link rel="up" href="ch01.html" title="Classes">
 <link rel="prev" href="BamfView.html" title="BamfView">
 <link rel="next" href="object-tree.html" title="Object Hierarchy">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.16 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -43,21 +43,21 @@
 <a name="BamfApplication.synopsis"></a><h2>Synopsis</h2>
 <pre class="synopsis">struct              <a class="link" href="BamfApplication.html#BamfApplication-struct" title="struct BamfApplication">BamfApplication</a>;
 struct              <a class="link" href="BamfApplication.html#BamfApplicationClass" title="struct BamfApplicationClass">BamfApplicationClass</a>;
-const <span class="returnvalue">gchar</span> *       <a class="link" href="BamfApplication.html#bamf-application-get-application-type" title="bamf_application_get_application_type ()">bamf_application_get_application_type</a>
-                                                        (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);
-const <span class="returnvalue">gchar</span> *       <a class="link" href="BamfApplication.html#bamf-application-get-desktop-file" title="bamf_application_get_desktop_file ()">bamf_application_get_desktop_file</a>   (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);
-<span class="returnvalue">GList</span> *             <a class="link" href="BamfApplication.html#bamf-application-get-windows" title="bamf_application_get_windows ()">bamf_application_get_windows</a>        (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);
-<span class="returnvalue">GArray</span> *            <a class="link" href="BamfApplication.html#bamf-application-get-xids" title="bamf_application_get_xids ()">bamf_application_get_xids</a>           (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);
-<span class="returnvalue">gboolean</span>            <a class="link" href="BamfApplication.html#bamf-application-get-show-menu-stubs" title="bamf_application_get_show_menu_stubs ()">bamf_application_get_show_menu_stubs</a>
-                                                        (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);
                     <a class="link" href="BamfApplication.html#BamfApplicationPrivate" title="BamfApplicationPrivate">BamfApplicationPrivate</a>;
+const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="BamfApplication.html#bamf-application-get-application-type" title="bamf_application_get_application_type ()">bamf_application_get_application_type</a>
+                                                        (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);
+const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="BamfApplication.html#bamf-application-get-desktop-file" title="bamf_application_get_desktop_file ()">bamf_application_get_desktop_file</a>   (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             <a class="link" href="BamfApplication.html#bamf-application-get-windows" title="bamf_application_get_windows ()">bamf_application_get_windows</a>        (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="returnvalue">GArray</span></a> *            <a class="link" href="BamfApplication.html#bamf-application-get-xids" title="bamf_application_get_xids ()">bamf_application_get_xids</a>           (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfApplication.html#bamf-application-get-show-menu-stubs" title="bamf_application_get_show_menu_stubs ()">bamf_application_get_show_menu_stubs</a>
+                                                        (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);
 </pre>
 </div>
 <div class="refsect1">
 <a name="BamfApplication.object-hierarchy"></a><h2>Object Hierarchy</h2>
 <pre class="synopsis">
-  GObject
-   +----GInitiallyUnowned
+  <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+   +----<a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
          +----<a class="link" href="BamfView.html" title="BamfView">BamfView</a>
                +----BamfApplication
 </pre>
@@ -95,8 +95,15 @@ const <span class="returnvalue">gchar</span> *       <a class="link" href="BamfA
 </div>
 <hr>
 <div class="refsect2">
+<a name="BamfApplicationPrivate"></a><h3>BamfApplicationPrivate</h3>
+<pre class="programlisting">typedef struct _BamfApplicationPrivate BamfApplicationPrivate;</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2">
 <a name="bamf-application-get-application-type"></a><h3>bamf_application_get_application_type ()</h3>
-<pre class="programlisting">const <span class="returnvalue">gchar</span> *       bamf_application_get_application_type
+<pre class="programlisting">const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       bamf_application_get_application_type
                                                         (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);</pre>
 <p>
 </p>
@@ -104,7 +111,7 @@ const <span class="returnvalue">gchar</span> *       <a class="link" href="BamfA
 <hr>
 <div class="refsect2">
 <a name="bamf-application-get-desktop-file"></a><h3>bamf_application_get_desktop_file ()</h3>
-<pre class="programlisting">const <span class="returnvalue">gchar</span> *       bamf_application_get_desktop_file   (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);</pre>
+<pre class="programlisting">const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       bamf_application_get_desktop_file   (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);</pre>
 <p>
 Used to fetch the path to the .desktop file associated with the passed application. If
 none exists, the result is NULL.
@@ -127,7 +134,7 @@ none exists, the result is NULL.
 <hr>
 <div class="refsect2">
 <a name="bamf-application-get-windows"></a><h3>bamf_application_get_windows ()</h3>
-<pre class="programlisting"><span class="returnvalue">GList</span> *             bamf_application_get_windows        (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);</pre>
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             bamf_application_get_windows        (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);</pre>
 <p>
 Used to fetch all <a class="link" href="BamfWindow.html" title="BamfWindow"><span class="type">BamfWindow</span></a>'s associated with the passed <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a>.
 </p>
@@ -150,7 +157,7 @@ Used to fetch all <a class="link" href="BamfWindow.html" title="BamfWindow"><spa
 <hr>
 <div class="refsect2">
 <a name="bamf-application-get-xids"></a><h3>bamf_application_get_xids ()</h3>
-<pre class="programlisting"><span class="returnvalue">GArray</span> *            bamf_application_get_xids           (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);</pre>
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Arrays.html#GArray"><span class="returnvalue">GArray</span></a> *            bamf_application_get_xids           (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);</pre>
 <p>
 Used to fetch all <a class="link" href="BamfWindow.html" title="BamfWindow"><span class="type">BamfWindow</span></a>'s xids associated with the passed <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a>.
 </p>
@@ -173,15 +180,8 @@ Used to fetch all <a class="link" href="BamfWindow.html" title="BamfWindow"><spa
 <hr>
 <div class="refsect2">
 <a name="bamf-application-get-show-menu-stubs"></a><h3>bamf_application_get_show_menu_stubs ()</h3>
-<pre class="programlisting"><span class="returnvalue">gboolean</span>            bamf_application_get_show_menu_stubs
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_application_get_show_menu_stubs
                                                         (<em class="parameter"><code><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *application</code></em>);</pre>
-<p>
-</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="BamfApplicationPrivate"></a><h3>BamfApplicationPrivate</h3>
-<pre class="programlisting">typedef struct _BamfApplicationPrivate BamfApplicationPrivate;</pre>
 <p>
 </p>
 </div>
@@ -192,7 +192,7 @@ Used to fetch all <a class="link" href="BamfWindow.html" title="BamfWindow"><spa
 <a name="BamfApplication-window-added"></a><h3>The <code class="literal">"window-added"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *bamfapplication,
                                                         <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>        *arg1,
-                                                        <span class="type">gpointer</span>         user_data)</pre>
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>         user_data)</pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -214,7 +214,7 @@ Used to fetch all <a class="link" href="BamfWindow.html" title="BamfWindow"><spa
 <a name="BamfApplication-window-removed"></a><h3>The <code class="literal">"window-removed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> *bamfapplication,
                                                         <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>        *arg1,
-                                                        <span class="type">gpointer</span>         user_data)</pre>
+                                                        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>         user_data)</pre>
 <p>
 </p>
 <div class="variablelist"><table border="0">
@@ -235,6 +235,6 @@ Used to fetch all <a class="link" href="BamfWindow.html" title="BamfWindow"><spa
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.16</div>
 </body>
 </html>
