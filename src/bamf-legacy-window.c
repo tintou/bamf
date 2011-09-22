@@ -102,6 +102,21 @@ bamf_legacy_window_is_skip_tasklist (BamfLegacyWindow *self)
 }
 
 const char *
+bamf_legacy_window_get_class_instance_name (BamfLegacyWindow *self)
+{
+  WnckWindow *window;
+
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
+
+  window = self->priv->legacy_window;
+
+  if (!window)
+    return NULL;
+
+  return wnck_window_get_class_instance_name (window);
+}
+
+const char *
 bamf_legacy_window_get_class_name (BamfLegacyWindow *self)
 {
   WnckClassGroup *group;
