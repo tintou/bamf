@@ -301,13 +301,13 @@ bamf_view_set_sticky (BamfView *view, gboolean value)
   
   if (value == view->priv->sticky)
     return;
+
+  view->priv->sticky = value;
   
   if (value)
     g_object_ref_sink (view);
   else
     g_object_unref (view);
-  
-  view->priv->sticky = value;
 }
 
 gchar *
