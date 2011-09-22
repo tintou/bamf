@@ -1332,6 +1332,16 @@ bamf_matcher_possible_applications_for_pid (BamfMatcher *self,
   return result;
 }
 
+static gboolean
+is_web_app_window (BamfMatcher *self, BamfLegacyWindow *window)
+{
+  const char *window_class = bamf_legacy_window_get_class_name (window);
+  // chromium uses crx_foo wm_class strings to represent its web apps. These apps
+  // will still have the same parent pid and hints as the main chrome window, so we
+  // skip the hint check.
+  return g_str_has_prefix(window_class, "crx_");
+}
+
 static GList *
 bamf_matcher_possible_applications_for_window (BamfMatcher *self,
                                                BamfWindow *bamf_window)
@@ -1350,15 +1360,15 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
   window = bamf_window_get_window (bamf_window);
 
   hint = get_window_hint (self, window, _NET_WM_DESKTOP_FILE);
+  const char *window_class = bamf_legacy_window_get_class_name (window);
 
-  if (hint && strlen (hint) > 0)
+  if (hint && strlen (hint) > 0 && !is_web_app_window(self, window))
     {
       desktop_files = g_list_prepend (desktop_files, hint);
       /* whew, hard work, didn't even have to make a copy! */
     }
   else
     {
-      const char *window_class = bamf_legacy_window_get_class_name (window);
       
       char *desktop_file;
       char *desktop_class;
@@ -1577,8 +1587,28 @@ ensure_window_hint_set (BamfMatcher *self,
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
 
   registered_pids = self->priv->registered_pids;
-  window_hint = get_window_hint (self, window, _NET_WM_DESKTOP_FILE);
 
+  // web apps can end up forcing their parent browsers to match on them, so remove from pid table if this is the case
+  if (is_web_app_window (self, window))
+    {
+      pid = bamf_legacy_window_get_pid (window);
+
+      if (pid > 0)
+        {
+          key = g_new (gint, 1);
+          *key = pid;
+
+          const char* result = g_hash_table_lookup (registered_pids, key);
+          if (result && g_str_has_prefix (result, "/home/"))
+            {
+              g_hash_table_remove (registered_pids, key);
+            }
+        }
+
+      return;
+    }
+
+  window_hint = get_window_hint (self, window, _NET_WM_DESKTOP_FILE);
   if (window_hint && strlen (window_hint) > 0)
     {
       /* already set, make sure we know about this
