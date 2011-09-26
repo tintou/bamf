@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT(bamf, 0.2.102, dx-team@canonical.com)
+AC_INIT(bamf, 0.2.104, dx-team@canonical.com)
 AC_PREREQ(2.62)
 
 AC_CONFIG_SRCDIR(src/main.c)
@@ -75,6 +75,7 @@ if test "x$with_gtk" = "x2"; then
   PKG_CHECK_MODULES(WNCK, libwnck-1.0)
 else
   PKG_CHECK_MODULES(WNCK, libwnck-3.0)
+  AC_DEFINE_UNQUOTED(USE_GTK3, , [Use GTK3])
 fi
 
 #
