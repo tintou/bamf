@@ -96,6 +96,8 @@ gboolean           bamf_legacy_window_is_closed         (BamfLegacyWindow *self)
 
 BamfWindowType     bamf_legacy_window_get_window_type   (BamfLegacyWindow *self);
 
+const char       * bamf_legacy_window_get_class_instance_name (BamfLegacyWindow *self);
+
 const char       * bamf_legacy_window_get_class_name    (BamfLegacyWindow *self);
 
 const char       * bamf_legacy_window_get_name          (BamfLegacyWindow *self);
