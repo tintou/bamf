@@ -17,6 +17,8 @@
  *
  */
 
+#include "config.h"
+
 #include "bamf-legacy-window.h"
 #include "bamf-legacy-screen.h"
 #include <libgtop-2.0/glibtop.h>
@@ -101,6 +103,7 @@ bamf_legacy_window_is_skip_tasklist (BamfLegacyWindow *self)
   return wnck_window_is_skip_tasklist (self->priv->legacy_window);
 }
 
+#ifdef USE_GTK3
 const char *
 bamf_legacy_window_get_class_instance_name (BamfLegacyWindow *self)
 {
@@ -115,6 +118,7 @@ bamf_legacy_window_get_class_instance_name (BamfLegacyWindow *self)
 
   return wnck_window_get_class_instance_name (window);
 }
+#endif
 
 const char *
 bamf_legacy_window_get_class_name (BamfLegacyWindow *self)
