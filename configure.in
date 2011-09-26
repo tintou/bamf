@@ -75,6 +75,7 @@ if test "x$with_gtk" = "x2"; then
   PKG_CHECK_MODULES(WNCK, libwnck-1.0)
 else
   PKG_CHECK_MODULES(WNCK, libwnck-3.0)
+  AC_DEFINE_UNQUOTED(USE_GTK3, , [Use GTK3])
 fi
 
 #
