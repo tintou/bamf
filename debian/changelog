@@ -1,9 +1,11 @@
-bamf (0.2.102-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.104-0ubuntu1) UNRELEASED; urgency=low
 
   * New upstream release.
-    - Hopefully really fix unity confused with chrome web apps (LP: #692462)
+    - Hopefully really fix unity confused with chrome (not chromium) web apps
+      (LP: #692462)
+    - Fix to build with gtk2 version
 
- -- Didier Roche <didrocks@ubuntu.com>  Mon, 26 Sep 2011 13:03:30 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Mon, 26 Sep 2011 13:46:08 +0200
 
 bamf (0.2.100-0ubuntu1) oneiric; urgency=low
 

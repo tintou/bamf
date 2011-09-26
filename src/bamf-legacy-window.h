@@ -21,6 +21,8 @@
 #ifndef __BAMFLEGACY_WINDOW_H__
 #define __BAMFLEGACY_WINDOW_H__
 
+#include "config.h"
+
 #include "bamf.h"
 #include "bamf-view.h"
 #include <sys/types.h>
@@ -96,7 +98,9 @@ gboolean           bamf_legacy_window_is_closed         (BamfLegacyWindow *self)
 
 BamfWindowType     bamf_legacy_window_get_window_type   (BamfLegacyWindow *self);
 
+#ifdef USE_GTK3
 const char       * bamf_legacy_window_get_class_instance_name (BamfLegacyWindow *self);
+#endif
 
 const char       * bamf_legacy_window_get_class_name    (BamfLegacyWindow *self);
 

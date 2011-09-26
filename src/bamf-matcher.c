@@ -17,6 +17,8 @@
  *
  */
 
+#include "config.h"
+
 #include <gdk/gdkx.h>
 
 #include "bamf-marshal.h"
@@ -1336,12 +1338,16 @@ static gboolean
 is_web_app_window (BamfMatcher *self, BamfLegacyWindow *window)
 {
   const char *window_class = bamf_legacy_window_get_class_name (window);
+#ifdef USE_GTK3
   const char *instance_name = bamf_legacy_window_get_class_instance_name(window);
   // chromium uses url wm_class strings to represent its web apps. These apps
   // will still have the same parent pid and hints as the main chrome window, so we
   // skip the hint check. We can tell a window is a chrome web app window if its instance
   // name is google-chrome but its window class is not Google-chrome
   return !g_strcmp0(instance_name, "google-chrome") && g_strcmp0(window_class, "Google-chrome");
+#else
+  return g_str_has_prefix(window_class, "crx_");
+#endif
 }
 
 static GList *
