@@ -328,7 +328,7 @@ prefix_strings (BamfMatcher * self)
 {
   GArray *arr = g_array_new (FALSE, TRUE, sizeof (char *));
 
-  char *str = "^gsku$";
+  char *str = "^gksu(do)?$";
   g_array_append_val (arr, str);
 
   str = "^sudo$";
