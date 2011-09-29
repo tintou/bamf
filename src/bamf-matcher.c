@@ -936,7 +936,10 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
   if (!g_str_has_suffix (path, ".desktop") &&
       filetype != G_FILE_TYPE_DIRECTORY &&
       type != G_FILE_MONITOR_EVENT_DELETED)
-    goto out;
+    {
+      g_free(path);
+      return;
+    }
 
   if (type == G_FILE_MONITOR_EVENT_DELETED ||
       type == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT)
@@ -1002,7 +1005,6 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
         }
     }
 
-out:
   g_free (path);
 }
 
