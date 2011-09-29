@@ -542,22 +542,22 @@ load_desktop_file_to_table (BamfMatcher * self,
                             GHashTable *desktop_id_table,
                             GHashTable *desktop_class_table)
 {
-  GAppInfo *desktop_file;
+  GDesktopAppInfo *desktop_file;
   char *exec;
   char *path;
   GString *desktop_id; /* is ok... really */
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
 
-  desktop_file = G_APP_INFO (g_desktop_app_info_new_from_filename (file));
+  desktop_file = g_desktop_app_info_new_from_filename (file);
 
   if (!G_IS_APP_INFO (desktop_file))
     return;
-    
-  if (g_app_info_should_show (desktop_file) == FALSE)
+
+  if (!g_desktop_app_info_get_show_in (desktop_file, g_getenv ("XDG_CURRENT_DESKTOP")))
     return;
 
-  exec = g_strdup (g_app_info_get_commandline (desktop_file));
+  exec = g_strdup (g_app_info_get_commandline (G_APP_INFO (desktop_file)));
   
   if (!exec)
     return;
@@ -582,7 +582,7 @@ load_desktop_file_to_table (BamfMatcher * self,
   g_free (path);
 
   desktop_id = g_string_truncate (desktop_id, desktop_id->len - 8); /* remove last 8 characters for .desktop */
-  
+
   insert_data_into_tables (self, file, exec, desktop_id->str, desktop_file_table, desktop_id_table);
   insert_desktop_file_class_into_table (self, file, desktop_class_table);
 
@@ -617,7 +617,6 @@ load_directory_to_table (BamfMatcher * self,
   info = g_file_enumerator_next_file (enumerator, NULL, NULL);
   for (; info; info = g_file_enumerator_next_file (enumerator, NULL, NULL))
     {
-
       name = g_file_info_get_name (info);
       path = g_build_filename (directory, name, NULL);
 
