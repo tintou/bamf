@@ -56,8 +56,7 @@ bamf_control_constructed (GObject *object)
 static void
 bamf_control_init (BamfControl * self)
 {
-  BamfControlPrivate *priv;
-  priv = self->priv = BAMF_CONTROL_GET_PRIVATE (self);
+  self->priv = BAMF_CONTROL_GET_PRIVATE (self);
 }
 
 static void

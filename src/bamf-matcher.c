@@ -845,7 +845,6 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
                                  BamfWindow *bamf_window)
 {
   GArray *possible_apps;
-  BamfLegacyWindow *window;
   GList *views, *a;
   char *desktop_file;
   int i;
@@ -855,7 +854,6 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_WINDOW (bamf_window));
 
-  window = bamf_window_get_window (bamf_window);
   views = self->priv->views;
 
   possible_apps = bamf_matcher_possible_applications_for_window (self, bamf_window);

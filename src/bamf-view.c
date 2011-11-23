@@ -447,8 +447,7 @@ bamf_view_dispose (GObject *object)
 static void
 bamf_view_init (BamfView * self)
 {
-  BamfViewPrivate *priv;
-  priv = self->priv = BAMF_VIEW_GET_PRIVATE (self);
+  self->priv = BAMF_VIEW_GET_PRIVATE (self);
 }
 
 static void

@@ -36,5 +36,10 @@ int main (int argc, char **argv)
   source = g_object_new (BAMF_TYPE_TAB_SOURCE, "id", "testingsource", NULL);
   
   gtk_main ();
+  
+  g_object_unref (source);
+  g_object_unref (control);
+  g_object_unref (matcher);
+  
   return 0;
 }
