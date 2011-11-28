@@ -33,8 +33,13 @@ test_libbamf_LDADD = \
   $(GTK_LIBS) \
   $(DBUS_LIBS)
 
-#run make test as part of make check
+# Run tests as part of make check
+if ENABLE_HEADLESS_TESTS
+check-local: test-headless
+else
 check-local: test
+endif
+
 test:
 	@gtester -k -o=test-libbamf-results.xml ./test-libbamf
 
@@ -54,3 +59,28 @@ full-report:
 
 clean-generic:
 	rm -f test-libbamf-results.xml test-libbamf-results.html
+
+# START HEADLESS TESTS
+if ENABLE_HEADLESS_TESTS
+DISPLAY = :27
+LOG_PATH = headless-logs
+test-headless:
+	export DISPLAY=$(DISPLAY); \
+	rm -rf $(LOG_PATH); \
+	mkdir $(LOG_PATH); \
+	$(XVFB) $(DISPLAY) -screen 0 1024x768x8 > $(LOG_PATH)/_Xvfb.out 2>&1 & \
+	sleep 1; \
+	\
+	$(DBUS_LAUNCH) > $(LOG_PATH)/_sessionbus.sh; \
+	source $(LOG_PATH)/_sessionbus.sh; \
+	sleep 1; \
+	\
+	make test; \
+	TEST_RESULTS=$?; \
+	sleep 1; \
+	\
+	kill `grep DBUS_SESSION_BUS_PID $(LOG_PATH)/_sessionbus.sh | grep -oE '[0-9]+'`; \
+	pkill Xvfb;
+	
+endif
+# END HEADLESS TESTS

@@ -114,6 +114,19 @@ AC_PATH_PROG([GLIB_GENMARSHAL], [glib-genmarshal])
 ###########################
 GTK_DOC_CHECK(1.0)
 
+###########################
+# Headless tests
+###########################
+AC_ARG_ENABLE([headless-tests],
+              AS_HELP_STRING([--enable-headless-tests=@<:@no/yes@:>@],[enable headless test suite (requires Xvfb) @<:@default=no@:>@]),,
+              [enable_headless_tests=no])
+
+AM_CONDITIONAL([ENABLE_HEADLESS_TESTS],[test "x$enable_headless_tests" != "xno"])
+
+if test "x$enable_headless_tests" = "xyes"; then
+  AC_PATH_PROG([XVFB],[Xvfb])
+  AC_PATH_PROG([DBUS_LAUNCH],[dbus-launch])
+fi
 
 #
 # Gnome/GTK checks
@@ -157,4 +170,6 @@ ${PACKAGE}-${VERSION}
   Build Environment
     Install Prefix:     ${prefix}
     GTK+ Version:       ${with_gtk}
+    Headless tests:     ${enable_headless_tests}
+
 EOF
