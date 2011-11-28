@@ -1,3 +1,10 @@
+bamf (0.2.104-0ubuntu2) UNRELEASED; urgency=low
+
+  * debian/control, debian/rules:
+    - enable headless tests build
+
+ -- Didier Roche <didrocks@ubuntu.com>  Mon, 28 Nov 2011 11:49:32 +0100
+
 bamf (0.2.104-0ubuntu1) oneiric; urgency=low
 
   * New upstream release.
