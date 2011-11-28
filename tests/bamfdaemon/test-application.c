@@ -401,24 +401,12 @@ test_window_added (void)
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window));
   
   g_assert (signal_seen);
-  g_assert (g_strcmp0 (signal_window, path) == 0);
+  g_assert_cmpstr (signal_window, ==, path);
   
   signal_seen = FALSE;
   
   g_object_unref (window);
   g_object_unref (test);
-   
-  test = bamf_legacy_window_test_new (20, "Window X", "class", "exec");
-  window = bamf_window_new (BAMF_LEGACY_WINDOW (test));
-  
-  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window));
-  
-  g_assert (!signal_seen);
-  
-  path = bamf_view_export_on_bus (BAMF_VIEW (window));
-  
-  g_assert (signal_seen);
-  g_assert (g_strcmp0 (signal_window, path) == 0);
 }
 
 static void
