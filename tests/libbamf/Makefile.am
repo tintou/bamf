@@ -65,21 +65,21 @@ if ENABLE_HEADLESS_TESTS
 DISPLAY = :27
 LOG_PATH = headless-logs
 test-headless:
+	set -e; \
 	export DISPLAY=$(DISPLAY); \
 	rm -rf $(LOG_PATH); \
 	mkdir $(LOG_PATH); \
-	$(XVFB) $(DISPLAY) -screen 0 1024x768x8 > $(LOG_PATH)/_Xvfb.out 2>&1 & \
+	$(XVFB) $(DISPLAY) -screen 0 1024x768x8 > $(LOG_PATH)/Xvfb.out 2>&1 & \
 	sleep 1; \
 	\
-	$(DBUS_LAUNCH) > $(LOG_PATH)/_sessionbus.sh; \
-	source $(LOG_PATH)/_sessionbus.sh; \
+	$(DBUS_LAUNCH) > $(LOG_PATH)/sessionbus.sh; \
+	source $(LOG_PATH)/sessionbus.sh; \
 	sleep 1; \
 	\
 	make test; \
-	TEST_RESULTS=$?; \
 	sleep 1; \
 	\
-	kill `grep DBUS_SESSION_BUS_PID $(LOG_PATH)/_sessionbus.sh | grep -oE '[0-9]+'`; \
+	kill `grep DBUS_SESSION_BUS_PID $(LOG_PATH)/sessionbus.sh | grep -oE '[0-9]+'`; \
 	pkill Xvfb;
 	
 endif
