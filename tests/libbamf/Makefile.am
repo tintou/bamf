@@ -77,7 +77,6 @@ test-headless:
 	sleep 1; \
 	\
 	make test; \
-	TEST_RESULTS=$?; \
 	sleep 1; \
 	\
 	kill `grep DBUS_SESSION_BUS_PID $(LOG_PATH)/sessionbus.sh | grep -oE '[0-9]+'`; \
