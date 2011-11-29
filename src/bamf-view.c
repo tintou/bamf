@@ -462,8 +462,6 @@ bamf_view_export_on_bus (BamfView *view)
       path = g_strdup_printf ("%s/%s", BAMF_DBUS_PATH, stable_name);
       g_free (stable_name);
 
-      g_print ("Export Path: %s\n", path);
-
       BAMF_VIEW_GET_CLASS (view)->names = g_list_prepend (BAMF_VIEW_GET_CLASS (view)->names, path);
 
       view->priv->path = path;
