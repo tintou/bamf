@@ -215,6 +215,9 @@ bamf_legacy_window_save_mini_icon (BamfLegacyWindow *self)
   
   window = self->priv->legacy_window;
   
+  if (!window)
+    return NULL;
+  
   if (wnck_window_get_icon_is_fallback (window))
     return NULL;
   
