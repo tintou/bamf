@@ -332,11 +332,7 @@ handle_window_closed (WnckScreen *screen,
   if (self->priv->legacy_window == window)
     {
       self->priv->is_closed = TRUE;
-
-      if (window == self->priv->legacy_window)
-        {
-          g_signal_emit (self, legacy_window_signals[CLOSED], 0);
-        }
+      g_signal_emit (self, legacy_window_signals[CLOSED], 0);
     }
 }
 
