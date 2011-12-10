@@ -207,27 +207,7 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
   if (name == NULL && class == NULL)
     return NULL;
 
-  if (g_strcmp0 (class, "libreoffice-writer") == 0)
-    {
-      exec = "libreoffice -writer %U";
-    }
-  else if (g_strcmp0 (class, "libreoffice-calc") == 0)
-    {
-      exec = "libreoffice -calc %U";
-    }
-  else if (g_strcmp0 (class, "libreoffice-impress") == 0)
-    {
-      exec = "libreoffice -impress %U";
-    }
-  else if (g_strcmp0 (class, "libreoffice-math") == 0)
-    {
-      exec = "libreoffice -math %U";
-    }
-  else if (g_strcmp0 (class, "libreoffice-draw") == 0)
-    {
-      exec = "libreoffice -draw %U";
-    }
-  else if (g_str_has_suffix (name, "LibreOffice Writer"))
+  if (g_str_has_suffix (name, "LibreOffice Writer"))
     {
       exec = "libreoffice -writer %U";
     }
@@ -1732,7 +1712,7 @@ on_open_office_window_name_changed (BamfLegacyWindow *window, BamfMatcher* self)
 
   char *old_hint;
   const char *new_hint;
-  
+
   old_hint = get_window_hint (self, window, _NET_WM_DESKTOP_FILE);
   new_hint = get_open_office_window_hint (self, window);
 
