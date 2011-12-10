@@ -65,7 +65,6 @@ struct _BamfMatcherPrivate
   GHashTable      * desktop_id_table;
   GHashTable      * desktop_file_table;
   GHashTable      * desktop_class_table;
-  GHashTable      * exec_list;
   GHashTable      * registered_pids;
   GList           * views;
   GList           * monitors;
@@ -135,12 +134,12 @@ on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
     }
 }
 
-static void bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view);
+static void bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view, gboolean unref);
 
 static void
 on_view_closed (BamfView *view, BamfMatcher *self)
 {
-  bamf_matcher_unregister_view (self, view);
+  bamf_matcher_unregister_view (self, view, TRUE);
 }
 
 static void
@@ -168,7 +167,7 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
 }
 
 static void
-bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
+bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view, gboolean unref)
 {
   const char * path;
   char * type;
@@ -181,8 +180,11 @@ bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
   g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_closed, self);
   g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_active_changed, self);
 
-  self->priv->views = g_list_remove (self->priv->views, view);
-  g_object_unref (view);
+  if (unref)
+    {
+      self->priv->views = g_list_remove (self->priv->views, view);
+      g_object_unref (view);
+    }
 
   g_free (type);
 }
@@ -2285,12 +2287,60 @@ bamf_matcher_init (BamfMatcher * self)
 }
 
 static void
+bamf_matcher_dispose (GObject *object)
+{
+  BamfMatcher *self = (BamfMatcher *) object;
+  BamfMatcherPrivate *priv = self->priv;
+  GList *l;
+  int i;
+
+  for (i = 0; i < priv->bad_prefixes->len; i++)
+    {
+      GRegex *regex = g_array_index (priv->bad_prefixes, GRegex *, i);
+      g_regex_unref (regex);
+    }
+
+  g_array_free (priv->bad_prefixes, TRUE);
+  g_array_free (priv->known_pids, TRUE);
+  g_hash_table_destroy (priv->desktop_id_table);
+  g_hash_table_destroy (priv->desktop_file_table);
+  g_hash_table_destroy (priv->desktop_class_table);
+  g_hash_table_destroy (priv->registered_pids);
+
+  for (l = priv->views; l; l = l->next)
+    {
+      bamf_matcher_unregister_view (self, (BamfView*)l->data, FALSE);
+    }
+  g_list_free_full (priv->views, g_object_unref);
+  priv->views = NULL;
+
+  for (l = priv->monitors; l; l = l->next)
+    {
+      g_signal_handlers_disconnect_by_func (G_OBJECT (l->data), 
+                                            (GCallback) on_monitor_changed, self);
+    }
+  g_list_free_full (priv->monitors, g_object_unref);
+  priv->monitors = NULL;
+
+  g_list_free_full (priv->favorites, g_free);
+  priv->favorites = NULL;
+
+  priv->active_app = NULL;
+  priv->active_win = NULL;
+
+  G_OBJECT_CLASS (bamf_matcher_parent_class)->dispose (object);
+}
+
+static void
 bamf_matcher_class_init (BamfMatcherClass * klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   g_type_class_add_private (klass, sizeof (BamfMatcherPrivate));
 
   dbus_g_object_type_install_info (BAMF_TYPE_MATCHER,
                                    &dbus_glib_bamf_matcher_object_info);
+
+  object_class->dispose = bamf_matcher_dispose;
 
   matcher_signals [VIEW_OPENED] =
     g_signal_new ("view-opened",
