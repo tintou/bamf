@@ -1147,13 +1147,11 @@ static gboolean
 is_open_office_window (BamfMatcher * self, BamfLegacyWindow * window)
 {
   const char *class_name = bamf_legacy_window_get_class_name (window);
-  BamfWindowType win_type = bamf_legacy_window_get_window_type (window);
 
-  return (win_type != BAMF_WINDOW_SPLASHSCREEN) &&
-          (g_str_has_prefix (class_name, "LibreOffice") ||
-           g_str_has_prefix (class_name, "libreoffice") ||
-           g_str_has_prefix (class_name, "OpenOffice") ||
-           g_str_has_prefix (class_name, "openoffice"));
+  return (g_str_has_prefix (class_name, "LibreOffice") ||
+          g_str_has_prefix (class_name, "libreoffice") ||
+          g_str_has_prefix (class_name, "OpenOffice") ||
+          g_str_has_prefix (class_name, "openoffice"));
 }
 
 static char *
@@ -1772,6 +1770,13 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
 
   if (is_open_office_window (self, window))
     {
+      BamfWindowType win_type = bamf_legacy_window_get_window_type (window);
+
+      if (win_type == BAMF_WINDOW_SPLASHSCREEN || win_type == BAMF_WINDOW_TOOLBAR)
+        {
+          return;
+        }
+
       char *old_hint = get_window_hint (self, window, _NET_WM_DESKTOP_FILE);
       const char *new_hint = get_open_office_window_hint (self, window);
 
@@ -1788,7 +1793,7 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
     }
 
   /* we have a window who is ready to be matched */
-  handle_raw_window (self, window); 
+  handle_raw_window (self, window);
 }
 
 static void
