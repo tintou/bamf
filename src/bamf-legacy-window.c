@@ -337,6 +337,27 @@ handle_window_closed (WnckScreen *screen,
 }
 
 static void
+handle_destroy_notify (gpointer *data, BamfLegacyWindow *self_was_here)
+{
+  BamfLegacyScreen *screen = bamf_legacy_screen_get_default ();
+  bamf_legacy_screen_inject_window (screen, GPOINTER_TO_UINT (data));
+}
+
+void
+bamf_legacy_window_reopen (BamfLegacyWindow *self)
+{
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
+  g_return_if_fail (WNCK_IS_WINDOW (self->priv->legacy_window));
+
+  guint xid = bamf_legacy_window_get_xid (self);
+  g_object_weak_ref (G_OBJECT (self), (GWeakNotify) handle_destroy_notify,
+                                                    GUINT_TO_POINTER (xid));
+
+  self->priv->is_closed = TRUE;
+  g_signal_emit (self, legacy_window_signals[CLOSED], 0);
+}
+
+static void
 bamf_legacy_window_dispose (GObject *object)
 {
   BamfLegacyWindow *self;
