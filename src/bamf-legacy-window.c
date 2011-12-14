@@ -343,6 +343,9 @@ handle_destroy_notify (gpointer *data, BamfLegacyWindow *self_was_here)
   bamf_legacy_screen_inject_window (screen, GPOINTER_TO_UINT (data));
 }
 
+/* This utility function allows to set a BamfLegacyWindow as closed, notifying
+ * all its owners, and to reopen it once the current window has been destroyed.
+ * This allows to remap particular windows to different applications.         */
 void
 bamf_legacy_window_reopen (BamfLegacyWindow *self)
 {
@@ -350,6 +353,11 @@ bamf_legacy_window_reopen (BamfLegacyWindow *self)
   g_return_if_fail (WNCK_IS_WINDOW (self->priv->legacy_window));
 
   guint xid = bamf_legacy_window_get_xid (self);
+
+  /* Adding a weak ref to this object, causes to get notified after the object
+   * destruction, so once this BamfLegacyWindow has been closed and drestroyed
+   * the handle_destroy_notify() function will be called, and that will
+   * provide to iniject another window like this one to the BamfLegacyScreen  */
   g_object_weak_ref (G_OBJECT (self), (GWeakNotify) handle_destroy_notify,
                                                     GUINT_TO_POINTER (xid));
 
