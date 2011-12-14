@@ -473,6 +473,7 @@ bamf_view_export_on_bus (BamfView *view)
       GObject *old_object = dbus_g_connection_lookup_g_object (bus, path);
       if (G_IS_OBJECT (old_object))
       {
+        g_critical ("BAMF has already registered an object on path \"%s`, this should never happen!", path);
         dbus_g_connection_unregister_g_object (bus, old_object);
       }
 
