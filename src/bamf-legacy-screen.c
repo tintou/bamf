@@ -172,6 +172,11 @@ handle_window_opened (WnckScreen *screen, WnckWindow *window, BamfLegacyScreen *
   g_signal_emit (legacy, legacy_screen_signals[WINDOW_OPENED], 0, legacy_window);
 }
 
+/* This function allows to push into the screen a window by its xid.
+ * If the window is already known, it's just ignored, otherwise it gets added
+ * to the windows list. The BamfLegacyScreen should automatically update its
+ * windows list when they are added/removed from the screen, but if a child
+ * BamfLegacyWindow is closed, then it could be possible to re-add it.        */
 void
 bamf_legacy_screen_inject_window (BamfLegacyScreen *self, guint xid)
 {
