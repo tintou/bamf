@@ -2273,7 +2273,7 @@ bamf_matcher_init (BamfMatcher * self)
 }
 
 static void
-bamf_matcher_dispose (GObject *object)
+bamf_matcher_finalize (GObject *object)
 {
   BamfMatcher *self = (BamfMatcher *) object;
   BamfMatcherPrivate *priv = self->priv;
@@ -2314,7 +2314,7 @@ bamf_matcher_dispose (GObject *object)
   priv->active_app = NULL;
   priv->active_win = NULL;
 
-  G_OBJECT_CLASS (bamf_matcher_parent_class)->dispose (object);
+  G_OBJECT_CLASS (bamf_matcher_parent_class)->finalize (object);
 }
 
 static void
@@ -2326,7 +2326,7 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
   dbus_g_object_type_install_info (BAMF_TYPE_MATCHER,
                                    &dbus_glib_bamf_matcher_object_info);
 
-  object_class->dispose = bamf_matcher_dispose;
+  object_class->dispose = bamf_matcher_finalize;
 
   matcher_signals [VIEW_OPENED] =
     g_signal_new ("view-opened",
