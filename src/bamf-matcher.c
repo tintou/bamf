@@ -2355,7 +2355,7 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
   dbus_g_object_type_install_info (BAMF_TYPE_MATCHER,
                                    &dbus_glib_bamf_matcher_object_info);
 
-  object_class->dispose = bamf_matcher_finalize;
+  object_class->finalize = bamf_matcher_finalize;
 
   matcher_signals [VIEW_OPENED] =
     g_signal_new ("view-opened",
@@ -2392,7 +2392,7 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
                   bamf_marshal_VOID__STRING_STRING,
                   G_TYPE_NONE, 2,
                   G_TYPE_STRING, G_TYPE_STRING);
-                  
+ 
   matcher_signals [FAVORITES_CHANGED] =
     g_signal_new ("favorites-changed",
                   G_OBJECT_CLASS_TYPE (klass),
