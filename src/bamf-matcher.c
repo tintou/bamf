@@ -194,7 +194,7 @@ static char *
 get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
 {
   const gchar *name;
-  char *exec;
+  char *exec = NULL;
   GHashTable *desktopFileTable;
   GList *list;
 
@@ -202,7 +202,8 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
 
   name = bamf_legacy_window_get_name (window);
-  const gchar *class = bamf_legacy_window_get_class_name(window);
+  const gchar *class = bamf_legacy_window_get_class_name (window);
+  BamfWindowType type = bamf_legacy_window_get_window_type (window);
 
   if (name == NULL && class == NULL)
     return NULL;
@@ -231,7 +232,7 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
     {
       exec = "libreoffice %U";
     }
-  else if (g_strcmp0 (name, "LibreOffice") == 0)
+  else if (g_strcmp0 (name, "LibreOffice") == 0 && type == BAMF_WINDOW_NORMAL)
     {
       exec = "libreoffice %U";
     }
@@ -255,20 +256,48 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
     {
       exec = "ooffice -draw %F";
     }
-  else if (g_strcmp0 (name, "OpenOffice.org") == 0)
+  else if (g_strcmp0 (name, "OpenOffice.org") == 0 && type == BAMF_WINDOW_NORMAL)
     {
       exec = "ooffice %F";
     }
   else
     {
-      /* By default fallback to the main launcher */
-      if (g_str_has_prefix (class, "OpenOffice"))
+      if (type != BAMF_WINDOW_NORMAL || bamf_legacy_window_get_transient (window))
+      {
+        /* Child windows can generally easily be recognized by their class */
+        if (g_strcmp0 (class, "libreoffice-writer") == 0)
+          {
+            exec = "libreoffice -writer %U";
+          }
+        else if (g_strcmp0 (class, "libreoffice-calc") == 0)
+          {
+            exec = "libreoffice -calc %U";
+          }
+        else if (g_strcmp0 (class, "libreoffice-impress") == 0)
+          {
+            exec = "libreoffice -impress %U";
+          }
+        else if (g_strcmp0 (class, "libreoffice-math") == 0)
+          {
+            exec = "libreoffice -math %U";
+          }
+        else if (g_strcmp0 (class, "libreoffice-draw") == 0)
+          {
+            exec = "libreoffice -draw %U";
+          }
+      }
+
+      if (!exec)
         {
-          exec = "ooffice %F";
-        }
-      else
-        {
-          exec = "libreoffice %U";
+          /* By default fallback to the main launcher */
+          if (g_str_has_prefix (class, "OpenOffice"))
+            {
+              exec = "ooffice %F";
+            }
+          else
+            {
+              exec = "libreoffice %U";
+            }
         }
     }
 
