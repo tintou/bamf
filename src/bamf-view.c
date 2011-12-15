@@ -470,8 +470,14 @@ bamf_view_export_on_bus (BamfView *view)
 
       g_return_val_if_fail (bus, NULL);
 
-      dbus_g_connection_register_g_object (bus, path, G_OBJECT (view));
+      GObject *old_object = dbus_g_connection_lookup_g_object (bus, path);
+      if (G_IS_OBJECT (old_object))
+      {
+        g_critical ("BAMF has already registered an object on path \"%s`, this should never happen!", path);
+        dbus_g_connection_unregister_g_object (bus, old_object);
+      }
 
+      dbus_g_connection_register_g_object (bus, path, G_OBJECT (view));
       g_signal_emit (view, view_signals[EXPORTED], 0);
     }
 
