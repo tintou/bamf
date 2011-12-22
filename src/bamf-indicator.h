@@ -1,23 +1,21 @@
 /*
- * bamf-indicator.h
- * This file is part of BAMF
+ * Copyright (C) 2010-2011 Canonical Ltd
  *
- * Copyright (C) 2010 - Jason Smith
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
  *
- * BAMF is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * BAMF is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with BAMF; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, 
- * Boston, MA  02110-1301  USA
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Authored by: Jason Smith <jason.smith@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
+ *
  */
 
 #ifndef __BAMF_INDICATOR_H__
@@ -42,7 +40,7 @@ typedef struct _BamfIndicatorPrivate	BamfIndicatorPrivate;
 
 struct _BamfIndicator {
   BamfView parent;
-	
+
   BamfIndicatorPrivate *priv;
 };
 
@@ -52,23 +50,23 @@ struct _BamfIndicatorClass {
 
 GType bamf_indicator_get_type (void) G_GNUC_CONST;
 
-char       * bamf_indicator_get_id            (BamfIndicator *self);
+const char    * bamf_indicator_get_id            (BamfIndicator *self);
 
-char       * bamf_indicator_get_path          (BamfIndicator *self);
+const char    * bamf_indicator_get_path          (BamfIndicator *self);
 
-char       * bamf_indicator_get_address       (BamfIndicator *self);
+const char    * bamf_indicator_get_address       (BamfIndicator *self);
 
-guint32      bamf_indicator_get_pid           (BamfIndicator *self);
+guint32         bamf_indicator_get_pid           (BamfIndicator *self);
 
-gboolean     bamf_indicator_matches_signature (BamfIndicator *self, 
-                                               gint pid, 
-                                               const char *address, 
-                                               const char *path);
+gboolean        bamf_indicator_matches_signature (BamfIndicator *self, 
+                                                  gint pid, 
+                                                  const char *address, 
+                                                  const char *path);
 
-BamfIndicator *bamf_indicator_new (const char *id,
-                                   const char *proxy, 
-                                   const char *address, 
-                                   guint32 pid);
+BamfIndicator * bamf_indicator_new               (const char *id,
+                                                  const char *proxy, 
+                                                  const char *address, 
+                                                  guint32 pid);
 
 G_END_DECLS
 

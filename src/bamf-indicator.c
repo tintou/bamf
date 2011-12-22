@@ -1,30 +1,27 @@
 /*
- * bamf-indicator.c
- * This file is part of BAMF
+ * Copyright (C) 2010-2011 Canonical Ltd
  *
- * Copyright (C) 2010 - Jason Smith
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
  *
- * BAMF is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * BAMF is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANINDICATORILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with BAMF; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, 
- * Boston, MA  02110-1301  USA
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Authored by: Jason Smith <jason.smith@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
+ *
  */
 
 #include "bamf-indicator.h"
-#include "bamf-indicator-glue.h"
 
-
-#define BAMF_INDICATOR_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE((object), BAMF_TYPE_INDICATOR, BamfIndicatorPrivate))
+#define BAMF_INDICATOR_GET_PRIVATE(object)(G_TYPE_INSTANCE_GET_PRIVATE((object), \
+                                           BAMF_TYPE_INDICATOR, BamfIndicatorPrivate))
 
 enum
 {
@@ -39,34 +36,35 @@ enum
 
 struct _BamfIndicatorPrivate
 {
+  BamfDBusIndicator *dbus_iface;
   char *id;
   char *path;
   char *address;
   guint32 pid;
-  DBusGProxy *proxy;
+  GDBusProxy *proxy;
 };
 
 G_DEFINE_TYPE (BamfIndicator, bamf_indicator, BAMF_TYPE_VIEW)
 
-char *
+const char *
 bamf_indicator_get_path (BamfIndicator *self)
 {
   g_return_val_if_fail (BAMF_IS_INDICATOR (self), NULL);
-  return g_strdup (self->priv->path);
+  return self->priv->path;
 }
 
-char *
+const char *
 bamf_indicator_get_address (BamfIndicator *self)
 {
   g_return_val_if_fail (BAMF_IS_INDICATOR (self), NULL);
-  return g_strdup (self->priv->address);
+  return self->priv->address;
 }
 
-char *
+const char *
 bamf_indicator_get_id (BamfIndicator *self)
 {
   g_return_val_if_fail (BAMF_IS_INDICATOR (self), NULL);
-  return g_strdup (self->priv->id);
+  return self->priv->id;
 }
 
 guint32
@@ -86,10 +84,10 @@ bamf_indicator_matches_signature (BamfIndicator *self, gint pid, const char *add
          pid == self->priv->pid;         
 }
 
-static char *
+static const char *
 bamf_indicator_get_view_type (BamfView *view)
 {
-  return g_strdup ("indicator");
+  return "indicator";
 }
 
 static char *
@@ -104,7 +102,8 @@ bamf_indicator_get_stable_bus_name (BamfView *view)
 }
 
 static void
-bamf_indicator_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+bamf_indicator_set_property (GObject *object, guint property_id,
+                             const GValue *value, GParamSpec *pspec)
 {
   BamfIndicator *self;
 
@@ -129,7 +128,7 @@ bamf_indicator_set_property (GObject *object, guint property_id, const GValue *v
         break;
 
       default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     }
 }
 
@@ -159,14 +158,41 @@ bamf_indicator_get_property (GObject *object, guint property_id, GValue *value, 
         break;
 
       default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     }
 }
 
 static void
-bamf_indicator_on_destroy (DBusGProxy *proxy, BamfIndicator *self)
+bamf_indicator_on_destroy (GObject *object, GParamSpec *pspec, BamfIndicator *self)
 {
+  g_object_unref (self->priv->proxy);
+  self->priv->proxy = NULL;
+
   bamf_view_close (BAMF_VIEW (self));
+}
+
+static gboolean
+on_dbus_handle_path (BamfDBusIndicator *interface,
+                     GDBusMethodInvocation *invocation,
+                     BamfIndicator *self)
+{
+  const char *path = bamf_indicator_get_path (self);
+  g_dbus_method_invocation_return_value (invocation,
+                                         g_variant_new ("(s)", path ? path : ""));
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_address (BamfDBusIndicator *interface,
+                        GDBusMethodInvocation *invocation,
+                        BamfIndicator *self)
+{
+  const char *address = bamf_indicator_get_address (self);
+  g_dbus_method_invocation_return_value (invocation,
+                                         g_variant_new ("(s)", address ? address : ""));
+
+  return TRUE;
 }
 
 static void
@@ -174,38 +200,54 @@ bamf_indicator_constructed (GObject *object)
 {
   BamfIndicator *self;
   BamfIndicatorPrivate *priv;
-  DBusGProxy *proxy;
-  DBusGConnection *bus;
+  GDBusProxy *proxy;
   GError *error = NULL;
 
   if (G_OBJECT_CLASS (bamf_indicator_parent_class)->constructed)
     G_OBJECT_CLASS (bamf_indicator_parent_class)->constructed (object);
-  
+
   self = BAMF_INDICATOR (object);
   priv = self->priv;
-  
-  bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-  
-  if (!bus)
+
+  proxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                         G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES|
+                                         G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS|
+                                         G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                                         NULL,
+                                         priv->address,
+                                         priv->path,
+                                         "org.ayatana.indicator.application.service",
+                                         NULL,
+                                         &error);
+
+  if (error)
     {
-      g_warning ("Could not get session bus\n");
-      return;
+      g_debug ("Could not setup proxy: %s %s: %s", priv->address, priv->path,
+                                                   error->message);
+      g_error_free (error);
     }
-  
-  error = NULL;
-  if (!(proxy = dbus_g_proxy_new_for_name_owner (bus, 
-                                                 priv->address,
-                                                 priv->path,
-                                                 "org.ayatana.indicator.application.service",
-                                                 &error)))
+  else
     {
-      g_warning ("Could not setup proxy: %s %s\n", priv->address, priv->path);
-      return;
+      gchar *owner = g_dbus_proxy_get_name_owner (proxy);
+
+      if (owner)
+        {
+          g_free (owner);
+
+          g_signal_connect (G_OBJECT (proxy), "notify::g-name-owner",
+                            G_CALLBACK (bamf_indicator_on_destroy), self);
+
+          if (priv->proxy)
+            g_object_unref (priv->proxy);
+
+          priv->proxy = proxy;
+        }
+      else
+        {
+           g_debug ("Failed to get notification approver proxy: no owner available");
+           g_object_unref (proxy);
+        }
     }
-  
-  priv->proxy = proxy;
-  
-  g_signal_connect (G_OBJECT (proxy), "destroy", (GCallback) bamf_indicator_on_destroy, self);
 }
 
 static void
@@ -243,17 +285,31 @@ bamf_indicator_dispose (GObject *object)
 }
 
 static void
+bamf_indicator_finalize (GObject *object)
+{
+  BamfIndicatorPrivate *priv;
+  
+  priv = BAMF_INDICATOR (object)->priv;
+
+  g_object_unref (priv->dbus_iface);
+
+  G_OBJECT_CLASS (bamf_indicator_parent_class)->finalize (object);
+}
+
+static void
 bamf_indicator_class_init (BamfIndicatorClass *klass)
 {
   GParamSpec *pspec;
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   BamfViewClass *view_class = BAMF_VIEW_CLASS (klass);
-	
-  object_class->constructed  = bamf_indicator_constructed;
-  object_class->get_property = bamf_indicator_get_property;
-  object_class->set_property = bamf_indicator_set_property;
-  object_class->dispose      = bamf_indicator_dispose;
-  view_class->view_type      = bamf_indicator_get_view_type;
+
+  object_class->constructed   = bamf_indicator_constructed;
+  object_class->get_property  = bamf_indicator_get_property;
+  object_class->set_property  = bamf_indicator_set_property;
+  object_class->dispose       = bamf_indicator_dispose;
+  object_class->finalize      = bamf_indicator_finalize;
+
+  view_class->view_type       = bamf_indicator_get_view_type;
   view_class->stable_bus_name = bamf_indicator_get_stable_bus_name;
 
   pspec = g_param_spec_string ("address", "address", "address", NULL, G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
@@ -268,9 +324,6 @@ bamf_indicator_class_init (BamfIndicatorClass *klass)
   pspec = g_param_spec_uint ("pid", "pid", "pid", 0, G_MAXUINT32, 0, G_PARAM_READWRITE);
   g_object_class_install_property (object_class, PROP_PID, pspec);
 
-  dbus_g_object_type_install_info (BAMF_TYPE_INDICATOR,
-				   &dbus_glib_bamf_indicator_object_info);
-
   g_type_class_add_private (object_class, sizeof (BamfIndicatorPrivate));
 }
 
@@ -278,6 +331,19 @@ static void
 bamf_indicator_init (BamfIndicator *self)
 {
   self->priv = BAMF_INDICATOR_GET_PRIVATE (self);
+
+  self->priv->dbus_iface = bamf_dbus_indicator_skeleton_new ();
+
+  /* Registering signal callbacks to reply to dbus method calls */
+  g_signal_connect (self->priv->dbus_iface, "handle-path",
+                    G_CALLBACK (on_dbus_handle_path), self);
+
+  g_signal_connect (self->priv->dbus_iface, "handle-address",
+                    G_CALLBACK (on_dbus_handle_address), self);
+
+  /* Setting the interface for the dbus object */
+  bamf_dbus_object_skeleton_set_indicator (BAMF_DBUS_OBJECT_SKELETON (self),
+                                           self->priv->dbus_iface);
 }
 
 BamfIndicator *
