@@ -129,10 +129,9 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
 {
   const char *path, *type;
   GDBusConnection *connection;
+  GDBusInterfaceSkeleton *dbus_interface = G_DBUS_INTERFACE_SKELETON (self);
 
-  //ADD IDLE TO WAIT CONNECTION!
-  connection = g_dbus_interface_skeleton_get_connection (G_DBUS_INTERFACE_SKELETON (self));
-
+  connection = g_dbus_interface_skeleton_get_connection (dbus_interface);
   path = bamf_view_export_on_bus (view, connection);
   type = bamf_view_get_view_type (view);
 
