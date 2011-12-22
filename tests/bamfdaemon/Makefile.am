@@ -2,6 +2,7 @@ noinst_PROGRAMS = \
   test-bamf
 
 bamf_test_extra_sources = \
+		$(top_srcdir)/src/bamf-daemon.c \
 		$(top_srcdir)/src/bamf-legacy-window.c \
 		$(top_srcdir)/src/bamf-legacy-window-test.c \
 		$(top_srcdir)/src/bamf-legacy-screen.c \
@@ -11,15 +12,19 @@ bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-application.c \
 		$(top_srcdir)/src/bamf-window.c \
 		$(top_srcdir)/src/bamf-tab.c \
-		$(top_srcdir)/src/bamf-tab-source.c \		
+		$(top_srcdir)/src/bamf-tab-source.c \
 		$(top_srcdir)/src/bamf-indicator.c \
 		$(top_srcdir)/src/bamf-indicator-source.c \
 		$(top_builddir)/src/bamf-marshal.c \
+		$(top_builddir)/src/bamf-gdbus-generated.c \
+		$(top_builddir)/src/bamf-gdbus-browser-generated.c \
+		$(top_builddir)/src/bamf-gdbus-indicators-generated.c \
 		$(NULL)
 
 bamf_test_extra_headers = \
 		$(top_srcdir)/src/main.h \
 		$(top_srcdir)/src/bamf.h \
+		$(top_srcdir)/src/bamf-daemon.h \
 		$(top_srcdir)/src/bamf-legacy-window.h \
 		$(top_srcdir)/src/bamf-legacy-window-test.h \
 	  $(top_srcdir)/src/bamf-legacy-screen.h \
@@ -32,14 +37,10 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/bamf-application.h \
 		$(top_srcdir)/src/bamf-indicator-source.h \
 		$(top_srcdir)/src/bamf-indicator.h \
-		$(top_builddir)/src/bamf-application-glue.h \
-		$(top_builddir)/src/bamf-control-glue.h \
-		$(top_builddir)/src/bamf-matcher-glue.h \
-		$(top_builddir)/src/bamf-window-glue.h \
-		$(top_builddir)/src/bamf-view-glue.h \
 		$(top_builddir)/src/bamf-marshal.h \
-		$(top_builddir)/src/bamf-indicator-glue.h \
-		$(top_builddir)/src/bamf-indicator-source-glue.h \
+		$(top_builddir)/src/bamf-gdbus-generated.h \
+		$(top_builddir)/src/bamf-gdbus-browser-generated.h \
+		$(top_builddir)/src/bamf-gdbus-indicators-generated.h \
 		$(NULL)
 
 test_bamf_SOURCES = \

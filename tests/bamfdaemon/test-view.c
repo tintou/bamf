@@ -36,10 +36,14 @@ static void test_running             (void);
 static void test_running_event       (void);
 static void test_parent_child_out_of_order_unref (void);
 
+static GDBusConnection *gdbus_connection = NULL;
+
 void
-test_view_create_suite (void)
+test_view_create_suite (GDBusConnection *connection)
 {
 #define DOMAIN "/View"
+
+  gdbus_connection = connection;
 
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
   g_test_add_func (DOMAIN"/Name", test_name);
@@ -126,12 +130,12 @@ static void
 test_path (void)
 {
   BamfView *view;
-  char *path;
+  const char *path;
 
   view = g_object_new (BAMF_TYPE_VIEW, NULL);
   g_assert (bamf_view_get_path (view) == NULL);
 
-  path = bamf_view_export_on_bus (view);
+  path = bamf_view_export_on_bus (view, gdbus_connection);
   g_assert (path);
   g_assert (g_strcmp0 (path, bamf_view_get_path (view)) == 0);
 
@@ -155,7 +159,7 @@ test_path_collision (void)
 
           views = g_list_prepend (views, view);
 
-          bamf_view_export_on_bus (view);
+          bamf_view_export_on_bus (view, gdbus_connection);
         }
 
       for (l = views; l; l = l->next)
@@ -182,24 +186,24 @@ test_children (void)
   g_assert (bamf_view_get_children (parent) == NULL);
 
   bamf_view_add_child (parent, child1);
-  g_assert (g_list_length (bamf_view_get_children (parent)) == 1);
-  g_assert (g_list_nth_data (bamf_view_get_children (parent), 0) == child1);
+  g_assert (g_list_length ((GList*)bamf_view_get_children (parent)) == 1);
+  g_assert (g_list_nth_data ((GList*)bamf_view_get_children (parent), 0) == child1);
 
   bamf_view_add_child (parent, child2);
   bamf_view_add_child (parent, child3);
-  g_assert (g_list_length (bamf_view_get_children (parent)) == 3);
+  g_assert (g_list_length ((GList*)bamf_view_get_children (parent)) == 3);
 
   bamf_view_close (child1);
   g_object_unref (child1);
-  g_assert (g_list_length (bamf_view_get_children (parent)) == 2);
+  g_assert (g_list_length ((GList*)bamf_view_get_children (parent)) == 2);
 
   bamf_view_close (child2);
   g_object_unref (child2);
-  g_assert (g_list_length (bamf_view_get_children (parent)) == 1);
+  g_assert (g_list_length ((GList*)bamf_view_get_children (parent)) == 1);
 
   bamf_view_close (child3);
   g_object_unref (child3);
-  g_assert (g_list_length (bamf_view_get_children (parent)) == 0);
+  g_assert (g_list_length ((GList*)bamf_view_get_children (parent)) == 0);
 
   bamf_view_close (parent);
   g_object_unref (parent);
@@ -210,10 +214,9 @@ test_children_paths (void)
 {
   BamfView *parent;
   BamfView *child1, *child2, *child3;
-  char **paths;
-  char *path;
-  int i; 
-  guint length;
+  GVariant *container;
+  GVariantIter *paths;
+  const char *path;
   gboolean found;
 
   parent = g_object_new (BAMF_TYPE_VIEW, NULL);
@@ -221,67 +224,73 @@ test_children_paths (void)
   child2 = g_object_new (BAMF_TYPE_VIEW, NULL);
   child3 = g_object_new (BAMF_TYPE_VIEW, NULL);
 
-  bamf_view_export_on_bus (parent);
-  bamf_view_export_on_bus (child1);
-  bamf_view_export_on_bus (child2);
+  bamf_view_export_on_bus (parent, gdbus_connection);
+  bamf_view_export_on_bus (child1, gdbus_connection);
+  bamf_view_export_on_bus (child2, gdbus_connection);
 
   g_assert (bamf_view_get_children (parent) == NULL);
 
   bamf_view_add_child (parent, child1);
   bamf_view_add_child (parent, child2);
   bamf_view_add_child (parent, child3);
-  g_assert (g_list_length (bamf_view_get_children (parent)) == 3);
+  g_assert (g_list_length ((GList*)bamf_view_get_children (parent)) == 3);
 
-  
-  paths = bamf_view_get_children_paths (parent);
-  length = g_strv_length (paths);
-  g_assert (length == 2);
+  container = bamf_view_get_children_paths (parent);
+  g_assert (g_variant_type_equal (g_variant_get_type (container),
+                                  G_VARIANT_TYPE ("(as)")));
+  g_assert (g_variant_n_children (container) == 1);
+  g_variant_get (container, "(as)", &paths);
+  g_assert (g_variant_iter_n_children (paths) == 2);
+  g_variant_iter_free (paths);
+  g_variant_unref (container);
 
-  g_strfreev (paths);
-  bamf_view_export_on_bus (child3);
+  bamf_view_export_on_bus (child3, gdbus_connection);
 
-  paths = bamf_view_get_children_paths (parent);
-  length = g_strv_length (paths);
-  g_assert (length == 3);
+  container = bamf_view_get_children_paths (parent);
+  g_variant_get (container, "(as)", &paths);
+  g_assert (g_variant_iter_n_children (paths) == 3);
 
   found = FALSE;
-  for (i = 0; i < length; i++)
+  while (g_variant_iter_loop (paths, "s", &path))
     {
-      path = paths[i];
       if (g_strcmp0 (path, bamf_view_get_path (child1)) == 0)
         {
           found = TRUE;
           break;
-        }      
+        }
     }
 
   g_assert (found);
 
   found = FALSE;
-  for (i = 0; i < length; i++)
+  g_variant_get (container, "(as)", &paths);
+  while (g_variant_iter_loop (paths, "s", &path))
     {
-      path = paths[i];
       if (g_strcmp0 (path, bamf_view_get_path (child2)) == 0)
         {
           found = TRUE;
           break;
-        }      
+        }
     }
+  g_variant_iter_free (paths);
 
   g_assert (found);
 
   found = FALSE;
-  for (i = 0; i < length; i++)
+  g_variant_get (container, "(as)", &paths);
+  while (g_variant_iter_loop (paths, "s", &path))
     {
-      path = paths[i];
       if (g_strcmp0 (path, bamf_view_get_path (child3)) == 0)
         {
           found = TRUE;
           break;
-        }      
+        }
     }
+  g_variant_iter_free (paths);
 
   g_assert (found);
+
+  g_variant_unref (container);
 
   g_object_unref (child1);
   g_object_unref (child2);
@@ -386,8 +395,8 @@ test_child_added_event (void)
   parent = g_object_new (BAMF_TYPE_VIEW, NULL);
   child = g_object_new (BAMF_TYPE_VIEW, NULL);
 
-  bamf_view_export_on_bus (parent);
-  bamf_view_export_on_bus (child);
+  bamf_view_export_on_bus (parent, gdbus_connection);
+  bamf_view_export_on_bus (child, gdbus_connection);
 
   g_signal_connect (G_OBJECT (parent), "child-added",
                     (GCallback) on_child_added, NULL);
@@ -424,8 +433,8 @@ test_child_removed_event (void)
   parent = g_object_new (BAMF_TYPE_VIEW, NULL);
   child = g_object_new (BAMF_TYPE_VIEW, NULL);
 
-  bamf_view_export_on_bus (parent);
-  bamf_view_export_on_bus (child);
+  bamf_view_export_on_bus (parent, gdbus_connection);
+  bamf_view_export_on_bus (child, gdbus_connection);
   bamf_view_add_child (parent, child);
 
   g_signal_connect (G_OBJECT (parent), "child-removed",
@@ -455,7 +464,7 @@ test_closed_event (void)
   BamfView *view;
 
   view = g_object_new (BAMF_TYPE_VIEW, NULL);
-  bamf_view_export_on_bus (view);
+  bamf_view_export_on_bus (view, gdbus_connection);
 
   g_signal_connect (G_OBJECT (view), "closed",
                     (GCallback) on_closed, NULL);
@@ -476,8 +485,8 @@ test_parent_child_out_of_order_unref (void)
   parent = g_object_new (BAMF_TYPE_VIEW, NULL);
   child = g_object_new (BAMF_TYPE_VIEW, NULL);
 
-  bamf_view_export_on_bus (parent);
-  bamf_view_export_on_bus (child);
+  bamf_view_export_on_bus (parent, gdbus_connection);
+  bamf_view_export_on_bus (child, gdbus_connection);
 
   bamf_view_add_child (parent, child);
 
