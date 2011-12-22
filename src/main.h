@@ -22,13 +22,10 @@
 #define __MAIN_H__
 
 #include <stdio.h>
-#include <gtk/gtk.h>
-#include <gdk/gdk.h>
 #include <glib.h>
 #include <gio/gio.h>
+#include <glibtop.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-
 
 #endif
