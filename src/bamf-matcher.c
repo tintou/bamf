@@ -965,7 +965,7 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
   path = g_file_get_path (file);
   filetype = g_file_query_file_type (file, G_FILE_QUERY_INFO_NONE, NULL);
   monitored_dir = g_object_get_data (G_OBJECT (monitor), "root");
-  
+
   if (!g_str_has_suffix (path, ".desktop") &&
       filetype != G_FILE_TYPE_DIRECTORY &&
       type != G_FILE_MONITOR_EVENT_DELETED)

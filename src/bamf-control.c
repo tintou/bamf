@@ -23,7 +23,7 @@
 #include "bamf-matcher.h"
 #include "bamf-control.h"
 #include "bamf-indicator-source.h"
-#include <gtk/gtk.h>
+#include "bamf-daemon.h"
 
 G_DEFINE_TYPE (BamfControl, bamf_control, BAMF_DBUS_TYPE_CONTROL_SKELETON);
 #define BAMF_CONTROL_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -225,7 +225,8 @@ bamf_control_register_tab_provider (BamfControl *control,
 static gboolean
 bamf_control_on_quit (BamfControl *control)
 {
-  gtk_main_quit ();
+  BamfDaemon *daemon = bamf_daemon_get_default ();
+  bamf_daemon_stop (daemon);
   return FALSE;
 }
 

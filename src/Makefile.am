@@ -39,6 +39,7 @@ bamfdaemon_built_sources = \
 
 bamfdaemon_sources = \
 		main.c \
+		bamf-daemon.c \
 		bamf-legacy-window.c \
 		bamf-legacy-window-test.c \
 		bamf-legacy-screen.c \
@@ -56,6 +57,7 @@ bamfdaemon_sources = \
 bamfdaemon_headers = \
 		main.h \
 		bamf.h \
+		bamf-daemon.h \
 		bamf-legacy-window.h \
 		bamf-legacy-window-test.h \
 		bamf-legacy-screen.h \
