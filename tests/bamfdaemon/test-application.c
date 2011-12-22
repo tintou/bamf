@@ -38,14 +38,17 @@ static void test_urgent              (void);
 static void test_window_added        (void);
 static void test_window_removed      (void);
 
-static gboolean signal_seen   = FALSE;
-static gboolean signal_result = FALSE;
-static char *   signal_window = NULL;
+static gboolean          signal_seen   = FALSE;
+static gboolean          signal_result = FALSE;
+static char *            signal_window = NULL;
+static GDBusConnection * gdbus_connection = NULL;
 
 void
-test_application_create_suite (void)
+test_application_create_suite (GDBusConnection *connection)
 {
 #define DOMAIN "/Application"
+
+  gdbus_connection = connection;
 
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
   g_test_add_func (DOMAIN"/DesktopFile", test_desktop_file);
@@ -228,31 +231,39 @@ test_get_xids (void)
 {
   BamfApplication *application;
   BamfWindow *window1, *window2;
-  GArray *xids;
+  BamfLegacyWindowTest *lwin1, *lwin2;
+  GVariant *container;
+  GVariantIter *xids;
   gboolean found;
   guint32 xid;
-  int i;
 
   application = bamf_application_new ();
   
-  // Leaks memory
-  window1 = bamf_window_new (BAMF_LEGACY_WINDOW (bamf_legacy_window_test_new (25, "window1", "class", "exec")));
-  window2 = bamf_window_new (BAMF_LEGACY_WINDOW (bamf_legacy_window_test_new (50, "window2", "class", "exec")));
+  lwin1 = bamf_legacy_window_test_new (25, "window1", "class", "exec");
+  lwin2 = bamf_legacy_window_test_new (50, "window2", "class", "exec");
+  window1 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin1));
+  window2 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin2));
 
-  xids = bamf_application_get_xids (application);
-  g_assert (xids->len == 0);
-  g_array_free (xids, TRUE);
+  container = bamf_application_get_xids (application);
+  g_assert (g_variant_type_equal (g_variant_get_type (container),
+                                  G_VARIANT_TYPE ("(au)")));
+  g_assert (g_variant_n_children (container) == 1);
+  g_variant_get (container, "(au)", &xids);
+  g_assert (g_variant_iter_n_children (xids) == 0);
+  g_variant_iter_free (xids);
+  g_variant_unref (container);
 
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window1));
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window2));
 
-  xids = bamf_application_get_xids (application);
-  g_assert (xids->len == 2);
+  container = bamf_application_get_xids (application);
+  g_assert (g_variant_n_children (container) == 1);
+  g_variant_get (container, "(au)", &xids);
+  g_assert (g_variant_iter_n_children (xids) == 2);
 
   found = FALSE;
-  for (i = 0; i < xids->len; i++)
+  while (g_variant_iter_loop (xids, "u", &xid))
     {
-      xid = g_array_index (xids, guint32, i);
       if (xid == 25)
         {
           found = TRUE;
@@ -263,9 +274,9 @@ test_get_xids (void)
   g_assert (found);
 
   found = FALSE;
-  for (i = 0; i < xids->len; i++)
+  g_variant_get (container, "(au)", &xids);
+  while (g_variant_iter_loop (xids, "u", &xid))
     {
-      xid = g_array_index (xids, guint32, i);
       if (xid == 50)
         {
           found = TRUE;
@@ -274,7 +285,14 @@ test_get_xids (void)
     }
 
   g_assert (found);
+
+  g_variant_iter_free (xids);
+  g_variant_unref (container);
  
+  g_object_unref (lwin1);
+  g_object_unref (lwin2);
+  g_object_unref (window1);
+  g_object_unref (window2);
   g_object_unref (application);
 }
 
@@ -282,15 +300,18 @@ static void
 test_manages_xid (void)
 {
   BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
   BamfWindow *test;
 
   application = bamf_application_new ();
-  test = bamf_window_new (BAMF_LEGACY_WINDOW (bamf_legacy_window_test_new (20, "window", "class", "exec")));
+  lwin = bamf_legacy_window_test_new (20, "window", "class", "exec");
+  test = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
 
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
 
   g_assert (bamf_application_manages_xid (application, 20));
 
+  g_object_unref (lwin);
   g_object_unref (test);
   g_object_unref (application);
 }
@@ -380,7 +401,7 @@ test_window_added (void)
   BamfApplication *application;
   BamfWindow *window;
   BamfLegacyWindowTest *test;
-  char *path;
+  const char *path;
   
   application = bamf_application_new ();
   
@@ -396,7 +417,7 @@ test_window_added (void)
   
   bamf_view_remove_child (BAMF_VIEW (application), BAMF_VIEW (window));
   
-  path = bamf_view_export_on_bus (BAMF_VIEW (window));
+  path = bamf_view_export_on_bus (BAMF_VIEW (window), gdbus_connection);
   
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window));
   
@@ -424,7 +445,7 @@ test_window_removed (void)
   BamfApplication *application;
   BamfWindow *window;
   BamfLegacyWindowTest *test;
-  char *path;
+  const char *path;
   
   application = bamf_application_new ();
   
@@ -439,7 +460,7 @@ test_window_removed (void)
   // Ensure we dont signal things that are not on the bus
   g_assert (!signal_seen);
   
-  path = bamf_view_export_on_bus (BAMF_VIEW (window));
+  path = bamf_view_export_on_bus (BAMF_VIEW (window), gdbus_connection);
   
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window));
   bamf_view_remove_child (BAMF_VIEW (application), BAMF_VIEW (window));

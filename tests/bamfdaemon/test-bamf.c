@@ -18,27 +18,50 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
+/*
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
+*/
 #include <glib.h>
+#include <gio/gio.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <glibtop.h>
+#include "bamf.h"
 
-
-void test_application_create_suite (void);
+void test_application_create_suite (GDBusConnection *connection);
 void test_matcher_create_suite (void);
-void test_view_create_suite (void);
+void test_view_create_suite (GDBusConnection *connection);
 void test_window_create_suite (void);
- 
+
+static int result = 0;
+
+static void
+on_bus_acquired (GDBusConnection *connection, const gchar *name, gpointer data)
+{
+  GMainLoop *loop = data;
+
+  test_matcher_create_suite ();
+  test_view_create_suite (connection);
+  test_window_create_suite ();
+  test_application_create_suite (connection);
+  result = g_test_run ();
+
+  g_main_loop_quit (loop);
+}
+
+static void
+on_name_lost (GDBusConnection *connection, const gchar *name, gpointer data)
+{
+  GMainLoop *loop = data;
+  g_main_loop_quit (loop);
+}
+
 gint
 main (gint argc, gchar *argv[])
 {
-  DBusGConnection *bus;
-  DBusGProxy *bus_proxy;
-  GError *error = NULL;
-  guint request_name_result;
+  GMainLoop *loop;
 
   g_type_init ();
   g_test_init (&argc, &argv, NULL);
@@ -46,32 +69,18 @@ main (gint argc, gchar *argv[])
   gtk_init (&argc, &argv);
   glibtop_init ();
 
-  dbus_g_thread_init ();
+  loop = g_main_loop_new (NULL, FALSE);
 
-  bus = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-      
-  if (!bus)
-    g_error ("Could not get session bus");
+  g_bus_own_name (G_BUS_TYPE_SYSTEM,
+                  BAMF_DBUS_SERVICE".test",
+                  G_BUS_NAME_OWNER_FLAGS_NONE,
+                  on_bus_acquired,
+                  NULL,
+                  on_name_lost,
+                  loop,
+                  NULL);
 
-  bus_proxy =
-    dbus_g_proxy_new_for_name (bus, "org.freedesktop.DBus",
-   		                    "/org/freedesktop/DBus",
-    		                    "org.freedesktop.DBus");
+  g_main_loop_run (loop);
 
-  error = NULL;
-  if (!dbus_g_proxy_call (bus_proxy, "RequestName", &error,
-  		  G_TYPE_STRING, "org.ayatana.bamftest",
-    		  G_TYPE_UINT, 0,
-    		  G_TYPE_INVALID,
-    		  G_TYPE_UINT, &request_name_result, G_TYPE_INVALID))
-    g_error ("Could not grab service");
-
-  g_object_unref (G_OBJECT (bus_proxy));
-
-  test_matcher_create_suite ();
-  test_view_create_suite ();
-  test_window_create_suite ();
-  test_application_create_suite ();
-  
-  return g_test_run ();
+  return result;
 }
