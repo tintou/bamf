@@ -281,7 +281,7 @@ bamf_indicator_source_register_notification_approver (BamfIndicatorSource *self)
             }
           else
             {
-              g_debug ("Failed to register as approver: %s\n", error->message);
+              g_debug ("Failed to register as approver: %s", error->message);
               g_error_free (error);
             }
         }
