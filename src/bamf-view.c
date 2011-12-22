@@ -439,6 +439,7 @@ bamf_view_export_on_bus (BamfView *view, GDBusConnection *connection)
   GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+  g_return_val_if_fail (G_IS_DBUS_CONNECTION (connection), NULL);
 
   if (!view->priv->path)
     {
@@ -526,14 +527,16 @@ static void
 on_view_child_added (BamfView *view, const gchar *child_path, gpointer _not_used)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
-  g_signal_emit_by_name (view->priv->dbus_iface, "child-added", child_path);
+  g_signal_emit_by_name (view->priv->dbus_iface, "child-added",
+                         child_path ? child_path : "");
 }
 
 static void
 on_view_child_removed (BamfView *view, const gchar *child_path, gpointer _not_used)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
-  g_signal_emit_by_name (view->priv->dbus_iface, "child-removed", child_path);
+  g_signal_emit_by_name (view->priv->dbus_iface, "child-removed",
+                         child_path ? child_path : "");
 }
 
 static void
@@ -662,7 +665,10 @@ bamf_view_dispose (GObject *object)
 
   for (l = ifaces; l; l = l->next)
     {
-      g_dbus_interface_skeleton_unexport (G_DBUS_INTERFACE_SKELETON (l->data));
+      GDBusInterfaceSkeleton *iface = G_DBUS_INTERFACE_SKELETON (l->data);
+
+      if (g_dbus_interface_skeleton_get_object_path (iface))
+        g_dbus_interface_skeleton_unexport (iface);
     }
   g_list_free (ifaces);
 
