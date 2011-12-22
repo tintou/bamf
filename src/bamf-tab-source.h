@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Canonical Ltd
+ * Copyright (C) 2010-2011 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -59,7 +60,7 @@ char         ** bamf_tab_source_tab_ids          (BamfTabSource *self);
 
 void            bamf_tab_source_show_tab         (BamfTabSource *self, char *id);
 
-GArray        * bamf_tab_source_get_tab_preview  (BamfTabSource *self, char *id);
+gchar         * bamf_tab_source_get_tab_preview  (BamfTabSource *self, char *id);
 
 char          * bamf_tab_source_get_tab_uri      (BamfTabSource *self, char *id);
 

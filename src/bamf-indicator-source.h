@@ -1,23 +1,21 @@
 /*
- * bamf-notification-approver.h
- * This file is part of BAMF
+ * Copyright (C) 2010-2011 Canonical Ltd
  *
- * Copyright (C) 2010 - Jason Smith
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
  *
- * BAMF is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * BAMF is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with BAMF; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, 
- * Boston, MA  02110-1301  USA
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Authored by: Jason Smith <jason.smith@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
+ *
  */
 
 #ifndef __BAMF_INDICATOR_SOURCE_H__
@@ -25,6 +23,7 @@
 
 #include <glib-object.h>
 #include "bamf-indicator.h"
+#include "bamf-gdbus-indicators-generated.h"
 
 G_BEGIN_DECLS
 
@@ -48,13 +47,13 @@ enum
 };
 
 struct _BamfIndicatorSource {
-  GObject parent;
-	
+  StatusNotifierApproverSkeleton parent;
+
   BamfIndicatorSourcePrivate *priv;
 };
 
 struct _BamfIndicatorSourceClass {
-  GObjectClass parent_class;
+  StatusNotifierApproverSkeletonClass parent_class;
   
   /*< signals >*/
   void (*indicator_opened) (BamfIndicatorSource *approver, BamfIndicator *indicator);
@@ -70,16 +69,14 @@ struct _BamfIndicatorSourceClass {
 
 GType bamf_indicator_source_get_type (void) G_GNUC_CONST;
 
-GList * bamf_indicator_source_get_indicators (BamfIndicatorSource *self);
+const GList * bamf_indicator_source_get_indicators (BamfIndicatorSource *self);
 
 gboolean bamf_indicator_source_approve_item (BamfIndicatorSource *self,
-                                                  const char *id,
-                                                  const char *category,
-                                                  guint32 pid,
-                                                  const char *address,
-                                                  const char *proxy,
-                                                  gboolean *approve,
-                                                  GError **error);
+                                             const char *id,
+                                             const char *category,
+                                             guint32 pid,
+                                             const char *address,
+                                             const char *proxy);
                                                   
 void bamf_indicator_source_set_behavior (BamfIndicatorSource *self,
                                          gint32 behavior);

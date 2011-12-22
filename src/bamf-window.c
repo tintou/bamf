@@ -19,7 +19,6 @@
 
 #include "bamf-application.h"
 #include "bamf-window.h"
-#include "bamf-window-glue.h"
 #include "bamf-legacy-screen.h"
 
 G_DEFINE_TYPE (BamfWindow, bamf_window, BAMF_TYPE_VIEW);
@@ -37,7 +36,8 @@ enum
 
 struct _BamfWindowPrivate
 {
-  BamfLegacyWindow * window;
+  BamfDBusWindow *dbus_iface;
+  BamfLegacyWindow *legacy_window;
   gulong closed_id;
   gulong name_changed_id;
   gulong state_changed_id;
@@ -53,7 +53,7 @@ bamf_window_get_window (BamfWindow *self)
   if (BAMF_WINDOW_GET_CLASS (self)->get_window)
     return BAMF_WINDOW_GET_CLASS (self)->get_window (self);
 
-  return self->priv->window;
+  return self->priv->legacy_window;
 }
 
 BamfWindow *
@@ -84,7 +84,7 @@ bamf_window_get_transient (BamfWindow *self)
   return NULL;
 }
 
-char *
+const char *
 bamf_window_get_transient_path (BamfWindow *self)
 {
   BamfWindow *transient;
@@ -94,9 +94,9 @@ bamf_window_get_transient_path (BamfWindow *self)
   transient = bamf_window_get_transient (self);
   
   if (transient == NULL)
-    return NULL;
+    return "";
   
-  return g_strdup (bamf_view_get_path (BAMF_VIEW (transient)));
+  return bamf_view_get_path (BAMF_VIEW (transient));
 } 
 
 guint32
@@ -104,7 +104,7 @@ bamf_window_get_window_type (BamfWindow *window)
 {
   g_return_val_if_fail (BAMF_IS_WINDOW (window), 0);
   
-  return (guint32) bamf_legacy_window_get_window_type (window->priv->window);
+  return (guint32) bamf_legacy_window_get_window_type (window->priv->legacy_window);
 }
 
 guint32
@@ -116,7 +116,7 @@ bamf_window_get_xid (BamfWindow *window)
   if (BAMF_WINDOW_GET_CLASS (window)->get_xid)
     return BAMF_WINDOW_GET_CLASS (window)->get_xid (window);
 
-  return (guint32) bamf_legacy_window_get_xid (window->priv->window);
+  return (guint32) bamf_legacy_window_get_xid (window->priv->legacy_window);
 }
 
 time_t
@@ -146,7 +146,7 @@ handle_window_closed (BamfLegacyWindow * window, gpointer data)
   g_return_if_fail (BAMF_IS_WINDOW (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
 
-  if (window == self->priv->window)
+  if (window == self->priv->legacy_window)
     {
       bamf_view_close (BAMF_VIEW (self));
     }
@@ -166,17 +166,17 @@ bamf_window_ensure_flags (BamfWindow *self)
   g_return_if_fail (BAMF_IS_WINDOW (self));
 
   /* if we are going innactive, set our last active time */
-  if (bamf_view_is_active (BAMF_VIEW (self)) && !bamf_legacy_window_is_active (self->priv->window))
+  if (bamf_view_is_active (BAMF_VIEW (self)) && !bamf_legacy_window_is_active (self->priv->legacy_window))
     self->priv->last_active = time (NULL);
   
-  bamf_view_set_active       (BAMF_VIEW (self), bamf_legacy_window_is_active (self->priv->window));
-  bamf_view_set_urgent       (BAMF_VIEW (self), bamf_legacy_window_needs_attention (self->priv->window));
-  
-  if (g_strcmp0 (bamf_legacy_window_get_class_name (self->priv->window), "Nautilus") == 0 &&
-      g_strcmp0 (bamf_legacy_window_get_name (self->priv->window), "File Operations") == 0)
+  bamf_view_set_active       (BAMF_VIEW (self), bamf_legacy_window_is_active (self->priv->legacy_window));
+  bamf_view_set_urgent       (BAMF_VIEW (self), bamf_legacy_window_needs_attention (self->priv->legacy_window));
+
+  if (g_strcmp0 (bamf_legacy_window_get_class_name (self->priv->legacy_window), "Nautilus") == 0 &&
+      g_strcmp0 (bamf_legacy_window_get_name (self->priv->legacy_window), "File Operations") == 0)
     bamf_view_set_user_visible (BAMF_VIEW (self), FALSE);
   else    
-    bamf_view_set_user_visible (BAMF_VIEW (self), !bamf_legacy_window_is_skip_tasklist (self->priv->window));
+    bamf_view_set_user_visible (BAMF_VIEW (self), !bamf_legacy_window_is_skip_tasklist (self->priv->legacy_window));
 }
 
 static void
@@ -186,10 +186,10 @@ handle_state_changed (BamfLegacyWindow *window,
   bamf_window_ensure_flags (self);
 }
 
-static char *
+static const char *
 bamf_window_get_view_type (BamfView *view)
 {
-  return g_strdup ("window");
+  return "window";
 }
 
 static char *
@@ -200,13 +200,48 @@ bamf_window_get_stable_bus_name (BamfView *view)
   g_return_val_if_fail (BAMF_IS_WINDOW (view), NULL);  
   self = BAMF_WINDOW (view);
   
-  return g_strdup_printf ("window%i", bamf_legacy_window_get_xid (self->priv->window));
+  return g_strdup_printf ("window%i", bamf_legacy_window_get_xid (self->priv->legacy_window));
 }
 
 static void
 active_window_changed (BamfLegacyScreen *screen, BamfWindow *window)
 {
   bamf_window_ensure_flags (window);
+}
+
+static gboolean
+on_dbus_handle_get_xid (BamfDBusWindow *interface,
+                        GDBusMethodInvocation *invocation,
+                        BamfWindow *self)
+{
+  guint32 xid = bamf_window_get_xid (self);
+  g_dbus_method_invocation_return_value (invocation, g_variant_new ("(u)", xid));
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_transient (BamfDBusWindow *interface,
+                          GDBusMethodInvocation *invocation,
+                          BamfWindow *self)
+{
+  const char *transient_path = bamf_window_get_transient_path (self);
+  g_dbus_method_invocation_return_value (invocation,
+                                         g_variant_new ("(s)", transient_path));
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_window_type (BamfDBusWindow *interface,
+                            GDBusMethodInvocation *invocation,
+                            BamfWindow *self)
+{
+  BamfWindowType window_type = bamf_window_get_window_type (self);
+  g_dbus_method_invocation_return_value (invocation,
+                                         g_variant_new ("(u)", window_type));
+
+  return TRUE;
 }
 
 static void
@@ -219,7 +254,7 @@ bamf_window_set_property (GObject *object, guint property_id, const GValue *valu
   switch (property_id)
     {
       case PROP_WINDOW:
-        self->priv->window = BAMF_LEGACY_WINDOW (g_value_get_object (value));
+        self->priv->legacy_window = BAMF_LEGACY_WINDOW (g_value_get_object (value));
         break;
 
       default:
@@ -237,7 +272,7 @@ bamf_window_get_property (GObject *object, guint property_id, GValue *value, GPa
   switch (property_id)
     {
       case PROP_WINDOW:
-        g_value_set_object (value, self->priv->window);
+        g_value_set_object (value, self->priv->legacy_window);
 
         break;
 
@@ -255,7 +290,7 @@ bamf_window_constructed (GObject *object)
   if (G_OBJECT_CLASS (bamf_window_parent_class)->constructed)
     G_OBJECT_CLASS (bamf_window_parent_class)->constructed (object);
 
-  g_object_get (object, "window", &window, NULL);
+  g_object_get (object, "legacy-window", &window, NULL);
 
   self = BAMF_WINDOW (object);
   bamf_windows = g_list_prepend (bamf_windows, self);
@@ -286,29 +321,58 @@ bamf_window_dispose (GObject *object)
 
   g_signal_handlers_disconnect_by_func (G_OBJECT (bamf_legacy_screen_get_default ()), active_window_changed, object);
 
-  if (self->priv->window)
+  if (self->priv->legacy_window)
     {
-      g_signal_handler_disconnect (self->priv->window,
+      g_signal_handler_disconnect (self->priv->legacy_window,
                                    self->priv->name_changed_id);
 
-      g_signal_handler_disconnect (self->priv->window,
+      g_signal_handler_disconnect (self->priv->legacy_window,
                                    self->priv->state_changed_id);
 
-      g_signal_handler_disconnect (self->priv->window,
+      g_signal_handler_disconnect (self->priv->legacy_window,
                                    self->priv->closed_id);
 
-      g_object_unref (self->priv->window);
-      self->priv->window = NULL;
+      g_object_unref (self->priv->legacy_window);
+      self->priv->legacy_window = NULL;
     }
   G_OBJECT_CLASS (bamf_window_parent_class)->dispose (object);
+}
+
+static void
+bamf_window_finalize (GObject *object)
+{
+  BamfWindow *self;
+  self = BAMF_WINDOW (object);
+
+  g_object_unref (self->priv->dbus_iface);
+
+  G_OBJECT_CLASS (bamf_window_parent_class)->finalize (object);
 }
 
 static void
 bamf_window_init (BamfWindow * self)
 {
   self->priv = BAMF_WINDOW_GET_PRIVATE (self);
+
+  /* Initializing the dbus interface */
+  self->priv->dbus_iface = bamf_dbus_window_skeleton_new ();
+
+  /* Registering signal callbacks to reply to dbus method calls */
+  g_signal_connect (self->priv->dbus_iface, "handle-get-xid",
+                    G_CALLBACK (on_dbus_handle_get_xid), self);
+
+  g_signal_connect (self->priv->dbus_iface, "handle-transient",
+                    G_CALLBACK (on_dbus_handle_transient), self);
+
+  g_signal_connect (self->priv->dbus_iface, "handle-window-type",
+                    G_CALLBACK (on_dbus_handle_window_type), self);
+
+  /* Setting the interface for the dbus object */
+  bamf_dbus_object_skeleton_set_window (BAMF_DBUS_OBJECT_SKELETON (self),
+                                        self->priv->dbus_iface);
+
   g_signal_connect (G_OBJECT (bamf_legacy_screen_get_default ()), "active-window-changed",
-		    (GCallback) active_window_changed, self);
+                    (GCallback) active_window_changed, self);
 }
 
 static void
@@ -319,26 +383,26 @@ bamf_window_class_init (BamfWindowClass * klass)
   BamfViewClass *view_class = BAMF_VIEW_CLASS (klass);
 
   object_class->dispose       = bamf_window_dispose;
+  object_class->finalize      = bamf_window_finalize;
   object_class->get_property  = bamf_window_get_property;
   object_class->set_property  = bamf_window_set_property;
   object_class->constructed   = bamf_window_constructed;
   view_class->view_type       = bamf_window_get_view_type;
   view_class->stable_bus_name = bamf_window_get_stable_bus_name;
 
-  pspec = g_param_spec_object ("window", "window", "window", BAMF_TYPE_LEGACY_WINDOW, G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+  pspec = g_param_spec_object ("legacy-window", "legacy-window", "legacy-window",
+                               BAMF_TYPE_LEGACY_WINDOW,
+                               G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
   g_object_class_install_property (object_class, PROP_WINDOW, pspec);
 
   g_type_class_add_private (klass, sizeof (BamfWindowPrivate));
-
-  dbus_g_object_type_install_info (BAMF_TYPE_WINDOW,
-				   &dbus_glib_bamf_window_object_info);
 }
 
 BamfWindow *
 bamf_window_new (BamfLegacyWindow *window)
 {
   BamfWindow *self;
-  self = (BamfWindow *) g_object_new (BAMF_TYPE_WINDOW, "window", window, NULL);
+  self = (BamfWindow *) g_object_new (BAMF_TYPE_WINDOW, "legacy-window", window, NULL);
   
   return self;
 }

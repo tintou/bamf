@@ -42,9 +42,9 @@ struct _BamfWindowClass
 {
   BamfViewClass parent;
 
-  gboolean     (*user_visible) (BamfWindow *window);
-  gboolean     (*is_urgent)    (BamfWindow *window);
-  guint32      (*get_xid)      (BamfWindow *window);
+  gboolean           (*user_visible) (BamfWindow *window);
+  gboolean           (*is_urgent)    (BamfWindow *window);
+  guint32            (*get_xid)      (BamfWindow *window);
   BamfLegacyWindow * (*get_window)   (BamfWindow *window);
 };
 
@@ -62,7 +62,7 @@ BamfLegacyWindow * bamf_window_get_window (BamfWindow *self);
 
 BamfWindow       * bamf_window_get_transient (BamfWindow *self);
 
-char             * bamf_window_get_transient_path (BamfWindow *self);
+const char       * bamf_window_get_transient_path (BamfWindow *self);
 
 guint32            bamf_window_get_window_type (BamfWindow *self);
 
