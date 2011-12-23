@@ -36,7 +36,7 @@ enum
 
 struct _BamfIndicatorPrivate
 {
-  BamfDBusIndicator *dbus_iface;
+  BamfDBusItemIndicator *dbus_iface;
   char *id;
   char *path;
   char *address;
@@ -172,7 +172,7 @@ bamf_indicator_on_destroy (GObject *object, GParamSpec *pspec, BamfIndicator *se
 }
 
 static gboolean
-on_dbus_handle_path (BamfDBusIndicator *interface,
+on_dbus_handle_path (BamfDBusItemIndicator *interface,
                      GDBusMethodInvocation *invocation,
                      BamfIndicator *self)
 {
@@ -184,7 +184,7 @@ on_dbus_handle_path (BamfDBusIndicator *interface,
 }
 
 static gboolean
-on_dbus_handle_address (BamfDBusIndicator *interface,
+on_dbus_handle_address (BamfDBusItemIndicator *interface,
                         GDBusMethodInvocation *invocation,
                         BamfIndicator *self)
 {
@@ -332,7 +332,7 @@ bamf_indicator_init (BamfIndicator *self)
 {
   self->priv = BAMF_INDICATOR_GET_PRIVATE (self);
 
-  self->priv->dbus_iface = bamf_dbus_indicator_skeleton_new ();
+  self->priv->dbus_iface = bamf_dbus_item_indicator_skeleton_new ();
 
   /* Registering signal callbacks to reply to dbus method calls */
   g_signal_connect (self->priv->dbus_iface, "handle-path",
@@ -342,8 +342,8 @@ bamf_indicator_init (BamfIndicator *self)
                     G_CALLBACK (on_dbus_handle_address), self);
 
   /* Setting the interface for the dbus object */
-  bamf_dbus_object_skeleton_set_indicator (BAMF_DBUS_OBJECT_SKELETON (self),
-                                           self->priv->dbus_iface);
+  bamf_dbus_item_object_skeleton_set_indicator (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
+                                                self->priv->dbus_iface);
 }
 
 BamfIndicator *

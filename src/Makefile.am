@@ -19,14 +19,17 @@ bamfdaemon_PROGRAMS = \
 bamfdaemon_gdbus_files = \
 		bamf-gdbus-generated.c \
 		bamf-gdbus-generated.h \
+		bamf-gdbus-view-generated.c \
+		bamf-gdbus-view-generated.h \
 		bamf-gdbus-browser-generated.c \
 		bamf-gdbus-browser-generated.h \
-		bamf-gdbus-indicators-generated.c \
-		bamf-gdbus-indicators-generated.h \
+		bamf-gdbus-indicator-source-generated.c \
+		bamf-gdbus-indicator-source-generated.h \
 		$(NULL)
 		
 bamfdaemon_xml_gdbus_files = \
 		org.ayatana.bamf.xml \
+		org.ayatana.bamf.view.xml \
 		org.ayatana.bamf.browser.xml \
 		com.canonical.StatusNotifierApprover.xml \
 		$(NULL)
@@ -109,9 +112,16 @@ bamfdaemon_LDFLAGS = \
 
 bamf-gdbus-generated.c bamf-gdbus-generated.h: org.ayatana.bamf.xml
 		$(AM_V_GEN) $(GDBUS_CODEGEN) \
-		--c-generate-object-manager \
 		--generate-c-code bamf-gdbus-generated \
 		--c-namespace BamfDBus \
+		--interface-prefix org.ayatana.bamf \
+		$<
+
+bamf-gdbus-view-generated.c bamf-gdbus-view-generated.h: org.ayatana.bamf.view.xml
+		$(AM_V_GEN) $(GDBUS_CODEGEN) \
+		--c-generate-object-manager \
+		--generate-c-code bamf-gdbus-view-generated \
+		--c-namespace BamfDBusItem \
 		--interface-prefix org.ayatana.bamf \
 		$<
 
@@ -122,9 +132,9 @@ bamf-gdbus-browser-generated.c bamf-gdbus-browser-generated.h: org.ayatana.bamf.
 		--interface-prefix org.ayatana.bamf.browser \
 		$<
 
-bamf-gdbus-indicators-generated.c bamf-gdbus-indicators-generated.h: com.canonical.StatusNotifierApprover.xml
+bamf-gdbus-indicator-source-generated.c bamf-gdbus-indicator-source-generated.h: com.canonical.StatusNotifierApprover.xml
 		$(AM_V_GEN) $(GDBUS_CODEGEN) \
-		--generate-c-code bamf-gdbus-indicators-generated \
+		--generate-c-code bamf-gdbus-indicator-source-generated \
 		--c-namespace StatusNotifierApprover \
 		--interface-prefix com.canonical.StatusNotifierApprover \
 		$<

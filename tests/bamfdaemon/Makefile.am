@@ -17,8 +17,9 @@ bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-indicator-source.c \
 		$(top_builddir)/src/bamf-marshal.c \
 		$(top_builddir)/src/bamf-gdbus-generated.c \
+		$(top_builddir)/src/bamf-gdbus-view-generated.c \
 		$(top_builddir)/src/bamf-gdbus-browser-generated.c \
-		$(top_builddir)/src/bamf-gdbus-indicators-generated.c \
+		$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c \
 		$(NULL)
 
 bamf_test_extra_headers = \
@@ -39,8 +40,9 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/bamf-indicator.h \
 		$(top_builddir)/src/bamf-marshal.h \
 		$(top_builddir)/src/bamf-gdbus-generated.h \
+		$(top_builddir)/src/bamf-gdbus-view-generated.h \
 		$(top_builddir)/src/bamf-gdbus-browser-generated.h \
-		$(top_builddir)/src/bamf-gdbus-indicators-generated.h \
+		$(top_builddir)/src/bamf-gdbus-indicator-source-generated.h \
 		$(NULL)
 
 test_bamf_SOURCES = \

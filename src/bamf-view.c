@@ -23,9 +23,9 @@
 #define BAMF_VIEW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
                                     BAMF_TYPE_VIEW, BamfViewPrivate))
 
-static void bamf_view_dbus_view_iface_init (BamfDBusViewIface *iface);
-G_DEFINE_TYPE_WITH_CODE (BamfView, bamf_view, BAMF_DBUS_TYPE_OBJECT_SKELETON,
-                         G_IMPLEMENT_INTERFACE (BAMF_DBUS_TYPE_VIEW,
+static void bamf_view_dbus_view_iface_init (BamfDBusItemViewIface *iface);
+G_DEFINE_TYPE_WITH_CODE (BamfView, bamf_view, BAMF_DBUS_ITEM_TYPE_OBJECT_SKELETON,
+                         G_IMPLEMENT_INTERFACE (BAMF_DBUS_ITEM_TYPE_VIEW,
                                                 bamf_view_dbus_view_iface_init));
 
 enum
@@ -50,7 +50,7 @@ static guint view_signals[LAST_SIGNAL] = { 0 };
 
 struct _BamfViewPrivate
 {
-  BamfDBusView *dbus_iface;
+  BamfDBusItemView *dbus_iface;
   char * name;
   char * path;
   GList * children;
@@ -157,8 +157,8 @@ bamf_view_close (BamfView *view)
   if (emit)
     {
       g_object_ref (G_OBJECT (view));
-      g_signal_emit (view, view_signals[CLOSED_INTERNAL], 0);
       g_signal_emit_by_name (view, "closed");
+      g_signal_emit (view, view_signals[CLOSED_INTERNAL], 0);
       g_object_unref (G_OBJECT (view));
     }
 }
@@ -300,7 +300,7 @@ bamf_view_is_active (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
-  return bamf_dbus_view_get_active (view->priv->dbus_iface);
+  return bamf_dbus_item_view_get_active (view->priv->dbus_iface);
 }
 
 void
@@ -312,7 +312,7 @@ bamf_view_set_active (BamfView *view,
   if (active == bamf_view_is_active (view))
     return;
 
-  bamf_dbus_view_set_active (view->priv->dbus_iface, active);
+  bamf_dbus_item_view_set_active (view->priv->dbus_iface, active);
   bamf_view_active_changed (view, active);
 }
 
@@ -321,7 +321,7 @@ bamf_view_is_urgent (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
-  return bamf_dbus_view_get_urgent (view->priv->dbus_iface);
+  return bamf_dbus_item_view_get_urgent (view->priv->dbus_iface);
 }
 
 void
@@ -333,7 +333,7 @@ bamf_view_set_urgent (BamfView *view,
   if (urgent == bamf_view_is_urgent (view))
     return;
 
-  bamf_dbus_view_set_urgent (view->priv->dbus_iface, urgent);
+  bamf_dbus_item_view_set_urgent (view->priv->dbus_iface, urgent);
   bamf_view_urgent_changed (view, urgent);
 }
 
@@ -342,7 +342,7 @@ bamf_view_is_running (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
-  return bamf_dbus_view_get_running (view->priv->dbus_iface);
+  return bamf_dbus_item_view_get_running (view->priv->dbus_iface);
 }
 
 void
@@ -354,7 +354,7 @@ bamf_view_set_running (BamfView *view,
   if (running == bamf_view_is_running (view))
     return;
 
-  bamf_dbus_view_set_running (view->priv->dbus_iface, running);
+  bamf_dbus_item_view_set_running (view->priv->dbus_iface, running);
   bamf_view_running_changed (view, running);
 }
 
@@ -363,7 +363,7 @@ bamf_view_user_visible (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
-  return bamf_dbus_view_get_user_visible (view->priv->dbus_iface);
+  return bamf_dbus_item_view_get_user_visible (view->priv->dbus_iface);
 }
 
 void
@@ -374,7 +374,7 @@ bamf_view_set_user_visible (BamfView *view, gboolean user_visible)
   if (user_visible == bamf_view_user_visible (view))
     return;
 
-  bamf_dbus_view_set_user_visible (view->priv->dbus_iface, user_visible);
+  bamf_dbus_item_view_set_user_visible (view->priv->dbus_iface, user_visible);
   bamf_view_user_visible_changed (view, user_visible);
 }
 
@@ -547,7 +547,7 @@ on_view_closed (BamfView *view, gpointer _not_used)
 }
 
 static gboolean
-on_dbus_handle_view_type (BamfDBusView *interface,
+on_dbus_handle_view_type (BamfDBusItemView *interface,
                           GDBusMethodInvocation *invocation,
                           BamfView *view)
 {
@@ -559,7 +559,7 @@ on_dbus_handle_view_type (BamfDBusView *interface,
 }
 
 static gboolean
-on_dbus_handle_user_visible (BamfDBusView *interface,
+on_dbus_handle_user_visible (BamfDBusItemView *interface,
                              GDBusMethodInvocation *invocation,
                              BamfView *view)
 {
@@ -571,7 +571,7 @@ on_dbus_handle_user_visible (BamfDBusView *interface,
 }
 
 static gboolean
-on_dbus_handle_icon (BamfDBusView *interface,
+on_dbus_handle_icon (BamfDBusItemView *interface,
                      GDBusMethodInvocation *invocation,
                      BamfView *view)
 {
@@ -584,7 +584,7 @@ on_dbus_handle_icon (BamfDBusView *interface,
 }
 
 static gboolean
-on_dbus_handle_name (BamfDBusView *interface,
+on_dbus_handle_name (BamfDBusItemView *interface,
                      GDBusMethodInvocation *invocation,
                      BamfView *view)
 {
@@ -597,7 +597,7 @@ on_dbus_handle_name (BamfDBusView *interface,
 }
 
 static gboolean
-on_dbus_handle_is_urgent (BamfDBusView *interface,
+on_dbus_handle_is_urgent (BamfDBusItemView *interface,
                           GDBusMethodInvocation *invocation,
                           BamfView *view)
 {
@@ -609,7 +609,7 @@ on_dbus_handle_is_urgent (BamfDBusView *interface,
 }
 
 static gboolean
-on_dbus_handle_is_running (BamfDBusView *interface,
+on_dbus_handle_is_running (BamfDBusItemView *interface,
                            GDBusMethodInvocation *invocation,
                            BamfView *view)
 {
@@ -621,7 +621,7 @@ on_dbus_handle_is_running (BamfDBusView *interface,
 }
 
 static gboolean
-on_dbus_handle_is_active (BamfDBusView *interface,
+on_dbus_handle_is_active (BamfDBusItemView *interface,
                           GDBusMethodInvocation *invocation,
                           BamfView *view)
 {
@@ -633,7 +633,7 @@ on_dbus_handle_is_active (BamfDBusView *interface,
 }
 
 static gboolean
-on_dbus_handle_parents (BamfDBusView *interface,
+on_dbus_handle_parents (BamfDBusItemView *interface,
                         GDBusMethodInvocation *invocation,
                         BamfView *view)
 {
@@ -644,7 +644,7 @@ on_dbus_handle_parents (BamfDBusView *interface,
 }
 
 static gboolean
-on_dbus_handle_children (BamfDBusView *interface,
+on_dbus_handle_children (BamfDBusItemView *interface,
                          GDBusMethodInvocation *invocation,
                          BamfView *view)
 {
@@ -739,7 +739,7 @@ bamf_view_set_property (GObject *object, guint property_id, const GValue *value,
   switch (property_id)
     {
       default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     }
 }
 
@@ -749,7 +749,7 @@ bamf_view_init (BamfView * self)
   self->priv = BAMF_VIEW_GET_PRIVATE (self);
 
   /* Initializing the dbus interface */
-  self->priv->dbus_iface = bamf_dbus_view_skeleton_new ();
+  self->priv->dbus_iface = bamf_dbus_item_view_skeleton_new ();
 
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
@@ -791,12 +791,12 @@ bamf_view_init (BamfView * self)
                     G_CALLBACK (on_dbus_handle_children), self);
 
   /* Setting the interface for the dbus object */
-  bamf_dbus_object_skeleton_set_view (BAMF_DBUS_OBJECT_SKELETON (self),
-                                      self->priv->dbus_iface);
+  bamf_dbus_item_object_skeleton_set_view (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
+                                           self->priv->dbus_iface);
 }
 
 static void
-bamf_view_dbus_view_iface_init (BamfDBusViewIface *iface)
+bamf_view_dbus_view_iface_init (BamfDBusItemViewIface *iface)
 {
 }
 

@@ -30,14 +30,14 @@
 #define BAMF_APPLICATION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_APPLICATION, BamfApplicationPrivate))
 
-static void bamf_application_dbus_application_iface_init (BamfDBusApplicationIface *iface);
+static void bamf_application_dbus_application_iface_init (BamfDBusItemApplicationIface *iface);
 G_DEFINE_TYPE_WITH_CODE (BamfApplication, bamf_application, BAMF_TYPE_VIEW,
-                         G_IMPLEMENT_INTERFACE (BAMF_DBUS_TYPE_APPLICATION,
+                         G_IMPLEMENT_INTERFACE (BAMF_DBUS_ITEM_TYPE_APPLICATION,
                                                 bamf_application_dbus_application_iface_init));
 
 struct _BamfApplicationPrivate
 {
-  BamfDBusApplication *dbus_iface;
+  BamfDBusItemApplication *dbus_iface;
   char * desktop_file;
   GList * desktop_file_list;
   char * app_type;
@@ -600,7 +600,7 @@ on_window_removed (BamfApplication *self, const gchar *win_path, gpointer _not_u
 }
 
 static gboolean
-on_dbus_handle_show_stubs (BamfDBusApplication *interface,
+on_dbus_handle_show_stubs (BamfDBusItemApplication *interface,
                            GDBusMethodInvocation *invocation,
                            BamfApplication *self)
 {
@@ -612,7 +612,7 @@ on_dbus_handle_show_stubs (BamfDBusApplication *interface,
 }
 
 static gboolean
-on_dbus_handle_xids (BamfDBusApplication *interface,
+on_dbus_handle_xids (BamfDBusItemApplication *interface,
                      GDBusMethodInvocation *invocation,
                      BamfApplication *self)
 {
@@ -623,7 +623,7 @@ on_dbus_handle_xids (BamfDBusApplication *interface,
 }
 
 static gboolean
-on_dbus_handle_desktop_file (BamfDBusApplication *interface,
+on_dbus_handle_desktop_file (BamfDBusItemApplication *interface,
                              GDBusMethodInvocation *invocation,
                              BamfApplication *self)
 {
@@ -635,7 +635,7 @@ on_dbus_handle_desktop_file (BamfDBusApplication *interface,
 }
 
 static gboolean
-on_dbus_handle_application_type (BamfDBusApplication *interface,
+on_dbus_handle_application_type (BamfDBusItemApplication *interface,
                                  GDBusMethodInvocation *invocation,
                                  BamfApplication *self)
 {
@@ -684,7 +684,7 @@ bamf_application_dispose (GObject *object)
       g_free (priv->wmclass);
       priv->wmclass = NULL;
     }
-  
+
   g_signal_handlers_disconnect_by_func (G_OBJECT (bamf_matcher_get_default ()),
                                         matcher_favorites_changed, object);
 
@@ -714,7 +714,7 @@ bamf_application_init (BamfApplication * self)
   priv->wmclass = NULL;
 
   /* Initializing the dbus interface */
-  priv->dbus_iface = bamf_dbus_application_skeleton_new ();
+  priv->dbus_iface = bamf_dbus_item_application_skeleton_new ();
 
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
@@ -735,15 +735,15 @@ bamf_application_init (BamfApplication * self)
                     G_CALLBACK (on_dbus_handle_application_type), self);
 
   /* Setting the interface for the dbus object */
-  bamf_dbus_object_skeleton_set_application (BAMF_DBUS_OBJECT_SKELETON (self),
-                                             priv->dbus_iface);
+  bamf_dbus_item_object_skeleton_set_application (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
+                                                  priv->dbus_iface);
 
   g_signal_connect (G_OBJECT (bamf_matcher_get_default ()), "favorites-changed", 
                     (GCallback) matcher_favorites_changed, self);
 }
 
 static void
-bamf_application_dbus_application_iface_init (BamfDBusApplicationIface *iface)
+bamf_application_dbus_application_iface_init (BamfDBusItemApplicationIface *iface)
 {
 }
 
