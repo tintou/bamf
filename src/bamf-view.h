@@ -38,7 +38,7 @@ typedef struct _BamfViewPrivate BamfViewPrivate;
 
 struct _BamfViewClass
 {
-  BamfDBusObjectSkeletonClass parent;
+  BamfDBusItemObjectSkeletonClass parent;
   GList *names;
 
   /*< methods >*/
@@ -62,7 +62,7 @@ struct _BamfViewClass
 
 struct _BamfView
 {
-  BamfDBusObjectSkeleton parent;
+  BamfDBusItemObjectSkeleton parent;
 
   /* private */
   BamfViewPrivate *priv;

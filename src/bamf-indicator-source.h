@@ -23,7 +23,7 @@
 
 #include <glib-object.h>
 #include "bamf-indicator.h"
-#include "bamf-gdbus-indicators-generated.h"
+#include "bamf-gdbus-indicator-source-generated.h"
 
 G_BEGIN_DECLS
 

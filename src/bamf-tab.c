@@ -24,9 +24,9 @@
 #define BAMF_TAB_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_TAB, BamfTabPrivate))
 
-static void bamf_tab_dbus_iface_init (BamfDBusTabIface *iface);
+static void bamf_tab_dbus_iface_init (BamfDBusItemTabIface *iface);
 G_DEFINE_TYPE_WITH_CODE (BamfTab, bamf_tab, BAMF_TYPE_VIEW,
-                         G_IMPLEMENT_INTERFACE (BAMF_DBUS_TYPE_TAB,
+                         G_IMPLEMENT_INTERFACE (BAMF_DBUS_ITEM_TYPE_TAB,
                                                 bamf_tab_dbus_iface_init));
 
 enum
@@ -39,7 +39,7 @@ enum
 
 struct _BamfTabPrivate
 {
-  BamfDBusTab *dbus_iface;
+  BamfDBusItemTab *dbus_iface;
   char *id;
   char *uri;
   BamfTabSource *source;
@@ -101,7 +101,7 @@ on_uri_changed (BamfTab *self, const gchar *old_uri, const gchar *new_uri, gpoin
 }
 
 static gboolean
-on_dbus_handle_show_tab (BamfDBusTab *interface,
+on_dbus_handle_show_tab (BamfDBusItemTab *interface,
                          GDBusMethodInvocation *invocation,
                          BamfTab *self)
 {
@@ -112,7 +112,7 @@ on_dbus_handle_show_tab (BamfDBusTab *interface,
 }
 
 static gboolean
-on_dbus_handle_parent_xid (BamfDBusTab *interface,
+on_dbus_handle_parent_xid (BamfDBusItemTab *interface,
                            GDBusMethodInvocation *invocation,
                            BamfTab *self)
 {
@@ -124,7 +124,7 @@ on_dbus_handle_parent_xid (BamfDBusTab *interface,
 }
 
 static gboolean
-on_dbus_handle_current_uri (BamfDBusTab *interface,
+on_dbus_handle_current_uri (BamfDBusItemTab *interface,
                             GDBusMethodInvocation *invocation,
                             BamfTab *self)
 {
@@ -136,7 +136,7 @@ on_dbus_handle_current_uri (BamfDBusTab *interface,
 }
 
 static gboolean
-on_dbus_handle_preview (BamfDBusTab *interface,
+on_dbus_handle_preview (BamfDBusItemTab *interface,
                         GDBusMethodInvocation *invocation,
                         BamfTab *self)
 {
@@ -144,7 +144,7 @@ on_dbus_handle_preview (BamfDBusTab *interface,
 
   if (preview)
     {
-      bamf_dbus_tab_complete_preview (interface, invocation, preview);
+      bamf_dbus_item_tab_complete_preview (interface, invocation, preview);
       g_free (preview);
     }
   else
@@ -250,7 +250,7 @@ bamf_tab_init (BamfTab * self)
   self->priv = BAMF_TAB_GET_PRIVATE (self);
 
   /* Initializing the dbus interface */
-  self->priv->dbus_iface = bamf_dbus_tab_skeleton_new ();
+  self->priv->dbus_iface = bamf_dbus_item_tab_skeleton_new ();
 
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
@@ -270,11 +270,11 @@ bamf_tab_init (BamfTab * self)
                     G_CALLBACK (on_dbus_handle_preview), self);
 
   /* Setting the interface for the dbus object */
-  bamf_dbus_object_skeleton_set_tab (BAMF_DBUS_OBJECT_SKELETON (self),
-                                     self->priv->dbus_iface);
+  bamf_dbus_item_object_skeleton_set_tab (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
+                                          self->priv->dbus_iface);
 }
 
-static void bamf_tab_dbus_iface_init (BamfDBusTabIface *iface)
+static void bamf_tab_dbus_iface_init (BamfDBusItemTabIface *iface)
 {
 }
 

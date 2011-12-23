@@ -22,6 +22,7 @@
 #define __BAMF_H__
 
 #include "bamf-gdbus-generated.h"
+#include "bamf-gdbus-view-generated.h"
 
 #define BAMF_DBUS_PATH "/org/ayatana/bamf"
 #define BAMF_DBUS_SERVICE "org.ayatana.bamf"

@@ -36,7 +36,7 @@ enum
 
 struct _BamfWindowPrivate
 {
-  BamfDBusWindow *dbus_iface;
+  BamfDBusItemWindow *dbus_iface;
   BamfLegacyWindow *legacy_window;
   gulong closed_id;
   gulong name_changed_id;
@@ -210,7 +210,7 @@ active_window_changed (BamfLegacyScreen *screen, BamfWindow *window)
 }
 
 static gboolean
-on_dbus_handle_get_xid (BamfDBusWindow *interface,
+on_dbus_handle_get_xid (BamfDBusItemWindow *interface,
                         GDBusMethodInvocation *invocation,
                         BamfWindow *self)
 {
@@ -221,7 +221,7 @@ on_dbus_handle_get_xid (BamfDBusWindow *interface,
 }
 
 static gboolean
-on_dbus_handle_transient (BamfDBusWindow *interface,
+on_dbus_handle_transient (BamfDBusItemWindow *interface,
                           GDBusMethodInvocation *invocation,
                           BamfWindow *self)
 {
@@ -233,7 +233,7 @@ on_dbus_handle_transient (BamfDBusWindow *interface,
 }
 
 static gboolean
-on_dbus_handle_window_type (BamfDBusWindow *interface,
+on_dbus_handle_window_type (BamfDBusItemWindow *interface,
                             GDBusMethodInvocation *invocation,
                             BamfWindow *self)
 {
@@ -355,7 +355,7 @@ bamf_window_init (BamfWindow * self)
   self->priv = BAMF_WINDOW_GET_PRIVATE (self);
 
   /* Initializing the dbus interface */
-  self->priv->dbus_iface = bamf_dbus_window_skeleton_new ();
+  self->priv->dbus_iface = bamf_dbus_item_window_skeleton_new ();
 
   /* Registering signal callbacks to reply to dbus method calls */
   g_signal_connect (self->priv->dbus_iface, "handle-get-xid",
@@ -368,8 +368,8 @@ bamf_window_init (BamfWindow * self)
                     G_CALLBACK (on_dbus_handle_window_type), self);
 
   /* Setting the interface for the dbus object */
-  bamf_dbus_object_skeleton_set_window (BAMF_DBUS_OBJECT_SKELETON (self),
-                                        self->priv->dbus_iface);
+  bamf_dbus_item_object_skeleton_set_window (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
+                                             self->priv->dbus_iface);
 
   g_signal_connect (G_OBJECT (bamf_legacy_screen_get_default ()), "active-window-changed",
                     (GCallback) active_window_changed, self);

@@ -409,7 +409,7 @@ bamf_indicator_source_init (BamfIndicatorSource *self)
 
   /* Registering signal callbacks to reply to dbus method calls */
   g_signal_connect (self, "handle-approve-item",
-                    G_CALLBACK(on_dbus_handle_approve_item), self);
+                    G_CALLBACK (on_dbus_handle_approve_item), self);
 }
 
 static BamfIndicatorSource *approver = NULL;
