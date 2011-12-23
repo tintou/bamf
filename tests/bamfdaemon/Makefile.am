@@ -63,7 +63,6 @@ test_bamf_CPPFLAGS = \
   $(GCC_FLAGS) \
   $(GTK_CFLAGS) \
   $(GLIB_CFLAGS) \
-  $(DBUS_CFLAGS) \
   $(WNCK_CFLAGS) \
   $(GTOP_CFLAGS) \
   $(MAINTAINER_CFLAGS)
@@ -71,7 +70,6 @@ test_bamf_CPPFLAGS = \
 test_bamf_LDADD = \
   $(X_LIBS) \
   $(GLIB_LIBS) \
-  $(DBUS_LIBS) \
   $(WNCK_LIBS) \
   $(GTOP_LIBS) \
   $(GTK_LIBS)
