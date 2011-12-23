@@ -60,6 +60,8 @@ bamf_on_bus_acquired (GDBusConnection *connection, const gchar *name,
 
   g_debug ("Acquired a message bus connection");
 
+  g_dbus_connection_set_exit_on_close (connection, TRUE);
+
   self->priv->matcher = bamf_matcher_get_default ();
   self->priv->control = bamf_control_get_default ();
   self->priv->approver = bamf_indicator_source_get_default ();
