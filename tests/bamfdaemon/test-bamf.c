@@ -35,7 +35,7 @@ void test_matcher_create_suite (void);
 void test_view_create_suite (GDBusConnection *connection);
 void test_window_create_suite (void);
 
-static int result = 0;
+static int result = 1;
 
 static void
 on_bus_acquired (GDBusConnection *connection, const gchar *name, gpointer data)
