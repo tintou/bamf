@@ -166,8 +166,10 @@ bamf_view_close (BamfView *view)
 
   if (emit)
     {
-      g_signal_emit_by_name (view, "closed");
+      g_object_ref (view);
       g_signal_emit (view, view_signals[CLOSED_INTERNAL], 0);
+      g_signal_emit_by_name (view, "closed");
+      g_object_unref (view);
     }
 }
 
