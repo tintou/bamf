@@ -300,10 +300,10 @@ bamf_window_constructed (GObject *object)
   bamf_view_set_name (BAMF_VIEW (self), bamf_legacy_window_get_name (window));
 
   self->priv->name_changed_id = g_signal_connect (G_OBJECT (window), "name-changed",
-    		                       (GCallback) handle_name_changed, self);
+                                                  (GCallback) handle_name_changed, self);
 
   self->priv->state_changed_id = g_signal_connect (G_OBJECT (window), "state-changed",
-                                       (GCallback) handle_state_changed, self);
+                                                   (GCallback) handle_state_changed, self);
 
   self->priv->closed_id = g_signal_connect (G_OBJECT (window), "closed",
                                             (GCallback) handle_window_closed, self);
@@ -319,7 +319,8 @@ bamf_window_dispose (GObject *object)
   self = BAMF_WINDOW (object);
   bamf_windows = g_list_remove (bamf_windows, self);
 
-  g_signal_handlers_disconnect_by_func (G_OBJECT (bamf_legacy_screen_get_default ()), active_window_changed, object);
+  g_signal_handlers_disconnect_by_func (bamf_legacy_screen_get_default (),
+                                        active_window_changed, self);
 
   if (self->priv->legacy_window)
     {

@@ -562,8 +562,7 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
 
   bamf_application_ensure_flags (BAMF_APPLICATION (view));
 
-  const GList *children = bamf_view_get_children (view);
-  if (children == NULL)
+  if (bamf_view_get_children (view) == NULL)
     {
       bamf_view_close (view);
     }
