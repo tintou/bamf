@@ -26,7 +26,7 @@ bamfdaemon_gdbus_files = \
 		bamf-gdbus-indicator-source-generated.c \
 		bamf-gdbus-indicator-source-generated.h \
 		$(NULL)
-		
+
 bamfdaemon_xml_gdbus_files = \
 		org.ayatana.bamf.xml \
 		org.ayatana.bamf.view.xml \
