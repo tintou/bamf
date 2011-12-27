@@ -18,11 +18,12 @@
  *
  */
 
+#include <lib/libbamf-private/bamf-gdbus-browser-generated.h>
+
 #include "bamf-view.h"
 #include "bamf-tab-source.h"
 #include "bamf-tab.h"
 #include "bamf-marshal.h"
-#include "bamf-gdbus-browser-generated.h"
 
 G_DEFINE_TYPE (BamfTabSource, bamf_tab_source, G_TYPE_OBJECT);
 #define BAMF_TAB_SOURCE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \

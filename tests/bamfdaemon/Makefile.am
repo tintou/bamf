@@ -16,9 +16,6 @@ bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-indicator.c \
 		$(top_srcdir)/src/bamf-indicator-source.c \
 		$(top_builddir)/src/bamf-marshal.c \
-		$(top_builddir)/src/bamf-gdbus-generated.c \
-		$(top_builddir)/src/bamf-gdbus-view-generated.c \
-		$(top_builddir)/src/bamf-gdbus-browser-generated.c \
 		$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c \
 		$(NULL)
 
@@ -39,40 +36,38 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/bamf-indicator-source.h \
 		$(top_srcdir)/src/bamf-indicator.h \
 		$(top_builddir)/src/bamf-marshal.h \
-		$(top_builddir)/src/bamf-gdbus-generated.h \
-		$(top_builddir)/src/bamf-gdbus-view-generated.h \
-		$(top_builddir)/src/bamf-gdbus-browser-generated.h \
 		$(top_builddir)/src/bamf-gdbus-indicator-source-generated.h \
 		$(NULL)
 
 test_bamf_SOURCES = \
-  $(bamf_test_extra_sources) \
-  $(bamf_test_extra_headers) \
-  test-bamf.c \
-  test-view.c \
-  test-application.c \
-  test-window.c \
-  test-matcher.c
+		$(bamf_test_extra_sources) \
+		$(bamf_test_extra_headers) \
+		test-bamf.c \
+		test-view.c \
+		test-application.c \
+		test-window.c \
+		test-matcher.c
 
 test_bamf_CPPFLAGS = \
-  -I$(top_srcdir) \
-  -I$(top_srcdir)/src \
-  -I$(top_builddir)/src \
-  -DWNCK_I_KNOW_THIS_IS_UNSTABLE \
-  -DTESTDIR=\""$(top_srcdir)/tests/unit"\" \
-  $(GCC_FLAGS) \
-  $(GTK_CFLAGS) \
-  $(GLIB_CFLAGS) \
-  $(WNCK_CFLAGS) \
-  $(GTOP_CFLAGS) \
-  $(MAINTAINER_CFLAGS)
+		-I$(top_srcdir) \
+		-I$(top_srcdir)/src \
+		-I$(top_builddir)/src \
+		-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
+		-DTESTDIR=\""$(top_srcdir)/tests/unit"\" \
+		$(GCC_FLAGS) \
+		$(GTK_CFLAGS) \
+		$(GLIB_CFLAGS) \
+		$(WNCK_CFLAGS) \
+		$(GTOP_CFLAGS) \
+		$(MAINTAINER_CFLAGS)
 
 test_bamf_LDADD = \
-  $(X_LIBS) \
-  $(GLIB_LIBS) \
-  $(WNCK_LIBS) \
-  $(GTOP_LIBS) \
-  $(GTK_LIBS)
+		$(top_builddir)/lib/libbamf-private/libbamf-private.la \
+		$(X_LIBS) \
+		$(GLIB_LIBS) \
+		$(WNCK_LIBS) \
+		$(GTOP_LIBS) \
+		$(GTK_LIBS)
 
 test_bamf_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \

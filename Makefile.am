@@ -2,6 +2,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = \
   lib/libbamf \
+  lib/libbamf-private \
   src \
   tests/functional \
   tests/bamfdaemon \

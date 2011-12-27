@@ -7,7 +7,8 @@ include $(top_srcdir)/Makefile.am.marshal
 
 INCLUDE = \
 		-I.		\
-		-I$(srcdir)	\
+		-I$(srcdir) \
+		-I$(top_builddir)/lib/libbamf-private \
 		$(NULL)
 
 bamfdaemondir = $(libexecdir)
@@ -17,20 +18,11 @@ bamfdaemon_PROGRAMS = \
 		$(NULL)
 
 bamfdaemon_gdbus_files = \
-		bamf-gdbus-generated.c \
-		bamf-gdbus-generated.h \
-		bamf-gdbus-view-generated.c \
-		bamf-gdbus-view-generated.h \
-		bamf-gdbus-browser-generated.c \
-		bamf-gdbus-browser-generated.h \
 		bamf-gdbus-indicator-source-generated.c \
 		bamf-gdbus-indicator-source-generated.h \
 		$(NULL)
-		
+
 bamfdaemon_xml_gdbus_files = \
-		org.ayatana.bamf.xml \
-		org.ayatana.bamf.view.xml \
-		org.ayatana.bamf.browser.xml \
 		com.canonical.StatusNotifierApprover.xml \
 		$(NULL)
 
@@ -89,6 +81,7 @@ glib_marshal_list = bamf-marshal.list
 glib_marshal_prefix = bamf_marshal
 
 bamfdaemon_LDADD = \
+		$(top_builddir)/lib/libbamf-private/libbamf-private.la \
 		$(X_LIBS) \
 		$(GLIB_LIBS) \
 		$(GTK_LIBS) \
@@ -109,28 +102,6 @@ bamfdaemon_CFLAGS = \
 bamfdaemon_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
 		$(NULL)
-
-bamf-gdbus-generated.c bamf-gdbus-generated.h: org.ayatana.bamf.xml
-		$(AM_V_GEN) $(GDBUS_CODEGEN) \
-		--generate-c-code bamf-gdbus-generated \
-		--c-namespace BamfDBus \
-		--interface-prefix org.ayatana.bamf \
-		$<
-
-bamf-gdbus-view-generated.c bamf-gdbus-view-generated.h: org.ayatana.bamf.view.xml
-		$(AM_V_GEN) $(GDBUS_CODEGEN) \
-		--c-generate-object-manager \
-		--generate-c-code bamf-gdbus-view-generated \
-		--c-namespace BamfDBusItem \
-		--interface-prefix org.ayatana.bamf \
-		$<
-
-bamf-gdbus-browser-generated.c bamf-gdbus-browser-generated.h: org.ayatana.bamf.browser.xml
-		$(AM_V_GEN) $(GDBUS_CODEGEN) \
-		--generate-c-code bamf-gdbus-browser-generated \
-		--c-namespace BamfDBusBrowser \
-		--interface-prefix org.ayatana.bamf.browser \
-		$<
 
 bamf-gdbus-indicator-source-generated.c bamf-gdbus-indicator-source-generated.h: com.canonical.StatusNotifierApprover.xml
 		$(AM_V_GEN) $(GDBUS_CODEGEN) \

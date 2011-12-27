@@ -155,6 +155,7 @@ AC_SUBST(giomodulesdir)
 
 AC_OUTPUT([
 Makefile
+lib/libbamf-private/Makefile
 lib/libbamf/Makefile
 lib/libbamf/libbamf.pc
 lib/libbamf/libbamf3.pc
