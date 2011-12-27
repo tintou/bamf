@@ -61,6 +61,8 @@ struct _BamfViewPrivate
 static void
 bamf_view_active_changed (BamfView *view, gboolean active)
 {
+  g_return_if_fail (BAMF_IS_VIEW (view));
+
   gboolean emit = TRUE;
   if (BAMF_VIEW_GET_CLASS (view)->active_changed)
     {
@@ -69,7 +71,6 @@ bamf_view_active_changed (BamfView *view, gboolean active)
 
   if (emit)
     g_signal_emit_by_name (view, "active-changed", active);
-
 }
 
 static void
@@ -77,6 +78,8 @@ bamf_view_name_changed (BamfView *view,
                         const gchar *old_name,
                         const gchar *new_name)
 {
+  g_return_if_fail (BAMF_IS_VIEW (view));
+
   g_signal_emit_by_name (view, "name-changed", old_name, new_name);
 
   if (view->priv->name)
@@ -88,6 +91,8 @@ bamf_view_name_changed (BamfView *view,
 static void
 bamf_view_user_visible_changed (BamfView *view, gboolean user_visible)
 {
+  g_return_if_fail (BAMF_IS_VIEW (view));
+
   gboolean emit = TRUE;
   if (BAMF_VIEW_GET_CLASS (view)->user_visible_changed)
     {
@@ -101,6 +106,8 @@ bamf_view_user_visible_changed (BamfView *view, gboolean user_visible)
 static void
 bamf_view_running_changed (BamfView *view, gboolean running)
 {
+  g_return_if_fail (BAMF_IS_VIEW (view));
+
   gboolean emit = TRUE;
   if (BAMF_VIEW_GET_CLASS (view)->running_changed)
     {
@@ -114,6 +121,8 @@ bamf_view_running_changed (BamfView *view, gboolean running)
 static void
 bamf_view_urgent_changed (BamfView *view, gboolean urgent)
 {
+  g_return_if_fail (BAMF_IS_VIEW (view));
+
   gboolean emit = TRUE;
   if (BAMF_VIEW_GET_CLASS (view)->urgent_changed)
     {
@@ -130,7 +139,8 @@ bamf_view_close (BamfView *view)
   BamfViewPrivate *priv;
   gboolean emit = TRUE;
   GList *l;
-  
+
+  g_return_if_fail (BAMF_IS_VIEW (view));
   priv = view->priv;
 
   if (priv->closed)
@@ -287,12 +297,12 @@ bamf_view_remove_child (BamfView *view,
   view->priv->children = g_list_remove (view->priv->children, child);
   child->priv->parents = g_list_remove (child->priv->parents, view);
 
+  removed = bamf_view_get_path (child);
+  g_signal_emit_by_name (view, "child-removed", removed);
+
   // Do this by hand so we can pass and object instead of a string
   if (BAMF_VIEW_GET_CLASS (view)->child_removed)
     BAMF_VIEW_GET_CLASS (view)->child_removed (view, child);
-
-  removed = bamf_view_get_path (child);
-  g_signal_emit_by_name (view, "child-removed", removed);
 }
 
 gboolean
