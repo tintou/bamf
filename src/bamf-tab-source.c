@@ -18,7 +18,7 @@
  *
  */
 
-#include <lib/libbamf-private/bamf-gdbus-browser-generated.h>
+#include <libbamf-private/bamf-gdbus-browser-generated.h>
 
 #include "bamf-view.h"
 #include "bamf-tab-source.h"

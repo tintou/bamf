@@ -37,7 +37,7 @@
 
 #include "bamf-control.h"
 
-#include <lib/libbamf-private/bamf-private.h>
+#include <libbamf-private/bamf-private.h>
 
 G_DEFINE_TYPE (BamfControl, bamf_control, G_TYPE_OBJECT);
 

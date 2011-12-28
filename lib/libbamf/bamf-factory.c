@@ -21,6 +21,7 @@
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
  *              Neil Jagdish Patel <neil.patel@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 /**
@@ -41,7 +42,7 @@
 #include "bamf-application.h"
 #include "bamf-indicator.h"
 
-#include <lib/libbamf-private/bamf-private.h>
+#include <libbamf-private/bamf-private.h>
 #include <string.h>
 
 G_DEFINE_TYPE (BamfFactory, bamf_factory, G_TYPE_OBJECT);
@@ -119,16 +120,16 @@ bamf_factory_init (BamfFactory *self)
 
   priv = self->priv = BAMF_FACTORY_GET_PRIVATE (self);
 
-  priv->views = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
+  priv->views = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 }
 
 static void
 on_view_closed (BamfView *view, BamfFactory *self)
 {
   const char *path;
-  
+
   g_return_if_fail (BAMF_IS_VIEW (view));
-  
+
   path = bamf_view_get_path (view);
   if (path)
     g_hash_table_remove (self->priv->views, path);
@@ -148,12 +149,12 @@ bamf_factory_register_view (BamfFactory *self, BamfView *view, const char *path)
 {
   GHashTable *views;
   views = self->priv->views;
-  
+
   g_hash_table_insert (views, g_strdup (path), view);
 
   if (g_list_find (self->priv->registered_views, view))
     return;
-  
+
   self->priv->registered_views = g_list_prepend (self->priv->registered_views, view);
 
   g_signal_connect (G_OBJECT (view), "closed", (GCallback) on_view_closed, self);
@@ -167,7 +168,7 @@ bamf_factory_app_for_file (BamfFactory * factory,
 {
   BamfApplication *result = NULL, *app;
   GList *l;
-  
+
   /* check if result is available in known local_views */
   for (l = factory->priv->local_views; l; l = l->next)
     {
@@ -181,7 +182,7 @@ bamf_factory_app_for_file (BamfFactory * factory,
             }
         }
     }
-  
+
   /* else create new */
   if (!result && create)
     {
@@ -190,7 +191,7 @@ bamf_factory_app_for_file (BamfFactory * factory,
       if (result)
         factory->priv->local_views = g_list_prepend (factory->priv->local_views, result);
     }
-  
+
   return result;
 }
 
@@ -256,9 +257,9 @@ bamf_factory_view_for_path (BamfFactory * factory,
           /* remote ready views are already matched */
           if (bamf_view_remote_ready (BAMF_VIEW (l->data)) || !BAMF_IS_APPLICATION (l->data))
             continue;
-          
+
           const char *list_desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (l->data));
-          
+
           if (g_strcmp0 (local_desktop_file, list_desktop_file) == 0)
             {
               created = FALSE;
@@ -271,7 +272,7 @@ bamf_factory_view_for_path (BamfFactory * factory,
             }
         }
     }
-  
+
   if (BAMF_IS_VIEW (view))
     {
       bamf_factory_register_view (factory, view, path);
@@ -289,7 +290,6 @@ bamf_factory_view_for_path (BamfFactory * factory,
 BamfFactory * 
 bamf_factory_get_default (void)
 {
-  
   if (BAMF_IS_FACTORY (factory))
     return factory;
   

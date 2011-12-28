@@ -42,7 +42,7 @@
 #include "bamf-marshal.h"
 
 #include <string.h>
-#include <lib/libbamf-private/bamf-private.h>
+#include <libbamf-private/bamf-private.h>
 
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, G_TYPE_OBJECT);
 

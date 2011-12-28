@@ -12,7 +12,7 @@ BUILT_SOURCES =
 EXTRA_DIST = 
 
 INCLUDE = \
-  -I$(top_builddir)/lib/libbamf-private \
+  -I$(top_builddir)/lib \
   $(NULL)
 
 

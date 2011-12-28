@@ -6,9 +6,8 @@ EXTRA_DIST =
 include $(top_srcdir)/Makefile.am.marshal
 
 INCLUDE = \
-		-I.		\
+		-I. \
 		-I$(srcdir) \
-		-I$(top_builddir)/lib/libbamf-private \
 		$(NULL)
 
 bamfdaemondir = $(libexecdir)
@@ -90,6 +89,7 @@ bamfdaemon_LDADD = \
 		$(NULL)
 
 bamfdaemon_CFLAGS = \
+		-I$(top_builddir)/lib \
 		-Wall -std=c99 \
 		-DDATADIR=\""$(datadir)"\" \
 		-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
