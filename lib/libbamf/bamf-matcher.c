@@ -64,15 +64,39 @@ static guint matcher_signals[LAST_SIGNAL] = { 0 };
 struct _BamfMatcherPrivate
 {
   BamfDBusMatcher *proxy;
-  GList           *views;
 };
 
 static BamfMatcher * default_matcher = NULL;
 
 static void
+bamf_matcher_dispose (GObject *object)
+{
+  BamfMatcher *self = (BamfMatcher *) object;
+
+  if (self->priv->proxy)
+  {
+    g_object_unref (self->priv->proxy);
+    self->priv->proxy = NULL;
+  }
+
+  G_OBJECT_CLASS (bamf_matcher_parent_class)->dispose (object);
+}
+
+static void
+bamf_matcher_finalize (GObject *object)
+{
+  default_matcher = NULL;
+
+  G_OBJECT_CLASS (bamf_matcher_parent_class)->finalize (object);
+}
+
+static void
 bamf_matcher_class_init (BamfMatcherClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+
+  obj_class->dispose = bamf_matcher_dispose;
+  obj_class->finalize = bamf_matcher_finalize;
 
   g_type_class_add_private (obj_class, sizeof (BamfMatcherPrivate));
 
