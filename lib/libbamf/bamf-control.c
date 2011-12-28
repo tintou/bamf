@@ -37,8 +37,7 @@
 
 #include "bamf-control.h"
 
-#include <dbus/dbus.h>
-#include <dbus/dbus-glib.h>
+#include <lib/libbamf-private/bamf-private.h>
 
 G_DEFINE_TYPE (BamfControl, bamf_control, G_TYPE_OBJECT);
 
@@ -47,8 +46,7 @@ G_DEFINE_TYPE (BamfControl, bamf_control, G_TYPE_OBJECT);
 
 struct _BamfControlPrivate
 {
-  DBusGConnection *connection;
-  DBusGProxy      *proxy;
+  BamfDBusControl *proxy;
 };
 
 /* Globals */
@@ -61,13 +59,36 @@ static BamfControl * default_control = NULL;
  */
 
 static void
+bamf_control_dispose (GObject *object)
+{
+  BamfControl *self = (BamfControl *) object;
+
+  if (self->priv->proxy)
+    {
+      g_object_unref (self->priv->proxy);
+      self->priv->proxy = NULL;
+    }
+
+  G_OBJECT_CLASS (bamf_control_parent_class)->dispose (object);
+}
+
+static void
+bamf_control_finalize (GObject *object)
+{
+  default_control = NULL;
+
+  G_OBJECT_CLASS (bamf_control_parent_class)->finalize (object);
+}
+
+static void
 bamf_control_class_init (BamfControlClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+  obj_class->dispose = bamf_control_dispose;
+  obj_class->finalize = bamf_control_finalize;
 
   g_type_class_add_private (obj_class, sizeof (BamfControlPrivate));
 }
-
 
 static void
 bamf_control_init (BamfControl *self)
@@ -77,23 +98,16 @@ bamf_control_init (BamfControl *self)
 
   priv = self->priv = BAMF_CONTROL_GET_PRIVATE (self);
 
-  priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-  if (priv->connection == NULL)
-    {
-      g_warning ("Failed to open connection to bus: %s",
-               error != NULL ? error->message : "Unknown");
-      if (error)
-        g_error_free (error);
-      return;
-    }
+  priv->proxy = bamf_dbus_control_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                                          G_DBUS_PROXY_FLAGS_NONE,
+                                                          "org.ayatana.bamf",
+                                                          "/org/ayatana/bamf/control",
+                                                          NULL, &error);
 
-  priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
-                                           "org.ayatana.bamf",
-                                           "/org/ayatana/bamf/control",
-                                           "org.ayatana.bamf.control");
-  if (priv->proxy == NULL)
+  if (error)
     {
-      g_error ("Unable to get org.bamf.Control control");
+      g_error ("Unable to get org.ayatana.bamf.control controller: %s", error->message);
+      g_error_free (error);
     }
 }
 
@@ -107,8 +121,7 @@ bamf_control_get_default (void)
 }
 
 void
-bamf_control_set_approver_behavior (BamfControl *control,
-                                    gint32       behavior)
+bamf_control_set_approver_behavior (BamfControl *control, gint32 behavior)
 {
   BamfControlPrivate *priv;
   GError *error = NULL;
@@ -116,21 +129,16 @@ bamf_control_set_approver_behavior (BamfControl *control,
   g_return_if_fail (BAMF_IS_CONTROL (control));
   priv = control->priv;
 
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "SetApproverBehavior",
-                          &error,
-                          G_TYPE_INT, behavior,
-                          G_TYPE_INVALID,
-                          G_TYPE_INVALID))
+  if (!bamf_dbus_control_call_set_approver_behavior_sync (priv->proxy, behavior,
+                                                          NULL, &error))
     {
-      g_warning ("Failed to register application: %s", error->message);
+      g_warning ("Failed to set approver behavior: %s", error->message);
       g_error_free (error);
     }
 }
 
 void
-bamf_control_insert_desktop_file (BamfControl *control,
-                                   const gchar *desktop_file)
+bamf_control_insert_desktop_file (BamfControl *control, const gchar *desktop_file)
 {
   BamfControlPrivate *priv;
   GError *error = NULL;
@@ -138,12 +146,9 @@ bamf_control_insert_desktop_file (BamfControl *control,
   g_return_if_fail (BAMF_IS_CONTROL (control));
   priv = control->priv;
 
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "OmNomNomDesktopFile",
-                          &error,
-                          G_TYPE_STRING, desktop_file,
-                          G_TYPE_INVALID,
-                          G_TYPE_INVALID))
+  if (!bamf_dbus_control_call_om_nom_nom_desktop_file_sync (priv->proxy,
+                                                            desktop_file,
+                                                            NULL, &error))
     {
       g_warning ("Failed to insert desktop file: %s", error->message);
       g_error_free (error);
@@ -152,7 +157,7 @@ bamf_control_insert_desktop_file (BamfControl *control,
 
 void
 bamf_control_register_application_for_pid (BamfControl  *control,
-                                           const gchar  *application,
+                                           const gchar  *desktop_file,
                                            gint32        pid)
 {
   BamfControlPrivate *priv;
@@ -161,13 +166,10 @@ bamf_control_register_application_for_pid (BamfControl  *control,
   g_return_if_fail (BAMF_IS_CONTROL (control));
   priv = control->priv;
 
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "RegisterApplicationForPid",
-                          &error,
-                          G_TYPE_STRING, application,
-                          G_TYPE_UINT, pid,
-                          G_TYPE_INVALID,
-                          G_TYPE_INVALID))
+  if (!bamf_dbus_control_call_register_application_for_pid_sync (priv->proxy,
+                                                                 desktop_file,
+                                                                 pid, NULL,
+                                                                 &error))
     {
       g_warning ("Failed to register application: %s", error->message);
       g_error_free (error);
@@ -175,7 +177,18 @@ bamf_control_register_application_for_pid (BamfControl  *control,
 }
 
 void
-bamf_control_register_tab_provider (BamfControl *control,
-                                    const char  *path)
+bamf_control_register_tab_provider (BamfControl *control, const char *path)
 {
+  BamfControlPrivate *priv;
+  GError *error = NULL;
+
+  g_return_if_fail (BAMF_IS_CONTROL (control));
+  priv = control->priv;
+
+  if (!bamf_dbus_control_call_register_tab_provider_sync (priv->proxy, path,
+                                                          NULL, &error))
+    {
+      g_warning ("Failed to register tab provider: %s", error->message);
+      g_error_free (error);
+    }
 }

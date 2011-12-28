@@ -88,7 +88,7 @@ void          bamf_control_insert_desktop_file          (BamfControl *control,
                                                          const gchar *desktop_file);
 
 void          bamf_control_register_application_for_pid (BamfControl *control,
-                                                         const gchar *application,
+                                                         const gchar *desktop_file,
                                                          gint32       pid);
 
 void          bamf_control_register_tab_provider        (BamfControl *control,
