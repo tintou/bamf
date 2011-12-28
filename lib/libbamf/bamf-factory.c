@@ -44,6 +44,7 @@
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
+#include <lib/libbamf-private/bamf-private.h>
 #include <string.h>
 
 G_DEFINE_TYPE (BamfFactory, bamf_factory, G_TYPE_OBJECT);
@@ -165,8 +166,9 @@ bamf_factory_view_for_path (BamfFactory * factory,
 {
   GHashTable *views;
   BamfView *view;
+  BamfDBusItemView *vproxy;
   GList *l;
-  gchar *type;
+  gchar *type = NULL;
   gboolean created = FALSE;
 
   g_return_val_if_fail (BAMF_IS_FACTORY (factory), NULL);
@@ -180,22 +182,35 @@ bamf_factory_view_for_path (BamfFactory * factory,
   
   if (BAMF_IS_VIEW (view))
     return view;
-  
-  view = g_object_new (BAMF_TYPE_VIEW, NULL);
-  bamf_view_set_path (view, path);
-  type = g_strdup (bamf_view_get_view_type (view));
-  g_object_unref (view);
-  
+
   view = NULL;
-  if (g_strcmp0 (type, "application") == 0)
-    view = BAMF_VIEW (bamf_application_new (path));
-  else if (g_strcmp0 (type, "window") == 0)
-    view = BAMF_VIEW (bamf_window_new (path));
-  else if (g_strcmp0 (type, "indicator") == 0)
-    view = BAMF_VIEW (bamf_indicator_new (path));
-  
+  vproxy = bamf_dbus_item_view_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                                       G_DBUS_PROXY_FLAGS_NONE,
+                                                       "org.ayatana.bamf",
+                                                       path, NULL, NULL);
+
+  if (vproxy)
+    {
+      bamf_dbus_item_view_call_view_type_sync (vproxy, &type, NULL, NULL);
+
+      if (type)
+        {
+          if (g_strcmp0 (type, "window") == 0)
+            view = BAMF_VIEW (bamf_window_new (path));
+          else if (g_strcmp0 (type, "application") == 0)
+            view = BAMF_VIEW (bamf_application_new (path));
+          else if (g_strcmp0 (type, "indicator") == 0)
+            view = BAMF_VIEW (bamf_indicator_new (path));
+          else if (g_strcmp0 (type, "tab") == 0)
+            view = BAMF_VIEW (bamf_indicator_new (path));
+
+          g_free (type);
+          type = NULL;
+        }
+    }
+
   created = TRUE;
-  
+
   if (BAMF_IS_APPLICATION (view))
     {
       /* handle case where a favorite exists and this matches it */
@@ -221,7 +236,7 @@ bamf_factory_view_for_path (BamfFactory * factory,
         }
     }
   
-  if (view)
+  if (BAMF_IS_VIEW (view))
     {
       bamf_factory_register_view (factory, view, path);
       
@@ -231,8 +246,7 @@ bamf_factory_view_for_path (BamfFactory * factory,
           g_object_ref_sink (view);
         }
     }
-  
-  g_free (type);
+
   return view;
 }
 
