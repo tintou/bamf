@@ -207,6 +207,8 @@ bamf_factory_view_for_path (BamfFactory * factory,
           g_free (type);
           type = NULL;
         }
+
+      g_object_unref (vproxy);
     }
 
   created = TRUE;
