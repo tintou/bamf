@@ -42,9 +42,6 @@
 #include "bamf-marshal.h"
 
 #include <string.h>
-#include <dbus/dbus.h>
-#include <dbus/dbus-glib.h>
-#include <dbus/dbus-glib-lowlevel.h>
 #include <lib/libbamf-private/bamf-private.h>
 
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, G_TYPE_OBJECT);
@@ -80,7 +77,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
   g_type_class_add_private (obj_class, sizeof (BamfMatcherPrivate));
 
   matcher_signals [VIEW_OPENED] = 
-    g_signal_new ("view-opened",
+    g_signal_new (BAMF_MATCHER_SIGNAL_VIEW_OPENED,
                   G_OBJECT_CLASS_TYPE (klass),
                   0,
                   0, NULL, NULL,
@@ -89,7 +86,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
                   G_TYPE_OBJECT);
 
   matcher_signals [VIEW_CLOSED] = 
-    g_signal_new ("view-closed",
+    g_signal_new (BAMF_MATCHER_SIGNAL_VIEW_CLOSED,
                   G_OBJECT_CLASS_TYPE (klass),
                   0,
                   0, NULL, NULL,
@@ -98,7 +95,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
                   G_TYPE_OBJECT);
 
   matcher_signals [ACTIVE_APPLICATION_CHANGED] = 
-    g_signal_new ("active-application-changed",
+    g_signal_new (BAMF_MATCHER_SIGNAL_ACTIVE_APPLICATION_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   0,
                   0, NULL, NULL,
@@ -107,7 +104,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
                   G_TYPE_OBJECT, G_TYPE_OBJECT);
 
   matcher_signals [ACTIVE_WINDOW_CHANGED] = 
-    g_signal_new ("active-window-changed",
+    g_signal_new (BAMF_MATCHER_SIGNAL_ACTIVE_WINDOW_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   0,
                   0, NULL, NULL,
@@ -205,11 +202,6 @@ bamf_matcher_init (BamfMatcher *self)
       g_error ("Unable to get org.ayatana.bamf.matcher matcher: %s", error->message);
       g_error_free (error);
     }
-
-  dbus_g_object_register_marshaller ((GClosureMarshal) bamf_marshal_VOID__STRING_STRING,
-                                     G_TYPE_NONE, 
-                                     G_TYPE_STRING, G_TYPE_STRING,
-                                     G_TYPE_INVALID);
 
   g_signal_connect (priv->proxy, "view-opened",
                     G_CALLBACK (bamf_matcher_on_view_opened), self);
