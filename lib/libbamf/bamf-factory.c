@@ -41,9 +41,6 @@
 #include "bamf-application.h"
 #include "bamf-indicator.h"
 
-#include <dbus/dbus.h>
-#include <dbus/dbus-glib.h>
-#include <dbus/dbus-glib-lowlevel.h>
 #include <lib/libbamf-private/bamf-private.h>
 #include <string.h>
 
@@ -70,9 +67,46 @@ BamfWindow      * bamf_window_new                   (const char *path);
 BamfIndicator   * bamf_indicator_new                (const char *path);
 
 static void
+bamf_factory_dispose (GObject *object)
+{
+  BamfFactory *self = (BamfFactory *) object;
+
+  if (self->priv->views)
+    {
+      g_hash_table_destroy (self->priv->views);
+      self->priv->views = NULL;
+    }
+
+  if (self->priv->registered_views)
+    {
+      g_list_free (self->priv->registered_views);
+      self->priv->registered_views = NULL;
+    }
+
+  if (self->priv->local_views)
+    {
+      g_list_free_full (self->priv->local_views, g_object_unref);
+      self->priv->local_views = NULL;
+    }
+
+  G_OBJECT_CLASS (bamf_factory_parent_class)->dispose (object);
+}
+
+static void
+bamf_factory_finalize (GObject *object)
+{
+  factory = NULL;
+
+  G_OBJECT_CLASS (bamf_factory_parent_class)->finalize (object);
+}
+
+static void
 bamf_factory_class_init (BamfFactoryClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
+
+  obj_class->dispose = bamf_factory_dispose;
+  obj_class->finalize = bamf_factory_finalize;
 
   g_type_class_add_private (obj_class, sizeof (BamfFactoryPrivate));
 }
@@ -85,7 +119,7 @@ bamf_factory_init (BamfFactory *self)
 
   priv = self->priv = BAMF_FACTORY_GET_PRIVATE (self);
 
-  priv->views = g_hash_table_new_full ((GHashFunc) g_str_hash, (GEqualFunc) g_str_equal, (GDestroyNotify) g_free, NULL);
+  priv->views = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
 }
 
 static void
@@ -98,7 +132,7 @@ on_view_closed (BamfView *view, BamfFactory *self)
   path = bamf_view_get_path (view);
   if (path)
     g_hash_table_remove (self->priv->views, path);
-  
+
   g_object_unref (view);
 }
 
@@ -121,7 +155,7 @@ bamf_factory_register_view (BamfFactory *self, BamfView *view, const char *path)
     return;
   
   self->priv->registered_views = g_list_prepend (self->priv->registered_views, view);
-  
+
   g_signal_connect (G_OBJECT (view), "closed", (GCallback) on_view_closed, self);
   g_object_weak_ref (G_OBJECT (view), (GWeakNotify) on_view_weak_unref, self);
 }
