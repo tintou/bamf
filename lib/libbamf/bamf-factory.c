@@ -136,11 +136,14 @@ bamf_factory_app_for_file (BamfFactory * factory,
   /* check if result is available in known local_views */
   for (l = factory->priv->local_views; l; l = l->next)
     {
-      app = BAMF_APPLICATION (l->data);
-      if (g_strcmp0 (bamf_application_get_desktop_file (app), path) == 0)
+      if (BAMF_IS_APPLICATION (l->data))
         {
-          result = app;
-          break;
+          app = BAMF_APPLICATION (l->data);
+          if (g_strcmp0 (bamf_application_get_desktop_file (app), path) == 0)
+            {
+              result = app;
+              break;
+            }
         }
     }
   
