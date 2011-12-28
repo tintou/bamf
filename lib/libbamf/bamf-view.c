@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Canonical Ltd.
+ * Copyright 2010-2011 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -21,6 +21,7 @@
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
  *              Neil Jagdish Patel <neil.patel@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 /**
@@ -857,83 +858,83 @@ bamf_view_class_init (BamfViewClass *klass)
   g_type_class_add_private (obj_class, sizeof (BamfViewPrivate));
 
   view_signals [ACTIVE_CHANGED] = 
-  	g_signal_new ("active-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, active_changed), 
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
-  	              G_TYPE_BOOLEAN);
+    g_signal_new (BAMF_VIEW_SIGNAL_ACTIVE_CHANGED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfViewClass, active_changed), 
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__BOOLEAN,
+                  G_TYPE_NONE, 1, 
+                  G_TYPE_BOOLEAN);
 
   view_signals [CLOSED] = 
-  	g_signal_new ("closed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, closed), 
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__VOID,
-  	              G_TYPE_NONE, 0);
+    g_signal_new (BAMF_VIEW_SIGNAL_CLOSED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfViewClass, closed), 
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
 
   view_signals [CHILD_ADDED] = 
-  	g_signal_new ("child-added",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, child_added), 
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1, 
-  	              BAMF_TYPE_VIEW);
+    g_signal_new (BAMF_VIEW_SIGNAL_CHILD_ADDED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfViewClass, child_added), 
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1, 
+                  BAMF_TYPE_VIEW);
 
   view_signals [CHILD_REMOVED] = 
-  	g_signal_new ("child-removed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, child_removed), 
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1, 
-  	              BAMF_TYPE_VIEW);
+    g_signal_new (BAMF_VIEW_SIGNAL_CHILD_REMOVED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfViewClass, child_removed), 
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1, 
+                  BAMF_TYPE_VIEW);
 
   view_signals [RUNNING_CHANGED] = 
-  	g_signal_new ("running-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, running_changed), 
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
-  	              G_TYPE_BOOLEAN);
+    g_signal_new (BAMF_VIEW_SIGNAL_RUNNING_CHANGED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfViewClass, running_changed), 
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__BOOLEAN,
+                  G_TYPE_NONE, 1, 
+                  G_TYPE_BOOLEAN);
 
   view_signals [URGENT_CHANGED] = 
-  	g_signal_new ("urgent-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, urgent_changed), 
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
-  	              G_TYPE_BOOLEAN);
-  
+    g_signal_new (BAMF_VIEW_SIGNAL_URGENT_CHANGED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfViewClass, urgent_changed), 
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__BOOLEAN,
+                  G_TYPE_NONE, 1, 
+                  G_TYPE_BOOLEAN);
+
   view_signals [VISIBLE_CHANGED] = 
-  	g_signal_new ("user-visible-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, user_visible_changed), 
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
-  	              G_TYPE_BOOLEAN);
+    g_signal_new (BAMF_VIEW_SIGNAL_USER_VISIBLE_CHANGED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfViewClass, user_visible_changed), 
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__BOOLEAN,
+                  G_TYPE_NONE, 1, 
+                  G_TYPE_BOOLEAN);
 
   view_signals [NAME_CHANGED] =
-        g_signal_new ("name-changed",
-                      G_OBJECT_CLASS_TYPE (klass),
-                      0,
-                      0, NULL, NULL,
-                      bamf_marshal_VOID__STRING_STRING,
-  	              G_TYPE_NONE, 2,
-  	              G_TYPE_STRING,
-                      G_TYPE_STRING);
+    g_signal_new (BAMF_VIEW_SIGNAL_NAME_CHANGED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  bamf_marshal_VOID__STRING_STRING,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_STRING,
+                  G_TYPE_STRING);
 }
 
 

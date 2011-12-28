@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Canonical Ltd.
+ * Copyright 2010-2011 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -20,6 +20,8 @@
  * <http://www.gnu.org/licenses/>
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
+ *              Neil Jagdish Patel <neil.patel@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -37,6 +39,10 @@ G_BEGIN_DECLS
 #define BAMF_IS_TAB_SOURCE(obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_TAB_SOURCE))
 #define BAMF_IS_TAB_SOURCE_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_TAB_SOURCE))
 #define BAMF_TAB_SOURCE_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_TAB_SOURCE, BamfTabSourceClass))
+
+#define BAMF_TAB_SOURCE_SIGNAL_TAB_OPENED      "tab-opened"
+#define BAMF_TAB_SOURCE_SIGNAL_TAB_CLOSED      "tab-closed"
+#define BAMF_TAB_SOURCE_SIGNAL_TAB_URI_CHANGED "tab-uri-changed"
 
 typedef struct _BamfTabSource		BamfTabSource;
 typedef struct _BamfTabSourceClass	BamfTabSourceClass;

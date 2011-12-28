@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Canonical Ltd.
+ * Copyright 2010-2011 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -21,6 +21,7 @@
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
  *              Neil Jagdish Patel <neil.patel@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -47,6 +48,15 @@ G_BEGIN_DECLS
 
 #define BAMF_VIEW_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj),\
         BAMF_TYPE_VIEW, BamfViewClass))
+
+#define BAMF_VIEW_SIGNAL_ACTIVE_CHANGED       "active-changed"
+#define BAMF_VIEW_SIGNAL_CLOSED               "closed"
+#define BAMF_VIEW_SIGNAL_CHILD_ADDED          "child-added"
+#define BAMF_VIEW_SIGNAL_CHILD_REMOVED        "child-removed"
+#define BAMF_VIEW_SIGNAL_RUNNING_CHANGED      "running-changed"
+#define BAMF_VIEW_SIGNAL_URGENT_CHANGED       "urgent-changed"
+#define BAMF_VIEW_SIGNAL_USER_VISIBLE_CHANGED "user-visible-changed"
+#define BAMF_VIEW_SIGNAL_NAME_CHANGED         "name-changed"
 
 typedef enum
 {

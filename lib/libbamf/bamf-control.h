@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Canonical Ltd.
+ * Copyright 2010-2011 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -21,6 +21,7 @@
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
  *              Neil Jagdish Patel <neil.patel@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 

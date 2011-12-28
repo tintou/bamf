@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Canonical Ltd.
+ * Copyright 2010-2011 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -20,6 +20,8 @@
  * <http://www.gnu.org/licenses/>
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
+ *              Neil Jagdish Patel <neil.patel@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -215,34 +217,34 @@ bamf_tab_source_class_init (BamfTabSourceClass *klass)
 				   &dbus_glib_bamf_tab_source_object_info);
 
   bamf_tab_source_signals [TAB_URI_CHANGED] =
-  	g_signal_new ("tab-uri-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              0,
-  	              NULL, NULL,
-  	              bamf_marshal_VOID__STRING_STRING_STRING,
-  	              G_TYPE_NONE, 3,
-  	              G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+    g_signal_new (BAMF_TAB_SOURCE_SIGNAL_TAB_URI_CHANGED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  0,
+                  NULL, NULL,
+                  bamf_marshal_VOID__STRING_STRING_STRING,
+                  G_TYPE_NONE, 3,
+                  G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
   bamf_tab_source_signals [TAB_OPENED] =
-  	g_signal_new ("tab-opened",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              0,
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__STRING,
-  	              G_TYPE_NONE, 1,
-  	              G_TYPE_STRING);
+    g_signal_new (BAMF_TAB_SOURCE_SIGNAL_TAB_OPENED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  0,
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__STRING,
+                  G_TYPE_NONE, 1,
+                  G_TYPE_STRING);
 
   bamf_tab_source_signals [TAB_CLOSED] =
-  	g_signal_new ("tab-closed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              0,
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__STRING,
-  	              G_TYPE_NONE, 1,
-  	              G_TYPE_STRING);
+    g_signal_new (BAMF_TAB_SOURCE_SIGNAL_TAB_CLOSED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  0,
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__STRING,
+                  G_TYPE_NONE, 1,
+                  G_TYPE_STRING);
 }
 
 static void

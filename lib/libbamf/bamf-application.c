@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Canonical Ltd.
+ * Copyright 2010-2011 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -21,6 +21,7 @@
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
  *              Neil Jagdish Patel <neil.patel@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 /**
@@ -405,22 +406,22 @@ bamf_application_class_init (BamfApplicationClass *klass)
   g_type_class_add_private (obj_class, sizeof (BamfApplicationPrivate));
 
   application_signals [WINDOW_ADDED] = 
-  	g_signal_new ("window-added",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1, 
-  	              BAMF_TYPE_VIEW);
+    g_signal_new (BAMF_APPLICATION_SIGNAL_WINDOW_ADDED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1, 
+                  BAMF_TYPE_VIEW);
 
   application_signals [WINDOW_REMOVED] = 
-  	g_signal_new ("window-removed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1, 
-  	              BAMF_TYPE_VIEW);
+    g_signal_new (BAMF_APPLICATION_SIGNAL_WINDOW_REMOVED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1, 
+                  BAMF_TYPE_VIEW);
 }
 
 
