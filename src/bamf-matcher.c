@@ -2194,6 +2194,8 @@ bamf_matcher_tab_dbus_paths (BamfMatcher *matcher)
   GVariantBuilder b;
 
   g_variant_builder_init (&b, G_VARIANT_TYPE ("(as)"));
+  g_variant_builder_open (&b, G_VARIANT_TYPE ("as"));
+  g_variant_builder_close (&b);
   return g_variant_builder_end (&b);
 }
 
@@ -2233,6 +2235,8 @@ bamf_matcher_xids_for_application (BamfMatcher *matcher,
   if (!xids)
     {
       g_variant_builder_init (&b, G_VARIANT_TYPE ("(au)"));
+      g_variant_builder_open (&b, G_VARIANT_TYPE ("au"));
+      g_variant_builder_close (&b);
       xids = g_variant_builder_end (&b);
     }
 
