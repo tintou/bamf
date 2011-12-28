@@ -50,6 +50,11 @@ G_BEGIN_DECLS
 #define BAMF_MATCHER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj),\
         BAMF_TYPE_MATCHER, BamfMatcherClass))
 
+#define BAMF_MATCHER_SIGNAL_VIEW_OPENED                "view-opened"
+#define BAMF_MATCHER_SIGNAL_VIEW_CLOSED                "view-closed"
+#define BAMF_MATCHER_SIGNAL_ACTIVE_APPLICATION_CHANGED "active-application-changed"
+#define BAMF_MATCHER_SIGNAL_ACTIVE_WINDOW_CHANGED      "active-window-changed"
+
 typedef struct _BamfMatcher        BamfMatcher;
 typedef struct _BamfMatcherClass   BamfMatcherClass;
 typedef struct _BamfMatcherPrivate BamfMatcherPrivate;
@@ -130,7 +135,7 @@ BamfApplication * bamf_matcher_get_application_for_window  (BamfMatcher *matcher
                                                             BamfWindow *window);
 
 gboolean          bamf_matcher_application_is_running   (BamfMatcher *matcher,
-                                                         const gchar *application);
+                                                         const gchar *desktop_file);
 
 /**
  * bamf_matcher_get_applications:
@@ -180,13 +185,13 @@ GList *           bamf_matcher_get_tabs                 (BamfMatcher *matcher);
  * bamf_matcher_get_applications:
  * @matcher: a #BamfMatcher
  *
- * Used to fetch all xid's associated with an application. Useful for performing window
+ * Used to fetch all xid's associated with an application.
  * 
  *
- * Returns: (element-type guint32) (transfer none): A list of xids.
+ * Returns: (array zero-terminated=1) (element-type guint32) (transfer full): An array of xids.
  */
 GArray *          bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
-                                                         const gchar *application);
+                                                         const gchar *desktop_file);
 
 /**
  * bamf_matcher_get_windows:

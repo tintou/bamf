@@ -11,6 +11,11 @@ DISTCLEANFILES =
 BUILT_SOURCES =
 EXTRA_DIST = 
 
+INCLUDE = \
+  -I$(top_builddir)/lib/libbamf-private \
+  $(NULL)
+
+
 include $(top_srcdir)/Makefile.am.marshal
 
 libbamf_sources = \
@@ -48,6 +53,7 @@ libbamf_la_SOURCES = \
   $(NULL)
 
 libbamf_la_LIBADD = \
+  $(top_builddir)/lib/libbamf-private/libbamf-private.la \
   $(LIBWSBIND_LIBS) \
   $(GLIB_LIBS) \
   $(DBUS_LIBS) \
