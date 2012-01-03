@@ -152,8 +152,7 @@ bamf_indicator_source_approve_item (BamfIndicatorSource *self,
       if (error)
         {
           g_warning ("Could not get indicator process id: %s", error->message);
-          g_error_free (error);
-          error = NULL;
+          g_clear_error (&error);
         }
 
       g_return_val_if_fail (G_IS_DBUS_PROXY (gproxy), TRUE);
@@ -167,7 +166,7 @@ bamf_indicator_source_approve_item (BamfIndicatorSource *self,
       if (error)
         {
           g_warning ("Could not get indicator process id: %s", error->message);
-          g_error_free (error);
+          g_clear_error (&error);
           return TRUE;
         }
 
@@ -233,7 +232,7 @@ bamf_indicator_source_register_notification_approver (BamfIndicatorSource *self)
                                           G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS|
                                           G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
                                           NULL,
-                                          "com.canonical.indicator.application",
+                                          "org.kde.StatusNotifierWatcher",//"com.canonical.indicator.application",
                                           "/StatusNotifierWatcher",
                                           "org.kde.StatusNotifierWatcher",
                                           NULL,

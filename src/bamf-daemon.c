@@ -75,8 +75,7 @@ bamf_on_bus_acquired (GDBusConnection *connection, const gchar *name,
     {
       g_critical ("Can't register BAMF matcher at path %s: %s", BAMF_MATCHER_PATH,
                                                                 error->message);
-      g_error_free (error);
-      error = NULL;
+      g_clear_error (&error);
     }
 
   g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (self->priv->control),
@@ -88,8 +87,7 @@ bamf_on_bus_acquired (GDBusConnection *connection, const gchar *name,
     {
       g_critical ("Can't register BAMF control at path %s: %s", BAMF_CONTROL_PATH,
                                                                 error->message);
-      g_error_free (error);
-      error = NULL;
+      g_clear_error (&error);
     }
 
   g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (self->priv->approver),
@@ -101,8 +99,7 @@ bamf_on_bus_acquired (GDBusConnection *connection, const gchar *name,
     {
       g_critical ("Can't register BAMF approver at path %s: %s",
                                      BAMF_INDICATOR_SOURCE_PATH, error->message);
-      g_error_free (error);
-      error = NULL;
+      g_clear_error (&error);
     }
 }
 
