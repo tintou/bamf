@@ -74,11 +74,11 @@ void          bamf_view_close              (BamfView *view);
 
 GVariant    * bamf_view_get_children_paths (BamfView *view);
 
-const GList * bamf_view_get_children       (BamfView *view);
+GList       * bamf_view_get_children       (BamfView *view);
 
 GVariant    * bamf_view_get_parent_paths   (BamfView *view);
 
-const GList * bamf_view_get_parents        (BamfView *view);
+GList       * bamf_view_get_parents        (BamfView *view);
 
 const char  * bamf_view_get_path           (BamfView *view);
 

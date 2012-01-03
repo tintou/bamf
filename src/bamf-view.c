@@ -208,7 +208,7 @@ bamf_view_get_children_paths (BamfView *view)
   return g_variant_builder_end (&b);
 }
 
-const GList *
+GList *
 bamf_view_get_children (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
@@ -243,7 +243,7 @@ bamf_view_get_parent_paths (BamfView *view)
   return g_variant_builder_end (&b);
 }
 
-const GList *
+GList *
 bamf_view_get_parents (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
