@@ -298,7 +298,8 @@ trim_exec_string (BamfMatcher * self, char * execString)
   gboolean regexFail;
   GRegex *regex;
 
-  g_return_val_if_fail ((execString && execString[0] != '\0'), g_strdup (execString));
+  if (!execString || (execString && execString[0] == '\0'))
+    return NULL;
 
   exec = g_utf8_casefold (execString, -1);
   parts = g_strsplit (exec, " ", 0);

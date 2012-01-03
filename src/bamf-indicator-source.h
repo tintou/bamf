@@ -69,7 +69,7 @@ struct _BamfIndicatorSourceClass {
 
 GType bamf_indicator_source_get_type (void) G_GNUC_CONST;
 
-const GList * bamf_indicator_source_get_indicators (BamfIndicatorSource *self);
+GList * bamf_indicator_source_get_indicators (BamfIndicatorSource *self);
 
 gboolean bamf_indicator_source_approve_item (BamfIndicatorSource *self,
                                              const char *id,

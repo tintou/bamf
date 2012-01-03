@@ -42,7 +42,7 @@ struct _BamfIndicatorSourcePrivate
 
 G_DEFINE_TYPE (BamfIndicatorSource, bamf_indicator_source, STATUS_NOTIFIER_APPROVER_TYPE__SKELETON)
 
-const GList *
+GList *
 bamf_indicator_source_get_indicators (BamfIndicatorSource *self)
 {
   g_return_val_if_fail (BAMF_IS_INDICATOR_SOURCE (self), NULL);
@@ -74,7 +74,7 @@ rejudge_approval (BamfIndicator *indicator, BamfIndicatorSource *self)
 
   const char *address = bamf_indicator_get_address (indicator);
   const char *path = bamf_indicator_get_path (indicator);
-  const GList *parents = bamf_view_get_parents (BAMF_VIEW (indicator));
+  GList *parents = bamf_view_get_parents (BAMF_VIEW (indicator));
   gboolean approve = TRUE;
 
   switch (self->priv->behavior)
@@ -201,7 +201,7 @@ bamf_indicator_source_approve_item (BamfIndicatorSource *self,
       g_signal_emit (self, indicator_source_signals[INDICATOR_OPENED], 0, indicator);
     }
 
-  const GList *parents = bamf_view_get_parents (BAMF_VIEW (indicator));
+  GList *parents = bamf_view_get_parents (BAMF_VIEW (indicator));
 
   switch (self->priv->behavior)
     {
