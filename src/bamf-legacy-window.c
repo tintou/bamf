@@ -21,6 +21,7 @@
 
 #include "bamf-legacy-window.h"
 #include "bamf-legacy-screen.h"
+#include "bamf-xutils.h"
 #include <libgtop-2.0/glibtop.h>
 #include <glibtop/procargs.h>
 #include <glibtop/procuid.h>
@@ -319,6 +320,72 @@ bamf_legacy_window_is_closed (BamfLegacyWindow *self)
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), TRUE);
   
   return self->priv->is_closed;
+}
+
+void
+bamf_legacy_window_get_geometry (BamfLegacyWindow *self, gint *x, gint *y,
+                                 gint *width, gint *height)
+{
+  wnck_window_get_geometry (self->priv->legacy_window, x, y, width, height);
+}
+
+BamfWindowMaximizationType
+bamf_legacy_window_maximized (BamfLegacyWindow *self)
+{
+  WnckWindowState window_state;
+  BamfWindowMaximizationType maximization_type;
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), BAMF_WINDOW_FLOATING);
+
+  window_state = wnck_window_get_state (self->priv->legacy_window);
+
+  gboolean vertical = (window_state & WNCK_WINDOW_STATE_MAXIMIZED_VERTICALLY);
+  gboolean horizontal = (window_state & WNCK_WINDOW_STATE_MAXIMIZED_HORIZONTALLY);
+
+  if (vertical && horizontal)
+    {
+      maximization_type = BAMF_WINDOW_MAXIMIZED;
+    }
+  else if (horizontal)
+    {
+      maximization_type = BAMF_WINDOW_HORIZONTAL_MAXIMIZED;
+    }
+  else if (vertical)
+    {
+      maximization_type = BAMF_WINDOW_VERTICAL_MAXIMIZED;
+    }
+  else
+    {
+      maximization_type = BAMF_WINDOW_FLOATING;
+    }
+
+  return maximization_type;
+}
+
+char *
+bamf_legacy_window_get_app_id (BamfLegacyWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
+
+  guint xid = bamf_legacy_window_get_xid (self);
+  return bamf_xutils_get_window_hint (xid, "_DBUS_APPLICATION_ID");
+}
+
+char *
+bamf_legacy_window_unique_bus_name (BamfLegacyWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
+
+  guint xid = bamf_legacy_window_get_xid (self);
+  return bamf_xutils_get_window_hint (xid, "_DBUS_UNIQUE_NAME");
+}
+
+char *
+bamf_legacy_window_get_menu_object_path (BamfLegacyWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
+
+  guint xid = bamf_legacy_window_get_xid (self);
+  return bamf_xutils_get_window_hint (xid, "_DBUS_OBJECT_PATH");
 }
 
 static void
