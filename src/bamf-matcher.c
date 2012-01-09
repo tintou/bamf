@@ -1926,6 +1926,60 @@ bamf_matcher_application_for_xid (BamfMatcher *matcher,
   return "";
 }
 
+static gint
+compare_windows_by_stack_order (gconstpointer a, gconstpointer b)
+{
+  g_return_val_if_fail (BAMF_IS_WINDOW (a), -1);
+  g_return_val_if_fail (BAMF_IS_WINDOW (b), 1);
+
+  gint idx_a = bamf_window_get_stack_position (BAMF_WINDOW (a));
+  gint idx_b = bamf_window_get_stack_position (BAMF_WINDOW (b));
+
+  return (idx_a < idx_b) ? -1 : 1;
+}
+
+
+GVariant *
+bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
+{
+  GList *l;
+  GList *windows;
+  BamfView *view;
+  GVariantBuilder b;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+
+  windows = NULL;
+  for (l = matcher->priv->views; l; l = l->next)
+    {
+      if (BAMF_IS_WINDOW (l->data))
+        {
+          windows = g_list_insert_sorted (windows, l->data,
+                                          compare_windows_by_stack_order);
+        }
+    }
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("(as)"));
+  g_variant_builder_open (&b, G_VARIANT_TYPE ("as"));
+
+  for (l = windows; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_WINDOW (view))
+        continue;
+
+      if (bamf_window_get_monitor (BAMF_WINDOW (view)) == monitor)
+      {
+        g_variant_builder_add (&b, "s", bamf_view_get_path (view));
+      }
+    }
+
+  g_variant_builder_close (&b);
+
+  return g_variant_builder_end (&b);
+}
+
 gboolean
 bamf_matcher_application_is_running (BamfMatcher *matcher,
                                      const char *application)
@@ -2303,6 +2357,19 @@ on_dbus_handle_application_for_xid (BamfDBusMatcher *interface,
   return TRUE;
 }
 
+static gboolean
+on_dbus_handle_window_stack_for_monitor (BamfDBusMatcher *interface,
+                                         GDBusMethodInvocation *invocation,
+                                         gint monitor,
+                                         BamfMatcher *self)
+{
+  GVariant *windows = bamf_matcher_get_window_stack_for_monitor (self, monitor);
+
+  g_dbus_method_invocation_return_value (invocation, windows);
+
+  return TRUE;
+}
+
 static void
 bamf_matcher_init (BamfMatcher * self)
 {
@@ -2376,6 +2443,9 @@ bamf_matcher_init (BamfMatcher * self)
 
   g_signal_connect (self, "handle-application-for-xid",
                     G_CALLBACK (on_dbus_handle_application_for_xid), self);
+
+  g_signal_connect (self, "handle-window-stack-for-monitor",
+                    G_CALLBACK (on_dbus_handle_window_stack_for_monitor), self);
 }
 
 static void

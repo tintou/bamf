@@ -158,7 +158,7 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
 }
 
 static gint
-insert_windows_on_stacked_order (gconstpointer a, gconstpointer b, gpointer data)
+compare_windows_by_stack_order (gconstpointer a, gconstpointer b, gpointer data)
 {
   BamfLegacyScreen *self;
   GList *l;
@@ -168,8 +168,8 @@ insert_windows_on_stacked_order (gconstpointer a, gconstpointer b, gpointer data
   g_return_val_if_fail (BAMF_IS_LEGACY_SCREEN (data), 1);
   self = BAMF_LEGACY_SCREEN (data);
 
-  xid_a = bamf_legacy_window_get_xid ((BamfLegacyWindow*) a);
-  xid_b = bamf_legacy_window_get_xid ((BamfLegacyWindow*) b);
+  xid_a = bamf_legacy_window_get_xid (BAMF_LEGACY_WINDOW (a));
+  xid_b = bamf_legacy_window_get_xid (BAMF_LEGACY_WINDOW (b));
 
   gboolean idx_a_found = FALSE;
   gboolean idx_b_found = FALSE;
@@ -215,7 +215,7 @@ handle_window_opened (WnckScreen *screen, WnckWindow *window, BamfLegacyScreen *
                     (GCallback) handle_window_closed, legacy);
 
   legacy->priv->windows = g_list_insert_sorted_with_data (legacy->priv->windows, legacy_window, 
-                                                          insert_windows_on_stacked_order,
+                                                          compare_windows_by_stack_order,
                                                           legacy);
 
   g_signal_emit (legacy, legacy_screen_signals[WINDOW_OPENED], 0, legacy_window);
@@ -225,7 +225,7 @@ static void
 handle_stacking_changed (WnckScreen *screen, BamfLegacyScreen *legacy)
 {
   legacy->priv->windows = g_list_sort_with_data (legacy->priv->windows,
-                                                 insert_windows_on_stacked_order,
+                                                 compare_windows_by_stack_order,
                                                  legacy);
 
   g_signal_emit (legacy, legacy_screen_signals[STACKING_CHANGED], 0);
