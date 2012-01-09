@@ -264,7 +264,7 @@ bamf_legacy_window_get_xid (BamfLegacyWindow *self)
   return (guint32) wnck_window_get_xid (self->priv->legacy_window);
 }
 
-BamfLegacyWindow * 
+BamfLegacyWindow *
 bamf_legacy_window_get_transient (BamfLegacyWindow *self)
 {
   BamfLegacyScreen *screen;
@@ -294,6 +294,19 @@ bamf_legacy_window_get_transient (BamfLegacyWindow *self)
     }
   
   return NULL;
+}
+
+gint
+bamf_legacy_window_get_stacking_position (BamfLegacyWindow *self)
+{
+  BamfLegacyScreen *screen;
+  
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), -1);
+
+  screen = bamf_legacy_screen_get_default ();
+  g_return_val_if_fail (BAMF_IS_LEGACY_SCREEN (screen), -1);
+  
+  return g_list_index (bamf_legacy_screen_get_windows (screen), self);
 }
 
 static void
@@ -501,7 +514,7 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
   g_type_class_add_private (klass, sizeof (BamfLegacyWindowPrivate));
 
   legacy_window_signals [NAME_CHANGED] =
-    g_signal_new (BAMF_LEGACY_WINDOW_NAME_CHANGED,
+    g_signal_new (BAMF_LEGACY_WINDOW_SIGNAL_NAME_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyWindowClass, name_changed),
@@ -510,7 +523,7 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
                   G_TYPE_NONE, 0);
 
   legacy_window_signals [STATE_CHANGED] =
-    g_signal_new (BAMF_LEGACY_WINDOW_STATE_CHANGED,
+    g_signal_new (BAMF_LEGACY_WINDOW_SIGNAL_STATE_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyWindowClass, state_changed),
@@ -519,7 +532,7 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
                   G_TYPE_NONE, 0);
 
   legacy_window_signals [GEOMETRY_CHANGED] =
-    g_signal_new (BAMF_LEGACY_WINDOW_GEOMETRY_CHANGED,
+    g_signal_new (BAMF_LEGACY_WINDOW_SIGNAL_GEOMETRY_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyWindowClass, geometry_changed),
@@ -528,7 +541,7 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
                   G_TYPE_NONE, 0);
 
   legacy_window_signals [CLOSED] =
-    g_signal_new (BAMF_LEGACY_WINDOW_CLOSED,
+    g_signal_new (BAMF_LEGACY_WINDOW_SIGNAL_CLOSED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyWindowClass, closed),

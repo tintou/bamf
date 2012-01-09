@@ -37,10 +37,10 @@
 #define BAMF_IS_LEGACY_WINDOW_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_LEGACY_WINDOW))
 #define BAMF_LEGACY_WINDOW_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_LEGACY_WINDOW, BamfLegacyWindowClass))
 
-#define BAMF_LEGACY_WINDOW_NAME_CHANGED     "name-changed"
-#define BAMF_LEGACY_WINDOW_STATE_CHANGED    "state-changed"
-#define BAMF_LEGACY_WINDOW_GEOMETRY_CHANGED "geometry-changed"
-#define BAMF_LEGACY_WINDOW_CLOSED           "closed"
+#define BAMF_LEGACY_WINDOW_SIGNAL_NAME_CHANGED     "name-changed"
+#define BAMF_LEGACY_WINDOW_SIGNAL_STATE_CHANGED    "state-changed"
+#define BAMF_LEGACY_WINDOW_SIGNAL_GEOMETRY_CHANGED "geometry-changed"
+#define BAMF_LEGACY_WINDOW_SIGNAL_CLOSED           "closed"
 
 typedef struct _BamfLegacyWindow BamfLegacyWindow;
 typedef struct _BamfLegacyWindowClass BamfLegacyWindowClass;
@@ -137,6 +137,8 @@ char             * bamf_legacy_window_get_app_id           (BamfLegacyWindow *se
 char             * bamf_legacy_window_get_unique_bus_name  (BamfLegacyWindow *self);
 
 char             * bamf_legacy_window_get_menu_object_path (BamfLegacyWindow *self);
+
+gint               bamf_legacy_window_get_stacking_position (BamfLegacyWindow *self);
 
 void               bamf_legacy_window_reopen               (BamfLegacyWindow *self);
 
