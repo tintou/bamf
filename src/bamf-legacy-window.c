@@ -380,7 +380,7 @@ bamf_legacy_window_get_app_id (BamfLegacyWindow *self)
 }
 
 char *
-bamf_legacy_window_unique_bus_name (BamfLegacyWindow *self)
+bamf_legacy_window_get_unique_bus_name (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
 
@@ -535,8 +535,6 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
                   NULL, NULL,
                   g_cclosure_marshal_VOID__VOID,
                   G_TYPE_NONE, 0);
-
-
 }
 
 BamfLegacyWindow *

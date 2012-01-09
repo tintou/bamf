@@ -38,9 +38,12 @@ struct _BamfWindowPrivate
 {
   BamfDBusItemWindow *dbus_iface;
   BamfLegacyWindow *legacy_window;
+  BamfWindowMaximizationType maximized;
+  gint monitor;
   gulong closed_id;
   gulong name_changed_id;
   gulong state_changed_id;
+  gulong geometry_changed_id;
   time_t last_active;
   time_t opened;
 };
@@ -171,25 +174,89 @@ bamf_window_ensure_flags (BamfWindow *self)
   
   bamf_view_set_active       (BAMF_VIEW (self), bamf_legacy_window_is_active (self->priv->legacy_window));
   bamf_view_set_urgent       (BAMF_VIEW (self), bamf_legacy_window_needs_attention (self->priv->legacy_window));
+  bamf_view_set_user_visible (BAMF_VIEW (self), !bamf_legacy_window_is_skip_tasklist (self->priv->legacy_window));
 
-  if (g_strcmp0 (bamf_legacy_window_get_class_name (self->priv->legacy_window), "Nautilus") == 0 &&
-      g_strcmp0 (bamf_legacy_window_get_name (self->priv->legacy_window), "File Operations") == 0)
-    bamf_view_set_user_visible (BAMF_VIEW (self), FALSE);
-  else    
-    bamf_view_set_user_visible (BAMF_VIEW (self), !bamf_legacy_window_is_skip_tasklist (self->priv->legacy_window));
+  BamfWindowMaximizationType maximized = bamf_window_maximized (self);
+
+  if (self->priv->maximized != maximized)
+  {
+    BamfWindowMaximizationType old_state = self->priv->maximized;
+    self->priv->maximized = maximized;
+    g_signal_emit_by_name (self->priv->dbus_iface, "maximized-changed", old_state, maximized);
+  }
 }
 
 static void
-handle_state_changed (BamfLegacyWindow *window,
-                      BamfWindow *self)
+bamf_window_ensure_monitor (BamfWindow *self)
+{
+  g_return_if_fail (BAMF_IS_WINDOW (self));
+
+  gint monitor = bamf_window_get_monitor (self);
+
+  if (self->priv->monitor != monitor)
+  {
+    gint old_monitor = self->priv->monitor;
+    self->priv->monitor = monitor;
+    g_signal_emit_by_name (self->priv->dbus_iface, "monitor-changed", old_monitor, monitor);
+  }
+}
+
+static void
+handle_state_changed (BamfLegacyWindow *window, BamfWindow *self)
 {
   bamf_window_ensure_flags (self);
+}
+
+static void
+handle_geometry_changed (BamfLegacyWindow *window, BamfWindow *self)
+{
+  bamf_window_ensure_monitor (self);
 }
 
 static const char *
 bamf_window_get_view_type (BamfView *view)
 {
   return "window";
+}
+
+char *
+bamf_window_get_app_id (BamfWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
+  return bamf_legacy_window_get_app_id (self->priv->legacy_window);
+}
+
+char *
+bamf_window_get_unique_bus_name (BamfWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
+  return bamf_legacy_window_get_unique_bus_name (self->priv->legacy_window);
+}
+
+char *
+bamf_window_get_menu_object_path (BamfWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
+  return bamf_legacy_window_get_menu_object_path (self->priv->legacy_window);
+}
+
+BamfWindowMaximizationType
+bamf_window_maximized (BamfWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), BAMF_WINDOW_FLOATING);
+  return bamf_legacy_window_maximized (self->priv->legacy_window);
+}
+
+gint
+bamf_window_get_monitor (BamfWindow *self)
+{
+  gint x, y, width, height;
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), -1);
+
+  GdkScreen *gdk_screen =  gdk_screen_get_default ();
+  bamf_legacy_window_get_geometry (self->priv->legacy_window, &x, &y, &width, &height);
+  
+  return gdk_screen_get_monitor_at_point (gdk_screen, x + width/2, y + height/2);
 }
 
 static char *
@@ -199,7 +266,7 @@ bamf_window_get_stable_bus_name (BamfView *view)
 
   g_return_val_if_fail (BAMF_IS_WINDOW (view), NULL);  
   self = BAMF_WINDOW (view);
-  
+
   return g_strdup_printf ("window%i", bamf_legacy_window_get_xid (self->priv->legacy_window));
 }
 
@@ -240,6 +307,72 @@ on_dbus_handle_window_type (BamfDBusItemWindow *interface,
   BamfWindowType window_type = bamf_window_get_window_type (self);
   g_dbus_method_invocation_return_value (invocation,
                                          g_variant_new ("(u)", window_type));
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_application_id (BamfDBusItemWindow *interface,
+                               GDBusMethodInvocation *invocation,
+                               BamfWindow *self)
+{
+  char *app_id = bamf_legacy_window_get_app_id (self->priv->legacy_window);
+  g_dbus_method_invocation_return_value (invocation,
+                                         g_variant_new ("(s)", app_id ? app_id : ""));
+
+  g_free (app_id);
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_unique_bus_name (BamfDBusItemWindow *interface,
+                                GDBusMethodInvocation *invocation,
+                                BamfWindow *self)
+{
+  char *bus_name = bamf_legacy_window_get_unique_bus_name (self->priv->legacy_window);
+  g_dbus_method_invocation_return_value (invocation,
+                                         g_variant_new ("(s)", bus_name ? bus_name : ""));
+
+  g_free (bus_name);
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_dbus_menu_object_path (BamfDBusItemWindow *interface,
+                                      GDBusMethodInvocation *invocation,
+                                      BamfWindow *self)
+{
+  char *obj_path = bamf_window_get_menu_object_path (self);
+  g_dbus_method_invocation_return_value (invocation,
+                                         g_variant_new ("(s)", obj_path ? obj_path : ""));
+
+  g_free (obj_path);
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_monitor (BamfDBusItemWindow *interface,
+                        GDBusMethodInvocation *invocation,
+                        BamfWindow *self)
+{
+  gint monitor = bamf_window_get_monitor (self);
+  g_dbus_method_invocation_return_value (invocation,
+                                         g_variant_new ("(i)", monitor));
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_maximized (BamfDBusItemWindow *interface,
+                          GDBusMethodInvocation *invocation,
+                          BamfWindow *self)
+{
+  BamfWindowMaximizationType maximized = bamf_window_maximized (self);
+  g_dbus_method_invocation_return_value (invocation,
+                                         g_variant_new ("(i)", maximized));
 
   return TRUE;
 }
@@ -305,10 +438,17 @@ bamf_window_constructed (GObject *object)
   self->priv->state_changed_id = g_signal_connect (G_OBJECT (window), "state-changed",
                                                    (GCallback) handle_state_changed, self);
 
+  self->priv->geometry_changed_id = g_signal_connect (G_OBJECT (window), "geometry-changed",
+                                                      (GCallback) handle_geometry_changed, self);
+
   self->priv->closed_id = g_signal_connect (G_OBJECT (window), "closed",
                                             (GCallback) handle_window_closed, self);
 
+  self->priv->maximized = -1;
+  self->priv->monitor = -1;
+
   bamf_window_ensure_flags (self);
+  bamf_window_ensure_monitor (self);
 }
 
 static void
@@ -329,6 +469,9 @@ bamf_window_dispose (GObject *object)
 
       g_signal_handler_disconnect (self->priv->legacy_window,
                                    self->priv->state_changed_id);
+
+      g_signal_handler_disconnect (self->priv->legacy_window,
+                                   self->priv->geometry_changed_id);
 
       g_signal_handler_disconnect (self->priv->legacy_window,
                                    self->priv->closed_id);
@@ -367,6 +510,21 @@ bamf_window_init (BamfWindow * self)
 
   g_signal_connect (self->priv->dbus_iface, "handle-window-type",
                     G_CALLBACK (on_dbus_handle_window_type), self);
+
+  g_signal_connect (self->priv->dbus_iface, "handle-application-id",
+                    G_CALLBACK (on_dbus_handle_application_id), self);
+
+  g_signal_connect (self->priv->dbus_iface, "handle-unique-bus-name",
+                    G_CALLBACK (on_dbus_handle_unique_bus_name), self);
+
+  g_signal_connect (self->priv->dbus_iface, "handle-dbus-menu-object-path",
+                    G_CALLBACK (on_dbus_handle_dbus_menu_object_path), self);
+
+  g_signal_connect (self->priv->dbus_iface, "handle-monitor",
+                    G_CALLBACK (on_dbus_handle_monitor), self);
+
+  g_signal_connect (self->priv->dbus_iface, "handle-maximized",
+                    G_CALLBACK (on_dbus_handle_maximized), self);
 
   /* Setting the interface for the dbus object */
   bamf_dbus_item_object_skeleton_set_window (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),

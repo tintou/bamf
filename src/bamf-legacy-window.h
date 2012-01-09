@@ -134,7 +134,7 @@ BamfLegacyWindow * bamf_legacy_window_get_transient        (BamfLegacyWindow *se
 
 char             * bamf_legacy_window_get_app_id           (BamfLegacyWindow *self);
 
-char             * bamf_legacy_window_unique_bus_name      (BamfLegacyWindow *self);
+char             * bamf_legacy_window_get_unique_bus_name  (BamfLegacyWindow *self);
 
 char             * bamf_legacy_window_get_menu_object_path (BamfLegacyWindow *self);
 
