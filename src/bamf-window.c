@@ -263,7 +263,7 @@ bamf_window_get_monitor (BamfWindow *self)
   return gdk_screen_get_monitor_at_point (gdk_screen, x + width/2, y + height/2);
 }
 
-static char *
+char *
 bamf_window_get_stable_bus_name (BamfView *view)
 {
   BamfWindow *self;
@@ -272,6 +272,14 @@ bamf_window_get_stable_bus_name (BamfView *view)
   self = BAMF_WINDOW (view);
 
   return g_strdup_printf ("window%i", bamf_legacy_window_get_xid (self->priv->legacy_window));
+}
+
+gint
+bamf_window_get_stack_position (BamfWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), -1);
+
+  return bamf_legacy_window_get_stacking_position (self->priv->legacy_window);
 }
 
 static void
@@ -419,7 +427,8 @@ bamf_window_get_property (GObject *object, guint property_id, GValue *value, GPa
 }
 
 static void
-on_maximized_changed (BamfWindow *self, BamfWindowMaximizationType old, BamfWindowMaximizationType new, gpointer _not_used)
+on_maximized_changed (BamfWindow *self, BamfWindowMaximizationType old,
+                      BamfWindowMaximizationType new, gpointer _not_used)
 {
   g_return_if_fail (BAMF_IS_WINDOW (self));
   g_signal_emit_by_name (self->priv->dbus_iface, "maximized-changed", old, new);

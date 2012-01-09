@@ -72,6 +72,8 @@ time_t             bamf_window_last_active (BamfWindow *window);
 
 time_t             bamf_window_opened (BamfWindow *window);
 
+gint               bamf_window_get_stack_position (BamfWindow *window);
+
 char             * bamf_window_get_app_id (BamfWindow *self);
 
 char             * bamf_window_get_unique_bus_name (BamfWindow *self);
