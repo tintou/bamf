@@ -1713,6 +1713,12 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
 }
 
 static void
+handle_stacking_changed (BamfLegacyScreen * screen, BamfMatcher *self)
+{
+  g_signal_emit_by_name (self, "stacking-order-changed");
+}
+
+static void
 bamf_matcher_setup_indicator_state (BamfMatcher *self, BamfIndicator *indicator)
 {
   GList *possible_apps, *l;
@@ -2401,8 +2407,11 @@ bamf_matcher_init (BamfMatcher * self)
                              &(priv->desktop_class_table));
 
   screen = bamf_legacy_screen_get_default ();
-  g_signal_connect (G_OBJECT (screen), "window-opened",
+  g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENED,
                     (GCallback) handle_window_opened, self);
+
+  g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_STACKING_CHANGED,
+                    (GCallback) handle_stacking_changed, self);
 
   approver = bamf_indicator_source_get_default ();
   g_signal_connect (G_OBJECT (approver), "indicator-opened",
@@ -2470,6 +2479,7 @@ bamf_matcher_finalize (GObject *object)
 {
   BamfMatcher *self = (BamfMatcher *) object;
   BamfMatcherPrivate *priv = self->priv;
+  BamfLegacyScreen *screen = bamf_legacy_screen_get_default ();
   GList *l;
   int i;
 
@@ -2487,6 +2497,9 @@ bamf_matcher_finalize (GObject *object)
   g_hash_table_destroy (priv->registered_pids);
 
   g_list_free_full (priv->views, g_object_unref);
+
+  g_signal_handlers_disconnect_by_func (screen, handle_window_opened, self);
+  g_signal_handlers_disconnect_by_func (screen, handle_stacking_changed, self);
 
   for (l = priv->monitors; l; l = l->next)
     {
