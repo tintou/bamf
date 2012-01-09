@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#include <gdk/gdkx.h>
-
 #include "bamf-matcher.h"
 #include "bamf-application.h"
 #include "bamf-window.h"
@@ -29,6 +27,7 @@
 #include "bamf-legacy-window-test.h"
 #include "bamf-legacy-screen.h"
 #include "bamf-indicator-source.h"
+#include "bamf-xutils.h"
 
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, BAMF_DBUS_TYPE_MATCHER_SKELETON);
 #define BAMF_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -843,6 +842,7 @@ get_desktop_file_directories (BamfMatcher *self)
   
   dirs = get_desktop_file_env_directories(dirs, "XDG_DATA_HOME");
 
+  //If this doesn't exist, we need to track .local or the home itself!
   path = g_build_filename (g_get_home_dir (), ".local/share/applications", NULL);
 
   if (!g_list_find_custom (dirs, path, (GCompareFunc) g_strcmp0))
@@ -1150,58 +1150,11 @@ get_window_hint (BamfMatcher *self,
                  BamfLegacyWindow *window,
                  const char *atom_name)
 {
-  Display *XDisplay;
-  Atom atom;
-  char *hint = NULL;
-  Atom type;
-  gint format;
-  gulong numItems;
-  gulong bytesAfter;
-  unsigned char *buffer;
-  gboolean close_display = TRUE;
-
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
-  g_return_val_if_fail (atom_name, NULL);
 
-  XDisplay = XOpenDisplay (NULL);
-  if (!XDisplay)
-  {
-    XDisplay = gdk_x11_get_default_xdisplay ();
-    if (!XDisplay)
-    {
-      g_warning ("%s: Unable to get a valid XDisplay", G_STRFUNC);
-      return hint;
-    }
-    
-    close_display = FALSE;
-  }
-
-  atom = XInternAtom (XDisplay, atom_name, FALSE);
-
-  int result = XGetWindowProperty (XDisplay,
-                                   (gulong) bamf_legacy_window_get_xid (window),
-                                   atom,
-                                   0,
-                                   G_MAXINT,
-                                   FALSE,
-                                   XA_STRING,
-                                   &type,
-                                   &format,
-                                   &numItems,
-                                   &bytesAfter,
-                                   &buffer);
-
-  if (close_display)
-    XCloseDisplay (XDisplay);
-
-  if (result == Success && numItems > 0)
-    {
-      hint = g_strdup ((char*) buffer);
-      XFree (buffer);
-    }
-
-  return hint;
+  Window xid = bamf_legacy_window_get_xid (window);
+  return bamf_xutils_get_window_hint (xid, atom_name);
 }
 
 static void
@@ -1210,39 +1163,11 @@ set_window_hint (BamfMatcher * self,
                  const char *atom_name,
                  const char *data)
 {
-  Display *XDisplay;
-  gboolean close_display = TRUE;
-
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_LEGACY_WINDOW (window));
-  g_return_if_fail (atom_name);
-  g_return_if_fail (data);
-  
-  XDisplay = XOpenDisplay (NULL);
-  if (!XDisplay)
-  {
-    XDisplay = gdk_x11_get_default_xdisplay ();
-    if (!XDisplay)
-    {
-      g_warning ("%s: Unable to get a valid XDisplay", G_STRFUNC);
-      return;
-    }
-    close_display = FALSE;
-  }
 
-  XChangeProperty (XDisplay,
-                   bamf_legacy_window_get_xid (window),
-                   XInternAtom (XDisplay,
-                   atom_name,
-                   FALSE),
-                   XA_STRING,
-                   8,
-                   PropModeReplace,
-                   (unsigned char *) data,
-                   strlen (data));
-
-  if (close_display)
-    XCloseDisplay (XDisplay);
+  Window xid = bamf_legacy_window_get_xid (window);
+  bamf_xutils_set_window_hint (xid, atom_name, data);
 }
 
 static char *
