@@ -53,6 +53,14 @@ typedef enum
   BAMF_WINDOW_SPLASHSCREEN  /* splash screen */
 } BamfWindowType;
 
+typedef enum
+{
+  BAMF_WINDOW_FLOATING,
+  BAMF_WINDOW_HORIZONTAL_MAXIMIZED,
+  BAMF_WINDOW_VERTICAL_MAXIMIZED,
+  BAMF_WINDOW_MAXIMIZED
+} BamfWindowMaximizationType;
+
 struct _BamfLegacyWindowClass
 {
   GObjectClass parent;
@@ -82,38 +90,50 @@ struct _BamfLegacyWindow
   BamfLegacyWindowPrivate *priv;
 };
 
-GType              bamf_legacy_window_get_type          (void) G_GNUC_CONST;
+GType              bamf_legacy_window_get_type             (void) G_GNUC_CONST;
 
-guint32            bamf_legacy_window_get_xid           (BamfLegacyWindow *self);
+guint32            bamf_legacy_window_get_xid              (BamfLegacyWindow *self);
 
-gint               bamf_legacy_window_get_pid           (BamfLegacyWindow *self);
+gint               bamf_legacy_window_get_pid              (BamfLegacyWindow *self);
 
-gboolean           bamf_legacy_window_is_active         (BamfLegacyWindow *self);
+void               bamf_legacy_window_get_geometry         (BamfLegacyWindow *self,
+                                                            gint *x, gint *y,
+                                                            gint *width, gint *height);
 
-gboolean           bamf_legacy_window_is_skip_tasklist  (BamfLegacyWindow *self);
+gboolean           bamf_legacy_window_is_active            (BamfLegacyWindow *self);
 
-gboolean           bamf_legacy_window_needs_attention   (BamfLegacyWindow *self);
+gboolean           bamf_legacy_window_is_skip_tasklist     (BamfLegacyWindow *self);
 
-gboolean           bamf_legacy_window_is_closed         (BamfLegacyWindow *self);
+gboolean           bamf_legacy_window_needs_attention      (BamfLegacyWindow *self);
 
-BamfWindowType     bamf_legacy_window_get_window_type   (BamfLegacyWindow *self);
+gboolean           bamf_legacy_window_is_closed            (BamfLegacyWindow *self);
+
+BamfWindowType     bamf_legacy_window_get_window_type      (BamfLegacyWindow *self);
+
+BamfWindowMaximizationType bamf_legacy_window_maximized    (BamfLegacyWindow *self);
 
 #ifdef USE_GTK3
 const char       * bamf_legacy_window_get_class_instance_name (BamfLegacyWindow *self);
 #endif
 
-const char       * bamf_legacy_window_get_class_name    (BamfLegacyWindow *self);
+const char       * bamf_legacy_window_get_class_name       (BamfLegacyWindow *self);
 
-const char       * bamf_legacy_window_get_name          (BamfLegacyWindow *self);
+const char       * bamf_legacy_window_get_name             (BamfLegacyWindow *self);
 
-const char       * bamf_legacy_window_save_mini_icon    (BamfLegacyWindow *self);
+const char       * bamf_legacy_window_save_mini_icon       (BamfLegacyWindow *self);
 
-char             * bamf_legacy_window_get_exec_string   (BamfLegacyWindow *self);
+char             * bamf_legacy_window_get_exec_string      (BamfLegacyWindow *self);
 
-BamfLegacyWindow * bamf_legacy_window_get_transient     (BamfLegacyWindow *self);
+BamfLegacyWindow * bamf_legacy_window_get_transient        (BamfLegacyWindow *self);
 
-void               bamf_legacy_window_reopen            (BamfLegacyWindow *self);
+char             * bamf_legacy_window_get_app_id           (BamfLegacyWindow *self);
 
-BamfLegacyWindow * bamf_legacy_window_new               (WnckWindow *legacy_window);
+char             * bamf_legacy_window_unique_bus_name      (BamfLegacyWindow *self);
+
+char             * bamf_legacy_window_get_menu_object_path (BamfLegacyWindow *self);
+
+void               bamf_legacy_window_reopen               (BamfLegacyWindow *self);
+
+BamfLegacyWindow * bamf_legacy_window_new                  (WnckWindow *legacy_window);
 
 #endif
