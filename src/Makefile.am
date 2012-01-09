@@ -55,6 +55,7 @@ bamfdaemon_sources = \
 		bamf-tab-source.c \
 		bamf-indicator-source.c \
 		bamf-indicator.c \
+		bamf-xutils.c \
 		$(NULL)
 
 bamfdaemon_headers = \
@@ -73,6 +74,7 @@ bamfdaemon_headers = \
 		bamf-tab-source.h \
 		bamf-indicator-source.h \
 		bamf-indicator.h \
+		bamf-xutils.h \
 		$(NULL)
 
 bamfdaemon_SOURCES = \
