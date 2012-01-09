@@ -102,6 +102,9 @@ GVariant    * bamf_matcher_tab_dbus_paths                (BamfMatcher *matcher);
 GVariant    * bamf_matcher_xids_for_application          (BamfMatcher *matcher,
                                                           const char *application);
 
+GVariant    * bamf_matcher_get_window_stack_for_monitor  (BamfMatcher *matcher,
+                                                          gint monitor);
+
 BamfMatcher * bamf_matcher_get_default                   (void);
 
 #endif
