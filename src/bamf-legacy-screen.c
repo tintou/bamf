@@ -29,6 +29,7 @@ enum
 {
   WINDOW_OPENED,
   WINDOW_CLOSED,
+  STACKING_CHANGED,
   ACTIVE_WINDOW_CHANGED,
 
   LAST_SIGNAL,
@@ -90,7 +91,7 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
       exec  = parts[4];
 
       window = BAMF_LEGACY_WINDOW (bamf_legacy_window_test_new (xid, name, class, exec));
-      self->priv->windows = g_list_prepend (self->priv->windows, window);
+      self->priv->windows = g_list_append (self->priv->windows, window);
 
       g_signal_connect (G_OBJECT (window), "closed",
                         (GCallback) handle_window_closed, self);
@@ -156,6 +157,52 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
   return TRUE;
 }
 
+static gint
+insert_windows_on_stacked_order (gconstpointer a, gconstpointer b, gpointer data)
+{
+  BamfLegacyScreen *self;
+  GList *l;
+  guint xid_a, xid_b;
+  guint idx_a, idx_b;
+
+  g_return_val_if_fail (BAMF_IS_LEGACY_SCREEN (data), 1);
+  self = BAMF_LEGACY_SCREEN (data);
+
+  xid_a = bamf_legacy_window_get_xid ((BamfLegacyWindow*) a);
+  xid_b = bamf_legacy_window_get_xid ((BamfLegacyWindow*) b);
+
+  gboolean idx_a_found = FALSE;
+  gboolean idx_b_found = FALSE;
+  idx_a = 0;
+  idx_b = 0;
+
+  for (l = wnck_screen_get_windows_stacked (self->priv->legacy_screen); l; l = l->next)
+  {
+    gulong legacy_xid = wnck_window_get_xid (WNCK_WINDOW (l->data));
+
+    if (!idx_a_found)
+      {
+        if (xid_a != legacy_xid)
+          idx_a++;
+        else
+          idx_a_found = TRUE;
+      }
+
+    if (!idx_b_found)
+      {
+        if (xid_b != legacy_xid)
+          idx_b++;
+        else
+          idx_b_found = TRUE;
+      }
+
+    if (idx_a_found && idx_b_found)
+      break;
+  }
+
+  return (idx_a < idx_b) ? -1 : 1;
+}
+
 static void
 handle_window_opened (WnckScreen *screen, WnckWindow *window, BamfLegacyScreen *legacy)
 {
@@ -167,9 +214,21 @@ handle_window_opened (WnckScreen *screen, WnckWindow *window, BamfLegacyScreen *
   g_signal_connect (G_OBJECT (legacy_window), "closed",
                     (GCallback) handle_window_closed, legacy);
 
-  legacy->priv->windows = g_list_prepend (legacy->priv->windows, legacy_window);
+  legacy->priv->windows = g_list_insert_sorted_with_data (legacy->priv->windows, legacy_window, 
+                                                          insert_windows_on_stacked_order,
+                                                          legacy);
 
   g_signal_emit (legacy, legacy_screen_signals[WINDOW_OPENED], 0, legacy_window);
+}
+
+static void
+handle_stacking_changed (WnckScreen *screen, BamfLegacyScreen *legacy)
+{
+  legacy->priv->windows = g_list_sort_with_data (legacy->priv->windows,
+                                                 insert_windows_on_stacked_order,
+                                                 legacy);
+
+  g_signal_emit (legacy, legacy_screen_signals[STACKING_CHANGED], 0);
 }
 
 /* This function allows to push into the screen a window by its xid.
@@ -214,6 +273,7 @@ bamf_legacy_screen_set_state_file (BamfLegacyScreen *self,
   // Disconnect our handlers so we can work purely on the file
   g_signal_handlers_disconnect_by_func (self->priv->legacy_screen, handle_window_opened, self);
   g_signal_handlers_disconnect_by_func (self->priv->legacy_screen, handle_window_closed, self);
+  g_signal_handlers_disconnect_by_func (self->priv->legacy_screen, handle_stacking_changed, self);
 
   gfile = g_file_new_for_path (file);
 
@@ -292,33 +352,42 @@ bamf_legacy_screen_class_init (BamfLegacyScreenClass * klass)
   g_type_class_add_private (klass, sizeof (BamfLegacyScreenPrivate));
 
   legacy_screen_signals [WINDOW_OPENED] =
-  	g_signal_new ("window-opened",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfLegacyScreenClass, window_opened),
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1,
-  	              BAMF_TYPE_LEGACY_WINDOW);
+    g_signal_new (BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfLegacyScreenClass, window_opened),
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1,
+                  BAMF_TYPE_LEGACY_WINDOW);
 
   legacy_screen_signals [WINDOW_CLOSED] =
-  	g_signal_new ("window-closed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfLegacyScreenClass, window_closed),
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1,
-  	              BAMF_TYPE_LEGACY_WINDOW);
+    g_signal_new (BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_CLOSED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfLegacyScreenClass, window_closed),
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1,
+                  BAMF_TYPE_LEGACY_WINDOW);
+
+  legacy_screen_signals [STACKING_CHANGED] =
+    g_signal_new (BAMF_LEGACY_SCREEN_SIGNAL_STACKING_CHANGED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfLegacyScreenClass, stacking_changed),
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
 
   legacy_screen_signals [ACTIVE_WINDOW_CHANGED] =
-  	g_signal_new ("active-window-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfLegacyScreenClass, active_window_changed),
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__VOID,
-  	              G_TYPE_NONE, 0);
+    g_signal_new (BAMF_LEGACY_SCREEN_SIGNAL_ACTIVE_WINDOW_CHANGED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfLegacyScreenClass, active_window_changed),
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
 }
 
 static BamfLegacyScreen *self = NULL;
@@ -335,6 +404,9 @@ bamf_legacy_screen_get_default ()
 
   g_signal_connect (G_OBJECT (self->priv->legacy_screen), "window-opened",
                     (GCallback) handle_window_opened, self);
+
+  g_signal_connect (G_OBJECT (self->priv->legacy_screen), "window-stacking-changed",
+                    (GCallback) handle_stacking_changed, self);
 
   g_signal_connect (G_OBJECT (self->priv->legacy_screen), "active-window-changed",
                     (GCallback) handle_active_window_changed, self);
