@@ -21,9 +21,13 @@
 #include "bamf-window.h"
 #include "bamf-legacy-screen.h"
 
-G_DEFINE_TYPE (BamfWindow, bamf_window, BAMF_TYPE_VIEW);
 #define BAMF_WINDOW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_WINDOW, BamfWindowPrivate))
+
+static void bamf_window_dbus_iface_init (BamfDBusItemWindowIface *iface);
+G_DEFINE_TYPE_WITH_CODE (BamfWindow, bamf_window, BAMF_TYPE_VIEW,
+                         G_IMPLEMENT_INTERFACE (BAMF_DBUS_ITEM_TYPE_WINDOW,
+                                                bamf_window_dbus_iface_init));
 
 static GList *bamf_windows;
 
@@ -182,7 +186,7 @@ bamf_window_ensure_flags (BamfWindow *self)
   {
     BamfWindowMaximizationType old_state = self->priv->maximized;
     self->priv->maximized = maximized;
-    g_signal_emit_by_name (self->priv->dbus_iface, "maximized-changed", old_state, maximized);
+    g_signal_emit_by_name (self, "maximized-changed", old_state, maximized);
   }
 }
 
@@ -197,7 +201,7 @@ bamf_window_ensure_monitor (BamfWindow *self)
   {
     gint old_monitor = self->priv->monitor;
     self->priv->monitor = monitor;
-    g_signal_emit_by_name (self->priv->dbus_iface, "monitor-changed", old_monitor, monitor);
+    g_signal_emit_by_name (self, "monitor-changed", old_monitor, monitor);
   }
 }
 
@@ -415,6 +419,20 @@ bamf_window_get_property (GObject *object, guint property_id, GValue *value, GPa
 }
 
 static void
+on_maximized_changed (BamfWindow *self, BamfWindowMaximizationType old, BamfWindowMaximizationType new, gpointer _not_used)
+{
+  g_return_if_fail (BAMF_IS_WINDOW (self));
+  g_signal_emit_by_name (self->priv->dbus_iface, "maximized-changed", old, new);
+}
+
+static void
+on_monitor_changed (BamfWindow *self, gint old, gint new, gpointer _not_used)
+{
+  g_return_if_fail (BAMF_IS_WINDOW (self));
+  g_signal_emit_by_name (self->priv->dbus_iface, "monitor-changed", old, new);
+}
+
+static void
 bamf_window_constructed (GObject *object)
 {
   BamfWindow *self;
@@ -501,6 +519,11 @@ bamf_window_init (BamfWindow * self)
   /* Initializing the dbus interface */
   self->priv->dbus_iface = bamf_dbus_item_window_skeleton_new ();
 
+  /* We need to connect to the object own signals to redirect them to the dbus
+   * interface                                                                */
+  g_signal_connect (self, "maximized-changed", G_CALLBACK (on_maximized_changed), NULL);
+  g_signal_connect (self, "monitor-changed", G_CALLBACK (on_monitor_changed), NULL);
+
   /* Registering signal callbacks to reply to dbus method calls */
   g_signal_connect (self->priv->dbus_iface, "handle-get-xid",
                     G_CALLBACK (on_dbus_handle_get_xid), self);
@@ -532,6 +555,11 @@ bamf_window_init (BamfWindow * self)
 
   g_signal_connect (G_OBJECT (bamf_legacy_screen_get_default ()), "active-window-changed",
                     (GCallback) active_window_changed, self);
+}
+
+static void
+bamf_window_dbus_iface_init (BamfDBusItemWindowIface *iface)
+{
 }
 
 static void
