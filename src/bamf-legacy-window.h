@@ -37,6 +37,11 @@
 #define BAMF_IS_LEGACY_WINDOW_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_LEGACY_WINDOW))
 #define BAMF_LEGACY_WINDOW_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_LEGACY_WINDOW, BamfLegacyWindowClass))
 
+#define BAMF_LEGACY_WINDOW_NAME_CHANGED     "name-changed"
+#define BAMF_LEGACY_WINDOW_STATE_CHANGED    "state-changed"
+#define BAMF_LEGACY_WINDOW_GEOMETRY_CHANGED "geometry-changed"
+#define BAMF_LEGACY_WINDOW_CLOSED           "closed"
+
 typedef struct _BamfLegacyWindow BamfLegacyWindow;
 typedef struct _BamfLegacyWindowClass BamfLegacyWindowClass;
 typedef struct _BamfLegacyWindowPrivate BamfLegacyWindowPrivate;
@@ -77,9 +82,10 @@ struct _BamfLegacyWindowClass
   gboolean     (*is_dialog)          (BamfLegacyWindow *legacy_window);
 
   /*< signals >*/
-  void     (*name_changed)    (BamfLegacyWindow *legacy_window);
-  void     (*state_changed)   (BamfLegacyWindow *legacy_window);
-  void     (*closed)          (BamfLegacyWindow *legacy_window);
+  void     (*name_changed)     (BamfLegacyWindow *legacy_window);
+  void     (*state_changed)    (BamfLegacyWindow *legacy_window);
+  void     (*geometry_changed) (BamfLegacyWindow *legacy_window);
+  void     (*closed)           (BamfLegacyWindow *legacy_window);
 };
 
 struct _BamfLegacyWindow
