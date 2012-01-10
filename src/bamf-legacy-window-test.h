@@ -116,12 +116,12 @@ void
 bamf_legacy_window_test_set_name (BamfLegacyWindowTest *self, char *val);
 
 void
-bamf_legacy_window_set_geometry (BamfLegacyWindowTest *self, int x, int y,
+bamf_legacy_window_test_set_geometry (BamfLegacyWindowTest *self, int x, int y,
                                                              int width, int height);
 
 void
-bamf_legacy_window_set_maximized (BamfLegacyWindowTest *self,
-                                  BamfWindowMaximizationType maximized);
+bamf_legacy_window_test_set_maximized (BamfLegacyWindowTest *self,
+                                       BamfWindowMaximizationType maximized);
 
 void
 bamf_legacy_window_test_close (BamfLegacyWindowTest *self);

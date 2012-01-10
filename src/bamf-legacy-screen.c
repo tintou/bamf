@@ -102,13 +102,14 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
 
       window = BAMF_LEGACY_WINDOW (bamf_legacy_window_test_new (xid, name, class, exec));
       self->priv->windows = g_list_append (self->priv->windows, window);
+      g_signal_emit (window, legacy_screen_signals[STACKING_CHANGED], 0);
 
       g_signal_connect (G_OBJECT (window), "closed",
                         (GCallback) handle_window_closed, self);
 
       g_signal_emit (self, legacy_screen_signals[WINDOW_OPENED], 0, window);
     }
-  else if (g_strcmp0 (parts[0], "close") == 0 && parts_size = 2)
+  else if (g_strcmp0 (parts[0], "close") == 0 && parts_size == 2)
     {
       for (l = self->priv->windows; l; l = l->next)
         {
@@ -183,7 +184,7 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
       else if (g_strcmp0 (parts[2], "vmaximized") == 0)
         maximized = BAMF_WINDOW_VERTICAL_MAXIMIZED;
       else if (g_strcmp0 (parts[2], "hmaximized") == 0)
-        maximized = BAMF_WINDOW_HORIZONTAL_MAXIMIZED
+        maximized = BAMF_WINDOW_HORIZONTAL_MAXIMIZED;
       else if (g_strcmp0 (parts[2], "floating") == 0)
         maximized = BAMF_WINDOW_FLOATING;
       else

@@ -233,7 +233,7 @@ bamf_legacy_window_test_close (BamfLegacyWindowTest *self)
 }
 
 void
-bamf_legacy_window_set_geometry (BamfLegacyWindowTest *self, int x, int y,
+bamf_legacy_window_test_set_geometry (BamfLegacyWindowTest *self, int x, int y,
                                  int width, int height)
 {
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (self));
@@ -246,11 +246,12 @@ bamf_legacy_window_set_geometry (BamfLegacyWindowTest *self, int x, int y,
 }
 
 void
-bamf_legacy_window_set_maximized (BamfLegacyWindowTest *self,
+bamf_legacy_window_test_set_maximized (BamfLegacyWindowTest *self,
                                   BamfWindowMaximizationType maximized)
 {
   self->maximized = maximized;
   g_signal_emit_by_name (self, BAMF_LEGACY_WINDOW_SIGNAL_GEOMETRY_CHANGED);
+  g_signal_emit_by_name (self, BAMF_LEGACY_WINDOW_SIGNAL_STATE_CHANGED);
 }
 
 void
