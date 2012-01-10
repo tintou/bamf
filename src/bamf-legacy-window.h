@@ -65,13 +65,7 @@ typedef enum
   BAMF_WINDOW_VERTICAL_MAXIMIZED,
   BAMF_WINDOW_MAXIMIZED
 } BamfWindowMaximizationType;
-char             * bamf_legacy_window_get_app_id           (BamfLegacyWindow *self);
 
-char             * bamf_legacy_window_get_unique_bus_name  (BamfLegacyWindow *self);
-
-char             * bamf_legacy_window_get_menu_object_path (BamfLegacyWindow *self);
-
-gint               bamf_legacy_window_get_stacking_position (BamfLegacyWindow *self);
 struct _BamfLegacyWindowClass
 {
   GObjectClass parent;
@@ -90,6 +84,10 @@ struct _BamfLegacyWindowClass
   gboolean     (*is_desktop)           (BamfLegacyWindow *legacy_window);
   gboolean     (*is_dialog)            (BamfLegacyWindow *legacy_window);
   BamfWindowMaximizationType (*maximized) (BamfLegacyWindow *legacy_window);
+
+  void         (*get_geometry)         (BamfLegacyWindow *self,
+                                        gint *x, gint *y,
+                                        gint *width, gint *height);
 
   /*< signals >*/
   void     (*name_changed)     (BamfLegacyWindow *legacy_window);
