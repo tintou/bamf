@@ -70,16 +70,24 @@ struct _BamfLegacyWindowClass
 {
   GObjectClass parent;
 
-  const char * (*get_name)           (BamfLegacyWindow *legacy_window);
-  const char * (*get_class_name)     (BamfLegacyWindow *legacy_window);
-  char       * (*get_exec_string)    (BamfLegacyWindow *legacy_window);
-  gint         (*get_pid)            (BamfLegacyWindow *legacy_window);
-  guint32      (*get_xid)            (BamfLegacyWindow *legacy_window);
-  gboolean     (*needs_attention)    (BamfLegacyWindow *legacy_window);
-  gboolean     (*is_active)          (BamfLegacyWindow *legacy_window);
-  gboolean     (*is_skip_tasklist)   (BamfLegacyWindow *legacy_window);
-  gboolean     (*is_desktop)         (BamfLegacyWindow *legacy_window);
-  gboolean     (*is_dialog)          (BamfLegacyWindow *legacy_window);
+  const char * (*get_name)             (BamfLegacyWindow *legacy_window);
+  const char * (*get_class_name)       (BamfLegacyWindow *legacy_window);
+  char       * (*get_exec_string)      (BamfLegacyWindow *legacy_window);
+  char       * (*get_app_id)           (BamfLegacyWindow *legacy_window);
+  char       * (*get_unique_bus_name)  (BamfLegacyWindow *legacy_window);
+  char       * (*get_menu_object_path) (BamfLegacyWindow *legacy_window);
+  gint         (*get_pid)              (BamfLegacyWindow *legacy_window);
+  guint32      (*get_xid)              (BamfLegacyWindow *legacy_window);
+  gboolean     (*needs_attention)      (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_active)            (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_skip_tasklist)     (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_desktop)           (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_dialog)            (BamfLegacyWindow *legacy_window);
+  BamfWindowMaximizationType (*maximized) (BamfLegacyWindow *legacy_window);
+
+  void         (*get_geometry)         (BamfLegacyWindow *self,
+                                        gint *x, gint *y,
+                                        gint *width, gint *height);
 
   /*< signals >*/
   void     (*name_changed)     (BamfLegacyWindow *legacy_window);
