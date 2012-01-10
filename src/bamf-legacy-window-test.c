@@ -249,9 +249,35 @@ void
 bamf_legacy_window_test_set_maximized (BamfLegacyWindowTest *self,
                                   BamfWindowMaximizationType maximized)
 {
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (self));
+
   self->maximized = maximized;
   g_signal_emit_by_name (self, BAMF_LEGACY_WINDOW_SIGNAL_GEOMETRY_CHANGED);
   g_signal_emit_by_name (self, BAMF_LEGACY_WINDOW_SIGNAL_STATE_CHANGED);
+}
+
+void
+bamf_legacy_window_test_set_application_id (BamfLegacyWindowTest *self, const char *id)
+{
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (self));
+
+  self->application_id = g_strdup (id);
+}
+
+void
+bamf_legacy_window_test_set_unique_bus_name (BamfLegacyWindowTest *self, const char *bus_name)
+{
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (self));
+
+  self->unique_bus_name = g_strdup (bus_name);
+}
+
+void
+bamf_legacy_window_test_set_dbus_menu_object_path (BamfLegacyWindowTest *self, const char *object_path)
+{
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (self));
+
+  self->dbus_menu_object_path = g_strdup (object_path);
 }
 
 void
