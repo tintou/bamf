@@ -287,6 +287,7 @@ void
 bamf_legacy_window_test_init (BamfLegacyWindowTest *self)
 {
   self->pid = g_random_int_range (1, 100000);
+  self->maximized = BAMF_WINDOW_FLOATING;
 }
 
 
@@ -300,7 +301,6 @@ bamf_legacy_window_test_new (guint32 xid, gchar *name, gchar *klass, gchar *exec
   self->name = g_strdup (name);
   self->klass = g_strdup (klass);
   self->exec = g_strdup (exec);
-  self->maximized = BAMF_WINDOW_FLOATING;
 
   return self;
 }
