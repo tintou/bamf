@@ -166,10 +166,118 @@ bamf_legacy_window_test_get_exec_string (BamfLegacyWindow *legacy_window)
   return self->exec;
 }
 
+char *
+bamf_legacy_window_test_get_app_id (BamfLegacyWindow *legacy_window)
+{
+  BamfLegacyWindowTest *self;
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (legacy_window), NULL);
+
+  self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
+
+  return self->application_id;
+}
+
+char *
+bamf_legacy_window_test_get_unique_bus_name (BamfLegacyWindow *legacy_window)
+{
+  BamfLegacyWindowTest *self;
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (legacy_window), NULL);
+
+  self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
+
+  return self->unique_bus_name;
+}
+
+char *
+bamf_legacy_window_test_get_menu_object_path (BamfLegacyWindow *legacy_window)
+{
+  BamfLegacyWindowTest *self;
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (legacy_window), NULL);
+
+  self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
+
+  return self->dbus_menu_object_path;
+}
+
+void
+bamf_legacy_window_test_get_geometry (BamfLegacyWindow *legacy_window,
+                                      gint *x, gint *y,
+                                      gint *width, gint *height)
+{
+  BamfLegacyWindowTest *self;
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (legacy_window));
+
+  self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
+
+  *x = self->geometry.x;
+  *y = self->geometry.y;
+  *width = self->geometry.width;
+  *height = self->geometry.height;
+}
+
+BamfWindowMaximizationType
+bamf_legacy_window_test_maximized (BamfLegacyWindow *legacy_window)
+{
+  BamfLegacyWindowTest *self;
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (legacy_window), BAMF_WINDOW_FLOATING);
+
+  self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
+
+  return self->maximized;
+}
+
 void
 bamf_legacy_window_test_close (BamfLegacyWindowTest *self)
 {
   g_signal_emit_by_name (self, "closed");
+}
+
+void
+bamf_legacy_window_test_set_geometry (BamfLegacyWindowTest *self, int x, int y,
+                                 int width, int height)
+{
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (self));
+
+  self->geometry.x = x;
+  self->geometry.y = y;
+  self->geometry.width = width;
+  self->geometry.height = height;
+  g_signal_emit_by_name (self, BAMF_LEGACY_WINDOW_SIGNAL_GEOMETRY_CHANGED);
+}
+
+void
+bamf_legacy_window_test_set_maximized (BamfLegacyWindowTest *self,
+                                  BamfWindowMaximizationType maximized)
+{
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (self));
+
+  self->maximized = maximized;
+  g_signal_emit_by_name (self, BAMF_LEGACY_WINDOW_SIGNAL_GEOMETRY_CHANGED);
+  g_signal_emit_by_name (self, BAMF_LEGACY_WINDOW_SIGNAL_STATE_CHANGED);
+}
+
+void
+bamf_legacy_window_test_set_application_id (BamfLegacyWindowTest *self, const char *id)
+{
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (self));
+
+  self->application_id = g_strdup (id);
+}
+
+void
+bamf_legacy_window_test_set_unique_bus_name (BamfLegacyWindowTest *self, const char *bus_name)
+{
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (self));
+
+  self->unique_bus_name = g_strdup (bus_name);
+}
+
+void
+bamf_legacy_window_test_set_dbus_menu_object_path (BamfLegacyWindowTest *self, const char *object_path)
+{
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (self));
+
+  self->dbus_menu_object_path = g_strdup (object_path);
 }
 
 void
@@ -194,6 +302,11 @@ bamf_legacy_window_test_class_init (BamfLegacyWindowTestClass *klass)
   win_class->is_skip_tasklist = bamf_legacy_window_test_is_skip_tasklist;
   win_class->is_desktop       = bamf_legacy_window_test_is_desktop;
   win_class->is_active        = bamf_legacy_window_test_is_active;
+  win_class->get_app_id       = bamf_legacy_window_test_get_app_id;
+  win_class->get_unique_bus_name = bamf_legacy_window_test_get_unique_bus_name;
+  win_class->get_menu_object_path = bamf_legacy_window_test_get_menu_object_path;
+  win_class->get_geometry     = bamf_legacy_window_test_get_geometry;
+  win_class->maximized        = bamf_legacy_window_test_maximized;
 }
 
 
@@ -201,6 +314,7 @@ void
 bamf_legacy_window_test_init (BamfLegacyWindowTest *self)
 {
   self->pid = g_random_int_range (1, 100000);
+  self->maximized = BAMF_WINDOW_FLOATING;
 }
 
 

@@ -15,6 +15,7 @@ bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-tab-source.c \
 		$(top_srcdir)/src/bamf-indicator.c \
 		$(top_srcdir)/src/bamf-indicator-source.c \
+		$(top_srcdir)/src/bamf-xutils.c \
 		$(top_builddir)/src/bamf-marshal.c \
 		$(top_builddir)/src/bamf-gdbus-generated.c \
 		$(top_builddir)/src/bamf-gdbus-view-generated.c \
@@ -28,7 +29,7 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/bamf-daemon.h \
 		$(top_srcdir)/src/bamf-legacy-window.h \
 		$(top_srcdir)/src/bamf-legacy-window-test.h \
-	  $(top_srcdir)/src/bamf-legacy-screen.h \
+		$(top_srcdir)/src/bamf-legacy-screen.h \
 		$(top_srcdir)/src/bamf-view.h \
 		$(top_srcdir)/src/bamf-control.h \
 		$(top_srcdir)/src/bamf-matcher.h \
@@ -38,6 +39,7 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/bamf-application.h \
 		$(top_srcdir)/src/bamf-indicator-source.h \
 		$(top_srcdir)/src/bamf-indicator.h \
+		$(top_srcdir)/src/bamf-xutils.h \
 		$(top_builddir)/src/bamf-marshal.h \
 		$(top_builddir)/src/bamf-gdbus-generated.h \
 		$(top_builddir)/src/bamf-gdbus-view-generated.h \

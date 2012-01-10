@@ -63,6 +63,7 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
   gchar *line, *name, *class, *exec;
   GList *l;
   gchar **parts;
+  gsize parts_size;
   guint32 xid;
 
   g_return_val_if_fail (BAMF_IS_LEGACY_SCREEN (self), FALSE);
@@ -79,12 +80,21 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
   // close	<xid>
   // attention	<xid>	<true/false>
   // skip	<xid>	<true/false>
+  // geometry <xid> <x> <y> <width> <height>
+  // maximized <xid> <maximized/vmaximized/hmaximized/floating>
 
   parts = g_strsplit (line, "\t", 0);
   g_free (line);
 
+  parts_size = 0;
+  while (parts[parts_size] != NULL)
+    parts_size++;
+
+  if (parts_size < 2)
+    return FALSE;
+
   xid = (guint32) atol (parts[1]);
-  if (g_strcmp0 (parts[0], "open") == 0)
+  if (g_strcmp0 (parts[0], "open") == 0 && parts_size == 5)
     {
       name  = parts[2];
       class = parts[3];
@@ -92,13 +102,14 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
 
       window = BAMF_LEGACY_WINDOW (bamf_legacy_window_test_new (xid, name, class, exec));
       self->priv->windows = g_list_append (self->priv->windows, window);
+      g_signal_emit (window, legacy_screen_signals[STACKING_CHANGED], 0);
 
       g_signal_connect (G_OBJECT (window), "closed",
                         (GCallback) handle_window_closed, self);
 
       g_signal_emit (self, legacy_screen_signals[WINDOW_OPENED], 0, window);
     }
-  else if (g_strcmp0 (parts[0], "close") == 0)
+  else if (g_strcmp0 (parts[0], "close") == 0 && parts_size == 2)
     {
       for (l = self->priv->windows; l; l = l->next)
         {
@@ -110,7 +121,7 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
             }
         }
     }
-  else if (g_strcmp0 (parts[0], "attention") == 0)
+  else if (g_strcmp0 (parts[0], "attention") == 0 && parts_size == 3)
     {
       gboolean attention = FALSE;
       if (g_strcmp0 (parts[2], "true") == 0)
@@ -129,7 +140,7 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
             }
         }
     }
-  else if (g_strcmp0 (parts[0], "skip") == 0)
+  else if (g_strcmp0 (parts[0], "skip") == 0 && parts_size ==  3)
     {
       gboolean skip = FALSE;
       if (g_strcmp0 (parts[2], "true") == 0)
@@ -144,6 +155,46 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
           if (bamf_legacy_window_get_xid (l->data) == xid)
             {
               bamf_legacy_window_test_set_skip (l->data, skip);
+              break;
+            }
+        }
+    }
+  else if (g_strcmp0 (parts[0], "geometry") == 0 && parts_size == 6)
+    {
+      int x = atoi (parts[2]);
+      int y = atoi (parts[3]);
+      int width = atoi (parts[4]);
+      int height = atoi (parts[5]);
+
+      for (l = self->priv->windows; l; l = l->next)
+        {
+          if (bamf_legacy_window_get_xid (l->data) == xid)
+            {
+              bamf_legacy_window_test_set_geometry (l->data, x, y, width, height);
+              break;
+            }
+        }
+    }
+  else if (g_strcmp0 (parts[0], "maximized") == 0 && parts_size == 3)
+    {
+      BamfWindowMaximizationType maximized;
+
+      if (g_strcmp0 (parts[2], "maximized") == 0)
+        maximized = BAMF_WINDOW_MAXIMIZED;
+      else if (g_strcmp0 (parts[2], "vmaximized") == 0)
+        maximized = BAMF_WINDOW_VERTICAL_MAXIMIZED;
+      else if (g_strcmp0 (parts[2], "hmaximized") == 0)
+        maximized = BAMF_WINDOW_HORIZONTAL_MAXIMIZED;
+      else if (g_strcmp0 (parts[2], "floating") == 0)
+        maximized = BAMF_WINDOW_FLOATING;
+      else
+        return TRUE;
+
+      for (l = self->priv->windows; l; l = l->next)
+        {
+          if (bamf_legacy_window_get_xid (l->data) == xid)
+            {
+              bamf_legacy_window_test_set_maximized (l->data, maximized);
               break;
             }
         }

@@ -240,7 +240,6 @@ bamf_legacy_window_get_pid (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), 0);
 
-
   if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_pid)
     return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_pid (self);
 
@@ -348,6 +347,19 @@ void
 bamf_legacy_window_get_geometry (BamfLegacyWindow *self, gint *x, gint *y,
                                  gint *width, gint *height)
 {
+  *x = 0;
+  *y = 0;
+  *width = 0;
+  *height = 0;
+
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_app_id)
+    BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_app_id (self);
+
+  if (!self->priv->legacy_window)
+    return;
+
   wnck_window_get_geometry (self->priv->legacy_window, x, y, width, height);
 }
 
@@ -357,6 +369,12 @@ bamf_legacy_window_maximized (BamfLegacyWindow *self)
   WnckWindowState window_state;
   BamfWindowMaximizationType maximization_type;
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), BAMF_WINDOW_FLOATING);
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->maximized)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->maximized (self);
+
+  if (!self->priv->legacy_window)
+    return BAMF_WINDOW_FLOATING;
 
   window_state = wnck_window_get_state (self->priv->legacy_window);
 
@@ -388,6 +406,12 @@ bamf_legacy_window_get_app_id (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
 
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_app_id)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_app_id (self);
+
+  if (!self->priv->legacy_window)
+    return NULL;
+
   guint xid = bamf_legacy_window_get_xid (self);
   return bamf_xutils_get_window_hint (xid, "_DBUS_APPLICATION_ID");
 }
@@ -397,6 +421,12 @@ bamf_legacy_window_get_unique_bus_name (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
 
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_unique_bus_name)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_unique_bus_name (self);
+
+  if (!self->priv->legacy_window)
+    return NULL;
+
   guint xid = bamf_legacy_window_get_xid (self);
   return bamf_xutils_get_window_hint (xid, "_DBUS_UNIQUE_NAME");
 }
@@ -405,6 +435,12 @@ char *
 bamf_legacy_window_get_menu_object_path (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_menu_object_path)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_menu_object_path (self);
+
+  if (!self->priv->legacy_window)
+    return NULL;
 
   guint xid = bamf_legacy_window_get_xid (self);
   return bamf_xutils_get_window_hint (xid, "_DBUS_OBJECT_PATH");
