@@ -561,7 +561,7 @@ bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
   g_return_val_if_fail (array, NULL);
 
   len = g_strv_length (array);
-  for (i = len; i >= 0; i--)
+  for (i = len-1; i >= 0; i--)
     {
       view = bamf_factory_view_for_path (bamf_factory_get_default (), array[i]);
 
