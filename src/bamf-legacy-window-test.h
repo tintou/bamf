@@ -124,6 +124,15 @@ bamf_legacy_window_test_set_maximized (BamfLegacyWindowTest *self,
                                        BamfWindowMaximizationType maximized);
 
 void
+bamf_legacy_window_test_set_application_id (BamfLegacyWindowTest *self, const char *id);
+
+void
+bamf_legacy_window_test_set_unique_bus_name (BamfLegacyWindowTest *self, const char *bus_name);
+
+void
+bamf_legacy_window_test_set_dbus_menu_object_path (BamfLegacyWindowTest *self, const char *object_path);
+
+void
 bamf_legacy_window_test_close (BamfLegacyWindowTest *self);
 
 BamfLegacyWindowTest *
