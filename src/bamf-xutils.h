@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Canonical Ltd
+ * Copyright (C) 2012 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -15,7 +15,6 @@
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
  *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
- *
  */
 
 
