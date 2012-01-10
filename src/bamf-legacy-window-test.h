@@ -56,10 +56,15 @@ struct _BamfLegacyWindowTest
   char * name;
   char * klass;
   char * exec;
+  char * application_id;
+  char * unique_bus_name;
+  char * dbus_menu_object_path;
   gboolean needs_attention;
   gboolean is_desktop;
   gboolean is_skip;
   gboolean is_active;
+  GdkRectangle geometry;
+  BamfWindowMaximizationType maximized;
 };
 
 struct _BamfLegacyWindowTestClass
@@ -109,6 +114,14 @@ bamf_legacy_window_test_is_skip_tasklist (BamfLegacyWindow *legacy_window);
 
 void
 bamf_legacy_window_test_set_name (BamfLegacyWindowTest *self, char *val);
+
+void
+bamf_legacy_window_set_geometry (BamfLegacyWindowTest *self, int x, int y,
+                                                             int width, int height);
+
+void
+bamf_legacy_window_set_maximized (BamfLegacyWindowTest *self,
+                                  BamfWindowMaximizationType maximized);
 
 void
 bamf_legacy_window_test_close (BamfLegacyWindowTest *self);
