@@ -65,21 +65,31 @@ typedef enum
   BAMF_WINDOW_VERTICAL_MAXIMIZED,
   BAMF_WINDOW_MAXIMIZED
 } BamfWindowMaximizationType;
+char             * bamf_legacy_window_get_app_id           (BamfLegacyWindow *self);
 
+char             * bamf_legacy_window_get_unique_bus_name  (BamfLegacyWindow *self);
+
+char             * bamf_legacy_window_get_menu_object_path (BamfLegacyWindow *self);
+
+gint               bamf_legacy_window_get_stacking_position (BamfLegacyWindow *self);
 struct _BamfLegacyWindowClass
 {
   GObjectClass parent;
 
-  const char * (*get_name)           (BamfLegacyWindow *legacy_window);
-  const char * (*get_class_name)     (BamfLegacyWindow *legacy_window);
-  char       * (*get_exec_string)    (BamfLegacyWindow *legacy_window);
-  gint         (*get_pid)            (BamfLegacyWindow *legacy_window);
-  guint32      (*get_xid)            (BamfLegacyWindow *legacy_window);
-  gboolean     (*needs_attention)    (BamfLegacyWindow *legacy_window);
-  gboolean     (*is_active)          (BamfLegacyWindow *legacy_window);
-  gboolean     (*is_skip_tasklist)   (BamfLegacyWindow *legacy_window);
-  gboolean     (*is_desktop)         (BamfLegacyWindow *legacy_window);
-  gboolean     (*is_dialog)          (BamfLegacyWindow *legacy_window);
+  const char * (*get_name)             (BamfLegacyWindow *legacy_window);
+  const char * (*get_class_name)       (BamfLegacyWindow *legacy_window);
+  char       * (*get_exec_string)      (BamfLegacyWindow *legacy_window);
+  char       * (*get_app_id)           (BamfLegacyWindow *legacy_window);
+  char       * (*get_unique_bus_name)  (BamfLegacyWindow *legacy_window);
+  char       * (*get_menu_object_path) (BamfLegacyWindow *legacy_window);
+  gint         (*get_pid)              (BamfLegacyWindow *legacy_window);
+  guint32      (*get_xid)              (BamfLegacyWindow *legacy_window);
+  gboolean     (*needs_attention)      (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_active)            (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_skip_tasklist)     (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_desktop)           (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_dialog)            (BamfLegacyWindow *legacy_window);
+  BamfWindowMaximizationType (*maximized) (BamfLegacyWindow *legacy_window);
 
   /*< signals >*/
   void     (*name_changed)     (BamfLegacyWindow *legacy_window);
