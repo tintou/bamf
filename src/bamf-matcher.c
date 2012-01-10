@@ -1975,7 +1975,8 @@ bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
       if (!BAMF_IS_WINDOW (view))
         continue;
 
-      if (bamf_window_get_monitor (BAMF_WINDOW (view)) == monitor)
+      if ((monitor >= 0 && bamf_window_get_monitor (BAMF_WINDOW (view)) == monitor) ||
+          monitor < 0)
       {
         g_variant_builder_add (&b, "s", bamf_view_get_path (view));
       }
