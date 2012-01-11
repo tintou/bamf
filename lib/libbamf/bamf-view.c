@@ -278,9 +278,13 @@ bamf_view_set_name (BamfView *view, const char *name)
   g_free (view->priv->local_name);
 
   if (name && name[0] == '\0')
-    view->priv->local_name = NULL;
-
-  view->priv->local_name = g_strdup (name);
+    {
+      view->priv->local_name = NULL;
+    }
+  else
+    {
+      view->priv->local_name = g_strdup (name);
+    }
 }
 
 void
@@ -291,9 +295,13 @@ bamf_view_set_icon (BamfView *view, const char *icon)
   g_free (view->priv->local_icon);
 
   if (icon && icon[0] == '\0')
-    view->priv->local_icon = NULL;
-
-  view->priv->local_icon = g_strdup (icon);
+    {
+      view->priv->local_icon = NULL;
+    }
+  else
+    {
+      view->priv->local_icon = g_strdup (icon);
+    }
 }
 
 gboolean 
@@ -350,7 +358,10 @@ bamf_view_get_icon (BamfView *self)
     }
 
   if (icon && icon[0] == '\0')
-    return NULL;
+    {
+      g_free (icon);
+      return NULL;
+    }
 
   return icon;
 }
@@ -385,7 +396,10 @@ bamf_view_get_name (BamfView *self)
     }
 
   if (name && name[0] == '\0')
-    return NULL;
+    {
+      g_free (name);
+      return NULL;
+    }
 
   return name;
 }
