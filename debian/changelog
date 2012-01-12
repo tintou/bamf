@@ -1,6 +1,12 @@
 bamf (0.2.106-0ubuntu1) precise; urgency=low
 
   * New upstream release.
+    - Unity acts not as a dock for LibreOffice but as a launcher (LP: #741995)
+    - Libreoffice Calc icon does not appear when opened via Writer
+      (LP: #861355)
+    - Bamf Ignores some local .desktop files with OnlyShowIn flag
+      (LP: #863290)
+    - Libreoffice and unity integration broken. (LP: #842566)
   * debian/control, debian/rules:
     - enable headless tests build
   * debian/control:
