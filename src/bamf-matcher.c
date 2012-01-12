@@ -1462,8 +1462,8 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
   BamfLegacyWindow *window;
   GList *views, *a;
   const char *win_class;
-  char *desktop_file;
-  char *app_class;
+  const char *desktop_file;
+  const char *app_class;
   BamfApplication *app = NULL, *best = NULL;
   BamfView *view;
 
@@ -1512,9 +1512,6 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
           if (bamf_application_contains_similar_to_window (app, bamf_window) && (!best || !g_strcmp0 (win_class, app_class)))
             best = app;
         }
-
-      g_free (desktop_file);
-      g_free (app_class);
     }
 
   if (!best)
@@ -1723,7 +1720,7 @@ bamf_matcher_setup_indicator_state (BamfMatcher *self, BamfIndicator *indicator)
 {
   GList *possible_apps, *l;
   GList *views, *a;
-  char *desktop_file;
+  const char *desktop_file;
   BamfApplication *app = NULL, *best = NULL;
   BamfView *view;
 
@@ -1761,8 +1758,6 @@ bamf_matcher_setup_indicator_state (BamfMatcher *self, BamfIndicator *indicator)
                 }
             }
         }
-        
-      g_free (desktop_file);
     }
 
   if (!best)
@@ -1991,7 +1986,7 @@ gboolean
 bamf_matcher_application_is_running (BamfMatcher *matcher,
                                      const char *application)
 {
-  char * desktop_file;
+  const char * desktop_file;
   GList *l;
   BamfView *view;
   BamfMatcherPrivate *priv;
@@ -2010,10 +2005,8 @@ bamf_matcher_application_is_running (BamfMatcher *matcher,
       desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
       if (g_strcmp0 (desktop_file, application) == 0)
         {
-          g_free (desktop_file);
           return bamf_view_is_running (view);
         }
-      g_free (desktop_file);
     }
 
   return FALSE;
@@ -2084,7 +2077,7 @@ bamf_matcher_dbus_path_for_application (BamfMatcher *matcher,
                                         const char *application)
 {
   const char * path = "";
-  char * desktop_file;
+  const char * desktop_file;
   GList *l;
   BamfView *view;
   BamfMatcherPrivate *priv;
@@ -2105,7 +2098,6 @@ bamf_matcher_dbus_path_for_application (BamfMatcher *matcher,
         {
           path = bamf_view_get_path (view);
         }
-      g_free (desktop_file);
     }
 
   return path;
@@ -2192,7 +2184,7 @@ bamf_matcher_xids_for_application (BamfMatcher *matcher,
 {
   GVariantBuilder b;
   GVariant *xids;
-  char * desktop_file;
+  const char * desktop_file;
   GList *l;
   BamfView *view;
   BamfMatcherPrivate *priv;
@@ -2213,10 +2205,8 @@ bamf_matcher_xids_for_application (BamfMatcher *matcher,
       if (g_strcmp0 (desktop_file, application) == 0)
         {
           xids = bamf_application_get_xids (BAMF_APPLICATION (view));
-          g_free (desktop_file);
           break;
         }
-      g_free (desktop_file);
     }
 
   if (!xids)

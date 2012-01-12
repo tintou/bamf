@@ -65,30 +65,26 @@ bamf_application_get_application_type (BamfApplication *application)
   return g_strdup (application->priv->app_type);
 }
 
-char *
+const char *
 bamf_application_get_desktop_file (BamfApplication *application)
 {
   BamfApplicationPrivate *priv;
-  char *result = NULL;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
   priv = application->priv;
 
-  result = g_strdup (priv->desktop_file);
-  return result;
+  return priv->desktop_file;
 }
 
-char *
+const char *
 bamf_application_get_wmclass (BamfApplication *application)
 {
   BamfApplicationPrivate *priv;
-  char *result = NULL;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
   priv = application->priv;
 
-  result = g_strdup (priv->wmclass);
-  return result;
+  return priv->wmclass;
 }
 
 static gboolean
