@@ -145,7 +145,9 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
       gicon = g_app_info_get_icon (G_APP_INFO (desktop));
 
       name = g_strdup (g_app_info_get_display_name (G_APP_INFO (desktop)));
-      icon = g_icon_to_string (gicon);
+
+      if (gicon)
+        icon = g_icon_to_string (gicon);
 
       if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, STUB_KEY, NULL)) {
         /* This will error to return false, which is okay as it seems
@@ -227,7 +229,12 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
     }
 
   if (icon)
-    self->priv->icon = icon;
+    {
+      if (self->priv->icon)
+        g_free (self->priv->icon);
+
+      self->priv->icon = icon;
+    }
 
   if (name)
     bamf_view_set_name (BAMF_VIEW (self), name);
@@ -609,6 +616,12 @@ bamf_application_dispose (GObject *object)
     {
       g_free (priv->app_type);
       priv->app_type = NULL;
+    }
+
+  if (priv->icon)
+    {
+      g_free (priv->icon);
+      priv->icon = NULL;
     }
 
   if (priv->wmclass)
