@@ -67,4 +67,6 @@ BamfLegacyWindow * bamf_legacy_screen_get_active_window  (BamfLegacyScreen *scre
 
 BamfLegacyScreen * bamf_legacy_screen_get_default        (void);
 
+void               bamf_legacy_screen_inject_window      (BamfLegacyScreen *screen, guint xid);
+
 #endif

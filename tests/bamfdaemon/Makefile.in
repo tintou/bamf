@@ -112,6 +112,7 @@ CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DBUS_CFLAGS = @DBUS_CFLAGS@
 DBUS_GLIB_BIN = @DBUS_GLIB_BIN@
+DBUS_LAUNCH = @DBUS_LAUNCH@
 DBUS_LIBS = @DBUS_LIBS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
@@ -192,6 +193,7 @@ VERSION = @VERSION@
 WARN_CFLAGS = @WARN_CFLAGS@
 WNCK_CFLAGS = @WNCK_CFLAGS@
 WNCK_LIBS = @WNCK_LIBS@
+XVFB = @XVFB@
 X_CFLAGS = @X_CFLAGS@
 X_LIBS = @X_LIBS@
 abs_builddir = @abs_builddir@
@@ -326,6 +328,10 @@ test_bamf_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
 		$(NULL)
 
+
+# START HEADLESS TESTS
+@ENABLE_HEADLESS_TESTS_TRUE@DISPLAY = :27
+@ENABLE_HEADLESS_TESTS_TRUE@LOG_PATH = headless-logs
 all: all-am
 
 .SUFFIXES:
@@ -875,8 +881,10 @@ uninstall-am:
 	tags uninstall uninstall-am
 
 
-#run make test as part of make check
-check-local: test
+# Run tests as part of make check
+@ENABLE_HEADLESS_TESTS_TRUE@check-local: test-headless
+@ENABLE_HEADLESS_TESTS_FALSE@check-local: test
+
 test:
 	@gtester -k -o=test-bamf-results.xml ./test-bamf
 
@@ -896,6 +904,25 @@ full-report:
 
 clean-generic:
 	rm -f test-bamf-results.xml test-bamf-results.html
+@ENABLE_HEADLESS_TESTS_TRUE@test-headless:
+@ENABLE_HEADLESS_TESTS_TRUE@	set -e; \
+@ENABLE_HEADLESS_TESTS_TRUE@	export DISPLAY=$(DISPLAY); \
+@ENABLE_HEADLESS_TESTS_TRUE@	rm -rf $(LOG_PATH); \
+@ENABLE_HEADLESS_TESTS_TRUE@	mkdir $(LOG_PATH); \
+@ENABLE_HEADLESS_TESTS_TRUE@	$(XVFB) $(DISPLAY) -screen 0 1024x768x8 > $(LOG_PATH)/Xvfb.out 2>&1 & \
+@ENABLE_HEADLESS_TESTS_TRUE@	sleep 1; \
+@ENABLE_HEADLESS_TESTS_TRUE@	\
+@ENABLE_HEADLESS_TESTS_TRUE@	$(DBUS_LAUNCH) > $(LOG_PATH)/sessionbus.sh; \
+@ENABLE_HEADLESS_TESTS_TRUE@	source $(LOG_PATH)/sessionbus.sh; \
+@ENABLE_HEADLESS_TESTS_TRUE@	sleep 1; \
+@ENABLE_HEADLESS_TESTS_TRUE@	\
+@ENABLE_HEADLESS_TESTS_TRUE@	make test; \
+@ENABLE_HEADLESS_TESTS_TRUE@	sleep 1; \
+@ENABLE_HEADLESS_TESTS_TRUE@	\
+@ENABLE_HEADLESS_TESTS_TRUE@	kill `grep DBUS_SESSION_BUS_PID $(LOG_PATH)/sessionbus.sh | grep -oE '[0-9]+'`; \
+@ENABLE_HEADLESS_TESTS_TRUE@	pkill Xvfb;
+
+# END HEADLESS TESTS
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
