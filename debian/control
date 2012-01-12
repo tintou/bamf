@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Ubuntu Core Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Build-Depends: debhelper (>= 8.1.2ubuntu2),
                cdbs (>= 0.4.90ubuntu9),
-               libglib2.0-dev (>= 2.23.0-1ubuntu3~),
+               libglib2.0-dev (>= 2.28.0~),
                libwnck-dev,
                libwnck-3-dev,
                libgtop2-dev,
