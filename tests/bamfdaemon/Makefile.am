@@ -77,8 +77,13 @@ test_bamf_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
 		$(NULL)
 
-#run make test as part of make check
+# Run tests as part of make check
+if ENABLE_HEADLESS_TESTS
+check-local: test-headless
+else
 check-local: test
+endif
+
 test:
 	@gtester -k -o=test-bamf-results.xml ./test-bamf
 
@@ -98,3 +103,28 @@ full-report:
 
 clean-generic:
 	rm -f test-bamf-results.xml test-bamf-results.html
+
+# START HEADLESS TESTS
+if ENABLE_HEADLESS_TESTS
+DISPLAY = :27
+LOG_PATH = headless-logs
+test-headless:
+	set -e; \
+	export DISPLAY=$(DISPLAY); \
+	rm -rf $(LOG_PATH); \
+	mkdir $(LOG_PATH); \
+	$(XVFB) $(DISPLAY) -screen 0 1024x768x8 > $(LOG_PATH)/Xvfb.out 2>&1 & \
+	sleep 1; \
+	\
+	$(DBUS_LAUNCH) > $(LOG_PATH)/sessionbus.sh; \
+	source $(LOG_PATH)/sessionbus.sh; \
+	sleep 1; \
+	\
+	make test; \
+	sleep 1; \
+	\
+	kill `grep DBUS_SESSION_BUS_PID $(LOG_PATH)/sessionbus.sh | grep -oE '[0-9]+'`; \
+	pkill Xvfb;
+	
+endif
+# END HEADLESS TESTS

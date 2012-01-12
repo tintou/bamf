@@ -112,6 +112,8 @@ char             * bamf_legacy_window_get_exec_string   (BamfLegacyWindow *self)
 
 BamfLegacyWindow * bamf_legacy_window_get_transient     (BamfLegacyWindow *self);
 
+void               bamf_legacy_window_reopen            (BamfLegacyWindow *self);
+
 BamfLegacyWindow * bamf_legacy_window_new               (WnckWindow *legacy_window);
 
 #endif
