@@ -3,6 +3,8 @@ bamf (0.2.106-0ubuntu1) UNRELEASED; urgency=low
   * New upstream release.
   * debian/control, debian/rules:
     - enable headless tests build
+  * debian/control:
+    - bump libglib2.0-dev to 2.28
 
  -- Didier Roche <didrocks@ubuntu.com>  Thu, 12 Jan 2012 16:57:03 +0100
 
