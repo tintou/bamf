@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#include <gdk/gdkx.h>
-
 #include "bamf-matcher.h"
 #include "bamf-application.h"
 #include "bamf-window.h"
@@ -29,6 +27,7 @@
 #include "bamf-legacy-window-test.h"
 #include "bamf-legacy-screen.h"
 #include "bamf-indicator-source.h"
+#include "bamf-xutils.h"
 
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, BAMF_DBUS_TYPE_MATCHER_SKELETON);
 #define BAMF_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -843,6 +842,7 @@ get_desktop_file_directories (BamfMatcher *self)
   
   dirs = get_desktop_file_env_directories(dirs, "XDG_DATA_HOME");
 
+  //If this doesn't exist, we need to track .local or the home itself!
   path = g_build_filename (g_get_home_dir (), ".local/share/applications", NULL);
 
   if (!g_list_find_custom (dirs, path, (GCompareFunc) g_strcmp0))
@@ -1150,58 +1150,11 @@ get_window_hint (BamfMatcher *self,
                  BamfLegacyWindow *window,
                  const char *atom_name)
 {
-  Display *XDisplay;
-  Atom atom;
-  char *hint = NULL;
-  Atom type;
-  gint format;
-  gulong numItems;
-  gulong bytesAfter;
-  unsigned char *buffer;
-  gboolean close_display = TRUE;
-
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
-  g_return_val_if_fail (atom_name, NULL);
 
-  XDisplay = XOpenDisplay (NULL);
-  if (!XDisplay)
-  {
-    XDisplay = gdk_x11_get_default_xdisplay ();
-    if (!XDisplay)
-    {
-      g_warning ("%s: Unable to get a valid XDisplay", G_STRFUNC);
-      return hint;
-    }
-    
-    close_display = FALSE;
-  }
-
-  atom = XInternAtom (XDisplay, atom_name, FALSE);
-
-  int result = XGetWindowProperty (XDisplay,
-                                   (gulong) bamf_legacy_window_get_xid (window),
-                                   atom,
-                                   0,
-                                   G_MAXINT,
-                                   FALSE,
-                                   XA_STRING,
-                                   &type,
-                                   &format,
-                                   &numItems,
-                                   &bytesAfter,
-                                   &buffer);
-
-  if (close_display)
-    XCloseDisplay (XDisplay);
-
-  if (result == Success && numItems > 0)
-    {
-      hint = g_strdup ((char*) buffer);
-      XFree (buffer);
-    }
-
-  return hint;
+  Window xid = bamf_legacy_window_get_xid (window);
+  return bamf_xutils_get_window_hint (xid, atom_name);
 }
 
 static void
@@ -1210,39 +1163,11 @@ set_window_hint (BamfMatcher * self,
                  const char *atom_name,
                  const char *data)
 {
-  Display *XDisplay;
-  gboolean close_display = TRUE;
-
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_LEGACY_WINDOW (window));
-  g_return_if_fail (atom_name);
-  g_return_if_fail (data);
-  
-  XDisplay = XOpenDisplay (NULL);
-  if (!XDisplay)
-  {
-    XDisplay = gdk_x11_get_default_xdisplay ();
-    if (!XDisplay)
-    {
-      g_warning ("%s: Unable to get a valid XDisplay", G_STRFUNC);
-      return;
-    }
-    close_display = FALSE;
-  }
 
-  XChangeProperty (XDisplay,
-                   bamf_legacy_window_get_xid (window),
-                   XInternAtom (XDisplay,
-                   atom_name,
-                   FALSE),
-                   XA_STRING,
-                   8,
-                   PropModeReplace,
-                   (unsigned char *) data,
-                   strlen (data));
-
-  if (close_display)
-    XCloseDisplay (XDisplay);
+  Window xid = bamf_legacy_window_get_xid (window);
+  bamf_xutils_set_window_hint (xid, atom_name, data);
 }
 
 static char *
@@ -1788,6 +1713,12 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
 }
 
 static void
+handle_stacking_changed (BamfLegacyScreen * screen, BamfMatcher *self)
+{
+  g_signal_emit_by_name (self, "stacking-order-changed");
+}
+
+static void
 bamf_matcher_setup_indicator_state (BamfMatcher *self, BamfIndicator *indicator)
 {
   GList *possible_apps, *l;
@@ -1999,6 +1930,61 @@ bamf_matcher_application_for_xid (BamfMatcher *matcher,
     }
 
   return "";
+}
+
+static gint
+compare_windows_by_stack_order (gconstpointer a, gconstpointer b)
+{
+  g_return_val_if_fail (BAMF_IS_WINDOW (a), -1);
+  g_return_val_if_fail (BAMF_IS_WINDOW (b), 1);
+
+  gint idx_a = bamf_window_get_stack_position (BAMF_WINDOW (a));
+  gint idx_b = bamf_window_get_stack_position (BAMF_WINDOW (b));
+
+  return (idx_a < idx_b) ? -1 : 1;
+}
+
+
+GVariant *
+bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
+{
+  GList *l;
+  GList *windows;
+  BamfView *view;
+  GVariantBuilder b;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+
+  windows = NULL;
+  for (l = matcher->priv->views; l; l = l->next)
+    {
+      if (BAMF_IS_WINDOW (l->data))
+        {
+          windows = g_list_insert_sorted (windows, l->data,
+                                          compare_windows_by_stack_order);
+        }
+    }
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("(as)"));
+  g_variant_builder_open (&b, G_VARIANT_TYPE ("as"));
+
+  for (l = windows; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_WINDOW (view))
+        continue;
+
+      if ((monitor >= 0 && bamf_window_get_monitor (BAMF_WINDOW (view)) == monitor) ||
+          monitor < 0)
+      {
+        g_variant_builder_add (&b, "s", bamf_view_get_path (view));
+      }
+    }
+
+  g_variant_builder_close (&b);
+
+  return g_variant_builder_end (&b);
 }
 
 gboolean
@@ -2378,6 +2364,19 @@ on_dbus_handle_application_for_xid (BamfDBusMatcher *interface,
   return TRUE;
 }
 
+static gboolean
+on_dbus_handle_window_stack_for_monitor (BamfDBusMatcher *interface,
+                                         GDBusMethodInvocation *invocation,
+                                         gint monitor,
+                                         BamfMatcher *self)
+{
+  GVariant *windows = bamf_matcher_get_window_stack_for_monitor (self, monitor);
+
+  g_dbus_method_invocation_return_value (invocation, windows);
+
+  return TRUE;
+}
+
 static void
 bamf_matcher_init (BamfMatcher * self)
 {
@@ -2409,8 +2408,11 @@ bamf_matcher_init (BamfMatcher * self)
                              &(priv->desktop_class_table));
 
   screen = bamf_legacy_screen_get_default ();
-  g_signal_connect (G_OBJECT (screen), "window-opened",
+  g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENED,
                     (GCallback) handle_window_opened, self);
+
+  g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_STACKING_CHANGED,
+                    (GCallback) handle_stacking_changed, self);
 
   approver = bamf_indicator_source_get_default ();
   g_signal_connect (G_OBJECT (approver), "indicator-opened",
@@ -2451,6 +2453,9 @@ bamf_matcher_init (BamfMatcher * self)
 
   g_signal_connect (self, "handle-application-for-xid",
                     G_CALLBACK (on_dbus_handle_application_for_xid), self);
+
+  g_signal_connect (self, "handle-window-stack-for-monitor",
+                    G_CALLBACK (on_dbus_handle_window_stack_for_monitor), self);
 }
 
 static void
@@ -2475,6 +2480,7 @@ bamf_matcher_finalize (GObject *object)
 {
   BamfMatcher *self = (BamfMatcher *) object;
   BamfMatcherPrivate *priv = self->priv;
+  BamfLegacyScreen *screen = bamf_legacy_screen_get_default ();
   GList *l;
   int i;
 
@@ -2492,6 +2498,9 @@ bamf_matcher_finalize (GObject *object)
   g_hash_table_destroy (priv->registered_pids);
 
   g_list_free_full (priv->views, g_object_unref);
+
+  g_signal_handlers_disconnect_by_func (screen, handle_window_opened, self);
+  g_signal_handlers_disconnect_by_func (screen, handle_stacking_changed, self);
 
   for (l = priv->monitors; l; l = l->next)
     {
