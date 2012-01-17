@@ -16,6 +16,7 @@ noinst_PROGRAMS = \
 alt_tabber_SOURCES = alt-tabber.c
 alt_tabber_CPPFLAGS = \
   -I$(top_srcdir) \
+  -I$(top_srcdir)/src \
   -I$(top_srcdir)/lib \
   -I$(top_builddir)/lib \
   -DDATADIR=\""$(datadir)"\" \
@@ -36,6 +37,7 @@ tab_source_test_SOURCES = tab-source-test.c
 tab_source_test_CPPFLAGS = \
   -I$(top_srcdir) \
   -I$(top_srcdir)/lib \
+  -I$(top_srcdir)/src \
   -I$(top_builddir)/lib \
   -DDATADIR=\""$(datadir)"\" \
   -DWNCK_I_KNOW_THIS_IS_UNSTABLE \
@@ -54,6 +56,7 @@ tab_source_test_LDADD = \
 interaction_tester_SOURCES = interaction-tester.c
 interaction_tester_CPPFLAGS = \
   -I$(top_srcdir) \
+  -I$(top_srcdir)/src \
   -I$(top_srcdir)/lib \
   -I$(top_builddir)/lib \
   -DDATADIR=\""$(datadir)"\" \
