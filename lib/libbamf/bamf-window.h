@@ -88,8 +88,8 @@ struct _BamfWindowClass
   BamfViewClass parent_class;
 
   /*< signals >*/
-  void (*monitor_changed)         (BamfWindow *window, gint old, gint new);
-  void (*maximized_changed)       (BamfWindow *window, gint old, gint new);
+  void (*monitor_changed)         (BamfWindow *window, gint old_value, gint new_value);
+  void (*maximized_changed)       (BamfWindow *window, gint old_value, gint new_value);
 
   /*< private >*/
   void (*_window_padding1) (void);
