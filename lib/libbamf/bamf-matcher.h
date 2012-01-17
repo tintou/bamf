@@ -198,6 +198,19 @@ GArray *          bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
  */
 GList *           bamf_matcher_get_windows (BamfMatcher *matcher);
 
+/**
+ * bamf_matcher_get_window_stack_for_monitor:
+ * @matcher: a #BamfMatcher
+ * @monitor: the monitor you want the stack from, negative value to get all
+ *
+ * Used to fetch all windows that BAMF knows about in the requested screen,
+ * in stacking bottom-to-top order.
+ *
+ * Returns: (element-type Bamf.View) (transfer container): A list of #BamfWindow.
+ */
+GList *           bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher,
+                                                             gint monitor);
+
 BamfApplication * bamf_matcher_get_application_for_desktop_file (BamfMatcher *matcher,
                                                                  const gchar *desktop_file_path,
                                                                  gboolean create_if_not_found);

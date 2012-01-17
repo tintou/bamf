@@ -311,6 +311,7 @@ bamf_application_set_path (BamfView *view, const char *path)
   if (priv->proxy == NULL)
     {
       g_critical ("Unable to get org.ayatana.bamf.application application");
+      return;
     }
 
   dbus_g_proxy_add_signal (priv->proxy,
