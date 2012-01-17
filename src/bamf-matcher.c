@@ -62,7 +62,7 @@ struct _BamfMatcherPrivate
   GList           * favorites;
   BamfView        * active_app;
   BamfView        * active_win;
-  guint             idle_cb_id;
+  guint             dispatch_changes_id;
 };
 
 static void
@@ -169,7 +169,7 @@ emit_paths_changed (gpointer user_data)
   g_free (closed_apps);
   g_free (opened_apps);
 
-  priv->idle_cb_id = 0;
+  priv->dispatch_changes_id = 0;
 
   return FALSE;
 }
@@ -219,9 +219,9 @@ static void bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *de
   g_hash_table_insert (priv->opened_closed_paths_table,
                        g_strdup (desktop_file), GINT_TO_POINTER (change_type));
 
-  if (priv->idle_cb_id == 0)
+  if (priv->dispatch_changes_id == 0)
     {
-      priv->idle_cb_id = g_idle_add (emit_paths_changed, self);
+      priv->dispatch_changes_id = g_timeout_add (500, emit_paths_changed, self);
     }
 }
 
@@ -2682,10 +2682,10 @@ bamf_matcher_finalize (GObject *object)
       g_hash_table_destroy (priv->opened_closed_paths_table);
     }
 
-  if (priv->idle_cb_id != 0)
+  if (priv->dispatch_changes_id != 0)
     {
-      g_source_remove (priv->idle_cb_id);
-      priv->idle_cb_id = 0;
+      g_source_remove (priv->dispatch_changes_id);
+      priv->dispatch_changes_id = 0;
     }
 
   g_list_free_full (priv->views, g_object_unref);
