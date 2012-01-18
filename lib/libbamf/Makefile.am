@@ -57,9 +57,8 @@ libbamf_la_CPPFLAGS = \
   -Wall -std=c99 \
   -fPIC \
   -DDATADIR=\""$(datadir)"\" \
-  -I$(top_srcdir)/src \
-  -I$(top_srcdir)/lib \
-  -I$(top_builddir)/lib \
+  -I$(top_srcdir)/lib/libbamf \
+  -I$(top_builddir)/lib/libbamf \
   $(LIBWSBIND_CFLAGS) \
   $(GLIB_CFLAGS) \
   $(DBUS_CFLAGS) \
