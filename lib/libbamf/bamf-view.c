@@ -477,12 +477,14 @@ static void
 bamf_view_on_child_removed (DBusGProxy *proxy, char *path, BamfView *self)
 {
   BamfView *view;
+  BamfViewPrivate *priv;
 
   view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+  priv = self->priv;
 
-  if (view->priv->cached_children)
-    view->priv->cached_children = g_list_remove(view->priv->cached_children, view);
-
+  if (priv->cached_children)
+    priv->cached_children = g_list_remove(priv->cached_children, view);
+  
   g_signal_emit (G_OBJECT (self), view_signals[CHILD_REMOVED], 0, view);
 }
 
