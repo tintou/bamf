@@ -16,9 +16,9 @@ noinst_PROGRAMS = \
 alt_tabber_SOURCES = alt-tabber.c
 alt_tabber_CPPFLAGS = \
   -I$(top_srcdir) \
-  -I$(top_srcdir)/src \
   -I$(top_srcdir)/lib \
-  -I$(top_builddir)/lib \
+  -I$(top_srcdir)/lib/libbamf \
+  -I$(top_builddir)/lib/libbamf \
   -DDATADIR=\""$(datadir)"\" \
   -DWNCK_I_KNOW_THIS_IS_UNSTABLE \
   $(LIBWSBIND_CFLAGS) \
