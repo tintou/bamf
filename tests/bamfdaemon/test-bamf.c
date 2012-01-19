@@ -60,10 +60,8 @@ main (gint argc, gchar *argv[])
 {
   GMainLoop *loop;
 
-  g_type_init ();
-  g_test_init (&argc, &argv, NULL);
-
   gtk_init (&argc, &argv);
+  g_test_init (&argc, &argv, NULL);
   glibtop_init ();
 
   loop = g_main_loop_new (NULL, FALSE);
