@@ -125,7 +125,6 @@ test-headless:
 	\
 	make test; \
 	\
-	kill `grep DBUS_SESSION_BUS_PID $(LOG_PATH)/sessionbus.sh | grep -oE '[0-9]+'`; \
-	pkill Xvfb;
+	killall Xvfb;
 endif
 # END HEADLESS TESTS
