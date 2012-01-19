@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Canonical Ltd
+ * Copyright (C) 2010-2011 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -50,33 +51,31 @@ struct _BamfApplication
   BamfApplicationPrivate *priv;
 };
 
-GType             bamf_application_get_type              (void) G_GNUC_CONST;
+GType             bamf_application_get_type                   (void) G_GNUC_CONST;
 
-char            * bamf_application_get_application_type  (BamfApplication *application);
+char            * bamf_application_get_desktop_file           (BamfApplication *application);
+void              bamf_application_set_desktop_file           (BamfApplication *application,
+                                                               const char * desktop_file);
 
-char            * bamf_application_get_desktop_file      (BamfApplication *application);
-void              bamf_application_set_desktop_file      (BamfApplication *application,
-                                                          const char * desktop_file);
+GVariant        * bamf_application_get_xids                   (BamfApplication *application);
 
-GArray          * bamf_application_get_xids              (BamfApplication *application);
-
-gboolean          bamf_application_manages_xid           (BamfApplication *application,
-                                                          guint32 xid);
+gboolean          bamf_application_manages_xid                (BamfApplication *application,
+                                                               guint32 xid);
 
 gboolean          bamf_application_contains_similar_to_window (BamfApplication *app, 
                                                                BamfWindow *window);
 
-char            * bamf_application_get_wmclass             (BamfApplication *application);
-void              bamf_application_set_wmclass             (BamfApplication *application,
-                                                            const char *wmclass);
+char            * bamf_application_get_wmclass                (BamfApplication *application);
+void              bamf_application_set_wmclass                (BamfApplication *application,
+                                                               const char *wmclass);
 
-BamfApplication * bamf_application_new                   (void);
+BamfApplication * bamf_application_new                        (void);
 
-BamfApplication * bamf_application_new_from_desktop_file (const char * desktop_file);
-gboolean          bamf_application_get_show_stubs        (BamfApplication *application);
+BamfApplication * bamf_application_new_from_desktop_file      (const char * desktop_file);
+gboolean          bamf_application_get_show_stubs             (BamfApplication *application);
 
-BamfApplication * bamf_application_new_from_desktop_files (GList * desktop_files);
+BamfApplication * bamf_application_new_from_desktop_files     (GList * desktop_files);
 
-BamfApplication * bamf_application_new_with_wmclass (const char *wmclass);
+BamfApplication * bamf_application_new_with_wmclass           (const char *wmclass);
 
 #endif
