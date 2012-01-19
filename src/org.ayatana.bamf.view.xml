@@ -90,6 +90,29 @@
     <method name="WindowType">
       <arg name="type" type="u" direction="out"/>
     </method>
+    <method name="ApplicationID">
+      <arg name="id" type="s" direction="out"/>
+    </method>
+    <method name="UniqueBusName">
+      <arg name="name" type="s" direction="out"/>
+    </method>
+    <method name="DBusMenuObjectPath">
+      <arg name="object_path" type="s" direction="out"/>
+    </method>
+    <method name="Monitor">
+      <arg name="monitor_number" type="i" direction="out"/>
+    </method>
+    <method name="Maximized">
+      <arg name="maximized" type="i" direction="out"/>
+    </method>
+    <signal name="MonitorChanged">
+      <arg name="old" type="i" direction="out"/>
+      <arg name="new" type="i" direction="out"/>
+    </signal>
+    <signal name="MaximizedChanged">
+      <arg name="old" type="i" direction="out"/>
+      <arg name="new" type="i" direction="out"/>
+    </signal>
   </interface>
 
   <interface name="org.ayatana.bamf.indicator">
