@@ -123,6 +123,6 @@ test-headless:
 	source $(LOG_PATH)/sessionbus.sh; \
 	sleep 3; \
 	\
-	make test; \
+	make test;
 endif
 # END HEADLESS TESTS
