@@ -275,15 +275,33 @@ bamf_view_set_name (BamfView *view, const char *name)
   if (!g_strcmp0 (name, view->priv->local_name))
     return;
 
-  view->priv->local_name = g_strdup (name);
+  g_free (view->priv->local_name);
+
+  if (name && name[0] == '\0')
+    {
+      view->priv->local_name = NULL;
+    }
+  else
+    {
+      view->priv->local_name = g_strdup (name);
+    }
 }
 
 void
 bamf_view_set_icon (BamfView *view, const char *icon)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
-  
-  view->priv->local_icon = g_strdup (icon);
+
+  g_free (view->priv->local_icon);
+
+  if (icon && icon[0] == '\0')
+    {
+      view->priv->local_icon = NULL;
+    }
+  else
+    {
+      view->priv->local_icon = g_strdup (icon);
+    }
 }
 
 gboolean 
@@ -339,6 +357,12 @@ bamf_view_get_icon (BamfView *self)
       return NULL;
     }
 
+  if (icon && icon[0] == '\0')
+    {
+      g_free (icon);
+      return NULL;
+    }
+
   return icon;
 }
 
@@ -368,6 +392,12 @@ bamf_view_get_name (BamfView *self)
       g_warning ("Failed to fetch name: %s", error->message);
       g_error_free (error);
       
+      return NULL;
+    }
+
+  if (name && name[0] == '\0')
+    {
+      g_free (name);
       return NULL;
     }
 
@@ -458,6 +488,7 @@ bamf_view_on_name_changed (DBusGProxy*  proxy,
                            const gchar* new_name,
                            BamfView*    self)
 {
+  g_free (self->priv->local_name);
   self->priv->local_name = g_strdup (new_name);
 
   g_signal_emit (self, view_signals[NAME_CHANGED], 0, old_name, new_name);

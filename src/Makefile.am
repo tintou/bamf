@@ -102,6 +102,7 @@ bamfdaemon_CFLAGS = \
 		-Wall -std=c99 \
 		-DDATADIR=\""$(datadir)"\" \
 		-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
+		-I$(top_srcdir)/src \
 		$(GLIB_CFLAGS) \
 		$(GTK_CFLAGS) \
 		$(WNCK_CFLAGS) \
