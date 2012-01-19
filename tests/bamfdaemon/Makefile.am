@@ -1,6 +1,8 @@
 noinst_PROGRAMS = \
   test-bamf
 
+XVFB_RUN=run-xvfb.sh
+
 bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-daemon.c \
 		$(top_srcdir)/src/bamf-legacy-window.c \
@@ -107,22 +109,21 @@ clean-generic:
 
 # START HEADLESS TESTS
 if ENABLE_HEADLESS_TESTS
-DISPLAY = :27
 LOG_PATH = headless-logs
 test-headless:
 	set -e; \
-	export DISPLAY=$(DISPLAY); \
 	rm -rf $(LOG_PATH); \
 	mkdir $(LOG_PATH); \
-	$(XVFB) $(DISPLAY) -screen 0 1024x768x8 > $(LOG_PATH)/Xvfb.out 2>&1 & \
-	sleep 3; \
+	export LOG_PATH=$(LOG_PATH); \
+	export XVFB_PATH=$(XVFB); \
+	export DISPLAY=""; \
+	source $(XVFB_RUN); \
 	\
 	$(DBUS_LAUNCH) > $(LOG_PATH)/sessionbus.sh; \
 	source $(LOG_PATH)/sessionbus.sh; \
 	sleep 3; \
 	\
 	make test; \
-	sleep 3; \
 	\
 	kill `grep DBUS_SESSION_BUS_PID $(LOG_PATH)/sessionbus.sh | grep -oE '[0-9]+'`; \
 	pkill Xvfb;
