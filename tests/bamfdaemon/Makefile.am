@@ -86,18 +86,18 @@ check-local: test
 endif
 
 test:
-	@gtester -k -o=test-bamf-results.xml ./test-bamf
+	@gtester --verbose -k -o=test-bamf-results.xml ./test-bamf
 
 .PHONY: check-report full-report
 check-report:
-	@gtester -k -o=test-bamf-results.xml -k ./test-bamf \
+	@gtester --verbose -k -o=test-bamf-results.xml -k ./test-bamf \
 		&& ( gtester-report test-bamf-results.xml \
 				| sed 's/GTester Unit Test Report</>GTester Unit Test Report (normal)</' \
 				> test-bamf-results.html ) \
 		&& gnome-open ./test-bamf-results.html
 
 full-report:
-		@gtester -k -o=test-bamf-results.xml -k -m=slow ./test-bamf \
+		@gtester --verbose-k -o=test-bamf-results.xml -k -m=slow ./test-bamf \
 	  && ( gtester-report test-bamf-results.xml \
 	      | sed 's/>GTester Unit Test Report</>GTester Unit Test Report (normal)</' \
 	      > test-bamf-results.html )
@@ -115,17 +115,16 @@ test-headless:
 	rm -rf $(LOG_PATH); \
 	mkdir $(LOG_PATH); \
 	$(XVFB) $(DISPLAY) -screen 0 1024x768x8 > $(LOG_PATH)/Xvfb.out 2>&1 & \
-	sleep 1; \
+	sleep 3; \
 	\
 	$(DBUS_LAUNCH) > $(LOG_PATH)/sessionbus.sh; \
 	source $(LOG_PATH)/sessionbus.sh; \
-	sleep 1; \
+	sleep 3; \
 	\
 	make test; \
-	sleep 1; \
+	sleep 3; \
 	\
 	kill `grep DBUS_SESSION_BUS_PID $(LOG_PATH)/sessionbus.sh | grep -oE '[0-9]+'`; \
 	pkill Xvfb;
-	
 endif
 # END HEADLESS TESTS
