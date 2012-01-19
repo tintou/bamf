@@ -124,7 +124,5 @@ test-headless:
 	sleep 3; \
 	\
 	make test; \
-	\
-	killall Xvfb;
 endif
 # END HEADLESS TESTS
