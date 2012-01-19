@@ -60,15 +60,13 @@ main (gint argc, gchar *argv[])
 {
   GMainLoop *loop;
 
-  g_type_init ();
-  g_test_init (&argc, &argv, NULL);
-
   gtk_init (&argc, &argv);
+  g_test_init (&argc, &argv, NULL);
   glibtop_init ();
 
   loop = g_main_loop_new (NULL, FALSE);
 
-  g_bus_own_name (G_BUS_TYPE_SYSTEM,
+  g_bus_own_name (G_BUS_TYPE_SESSION,
                   BAMF_DBUS_SERVICE".test",
                   G_BUS_NAME_OWNER_FLAGS_NONE,
                   on_bus_acquired,
