@@ -1,7 +1,7 @@
 noinst_PROGRAMS = \
   test-bamf
 
-XVFB_RUN=run-xvfb.sh
+XVFB_RUN=$(srcdir)/run-xvfb.sh
 
 bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-daemon.c \
