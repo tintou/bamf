@@ -5,10 +5,10 @@ EXTRA_DIST =
 
 include $(top_srcdir)/Makefile.am.marshal
 
-INCLUDE = 		\
-	-I.		\
-	-I$(srcdir)	\
-	$(NULL)
+INCLUDE = \
+		-I.		\
+		-I$(srcdir)	\
+		$(NULL)
 
 bamfdaemondir = $(libexecdir)
 
@@ -16,39 +16,36 @@ bamfdaemon_PROGRAMS = \
 		bamfdaemon \
 		$(NULL)
 
-bamfdaemon_glue_files = \
-                bamf-application-glue.h \
-		bamf-control-glue.h \
-		bamf-matcher-glue.h \
-		bamf-window-glue.h \
-		bamf-view-glue.h \
-		bamf-tab-glue.h \
-		bamf-indicator-source-glue.h \
-		bamf-indicator-glue.h \
+bamfdaemon_gdbus_files = \
+		bamf-gdbus-generated.c \
+		bamf-gdbus-generated.h \
+		bamf-gdbus-view-generated.c \
+		bamf-gdbus-view-generated.h \
+		bamf-gdbus-browser-generated.c \
+		bamf-gdbus-browser-generated.h \
+		bamf-gdbus-indicator-source-generated.c \
+		bamf-gdbus-indicator-source-generated.h \
 		$(NULL)
-		
-bamfdaemon_xml_glue_files = \
-                bamf-application-glue.xml \
-		bamf-control-glue.xml \
-		bamf-matcher-glue.xml \
-		bamf-window-glue.xml \
-		bamf-view-glue.xml \
-		bamf-tab-glue.xml \
-		bamf-indicator-source-glue.xml \
-		bamf-indicator-glue.xml \
+
+bamfdaemon_xml_gdbus_files = \
+		org.ayatana.bamf.xml \
+		org.ayatana.bamf.view.xml \
+		org.ayatana.bamf.browser.xml \
+		com.canonical.StatusNotifierApprover.xml \
 		$(NULL)
 
 bamfdaemon_built_sources = \
 		bamf-marshal.c \
 		bamf-marshal.h \
-		$(bamfdaemon_glue_files) \
+		$(bamfdaemon_gdbus_files) \
 		$(NULL)
 
 bamfdaemon_sources = \
 		main.c \
+		bamf-daemon.c \
 		bamf-legacy-window.c \
 		bamf-legacy-window-test.c \
-     		bamf-legacy-screen.c \
+		bamf-legacy-screen.c \
 		bamf-view.c \
 		bamf-control.c \
 		bamf-matcher.c \
@@ -63,9 +60,10 @@ bamfdaemon_sources = \
 bamfdaemon_headers = \
 		main.h \
 		bamf.h \
+		bamf-daemon.h \
 		bamf-legacy-window.h \
 		bamf-legacy-window-test.h \
-	        bamf-legacy-screen.h \
+		bamf-legacy-screen.h \
 		bamf-view.h \
 		bamf-control.h \
 		bamf-matcher.h \
@@ -78,27 +76,22 @@ bamfdaemon_headers = \
 		$(NULL)
 
 bamfdaemon_SOURCES = \
-                $(bamfdaemon_built_sources) \
+		$(bamfdaemon_built_sources) \
 		$(bamfdaemon_sources) \
 		$(bamfdaemon_headers) \
 		$(NULL)
 
 nodist_EXTRA_bamfdaemon_SOURCES = \
-	$(bamfdaemon_glue_files) \
+	$(bamfdaemon_gdbus_files) \
 	$(NULL)
 
 glib_marshal_list = bamf-marshal.list
 glib_marshal_prefix = bamf_marshal
 
-DISTCLEANFILES += \
-        $(bamfdaemon_glue_files) \
-	$(NULL)
-
 bamfdaemon_LDADD = \
 		$(X_LIBS) \
 		$(GLIB_LIBS) \
 		$(GTK_LIBS) \
-		$(DBUS_LIBS) \
 		$(WNCK_LIBS) \
 		$(GTOP_LIBS) \
 		$(NULL)
@@ -109,7 +102,6 @@ bamfdaemon_CFLAGS = \
 		-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
 		$(GLIB_CFLAGS) \
 		$(GTK_CFLAGS) \
-		$(DBUS_CFLAGS) \
 		$(WNCK_CFLAGS) \
 		$(GTOP_CFLAGS) \
 		$(NULL)
@@ -118,36 +110,47 @@ bamfdaemon_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
 		$(NULL)
 
-bamf-application-glue.h: bamf-application-glue.xml Makefile
-		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_application --mode=glib-server --output=$@ $<
+bamf-gdbus-generated.c bamf-gdbus-generated.h: org.ayatana.bamf.xml
+		$(AM_V_GEN) $(GDBUS_CODEGEN) \
+		--generate-c-code bamf-gdbus-generated \
+		--c-namespace BamfDBus \
+		--interface-prefix org.ayatana.bamf \
+		$<
 
-bamf-control-glue.h: bamf-control-glue.xml Makefile
-		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_control --mode=glib-server --output=$@ $<
+bamf-gdbus-view-generated.c bamf-gdbus-view-generated.h: org.ayatana.bamf.view.xml
+		$(AM_V_GEN) $(GDBUS_CODEGEN) \
+		--c-generate-object-manager \
+		--generate-c-code bamf-gdbus-view-generated \
+		--c-namespace BamfDBusItem \
+		--interface-prefix org.ayatana.bamf \
+		$<
 
-bamf-matcher-glue.h: bamf-matcher-glue.xml Makefile
-		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_matcher --mode=glib-server --output=$@ $<
+bamf-gdbus-browser-generated.c bamf-gdbus-browser-generated.h: org.ayatana.bamf.browser.xml
+		$(AM_V_GEN) $(GDBUS_CODEGEN) \
+		--generate-c-code bamf-gdbus-browser-generated \
+		--c-namespace BamfDBusBrowser \
+		--interface-prefix org.ayatana.bamf.browser \
+		$<
 
-bamf-window-glue.h: bamf-window-glue.xml Makefile
-		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_window --mode=glib-server --output=$@ $<
-
-bamf-view-glue.h: bamf-view-glue.xml Makefile
-		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_view --mode=glib-server --output=$@ $<
-
-bamf-tab-glue.h: bamf-tab-glue.xml Makefile
-		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_tab --mode=glib-server --output=$@ $<
-
-bamf-indicator-source-glue.h: bamf-indicator-source-glue.xml Makefile
-		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_indicator_source --mode=glib-server --output=$@ $<
-
-bamf-indicator-glue.h: bamf-indicator-glue.xml Makefile
-		$(LIBTOOL) --mode=execute $(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_indicator --mode=glib-server --output=$@ $<
+bamf-gdbus-indicator-source-generated.c bamf-gdbus-indicator-source-generated.h: com.canonical.StatusNotifierApprover.xml
+		$(AM_V_GEN) $(GDBUS_CODEGEN) \
+		--generate-c-code bamf-gdbus-indicator-source-generated \
+		--c-namespace StatusNotifierApprover \
+		--interface-prefix com.canonical.StatusNotifierApprover \
+		$<
 
 BUILT_SOURCES += \
-        $(bamfdaemon_glue_files) \
-	$(NULL)
+		$(bamfdaemon_gdbus_files) \
+		$(NULL)
 
 EXTRA_DIST += \
-        $(bamfdaemon_xml_glue_files) \
-	$(NULL)
+		$(bamfdaemon_xml_gdbus_files) \
+		$(NULL)
 
+DISTCLEANFILES += \
+		$(bamfdaemon_built_sources) \
+		$(NULL)
 
+CLEANFILES += \
+		$(bamfdaemon_built_sources) \
+		$(NULL)

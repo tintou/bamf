@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Canonical Ltd
+ * Copyright (C) 2010-2011 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -14,12 +14,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
-
 #include "bamf-application.h"
-#include "bamf-application-glue.h"
 #include "bamf-window.h"
 #include "bamf-matcher.h"
 #include "bamf-indicator.h"
@@ -28,22 +27,17 @@
 #include <string.h>
 #include <gio/gdesktopappinfo.h>
 
-G_DEFINE_TYPE (BamfApplication, bamf_application, BAMF_TYPE_VIEW);
 #define BAMF_APPLICATION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_APPLICATION, BamfApplicationPrivate))
 
-enum
-{
-  WINDOW_ADDED,
-  WINDOW_REMOVED,
-
-  LAST_SIGNAL,
-};
-
-static guint application_signals[LAST_SIGNAL] = { 0 };
+static void bamf_application_dbus_application_iface_init (BamfDBusItemApplicationIface *iface);
+G_DEFINE_TYPE_WITH_CODE (BamfApplication, bamf_application, BAMF_TYPE_VIEW,
+                         G_IMPLEMENT_INTERFACE (BAMF_DBUS_ITEM_TYPE_APPLICATION,
+                                                bamf_application_dbus_application_iface_init));
 
 struct _BamfApplicationPrivate
 {
+  BamfDBusItemApplication *dbus_iface;
   char * desktop_file;
   GList * desktop_file_list;
   char * app_type;
@@ -153,27 +147,32 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
         /* This will error to return false, which is okay as it seems
            unlikely anyone will want to set this flag except to turn
            off the stub menus. */
-        self->priv->show_stubs = g_key_file_get_boolean(keyfile, G_KEY_FILE_DESKTOP_GROUP, STUB_KEY, NULL);
+        self->priv->show_stubs = g_key_file_get_boolean (keyfile,
+                                                         G_KEY_FILE_DESKTOP_GROUP,
+                                                         STUB_KEY, NULL);
       }
       
-      if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL))
-    	  {
-    	    /* Grab the better name if its available */
-    	    gchar *fullname = NULL;
-    	    error = NULL; 
-    	    fullname = g_key_file_get_locale_string (keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL, &error);
-    	    if (error != NULL)
-    	      {
-    	        g_error_free (error);
-    	        if (fullname)
-    	          g_free (fullname);
-    	      }
-    	    else
-    	      {
-    	        g_free (name);
-    	        name = fullname;
-    	      }
-    	  }
+      if (g_key_file_has_key (keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL))
+        {
+          /* Grab the better name if its available */
+          gchar *fullname = NULL;
+          error = NULL; 
+          fullname = g_key_file_get_locale_string (keyfile,
+                                                   G_KEY_FILE_DESKTOP_GROUP,
+                                                   "X-GNOME-FullName", NULL,
+                                                   &error);
+          if (error != NULL)
+            {
+              g_error_free (error);
+              if (fullname)
+                g_free (fullname);
+            }
+          else
+            {
+              g_free (name);
+              name = fullname;
+            }
+        }
 
       g_object_unref (desktop);
       g_key_file_free(keyfile);
@@ -274,17 +273,18 @@ bamf_application_set_wmclass (BamfApplication *application,
     application->priv->wmclass = NULL;
 }
 
-GArray *
+GVariant *
 bamf_application_get_xids (BamfApplication *application)
 {
   GList *l;
-  GArray *xids;
+  GVariantBuilder b;
   BamfView *view;
   guint32 xid;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
 
-  xids = g_array_new (FALSE, TRUE, sizeof (guint32));
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("(au)"));
+  g_variant_builder_open (&b, G_VARIANT_TYPE ("au"));
 
   for (l = bamf_view_get_children (BAMF_VIEW (application)); l; l = l->next)
     {
@@ -294,11 +294,12 @@ bamf_application_get_xids (BamfApplication *application)
         continue;
 
       xid = bamf_window_get_xid (BAMF_WINDOW (view));
-
-      g_array_append_val (xids, xid);
+      g_variant_builder_add (&b, "u", xid);
     }
 
-  return xids;
+  g_variant_builder_close (&b);
+
+  return g_variant_builder_end (&b);
 }
 
 gboolean
@@ -339,32 +340,32 @@ gboolean
 bamf_application_manages_xid (BamfApplication *application,
                               guint32 xid)
 {
-  GArray *xids;
-  int i;
+  GList *l;
   gboolean result = FALSE;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
 
-  xids = bamf_application_get_xids (application);
-
-  for (i = 0; i < xids->len; i++)
+  for (l = bamf_view_get_children (BAMF_VIEW (application)); l; l = l->next)
     {
-      if (g_array_index (xids, guint32, i) == xid)
+      BamfView *view = l->data;
+
+      if (!BAMF_IS_WINDOW (view))
+        continue;
+
+      if (bamf_window_get_xid (BAMF_WINDOW (view)) == xid)
         {
           result = TRUE;
           break;
         }
     }
 
-  g_array_free (xids, TRUE);
-
   return result;
 }
 
-static char *
+static const char *
 bamf_application_get_view_type (BamfView *view)
 {
-  return g_strdup ("application");
+  return "application";
 }
 
 static char *
@@ -455,7 +456,7 @@ view_visible_changed (BamfView *view, gboolean visible, BamfApplication *self)
 static void
 view_exported (BamfView *view, BamfApplication *self)
 {
-  g_signal_emit (self, application_signals[WINDOW_ADDED], 0, bamf_view_get_path (view));
+  g_signal_emit_by_name (self, "window-added", bamf_view_get_path (view));
 }
 
 static void
@@ -468,7 +469,7 @@ bamf_application_child_added (BamfView *view, BamfView *child)
   if (BAMF_IS_WINDOW (child))
     {
       if (bamf_view_is_on_bus (child))
-        g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOW_ADDED], 0, bamf_view_get_path (child));
+        g_signal_emit_by_name (BAMF_APPLICATION (view), "window-added", bamf_view_get_path (child));
       else
         g_signal_connect (G_OBJECT (child), "exported",
                           (GCallback) view_exported, view);
@@ -484,15 +485,6 @@ bamf_application_child_added (BamfView *view, BamfView *child)
   bamf_application_ensure_flags (BAMF_APPLICATION (view));
 
   bamf_application_setup_icon_and_name (application);
-}
-
-static gboolean
-on_empty (GObject *object)
-{
-  g_return_val_if_fail (BAMF_IS_VIEW (object), FALSE);
-
-  bamf_view_close (BAMF_VIEW (object));
-  return FALSE;
 }
 
 static char *
@@ -518,7 +510,7 @@ bamf_application_favorite_from_list (BamfApplication *self, GList *list)
             }
         }
     }
-    
+
   return result;
 }
 
@@ -560,7 +552,8 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
   if (BAMF_IS_WINDOW (child))
     {
       if (bamf_view_is_on_bus (child))
-        g_signal_emit (BAMF_APPLICATION (view), application_signals[WINDOW_REMOVED],0, bamf_view_get_path (child));
+        g_signal_emit_by_name (BAMF_APPLICATION (view), "window-removed",
+                               bamf_view_get_path (child));
     }
 
   g_signal_handlers_disconnect_by_func (G_OBJECT (child), view_active_changed, view);
@@ -569,9 +562,9 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
 
   bamf_application_ensure_flags (BAMF_APPLICATION (view));
 
-  if (g_list_length (bamf_view_get_children (view)) == 0)
+  if (bamf_view_get_children (view) == NULL)
     {
-      g_idle_add ((GSourceFunc) on_empty, view);
+      bamf_view_close (view);
     }
 }
 
@@ -584,11 +577,72 @@ matcher_favorites_changed (BamfMatcher *matcher, BamfApplication *self)
   g_return_if_fail (BAMF_IS_MATCHER (matcher));
   
   new_desktop_file = bamf_application_favorite_from_list (self, self->priv->desktop_file_list);
-  
+
   if (new_desktop_file)
     {
       bamf_application_set_desktop_file (self, new_desktop_file);
     }
+}
+
+static void
+on_window_added (BamfApplication *self, const gchar *win_path, gpointer _not_used)
+{
+  g_return_if_fail (BAMF_IS_APPLICATION (self));
+  g_signal_emit_by_name (self->priv->dbus_iface, "window-added", win_path);
+}
+
+static void
+on_window_removed (BamfApplication *self, const gchar *win_path, gpointer _not_used)
+{
+  g_return_if_fail (BAMF_IS_APPLICATION (self));
+  g_signal_emit_by_name (self->priv->dbus_iface, "window-removed", win_path);
+}
+
+static gboolean
+on_dbus_handle_show_stubs (BamfDBusItemApplication *interface,
+                           GDBusMethodInvocation *invocation,
+                           BamfApplication *self)
+{
+  gboolean show_stubs = bamf_application_get_show_stubs (self);
+  g_dbus_method_invocation_return_value (invocation,
+                                         g_variant_new ("(b)", show_stubs));
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_xids (BamfDBusItemApplication *interface,
+                     GDBusMethodInvocation *invocation,
+                     BamfApplication *self)
+{
+  GVariant *xids = bamf_application_get_xids (self);
+  g_dbus_method_invocation_return_value (invocation, xids);
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_desktop_file (BamfDBusItemApplication *interface,
+                             GDBusMethodInvocation *invocation,
+                             BamfApplication *self)
+{
+  const char *desktop_file = self->priv->desktop_file ? self->priv->desktop_file : "";
+  g_dbus_method_invocation_return_value (invocation,
+                                         g_variant_new ("(s)", desktop_file));
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_application_type (BamfDBusItemApplication *interface,
+                                 GDBusMethodInvocation *invocation,
+                                 BamfApplication *self)
+{
+  const char *type = self->priv->app_type ? self->priv->app_type : "";
+  g_dbus_method_invocation_return_value (invocation,
+                                         g_variant_new ("(s)", type));
+
+  return TRUE;
 }
 
 static void
@@ -629,10 +683,22 @@ bamf_application_dispose (GObject *object)
       g_free (priv->wmclass);
       priv->wmclass = NULL;
     }
-  
-  g_signal_handlers_disconnect_by_func (G_OBJECT (bamf_matcher_get_default ()), matcher_favorites_changed, object);
+
+  g_signal_handlers_disconnect_by_func (G_OBJECT (bamf_matcher_get_default ()),
+                                        matcher_favorites_changed, object);
 
   G_OBJECT_CLASS (bamf_application_parent_class)->dispose (object);
+}
+
+static void
+bamf_application_finalize (GObject *object)
+{
+  BamfApplication *self;
+  self = BAMF_APPLICATION (object);
+
+  g_object_unref (self->priv->dbus_iface);
+
+  G_OBJECT_CLASS (bamf_application_parent_class)->finalize (object);
 }
 
 static void
@@ -645,9 +711,39 @@ bamf_application_init (BamfApplication * self)
   priv->app_type = g_strdup ("system");
   priv->show_stubs = TRUE;
   priv->wmclass = NULL;
-  
+
+  /* Initializing the dbus interface */
+  priv->dbus_iface = bamf_dbus_item_application_skeleton_new ();
+
+  /* We need to connect to the object own signals to redirect them to the dbus
+   * interface                                                                */
+  g_signal_connect (self, "window-added", G_CALLBACK (on_window_added), NULL);
+  g_signal_connect (self, "window-removed", G_CALLBACK (on_window_removed), NULL);
+
+  /* Registering signal callbacks to reply to dbus method calls */
+  g_signal_connect (priv->dbus_iface, "handle-show-stubs",
+                    G_CALLBACK (on_dbus_handle_show_stubs), self);
+
+  g_signal_connect (priv->dbus_iface, "handle-xids",
+                    G_CALLBACK (on_dbus_handle_xids), self);
+
+  g_signal_connect (priv->dbus_iface, "handle-desktop-file",
+                    G_CALLBACK (on_dbus_handle_desktop_file), self);
+
+  g_signal_connect (priv->dbus_iface, "handle-application-type",
+                    G_CALLBACK (on_dbus_handle_application_type), self);
+
+  /* Setting the interface for the dbus object */
+  bamf_dbus_item_object_skeleton_set_application (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
+                                                  priv->dbus_iface);
+
   g_signal_connect (G_OBJECT (bamf_matcher_get_default ()), "favorites-changed", 
                     (GCallback) matcher_favorites_changed, self);
+}
+
+static void
+bamf_application_dbus_application_iface_init (BamfDBusItemApplicationIface *iface)
+{
 }
 
 static void
@@ -657,6 +753,7 @@ bamf_application_class_init (BamfApplicationClass * klass)
   BamfViewClass *view_class = BAMF_VIEW_CLASS (klass);
 
   object_class->dispose = bamf_application_dispose;
+  object_class->finalize = bamf_application_finalize;
 
   view_class->view_type = bamf_application_get_view_type;
   view_class->child_added = bamf_application_child_added;
@@ -665,27 +762,6 @@ bamf_application_class_init (BamfApplicationClass * klass)
   view_class->stable_bus_name = bamf_application_get_stable_bus_name;
 
   g_type_class_add_private (klass, sizeof (BamfApplicationPrivate));
-
-  dbus_g_object_type_install_info (BAMF_TYPE_APPLICATION,
-                   &dbus_glib_bamf_application_object_info);
-
-  application_signals [WINDOW_ADDED] =
-      g_signal_new ("window-added",
-                    G_OBJECT_CLASS_TYPE (klass),
-                    0,
-                    0, NULL, NULL,
-                    g_cclosure_marshal_VOID__STRING,
-                    G_TYPE_NONE, 1,
-                    G_TYPE_STRING);
-
-  application_signals [WINDOW_REMOVED] =
-      g_signal_new ("window-removed",
-                    G_OBJECT_CLASS_TYPE (klass),
-                    0,
-                    0, NULL, NULL,
-                    g_cclosure_marshal_VOID__STRING,
-                    G_TYPE_NONE, 1,
-                    G_TYPE_STRING);
 }
 
 BamfApplication *
