@@ -96,6 +96,7 @@ struct _BamfViewPrivate
   guint            set_flags;
   gboolean         is_closed;
   gboolean         sticky;
+  GList           *cached_children;
 };
 
 static void
@@ -158,6 +159,9 @@ bamf_view_get_children (BamfView *view)
 
   priv = view->priv;
 
+  if (priv->cached_children)
+    return g_list_copy(priv->cached_children);
+
   if (!dbus_g_proxy_call (priv->proxy,
                           "Children",
                           &error,
@@ -179,8 +183,9 @@ bamf_view_get_children (BamfView *view)
       BamfView *view = bamf_factory_view_for_path (bamf_factory_get_default (), children[i]);
       results = g_list_prepend (results, view);
     }
-
-  return results;
+  
+  priv->cached_children = results;
+  return g_list_copy(priv->cached_children);
 }
 
 static gboolean
@@ -457,8 +462,13 @@ static void
 bamf_view_on_child_added (DBusGProxy *proxy, char *path, BamfView *self)
 {
   BamfView *view;
+  BamfViewPrivate *priv;
 
   view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+  priv = self->priv;
+
+  if (priv->cached_children)
+    priv->cached_children = g_list_prepend(priv->cached_children, view);
   
   g_signal_emit (G_OBJECT (self), view_signals[CHILD_ADDED], 0, view);
 }
@@ -467,9 +477,14 @@ static void
 bamf_view_on_child_removed (DBusGProxy *proxy, char *path, BamfView *self)
 {
   BamfView *view;
+  BamfViewPrivate *priv;
 
   view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+  priv = self->priv;
 
+  if (priv->cached_children)
+    priv->cached_children = g_list_remove(priv->cached_children, view);
+  
   g_signal_emit (G_OBJECT (self), view_signals[CHILD_REMOVED], 0, view);
 }
 
@@ -650,6 +665,12 @@ bamf_view_dispose (GObject *object)
       g_free (priv->type);
       priv->type = NULL;
     }
+
+  if (priv->cached_children)
+  {
+    g_list_free(priv->cached_children);
+    priv->cached_children = NULL;
+  }
 
   if (priv->proxy)
     {
