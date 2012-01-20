@@ -477,7 +477,7 @@ bamf_matcher_get_applications (BamfMatcher *matcher)
   g_return_val_if_fail (array, NULL);
 
   len = g_strv_length (array);
-  for (i = 0; i < len; i++)
+  for (i = len-1; i >= 0; i--)
     {
       view = bamf_factory_view_for_path (bamf_factory_get_default (), array[i]);
 
@@ -518,7 +518,7 @@ bamf_matcher_get_windows (BamfMatcher *matcher)
   g_return_val_if_fail (array, NULL);
 
   len = g_strv_length (array);
-  for (i = 0; i < len; i++)
+  for (i = len-1; i >= 0; i--)
     {
       view = bamf_factory_view_for_path (bamf_factory_get_default (), array[i]);
 
@@ -619,7 +619,7 @@ bamf_matcher_get_running_applications (BamfMatcher *matcher)
   g_return_val_if_fail (array, NULL);
 
   len = g_strv_length (array);
-  for (i = 0; i < len; i++)
+  for (i = len-1; i >= 0; i--)
     {
       view = bamf_factory_view_for_path (bamf_factory_get_default (), array[i]);
 

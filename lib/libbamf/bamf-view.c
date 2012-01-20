@@ -160,7 +160,7 @@ bamf_view_get_children (BamfView *view)
   priv = view->priv;
 
   if (priv->cached_children)
-    return g_list_copy(priv->cached_children);
+    return g_list_copy (priv->cached_children);
 
   if (!dbus_g_proxy_call (priv->proxy,
                           "Children",
@@ -178,14 +178,14 @@ bamf_view_get_children (BamfView *view)
 
   len = g_strv_length (children);
 
-  for (i = 0; i < len; i++)
+  for (i = len-1; i >= 0; i--)
     {
       BamfView *view = bamf_factory_view_for_path (bamf_factory_get_default (), children[i]);
       results = g_list_prepend (results, view);
     }
   
   priv->cached_children = results;
-  return g_list_copy(priv->cached_children);
+  return g_list_copy (priv->cached_children);
 }
 
 static gboolean
@@ -468,7 +468,7 @@ bamf_view_on_child_added (DBusGProxy *proxy, char *path, BamfView *self)
   priv = self->priv;
 
   if (priv->cached_children)
-    priv->cached_children = g_list_prepend(priv->cached_children, view);
+    priv->cached_children = g_list_prepend (priv->cached_children, view);
   
   g_signal_emit (G_OBJECT (self), view_signals[CHILD_ADDED], 0, view);
 }
