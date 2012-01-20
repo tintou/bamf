@@ -35,7 +35,6 @@ sources_h = \
   bamf-window.h \
   bamf-tab-source.h \
   bamf-tab.h \
-  bamf-marshal.h \
   libbamf.h \
   $(NULL)
 
@@ -45,6 +44,7 @@ libbamf_la_SOURCES = \
   $(sources_h) \
   $(libbamf_sources) \
   bamf-tab-source-glue.h \
+  bamf-marshal.h \
   $(NULL)
 
 libbamf_la_LIBADD = \
