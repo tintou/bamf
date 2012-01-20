@@ -40,6 +40,12 @@ enum
   LAST_SIGNAL,
 };
 
+typedef enum
+{
+  VIEW_ADDED = 0,
+  VIEW_REMOVED
+} ViewChangeType;
+
 static guint matcher_signals[LAST_SIGNAL] = { 0 };
 
 struct _BamfMatcherPrivate
@@ -50,11 +56,13 @@ struct _BamfMatcherPrivate
   GHashTable      * desktop_file_table;
   GHashTable      * desktop_class_table;
   GHashTable      * registered_pids;
+  GHashTable      * opened_closed_paths_table;
   GList           * views;
   GList           * monitors;
   GList           * favorites;
   BamfView        * active_app;
   BamfView        * active_win;
+  guint             dispatch_changes_id;
 };
 
 static void
@@ -117,6 +125,106 @@ on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
 
 static void bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view, gboolean unref);
 
+static gboolean
+emit_paths_changed (gpointer user_data)
+{
+  BamfMatcher *matcher;
+  BamfMatcherPrivate *priv;
+  GHashTableIter iter;
+  guint ht_size;
+  ViewChangeType change_type;
+  gpointer key, value;
+  gchar **opened_apps, **closed_apps;
+  gint i, j;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (user_data), FALSE);
+
+  matcher = (BamfMatcher*) user_data;
+  priv = matcher->priv;
+
+  ht_size = g_hash_table_size (priv->opened_closed_paths_table);
+  /* these will end with NULL pointer */
+  opened_apps = g_new0 (gchar*, ht_size+1);
+  closed_apps = g_new0 (gchar*, ht_size+1);
+  i = 0;
+  j = 0;
+
+  g_hash_table_iter_init (&iter, priv->opened_closed_paths_table);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      change_type = (ViewChangeType) GPOINTER_TO_INT (value);
+      if (change_type == VIEW_ADDED)
+        opened_apps[i++] = (gchar*) key;
+      else
+        closed_apps[j++] = (gchar*) key;
+    }
+
+  /* the strings are owned by the hashtable, so emit the signal and clear
+   * the hashtable then */
+  g_signal_emit_by_name (matcher, "running-applications-changed",
+                         opened_apps, closed_apps);
+
+  g_hash_table_remove_all (priv->opened_closed_paths_table);
+
+  g_free (closed_apps);
+  g_free (opened_apps);
+
+  priv->dispatch_changes_id = 0;
+
+  return FALSE;
+}
+
+static void bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *desktop_file, ViewChangeType change_type)
+{
+  GList *l;
+  BamfView *view;
+  BamfMatcherPrivate *priv;
+  const char *app_desktop;
+  gboolean found = FALSE;
+
+  if (desktop_file == NULL) return;
+
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+
+  priv = self->priv;
+
+  for (l = priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_APPLICATION (view) || !bamf_view_is_running (view))
+        continue;
+
+      app_desktop = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
+      if (!app_desktop) continue;
+
+      if (g_strcmp0 (desktop_file, app_desktop) == 0)
+        {
+          found = TRUE;
+          break;
+        }
+    }
+
+  /* the app was already running (ADDED) / had more instances which are still
+   * there (REMOVED) */
+  if (found) return;
+
+  if (!priv->opened_closed_paths_table)
+    {
+      priv->opened_closed_paths_table = g_hash_table_new_full (g_str_hash,
+                                                               g_str_equal,
+                                                               g_free, NULL);
+    }
+
+  g_hash_table_insert (priv->opened_closed_paths_table,
+                       g_strdup (desktop_file), GINT_TO_POINTER (change_type));
+
+  if (priv->dispatch_changes_id == 0)
+    {
+      priv->dispatch_changes_id = g_timeout_add (500, emit_paths_changed, self);
+    }
+}
+
 static void
 on_view_closed (BamfView *view, BamfMatcher *self)
 {
@@ -138,6 +246,13 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
                     (GCallback) on_view_closed, self);
   g_signal_connect (G_OBJECT (view), "active-changed",
                     (GCallback) on_view_active_changed, self);
+
+
+  if (BAMF_IS_APPLICATION (view))
+    {
+      bamf_matcher_prepare_path_change (self,
+        bamf_application_get_desktop_file (BAMF_APPLICATION (view)), VIEW_ADDED);
+    }
 
   self->priv->views = g_list_prepend (self->priv->views, view);
   g_object_ref (view);
@@ -166,6 +281,14 @@ bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view, gboolean unref)
   if (unref)
     {
       self->priv->views = g_list_remove (self->priv->views, view);
+
+      if (BAMF_IS_APPLICATION (view))
+        {
+          bamf_matcher_prepare_path_change (self,
+              bamf_application_get_desktop_file (BAMF_APPLICATION (view)),
+              VIEW_REMOVED);
+        }
+
       g_object_unref (view);
     }
 }
@@ -1462,8 +1585,8 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
   BamfLegacyWindow *window;
   GList *views, *a;
   const char *win_class;
-  char *desktop_file;
-  char *app_class;
+  const char *desktop_file;
+  const char *app_class;
   BamfApplication *app = NULL, *best = NULL;
   BamfView *view;
 
@@ -1512,9 +1635,6 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
           if (bamf_application_contains_similar_to_window (app, bamf_window) && (!best || !g_strcmp0 (win_class, app_class)))
             best = app;
         }
-
-      g_free (desktop_file);
-      g_free (app_class);
     }
 
   if (!best)
@@ -1723,7 +1843,7 @@ bamf_matcher_setup_indicator_state (BamfMatcher *self, BamfIndicator *indicator)
 {
   GList *possible_apps, *l;
   GList *views, *a;
-  char *desktop_file;
+  const char *desktop_file;
   BamfApplication *app = NULL, *best = NULL;
   BamfView *view;
 
@@ -1761,8 +1881,6 @@ bamf_matcher_setup_indicator_state (BamfMatcher *self, BamfIndicator *indicator)
                 }
             }
         }
-        
-      g_free (desktop_file);
     }
 
   if (!best)
@@ -1991,7 +2109,7 @@ gboolean
 bamf_matcher_application_is_running (BamfMatcher *matcher,
                                      const char *application)
 {
-  char * desktop_file;
+  const char * desktop_file;
   GList *l;
   BamfView *view;
   BamfMatcherPrivate *priv;
@@ -2010,10 +2128,8 @@ bamf_matcher_application_is_running (BamfMatcher *matcher,
       desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
       if (g_strcmp0 (desktop_file, application) == 0)
         {
-          g_free (desktop_file);
           return bamf_view_is_running (view);
         }
-      g_free (desktop_file);
     }
 
   return FALSE;
@@ -2084,7 +2200,7 @@ bamf_matcher_dbus_path_for_application (BamfMatcher *matcher,
                                         const char *application)
 {
   const char * path = "";
-  char * desktop_file;
+  const char * desktop_file;
   GList *l;
   BamfView *view;
   BamfMatcherPrivate *priv;
@@ -2105,7 +2221,6 @@ bamf_matcher_dbus_path_for_application (BamfMatcher *matcher,
         {
           path = bamf_view_get_path (view);
         }
-      g_free (desktop_file);
     }
 
   return path;
@@ -2176,6 +2291,59 @@ bamf_matcher_running_application_paths (BamfMatcher *matcher)
 }
 
 GVariant *
+bamf_matcher_running_applications_desktop_files (BamfMatcher *matcher)
+{
+  GList *l;
+  BamfView *view;
+  BamfMatcherPrivate *priv;
+  GSequence *paths;
+  GSequenceIter *iter;
+  const char *desktop_file;
+  GVariantBuilder b;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("(as)"));
+  g_variant_builder_open (&b, G_VARIANT_TYPE ("as"));
+
+  paths = g_sequence_new (NULL);
+  
+  priv = matcher->priv;
+
+  for (l = priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_APPLICATION (view) || !bamf_view_is_running (view))
+        continue;
+
+      desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
+      if (!desktop_file) continue;
+      
+      if (g_sequence_lookup (paths, (gpointer) desktop_file,
+                             (GCompareDataFunc) g_strcmp0, NULL) == NULL)
+        {
+          g_sequence_insert_sorted (paths, (gpointer) desktop_file, 
+                                    (GCompareDataFunc) g_strcmp0, NULL);
+        }
+    }
+
+  iter = g_sequence_get_begin_iter (paths);
+  while (!g_sequence_iter_is_end (iter))
+    {
+      g_variant_builder_add (&b, "s", g_sequence_get (iter));
+
+      iter = g_sequence_iter_next (iter);
+    }
+
+  g_sequence_free (paths);
+
+  g_variant_builder_close (&b);
+
+  return g_variant_builder_end (&b);
+}
+
+GVariant *
 bamf_matcher_tab_dbus_paths (BamfMatcher *matcher)
 {
   GVariantBuilder b;
@@ -2192,7 +2360,7 @@ bamf_matcher_xids_for_application (BamfMatcher *matcher,
 {
   GVariantBuilder b;
   GVariant *xids;
-  char * desktop_file;
+  const char * desktop_file;
   GList *l;
   BamfView *view;
   BamfMatcherPrivate *priv;
@@ -2213,10 +2381,8 @@ bamf_matcher_xids_for_application (BamfMatcher *matcher,
       if (g_strcmp0 (desktop_file, application) == 0)
         {
           xids = bamf_application_get_xids (BAMF_APPLICATION (view));
-          g_free (desktop_file);
           break;
         }
-      g_free (desktop_file);
     }
 
   if (!xids)
@@ -2283,6 +2449,17 @@ on_dbus_handle_running_applications (BamfDBusMatcher *interface,
 {
   GVariant *running_apps = bamf_matcher_running_application_paths (self);
   g_dbus_method_invocation_return_value (invocation, running_apps);
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_running_applications_desktop_files (BamfDBusMatcher *interface,
+                                                   GDBusMethodInvocation *invocation,
+                                                   BamfMatcher *self)
+{
+  GVariant *paths = bamf_matcher_running_applications_desktop_files (self);
+  g_dbus_method_invocation_return_value (invocation, paths);
 
   return TRUE;
 }
@@ -2436,6 +2613,9 @@ bamf_matcher_init (BamfMatcher * self)
   g_signal_connect (self, "handle-running-applications",
                     G_CALLBACK (on_dbus_handle_running_applications), self);
 
+  g_signal_connect (self, "handle-running-applications-desktop-files",
+                    G_CALLBACK (on_dbus_handle_running_applications_desktop_files), self);
+  
   g_signal_connect (self, "handle-active-window",
                     G_CALLBACK (on_dbus_handle_active_window), self);
 
@@ -2496,6 +2676,17 @@ bamf_matcher_finalize (GObject *object)
   g_hash_table_destroy (priv->desktop_file_table);
   g_hash_table_destroy (priv->desktop_class_table);
   g_hash_table_destroy (priv->registered_pids);
+
+  if (priv->opened_closed_paths_table)
+    {
+      g_hash_table_destroy (priv->opened_closed_paths_table);
+    }
+
+  if (priv->dispatch_changes_id != 0)
+    {
+      g_source_remove (priv->dispatch_changes_id);
+      priv->dispatch_changes_id = 0;
+    }
 
   g_list_free_full (priv->views, g_object_unref);
 

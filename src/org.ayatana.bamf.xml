@@ -30,6 +30,9 @@
     <method name="RunningApplications">
       <arg name="paths" type="as" direction="out"/>
     </method>
+    <method name="RunningApplicationsDesktopFiles">
+      <arg name="paths" type="as" direction="out"/>
+    </method>
     <method name="RegisterFavorites">
       <arg name="favorites" type="as" direction="in"/>
     </method>
@@ -78,6 +81,10 @@
       <arg name="type" type="s"/>
     </signal>
     <signal name="StackingOrderChanged">
+    </signal>
+    <signal name="RunningApplicationsChanged">
+      <arg name="opened_desktop_files" type="as"/>
+      <arg name="closed_desktop_files" type="as"/>
     </signal>
   </interface>
 </node>
