@@ -35,6 +35,7 @@ sources_h = \
   bamf-window.h \
   bamf-tab-source.h \
   bamf-tab.h \
+  bamf-marshal.h \
   libbamf.h \
   $(NULL)
 
@@ -44,7 +45,6 @@ libbamf_la_SOURCES = \
   $(sources_h) \
   $(libbamf_sources) \
   bamf-tab-source-glue.h \
-  bamf-marshal.h \
   $(NULL)
 
 libbamf_la_LIBADD = \
@@ -58,7 +58,8 @@ libbamf_la_CPPFLAGS = \
   -fPIC \
   -DDATADIR=\""$(datadir)"\" \
   -I$(top_srcdir)/lib \
-  -I$(top_builddir)/lib \
+  -I$(top_srcdir)/lib/libbamf \
+  -I$(top_builddir)/lib/libbamf \
   $(LIBWSBIND_CFLAGS) \
   $(GLIB_CFLAGS) \
   $(DBUS_CFLAGS) \
