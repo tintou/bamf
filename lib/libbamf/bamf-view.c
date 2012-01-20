@@ -181,7 +181,7 @@ bamf_view_get_children (BamfView *view)
   for (i = len-1; i >= 0; i--)
     {
       BamfView *view = bamf_factory_view_for_path (bamf_factory_get_default (), children[i]);
-      results = g_list_prepend (results, view);
+      results = g_list_prepend (results, g_object_ref (view));
     }
   
   priv->cached_children = results;
@@ -468,7 +468,10 @@ bamf_view_on_child_added (DBusGProxy *proxy, char *path, BamfView *self)
   priv = self->priv;
 
   if (priv->cached_children)
-    priv->cached_children = g_list_prepend (priv->cached_children, view);
+    {
+      g_object_ref (view);
+      priv->cached_children = g_list_prepend (priv->cached_children, view);
+    }
   
   g_signal_emit (G_OBJECT (self), view_signals[CHILD_ADDED], 0, view);
 }
@@ -479,13 +482,33 @@ bamf_view_on_child_removed (DBusGProxy *proxy, char *path, BamfView *self)
   BamfView *view;
   BamfViewPrivate *priv;
 
-  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+  view = NULL;
   priv = self->priv;
 
   if (priv->cached_children)
-    priv->cached_children = g_list_remove(priv->cached_children, view);
-  
+    {
+      GList *l;
+      for (l = priv->cached_children; l; l = l->next)
+        {
+          if (g_strcmp0 (bamf_view_get_path (BAMF_VIEW (l->data)), path) == 0)
+            {
+              priv->cached_children = g_list_delete_link (priv->cached_children, l);
+              view = BAMF_VIEW (l->data);
+              break;
+            }
+        }
+
+      if (!BAMF_IS_VIEW (view))
+        {
+          g_list_free_full (priv->cached_children, g_object_unref);
+          priv->cached_children = NULL;
+        }
+    }
+
   g_signal_emit (G_OBJECT (self), view_signals[CHILD_REMOVED], 0, view);
+
+  if (BAMF_IS_VIEW (view))
+    g_object_unref (view);
 }
 
 static void
@@ -668,7 +691,7 @@ bamf_view_dispose (GObject *object)
 
   if (priv->cached_children)
   {
-    g_list_free(priv->cached_children);
+    g_list_free_full (priv->cached_children, g_object_unref);
     priv->cached_children = NULL;
   }
 
