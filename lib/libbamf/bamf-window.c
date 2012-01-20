@@ -37,6 +37,7 @@
 #include "bamf-view-private.h"
 #include "bamf-window.h"
 #include "bamf-factory.h"
+#include "bamf-marshal.h"
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
