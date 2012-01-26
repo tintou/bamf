@@ -553,9 +553,6 @@ good_prefix_strings (void)
   char *str = "^gnome-control-center$";
   g_array_append_val (arr, str);
 
-  str = "^bzr$";
-  g_array_append_val (arr, str);
-
   return arr;
 }
 
