@@ -481,7 +481,6 @@ bamf_view_on_child_removed (DBusGProxy *proxy, char *path, BamfView *self)
 {
   BamfView *view;
   BamfViewPrivate *priv;
-
   view = NULL;
   priv = self->priv;
 
@@ -490,10 +489,11 @@ bamf_view_on_child_removed (DBusGProxy *proxy, char *path, BamfView *self)
       GList *l;
       for (l = priv->cached_children; l; l = l->next)
         {
-          if (g_strcmp0 (bamf_view_get_path (BAMF_VIEW (l->data)), path) == 0)
+          BamfView *cur_view = BAMF_VIEW (l->data);
+          if (g_strcmp0 (bamf_view_get_path (cur_view), path) == 0)
             {
+              view = cur_view;
               priv->cached_children = g_list_delete_link (priv->cached_children, l);
-              view = BAMF_VIEW (l->data);
               break;
             }
         }
