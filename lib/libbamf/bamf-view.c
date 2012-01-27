@@ -183,7 +183,7 @@ bamf_view_get_children (BamfView *view)
       BamfView *view = bamf_factory_view_for_path (bamf_factory_get_default (), children[i]);
       results = g_list_prepend (results, g_object_ref (view));
     }
-  
+
   priv->cached_children = results;
   return g_list_copy (priv->cached_children);
 }
@@ -197,7 +197,7 @@ bamf_view_get_boolean (BamfView *self, const char *method_name, guint flag)
 
   g_return_val_if_fail (BAMF_IS_VIEW (self), FALSE);
   priv = self->priv;
-  
+
   if (bamf_view_flag_is_set (self, flag))
     return bamf_view_get_flag (self, flag);
 
@@ -213,10 +213,10 @@ bamf_view_get_boolean (BamfView *self, const char *method_name, guint flag)
     {
       g_warning ("Failed to fetch boolean: %s", error->message);
       g_error_free (error);
-      
+
       return FALSE;
     }
-  
+
   bamf_view_set_flag (self, flag, result);
   return result;
 }
@@ -225,7 +225,7 @@ gboolean
 bamf_view_is_closed (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), TRUE);
-  
+
   return view->priv->is_closed;
 }
 
@@ -233,7 +233,7 @@ gboolean
 bamf_view_is_active (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-  
+
   if (BAMF_VIEW_GET_CLASS (view)->is_active)
     return BAMF_VIEW_GET_CLASS (view)->is_active (view);
 
@@ -472,7 +472,7 @@ bamf_view_on_child_added (DBusGProxy *proxy, char *path, BamfView *self)
       g_object_ref (view);
       priv->cached_children = g_list_prepend (priv->cached_children, view);
     }
-  
+
   g_signal_emit (G_OBJECT (self), view_signals[CHILD_ADDED], 0, view);
 }
 
@@ -563,19 +563,19 @@ static void
 bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
 {
   BamfViewPrivate *priv;
-  
+
   priv = self->priv;
 
   priv->is_closed = TRUE;
-  
+
   if (priv->sticky && priv->proxy)
     {
       if (priv->cached_children)
-      {
-        g_list_free(priv->cached_children);
-        priv->cached_children = NULL;
-      }
-      
+        {
+          g_list_free_full (priv->cached_children, g_object_unref);
+          priv->cached_children = NULL;
+        }
+
       dbus_g_proxy_disconnect_signal (priv->proxy,
                                       "ActiveChanged",
                                       (GCallback) bamf_view_on_active_changed,
@@ -681,14 +681,13 @@ bamf_view_dispose (GObject *object)
   view = BAMF_VIEW (object);
 
   priv = view->priv;
-  
+
   if (priv->path)
     {
       g_free (priv->path);
       priv->path = NULL;
     }
-  
-    
+
   if (priv->type)
     {
       g_free (priv->type);
@@ -696,10 +695,10 @@ bamf_view_dispose (GObject *object)
     }
 
   if (priv->cached_children)
-  {
-    g_list_free_full (priv->cached_children, g_object_unref);
-    priv->cached_children = NULL;
-  }
+    {
+      g_list_free_full (priv->cached_children, g_object_unref);
+      priv->cached_children = NULL;
+    }
 
   if (priv->proxy)
     {
