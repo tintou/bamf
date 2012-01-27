@@ -570,6 +570,12 @@ bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
   
   if (priv->sticky && priv->proxy)
     {
+      if (priv->cached_children)
+      {
+        g_list_free(priv->cached_children);
+        priv->cached_children = NULL;
+      }
+      
       dbus_g_proxy_disconnect_signal (priv->proxy,
                                       "ActiveChanged",
                                       (GCallback) bamf_view_on_active_changed,
