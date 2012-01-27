@@ -31,8 +31,6 @@
 #include <glib-object.h>
 #include <libbamf/bamf-view.h>
 
-#include "bamf-marshal.h"
-
 G_BEGIN_DECLS
 
 #define BAMF_TYPE_WINDOW (bamf_window_get_type ())
