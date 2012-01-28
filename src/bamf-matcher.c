@@ -51,6 +51,7 @@ static guint matcher_signals[LAST_SIGNAL] = { 0 };
 struct _BamfMatcherPrivate
 {
   GArray          * bad_prefixes;
+  GArray          * good_prefixes;
   GArray          * known_pids;
   GHashTable      * desktop_id_table;
   GHashTable      * desktop_file_table;
@@ -297,7 +298,9 @@ static char *
 get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
 {
   const gchar *name;
+  const gchar *class;
   char *exec = NULL;
+  BamfWindowType type;
   GHashTable *desktopFileTable;
   GList *list;
 
@@ -305,8 +308,8 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
 
   name = bamf_legacy_window_get_name (window);
-  const gchar *class = bamf_legacy_window_get_class_name (window);
-  BamfWindowType type = bamf_legacy_window_get_window_type (window);
+  class = bamf_legacy_window_get_class_name (window);
+  type = bamf_legacy_window_get_window_type (window);
 
   if (name == NULL && class == NULL)
     return NULL;
@@ -418,6 +421,7 @@ trim_exec_string (BamfMatcher * self, char * execString)
   gchar **parts;
   gint i, j;
   gboolean regexFail;
+  gboolean goodPrefix = FALSE;
   GRegex *regex;
 
   if (!execString || (execString && execString[0] == '\0'))
@@ -431,29 +435,57 @@ trim_exec_string (BamfMatcher * self, char * execString)
     {
       part = parts[i];
 
-      if (!g_str_has_prefix (part, "-"))
+      if (part[0] != '-')
         {
-          tmp = g_utf8_strrchr (part, -1, G_DIR_SEPARATOR);
-          if (tmp)
-                  part = tmp + 1;
-
-          regexFail = FALSE;
-          for (j = 0; j < self->priv->bad_prefixes->len; j++)
+          if (goodPrefix)
             {
-              regex = g_array_index (self->priv->bad_prefixes, GRegex *, j);
-              if (g_regex_match (regex, part, 0, NULL))
+              gchar *tmp = g_strconcat (result, " ", part, NULL);
+              g_free (result);
+              result = tmp;
+            }
+          else
+            {
+              for (j = 0; j < self->priv->good_prefixes->len; j++)
                 {
-                  regexFail = TRUE;
-                  break;
+                  regex = g_array_index (self->priv->good_prefixes, GRegex *, j);
+                  if (g_regex_match (regex, part, 0, NULL))
+                    {
+                      goodPrefix = TRUE;
+                      result = g_strdup (part);
+                      break;
+                    }
                 }
             }
 
-          if (!regexFail)
+          if (!goodPrefix)
             {
-              result = g_strdup (part);
-              break;
+              tmp = g_utf8_strrchr (part, -1, G_DIR_SEPARATOR);
+              if (tmp)
+                part = tmp + 1;
+
+              regexFail = FALSE;
+              for (j = 0; j < self->priv->bad_prefixes->len; j++)
+                {
+                  regex = g_array_index (self->priv->bad_prefixes, GRegex *, j);
+                  if (g_regex_match (regex, part, 0, NULL))
+                    {
+                      regexFail = TRUE;
+                      break;
+                    }
+                }
+
+              if (!regexFail)
+                {
+                  result = g_strdup (part);
+                  break;
+                }
             }
         }
+      else if (goodPrefix)
+        {
+          break;
+        }
+
       i++;
     }
 
@@ -479,7 +511,7 @@ trim_exec_string (BamfMatcher * self, char * execString)
 }
 
 static GArray *
-prefix_strings (BamfMatcher * self)
+bad_prefix_strings (void)
 {
   GArray *arr = g_array_new (FALSE, TRUE, sizeof (char *));
 
@@ -508,6 +540,17 @@ prefix_strings (BamfMatcher * self)
   g_array_append_val (arr, str);
 
   str = "^(ba)?sh$";
+  g_array_append_val (arr, str);
+
+  return arr;
+}
+
+static GArray *
+good_prefix_strings (void)
+{
+  GArray *arr = g_array_new (FALSE, TRUE, sizeof (char *));
+
+  char *str = "^gnome-control-center$";
   g_array_append_val (arr, str);
 
   return arr;
@@ -1269,11 +1312,8 @@ is_open_office_window (BamfMatcher * self, BamfLegacyWindow * window)
 }
 
 static char *
-get_window_hint (BamfMatcher *self,
-                 BamfLegacyWindow *window,
-                 const char *atom_name)
+get_window_hint (BamfLegacyWindow *window, const char *atom_name)
 {
-  g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
 
   Window xid = bamf_legacy_window_get_xid (window);
@@ -1281,12 +1321,8 @@ get_window_hint (BamfMatcher *self,
 }
 
 static void
-set_window_hint (BamfMatcher * self,
-                 BamfLegacyWindow * window,
-                 const char *atom_name,
-                 const char *data)
+set_window_hint (BamfLegacyWindow * window, const char *atom_name, const char *data)
 {
-  g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_LEGACY_WINDOW (window));
 
   Window xid = bamf_legacy_window_get_xid (window);
@@ -1452,7 +1488,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
   window = bamf_window_get_window (bamf_window);
 
-  hint = get_window_hint (self, window, _NET_WM_DESKTOP_FILE);
+  hint = get_window_hint (window, _NET_WM_DESKTOP_FILE);
   const char *window_class = bamf_legacy_window_get_class_name (window);
 
   if (hint && hint[0] != '\0' && !is_web_app_window(self, window))
@@ -1690,7 +1726,7 @@ ensure_window_hint_set (BamfMatcher *self,
       return;
     }
 
-  window_hint = get_window_hint (self, window, _NET_WM_DESKTOP_FILE);
+  window_hint = get_window_hint (window, _NET_WM_DESKTOP_FILE);
   if (window_hint)
     {
       if (window_hint[0] != '\0')
@@ -1732,7 +1768,7 @@ ensure_window_hint_set (BamfMatcher *self,
   g_array_free (pids, TRUE);
 
   if (window_hint)
-    set_window_hint (self, window, _NET_WM_DESKTOP_FILE, window_hint);
+    set_window_hint (window, _NET_WM_DESKTOP_FILE, window_hint);
 }
 
 static void
@@ -1769,7 +1805,7 @@ on_open_office_window_name_changed (BamfLegacyWindow *window, BamfMatcher* self)
   char *old_hint;
   const char *new_hint;
 
-  old_hint = get_window_hint (self, window, _NET_WM_DESKTOP_FILE);
+  old_hint = get_window_hint (window, _NET_WM_DESKTOP_FILE);
   new_hint = get_open_office_window_hint (self, window);
 
   if (new_hint && g_strcmp0 (new_hint, old_hint) != 0)
@@ -1784,6 +1820,67 @@ static void
 on_open_office_window_closed (BamfLegacyWindow *window, BamfMatcher* self)
 {
   g_signal_handlers_disconnect_by_func (window, on_open_office_window_name_changed, self);
+  g_object_unref (window);
+}
+
+static char *
+get_gnome_control_center_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
+{
+  gchar *role;
+  gchar *exec;
+  GHashTable *desktopFileTable;
+  GList *list;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
+
+  role = get_window_hint (window, WM_WINDOW_ROLE);
+
+  if (role && role[0] == '\0')
+    {
+      g_free (role);
+      role = NULL;
+    }
+
+  exec = g_strconcat ("gnome-control-center", (role ? " " : NULL), role, NULL);
+
+  desktopFileTable = self->priv->desktop_file_table;
+  list = g_hash_table_lookup (desktopFileTable, exec);
+
+  if (!list && g_strcmp0 ("gnome-control-center", exec) != 0)
+    {
+      list = g_hash_table_lookup (desktopFileTable, "gnome-control-center");
+    }
+
+  g_free (exec);
+
+  return (list ? (char *) list->data : NULL);
+}
+
+static void
+on_gnome_control_center_window_name_changed (BamfLegacyWindow *window, BamfMatcher* self)
+{
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
+
+  char *old_hint;
+  const char *new_hint;
+
+  old_hint = get_window_hint (window, _NET_WM_DESKTOP_FILE);
+  new_hint = get_gnome_control_center_window_hint (self, window);
+
+  if (new_hint && g_strcmp0 (new_hint, old_hint) != 0)
+    {
+      bamf_legacy_window_reopen (window);
+    }
+
+  g_free (old_hint);
+}
+
+static void
+on_gnome_control_center_window_closed (BamfLegacyWindow *window, BamfMatcher* self)
+{
+  g_signal_handlers_disconnect_by_func (window, on_gnome_control_center_window_name_changed, self);
   g_object_unref (window);
 }
 
@@ -1813,17 +1910,33 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
           return;
         }
 
-      char *old_hint = get_window_hint (self, window, _NET_WM_DESKTOP_FILE);
+      char *old_hint = get_window_hint (window, _NET_WM_DESKTOP_FILE);
       const char *new_hint = get_open_office_window_hint (self, window);
 
       if (new_hint && g_strcmp0 (old_hint, new_hint) != 0)
         {
-          set_window_hint (self, window, _NET_WM_DESKTOP_FILE, new_hint);
+          set_window_hint (window, _NET_WM_DESKTOP_FILE, new_hint);
         }
 
       g_object_ref (window);
       g_signal_connect (window, "name-changed", (GCallback) on_open_office_window_name_changed, self);
       g_signal_connect (window, "closed", (GCallback) on_open_office_window_closed, self);
+
+      g_free (old_hint);
+    }
+  else if (g_strcmp0 (bamf_legacy_window_get_class_name (window), "Gnome-control-center") == 0)
+    {
+      char *old_hint = get_window_hint (window, _NET_WM_DESKTOP_FILE);
+      const char *new_hint = get_gnome_control_center_window_hint (self, window);
+
+      if (new_hint && g_strcmp0 (old_hint, new_hint) != 0)
+        {
+          set_window_hint (window, _NET_WM_DESKTOP_FILE, new_hint);
+        }
+
+      g_object_ref (window);
+      g_signal_connect (window, "name-changed", (GCallback) on_gnome_control_center_window_name_changed, self);
+      g_signal_connect (window, "closed", (GCallback) on_gnome_control_center_window_closed, self);
 
       g_free (old_hint);
     }
@@ -2567,17 +2680,26 @@ bamf_matcher_init (BamfMatcher * self)
 
   priv->known_pids = g_array_new (FALSE, TRUE, sizeof (gint));
   priv->bad_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex *));
+  priv->good_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex *));
   priv->registered_pids = g_hash_table_new_full (g_direct_hash, g_direct_equal,
                                                  NULL, g_free);
 
-  prefixstrings = prefix_strings (self);
+  prefixstrings = bad_prefix_strings ();
   for (i = 0; i < prefixstrings->len; i++)
     {
       char *str = g_array_index (prefixstrings, char *, i);
       GRegex *regex = g_regex_new (str, G_REGEX_OPTIMIZE, 0, NULL);
       g_array_append_val (priv->bad_prefixes, regex);
     }
+  g_array_free (prefixstrings, TRUE);
 
+  prefixstrings = good_prefix_strings ();
+  for (i = 0; i < prefixstrings->len; i++)
+    {
+      char *str = g_array_index (prefixstrings, char *, i);
+      GRegex *regex = g_regex_new (str, G_REGEX_OPTIMIZE, 0, NULL);
+      g_array_append_val (priv->good_prefixes, regex);
+    }
   g_array_free (prefixstrings, TRUE);
 
   create_desktop_file_table (self, &(priv->desktop_file_table),
@@ -2670,7 +2792,14 @@ bamf_matcher_finalize (GObject *object)
       g_regex_unref (regex);
     }
 
+  for (i = 0; i < priv->good_prefixes->len; i++)
+    {
+      GRegex *regex = g_array_index (priv->good_prefixes, GRegex *, i);
+      g_regex_unref (regex);
+    }
+
   g_array_free (priv->bad_prefixes, TRUE);
+  g_array_free (priv->good_prefixes, TRUE);
   g_array_free (priv->known_pids, TRUE);
   g_hash_table_destroy (priv->desktop_id_table);
   g_hash_table_destroy (priv->desktop_file_table);
