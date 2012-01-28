@@ -46,6 +46,7 @@
 #define BAMF_MATCHER_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_MATCHER, BamfMatcherClass))
 
 #define _NET_WM_DESKTOP_FILE "_NET_WM_DESKTOP_FILE"
+#define WM_WINDOW_ROLE       "WM_WINDOW_ROLE"
 
 typedef struct _BamfMatcher BamfMatcher;
 typedef struct _BamfMatcherClass BamfMatcherClass;
