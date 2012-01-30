@@ -68,6 +68,8 @@ guint32            bamf_window_get_window_type (BamfWindow *self);
 
 guint32            bamf_window_get_xid (BamfWindow *window);
 
+gint               bamf_window_get_pid (BamfWindow *window);
+
 time_t             bamf_window_last_active (BamfWindow *window);
 
 time_t             bamf_window_opened (BamfWindow *window);

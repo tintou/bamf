@@ -84,6 +84,9 @@
     <method name="GetXid">
       <arg name="xid" type="u" direction="out"/>
     </method>
+    <method name="GetPid">
+      <arg name="pid" type="i" direction="out"/>
+    </method>
     <method name="Transient">
       <arg name="path" type="s" direction="out"/>
     </method>
