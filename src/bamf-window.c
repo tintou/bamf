@@ -114,6 +114,14 @@ bamf_window_get_window_type (BamfWindow *window)
   return (guint32) bamf_legacy_window_get_window_type (window->priv->legacy_window);
 }
 
+gint
+bamf_window_get_pid (BamfWindow *window)
+{
+  g_return_val_if_fail (BAMF_IS_WINDOW (window), 0);
+
+  return bamf_legacy_window_get_pid(window->priv->legacy_window);
+}
+
 guint32
 bamf_window_get_xid (BamfWindow *window)
 {
@@ -286,6 +294,17 @@ static void
 active_window_changed (BamfLegacyScreen *screen, BamfWindow *window)
 {
   bamf_window_ensure_flags (window);
+}
+
+static gboolean
+on_dbus_handle_get_pid (BamfDBusItemWindow *interface,
+                        GDBusMethodInvocation *invocation,
+                        BamfWindow *self)
+{
+  gint pid = bamf_window_get_pid (self);
+  g_dbus_method_invocation_return_value (invocation, g_variant_new ("(i)", pid));
+
+  return TRUE;
 }
 
 static gboolean
@@ -534,6 +553,9 @@ bamf_window_init (BamfWindow * self)
   g_signal_connect (self, "monitor-changed", G_CALLBACK (on_monitor_changed), NULL);
 
   /* Registering signal callbacks to reply to dbus method calls */
+  g_signal_connect (self->priv->dbus_iface, "handle-get-pid",
+                    G_CALLBACK (on_dbus_handle_get_pid), self);
+
   g_signal_connect (self->priv->dbus_iface, "handle-get-xid",
                     G_CALLBACK (on_dbus_handle_get_xid), self);
 
