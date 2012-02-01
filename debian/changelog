@@ -1,3 +1,12 @@
+bamf (0.2.104-0ubuntu1.1) oneiric-proposed; urgency=low
+
+  * Correctly signal a closed BamfLegacyWindow, fixes libreoffice and unity
+    integration bug (LP: #842566)
+  * Don't ignore local .desktop files with OnlyShowIn flag (LP: #863290)
+  * Fixed a lot of memory leaks
+
+ -- Marco Trevisan (Treviño) <3v1n0@ubuntu.com>  Wed, 01 Feb 2012 15:13:36 +0100
+
 bamf (0.2.104-0ubuntu1) oneiric; urgency=low
 
   * New upstream release.
