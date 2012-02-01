@@ -1590,7 +1590,7 @@ ensure_window_hint_set (BamfMatcher *self,
   GHashTable *registered_pids;
   char *window_hint = NULL;
   gint i, pid;
-  gint *key;
+  gpointer key;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
@@ -1604,9 +1604,7 @@ ensure_window_hint_set (BamfMatcher *self,
 
       if (pid > 0)
         {
-          key = g_new (gint, 1);
-          *key = pid;
-
+          key = GINT_TO_POINTER (pid);
           const char* result = g_hash_table_lookup (registered_pids, key);
           if (result && g_str_has_prefix (result, "/home/"))
             {
@@ -1626,8 +1624,7 @@ ensure_window_hint_set (BamfMatcher *self,
 
       if (pid > 0)
         {
-          key = g_new (gint, 1);
-          *key = pid;
+          key = GINT_TO_POINTER (pid);
 
           if (!g_hash_table_lookup (registered_pids, key))
             {
@@ -1651,9 +1648,7 @@ ensure_window_hint_set (BamfMatcher *self,
         {
           pid = g_array_index (pids, gint, i);
 
-          key = g_new (gint, 1);
-          *key = pid;
-
+          key = GINT_TO_POINTER (pid);
           window_hint = g_hash_table_lookup (registered_pids, key);
           if (window_hint != NULL && strlen (window_hint) > 0)
             break;
@@ -1847,20 +1842,16 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
                                             const char * desktopFile,
                                             gint pid)
 {
-  gint *key;
+  gpointer key;
   BamfLegacyScreen *screen;
   GList *glist_item;
   GList *windows;
-  char *dup;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (desktopFile);
 
-  key = g_new (gint, 1);
-  *key = pid;
-
-  dup = g_strdup (desktopFile);
-  g_hash_table_insert (self->priv->registered_pids, key, dup);
+  key = GINT_TO_POINTER (pid);
+  g_hash_table_insert (self->priv->registered_pids, key, g_strdup (desktopFile));
 
   /* fixme, this is a bit heavy */
 
@@ -2217,8 +2208,8 @@ bamf_matcher_init (BamfMatcher * self)
 
   priv->known_pids = g_array_new (FALSE, TRUE, sizeof (gint));
   priv->bad_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex *));
-  priv->registered_pids =
-    g_hash_table_new ((GHashFunc) g_int_hash, (GEqualFunc) g_int_equal);
+  priv->registered_pids = g_hash_table_new_full (g_direct_hash, g_direct_equal,
+                                                 NULL, g_free);
 
   prefixstrings = prefix_strings (self);
   for (i = 0; i < prefixstrings->len; i++)
