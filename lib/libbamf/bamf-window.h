@@ -104,7 +104,7 @@ BamfWindowType    bamf_window_get_window_type           (BamfWindow *self);
 
 guint32           bamf_window_get_xid                   (BamfWindow *self);
 
-gint              bamf_window_get_pid                   (BamfWindow *self);
+guint32           bamf_window_get_pid                   (BamfWindow *self);
 
 gchar           * bamf_window_get_application_id        (BamfWindow *self);
 
