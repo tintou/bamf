@@ -229,7 +229,12 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
     }
 
   if (icon)
-    self->priv->icon = icon;
+    {
+      if (self->priv->icon)
+        g_free (self->priv->icon);
+
+      self->priv->icon = icon;
+    }
 
   if (name)
     bamf_view_set_name (BAMF_VIEW (self), name);
@@ -611,6 +616,12 @@ bamf_application_dispose (GObject *object)
     {
       g_free (priv->app_type);
       priv->app_type = NULL;
+    }
+
+  if (priv->icon)
+    {
+      g_free (priv->icon);
+      priv->icon = NULL;
     }
 
   if (priv->wmclass)
