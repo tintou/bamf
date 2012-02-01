@@ -145,7 +145,9 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
       gicon = g_app_info_get_icon (G_APP_INFO (desktop));
 
       name = g_strdup (g_app_info_get_display_name (G_APP_INFO (desktop)));
-      icon = g_icon_to_string (gicon);
+
+      if (gicon)
+        icon = g_icon_to_string (gicon);
 
       if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, STUB_KEY, NULL)) {
         /* This will error to return false, which is okay as it seems
