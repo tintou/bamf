@@ -1691,14 +1691,16 @@ open_office_window_setup_timer (OpenOfficeTimeoutArgs *args)
   if (bamf_legacy_window_is_closed (args->window))
   {
     g_object_unref (args->window);
+    g_free (args);
     return FALSE;
   }
 
   args->count++;
-  if (args->count > 20 || get_open_office_window_hint (args->matcher, args->window))  
+  if (args->count > 50 || get_open_office_window_hint (args->matcher, args->window))  
     {
       g_object_unref (args->window);
       handle_raw_window (args->matcher, args->window);
+      g_free (args);
       return FALSE;
     }
   
