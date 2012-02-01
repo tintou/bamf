@@ -114,12 +114,12 @@ bamf_window_get_window_type (BamfWindow *window)
   return (guint32) bamf_legacy_window_get_window_type (window->priv->legacy_window);
 }
 
-gint
+guint32
 bamf_window_get_pid (BamfWindow *window)
 {
   g_return_val_if_fail (BAMF_IS_WINDOW (window), 0);
 
-  return bamf_legacy_window_get_pid(window->priv->legacy_window);
+  return bamf_legacy_window_get_pid (window->priv->legacy_window);
 }
 
 guint32
@@ -302,7 +302,7 @@ on_dbus_handle_get_pid (BamfDBusItemWindow *interface,
                         BamfWindow *self)
 {
   gint pid = bamf_window_get_pid (self);
-  g_dbus_method_invocation_return_value (invocation, g_variant_new ("(i)", pid));
+  g_dbus_method_invocation_return_value (invocation, g_variant_new ("(u)", pid));
 
   return TRUE;
 }
