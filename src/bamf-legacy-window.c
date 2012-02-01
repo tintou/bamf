@@ -215,6 +215,9 @@ bamf_legacy_window_save_mini_icon (BamfLegacyWindow *self)
   
   window = self->priv->legacy_window;
   
+  if (!window)
+    return NULL;
+  
   if (wnck_window_get_icon_is_fallback (window))
     return NULL;
   
@@ -325,11 +328,10 @@ handle_window_closed (WnckScreen *screen,
 {
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
   g_return_if_fail (WNCK_IS_WINDOW (window));
-  
-  self->priv->is_closed = TRUE;
 
-  if (window == self->priv->legacy_window)
+  if (self->priv->legacy_window == window)
     {
+      self->priv->is_closed = TRUE;
       g_signal_emit (self, legacy_window_signals[CLOSED], 0);
     }
 }
@@ -378,7 +380,7 @@ bamf_legacy_window_init (BamfLegacyWindow * self)
   screen = wnck_screen_get_default ();
 
   priv->closed_id = g_signal_connect (G_OBJECT (screen), "window-closed",
-    		                       (GCallback) handle_window_closed, self);
+                                      (GCallback) handle_window_closed, self);
 }
 
 static void

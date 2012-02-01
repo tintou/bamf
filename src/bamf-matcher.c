@@ -328,7 +328,7 @@ prefix_strings (BamfMatcher * self)
 {
   GArray *arr = g_array_new (FALSE, TRUE, sizeof (char *));
 
-  char *str = "^gsku$";
+  char *str = "^gksu(do)?$";
   g_array_append_val (arr, str);
 
   str = "^sudo$";
@@ -542,22 +542,22 @@ load_desktop_file_to_table (BamfMatcher * self,
                             GHashTable *desktop_id_table,
                             GHashTable *desktop_class_table)
 {
-  GAppInfo *desktop_file;
+  GDesktopAppInfo *desktop_file;
   char *exec;
   char *path;
   GString *desktop_id; /* is ok... really */
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
 
-  desktop_file = G_APP_INFO (g_desktop_app_info_new_from_filename (file));
+  desktop_file = g_desktop_app_info_new_from_filename (file);
 
   if (!G_IS_APP_INFO (desktop_file))
     return;
-    
-  if (g_app_info_should_show (desktop_file) == FALSE)
+
+  if (!g_desktop_app_info_get_show_in (desktop_file, g_getenv ("XDG_CURRENT_DESKTOP")))
     return;
 
-  exec = g_strdup (g_app_info_get_commandline (desktop_file));
+  exec = g_strdup (g_app_info_get_commandline (G_APP_INFO (desktop_file)));
   
   if (!exec)
     return;
@@ -582,7 +582,7 @@ load_desktop_file_to_table (BamfMatcher * self,
   g_free (path);
 
   desktop_id = g_string_truncate (desktop_id, desktop_id->len - 8); /* remove last 8 characters for .desktop */
-  
+
   insert_data_into_tables (self, file, exec, desktop_id->str, desktop_file_table, desktop_id_table);
   insert_desktop_file_class_into_table (self, file, desktop_class_table);
 
@@ -617,7 +617,6 @@ load_directory_to_table (BamfMatcher * self,
   info = g_file_enumerator_next_file (enumerator, NULL, NULL);
   for (; info; info = g_file_enumerator_next_file (enumerator, NULL, NULL))
     {
-
       name = g_file_info_get_name (info);
       path = g_build_filename (directory, name, NULL);
 
@@ -937,7 +936,10 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
   if (!g_str_has_suffix (path, ".desktop") &&
       filetype != G_FILE_TYPE_DIRECTORY &&
       type != G_FILE_MONITOR_EVENT_DELETED)
-    goto out;
+    {
+      g_free(path);
+      return;
+    }
 
   if (type == G_FILE_MONITOR_EVENT_DELETED ||
       type == G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT)
@@ -1003,7 +1005,6 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
         }
     }
 
-out:
   g_free (path);
 }
 
@@ -1589,7 +1590,7 @@ ensure_window_hint_set (BamfMatcher *self,
   GHashTable *registered_pids;
   char *window_hint = NULL;
   gint i, pid;
-  gint *key;
+  gpointer key;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
@@ -1603,9 +1604,7 @@ ensure_window_hint_set (BamfMatcher *self,
 
       if (pid > 0)
         {
-          key = g_new (gint, 1);
-          *key = pid;
-
+          key = GINT_TO_POINTER (pid);
           const char* result = g_hash_table_lookup (registered_pids, key);
           if (result && g_str_has_prefix (result, "/home/"))
             {
@@ -1625,8 +1624,7 @@ ensure_window_hint_set (BamfMatcher *self,
 
       if (pid > 0)
         {
-          key = g_new (gint, 1);
-          *key = pid;
+          key = GINT_TO_POINTER (pid);
 
           if (!g_hash_table_lookup (registered_pids, key))
             {
@@ -1650,9 +1648,7 @@ ensure_window_hint_set (BamfMatcher *self,
         {
           pid = g_array_index (pids, gint, i);
 
-          key = g_new (gint, 1);
-          *key = pid;
-
+          key = GINT_TO_POINTER (pid);
           window_hint = g_hash_table_lookup (registered_pids, key);
           if (window_hint != NULL && strlen (window_hint) > 0)
             break;
@@ -1695,14 +1691,16 @@ open_office_window_setup_timer (OpenOfficeTimeoutArgs *args)
   if (bamf_legacy_window_is_closed (args->window))
   {
     g_object_unref (args->window);
+    g_free (args);
     return FALSE;
   }
 
   args->count++;
-  if (args->count > 20 || get_open_office_window_hint (args->matcher, args->window))  
+  if (args->count > 50 || get_open_office_window_hint (args->matcher, args->window))  
     {
       g_object_unref (args->window);
       handle_raw_window (args->matcher, args->window);
+      g_free (args);
       return FALSE;
     }
   
@@ -1846,20 +1844,16 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
                                             const char * desktopFile,
                                             gint pid)
 {
-  gint *key;
+  gpointer key;
   BamfLegacyScreen *screen;
   GList *glist_item;
   GList *windows;
-  char *dup;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (desktopFile);
 
-  key = g_new (gint, 1);
-  *key = pid;
-
-  dup = g_strdup (desktopFile);
-  g_hash_table_insert (self->priv->registered_pids, key, dup);
+  key = GINT_TO_POINTER (pid);
+  g_hash_table_insert (self->priv->registered_pids, key, g_strdup (desktopFile));
 
   /* fixme, this is a bit heavy */
 
@@ -2216,8 +2210,8 @@ bamf_matcher_init (BamfMatcher * self)
 
   priv->known_pids = g_array_new (FALSE, TRUE, sizeof (gint));
   priv->bad_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex *));
-  priv->registered_pids =
-    g_hash_table_new ((GHashFunc) g_int_hash, (GEqualFunc) g_int_equal);
+  priv->registered_pids = g_hash_table_new_full (g_direct_hash, g_direct_equal,
+                                                 NULL, g_free);
 
   prefixstrings = prefix_strings (self);
   for (i = 0; i < prefixstrings->len; i++)
