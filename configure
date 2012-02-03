@@ -14683,7 +14683,7 @@ rm -f core conftest.err conftest.$ac_objext \
 
 fi
 
-CFLAGS="$CFLAGS -Wall -Werror -lm"
+CFLAGS="$CFLAGS -Wall -lm"
 
 
 
