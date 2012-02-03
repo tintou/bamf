@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -26,9 +27,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <dbus/dbus.h>
-#include <dbus/dbus-glib.h>
-#include <dbus/dbus-glib-lowlevel.h>
 #include <gdk/gdk.h>
 #include <glib.h>
 #include <glib-object.h>
@@ -47,7 +45,8 @@
 #define BAMF_IS_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_MATCHER))
 #define BAMF_MATCHER_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_MATCHER, BamfMatcherClass))
 
-#define _NET_WM_DESKTOP_FILE			"_NET_WM_DESKTOP_FILE"
+#define _NET_WM_DESKTOP_FILE "_NET_WM_DESKTOP_FILE"
+#define WM_WINDOW_ROLE       "WM_WINDOW_ROLE"
 
 typedef struct _BamfMatcher BamfMatcher;
 typedef struct _BamfMatcherClass BamfMatcherClass;
@@ -55,12 +54,12 @@ typedef struct _BamfMatcherPrivate BamfMatcherPrivate;
 
 struct _BamfMatcherClass
 {
-  GObjectClass parent;
+  BamfDBusMatcherSkeletonClass parent;
 };
 
 struct _BamfMatcher
 {
-  GObject parent;
+  BamfDBusMatcherSkeleton parent;
 
   /* private */
   BamfMatcherPrivate *priv;
@@ -69,41 +68,43 @@ struct _BamfMatcher
 GType         bamf_matcher_get_type                      (void) G_GNUC_CONST;
 
 void          bamf_matcher_load_desktop_file             (BamfMatcher * self,
-                                                          char * desktop_file);
+                                                          const char * desktop_file);
 
 void          bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
-                                                          const char * desktopFile,
+                                                          const char *application,
                                                           gint pid);
 
-char        * bamf_matcher_get_active_application        (BamfMatcher *matcher);
+const char  * bamf_matcher_get_active_application        (BamfMatcher *matcher);
 
-char        * bamf_matcher_get_active_window             (BamfMatcher *matcher);
+const char  * bamf_matcher_get_active_window             (BamfMatcher *matcher);
 
-char        * bamf_matcher_application_for_xid           (BamfMatcher *matcher,
+const char  * bamf_matcher_application_for_xid           (BamfMatcher *matcher,
                                                           guint32 xid);
 
 gboolean      bamf_matcher_application_is_running        (BamfMatcher *matcher,
-                                                          char *application);
+                                                          const char *application);
 
-char       ** bamf_matcher_application_dbus_paths        (BamfMatcher *matcher);
+GVariant    * bamf_matcher_application_dbus_paths        (BamfMatcher *matcher);
 
-char       ** bamf_matcher_window_dbus_paths             (BamfMatcher *matcher);
+GVariant    * bamf_matcher_window_dbus_paths             (BamfMatcher *matcher);
 
-char        * bamf_matcher_dbus_path_for_application     (BamfMatcher *matcher,
-                                                          char *application);
+const char  * bamf_matcher_dbus_path_for_application     (BamfMatcher *matcher,
+                                                          const char *application);
 
-gboolean      bamf_matcher_register_favorites            (BamfMatcher *matcher,
-                                                          char **favorites,
-                                                          GError *error);
+void          bamf_matcher_register_favorites            (BamfMatcher *matcher,
+                                                          const char **favorites);
                                                           
 GList       * bamf_matcher_get_favorites                 (BamfMatcher *matcher);
 
-char       ** bamf_matcher_running_application_paths     (BamfMatcher *matcher);
+GVariant    * bamf_matcher_running_application_paths     (BamfMatcher *matcher);
 
-char       ** bamf_matcher_tab_dbus_paths                (BamfMatcher *matcher);
+GVariant    * bamf_matcher_tab_dbus_paths                (BamfMatcher *matcher);
 
-GArray      * bamf_matcher_xids_for_application          (BamfMatcher *matcher,
-                                                          char *application);
+GVariant    * bamf_matcher_xids_for_application          (BamfMatcher *matcher,
+                                                          const char *application);
+
+GVariant    * bamf_matcher_get_window_stack_for_monitor  (BamfMatcher *matcher,
+                                                          gint monitor);
 
 BamfMatcher * bamf_matcher_get_default                   (void);
 
