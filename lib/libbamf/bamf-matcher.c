@@ -56,6 +56,7 @@ enum
   VIEW_CLOSED,
   ACTIVE_APPLICATION_CHANGED,
   ACTIVE_WINDOW_CHANGED,
+  STACKING_ORDER_CHANGED,
   
   LAST_SIGNAL,
 };
@@ -79,41 +80,49 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
   g_type_class_add_private (obj_class, sizeof (BamfMatcherPrivate));
 
   matcher_signals [VIEW_OPENED] = 
-  	g_signal_new ("view-opened",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1, 
-  	              G_TYPE_OBJECT);
+    g_signal_new ("view-opened",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1, 
+                  G_TYPE_OBJECT);
 
   matcher_signals [VIEW_CLOSED] = 
-  	g_signal_new ("view-closed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1, 
-  	              G_TYPE_OBJECT);
-  
-  
+    g_signal_new ("view-closed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1, 
+                  G_TYPE_OBJECT);
+
+
   matcher_signals [ACTIVE_APPLICATION_CHANGED] = 
-  	g_signal_new ("active-application-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              bamf_marshal_VOID__OBJECT_OBJECT,
-  	              G_TYPE_NONE, 2, 
-  	              G_TYPE_OBJECT, G_TYPE_OBJECT);
+    g_signal_new ("active-application-changed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  bamf_marshal_VOID__OBJECT_OBJECT,
+                  G_TYPE_NONE, 2, 
+                  G_TYPE_OBJECT, G_TYPE_OBJECT);
 
   matcher_signals [ACTIVE_WINDOW_CHANGED] = 
-  	g_signal_new ("active-window-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              bamf_marshal_VOID__OBJECT_OBJECT,
-  	              G_TYPE_NONE, 2, 
-  	              G_TYPE_OBJECT, G_TYPE_OBJECT);
+    g_signal_new ("active-window-changed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  bamf_marshal_VOID__OBJECT_OBJECT,
+                  G_TYPE_NONE, 2, 
+                  G_TYPE_OBJECT, G_TYPE_OBJECT);
+
+  matcher_signals [STACKING_ORDER_CHANGED] = 
+    g_signal_new ("stacking-order-changed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
 }
 
 
@@ -183,6 +192,12 @@ bamf_matcher_on_active_window_changed (DBusGProxy *proxy,
     new_view = bamf_factory_view_for_path (bamf_factory_get_default (), new_path);
 
   g_signal_emit (matcher, matcher_signals[ACTIVE_WINDOW_CHANGED], 0, old_view, new_view);
+}
+
+static void
+bamf_matcher_on_stacking_order_changed (DBusGProxy *proxy, BamfMatcher *matcher)
+{
+  g_signal_emit (matcher, matcher_signals[STACKING_ORDER_CHANGED], 0);
 }
 
 static void
@@ -259,6 +274,15 @@ bamf_matcher_init (BamfMatcher *self)
   dbus_g_proxy_connect_signal (priv->proxy,
                                "ActiveWindowChanged",
                                (GCallback) bamf_matcher_on_active_window_changed,
+                               self, NULL);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "StackingOrderChanged",
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "StackingOrderChanged",
+                               (GCallback) bamf_matcher_on_stacking_order_changed,
                                self, NULL);
 }
 
@@ -453,7 +477,7 @@ bamf_matcher_get_applications (BamfMatcher *matcher)
   g_return_val_if_fail (array, NULL);
 
   len = g_strv_length (array);
-  for (i = 0; i < len; i++)
+  for (i = len-1; i >= 0; i--)
     {
       view = bamf_factory_view_for_path (bamf_factory_get_default (), array[i]);
 
@@ -494,7 +518,50 @@ bamf_matcher_get_windows (BamfMatcher *matcher)
   g_return_val_if_fail (array, NULL);
 
   len = g_strv_length (array);
-  for (i = 0; i < len; i++)
+  for (i = len-1; i >= 0; i--)
+    {
+      view = bamf_factory_view_for_path (bamf_factory_get_default (), array[i]);
+
+      if (view)
+        result = g_list_prepend (result, view);
+    }
+  
+  g_strfreev (array);
+  return result;
+}
+
+GList *
+bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
+{
+  BamfMatcherPrivate *priv;
+  BamfView *view;
+  char **array = NULL;
+  int i, len;
+  GList *result = NULL;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+  priv = matcher->priv;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "WindowStackForMonitor",
+                          &error,
+                          G_TYPE_INT,
+                          monitor,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRV, &array,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch paths: %s", error->message);
+      g_error_free (error);
+      
+      return FALSE;
+    }
+
+  g_return_val_if_fail (array, NULL);
+
+  len = g_strv_length (array);
+  for (i = len-1; i >= 0; i--)
     {
       view = bamf_factory_view_for_path (bamf_factory_get_default (), array[i]);
 
@@ -552,7 +619,7 @@ bamf_matcher_get_running_applications (BamfMatcher *matcher)
   g_return_val_if_fail (array, NULL);
 
   len = g_strv_length (array);
-  for (i = 0; i < len; i++)
+  for (i = len-1; i >= 0; i--)
     {
       view = bamf_factory_view_for_path (bamf_factory_get_default (), array[i]);
 

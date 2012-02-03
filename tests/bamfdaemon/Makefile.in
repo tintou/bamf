@@ -50,7 +50,8 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am__objects_1 = test_bamf-bamf-legacy-window.$(OBJEXT) \
+am__objects_1 = test_bamf-bamf-daemon.$(OBJEXT) \
+	test_bamf-bamf-legacy-window.$(OBJEXT) \
 	test_bamf-bamf-legacy-window-test.$(OBJEXT) \
 	test_bamf-bamf-legacy-screen.$(OBJEXT) \
 	test_bamf-bamf-view.$(OBJEXT) test_bamf-bamf-control.$(OBJEXT) \
@@ -60,7 +61,12 @@ am__objects_1 = test_bamf-bamf-legacy-window.$(OBJEXT) \
 	test_bamf-bamf-tab-source.$(OBJEXT) \
 	test_bamf-bamf-indicator.$(OBJEXT) \
 	test_bamf-bamf-indicator-source.$(OBJEXT) \
-	test_bamf-bamf-marshal.$(OBJEXT)
+	test_bamf-bamf-xutils.$(OBJEXT) \
+	test_bamf-bamf-marshal.$(OBJEXT) \
+	test_bamf-bamf-gdbus-generated.$(OBJEXT) \
+	test_bamf-bamf-gdbus-view-generated.$(OBJEXT) \
+	test_bamf-bamf-gdbus-browser-generated.$(OBJEXT) \
+	test_bamf-bamf-gdbus-indicator-source-generated.$(OBJEXT)
 am__objects_2 =
 am_test_bamf_OBJECTS = $(am__objects_1) $(am__objects_2) \
 	test_bamf-test-bamf.$(OBJEXT) test_bamf-test-view.$(OBJEXT) \
@@ -71,7 +77,7 @@ test_bamf_OBJECTS = $(am_test_bamf_OBJECTS)
 am__DEPENDENCIES_1 =
 test_bamf_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1)
 test_bamf_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(test_bamf_LDFLAGS) $(LDFLAGS) -o $@
@@ -125,6 +131,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+GDBUS_CODEGEN = @GDBUS_CODEGEN@
 GLIB_CFLAGS = @GLIB_CFLAGS@
 GLIB_GENMARSHAL = @GLIB_GENMARSHAL@
 GLIB_LIBS = @GLIB_LIBS@
@@ -252,7 +259,9 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+XVFB_RUN = $(srcdir)/run-xvfb.sh
 bamf_test_extra_sources = \
+		$(top_srcdir)/src/bamf-daemon.c \
 		$(top_srcdir)/src/bamf-legacy-window.c \
 		$(top_srcdir)/src/bamf-legacy-window-test.c \
 		$(top_srcdir)/src/bamf-legacy-screen.c \
@@ -265,15 +274,21 @@ bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-tab-source.c \
 		$(top_srcdir)/src/bamf-indicator.c \
 		$(top_srcdir)/src/bamf-indicator-source.c \
+		$(top_srcdir)/src/bamf-xutils.c \
 		$(top_builddir)/src/bamf-marshal.c \
+		$(top_builddir)/src/bamf-gdbus-generated.c \
+		$(top_builddir)/src/bamf-gdbus-view-generated.c \
+		$(top_builddir)/src/bamf-gdbus-browser-generated.c \
+		$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c \
 		$(NULL)
 
 bamf_test_extra_headers = \
 		$(top_srcdir)/src/main.h \
 		$(top_srcdir)/src/bamf.h \
+		$(top_srcdir)/src/bamf-daemon.h \
 		$(top_srcdir)/src/bamf-legacy-window.h \
 		$(top_srcdir)/src/bamf-legacy-window-test.h \
-	  $(top_srcdir)/src/bamf-legacy-screen.h \
+		$(top_srcdir)/src/bamf-legacy-screen.h \
 		$(top_srcdir)/src/bamf-view.h \
 		$(top_srcdir)/src/bamf-control.h \
 		$(top_srcdir)/src/bamf-matcher.h \
@@ -283,14 +298,12 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/bamf-application.h \
 		$(top_srcdir)/src/bamf-indicator-source.h \
 		$(top_srcdir)/src/bamf-indicator.h \
-		$(top_builddir)/src/bamf-application-glue.h \
-		$(top_builddir)/src/bamf-control-glue.h \
-		$(top_builddir)/src/bamf-matcher-glue.h \
-		$(top_builddir)/src/bamf-window-glue.h \
-		$(top_builddir)/src/bamf-view-glue.h \
+		$(top_srcdir)/src/bamf-xutils.h \
 		$(top_builddir)/src/bamf-marshal.h \
-		$(top_builddir)/src/bamf-indicator-glue.h \
-		$(top_builddir)/src/bamf-indicator-source-glue.h \
+		$(top_builddir)/src/bamf-gdbus-generated.h \
+		$(top_builddir)/src/bamf-gdbus-view-generated.h \
+		$(top_builddir)/src/bamf-gdbus-browser-generated.h \
+		$(top_builddir)/src/bamf-gdbus-indicator-source-generated.h \
 		$(NULL)
 
 test_bamf_SOURCES = \
@@ -311,7 +324,6 @@ test_bamf_CPPFLAGS = \
   $(GCC_FLAGS) \
   $(GTK_CFLAGS) \
   $(GLIB_CFLAGS) \
-  $(DBUS_CFLAGS) \
   $(WNCK_CFLAGS) \
   $(GTOP_CFLAGS) \
   $(MAINTAINER_CFLAGS)
@@ -319,7 +331,6 @@ test_bamf_CPPFLAGS = \
 test_bamf_LDADD = \
   $(X_LIBS) \
   $(GLIB_LIBS) \
-  $(DBUS_LIBS) \
   $(WNCK_LIBS) \
   $(GTOP_LIBS) \
   $(GTK_LIBS)
@@ -330,7 +341,6 @@ test_bamf_LDFLAGS = \
 
 
 # START HEADLESS TESTS
-@ENABLE_HEADLESS_TESTS_TRUE@DISPLAY = :27
 @ENABLE_HEADLESS_TESTS_TRUE@LOG_PATH = headless-logs
 all: all-am
 
@@ -387,6 +397,11 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-application.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-control.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-daemon.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-gdbus-browser-generated.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-gdbus-generated.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-gdbus-indicator-source-generated.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-gdbus-view-generated.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-indicator-source.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-indicator.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-legacy-screen.Po@am__quote@
@@ -398,6 +413,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-tab.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-view.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-window.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-bamf-xutils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-test-application.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-test-bamf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_bamf-test-matcher.Po@am__quote@
@@ -424,6 +440,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
+
+test_bamf-bamf-daemon.o: $(top_srcdir)/src/bamf-daemon.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-daemon.o -MD -MP -MF $(DEPDIR)/test_bamf-bamf-daemon.Tpo -c -o test_bamf-bamf-daemon.o `test -f '$(top_srcdir)/src/bamf-daemon.c' || echo '$(srcdir)/'`$(top_srcdir)/src/bamf-daemon.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-daemon.Tpo $(DEPDIR)/test_bamf-bamf-daemon.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/bamf-daemon.c' object='test_bamf-bamf-daemon.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-daemon.o `test -f '$(top_srcdir)/src/bamf-daemon.c' || echo '$(srcdir)/'`$(top_srcdir)/src/bamf-daemon.c
+
+test_bamf-bamf-daemon.obj: $(top_srcdir)/src/bamf-daemon.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-daemon.obj -MD -MP -MF $(DEPDIR)/test_bamf-bamf-daemon.Tpo -c -o test_bamf-bamf-daemon.obj `if test -f '$(top_srcdir)/src/bamf-daemon.c'; then $(CYGPATH_W) '$(top_srcdir)/src/bamf-daemon.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/bamf-daemon.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-daemon.Tpo $(DEPDIR)/test_bamf-bamf-daemon.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/bamf-daemon.c' object='test_bamf-bamf-daemon.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-daemon.obj `if test -f '$(top_srcdir)/src/bamf-daemon.c'; then $(CYGPATH_W) '$(top_srcdir)/src/bamf-daemon.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/bamf-daemon.c'; fi`
 
 test_bamf-bamf-legacy-window.o: $(top_srcdir)/src/bamf-legacy-window.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-legacy-window.o -MD -MP -MF $(DEPDIR)/test_bamf-bamf-legacy-window.Tpo -c -o test_bamf-bamf-legacy-window.o `test -f '$(top_srcdir)/src/bamf-legacy-window.c' || echo '$(srcdir)/'`$(top_srcdir)/src/bamf-legacy-window.c
@@ -593,6 +623,20 @@ test_bamf-bamf-indicator-source.obj: $(top_srcdir)/src/bamf-indicator-source.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-indicator-source.obj `if test -f '$(top_srcdir)/src/bamf-indicator-source.c'; then $(CYGPATH_W) '$(top_srcdir)/src/bamf-indicator-source.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/bamf-indicator-source.c'; fi`
 
+test_bamf-bamf-xutils.o: $(top_srcdir)/src/bamf-xutils.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-xutils.o -MD -MP -MF $(DEPDIR)/test_bamf-bamf-xutils.Tpo -c -o test_bamf-bamf-xutils.o `test -f '$(top_srcdir)/src/bamf-xutils.c' || echo '$(srcdir)/'`$(top_srcdir)/src/bamf-xutils.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-xutils.Tpo $(DEPDIR)/test_bamf-bamf-xutils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/bamf-xutils.c' object='test_bamf-bamf-xutils.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-xutils.o `test -f '$(top_srcdir)/src/bamf-xutils.c' || echo '$(srcdir)/'`$(top_srcdir)/src/bamf-xutils.c
+
+test_bamf-bamf-xutils.obj: $(top_srcdir)/src/bamf-xutils.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-xutils.obj -MD -MP -MF $(DEPDIR)/test_bamf-bamf-xutils.Tpo -c -o test_bamf-bamf-xutils.obj `if test -f '$(top_srcdir)/src/bamf-xutils.c'; then $(CYGPATH_W) '$(top_srcdir)/src/bamf-xutils.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/bamf-xutils.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-xutils.Tpo $(DEPDIR)/test_bamf-bamf-xutils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/bamf-xutils.c' object='test_bamf-bamf-xutils.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-xutils.obj `if test -f '$(top_srcdir)/src/bamf-xutils.c'; then $(CYGPATH_W) '$(top_srcdir)/src/bamf-xutils.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/bamf-xutils.c'; fi`
+
 test_bamf-bamf-marshal.o: $(top_builddir)/src/bamf-marshal.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-marshal.o -MD -MP -MF $(DEPDIR)/test_bamf-bamf-marshal.Tpo -c -o test_bamf-bamf-marshal.o `test -f '$(top_builddir)/src/bamf-marshal.c' || echo '$(srcdir)/'`$(top_builddir)/src/bamf-marshal.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-marshal.Tpo $(DEPDIR)/test_bamf-bamf-marshal.Po
@@ -606,6 +650,62 @@ test_bamf-bamf-marshal.obj: $(top_builddir)/src/bamf-marshal.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_builddir)/src/bamf-marshal.c' object='test_bamf-bamf-marshal.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-marshal.obj `if test -f '$(top_builddir)/src/bamf-marshal.c'; then $(CYGPATH_W) '$(top_builddir)/src/bamf-marshal.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/bamf-marshal.c'; fi`
+
+test_bamf-bamf-gdbus-generated.o: $(top_builddir)/src/bamf-gdbus-generated.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-gdbus-generated.o -MD -MP -MF $(DEPDIR)/test_bamf-bamf-gdbus-generated.Tpo -c -o test_bamf-bamf-gdbus-generated.o `test -f '$(top_builddir)/src/bamf-gdbus-generated.c' || echo '$(srcdir)/'`$(top_builddir)/src/bamf-gdbus-generated.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-gdbus-generated.Tpo $(DEPDIR)/test_bamf-bamf-gdbus-generated.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_builddir)/src/bamf-gdbus-generated.c' object='test_bamf-bamf-gdbus-generated.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-gdbus-generated.o `test -f '$(top_builddir)/src/bamf-gdbus-generated.c' || echo '$(srcdir)/'`$(top_builddir)/src/bamf-gdbus-generated.c
+
+test_bamf-bamf-gdbus-generated.obj: $(top_builddir)/src/bamf-gdbus-generated.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-gdbus-generated.obj -MD -MP -MF $(DEPDIR)/test_bamf-bamf-gdbus-generated.Tpo -c -o test_bamf-bamf-gdbus-generated.obj `if test -f '$(top_builddir)/src/bamf-gdbus-generated.c'; then $(CYGPATH_W) '$(top_builddir)/src/bamf-gdbus-generated.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/bamf-gdbus-generated.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-gdbus-generated.Tpo $(DEPDIR)/test_bamf-bamf-gdbus-generated.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_builddir)/src/bamf-gdbus-generated.c' object='test_bamf-bamf-gdbus-generated.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-gdbus-generated.obj `if test -f '$(top_builddir)/src/bamf-gdbus-generated.c'; then $(CYGPATH_W) '$(top_builddir)/src/bamf-gdbus-generated.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/bamf-gdbus-generated.c'; fi`
+
+test_bamf-bamf-gdbus-view-generated.o: $(top_builddir)/src/bamf-gdbus-view-generated.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-gdbus-view-generated.o -MD -MP -MF $(DEPDIR)/test_bamf-bamf-gdbus-view-generated.Tpo -c -o test_bamf-bamf-gdbus-view-generated.o `test -f '$(top_builddir)/src/bamf-gdbus-view-generated.c' || echo '$(srcdir)/'`$(top_builddir)/src/bamf-gdbus-view-generated.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-gdbus-view-generated.Tpo $(DEPDIR)/test_bamf-bamf-gdbus-view-generated.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_builddir)/src/bamf-gdbus-view-generated.c' object='test_bamf-bamf-gdbus-view-generated.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-gdbus-view-generated.o `test -f '$(top_builddir)/src/bamf-gdbus-view-generated.c' || echo '$(srcdir)/'`$(top_builddir)/src/bamf-gdbus-view-generated.c
+
+test_bamf-bamf-gdbus-view-generated.obj: $(top_builddir)/src/bamf-gdbus-view-generated.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-gdbus-view-generated.obj -MD -MP -MF $(DEPDIR)/test_bamf-bamf-gdbus-view-generated.Tpo -c -o test_bamf-bamf-gdbus-view-generated.obj `if test -f '$(top_builddir)/src/bamf-gdbus-view-generated.c'; then $(CYGPATH_W) '$(top_builddir)/src/bamf-gdbus-view-generated.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/bamf-gdbus-view-generated.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-gdbus-view-generated.Tpo $(DEPDIR)/test_bamf-bamf-gdbus-view-generated.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_builddir)/src/bamf-gdbus-view-generated.c' object='test_bamf-bamf-gdbus-view-generated.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-gdbus-view-generated.obj `if test -f '$(top_builddir)/src/bamf-gdbus-view-generated.c'; then $(CYGPATH_W) '$(top_builddir)/src/bamf-gdbus-view-generated.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/bamf-gdbus-view-generated.c'; fi`
+
+test_bamf-bamf-gdbus-browser-generated.o: $(top_builddir)/src/bamf-gdbus-browser-generated.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-gdbus-browser-generated.o -MD -MP -MF $(DEPDIR)/test_bamf-bamf-gdbus-browser-generated.Tpo -c -o test_bamf-bamf-gdbus-browser-generated.o `test -f '$(top_builddir)/src/bamf-gdbus-browser-generated.c' || echo '$(srcdir)/'`$(top_builddir)/src/bamf-gdbus-browser-generated.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-gdbus-browser-generated.Tpo $(DEPDIR)/test_bamf-bamf-gdbus-browser-generated.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_builddir)/src/bamf-gdbus-browser-generated.c' object='test_bamf-bamf-gdbus-browser-generated.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-gdbus-browser-generated.o `test -f '$(top_builddir)/src/bamf-gdbus-browser-generated.c' || echo '$(srcdir)/'`$(top_builddir)/src/bamf-gdbus-browser-generated.c
+
+test_bamf-bamf-gdbus-browser-generated.obj: $(top_builddir)/src/bamf-gdbus-browser-generated.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-gdbus-browser-generated.obj -MD -MP -MF $(DEPDIR)/test_bamf-bamf-gdbus-browser-generated.Tpo -c -o test_bamf-bamf-gdbus-browser-generated.obj `if test -f '$(top_builddir)/src/bamf-gdbus-browser-generated.c'; then $(CYGPATH_W) '$(top_builddir)/src/bamf-gdbus-browser-generated.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/bamf-gdbus-browser-generated.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-gdbus-browser-generated.Tpo $(DEPDIR)/test_bamf-bamf-gdbus-browser-generated.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_builddir)/src/bamf-gdbus-browser-generated.c' object='test_bamf-bamf-gdbus-browser-generated.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-gdbus-browser-generated.obj `if test -f '$(top_builddir)/src/bamf-gdbus-browser-generated.c'; then $(CYGPATH_W) '$(top_builddir)/src/bamf-gdbus-browser-generated.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/bamf-gdbus-browser-generated.c'; fi`
+
+test_bamf-bamf-gdbus-indicator-source-generated.o: $(top_builddir)/src/bamf-gdbus-indicator-source-generated.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-gdbus-indicator-source-generated.o -MD -MP -MF $(DEPDIR)/test_bamf-bamf-gdbus-indicator-source-generated.Tpo -c -o test_bamf-bamf-gdbus-indicator-source-generated.o `test -f '$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c' || echo '$(srcdir)/'`$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-gdbus-indicator-source-generated.Tpo $(DEPDIR)/test_bamf-bamf-gdbus-indicator-source-generated.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c' object='test_bamf-bamf-gdbus-indicator-source-generated.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-gdbus-indicator-source-generated.o `test -f '$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c' || echo '$(srcdir)/'`$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c
+
+test_bamf-bamf-gdbus-indicator-source-generated.obj: $(top_builddir)/src/bamf-gdbus-indicator-source-generated.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-bamf-gdbus-indicator-source-generated.obj -MD -MP -MF $(DEPDIR)/test_bamf-bamf-gdbus-indicator-source-generated.Tpo -c -o test_bamf-bamf-gdbus-indicator-source-generated.obj `if test -f '$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c'; then $(CYGPATH_W) '$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/test_bamf-bamf-gdbus-indicator-source-generated.Tpo $(DEPDIR)/test_bamf-bamf-gdbus-indicator-source-generated.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c' object='test_bamf-bamf-gdbus-indicator-source-generated.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o test_bamf-bamf-gdbus-indicator-source-generated.obj `if test -f '$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c'; then $(CYGPATH_W) '$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c'; fi`
 
 test_bamf-test-bamf.o: test-bamf.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_bamf_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT test_bamf-test-bamf.o -MD -MP -MF $(DEPDIR)/test_bamf-test-bamf.Tpo -c -o test_bamf-test-bamf.o `test -f 'test-bamf.c' || echo '$(srcdir)/'`test-bamf.c
@@ -886,18 +986,18 @@ uninstall-am:
 @ENABLE_HEADLESS_TESTS_FALSE@check-local: test
 
 test:
-	@gtester -k -o=test-bamf-results.xml ./test-bamf
+	@gtester --verbose -k -o=test-bamf-results.xml ./test-bamf
 
 .PHONY: check-report full-report
 check-report:
-	@gtester -k -o=test-bamf-results.xml -k ./test-bamf \
+	@gtester --verbose -k -o=test-bamf-results.xml -k ./test-bamf \
 		&& ( gtester-report test-bamf-results.xml \
 				| sed 's/GTester Unit Test Report</>GTester Unit Test Report (normal)</' \
 				> test-bamf-results.html ) \
 		&& gnome-open ./test-bamf-results.html
 
 full-report:
-		@gtester -k -o=test-bamf-results.xml -k -m=slow ./test-bamf \
+		@gtester --verbose-k -o=test-bamf-results.xml -k -m=slow ./test-bamf \
 	  && ( gtester-report test-bamf-results.xml \
 	      | sed 's/>GTester Unit Test Report</>GTester Unit Test Report (normal)</' \
 	      > test-bamf-results.html )
@@ -906,22 +1006,18 @@ clean-generic:
 	rm -f test-bamf-results.xml test-bamf-results.html
 @ENABLE_HEADLESS_TESTS_TRUE@test-headless:
 @ENABLE_HEADLESS_TESTS_TRUE@	set -e; \
-@ENABLE_HEADLESS_TESTS_TRUE@	export DISPLAY=$(DISPLAY); \
 @ENABLE_HEADLESS_TESTS_TRUE@	rm -rf $(LOG_PATH); \
 @ENABLE_HEADLESS_TESTS_TRUE@	mkdir $(LOG_PATH); \
-@ENABLE_HEADLESS_TESTS_TRUE@	$(XVFB) $(DISPLAY) -screen 0 1024x768x8 > $(LOG_PATH)/Xvfb.out 2>&1 & \
-@ENABLE_HEADLESS_TESTS_TRUE@	sleep 1; \
+@ENABLE_HEADLESS_TESTS_TRUE@	export LOG_PATH=$(LOG_PATH); \
+@ENABLE_HEADLESS_TESTS_TRUE@	export XVFB_PATH=$(XVFB); \
+@ENABLE_HEADLESS_TESTS_TRUE@	export DISPLAY=""; \
+@ENABLE_HEADLESS_TESTS_TRUE@	source $(XVFB_RUN); \
 @ENABLE_HEADLESS_TESTS_TRUE@	\
 @ENABLE_HEADLESS_TESTS_TRUE@	$(DBUS_LAUNCH) > $(LOG_PATH)/sessionbus.sh; \
 @ENABLE_HEADLESS_TESTS_TRUE@	source $(LOG_PATH)/sessionbus.sh; \
-@ENABLE_HEADLESS_TESTS_TRUE@	sleep 1; \
+@ENABLE_HEADLESS_TESTS_TRUE@	sleep 3; \
 @ENABLE_HEADLESS_TESTS_TRUE@	\
-@ENABLE_HEADLESS_TESTS_TRUE@	make test; \
-@ENABLE_HEADLESS_TESTS_TRUE@	sleep 1; \
-@ENABLE_HEADLESS_TESTS_TRUE@	\
-@ENABLE_HEADLESS_TESTS_TRUE@	kill `grep DBUS_SESSION_BUS_PID $(LOG_PATH)/sessionbus.sh | grep -oE '[0-9]+'`; \
-@ENABLE_HEADLESS_TESTS_TRUE@	pkill Xvfb;
-
+@ENABLE_HEADLESS_TESTS_TRUE@	make test;
 # END HEADLESS TESTS
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
