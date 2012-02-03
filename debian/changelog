@@ -1,6 +1,11 @@
 bamf (0.2.108-0ubuntu1) UNRELEASED; urgency=low
 
   * New upstream release.
+    - BAMF does not pass make check (LP: #897148)
+    - BAMF requires a headless testing target (LP: #897150)
+    - Clicking Nautilus launcher icon fails to open a Nautilus file explorer
+      window when  copying a file and all other Nautilus windows are closed /
+      bamf should skip the taskbar (LP: #784804)
   * debian/libbamf0.symbols, debian/libbamf3-0.symbols:
     - updated symbols
 
