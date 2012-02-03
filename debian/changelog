@@ -1,10 +1,11 @@
-bamf (0.2.108-0ubuntu2) UNRELEASED; urgency=low
+bamf (0.2.108-0ubuntu2) precise; urgency=low
 
-  * remove -Werror for now as there is new glib deprecation making FTBFS.
+  * remove -Werror for now as there is just new glib deprecation making it
+    FTBFS.
   * debian/source/
     - remove, doesn't play well with merge-upstream workflow
 
- -- Didier Roche <didrocks@ubuntu.com>  Fri, 03 Feb 2012 14:02:37 +0100
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 03 Feb 2012 14:04:28 +0100
 
 bamf (0.2.108-0ubuntu1) precise; urgency=low
 
