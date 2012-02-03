@@ -1,4 +1,4 @@
-bamf (0.2.108-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.108-0ubuntu1) precise; urgency=low
 
   * New upstream release.
     - BAMF does not pass make check (LP: #897148)
@@ -9,7 +9,7 @@ bamf (0.2.108-0ubuntu1) UNRELEASED; urgency=low
   * debian/libbamf0.symbols, debian/libbamf3-0.symbols:
     - updated symbols
 
- -- Didier Roche <didrocks@ubuntu.com>  Fri, 03 Feb 2012 08:18:30 +0100
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 03 Feb 2012 11:36:48 +0100
 
 bamf (0.2.106-0ubuntu1) precise; urgency=low
 
