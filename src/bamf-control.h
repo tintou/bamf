@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Canonical Ltd
+ * Copyright (C) 2010-2011 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -24,8 +25,7 @@
 #include "bamf.h"
 #include <glib.h>
 #include <glib-object.h>
-#include <dbus/dbus-glib.h>
-#include <dbus/dbus-glib-lowlevel.h>
+#include <gio/gio.h>
 
 #define BAMF_TYPE_CONTROL			(bamf_control_get_type ())
 #define BAMF_CONTROL(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_CONTROL, BamfControl))
@@ -40,12 +40,12 @@ typedef struct _BamfControlPrivate BamfControlPrivate;
 
 struct _BamfControlClass
 {
-  GObjectClass parent;
+  BamfDBusControlSkeletonClass parent;
 };
 
 struct _BamfControl
 {
-  GObject parent;
+  BamfDBusControlSkeleton parent;
 
   /* private */
   BamfControlPrivate *priv;
@@ -53,25 +53,21 @@ struct _BamfControl
 
 GType         bamf_control_get_type                     (void) G_GNUC_CONST;
 
-gboolean      bamf_control_register_application_for_pid (BamfControl *control,
-                                                         char *application,
-                                                         gint32 pid,
-                                                         GError **error);
+void          bamf_control_register_application_for_pid (BamfControl *control,
+                                                         const char *application,
+                                                         gint32 pid);
 
-gboolean      bamf_control_register_tab_provider        (BamfControl *control,
-                                                         char *path,
-                                                         DBusGMethodInvocation *context);
+void          bamf_control_register_tab_provider        (BamfControl *control,
+                                                         const char *sender,
+                                                         const char *path);
 
-gboolean      bamf_control_insert_desktop_file          (BamfControl *control,
-                                                         char *path,
-                                                         GError **error);
+void          bamf_control_insert_desktop_file          (BamfControl *control,
+                                                         const char *path);
 
-gboolean      bamf_control_set_approver_behavior        (BamfControl *control,
-                                                         gint32 behavior,
-                                                         GError **error);
+void          bamf_control_set_approver_behavior        (BamfControl *control,
+                                                         gint32 behavior);
 
-gboolean      bamf_control_quit                         (BamfControl *control,
-                                                         GError **error);
+void          bamf_control_quit                         (BamfControl *control);
 
 BamfControl * bamf_control_get_default                  (void);
 

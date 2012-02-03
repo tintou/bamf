@@ -30,6 +30,14 @@ extern void bamf_marshal_VOID__OBJECT_OBJECT (GClosure     *closure,
                                               gpointer      invocation_hint,
                                               gpointer      marshal_data);
 
+/* VOID:INT,INT (./bamf-marshal.list:23) */
+extern void bamf_marshal_VOID__INT_INT (GClosure     *closure,
+                                        GValue       *return_value,
+                                        guint         n_param_values,
+                                        const GValue *param_values,
+                                        gpointer      invocation_hint,
+                                        gpointer      marshal_data);
+
 G_END_DECLS
 
 #endif /* __bamf_marshal_MARSHAL_H__ */

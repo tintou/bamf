@@ -1,0 +1,143 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="org.ayatana.bamf.view">
+    <method name="ViewType">
+      <arg name="view_type" type="s" direction="out"/>
+    </method>
+    <method name="UserVisible">
+      <arg name="visible" type="b" direction="out"/>
+    </method>
+    <method name="Icon">
+      <arg name="name" type="s" direction="out"/>
+    </method>
+    <method name="Name">
+      <arg name="name" type="s" direction="out"/>
+    </method>
+    <method name="IsUrgent">
+      <arg name="urgent" type="b" direction="out"/>
+    </method>
+    <method name="IsRunning">
+      <arg name="running" type="b" direction="out"/>
+    </method>
+    <method name="IsActive">
+      <arg name="active" type="b" direction="out"/>
+    </method>
+    <method name="Parents">
+      <arg name="parents_paths" type="as" direction="out"/>
+    </method>
+    <method name="Children">
+      <arg name="children_paths" type="as" direction="out"/>
+    </method>
+    <signal name="NameChanged">
+      <arg name="old_name" type="s"/>
+      <arg name="new_name" type="s"/>
+    </signal>
+    <signal name="UserVisibleChanged">
+      <arg name="user_visible" type="b"/>
+    </signal>
+    <signal name="UrgentChanged">
+      <arg name="is_urgent" type="b"/>
+    </signal>
+    <signal name="RunningChanged">
+      <arg name="is_running" type="b"/>
+    </signal>
+    <signal name="ChildRemoved">
+      <arg name="path" type="s"/>
+    </signal>
+    <signal name="ChildAdded">
+      <arg name="path" type="s"/>
+    </signal>
+    <signal name="Closed">
+    </signal>
+    <signal name="ActiveChanged">
+      <arg name="is_active" type="b"/>
+    </signal>
+    <property name="UserVisible" type="b" access="read"/>
+    <property name="Running" type="b" access="read"/>
+    <property name="Urgent" type="b" access="read"/>
+    <property name="Active" type="b" access="read"/>
+  </interface>
+
+  <interface name="org.ayatana.bamf.application">
+    <method name="ShowStubs">
+      <arg name="show_stubs" type="b" direction="out"/>
+    </method>
+    <method name="Xids">
+      <arg name="xids" type="au" direction="out"/>
+    </method>
+    <method name="DesktopFile">
+      <arg name="desktop_file" type="s" direction="out"/>
+    </method>
+    <method name="ApplicationType">
+      <arg name="type" type="s" direction="out"/>
+    </method>
+    <signal name="WindowRemoved">
+      <arg name="path" type="s"/>
+    </signal>
+    <signal name="WindowAdded">
+      <arg name="path" type="s"/>
+    </signal>
+  </interface>
+
+  <interface name="org.ayatana.bamf.window">
+    <method name="GetXid">
+      <arg name="xid" type="u" direction="out"/>
+    </method>
+    <method name="Transient">
+      <arg name="path" type="s" direction="out"/>
+    </method>
+    <method name="WindowType">
+      <arg name="type" type="u" direction="out"/>
+    </method>
+    <method name="ApplicationID">
+      <arg name="id" type="s" direction="out"/>
+    </method>
+    <method name="UniqueBusName">
+      <arg name="name" type="s" direction="out"/>
+    </method>
+    <method name="DBusMenuObjectPath">
+      <arg name="object_path" type="s" direction="out"/>
+    </method>
+    <method name="Monitor">
+      <arg name="monitor_number" type="i" direction="out"/>
+    </method>
+    <method name="Maximized">
+      <arg name="maximized" type="i" direction="out"/>
+    </method>
+    <signal name="MonitorChanged">
+      <arg name="old" type="i" direction="out"/>
+      <arg name="new" type="i" direction="out"/>
+    </signal>
+    <signal name="MaximizedChanged">
+      <arg name="old" type="i" direction="out"/>
+      <arg name="new" type="i" direction="out"/>
+    </signal>
+  </interface>
+
+  <interface name="org.ayatana.bamf.indicator">
+    <method name="Path">
+      <arg type="s" name="path" direction="out"/>
+    </method>
+    <method name="Address">
+      <arg type="s" name="address" direction="out"/>
+    </method>
+  </interface>
+
+  <interface name="org.ayatana.bamf.tab">
+    <method name="ShowTab"/>
+    <method name="ParentXid">
+      <arg type="u" name="xid" direction="out"/>
+    </method>
+    <method name="CurrentUri">
+      <arg type="s" name="uri" direction="out"/>
+    </method>
+    <method name="Preview">
+      <arg type="ay" name="data" direction="out"/>
+    </method>
+    <signal name="UriChanged">
+      <arg type="s" name="old" direction="out"/>
+      <arg type="s" name="new" direction="out"/>
+    </signal>
+  </interface>
+</node>
