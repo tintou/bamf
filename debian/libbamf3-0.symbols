@@ -22,6 +22,7 @@ libbamf3.so.0 libbamf3-0 #MINVER#
  bamf_indicator_get_remote_path@Base 0.2.36
  bamf_indicator_get_type@Base 0.2.36
  bamf_indicator_new@Base 0.2.36
+ bamf_marshal_VOID__INT_INT@Base 0.2.108
  bamf_marshal_VOID__OBJECT_OBJECT@Base 0.2.24
  bamf_marshal_VOID__STRING_STRING@Base 0.2.20
  bamf_marshal_VOID__STRING_STRING_STRING@Base 0.2.20
@@ -36,6 +37,7 @@ libbamf3.so.0 libbamf3-0 #MINVER#
  bamf_matcher_get_running_applications@Base 0.2.20
  bamf_matcher_get_tabs@Base 0.2.20
  bamf_matcher_get_type@Base 0.2.20
+ bamf_matcher_get_window_stack_for_monitor@Base 0.2.108
  bamf_matcher_get_windows@Base 0.2.46
  bamf_matcher_get_xids_for_application@Base 0.2.20
  bamf_matcher_register_favorites@Base 0.2.46
@@ -71,11 +73,16 @@ libbamf3.so.0 libbamf3-0 #MINVER#
  bamf_view_set_path@Base 0.2.60
  bamf_view_set_sticky@Base 0.2.60
  bamf_view_user_visible@Base 0.2.20
+ bamf_window_get_application_id@Base 0.2.108
+ bamf_window_get_dbus_menu_object_path@Base 0.2.108
+ bamf_window_get_monitor@Base 0.2.108
  bamf_window_get_transient@Base 0.2.28
  bamf_window_get_type@Base 0.2.20
+ bamf_window_get_unique_bus_name@Base 0.2.108
  bamf_window_get_window_type@Base 0.2.46
  bamf_window_get_xid@Base 0.2.20
  bamf_window_last_active@Base 0.2.30
+ bamf_window_maximized@Base 0.2.108
  bamf_window_new@Base 0.2.20
  dbus_glib_bamf_tab_source_object_info@Base 0.2.20
  dbus_glib_marshal_bamf_tab_source_BOOLEAN__STRING_POINTER@Base 0.2.20
