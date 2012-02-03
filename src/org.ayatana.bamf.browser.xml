@@ -1,0 +1,35 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="org.ayatana.bamf.browser">
+    <method name="TabIds">
+      <arg name="ids" type="as" direction="out"/>
+    </method>
+    <method name="ShowTab">
+      <arg name="id" type="s" direction="in"/>
+    </method>
+    <method name="TabUri">
+      <arg name="id" type="s" direction="in"/>
+      <arg name="uri" type="s" direction="out"/>
+    </method>
+    <method name="TabPreview">
+      <arg name="id" type="s" direction="in"/>
+      <arg name="preview" type="ay" direction="out"/>
+    </method>
+    <method name="TabXid">
+      <arg name="id" type="s" direction="in"/>
+      <arg name="xid" type="u" direction="out"/>
+    </method>
+    <signal name="TabOpened">
+      <arg name="id" type="s"/>
+    </signal>
+    <signal name="TabClosed">
+      <arg name="id" type="s"/>
+    </signal>
+    <signal name="TabUriChanged">
+      <arg name="id" type="s"/>
+      <arg name="old_uri" type="s"/>
+      <arg name="new_uri" type="s"/>
+    </signal>
+  </interface>
+</node>

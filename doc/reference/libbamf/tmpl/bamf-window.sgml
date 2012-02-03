@@ -32,6 +32,8 @@ BamfWindow
 </para>
 
 @parent_class: 
+@monitor_changed: 
+@maximized_changed: 
 
 <!-- ##### STRUCT BamfWindowPrivate ##### -->
 <para>

@@ -1,7 +1,10 @@
 noinst_PROGRAMS = \
   test-bamf
 
+XVFB_RUN=$(srcdir)/run-xvfb.sh
+
 bamf_test_extra_sources = \
+		$(top_srcdir)/src/bamf-daemon.c \
 		$(top_srcdir)/src/bamf-legacy-window.c \
 		$(top_srcdir)/src/bamf-legacy-window-test.c \
 		$(top_srcdir)/src/bamf-legacy-screen.c \
@@ -11,18 +14,24 @@ bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-application.c \
 		$(top_srcdir)/src/bamf-window.c \
 		$(top_srcdir)/src/bamf-tab.c \
-		$(top_srcdir)/src/bamf-tab-source.c \		
+		$(top_srcdir)/src/bamf-tab-source.c \
 		$(top_srcdir)/src/bamf-indicator.c \
 		$(top_srcdir)/src/bamf-indicator-source.c \
+		$(top_srcdir)/src/bamf-xutils.c \
 		$(top_builddir)/src/bamf-marshal.c \
+		$(top_builddir)/src/bamf-gdbus-generated.c \
+		$(top_builddir)/src/bamf-gdbus-view-generated.c \
+		$(top_builddir)/src/bamf-gdbus-browser-generated.c \
+		$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c \
 		$(NULL)
 
 bamf_test_extra_headers = \
 		$(top_srcdir)/src/main.h \
 		$(top_srcdir)/src/bamf.h \
+		$(top_srcdir)/src/bamf-daemon.h \
 		$(top_srcdir)/src/bamf-legacy-window.h \
 		$(top_srcdir)/src/bamf-legacy-window-test.h \
-	  $(top_srcdir)/src/bamf-legacy-screen.h \
+		$(top_srcdir)/src/bamf-legacy-screen.h \
 		$(top_srcdir)/src/bamf-view.h \
 		$(top_srcdir)/src/bamf-control.h \
 		$(top_srcdir)/src/bamf-matcher.h \
@@ -32,14 +41,12 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/bamf-application.h \
 		$(top_srcdir)/src/bamf-indicator-source.h \
 		$(top_srcdir)/src/bamf-indicator.h \
-		$(top_builddir)/src/bamf-application-glue.h \
-		$(top_builddir)/src/bamf-control-glue.h \
-		$(top_builddir)/src/bamf-matcher-glue.h \
-		$(top_builddir)/src/bamf-window-glue.h \
-		$(top_builddir)/src/bamf-view-glue.h \
+		$(top_srcdir)/src/bamf-xutils.h \
 		$(top_builddir)/src/bamf-marshal.h \
-		$(top_builddir)/src/bamf-indicator-glue.h \
-		$(top_builddir)/src/bamf-indicator-source-glue.h \
+		$(top_builddir)/src/bamf-gdbus-generated.h \
+		$(top_builddir)/src/bamf-gdbus-view-generated.h \
+		$(top_builddir)/src/bamf-gdbus-browser-generated.h \
+		$(top_builddir)/src/bamf-gdbus-indicator-source-generated.h \
 		$(NULL)
 
 test_bamf_SOURCES = \
@@ -60,7 +67,6 @@ test_bamf_CPPFLAGS = \
   $(GCC_FLAGS) \
   $(GTK_CFLAGS) \
   $(GLIB_CFLAGS) \
-  $(DBUS_CFLAGS) \
   $(WNCK_CFLAGS) \
   $(GTOP_CFLAGS) \
   $(MAINTAINER_CFLAGS)
@@ -68,7 +74,6 @@ test_bamf_CPPFLAGS = \
 test_bamf_LDADD = \
   $(X_LIBS) \
   $(GLIB_LIBS) \
-  $(DBUS_LIBS) \
   $(WNCK_LIBS) \
   $(GTOP_LIBS) \
   $(GTK_LIBS)
@@ -85,18 +90,18 @@ check-local: test
 endif
 
 test:
-	@gtester -k -o=test-bamf-results.xml ./test-bamf
+	@gtester --verbose -k -o=test-bamf-results.xml ./test-bamf
 
 .PHONY: check-report full-report
 check-report:
-	@gtester -k -o=test-bamf-results.xml -k ./test-bamf \
+	@gtester --verbose -k -o=test-bamf-results.xml -k ./test-bamf \
 		&& ( gtester-report test-bamf-results.xml \
 				| sed 's/GTester Unit Test Report</>GTester Unit Test Report (normal)</' \
 				> test-bamf-results.html ) \
 		&& gnome-open ./test-bamf-results.html
 
 full-report:
-		@gtester -k -o=test-bamf-results.xml -k -m=slow ./test-bamf \
+		@gtester --verbose-k -o=test-bamf-results.xml -k -m=slow ./test-bamf \
 	  && ( gtester-report test-bamf-results.xml \
 	      | sed 's/>GTester Unit Test Report</>GTester Unit Test Report (normal)</' \
 	      > test-bamf-results.html )
@@ -106,25 +111,20 @@ clean-generic:
 
 # START HEADLESS TESTS
 if ENABLE_HEADLESS_TESTS
-DISPLAY = :27
 LOG_PATH = headless-logs
 test-headless:
 	set -e; \
-	export DISPLAY=$(DISPLAY); \
 	rm -rf $(LOG_PATH); \
 	mkdir $(LOG_PATH); \
-	$(XVFB) $(DISPLAY) -screen 0 1024x768x8 > $(LOG_PATH)/Xvfb.out 2>&1 & \
-	sleep 1; \
+	export LOG_PATH=$(LOG_PATH); \
+	export XVFB_PATH=$(XVFB); \
+	export DISPLAY=""; \
+	source $(XVFB_RUN); \
 	\
 	$(DBUS_LAUNCH) > $(LOG_PATH)/sessionbus.sh; \
 	source $(LOG_PATH)/sessionbus.sh; \
-	sleep 1; \
+	sleep 3; \
 	\
-	make test; \
-	sleep 1; \
-	\
-	kill `grep DBUS_SESSION_BUS_PID $(LOG_PATH)/sessionbus.sh | grep -oE '[0-9]+'`; \
-	pkill Xvfb;
-	
+	make test;
 endif
 # END HEADLESS TESTS

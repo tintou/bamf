@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Canonical Ltd
+ * Copyright (C) 2010-2011 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -14,15 +14,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
-
 
 #include "bamf-view.h"
 #include "bamf-tab-source.h"
 #include "bamf-tab.h"
 #include "bamf-marshal.h"
-#include <dbus/dbus-glib.h>
+#include "bamf-gdbus-browser-generated.h"
 
 G_DEFINE_TYPE (BamfTabSource, bamf_tab_source, G_TYPE_OBJECT);
 #define BAMF_TAB_SOURCE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -51,9 +51,9 @@ static guint bamf_tab_source_signals[LAST_SIGNAL] = { 0 };
 
 struct _BamfTabSourcePrivate
 {
+  BamfDBusBrowser *proxy;
   char       *bus;
   char       *path;
-  DBusGProxy *proxy;
   GHashTable *tabs;
 };
 
@@ -67,12 +67,7 @@ bamf_tab_source_tab_ids (BamfTabSource *self)
   g_return_val_if_fail (BAMF_IS_TAB_SOURCE (self), NULL);
   priv = self->priv;
 
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "TabIds",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRV, &ids,
-                          G_TYPE_INVALID))
+  if (!bamf_dbus_browser__call_tab_ids_sync (priv->proxy, &ids, NULL, &error))
     {
       g_warning ("Failed to get tab ids: %s", error->message);
       g_error_free (error);
@@ -83,8 +78,7 @@ bamf_tab_source_tab_ids (BamfTabSource *self)
 }
 
 void
-bamf_tab_source_show_tab (BamfTabSource *self,
-                          char *id)
+bamf_tab_source_show_tab (BamfTabSource *self, char *id)
 {
   BamfTabSourcePrivate *priv;
   GError *error = NULL;
@@ -92,36 +86,26 @@ bamf_tab_source_show_tab (BamfTabSource *self,
   g_return_if_fail (BAMF_IS_TAB_SOURCE (self));
   priv = self->priv;
 
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "ShowTab",
-                          &error,
-                          G_TYPE_STRING, id,
-                          G_TYPE_INVALID,
-                          G_TYPE_INVALID))
+  if (!bamf_dbus_browser__call_show_tab_sync (priv->proxy, id, NULL, &error))
     {
       g_warning ("Failed to show tab: %s", error->message);
       g_error_free (error);
     }
 }
 
-GArray *
+gchar *
 bamf_tab_source_get_tab_preview (BamfTabSource *self,
                                  char *id)
 {
   BamfTabSourcePrivate *priv;
   GError *error = NULL;
-  GArray *preview_data = NULL;
+  gchar *preview_data = NULL;
 
   g_return_val_if_fail (BAMF_IS_TAB_SOURCE (self), NULL);
   priv = self->priv;
 
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "TabUri",
-                          &error,
-                          G_TYPE_STRING, id,
-                          G_TYPE_INVALID,
-                          G_TYPE_ARRAY, &preview_data,
-                          G_TYPE_INVALID))
+  if (!bamf_dbus_browser__call_tab_preview_sync (priv->proxy, id, &preview_data,
+                                                 NULL, &error))
     {
       g_warning ("Failed to get tab preview data: %s", error->message);
       g_error_free (error);
@@ -142,13 +126,7 @@ bamf_tab_source_get_tab_uri (BamfTabSource *self,
   g_return_val_if_fail (BAMF_IS_TAB_SOURCE (self), NULL);
   priv = self->priv;
 
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "TabUri",
-                          &error,
-                          G_TYPE_STRING, id,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &uri,
-                          G_TYPE_INVALID))
+  if (!bamf_dbus_browser__call_tab_uri_sync (priv->proxy, id, &uri, NULL, &error))
     {
       g_warning ("Failed to get tab URI: %s", error->message);
       g_error_free (error);
@@ -169,13 +147,7 @@ bamf_tab_source_get_tab_xid (BamfTabSource *self,
   g_return_val_if_fail (BAMF_IS_TAB_SOURCE (self), 0);
   priv = self->priv;
 
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "TabXid",
-                          &error,
-                          G_TYPE_STRING, id,
-                          G_TYPE_INVALID,
-                          G_TYPE_UINT, &xid,
-                          G_TYPE_INVALID))
+  if (!bamf_dbus_browser__call_tab_xid_sync (priv->proxy, id, &xid, NULL, &error))
     {
       g_warning ("Failed to get tab XID: %s", error->message);
       g_error_free (error);
@@ -186,7 +158,8 @@ bamf_tab_source_get_tab_xid (BamfTabSource *self,
 }
 
 static void
-bamf_tab_source_on_tab_opened (DBusGProxy *proxy, char *id, BamfTabSource *source)
+bamf_tab_source_on_tab_opened (BamfDBusBrowser *proxy, const char *id,
+                               BamfTabSource *source)
 {
   BamfTab *tab;
 
@@ -201,7 +174,8 @@ bamf_tab_source_on_tab_opened (DBusGProxy *proxy, char *id, BamfTabSource *sourc
 }
 
 static void
-bamf_tab_source_on_tab_closed (DBusGProxy *proxy, char *id, BamfTabSource *source)
+bamf_tab_source_on_tab_closed (BamfDBusBrowser *proxy, const char *id,
+                               BamfTabSource *source)
 {
   BamfTab *tab;
 
@@ -221,7 +195,8 @@ bamf_tab_source_on_tab_closed (DBusGProxy *proxy, char *id, BamfTabSource *sourc
 }
 
 static void
-bamf_tab_source_on_uri_changed (DBusGProxy *proxy, char *id, char *old_uri, char *new_uri, BamfTabSource *source)
+bamf_tab_source_on_uri_changed (BamfDBusBrowser *proxy, const char *id,
+                                const char *old_uri, char *new_uri, BamfTabSource *source)
 {
   g_signal_emit (source, REMOTE_TAB_URI_CHANGED, 0, id, old_uri, new_uri);
 }
@@ -266,13 +241,82 @@ bamf_tab_source_get_property (GObject *object, guint property_id, GValue *value,
     }
 }
 
+static void bamf_tab_source_reconnect (GObject *object, GParamSpec *pspec, BamfTabSource *self);
+
+static void
+on_proxy_ready_cb (GDBusProxy *proxy, GAsyncResult *res, BamfTabSource *self)
+{
+  BamfDBusBrowser *bproxy;
+  GError *error = NULL;
+  g_return_if_fail (BAMF_IS_TAB_SOURCE (self));
+
+  bproxy = bamf_dbus_browser__proxy_new_for_bus_finish (res, &error);
+
+  if (error)
+    {
+      g_critical ("Unable to get org.ayatana.bamf.browser object from bus %s: %s",
+                  self->priv->bus, error->message);
+      g_error_free (error);
+    }
+  else
+    {
+      gchar *owner = g_dbus_proxy_get_name_owner (G_DBUS_PROXY (bproxy));
+
+      if (owner)
+        {
+          g_free (owner);
+
+          if (self->priv->proxy)
+            g_object_unref (self->priv->proxy);
+
+          self->priv->proxy = bproxy;
+
+          g_signal_connect (self->priv->proxy, "tab-uri-changed",
+                            (GCallback) bamf_tab_source_on_uri_changed, self);
+
+          g_signal_connect (self->priv->proxy, "tab-opened",
+                            (GCallback) bamf_tab_source_on_tab_opened, self);
+
+          g_signal_connect (self->priv->proxy, "tab-closed",
+                            (GCallback) bamf_tab_source_on_tab_closed, self);
+
+          g_signal_connect (self->priv->proxy, "notify::g-name-owner",
+                            G_CALLBACK (bamf_tab_source_reconnect), self);
+
+        }
+      else
+        {
+           g_debug ("Failed to get notification approver proxy: no owner available");
+           g_object_unref (proxy);
+        }
+    }
+}
+
+static void
+bamf_tab_source_reconnect (GObject *object, GParamSpec *pspec, BamfTabSource *self)
+{
+  g_return_if_fail (BAMF_IS_TAB_SOURCE (self));
+
+  if (self->priv->proxy)
+    {
+      g_object_unref (self->priv->proxy);
+      self->priv->proxy = NULL;
+    }
+
+  bamf_dbus_browser__proxy_new_for_bus (G_BUS_TYPE_SESSION,
+                                        G_DBUS_PROXY_FLAGS_NONE,
+                                        self->priv->bus,
+                                        self->priv->path,
+                                        NULL,
+                                        (GAsyncReadyCallback) on_proxy_ready_cb,
+                                        self);
+}
+
 static void
 bamf_tab_source_constructed (GObject *object)
 {
   BamfTabSource *source;
   BamfTabSourcePrivate *priv;
-  DBusGConnection *connection;
-  GError *error = NULL;
 
   if (G_OBJECT_CLASS (bamf_tab_source_parent_class)->constructed)
     G_OBJECT_CLASS (bamf_tab_source_parent_class)->constructed (object);
@@ -280,65 +324,40 @@ bamf_tab_source_constructed (GObject *object)
   source = BAMF_TAB_SOURCE (object);
   priv = source->priv;
 
-  connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-  if (connection == NULL)
-    {
-      g_critical ("Failed to open connection to bus: %s",
-               error != NULL ? error->message : "Unknown");
-      if (error)
-        g_error_free (error);
-      return;
-    }
-
-  priv->proxy = dbus_g_proxy_new_for_name (connection,
-                                           priv->bus,
-                                           priv->path,
-                                           "org.ayatana.bamf.browser");
-
-  if (priv->proxy == NULL)
-    {
-      g_critical ("Unable to get org.ayatana.bamf.browser object from bus");
-    }
-
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "TabUriChanged",
-                           G_TYPE_STRING,
-                           G_TYPE_STRING,
-                           G_TYPE_STRING,
-                           G_TYPE_INVALID);
-
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "TabOpened",
-                           G_TYPE_STRING,
-                           G_TYPE_INVALID);
-
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "TabClosed",
-                           G_TYPE_STRING,
-                           G_TYPE_INVALID);
-
-  dbus_g_proxy_connect_signal (priv->proxy,
-                               "TabUriChanged",
-                               (GCallback) bamf_tab_source_on_uri_changed,
-                               source,
-                               NULL);
-
-  dbus_g_proxy_connect_signal (priv->proxy,
-                               "TabOpened",
-                               (GCallback) bamf_tab_source_on_tab_opened,
-                               source,
-                               NULL);
-
-  dbus_g_proxy_connect_signal (priv->proxy,
-                               "TabClosed",
-                               (GCallback) bamf_tab_source_on_tab_closed,
-                               source,
-                               NULL);
+  bamf_dbus_browser__proxy_new_for_bus (G_BUS_TYPE_SESSION,
+                                        G_DBUS_PROXY_FLAGS_NONE,
+                                        priv->bus,
+                                        priv->path,
+                                        NULL,
+                                        (GAsyncReadyCallback) on_proxy_ready_cb,
+                                        source);
 }
 
 static void
 bamf_tab_source_dispose (GObject *object)
 {
+  BamfTabSource *self;
+
+  self = BAMF_TAB_SOURCE (object);
+
+  if (self->priv->bus)
+    {
+      g_free (self->priv->bus);
+      self->priv->bus = NULL;
+    }
+
+  if (self->priv->path)
+    {
+      g_free (self->priv->path);
+      self->priv->path = NULL;
+    }
+
+  if (self->priv->proxy)
+    {
+      g_object_unref (self->priv->proxy);
+      self->priv->proxy = NULL;
+    }
+
   G_OBJECT_CLASS (bamf_tab_source_parent_class)->dispose (object);
 }
 
@@ -374,54 +393,54 @@ bamf_tab_source_class_init (BamfTabSourceClass * klass)
   g_object_class_install_property (object_class, PROP_BUS, pspec);
 
   bamf_tab_source_signals [REMOTE_TAB_URI_CHANGED] =
-  	g_signal_new ("remote-tab-uri-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              0,
-  	              NULL, NULL,
-  	              bamf_marshal_VOID__STRING_STRING_STRING,
-  	              G_TYPE_NONE, 3,
-  	              G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+    g_signal_new ("remote-tab-uri-changed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  0,
+                  NULL, NULL,
+                  bamf_marshal_VOID__STRING_STRING_STRING,
+                  G_TYPE_NONE, 3,
+                  G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
   bamf_tab_source_signals [REMOTE_TAB_OPENED] =
-  	g_signal_new ("remote-tab-opened",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              0,
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__STRING,
-  	              G_TYPE_NONE, 1,
-  	              G_TYPE_STRING);
+    g_signal_new ("remote-tab-opened",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  0,
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__STRING,
+                  G_TYPE_NONE, 1,
+                  G_TYPE_STRING);
 
   bamf_tab_source_signals [REMOTE_TAB_CLOSED] =
-  	g_signal_new ("remote-tab-closed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              0,
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__STRING,
-  	              G_TYPE_NONE, 1,
-  	              G_TYPE_STRING);
+    g_signal_new ("remote-tab-closed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  0,
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__STRING,
+                  G_TYPE_NONE, 1,
+                  G_TYPE_STRING);
 
   bamf_tab_source_signals [TAB_OPENED] =
-  	g_signal_new ("tab-opened",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              0,
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1,
-  	              BAMF_TYPE_TAB);
+    g_signal_new ("tab-opened",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  0,
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1,
+                  BAMF_TYPE_TAB);
 
   bamf_tab_source_signals [TAB_CLOSED] =
-  	g_signal_new ("tab-closed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              0,
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1,
-  	              BAMF_TYPE_TAB);
+    g_signal_new ("tab-closed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  0,
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1,
+                  BAMF_TYPE_TAB);
 }
 
 BamfTabSource *

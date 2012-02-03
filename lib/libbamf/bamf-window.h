@@ -73,29 +73,48 @@ typedef enum
   BAMF_WINDOW_SPLASHSCREEN  /* splash screen */
 } BamfWindowType;
 
+typedef enum
+{
+  BAMF_WINDOW_FLOATING,              /* Floating window */
+  BAMF_WINDOW_HORIZONTAL_MAXIMIZED,  /* Horizontally maximized window */
+  BAMF_WINDOW_VERTICAL_MAXIMIZED,    /* Vertically maximized window */
+  BAMF_WINDOW_MAXIMIZED              /* Maximized window */
+} BamfWindowMaximizationType;
 
 struct _BamfWindowClass
 {
   BamfViewClass parent_class;
+
+  /*< signals >*/
+  void (*monitor_changed)   (BamfWindow *window, gint old_value, gint new_value);
+  void (*maximized_changed) (BamfWindow *window, gint old_value, gint new_value);
 
   /*< private >*/
   void (*_window_padding1) (void);
   void (*_window_padding2) (void);
   void (*_window_padding3) (void);
   void (*_window_padding4) (void);
-  void (*_window_padding5) (void);
-  void (*_window_padding6) (void);
 };
 
-GType             bamf_window_get_type             (void) G_GNUC_CONST;
+GType             bamf_window_get_type                  (void) G_GNUC_CONST;
 
-BamfWindow      * bamf_window_get_transient        (BamfWindow *self);
+BamfWindow      * bamf_window_get_transient             (BamfWindow *self);
 
-BamfWindowType    bamf_window_get_window_type      (BamfWindow *self);
+BamfWindowType    bamf_window_get_window_type           (BamfWindow *self);
 
-guint32           bamf_window_get_xid              (BamfWindow *self);
+guint32           bamf_window_get_xid                   (BamfWindow *self);
 
-time_t            bamf_window_last_active          (BamfWindow *self);
+gchar           * bamf_window_get_application_id        (BamfWindow *self);
+
+gchar           * bamf_window_get_unique_bus_name       (BamfWindow *self);
+
+gchar           * bamf_window_get_dbus_menu_object_path (BamfWindow *self);
+
+gint              bamf_window_get_monitor               (BamfWindow *self);
+
+BamfWindowMaximizationType bamf_window_maximized        (BamfWindow *self);
+
+time_t            bamf_window_last_active               (BamfWindow *self);
 
 G_END_DECLS
 

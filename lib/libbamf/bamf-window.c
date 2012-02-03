@@ -37,6 +37,7 @@
 #include "bamf-view-private.h"
 #include "bamf-window.h"
 #include "bamf-factory.h"
+#include "bamf-marshal.h"
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
@@ -52,7 +53,22 @@ struct _BamfWindowPrivate
   DBusGProxy      *proxy;
   guint32          xid;
   time_t           last_active;
+  gint             monitor;
+  gchar           *application_id;
+  gchar           *unique_bus_name;
+  gchar           *dbus_menu_object_path;
+  BamfWindowMaximizationType maximized;
 };
+
+enum
+{
+  MONITOR_CHANGED,
+  MAXIMIZED_CHANGED,
+
+  LAST_SIGNAL,
+};
+
+static guint window_signals[LAST_SIGNAL] = { 0 };
 
 time_t bamf_window_last_active (BamfWindow *self)
 {
@@ -169,6 +185,20 @@ bamf_window_active_changed (BamfView *view, gboolean active)
 }
 
 static void
+bamf_window_on_monitor_changed (DBusGProxy *proxy, gint old, gint new, BamfWindow *self)
+{
+  self->priv->monitor = new;
+  g_signal_emit (G_OBJECT (self), window_signals[MONITOR_CHANGED], 0, old, new);
+}
+
+static void
+bamf_window_on_maximized_changed (DBusGProxy *proxy, gint old, gint new, BamfWindow *self)
+{
+  self->priv->maximized = new;
+  g_signal_emit (G_OBJECT (self), window_signals[MAXIMIZED_CHANGED], 0, old, new);
+}
+
+static void
 bamf_window_set_path (BamfView *view, const char *path)
 {
   BamfWindow *self;
@@ -184,11 +214,225 @@ bamf_window_set_path (BamfView *view, const char *path)
   if (priv->proxy == NULL)
     {
       g_error ("Unable to get org.ayatana.bamf.window window");
+      return;
     }
 
   priv->xid = bamf_window_get_xid (self);
+  priv->application_id = bamf_window_get_application_id (self);
+  priv->unique_bus_name = bamf_window_get_unique_bus_name (self);
+  priv->dbus_menu_object_path = bamf_window_get_dbus_menu_object_path (self);
+  priv->monitor = bamf_window_get_monitor (self);
+  priv->maximized = bamf_window_maximized (self);
+
+  dbus_g_object_register_marshaller ((GClosureMarshal) bamf_marshal_VOID__INT_INT,
+                                     G_TYPE_NONE, 
+                                     G_TYPE_INT, G_TYPE_INT,
+                                     G_TYPE_INVALID);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "MonitorChanged",
+                           G_TYPE_INT,
+                           G_TYPE_INT,
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "MonitorChanged",
+                               (GCallback) bamf_window_on_monitor_changed,
+                               self, NULL);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "MaximizedChanged",
+                           G_TYPE_INT,
+                           G_TYPE_INT,
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "MaximizedChanged",
+                               (GCallback) bamf_window_on_maximized_changed,
+                               self, NULL);
 }
 
+gchar *
+bamf_window_get_application_id (BamfWindow *self)
+{
+  BamfWindowPrivate *priv;
+  char *app_id = NULL;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
+  priv = self->priv;
+
+  if (priv->application_id)
+    {
+      return priv->application_id;
+    }
+
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
+    return NULL;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "ApplicationID",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &app_id,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch application id: %s", error->message);
+      g_error_free (error);
+
+      return NULL;
+    }
+
+  if (app_id && app_id[0] != '\0')
+    {
+      g_free (app_id);
+      app_id = NULL;
+    }
+
+  return app_id;
+}
+
+gchar *
+bamf_window_get_unique_bus_name (BamfWindow *self)
+{
+  BamfWindowPrivate *priv;
+  char *bus_name = NULL;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
+  priv = self->priv;
+
+  if (priv->unique_bus_name)
+    {
+      return priv->unique_bus_name;
+    }
+
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
+    return NULL;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "UniqueBusName",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &bus_name,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch unique bus name: %s", error->message);
+      g_error_free (error);
+
+      return NULL;
+    }
+
+  if (bus_name && bus_name[0] != '\0')
+    {
+      g_free (bus_name);
+      bus_name = NULL;
+    }
+
+  return bus_name;
+}
+
+gchar *
+bamf_window_get_dbus_menu_object_path (BamfWindow *self)
+{
+  BamfWindowPrivate *priv;
+  char *menu_object = NULL;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
+  priv = self->priv;
+
+  if (priv->dbus_menu_object_path)
+    {
+      return priv->dbus_menu_object_path;
+    }
+
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
+    return NULL;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "DBusMenuObjectPath",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &menu_object,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch menu object path: %s", error->message);
+      g_error_free (error);
+
+      return NULL;
+    }
+
+  if (menu_object && menu_object[0] != '\0')
+    {
+      g_free (menu_object);
+      menu_object = NULL;
+    }
+
+  return menu_object;
+}
+
+gint
+bamf_window_get_monitor (BamfWindow *self)
+{
+  BamfWindowPrivate *priv;
+  gint monitor = -2;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), -1);
+  priv = self->priv;
+
+  if (priv->monitor != -2 || !bamf_view_remote_ready (BAMF_VIEW (self)))
+    {
+      return priv->monitor;
+    }
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "Monitor",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_INT, &monitor,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch monitor: %s", error->message);
+      g_error_free (error);
+
+      return -1;
+    }
+
+  return monitor;
+}
+
+BamfWindowMaximizationType
+bamf_window_maximized (BamfWindow *self)
+{
+  BamfWindowPrivate *priv;
+  BamfWindowMaximizationType maximized = -1;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), -1);
+  priv = self->priv;
+
+  if (priv->maximized != -1 || !bamf_view_remote_ready (BAMF_VIEW (self)))
+    {
+      return priv->maximized;
+    }
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "Maximized",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_INT, &maximized,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch maximized state: %s", error->message);
+      g_error_free (error);
+
+      return -1;
+    }
+
+  return maximized;
+}
 
 static void
 bamf_window_dispose (GObject *object)
@@ -201,10 +445,38 @@ bamf_window_dispose (GObject *object)
   
   if (priv->proxy)
     {
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                      "MaximizedChanged",
+                                      (GCallback) bamf_window_on_maximized_changed,
+                                      self);
+
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                      "MonitorChanged",
+                                      (GCallback) bamf_window_on_monitor_changed,
+                                      self);
+
       g_object_unref (priv->proxy);
       priv->proxy = NULL;
     }
-  
+
+  if (priv->application_id)
+    {
+      g_free (priv->application_id);
+      priv->application_id = NULL;
+    }
+
+  if (priv->unique_bus_name)
+    {
+      g_free (priv->unique_bus_name);
+      priv->unique_bus_name = NULL;
+    }
+
+  if (priv->dbus_menu_object_path)
+    {
+      g_free (priv->dbus_menu_object_path);
+      priv->dbus_menu_object_path = NULL;
+    }
+
   if (G_OBJECT_CLASS (bamf_window_parent_class)->dispose)
     G_OBJECT_CLASS (bamf_window_parent_class)->dispose (object);
 }
@@ -220,8 +492,27 @@ bamf_window_class_init (BamfWindowClass *klass)
   obj_class->dispose     = bamf_window_dispose;
   view_class->active_changed = bamf_window_active_changed;
   view_class->set_path   = bamf_window_set_path;
-}
+  
+  window_signals[MONITOR_CHANGED] = 
+    g_signal_new ("monitor-changed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfWindowClass, monitor_changed),
+                  NULL, NULL,
+                  bamf_marshal_VOID__INT_INT,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_INT, G_TYPE_INT);
 
+  window_signals[MAXIMIZED_CHANGED] = 
+    g_signal_new ("maximized-changed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfWindowClass, maximized_changed),
+                  NULL, NULL,
+                  bamf_marshal_VOID__INT_INT,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_INT, G_TYPE_INT);
+}
 
 static void
 bamf_window_init (BamfWindow *self)
@@ -232,6 +523,9 @@ bamf_window_init (BamfWindow *self)
   priv = self->priv = BAMF_WINDOW_GET_PRIVATE (self);
 
   priv->xid = 0;
+  priv->monitor = -2;
+  priv->maximized = -1;
+
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   if (priv->connection == NULL)
     {
