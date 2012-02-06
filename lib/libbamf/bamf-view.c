@@ -170,6 +170,8 @@ bamf_view_get_children (BamfView *view)
                           G_TYPE_INVALID))
     {
       g_warning ("Unable to fetch children: %s\n", error->message);
+      g_error_free (error);
+      
       return NULL;
     }
 
