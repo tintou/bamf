@@ -467,7 +467,7 @@ bamf_view_on_child_added (DBusGProxy *proxy, char *path, BamfView *self)
   view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
   priv = self->priv;
 
-  if (priv->cached_children && !g_list_find(priv->cached_children, view))
+  if (priv->cached_children && !g_list_find (priv->cached_children, view))
     {
       g_object_ref (view);
       priv->cached_children = g_list_prepend (priv->cached_children, view);
