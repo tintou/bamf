@@ -125,19 +125,13 @@
   </interface>
 
   <interface name="org.ayatana.bamf.tab">
-    <method name="ShowTab"/>
-    <method name="ParentXid">
-      <arg type="u" name="xid" direction="out"/>
+    <method name="Raise">
     </method>
-    <method name="CurrentUri">
-      <arg type="s" name="uri" direction="out"/>
+    <method name="RequestPreview">
+      <arg type="s" name="data" direction="out"/>
     </method>
-    <method name="Preview">
-      <arg type="ay" name="data" direction="out"/>
-    </method>
-    <signal name="UriChanged">
-      <arg type="s" name="old" direction="out"/>
-      <arg type="s" name="new" direction="out"/>
-    </signal>
+    <property name="location" type="s" access="read"/>
+    <property name="xid" type="t" access="read"/>
+    <property name="desktop-id" type="s" access="read"/>
   </interface>
 </node>
