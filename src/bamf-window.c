@@ -246,14 +246,8 @@ bamf_window_get_unique_bus_name (BamfWindow *self)
 char *
 bamf_window_get_menu_object_path (BamfWindow *self)
 {
-  char *result = NULL;
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
-
-  result = bamf_legacy_window_get_utf8_xprop(self->priv->legacy_window, "_GTK_APP_MENU_OBJECT_PATH");
-  if (!result)
-    result = bamf_legacy_window_get_utf8_xprop(self->priv->legacy_window, "_UBUNTU_APPMENU_OBJECT_PATH");
-
-  return result;
+  return bamf_legacy_window_get_utf8_xprop(self->priv->legacy_window, "_GTK_APP_MENU_OBJECT_PATH");
 }
 
 char * 
@@ -273,8 +267,14 @@ bamf_window_get_window_object_path (BamfWindow *self)
 char * 
 bamf_window_get_menubar_object_path (BamfWindow *self)
 {
-  g_return_val_if_fail (BAMF_IS_WINDOW(self), NULL);
-  return bamf_legacy_window_get_utf8_xprop(self->priv->legacy_window, "_GTK_MENUBAR_OBJECT_PATH");
+  char *result = NULL;
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
+
+  result = bamf_legacy_window_get_utf8_xprop(self->priv->legacy_window, "_GTK_MENUBAR_OBJECT_PATH");
+  if (!result)
+    result = bamf_legacy_window_get_utf8_xprop(self->priv->legacy_window, "_UBUNTU_APPMENU_OBJECT_PATH");
+
+  return result;
 }
 
 
