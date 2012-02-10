@@ -218,9 +218,6 @@ bamf_window_set_path (BamfView *view, const char *path)
     }
 
   priv->xid = bamf_window_get_xid (self);
-  priv->application_id = bamf_window_get_application_id (self);
-  priv->unique_bus_name = bamf_window_get_unique_bus_name (self);
-  priv->dbus_menu_object_path = bamf_window_get_dbus_menu_object_path (self);
   priv->monitor = bamf_window_get_monitor (self);
   priv->maximized = bamf_window_maximized (self);
 
@@ -253,7 +250,7 @@ bamf_window_set_path (BamfView *view, const char *path)
 }
 
 gchar *
-bamf_window_get_application_id (BamfWindow *self)
+bamf_window_get_xprop (BamfWindow *self, const char* xprop)
 {
   BamfWindowPrivate *priv;
   char *app_id = NULL;
@@ -273,6 +270,7 @@ bamf_window_get_application_id (BamfWindow *self)
   if (!dbus_g_proxy_call (priv->proxy,
                           "ApplicationID",
                           &error,
+                          G_TYPE_STRING, xprop,
                           G_TYPE_INVALID,
                           G_TYPE_STRING, &app_id,
                           G_TYPE_INVALID))
@@ -291,192 +289,6 @@ bamf_window_get_application_id (BamfWindow *self)
 
   return app_id;
 }
-
-gchar *
-bamf_window_get_unique_bus_name (BamfWindow *self)
-{
-  BamfWindowPrivate *priv;
-  char *bus_name = NULL;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
-  priv = self->priv;
-
-  if (priv->unique_bus_name)
-    {
-      return priv->unique_bus_name;
-    }
-
-  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
-    return NULL;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "UniqueBusName",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &bus_name,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch unique bus name: %s", error->message);
-      g_error_free (error);
-
-      return NULL;
-    }
-
-  if (bus_name && bus_name[0] != '\0')
-    {
-      g_free (bus_name);
-      bus_name = NULL;
-    }
-
-  return bus_name;
-}
-
-gchar *
-bamf_window_get_dbus_menu_object_path (BamfWindow *self)
-{
-  BamfWindowPrivate *priv;
-  char *menu_object = NULL;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
-  priv = self->priv;
-
-  if (priv->dbus_menu_object_path)
-    {
-      return priv->dbus_menu_object_path;
-    }
-
-  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
-    return NULL;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "DBusMenuObjectPath",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &menu_object,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch menu object path: %s", error->message);
-      g_error_free (error);
-
-      return NULL;
-    }
-
-  if (menu_object && menu_object[0] != '\0')
-    {
-      g_free (menu_object);
-      menu_object = NULL;
-    }
-
-  return menu_object;
-}
-
-gchar * 
-bamf_window_get_application_object_path (BamfWindow *self)
-{
-  BamfWindowPrivate *priv;
-  char *result = NULL;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
-  priv = self->priv;
-
-  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
-    return NULL;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "ApplicationObjectPath",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &result,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch menu object path: %s", error->message);
-      g_error_free (error);
-
-      return NULL;
-    }
-
-  if (result && result[0] != '\0')
-    {
-      g_free (result);
-      result = NULL;
-    }
-
-  return result;
-}
-
-gchar * 
-bamf_window_get_window_object_path    (BamfWindow *self)
-{
-  BamfWindowPrivate *priv;
-  char *result = NULL;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
-  priv = self->priv;
-
-  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
-    return NULL;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "WindowObjectPath",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &result,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch menu object path: %s", error->message);
-      g_error_free (error);
-
-      return NULL;
-    }
-
-  if (result && result[0] != '\0')
-    {
-      g_free (result);
-      result = NULL;
-    }
-
-  return result;
-}
-
-gchar * 
-bamf_window_get_menubar_object_path   (BamfWindow *self)
-{
-  BamfWindowPrivate *priv;
-  char *result = NULL;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
-  priv = self->priv;
-
-  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
-    return NULL;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "MenubarObjectPath",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &result,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch menu object path: %s", error->message);
-      g_error_free (error);
-
-      return NULL;
-    }
-
-  if (result && result[0] != '\0')
-    {
-      g_free (result);
-      result = NULL;
-    }
-
-  return result;
-}
-
 
 gint
 bamf_window_get_monitor (BamfWindow *self)
