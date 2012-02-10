@@ -99,6 +99,15 @@
     <method name="DBusMenuObjectPath">
       <arg name="object_path" type="s" direction="out"/>
     </method>
+    <method name="ApplicationObjectPath">
+      <arg name="object_path" type="s" direction="out"/>
+    </method>
+    <method name="WindowObjectPath">
+      <arg name="object_path" type="s" direction="out"/>
+    </method>
+    <method name="MenubarObjectPath">
+      <arg name="object_path" type="s" direction="out"/>
+    </method>
     <method name="Monitor">
       <arg name="monitor_number" type="i" direction="out"/>
     </method>
