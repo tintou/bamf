@@ -268,7 +268,7 @@ bamf_window_get_utf8_prop (BamfWindow *self, const char* xprop)
     return NULL;
 
   if (!dbus_g_proxy_call (priv->proxy,
-                          "ApplicationID",
+                          "Xprop",
                           &error,
                           G_TYPE_STRING, xprop,
                           G_TYPE_INVALID,
