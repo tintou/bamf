@@ -80,6 +80,12 @@ char             * bamf_window_get_unique_bus_name (BamfWindow *self);
 
 char             * bamf_window_get_menu_object_path (BamfWindow *self);
 
+char             * bamf_window_get_app_object_path (BamfWindow *self);
+
+char             * bamf_window_get_window_object_path (BamfWindow *self);
+
+char             * bamf_window_get_menubar_object_path (BamfWindow *self);
+
 BamfWindowMaximizationType bamf_window_maximized (BamfWindow *self);
 
 gint               bamf_window_get_monitor (BamfWindow *self);

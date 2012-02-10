@@ -227,22 +227,56 @@ char *
 bamf_window_get_app_id (BamfWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
-  return bamf_legacy_window_get_app_id (self->priv->legacy_window);
+  return bamf_legacy_window_get_utf8_xprop(self->priv->legacy_window, "_GTK_APPLICATION_ID");
 }
 
 char *
 bamf_window_get_unique_bus_name (BamfWindow *self)
 {
+  char *result = NULL;
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
-  return bamf_legacy_window_get_unique_bus_name (self->priv->legacy_window);
+
+  result = bamf_legacy_window_get_utf8_xprop(self->priv->legacy_window, "_GTK_UNIQUE_BUS_NAME");
+  if (!result)
+    result = bamf_legacy_window_get_utf8_xprop(self->priv->legacy_window, "_UBUNTU_APPMENU_UNIQUE_NAME");
+
+  return result;
 }
 
 char *
 bamf_window_get_menu_object_path (BamfWindow *self)
 {
+  char *result = NULL;
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
-  return bamf_legacy_window_get_menu_object_path (self->priv->legacy_window);
+
+  result = bamf_legacy_window_get_utf8_xprop(self->priv->legacy_window, "_GTK_APP_MENU_OBJECT_PATH");
+  if (!result)
+    result = bamf_legacy_window_get_utf8_xprop(self->priv->legacy_window, "_UBUNTU_APPMENU_OBJECT_PATH");
+
+  return result;
 }
+
+char * 
+bamf_window_get_app_object_path (BamfWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_WINDOW(self), NULL);
+  return bamf_legacy_window_get_utf8_xprop(self->priv->legacy_window, "_GTK_APPLICATION_OBJECT_PATH");
+}
+
+char * 
+bamf_window_get_window_object_path (BamfWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_WINDOW(self), NULL);
+  return bamf_legacy_window_get_utf8_xprop(self->priv->legacy_window, "_GTK_WINDOW_OBJECT_PATH");
+}
+
+char * 
+bamf_window_get_menubar_object_path (BamfWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_WINDOW(self), NULL);
+  return bamf_legacy_window_get_utf8_xprop(self->priv->legacy_window, "_GTK_MENUBAR_OBJECT_PATH");
+}
+
 
 BamfWindowMaximizationType
 bamf_window_maximized (BamfWindow *self)
@@ -328,7 +362,7 @@ on_dbus_handle_application_id (BamfDBusItemWindow *interface,
                                GDBusMethodInvocation *invocation,
                                BamfWindow *self)
 {
-  char *app_id = bamf_legacy_window_get_app_id (self->priv->legacy_window);
+  char *app_id = bamf_window_get_app_id (self);
   g_dbus_method_invocation_return_value (invocation,
                                          g_variant_new ("(s)", app_id ? app_id : ""));
 
@@ -342,7 +376,7 @@ on_dbus_handle_unique_bus_name (BamfDBusItemWindow *interface,
                                 GDBusMethodInvocation *invocation,
                                 BamfWindow *self)
 {
-  char *bus_name = bamf_legacy_window_get_unique_bus_name (self->priv->legacy_window);
+  char *bus_name = bamf_window_get_unique_bus_name (self);
   g_dbus_method_invocation_return_value (invocation,
                                          g_variant_new ("(s)", bus_name ? bus_name : ""));
 
@@ -357,6 +391,48 @@ on_dbus_handle_dbus_menu_object_path (BamfDBusItemWindow *interface,
                                       BamfWindow *self)
 {
   char *obj_path = bamf_window_get_menu_object_path (self);
+  g_dbus_method_invocation_return_value (invocation,
+                                         g_variant_new ("(s)", obj_path ? obj_path : ""));
+
+  g_free (obj_path);
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_application_object_path (BamfDBusItemWindow *interface,
+                                        GDBusMethodInvocation *invocation,
+                                        BamfWindow *self)
+{
+  char *obj_path = bamf_window_get_menu_object_path (self);
+  g_dbus_method_invocation_return_value (invocation,
+                                         g_variant_new ("(s)", obj_path ? obj_path : ""));
+
+  g_free (obj_path);
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_menubar_object_path (BamfDBusItemWindow *interface,
+                                      GDBusMethodInvocation *invocation,
+                                      BamfWindow *self)
+{
+  char *obj_path = bamf_window_get_menubar_object_path (self);
+  g_dbus_method_invocation_return_value (invocation,
+                                         g_variant_new ("(s)", obj_path ? obj_path : ""));
+
+  g_free (obj_path);
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_window_object_path (BamfDBusItemWindow *interface,
+                                      GDBusMethodInvocation *invocation,
+                                      BamfWindow *self)
+{
+  char *obj_path = bamf_window_get_window_object_path (self);
   g_dbus_method_invocation_return_value (invocation,
                                          g_variant_new ("(s)", obj_path ? obj_path : ""));
 
@@ -551,6 +627,15 @@ bamf_window_init (BamfWindow * self)
 
   g_signal_connect (self->priv->dbus_iface, "handle-dbus-menu-object-path",
                     G_CALLBACK (on_dbus_handle_dbus_menu_object_path), self);
+  
+  g_signal_connect (self->priv->dbus_iface, "handle-application-object-path",
+                    G_CALLBACK (on_dbus_handle_application_object_path), self);
+
+  g_signal_connect (self->priv->dbus_iface, "handle-window-object-path",
+                    G_CALLBACK (on_dbus_handle_window_object_path), self);
+
+  g_signal_connect (self->priv->dbus_iface, "handle-menubar-object-path",
+                    G_CALLBACK (on_dbus_handle_menubar_object_path), self);
 
   g_signal_connect (self->priv->dbus_iface, "handle-monitor",
                     G_CALLBACK (on_dbus_handle_monitor), self);
