@@ -90,14 +90,9 @@
     <method name="WindowType">
       <arg name="type" type="u" direction="out"/>
     </method>
-    <method name="ApplicationID">
-      <arg name="id" type="s" direction="out"/>
-    </method>
-    <method name="UniqueBusName">
+    <method name="Xprop">
+      <arg name="xprop" type="s" direction="in"/>
       <arg name="name" type="s" direction="out"/>
-    </method>
-    <method name="DBusMenuObjectPath">
-      <arg name="object_path" type="s" direction="out"/>
     </method>
     <method name="Monitor">
       <arg name="monitor_number" type="i" direction="out"/>
