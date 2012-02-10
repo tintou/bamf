@@ -104,7 +104,7 @@ BamfWindowType    bamf_window_get_window_type           (BamfWindow *self);
 
 guint32           bamf_window_get_xid                   (BamfWindow *self);
 
-gchar           * bamf_window_get_xprop                 (BamfWindow *self, const char* prop);
+gchar           * bamf_window_get_utf8_prop             (BamfWindow *self, const char* prop);
 
 gint              bamf_window_get_monitor               (BamfWindow *self);
 
