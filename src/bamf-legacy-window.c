@@ -410,7 +410,7 @@ bamf_legacy_window_get_utf8_xprop (BamfLegacyWindow *self, const char* prop)
     return NULL;
 
   guint xid = bamf_legacy_window_get_xid (self);
-  return bamf_xutils_get_window_hint (xid, prop);
+  return bamf_xutils_get_window_hint (xid, prop, XInternAtom(gdk_x11_get_default_xdisplay (), "UTF8_STRING", False));
 }
 
 static void
