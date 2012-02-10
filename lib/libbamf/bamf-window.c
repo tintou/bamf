@@ -253,7 +253,7 @@ gchar *
 bamf_window_get_utf8_prop (BamfWindow *self, const char* xprop)
 {
   BamfWindowPrivate *priv;
-  char *app_id = NULL;
+  char *result = NULL;
   GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
@@ -272,22 +272,22 @@ bamf_window_get_utf8_prop (BamfWindow *self, const char* xprop)
                           &error,
                           G_TYPE_STRING, xprop,
                           G_TYPE_INVALID,
-                          G_TYPE_STRING, &app_id,
+                          G_TYPE_STRING, &result,
                           G_TYPE_INVALID))
     {
-      g_warning ("Failed to fetch application id: %s", error->message);
+      g_warning ("Failed to fetch property: %s", error->message);
       g_error_free (error);
 
       return NULL;
     }
 
-  if (app_id && app_id[0] != '\0')
+  if (result && result[0] == '\0')
     {
-      g_free (app_id);
-      app_id = NULL;
+      g_free (result);
+      result = NULL;
     }
 
-  return app_id;
+  return result;
 }
 
 gint
