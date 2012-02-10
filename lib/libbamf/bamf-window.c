@@ -250,7 +250,7 @@ bamf_window_set_path (BamfView *view, const char *path)
 }
 
 gchar *
-bamf_window_get_xprop (BamfWindow *self, const char* xprop)
+bamf_window_get_utf8_prop (BamfWindow *self, const char* xprop)
 {
   BamfWindowPrivate *priv;
   char *app_id = NULL;
