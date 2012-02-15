@@ -26,7 +26,7 @@
 #include <X11/Xlib.h>
 #include <gdk/gdkx.h>
 
-void  bamf_xutils_set_window_hint (Window xid, const char *atom_name, const char *data);
-char* bamf_xutils_get_window_hint (Window xid, const char *atom_name);
+void  bamf_xutils_set_window_hint (Window xid, const char *atom_name, Atom type, const char *data);
+char* bamf_xutils_get_window_hint (Window xid, const char *atom_name, Atom type);
 
 #endif

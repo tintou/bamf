@@ -471,7 +471,7 @@ bamf_matcher_get_applications (BamfMatcher *matcher)
       g_warning ("Failed to fetch paths: %s", error->message);
       g_error_free (error);
       
-      return FALSE;
+      return NULL;
     }
 
   g_return_val_if_fail (array, NULL);
@@ -512,7 +512,7 @@ bamf_matcher_get_windows (BamfMatcher *matcher)
       g_warning ("Failed to fetch paths: %s", error->message);
       g_error_free (error);
       
-      return FALSE;
+      return NULL;
     }
 
   g_return_val_if_fail (array, NULL);
@@ -555,7 +555,7 @@ bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
       g_warning ("Failed to fetch paths: %s", error->message);
       g_error_free (error);
       
-      return FALSE;
+      return NULL;
     }
 
   g_return_val_if_fail (array, NULL);
