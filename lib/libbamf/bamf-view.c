@@ -482,7 +482,7 @@ bamf_view_on_child_removed (DBusGProxy *proxy, char *path, BamfView *self)
 {
   BamfView *view;
   BamfViewPrivate *priv;
-  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);;
+  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
   priv = self->priv;
 
   if (priv->cached_children)
