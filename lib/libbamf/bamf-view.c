@@ -468,10 +468,10 @@ bamf_view_on_child_added (DBusGProxy *proxy, char *path, BamfView *self)
   view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
   priv = self->priv;
 
-  if (priv->cached_children && !g_list_find (priv->cached_children, view))
+  if (priv->cached_children)
     {
-      g_object_ref (view);
-      priv->cached_children = g_list_prepend (priv->cached_children, view);
+      g_list_free_full (priv->cached_children, g_object_unref);
+      priv->cached_children = NULL;
     }
 
   g_signal_emit (G_OBJECT (self), view_signals[CHILD_ADDED], 0, view);
@@ -482,34 +482,16 @@ bamf_view_on_child_removed (DBusGProxy *proxy, char *path, BamfView *self)
 {
   BamfView *view;
   BamfViewPrivate *priv;
-  view = NULL;
+  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);;
   priv = self->priv;
 
   if (priv->cached_children)
     {
-      GList *l;
-      for (l = priv->cached_children; l; l = l->next)
-        {
-          BamfView *cur_view = BAMF_VIEW (l->data);
-          if (g_strcmp0 (bamf_view_get_path (cur_view), path) == 0)
-            {
-              view = cur_view;
-              priv->cached_children = g_list_delete_link (priv->cached_children, l);
-              break;
-            }
-        }
-
-      if (!BAMF_IS_VIEW (view))
-        {
-          g_list_free_full (priv->cached_children, g_object_unref);
-          priv->cached_children = NULL;
-        }
+      g_list_free_full (priv->cached_children, g_object_unref);
+      priv->cached_children = NULL;
     }
 
   g_signal_emit (G_OBJECT (self), view_signals[CHILD_REMOVED], 0, view);
-
-  if (BAMF_IS_VIEW (view))
-    g_object_unref (view);
 }
 
 static void
@@ -569,14 +551,14 @@ bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
 
   priv->is_closed = TRUE;
 
+  if (priv->cached_children)
+    {
+      g_list_free_full (priv->cached_children, g_object_unref);
+      priv->cached_children = NULL;
+    }
+
   if (priv->sticky && priv->proxy)
     {
-      if (priv->cached_children)
-        {
-          g_list_free_full (priv->cached_children, g_object_unref);
-          priv->cached_children = NULL;
-        }
-
       dbus_g_proxy_disconnect_signal (priv->proxy,
                                       "ActiveChanged",
                                       (GCallback) bamf_view_on_active_changed,
