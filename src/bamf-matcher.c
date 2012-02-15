@@ -1356,7 +1356,7 @@ get_window_hint (BamfLegacyWindow *window, const char *atom_name)
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
 
   Window xid = bamf_legacy_window_get_xid (window);
-  return bamf_xutils_get_window_hint (xid, atom_name);
+  return bamf_xutils_get_window_hint (xid, atom_name, XA_STRING);
 }
 
 static void
@@ -1365,7 +1365,7 @@ set_window_hint (BamfLegacyWindow * window, const char *atom_name, const char *d
   g_return_if_fail (BAMF_LEGACY_WINDOW (window));
 
   Window xid = bamf_legacy_window_get_xid (window);
-  bamf_xutils_set_window_hint (xid, atom_name, data);
+  bamf_xutils_set_window_hint (xid, atom_name, XA_STRING, data);
 }
 
 static char *
