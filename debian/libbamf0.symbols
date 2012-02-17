@@ -73,12 +73,10 @@ libbamf.so.0 libbamf0 #MINVER#
  bamf_view_set_path@Base 0.2.60
  bamf_view_set_sticky@Base 0.2.60
  bamf_view_user_visible@Base 0.2.20
- bamf_window_get_application_id@Base 0.2.108
- bamf_window_get_dbus_menu_object_path@Base 0.2.108
  bamf_window_get_monitor@Base 0.2.108
  bamf_window_get_transient@Base 0.2.28
  bamf_window_get_type@Base 0.2.20
- bamf_window_get_unique_bus_name@Base 0.2.108
+ bamf_window_get_utf8_prop@Base 0.2.110
  bamf_window_get_window_type@Base 0.2.46
  bamf_window_get_xid@Base 0.2.20
  bamf_window_last_active@Base 0.2.30
