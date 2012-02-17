@@ -209,7 +209,7 @@ bamf_matcher_init (BamfMatcher *self)
   priv = self->priv = BAMF_MATCHER_GET_PRIVATE (self);
 
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-  if (priv->connection == NULL)
+  if (priv->connection == NULL || error != NULL)
     {
       g_error ("Failed to open connection to bus: %s",
                error != NULL ? error->message : "Unknown");
