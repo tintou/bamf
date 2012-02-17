@@ -9,10 +9,12 @@ BamfTab
 
 </para>
 
+
 <!-- ##### SECTION See_Also ##### -->
 <para>
 
 </para>
+
 
 <!-- ##### SECTION Stability_Level ##### -->
 
@@ -52,12 +54,6 @@ BamfTab
 @_tab_padding5: 
 @_tab_padding6: 
 
-<!-- ##### STRUCT BamfTabPrivate ##### -->
-<para>
-
-</para>
-
-
 <!-- ##### FUNCTION bamf_tab_get_id ##### -->
 <para>
 
@@ -76,15 +72,6 @@ BamfTab
 @Returns: 
 
 
-<!-- ##### FUNCTION bamf_tab_set_preview ##### -->
-<para>
-
-</para>
-
-@self: 
-@uri: 
-
-
 <!-- ##### FUNCTION bamf_tab_get_uri ##### -->
 <para>
 
@@ -92,6 +79,25 @@ BamfTab
 
 @self: 
 @Returns: 
+
+
+<!-- ##### FUNCTION bamf_tab_new ##### -->
+<para>
+
+</para>
+
+@id: 
+@uri: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_tab_set_preview ##### -->
+<para>
+
+</para>
+
+@self: 
+@uri: 
 
 
 <!-- ##### FUNCTION bamf_tab_set_uri ##### -->
@@ -109,15 +115,5 @@ BamfTab
 </para>
 
 @self: 
-
-
-<!-- ##### FUNCTION bamf_tab_new ##### -->
-<para>
-
-</para>
-
-@id: 
-@uri: 
-@Returns: 
 
 

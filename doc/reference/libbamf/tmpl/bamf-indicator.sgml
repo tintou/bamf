@@ -9,10 +9,12 @@ BamfIndicator
 
 </para>
 
+
 <!-- ##### SECTION See_Also ##### -->
 <para>
 
 </para>
+
 
 <!-- ##### SECTION Stability_Level ##### -->
 
@@ -35,13 +37,7 @@ BamfIndicator
 
 @parent_class: 
 
-<!-- ##### STRUCT BamfIndicatorPrivate ##### -->
-<para>
-
-</para>
-
-
-<!-- ##### FUNCTION bamf_indicator_get_remote_path ##### -->
+<!-- ##### FUNCTION bamf_indicator_get_dbus_menu_path ##### -->
 <para>
 
 </para>
@@ -59,7 +55,7 @@ BamfIndicator
 @Returns: 
 
 
-<!-- ##### FUNCTION bamf_indicator_get_dbus_menu_path ##### -->
+<!-- ##### FUNCTION bamf_indicator_get_remote_path ##### -->
 <para>
 
 </para>

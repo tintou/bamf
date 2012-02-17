@@ -9,10 +9,12 @@ BamfApplication
 
 </para>
 
+
 <!-- ##### SECTION See_Also ##### -->
 <para>
 
 </para>
+
 
 <!-- ##### SECTION Stability_Level ##### -->
 
@@ -49,12 +51,6 @@ BamfApplication
 
 @parent_class: 
 
-<!-- ##### STRUCT BamfApplicationPrivate ##### -->
-<para>
-
-</para>
-
-
 <!-- ##### FUNCTION bamf_application_get_application_type ##### -->
 <para>
 
@@ -73,6 +69,15 @@ BamfApplication
 @Returns: 
 
 
+<!-- ##### FUNCTION bamf_application_get_show_menu_stubs ##### -->
+<para>
+
+</para>
+
+@application: 
+@Returns: 
+
+
 <!-- ##### FUNCTION bamf_application_get_windows ##### -->
 <para>
 
@@ -83,15 +88,6 @@ BamfApplication
 
 
 <!-- ##### FUNCTION bamf_application_get_xids ##### -->
-<para>
-
-</para>
-
-@application: 
-@Returns: 
-
-
-<!-- ##### FUNCTION bamf_application_get_show_menu_stubs ##### -->
 <para>
 
 </para>
