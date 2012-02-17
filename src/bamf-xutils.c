@@ -22,12 +22,12 @@
 #include <string.h>
 
 char *
-bamf_xutils_get_window_hint (Window xid, const char *atom_name)
+bamf_xutils_get_window_hint (Window xid, const char *atom_name, Atom type)
 {
   Display *XDisplay;
   Atom atom;
   char *hint = NULL;
-  Atom type;
+  Atom result_type;
   gint format;
   gulong numItems;
   gulong bytesAfter;
@@ -58,8 +58,8 @@ bamf_xutils_get_window_hint (Window xid, const char *atom_name)
                                    0,
                                    G_MAXINT,
                                    FALSE,
-                                   XA_STRING,
-                                   &type,
+                                   type,
+                                   &result_type,
                                    &format,
                                    &numItems,
                                    &bytesAfter,
@@ -78,7 +78,7 @@ bamf_xutils_get_window_hint (Window xid, const char *atom_name)
 }
 
 void
-bamf_xutils_set_window_hint (Window xid, const char *atom_name, const char *data)
+bamf_xutils_set_window_hint (Window xid, const char *atom_name, Atom type, const char *data)
 {
   Display *XDisplay;
   gboolean close_display = TRUE;
@@ -104,7 +104,7 @@ bamf_xutils_set_window_hint (Window xid, const char *atom_name, const char *data
                    XInternAtom (XDisplay,
                    atom_name,
                    FALSE),
-                   XA_STRING,
+                   type,
                    8,
                    PropModeReplace,
                    (unsigned char *) data,

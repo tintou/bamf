@@ -9,10 +9,12 @@ BamfView
 
 </para>
 
+
 <!-- ##### SECTION See_Also ##### -->
 <para>
 
 </para>
+
 
 <!-- ##### SECTION Stability_Level ##### -->
 
@@ -153,12 +155,6 @@ BamfView
 @user_visible_changed: 
 @name_changed: 
 
-<!-- ##### STRUCT BamfViewPrivate ##### -->
-<para>
-
-</para>
-
-
 <!-- ##### FUNCTION bamf_view_get_children ##### -->
 <para>
 
@@ -168,43 +164,7 @@ BamfView
 @Returns: 
 
 
-<!-- ##### FUNCTION bamf_view_is_closed ##### -->
-<para>
-
-</para>
-
-@view: 
-@Returns: 
-
-
-<!-- ##### FUNCTION bamf_view_is_active ##### -->
-<para>
-
-</para>
-
-@view: 
-@Returns: 
-
-
-<!-- ##### FUNCTION bamf_view_is_running ##### -->
-<para>
-
-</para>
-
-@view: 
-@Returns: 
-
-
-<!-- ##### FUNCTION bamf_view_is_urgent ##### -->
-<para>
-
-</para>
-
-@view: 
-@Returns: 
-
-
-<!-- ##### FUNCTION bamf_view_get_name ##### -->
+<!-- ##### FUNCTION bamf_view_get_click_suggestion ##### -->
 <para>
 
 </para>
@@ -222,7 +182,7 @@ BamfView
 @Returns: 
 
 
-<!-- ##### FUNCTION bamf_view_user_visible ##### -->
+<!-- ##### FUNCTION bamf_view_get_name ##### -->
 <para>
 
 </para>
@@ -240,13 +200,31 @@ BamfView
 @Returns: 
 
 
-<!-- ##### FUNCTION bamf_view_set_sticky ##### -->
+<!-- ##### FUNCTION bamf_view_is_active ##### -->
 <para>
 
 </para>
 
 @view: 
-@value: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_view_is_closed ##### -->
+<para>
+
+</para>
+
+@view: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_view_is_running ##### -->
+<para>
+
+</para>
+
+@view: 
+@Returns: 
 
 
 <!-- ##### FUNCTION bamf_view_is_sticky ##### -->
@@ -258,7 +236,25 @@ BamfView
 @Returns: 
 
 
-<!-- ##### FUNCTION bamf_view_get_click_suggestion ##### -->
+<!-- ##### FUNCTION bamf_view_is_urgent ##### -->
+<para>
+
+</para>
+
+@view: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_view_set_sticky ##### -->
+<para>
+
+</para>
+
+@view: 
+@value: 
+
+
+<!-- ##### FUNCTION bamf_view_user_visible ##### -->
 <para>
 
 </para>

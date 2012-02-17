@@ -9,10 +9,12 @@ BamfControl
 
 </para>
 
+
 <!-- ##### SECTION See_Also ##### -->
 <para>
 
 </para>
+
 
 <!-- ##### SECTION Stability_Level ##### -->
 
@@ -32,12 +34,6 @@ BamfControl
 </para>
 
 @parent_class: 
-
-<!-- ##### STRUCT BamfControlPrivate ##### -->
-<para>
-
-</para>
-
 
 <!-- ##### FUNCTION bamf_control_get_default ##### -->
 <para>

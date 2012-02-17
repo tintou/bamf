@@ -32,9 +32,6 @@ static void test_maximized     (void);
 static void test_vmaximized    (void);
 static void test_hmaximized    (void);
 static void test_hmaximized    (void);
-static void test_application_id (void);
-static void test_dbus_menu_object_path (void);
-static void test_unique_bus_name (void);
 
 static gboolean signal_seen = FALSE;
 static gboolean signal_result = FALSE;
@@ -46,9 +43,6 @@ test_window_create_suite (void)
 
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
   g_test_add_func (DOMAIN"/Xid", test_xid);
-  g_test_add_func (DOMAIN"/ApplicationID", test_application_id);
-  g_test_add_func (DOMAIN"/DBusMenuObjectPath", test_dbus_menu_object_path);
-  g_test_add_func (DOMAIN"/UniqueBusName", test_unique_bus_name);
   g_test_add_func (DOMAIN"/Events/Active", test_active);
   g_test_add_func (DOMAIN"/Events/Urgent", test_urgent);
   g_test_add_func (DOMAIN"/Events/UserVisible", test_user_visible);
@@ -323,57 +317,6 @@ test_hmaximized (void)
   g_assert (signal_seen);
   g_assert (!signal_result);
   
-  g_object_unref (window);
-  g_object_unref (test);
-}
-
-void
-test_application_id (void)
-{
-  BamfWindow *window;
-  BamfLegacyWindowTest *test;
-  
-  test = bamf_legacy_window_test_new (20," Window X", "class", "exec");
-  bamf_legacy_window_test_set_application_id (test, "org.test.bamf.id");
-
-  window = bamf_window_new (BAMF_LEGACY_WINDOW (test));
-
-  g_assert (g_strcmp0 (bamf_window_get_app_id (window), "org.test.bamf.id") == 0);
-
-  g_object_unref (window);
-  g_object_unref (test);
-}
-
-void
-test_dbus_menu_object_path (void)
-{
-  BamfWindow *window;
-  BamfLegacyWindowTest *test;
-  
-  test = bamf_legacy_window_test_new (20, "Window X", "class", "exec");
-  bamf_legacy_window_test_set_dbus_menu_object_path (test, "/org/test/bamf/path");
-
-  window = bamf_window_new (BAMF_LEGACY_WINDOW (test));
-
-  g_assert (g_strcmp0 (bamf_window_get_menu_object_path (window), "/org/test/bamf/path") == 0);
-
-  g_object_unref (window);
-  g_object_unref (test);
-}
-
-void
-test_unique_bus_name (void)
-{
-  BamfWindow *window;
-  BamfLegacyWindowTest *test;
-  
-  test = bamf_legacy_window_test_new (20, "Window X", "class", "exec");
-  bamf_legacy_window_test_set_unique_bus_name (test, "org.test.bamf.name");
-
-  window = bamf_window_new (BAMF_LEGACY_WINDOW (test));
-
-  g_assert (g_strcmp0 (bamf_window_get_unique_bus_name (window), "org.test.bamf.name") == 0);
-
   g_object_unref (window);
   g_object_unref (test);
 }
