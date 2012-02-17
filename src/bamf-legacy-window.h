@@ -140,11 +140,7 @@ char             * bamf_legacy_window_get_exec_string      (BamfLegacyWindow *se
 
 BamfLegacyWindow * bamf_legacy_window_get_transient        (BamfLegacyWindow *self);
 
-char             * bamf_legacy_window_get_app_id           (BamfLegacyWindow *self);
-
-char             * bamf_legacy_window_get_unique_bus_name  (BamfLegacyWindow *self);
-
-char             * bamf_legacy_window_get_menu_object_path (BamfLegacyWindow *self);
+char             * bamf_legacy_window_get_utf8_xprop       (BamfLegacyWindow *self, const char* prop);
 
 gint               bamf_legacy_window_get_stacking_position (BamfLegacyWindow *self);
 

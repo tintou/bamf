@@ -9,24 +9,17 @@ bamf-view-private
 
 </para>
 
+
 <!-- ##### SECTION See_Also ##### -->
 <para>
 
 </para>
 
+
 <!-- ##### SECTION Stability_Level ##### -->
 
 
 <!-- ##### SECTION Image ##### -->
-
-
-<!-- ##### FUNCTION bamf_view_set_path ##### -->
-<para>
-
-</para>
-
-@view: 
-@dbus_path: 
 
 
 <!-- ##### FUNCTION bamf_view_get_path ##### -->
@@ -47,6 +40,15 @@ bamf-view-private
 @Returns: 
 
 
+<!-- ##### FUNCTION bamf_view_set_icon ##### -->
+<para>
+
+</para>
+
+@view: 
+@icon: 
+
+
 <!-- ##### FUNCTION bamf_view_set_name ##### -->
 <para>
 
@@ -56,12 +58,12 @@ bamf-view-private
 @name: 
 
 
-<!-- ##### FUNCTION bamf_view_set_icon ##### -->
+<!-- ##### FUNCTION bamf_view_set_path ##### -->
 <para>
 
 </para>
 
 @view: 
-@icon: 
+@dbus_path: 
 
 

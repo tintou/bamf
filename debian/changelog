@@ -1,3 +1,9 @@
+bamf (0.2.110-0ubuntu1) UNRELEASED; urgency=low
+
+  * New upstream release.
+
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 17 Feb 2012 12:53:53 +0100
+
 bamf (0.2.108-0ubuntu2) precise; urgency=low
 
   * remove -Werror for now as there is just new glib deprecation making it
