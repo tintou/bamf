@@ -52,6 +52,7 @@ struct _BamfWindowPrivate
   DBusGConnection *connection;
   DBusGProxy      *proxy;
   guint32          xid;
+  guint32          pid;
   time_t           last_active;
   gint             monitor;
   gchar           *application_id;
@@ -139,6 +140,36 @@ BamfWindowType bamf_window_get_window_type (BamfWindow *self)
     }
 
   return (BamfWindowType) type;
+}
+
+guint32 bamf_window_get_pid (BamfWindow *self)
+{
+  BamfWindowPrivate *priv;
+  guint32 pid = 0;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
+  priv = self->priv;
+
+  if (priv->pid != 0)
+    return priv->pid;
+
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
+    return 0;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "GetPid",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_UINT, &pid,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch pid: %s", error->message);
+      g_error_free (error);
+      return 0;
+    }
+
+  return pid;
 }
 
 guint32 bamf_window_get_xid (BamfWindow *self)
@@ -441,6 +472,7 @@ bamf_window_init (BamfWindow *self)
   priv = self->priv = BAMF_WINDOW_GET_PRIVATE (self);
 
   priv->xid = 0;
+  priv->pid = 0;
   priv->monitor = -2;
   priv->maximized = -1;
 
