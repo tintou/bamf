@@ -9,10 +9,12 @@ BamfFactory
 
 </para>
 
+
 <!-- ##### SECTION See_Also ##### -->
 <para>
 
 </para>
+
 
 <!-- ##### SECTION Stability_Level ##### -->
 
@@ -33,22 +35,6 @@ BamfFactory
 
 @parent_class: 
 
-<!-- ##### STRUCT BamfFactoryPrivate ##### -->
-<para>
-
-</para>
-
-
-<!-- ##### FUNCTION bamf_factory_view_for_path ##### -->
-<para>
-
-</para>
-
-@factory: 
-@path: 
-@Returns: 
-
-
 <!-- ##### FUNCTION bamf_factory_app_for_file ##### -->
 <para>
 
@@ -66,6 +52,16 @@ BamfFactory
 </para>
 
 @void: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_factory_view_for_path ##### -->
+<para>
+
+</para>
+
+@factory: 
+@path: 
 @Returns: 
 
 

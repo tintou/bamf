@@ -46,20 +46,19 @@
 <pre class="synopsis">enum                <a class="link" href="BamfView.html#BamfClickBehavior" title="enum BamfClickBehavior">BamfClickBehavior</a>;
 struct              <a class="link" href="BamfView.html#BamfView-struct" title="struct BamfView">BamfView</a>;
 struct              <a class="link" href="BamfView.html#BamfViewClass" title="struct BamfViewClass">BamfViewClass</a>;
-                    <a class="link" href="BamfView.html#BamfViewPrivate" title="BamfViewPrivate">BamfViewPrivate</a>;
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             <a class="link" href="BamfView.html#bamf-view-get-children" title="bamf_view_get_children ()">bamf_view_get_children</a>              (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfView.html#bamf-view-is-closed" title="bamf_view_is_closed ()">bamf_view_is_closed</a>                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfView.html#bamf-view-is-active" title="bamf_view_is_active ()">bamf_view_is_active</a>                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfView.html#bamf-view-is-running" title="bamf_view_is_running ()">bamf_view_is_running</a>                (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfView.html#bamf-view-is-urgent" title="bamf_view_is_urgent ()">bamf_view_is_urgent</a>                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             <a class="link" href="BamfView.html#bamf-view-get-name" title="bamf_view_get_name ()">bamf_view_get_name</a>                  (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
+<a class="link" href="BamfView.html#BamfClickBehavior" title="enum BamfClickBehavior"><span class="returnvalue">BamfClickBehavior</span></a>   <a class="link" href="BamfView.html#bamf-view-get-click-suggestion" title="bamf_view_get_click_suggestion ()">bamf_view_get_click_suggestion</a>      (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             <a class="link" href="BamfView.html#bamf-view-get-icon" title="bamf_view_get_icon ()">bamf_view_get_icon</a>                  (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfView.html#bamf-view-user-visible" title="bamf_view_user_visible ()">bamf_view_user_visible</a>              (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             <a class="link" href="BamfView.html#bamf-view-get-name" title="bamf_view_get_name ()">bamf_view_get_name</a>                  (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
 const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="BamfView.html#bamf-view-get-view-type" title="bamf_view_get_view_type ()">bamf_view_get_view_type</a>             (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfView.html#bamf-view-is-active" title="bamf_view_is_active ()">bamf_view_is_active</a>                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfView.html#bamf-view-is-closed" title="bamf_view_is_closed ()">bamf_view_is_closed</a>                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfView.html#bamf-view-is-running" title="bamf_view_is_running ()">bamf_view_is_running</a>                (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfView.html#bamf-view-is-sticky" title="bamf_view_is_sticky ()">bamf_view_is_sticky</a>                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfView.html#bamf-view-is-urgent" title="bamf_view_is_urgent ()">bamf_view_is_urgent</a>                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="BamfView.html#bamf-view-set-sticky" title="bamf_view_set_sticky ()">bamf_view_set_sticky</a>                (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> value</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfView.html#bamf-view-is-sticky" title="bamf_view_is_sticky ()">bamf_view_is_sticky</a>                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
-<a class="link" href="BamfView.html#BamfClickBehavior" title="enum BamfClickBehavior"><span class="returnvalue">BamfClickBehavior</span></a>   <a class="link" href="BamfView.html#bamf-view-get-click-suggestion" title="bamf_view_get_click_suggestion ()">bamf_view_get_click_suggestion</a>      (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="BamfView.html#bamf-view-user-visible" title="bamf_view_user_visible ()">bamf_view_user_visible</a>              (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);
 </pre>
 </div>
 <div class="refsect1">
@@ -159,13 +158,6 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.htm
 </div>
 <hr>
 <div class="refsect2">
-<a name="BamfViewPrivate"></a><h3>BamfViewPrivate</h3>
-<pre class="programlisting">typedef struct _BamfViewPrivate BamfViewPrivate;</pre>
-<p>
-</p>
-</div>
-<hr>
-<div class="refsect2">
 <a name="bamf-view-get-children"></a><h3>bamf_view_get_children ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             bamf_view_get_children              (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
@@ -190,65 +182,10 @@ freed after usage. Elements of the list are owned by bamf and should not be unre
 </div>
 <hr>
 <div class="refsect2">
-<a name="bamf-view-is-closed"></a><h3>bamf_view_is_closed ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_is_closed                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
+<a name="bamf-view-get-click-suggestion"></a><h3>bamf_view_get_click_suggestion ()</h3>
+<pre class="programlisting"><a class="link" href="BamfView.html#BamfClickBehavior" title="enum BamfClickBehavior"><span class="returnvalue">BamfClickBehavior</span></a>   bamf_view_get_click_suggestion      (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
 </p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="bamf-view-is-active"></a><h3>bamf_view_is_active ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_is_active                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
-<p>
-Determines if the view is currently active and focused by the user. Useful for an active window indicator.
-</p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody><tr>
-<td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
-<td>a <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>
-</td>
-</tr></tbody>
-</table></div>
-</div>
-<hr>
-<div class="refsect2">
-<a name="bamf-view-is-running"></a><h3>bamf_view_is_running ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_is_running                (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
-<p>
-Determines if the view is currently requiring attention. Useful for a running window indicator.
-</p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody><tr>
-<td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
-<td>a <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>
-</td>
-</tr></tbody>
-</table></div>
-</div>
-<hr>
-<div class="refsect2">
-<a name="bamf-view-is-urgent"></a><h3>bamf_view_is_urgent ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_is_urgent                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
-<p>
-</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="bamf-view-get-name"></a><h3>bamf_view_get_name ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             bamf_view_get_name                  (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
-<p>
-Gets the name of a view. This name is a short name best used to represent the view with text.
-</p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody><tr>
-<td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
-<td>a <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>
-</td>
-</tr></tbody>
-</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -268,22 +205,18 @@ Gets the icon of a view. This icon is used to visually represent the view.
 </div>
 <hr>
 <div class="refsect2">
-<a name="bamf-view-user-visible"></a><h3>bamf_view_user_visible ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_user_visible              (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
+<a name="bamf-view-get-name"></a><h3>bamf_view_get_name ()</h3>
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             bamf_view_get_name                  (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
+<p>
+Gets the name of a view. This name is a short name best used to represent the view with text.
+</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
-<tbody>
-<tr>
+<tbody><tr>
 <td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
 <td>a <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>
 </td>
-</tr>
-<tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>a boolean useful for determining if a particular view is "user visible". User visible
-is a concept relating to whether or not a window should be shown in a launcher tasklist.</td>
-</tr>
-</tbody>
+</tr></tbody>
 </table></div>
 </div>
 <hr>
@@ -312,11 +245,42 @@ descriptions should not be used to do casting as they are not considered stable.
 </div>
 <hr>
 <div class="refsect2">
-<a name="bamf-view-set-sticky"></a><h3>bamf_view_set_sticky ()</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>                bamf_view_set_sticky                (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> value</code></em>);</pre>
+<a name="bamf-view-is-active"></a><h3>bamf_view_is_active ()</h3>
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_is_active                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
+<p>
+Determines if the view is currently active and focused by the user. Useful for an active window indicator.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
+<td>a <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>
+</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="bamf-view-is-closed"></a><h3>bamf_view_is_closed ()</h3>
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_is_closed                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
 </p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="bamf-view-is-running"></a><h3>bamf_view_is_running ()</h3>
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_is_running                (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
+<p>
+Determines if the view is currently requiring attention. Useful for a running window indicator.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
+<td>a <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>
+</td>
+</tr></tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -327,10 +291,38 @@ descriptions should not be used to do casting as they are not considered stable.
 </div>
 <hr>
 <div class="refsect2">
-<a name="bamf-view-get-click-suggestion"></a><h3>bamf_view_get_click_suggestion ()</h3>
-<pre class="programlisting"><a class="link" href="BamfView.html#BamfClickBehavior" title="enum BamfClickBehavior"><span class="returnvalue">BamfClickBehavior</span></a>   bamf_view_get_click_suggestion      (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
+<a name="bamf-view-is-urgent"></a><h3>bamf_view_is_urgent ()</h3>
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_is_urgent                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
 </p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="bamf-view-set-sticky"></a><h3>bamf_view_set_sticky ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                bamf_view_set_sticky                (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>,
+                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> value</code></em>);</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="bamf-view-user-visible"></a><h3>bamf_view_user_visible ()</h3>
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            bamf_view_user_visible              (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
+<td>a <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>a boolean useful for determining if a particular view is "user visible". User visible
+is a concept relating to whether or not a window should be shown in a launcher tasklist.</td>
+</tr>
+</tbody>
+</table></div>
 </div>
 </div>
 <div class="refsect1">

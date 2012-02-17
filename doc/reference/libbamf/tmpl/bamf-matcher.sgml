@@ -9,10 +9,12 @@ BamfMatcher
 
 </para>
 
+
 <!-- ##### SECTION See_Also ##### -->
 <para>
 
 </para>
+
 
 <!-- ##### SECTION Stability_Level ##### -->
 
@@ -44,6 +46,13 @@ BamfMatcher
 @arg1: 
 @arg2: 
 
+<!-- ##### SIGNAL BamfMatcher::stacking-order-changed ##### -->
+<para>
+
+</para>
+
+@bamfmatcher: the object which received the signal.
+
 <!-- ##### SIGNAL BamfMatcher::view-closed ##### -->
 <para>
 
@@ -67,18 +76,13 @@ BamfMatcher
 
 @parent_class: 
 
-<!-- ##### STRUCT BamfMatcherPrivate ##### -->
+<!-- ##### FUNCTION bamf_matcher_application_is_running ##### -->
 <para>
 
 </para>
 
-
-<!-- ##### FUNCTION bamf_matcher_get_default ##### -->
-<para>
-
-</para>
-
-@void: 
+@matcher: 
+@application: 
 @Returns: 
 
 
@@ -100,13 +104,14 @@ BamfMatcher
 @Returns: 
 
 
-<!-- ##### FUNCTION bamf_matcher_get_application_for_xid ##### -->
+<!-- ##### FUNCTION bamf_matcher_get_application_for_desktop_file ##### -->
 <para>
 
 </para>
 
 @matcher: 
-@xid: 
+@desktop_file_path: 
+@create_if_not_found: 
 @Returns: 
 
 
@@ -120,13 +125,13 @@ BamfMatcher
 @Returns: 
 
 
-<!-- ##### FUNCTION bamf_matcher_application_is_running ##### -->
+<!-- ##### FUNCTION bamf_matcher_get_application_for_xid ##### -->
 <para>
 
 </para>
 
 @matcher: 
-@application: 
+@xid: 
 @Returns: 
 
 
@@ -139,13 +144,13 @@ BamfMatcher
 @Returns: 
 
 
-<!-- ##### FUNCTION bamf_matcher_register_favorites ##### -->
+<!-- ##### FUNCTION bamf_matcher_get_default ##### -->
 <para>
 
 </para>
 
-@matcher: 
-@favorites: 
+@void: 
+@Returns: 
 
 
 <!-- ##### FUNCTION bamf_matcher_get_running_applications ##### -->
@@ -166,13 +171,13 @@ BamfMatcher
 @Returns: 
 
 
-<!-- ##### FUNCTION bamf_matcher_get_xids_for_application ##### -->
+<!-- ##### FUNCTION bamf_matcher_get_window_stack_for_monitor ##### -->
 <para>
 
 </para>
 
 @matcher: 
-@application: 
+@monitor: 
 @Returns: 
 
 
@@ -185,14 +190,22 @@ BamfMatcher
 @Returns: 
 
 
-<!-- ##### FUNCTION bamf_matcher_get_application_for_desktop_file ##### -->
+<!-- ##### FUNCTION bamf_matcher_get_xids_for_application ##### -->
 <para>
 
 </para>
 
 @matcher: 
-@desktop_file_path: 
-@create_if_not_found: 
+@application: 
 @Returns: 
+
+
+<!-- ##### FUNCTION bamf_matcher_register_favorites ##### -->
+<para>
+
+</para>
+
+@matcher: 
+@favorites: 
 
 
