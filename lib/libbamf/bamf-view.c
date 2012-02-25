@@ -150,7 +150,7 @@ bamf_view_get_children (BamfView *view)
   BamfViewPrivate *priv;
 
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  
+
   if (BAMF_VIEW_GET_CLASS (view)->get_children)
     return BAMF_VIEW_GET_CLASS (view)->get_children (view);
 
@@ -181,7 +181,7 @@ bamf_view_get_children (BamfView *view)
 
   for (i = len-1; i >= 0; i--)
     {
-      BamfView *view = bamf_factory_view_for_path (bamf_factory_get_default (), children[i]);
+      view = bamf_factory_view_for_path (bamf_factory_get_default (), children[i]);
       results = g_list_prepend (results, g_object_ref (view));
     }
 
