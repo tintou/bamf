@@ -226,6 +226,7 @@ bamf_indicator_source_register_notification_approver (BamfIndicatorSource *self)
   GDBusProxy *gproxy;
   GError *error = NULL;
   gchar *owner;
+  GVariant* result;
 
   gproxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
                                           G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES|
@@ -257,7 +258,7 @@ bamf_indicator_source_register_notification_approver (BamfIndicatorSource *self)
           g_variant_builder_init (&array, G_VARIANT_TYPE ("as"));
           g_variant_builder_add_value (&tuple, g_variant_builder_end (&array));
 
-          g_dbus_proxy_call_sync (gproxy, "XAyatanaRegisterNotificationApprover",
+          result = g_dbus_proxy_call_sync (gproxy, "XAyatanaRegisterNotificationApprover",
                                            g_variant_builder_end (&tuple),
                                            G_DBUS_CALL_FLAGS_NONE,
                                            -1,
@@ -271,6 +272,7 @@ bamf_indicator_source_register_notification_approver (BamfIndicatorSource *self)
                                 (GCallback) status_notifier_proxy_owner_changed,
                                 self);
 
+              g_variant_unref (result);
               if (self->priv->proxy)
                 g_object_unref (self->priv->proxy);
 
