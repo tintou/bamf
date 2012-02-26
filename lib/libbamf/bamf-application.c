@@ -462,7 +462,7 @@ bamf_application_new_favorite (const char * favorite_path)
   BamfApplication *self;
   GKeyFile        *desktop_keyfile;
   GKeyFileFlags    flags;
-  const gchar     *type;
+  gchar           *type;
   gboolean         supported = FALSE;
   
   // check that we support this kind of desktop file
@@ -475,6 +475,7 @@ bamf_application_new_favorite (const char * favorite_path)
         supported = TRUE;
 
       g_key_file_free (desktop_keyfile);
+      g_free (type);
     }
   if (!supported)
     return NULL;
