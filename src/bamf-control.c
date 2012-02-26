@@ -19,7 +19,6 @@
  */
 
 
-#include "bamf-tab-source.h"
 #include "bamf-matcher.h"
 #include "bamf-control.h"
 #include "bamf-indicator-source.h"
@@ -110,19 +109,6 @@ on_dbus_handle_om_nom_nom_desktop_file (BamfDBusControl *interface,
 }
 
 static gboolean
-on_dbus_handle_register_tab_provider (BamfDBusControl *interface,
-                                      GDBusMethodInvocation *invocation,
-                                      const gchar *tab_path,
-                                      BamfControl *self)
-{
-  const gchar *sender = g_dbus_method_invocation_get_sender (invocation);
-  bamf_control_register_tab_provider (self, sender, tab_path);
-  g_dbus_method_invocation_return_value (invocation, NULL);
-
-  return TRUE;
-}
-
-static gboolean
 on_dbus_handle_register_application_for_pid (BamfDBusControl *interface,
                                              GDBusMethodInvocation *invocation,
                                              const gchar *application,
@@ -150,9 +136,6 @@ bamf_control_init (BamfControl * self)
 
   g_signal_connect (self, "handle-om-nom-nom-desktop-file",
                     G_CALLBACK (on_dbus_handle_om_nom_nom_desktop_file), self);
-
-  g_signal_connect (self, "handle-register-tab-provider",
-                    G_CALLBACK (on_dbus_handle_register_tab_provider), self);
 
   g_signal_connect (self, "handle-register-application-for-pid",
                     G_CALLBACK (on_dbus_handle_register_application_for_pid), self);
@@ -200,26 +183,6 @@ bamf_control_insert_desktop_file (BamfControl *control,
 {
   BamfMatcher *matcher = bamf_matcher_get_default ();
   bamf_matcher_load_desktop_file (matcher, path);
-}
-
-void
-bamf_control_register_tab_provider (BamfControl *control,
-                                    const char *sender,
-                                    const char *path)
-{
-  BamfTabSource *source;
-
-  if (!path || !sender)
-    {
-      return;
-    }
-
-  source = bamf_tab_source_new (g_strdup (sender), g_strdup (path));
-
-  if (BAMF_IS_TAB_SOURCE (source))
-    {
-      control->priv->sources = g_list_prepend (control->priv->sources, source);
-    }
 }
 
 static gboolean

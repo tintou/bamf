@@ -50,38 +50,22 @@ struct _BamfTab {
 
 struct _BamfTabClass {
   BamfViewClass parent_class;
-
-  void (*show) (BamfTab *self);
-
-  /*< signals >*/
-  void  (*uri_changed)      (char *old_uri, char *new_uri);
-  void  (*preview_updated)  (void);
-  
-  void (*_tab_padding1) (void);
-  void (*_tab_padding2) (void);
-  void (*_tab_padding3) (void);
-  void (*_tab_padding4) (void);
-  void (*_tab_padding5) (void);
-  void (*_tab_padding6) (void);
 };
+
+typedef void (*BamfTabPreviewReadyCallback) (BamfTab *self, const gchar *preview_data, gpointer user_data);
 
 GType bamf_tab_get_type (void) G_GNUC_CONST;
 
-gchar   * bamf_tab_get_id      (BamfTab *self);
+BamfTab * bamf_tab_new         (const gchar *path);
 
-gchar   * bamf_tab_get_preview (BamfTab *self);
+gboolean bamf_tab_raise        (BamfTab *self);
+void bamf_tab_request_preview (BamfTab *self, BamfTabPreviewReadyCallback callback, gpointer user_data);
 
-void      bamf_tab_set_preview (BamfTab *self,
-                                gchar *uri);
+const gchar *bamf_tab_get_desktop_name (BamfTab *self);
+const gchar *bamf_tab_get_location (BamfTab *self);
+guint64 bamf_tab_get_xid (BamfTab *self);
 
-gchar   * bamf_tab_get_uri     (BamfTab *self);
 
-void      bamf_tab_set_uri     (BamfTab *self,
-                                gchar *uri);
-                                
-void      bamf_tab_show        (BamfTab *self);
-
-BamfTab * bamf_tab_new         (gchar *id, gchar *uri);
 
 
 G_END_DECLS

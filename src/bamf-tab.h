@@ -23,7 +23,6 @@
 
 #include "bamf.h"
 #include "bamf-view.h"
-#include "bamf-tab-source.h"
 #include <glib.h>
 #include <glib-object.h>
 
@@ -38,9 +37,14 @@ typedef struct _BamfTab BamfTab;
 typedef struct _BamfTabClass BamfTabClass;
 typedef struct _BamfTabPrivate BamfTabPrivate;
 
+typedef void (*BamfTabPreviewReadyCallback) (BamfTab *, const gchar *, gpointer);
+
 struct _BamfTabClass
 {
   BamfViewClass parent;
+  
+  void (*raise) (BamfTab *self);
+  void (*request_preview) (BamfTab *self, BamfTabPreviewReadyCallback callback, gpointer user_data);
 };
 
 struct _BamfTab
@@ -53,14 +57,14 @@ struct _BamfTab
 
 GType       bamf_tab_get_type    (void) G_GNUC_CONST;
 
-char      * bamf_tab_current_uri (BamfTab *self);
+const gchar *bamf_tab_get_desktop_id (BamfTab *self);
+const gchar *bamf_tab_current_location (BamfTab *self);
+guint64 bamf_tab_get_xid (BamfTab *self);
 
-void        bamf_tab_show        (BamfTab *self);
 
-guint32     bamf_tab_parent_xid  (BamfTab *tab);
+void bamf_tab_raise (BamfTab *self);
+void bamf_tab_request_preview (BamfTab *self, BamfTabPreviewReadyCallback callback, gpointer user_data);
 
-gchar     * bamf_tab_get_preview (BamfTab *tab);
 
-BamfTab   * bamf_tab_new         (BamfTabSource *source, const char *tab_id);
 
 #endif

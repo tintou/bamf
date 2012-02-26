@@ -14,7 +14,6 @@ bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-application.c \
 		$(top_srcdir)/src/bamf-window.c \
 		$(top_srcdir)/src/bamf-tab.c \
-		$(top_srcdir)/src/bamf-tab-source.c \
 		$(top_srcdir)/src/bamf-indicator.c \
 		$(top_srcdir)/src/bamf-indicator-source.c \
 		$(top_srcdir)/src/bamf-xutils.c \
@@ -37,7 +36,6 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/bamf-matcher.h \
 		$(top_srcdir)/src/bamf-window.h \
 		$(top_srcdir)/src/bamf-tab.h \
-		$(top_srcdir)/src/bamf-tab-source.h \
 		$(top_srcdir)/src/bamf-application.h \
 		$(top_srcdir)/src/bamf-indicator-source.h \
 		$(top_srcdir)/src/bamf-indicator.h \
