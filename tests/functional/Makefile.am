@@ -9,7 +9,6 @@ NULL =
 noinst_PROGRAMS = \
   alt-tabber \
   desktop-file-launcher \
-  tab-source-test \
   interaction-tester
 
 # alt-tabber
