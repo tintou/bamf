@@ -14,6 +14,9 @@ bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-application.c \
 		$(top_srcdir)/src/bamf-window.c \
 		$(top_srcdir)/src/bamf-tab.c \
+		$(top_srcdir)/src/bamf-unity-webapps-tab.c \
+		$(top_srcdir)/src/bamf-unity-webapps-observer.c \
+		$(top_srcdir)/src/bamf-unity-webapps-application.c \
 		$(top_srcdir)/src/bamf-indicator.c \
 		$(top_srcdir)/src/bamf-indicator-source.c \
 		$(top_srcdir)/src/bamf-xutils.c \
@@ -67,6 +70,7 @@ test_bamf_CPPFLAGS = \
   $(GLIB_CFLAGS) \
   $(WNCK_CFLAGS) \
   $(GTOP_CFLAGS) \
+  $(LIBUNITY_WEBAPPS_CFLAGS) \
   $(MAINTAINER_CFLAGS)
 
 test_bamf_LDADD = \
@@ -74,7 +78,8 @@ test_bamf_LDADD = \
   $(GLIB_LIBS) \
   $(WNCK_LIBS) \
   $(GTOP_LIBS) \
-  $(GTK_LIBS)
+  $(GTK_LIBS) \
+  $(LIBUNITY_WEBAPPS_LIBS) 
 
 test_bamf_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \

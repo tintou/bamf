@@ -232,7 +232,7 @@ on_view_closed (BamfView *view, BamfMatcher *self)
   bamf_matcher_unregister_view (self, view, TRUE);
 }
 
-static void
+void
 bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
 {
   const char *path, *type;

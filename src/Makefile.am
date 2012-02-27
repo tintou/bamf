@@ -54,6 +54,7 @@ bamfdaemon_sources = \
 		bamf-tab.c \
 	        bamf-unity-webapps-tab.c \
 		bamf-unity-webapps-observer.c \
+		bamf-unity-webapps-application.c \
 		bamf-indicator-source.c \
 		bamf-indicator.c \
 		bamf-xutils.c \

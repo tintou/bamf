@@ -24,6 +24,7 @@
 #include "bamf-indicator.h"
 #include "bamf-legacy-window.h"
 #include "bamf-legacy-screen.h"
+#include "bamf-tab.h"
 #include <string.h>
 #include <gio/gdesktopappinfo.h>
 
@@ -411,7 +412,7 @@ bamf_application_ensure_flags (BamfApplication *self)
       if (BAMF_IS_INDICATOR (view))
         visible = TRUE;
 
-      if (!BAMF_IS_WINDOW (view))
+      if (!BAMF_IS_WINDOW (view) && !BAMF_IS_TAB (view))
         continue;
 
       if (bamf_view_is_urgent (view))

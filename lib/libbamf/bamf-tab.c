@@ -82,7 +82,7 @@ bamf_tab_fetch_properties (BamfTab *self)
   
   if (error != NULL)
     {
-      g_error ("Failed to fetch BamfTab properties: %s", error->message);
+      g_critical ("Failed to fetch BamfTab properties: %s", error->message);
       g_error_free (error);
       
       return;
@@ -143,18 +143,18 @@ bamf_tab_set_path (BamfView *view, const gchar *path)
   
   if (self->priv->tab_proxy == NULL)
     {
-      g_critical ("Unable to get org.ayatana.bamf.tab proxy: %s", path);
+      g_warning ("Unable to get org.ayatana.bamf.tab proxy: %s", path);
       return;
     }
   
   self->priv->properties_proxy = dbus_g_proxy_new_for_name (self->priv->connection,
 							    "org.ayatana.bamf",
 							    path,
-							    "org.freedesktop.DBus.properties");
+							    "org.freedesktop.DBus.Properties");
 
   if (self->priv->properties_proxy == NULL)
     {
-      g_critical ("Unable to get org.freedesktop.DBus.properties proxy on tab object: %s", path);
+      g_warning ("Unable to get org.freedesktop.DBus.properties proxy on tab object: %s", path);
       return;
     }
   
@@ -262,7 +262,7 @@ bamf_tab_init (BamfTab *self)
   
   if (error != NULL)
     {
-      g_critical ("Failed to open connection to bus: %s", error->message);
+      g_warning ("Failed to open connection to bus: %s", error->message);
       g_error_free (error);
       
       return;
@@ -332,7 +332,7 @@ bamf_tab_on_preview_ready (DBusGProxy *proxy,
   
   if (error != NULL)
     {
-      g_critical ("Error requesting BamfTab preview: %s", error->message);
+      g_warning ("Error requesting BamfTab preview: %s", error->message);
       g_error_free (error);
       
       return;
