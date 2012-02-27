@@ -23,6 +23,7 @@
 #include "bamf-control.h"
 #include "bamf-indicator-source.h"
 #include "bamf-daemon.h"
+#include "bamf-unity-webapps-observer.h"
 
 G_DEFINE_TYPE (BamfControl, bamf_control, BAMF_DBUS_TYPE_CONTROL_SKELETON);
 #define BAMF_CONTROL_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -139,6 +140,8 @@ bamf_control_init (BamfControl * self)
 
   g_signal_connect (self, "handle-register-application-for-pid",
                     G_CALLBACK (on_dbus_handle_register_application_for_pid), self);
+  
+  bamf_unity_webapps_observer_new ();
 }
 
 static void

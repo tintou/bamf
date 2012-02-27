@@ -19,7 +19,9 @@
  */
 
 #include "bamf-unity-webapps-tab.h"
+#include "bamf-matcher.h"
 
+#include <unity-webapps-service.h>
 #include <unity-webapps-context.h>
 
 #define BAMF_UNITY_WEBAPPS_TAB_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -142,6 +144,11 @@ bamf_unity_webapps_tab_interest_id_set (BamfUnityWebappsTab *self)
 						   self);
   
   bamf_unity_webapps_tab_initialize_properties (self);
+
+  bamf_view_set_running (BAMF_VIEW (self), TRUE);
+  bamf_view_set_user_visible (BAMF_VIEW (self), TRUE);
+  
+  bamf_matcher_register_view (bamf_matcher_get_default (), BAMF_VIEW (self));
 }
 
 
@@ -177,6 +184,8 @@ bamf_unity_webapps_tab_set_property (GObject *object, guint property_id, const G
     case PROP_CONTEXT:
       g_assert (self->priv->context == NULL);
       self->priv->context = g_value_get_object (gvalue);
+      self->priv->context = unity_webapps_context_new_for_context_name (unity_webapps_context_get_service (self->priv->context), 
+									unity_webapps_context_get_context_name (self->priv->context));
       break;
     case PROP_INTEREST_ID:
       g_assert (self->priv->interest_id == 0);
@@ -201,7 +210,9 @@ bamf_unity_webapps_tab_dispose (GObject *object)
 static void
 bamf_unity_webapps_tab_finalize (GObject *object)
 {
-  //BamfUnityWebappsTab *self = BAMF_UNITY_WEBAPPS_TAB (object);
+  BamfUnityWebappsTab *self = BAMF_UNITY_WEBAPPS_TAB (object);
+  
+  g_object_unref (G_OBJECT (self->priv->context));
   
   
   G_OBJECT_CLASS (bamf_unity_webapps_tab_parent_class)->finalize (object);
@@ -210,7 +221,7 @@ bamf_unity_webapps_tab_finalize (GObject *object)
 static void
 bamf_unity_webapps_tab_init (BamfUnityWebappsTab *self)
 {
-  //  self->priv = BAMF_UNITY_WEBAPPS_TAB_GET_PRIVATE (self);
+  self->priv = BAMF_UNITY_WEBAPPS_TAB_GET_PRIVATE (self);
 
 }
 
@@ -292,6 +303,7 @@ bamf_unity_webapps_tab_class_init (BamfUnityWebappsTabClass * klass)
   
   pspec = g_param_spec_int("interest-id", "Interest ID", "The Interest ID (unique to Context) for this Tab",
 			   G_MININT, G_MAXINT, -1, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+  g_object_class_install_property (object_class, PROP_INTEREST_ID, pspec);
   
   unity_webapps_tab_signals [VANISHED] =
     g_signal_new_class_handler("vanished",
@@ -306,8 +318,14 @@ bamf_unity_webapps_tab_class_init (BamfUnityWebappsTabClass * klass)
 }
 
 
-BamfTab *
+gint 
+bamf_unity_webapps_tab_get_interest_id (BamfUnityWebappsTab *tab)
+{
+  return tab->priv->interest_id;
+}
+
+BamfUnityWebappsTab *
 bamf_unity_webapps_tab_new (UnityWebappsContext *context, gint interest_id)
 {
-  return (BamfTab *)g_object_new (BAMF_TYPE_UNITY_WEBAPPS_TAB, "context", context, "interest-id", interest_id);
+  return (BamfUnityWebappsTab *)g_object_new (BAMF_TYPE_UNITY_WEBAPPS_TAB, "context", context, "interest-id", interest_id, NULL);
 }

@@ -40,6 +40,7 @@
 #include "bamf-window.h"
 #include "bamf-application.h"
 #include "bamf-indicator.h"
+#include "bamf-tab.h"
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
@@ -190,6 +191,8 @@ bamf_factory_view_for_path (BamfFactory * factory,
     view = BAMF_VIEW (bamf_window_new (path));
   else if (g_strcmp0 (type, "indicator") == 0)
     view = BAMF_VIEW (bamf_indicator_new (path));
+  else if (g_strcmp0 (type, "tab") == 0)
+    view = BAMF_VIEW (bamf_tab_new (path));
   
   created = TRUE;
   

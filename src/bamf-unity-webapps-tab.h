@@ -39,20 +39,22 @@ typedef struct _BamfUnityWebappsTabPrivate BamfUnityWebappsTabPrivate;
 
 struct _BamfUnityWebappsTabClass
 {
-  BamfViewClass parent;
+  BamfTabClass parent;
 };
 
 struct _BamfUnityWebappsTab
 {
-  BamfView parent;
+  BamfTab parent;
 
   /* private */
   BamfUnityWebappsTabPrivate *priv;
 };
 
-GType       bamf_tab_get_type    (void) G_GNUC_CONST;
+GType       bamf_unity_webapps_tab_get_type    (void) G_GNUC_CONST;
 
-BamfTab *bamf_unity_webapps_tab_new (UnityWebappsContext *context, gint interest_id);
+BamfUnityWebappsTab *bamf_unity_webapps_tab_new (UnityWebappsContext *context, gint interest_id);
+
+gint bamf_unity_webapps_tab_get_interest_id (BamfUnityWebappsTab *tab);
 
 
 
