@@ -190,70 +190,159 @@ bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
 static char *
 get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
 {
+  gchar *exec = NULL;
   const gchar *name;
-  char *exec;
-  GHashTable *desktopFileTable;
-  GList *list;
+  const gchar *class;
+  const char *binary = NULL;
+  const char *parameter = NULL;
+  BamfWindowType type;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
 
   name = bamf_legacy_window_get_name (window);
+  class = bamf_legacy_window_get_class_name (window);
+  type = bamf_legacy_window_get_window_type (window);
 
-  if (name == NULL)
+  if (name == NULL && class == NULL)
     return NULL;
 
-  if (g_str_has_suffix (name, "OpenOffice.org Writer"))
+  if (g_str_has_suffix (name, "LibreOffice Writer"))
     {
-      exec = "ooffice -writer %F";
-    }
-  else if (g_str_has_suffix (name, "OpenOffice.org Math"))
-    {
-      exec = "ooffice -math %F";
-    }
-  else if (g_str_has_suffix (name, "OpenOffice.org Calc"))
-    {
-      exec = "ooffice -calc %F";
-    }
-  else if (g_str_has_suffix (name, "OpenOffice.org Impress"))
-    {
-      exec = "ooffice -impress %F";
-    }
-  else if (g_str_has_suffix (name, "OpenOffice.org Draw"))
-    {
-      exec = "ooffice -draw %F";
-    }
-  else if (g_str_has_suffix (name, "LibreOffice Writer"))
-    {
-      exec = "libreoffice -writer %U";
-    }
-  else if (g_str_has_suffix (name, "LibreOffice Math"))
-    {
-      exec = "libreoffice -math %U";
+      binary = "libreoffice";
+      parameter = "writer";
     }
   else if (g_str_has_suffix (name, "LibreOffice Calc"))
     {
-      exec = "libreoffice -calc %U";
+      binary = "libreoffice";
+       parameter = "calc";
     }
   else if (g_str_has_suffix (name, "LibreOffice Impress"))
     {
-      exec = "libreoffice -impress %U";
+      binary = "libreoffice";
+      parameter = "impress";
+    }
+  else if (g_str_has_suffix (name, "LibreOffice Math"))
+    {
+      binary = "libreoffice";
+      parameter = "math";
     }
   else if (g_str_has_suffix (name, "LibreOffice Draw"))
     {
-      exec = "libreoffice -draw %U";
+      binary = "libreoffice";
+      parameter = "draw";
+    }
+  else if (g_strcmp0 (class, "libreoffice-startcenter") == 0)
+    {
+      binary = "libreoffice";
+    }
+  else if (g_strcmp0 (name, "LibreOffice") == 0 && type == BAMF_WINDOW_NORMAL)
+    {
+      binary = "libreoffice";
+    }
+  else if (g_str_has_suffix (name, "OpenOffice.org Writer"))
+    {
+      binary = "ooffice";
+      parameter = "writer";
+    }
+  else if (g_str_has_suffix (name, "OpenOffice.org Calc"))
+    {
+      binary = "ooffice";
+      parameter = "calc";
+    }
+  else if (g_str_has_suffix (name, "OpenOffice.org Impress"))
+    {
+      binary = "ooffice";
+      parameter = "impress";
+    }
+  else if (g_str_has_suffix (name, "OpenOffice.org Math"))
+    {
+      binary = "ooffice";
+      parameter = "math";
+    }
+  else if (g_str_has_suffix (name, "OpenOffice.org Draw"))
+    {
+      binary = "ooffice";
+      parameter = "draw";
+    }
+  else if (g_strcmp0 (name, "OpenOffice.org") == 0 && type == BAMF_WINDOW_NORMAL)
+    {
+      binary = "ooffice";
     }
   else
     {
-      return NULL;
+      if (type != BAMF_WINDOW_NORMAL || bamf_legacy_window_get_transient (window))
+      {
+        /* Child windows can generally easily be recognized by their class */
+        if (g_strcmp0 (class, "libreoffice-writer") == 0)
+          {
+            binary = "libreoffice";
+            parameter = "writer";
+          }
+        else if (g_strcmp0 (class, "libreoffice-calc") == 0)
+          {
+            binary = "libreoffice";
+            parameter = "calc";
+          }
+        else if (g_strcmp0 (class, "libreoffice-impress") == 0)
+          {
+            binary = "libreoffice";
+            parameter = "impress";
+          }
+        else if (g_strcmp0 (class, "libreoffice-math") == 0)
+          {
+            binary = "libreoffice";
+            parameter = "math";
+          }
+        else if (g_strcmp0 (class, "libreoffice-draw") == 0)
+          {
+            binary = "libreoffice";
+            parameter = "draw";
+          }
+      }
+
+      if (!binary)
+        {
+          /* By default fallback to the main launcher */
+          if (g_str_has_prefix (class, "OpenOffice"))
+            {
+              binary = "ooffice";
+            }
+          else
+            {
+              binary = "libreoffice";
+            }
+        }
     }
 
-  desktopFileTable = self->priv->desktop_file_table;
-  list = g_hash_table_lookup (desktopFileTable, exec);
+  if (!binary)
+    return NULL;
 
-  g_return_val_if_fail (list, NULL);
+  const char *sufix = NULL;
 
-  return (char *) list->data;
+  if (g_strcmp0 (binary, "libreoffice") == 0)
+    sufix = " %U";
+  else if (g_strcmp0 (binary, "ooffice") == 0)
+    sufix = " %F";
+
+  GList *l;
+  if (!parameter)
+    exec = g_strconcat (binary, sufix, NULL);
+  else
+    exec = g_strconcat (binary, " --", parameter, sufix, NULL);
+
+  l = g_hash_table_lookup (self->priv->desktop_file_table, exec);
+  g_free (exec);
+
+  if (!l && parameter)
+    {
+      exec = g_strconcat (binary, " -", parameter, sufix, NULL);
+
+      l = g_hash_table_lookup (self->priv->desktop_file_table, exec);
+      g_free (exec);
+    }
+
+  return (l ? (char *) l->data : NULL);
 }
 
 /* Attempts to return the binary name for a particular execution string */
