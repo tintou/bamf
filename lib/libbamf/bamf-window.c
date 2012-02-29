@@ -55,9 +55,6 @@ struct _BamfWindowPrivate
   guint32          pid;
   time_t           last_active;
   gint             monitor;
-  gchar           *application_id;
-  gchar           *unique_bus_name;
-  gchar           *dbus_menu_object_path;
   BamfWindowMaximizationType maximized;
 };
 
@@ -290,11 +287,6 @@ bamf_window_get_utf8_prop (BamfWindow *self, const char* xprop)
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
   priv = self->priv;
 
-  if (priv->application_id)
-    {
-      return priv->application_id;
-    }
-
   if (!bamf_view_remote_ready (BAMF_VIEW (self)))
     return NULL;
 
@@ -406,24 +398,6 @@ bamf_window_dispose (GObject *object)
 
       g_object_unref (priv->proxy);
       priv->proxy = NULL;
-    }
-
-  if (priv->application_id)
-    {
-      g_free (priv->application_id);
-      priv->application_id = NULL;
-    }
-
-  if (priv->unique_bus_name)
-    {
-      g_free (priv->unique_bus_name);
-      priv->unique_bus_name = NULL;
-    }
-
-  if (priv->dbus_menu_object_path)
-    {
-      g_free (priv->dbus_menu_object_path);
-      priv->dbus_menu_object_path = NULL;
     }
 
   if (G_OBJECT_CLASS (bamf_window_parent_class)->dispose)
