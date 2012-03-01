@@ -67,6 +67,28 @@ bamf_unity_webapps_application_get_property (GObject *object, guint property_id,
     }
 }
 
+static BamfUnityWebappsTab *
+bamf_unity_webapps_application_find_child_by_interest (BamfUnityWebappsApplication *application,
+						       gint interest_id)
+{
+  GList *children, *walk;
+  BamfUnityWebappsTab *child;
+  
+  children = bamf_view_get_children (BAMF_VIEW (application));
+  
+  for (walk = children; walk != NULL; walk = walk->next)
+    {
+      child = BAMF_UNITY_WEBAPPS_TAB (walk->data);
+      
+      if (interest_id == bamf_unity_webapps_tab_get_interest_id (child))
+	{
+	  return child;
+	}
+    }
+  
+  return NULL;
+}
+
 static void
 bamf_unity_webapps_application_interest_appeared (UnityWebappsContext *context,
 						  gint interest_id,
@@ -74,8 +96,16 @@ bamf_unity_webapps_application_interest_appeared (UnityWebappsContext *context,
 {
   BamfUnityWebappsApplication *self;
   BamfView *interest_view;
+  BamfUnityWebappsTab *child;
   
   self = (BamfUnityWebappsApplication *)user_data;
+
+  child = bamf_unity_webapps_application_find_child_by_interest (self, interest_id);
+  
+  if (child != NULL)
+    {
+      return;
+    }
   
   interest_view = (BamfView *)bamf_unity_webapps_tab_new (context, interest_id);
   
@@ -91,26 +121,21 @@ bamf_unity_webapps_application_interest_vanished (UnityWebappsContext *context,
 {
   BamfUnityWebappsApplication *self;
   BamfUnityWebappsTab *child;
-  GList *children, *walk;
-  int i = 0;
   
   self = (BamfUnityWebappsApplication *)user_data;
   
-  children = bamf_view_get_children (BAMF_VIEW (self));
+  child = bamf_unity_webapps_application_find_child_by_interest (self, interest_id);
   
-  for (walk = children; walk != NULL; walk = walk->next)
+  if (child == NULL)
     {
-      child = BAMF_UNITY_WEBAPPS_TAB (walk->data);
-      i++;
-      if (interest_id == bamf_unity_webapps_tab_get_interest_id (child))
-	{
-	  bamf_view_close (BAMF_VIEW (child));
-	  g_object_unref (BAMF_VIEW (child));
-	}
+      return;
     }
   
-  if (i == 1)
-    bamf_view_close (BAMF_VIEW (self));
+  bamf_view_close (BAMF_VIEW (child));
+  g_object_unref (BAMF_VIEW (child));
+  
+  //  if (i == 1)
+  //    bamf_view_close (BAMF_VIEW (self));
 }
 
 static void

@@ -21,6 +21,10 @@
 #include "bamf-unity-webapps-tab.h"
 #include "bamf-matcher.h"
 
+#include "bamf-xutils.h"
+#include "bamf-legacy-window.h"
+#include "bamf-legacy-screen.h"
+
 #include <unity-webapps-service.h>
 #include <unity-webapps-context.h>
 
@@ -49,7 +53,34 @@ struct _BamfUnityWebappsTabPrivate
   UnityWebappsContext *context;
   
   gint interest_id;
+  
+  BamfLegacyWindow *legacy_window;
+  
+  gboolean tab_active;
 };
+
+static void
+bamf_unity_webapps_tab_ensure_flags (BamfUnityWebappsTab *self)
+{
+  gboolean window_active;
+  
+  window_active = bamf_legacy_window_is_active (self->priv->legacy_window);
+  
+  bamf_view_set_active (BAMF_VIEW (self), window_active && self->priv->tab_active);
+}
+
+static void
+bamf_unity_webapps_tab_active_window_changed (BamfLegacyScreen *screen, BamfUnityWebappsTab *tab)
+{
+  bamf_unity_webapps_tab_ensure_flags (tab);
+}
+
+static void
+bamf_unity_webapps_tab_create_bamf_window (BamfUnityWebappsTab *self,
+					   gulong xid)
+{
+  self->priv->legacy_window = bamf_legacy_window_new (wnck_window_get (xid));
+}
 
 
 static void
@@ -94,6 +125,9 @@ bamf_unity_webapps_tab_window_changed (UnityWebappsContext *context,
     }
   
   g_object_set (self, "xid", xid, NULL);
+  
+  bamf_unity_webapps_tab_create_bamf_window (self, xid);
+  bamf_unity_webapps_tab_ensure_flags (self);
 }
 
 static void
@@ -111,7 +145,8 @@ bamf_unity_webapps_tab_active_changed (UnityWebappsContext *context,
       return;
     }
   
-  bamf_view_set_active (BAMF_VIEW (self), is_active);
+  self->priv->tab_active = is_active;
+  bamf_unity_webapps_tab_ensure_flags (self);
 }
 
 static void
@@ -127,7 +162,10 @@ bamf_unity_webapps_tab_initialize_properties (BamfUnityWebappsTab *self)
   
   g_object_set (self, "location", location, "xid", xid, NULL);
   
-  bamf_view_set_active (BAMF_VIEW (self), is_active);
+  self->priv->tab_active = is_active;
+  bamf_unity_webapps_tab_create_bamf_window (self, xid);
+  
+  bamf_unity_webapps_tab_ensure_flags (self);
   
   g_free (location);
 }
@@ -222,6 +260,12 @@ static void
 bamf_unity_webapps_tab_init (BamfUnityWebappsTab *self)
 {
   self->priv = BAMF_UNITY_WEBAPPS_TAB_GET_PRIVATE (self);
+  
+  self->priv->tab_active = FALSE;
+  self->priv->legacy_window = NULL;
+  
+  g_signal_connect (G_OBJECT (bamf_legacy_screen_get_default ()), "active-window-changed",
+		    (GCallback) bamf_unity_webapps_tab_active_window_changed, self);
 
 }
 
