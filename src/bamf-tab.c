@@ -45,7 +45,6 @@ struct _BamfTabPrivate
   gchar *desktop_id;
 
   guint64 xid;
-  
 };
 
 static const gchar *
