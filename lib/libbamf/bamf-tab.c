@@ -307,6 +307,32 @@ bamf_tab_raise (BamfTab *self)
   return TRUE;
 }
 
+gboolean
+bamf_tab_close (BamfTab *self)
+{
+  GError *error;
+
+  g_return_val_if_fail (BAMF_IS_TAB (self), FALSE);
+  
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
+    return FALSE;
+  
+  error = NULL;
+  
+  if (!dbus_g_proxy_call (self->priv->tab_proxy,
+			  "Close",
+			  &error,
+			  G_TYPE_INVALID))
+    {
+      g_warning ("Failed to invoke Close method: %s", error->message);
+      g_error_free (error);
+      
+      return FALSE;
+    }
+  
+  return TRUE;
+}
+
 typedef struct _bamf_tab_preview_request_user_data {
   BamfTab *self;
   BamfTabPreviewReadyCallback callback;

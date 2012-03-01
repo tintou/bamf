@@ -59,6 +59,7 @@ GType bamf_tab_get_type (void) G_GNUC_CONST;
 BamfTab * bamf_tab_new         (const gchar *path);
 
 gboolean bamf_tab_raise        (BamfTab *self);
+gboolean bamf_tab_close        (BamfTab *self);
 void bamf_tab_request_preview (BamfTab *self, BamfTabPreviewReadyCallback callback, gpointer user_data);
 
 const gchar *bamf_tab_get_desktop_name (BamfTab *self);
