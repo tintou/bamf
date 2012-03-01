@@ -282,6 +282,19 @@ bamf_unity_webapps_tab_raise (BamfTab *tab)
   unity_webapps_context_raise_interest (self->priv->context, self->priv->interest_id);
 }
 
+static void
+bamf_unity_webapps_tab_close (BamfTab *tab)
+{
+  BamfUnityWebappsTab *self = BAMF_UNITY_WEBAPPS_TAB (tab);
+  
+  if (self->priv->interest_id == -1)
+    {
+      return;
+    }
+  
+  unity_webapps_context_close_interest (self->priv->context, self->priv->interest_id);
+}
+
 typedef struct _bamf_unity_webapps_preview_data {
   BamfUnityWebappsTab *tab;
   BamfTabPreviewReadyCallback callback;
@@ -339,6 +352,7 @@ bamf_unity_webapps_tab_class_init (BamfUnityWebappsTabClass * klass)
   object_class->finalize = bamf_unity_webapps_tab_finalize;
   
   bamf_tab_class->raise = bamf_unity_webapps_tab_raise;
+  bamf_tab_class->close = bamf_unity_webapps_tab_close;
   bamf_tab_class->request_preview = bamf_unity_webapps_tab_request_preview;
   
   pspec = g_param_spec_object("context", "Context", "The Unity Webapps Context assosciated with the Tab",

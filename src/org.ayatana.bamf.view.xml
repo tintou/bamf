@@ -125,6 +125,8 @@
   <interface name="org.ayatana.bamf.tab">
     <method name="Raise">
     </method>
+    <method name="Close">
+    </method>
     <method name="RequestPreview">
       <arg type="s" name="data" direction="out"/>
     </method>

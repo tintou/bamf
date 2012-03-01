@@ -137,12 +137,25 @@ bamf_tab_finalize (GObject *object)
   G_OBJECT_CLASS (bamf_tab_parent_class)->finalize (object);
 }
 
+
 static gboolean
 on_dbus_handle_raise (BamfDBusItemView *interface,
 		      GDBusMethodInvocation *invocation,
 		      BamfTab *self)
 {
   bamf_tab_raise (self);
+  
+  g_dbus_method_invocation_return_value (invocation, NULL);
+  
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_close (BamfDBusItemView *interface,
+		      GDBusMethodInvocation *invocation,
+		      BamfTab *self)
+{
+  bamf_tab_close (self);
   
   g_dbus_method_invocation_return_value (invocation, NULL);
   
@@ -180,6 +193,8 @@ bamf_tab_init (BamfTab *self)
   
   g_signal_connect (self->priv->dbus_iface, "handle-raise",
 		    G_CALLBACK (on_dbus_handle_raise), self);
+  g_signal_connect (self->priv->dbus_iface, "handle-close",
+		    G_CALLBACK (on_dbus_handle_close), self);
   g_signal_connect (self->priv->dbus_iface, "handle-request-preview",
 		    G_CALLBACK (on_dbus_handle_request_preview), self);
   
@@ -253,6 +268,14 @@ bamf_tab_raise (BamfTab *self)
   g_return_if_fail (BAMF_IS_TAB (self));
   
   BAMF_TAB_GET_CLASS (self)->raise (self);
+}
+
+void 
+bamf_tab_close (BamfTab *self)
+{
+  g_return_if_fail (BAMF_IS_TAB (self));
+  
+  BAMF_TAB_GET_CLASS (self)->close (self);
 }
 
 void 

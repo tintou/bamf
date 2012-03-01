@@ -44,6 +44,7 @@ struct _BamfTabClass
   BamfViewClass parent;
   
   void (*raise) (BamfTab *self);
+  void (*close) (BamfTab *self);
   void (*request_preview) (BamfTab *self, BamfTabPreviewReadyCallback callback, gpointer user_data);
 };
 
@@ -63,6 +64,8 @@ guint64 bamf_tab_get_xid (BamfTab *self);
 
 
 void bamf_tab_raise (BamfTab *self);
+void bamf_tab_close (BamfTab *self);
+
 void bamf_tab_request_preview (BamfTab *self, BamfTabPreviewReadyCallback callback, gpointer user_data);
 
 
