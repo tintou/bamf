@@ -64,6 +64,12 @@ bamf_unity_webapps_tab_ensure_flags (BamfUnityWebappsTab *self)
 {
   gboolean window_active;
   
+  if (self->priv->legacy_window == NULL)
+    {
+      bamf_view_set_active (BAMF_VIEW (self), FALSE);
+      return;
+    }
+  
   window_active = bamf_legacy_window_is_active (self->priv->legacy_window);
   
   bamf_view_set_active (BAMF_VIEW (self), window_active && self->priv->tab_active);
@@ -79,6 +85,8 @@ static void
 bamf_unity_webapps_tab_create_bamf_window (BamfUnityWebappsTab *self,
 					   gulong xid)
 {
+  if (self->priv->legacy_window != NULL)
+    g_object_unref (G_OBJECT (self->priv->legacy_window));
   self->priv->legacy_window = bamf_legacy_window_new (wnck_window_get (xid));
 }
 
@@ -239,9 +247,15 @@ bamf_unity_webapps_tab_set_property (GObject *object, guint property_id, const G
 static void
 bamf_unity_webapps_tab_dispose (GObject *object)
 {
-  //  BamfUnityWebappsTab *self = BAMF_UNITY_WEBAPPS_TAB (object);
+  BamfUnityWebappsTab *self = BAMF_UNITY_WEBAPPS_TAB (object);
   
-    
+  g_signal_handlers_disconnect_by_func (bamf_legacy_screen_get_default (),
+					bamf_unity_webapps_tab_active_window_changed,
+					self);
+  
+  if (self->priv->legacy_window)
+    g_object_unref (G_OBJECT (self->priv->legacy_window));
+  
   G_OBJECT_CLASS (bamf_unity_webapps_tab_parent_class)->dispose (object);
 }
 
@@ -251,7 +265,6 @@ bamf_unity_webapps_tab_finalize (GObject *object)
   BamfUnityWebappsTab *self = BAMF_UNITY_WEBAPPS_TAB (object);
   
   g_object_unref (G_OBJECT (self->priv->context));
-  
   
   G_OBJECT_CLASS (bamf_unity_webapps_tab_parent_class)->finalize (object);
 }

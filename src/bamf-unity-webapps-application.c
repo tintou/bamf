@@ -167,12 +167,17 @@ static void
 bamf_unity_webapps_application_context_set (BamfUnityWebappsApplication *self)
 {
   gchar *desktop_file = g_strdup_printf("%s/.local/share/applications/%s", g_get_home_dir (), unity_webapps_context_get_desktop_name (self->priv->context));
+  gchar *wmclass = g_strdup_printf("unity-webapps-%p", self);
+
   bamf_application_set_desktop_file (BAMF_APPLICATION (self), desktop_file);
+  bamf_application_set_wmclass (BAMF_APPLICATION (self), wmclass);
   
   bamf_unity_webapps_application_add_existing_interests (self);
   
   unity_webapps_context_on_interest_appeared (self->priv->context, bamf_unity_webapps_application_interest_appeared, self);
   unity_webapps_context_on_interest_vanished (self->priv->context, bamf_unity_webapps_application_interest_vanished, self);
+  
+  g_free (wmclass);  
 }
 
 static void
