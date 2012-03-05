@@ -53,6 +53,8 @@ bamf_unity_webapps_observer_context_vanished (UnityWebappsService *service,
   
   bamf_view_close (BAMF_VIEW (application));
   
+  g_hash_table_remove (observer->priv->applications_by_context_name, name);
+  
 }
 
 static void 
@@ -152,7 +154,6 @@ bamf_unity_webapps_observer_service_vanished (GDBusConnection *connection,
 					      gpointer user_data)
 {
   BamfUnityWebappsObserver *observer;
-  
   observer = (BamfUnityWebappsObserver *)user_data;
 
   if (observer->priv->service == NULL)
