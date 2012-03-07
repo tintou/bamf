@@ -149,6 +149,24 @@ bamf_unity_webapps_observer_service_appeared (GDBusConnection *connection,
 }
 
 static void
+bamf_unity_webapps_observer_close_all (BamfUnityWebappsObserver *observer)
+{
+  GList *names, *walk;
+  
+  names = g_hash_table_get_keys (observer->priv->applications_by_context_name);
+  
+  for (walk = names; walk != NULL; walk = walk->next)
+    {
+      bamf_unity_webapps_observer_context_vanished (observer->priv->service, (const gchar *)walk->data,
+						    observer);
+    }
+  
+  g_list_free (names);
+  
+
+}
+
+static void
 bamf_unity_webapps_observer_service_vanished (GDBusConnection *connection,
 					      const gchar *name,
 					      gpointer user_data)
@@ -161,6 +179,7 @@ bamf_unity_webapps_observer_service_vanished (GDBusConnection *connection,
       return;
     }
   
+  bamf_unity_webapps_observer_close_all (observer);  
   
   g_object_unref (G_OBJECT (observer->priv->service));
   observer->priv->service = NULL;
