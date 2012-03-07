@@ -174,6 +174,8 @@ bamf_unity_webapps_application_context_set (BamfUnityWebappsApplication *self)
 
   bamf_application_set_desktop_file (BAMF_APPLICATION (self), desktop_file);
   bamf_application_set_wmclass (BAMF_APPLICATION (self), wmclass);
+
+  bamf_application_set_close_when_empty (BAMF_APPLICATION (self), FALSE);
   
   bamf_unity_webapps_application_add_existing_interests (self);
   
@@ -235,7 +237,6 @@ bamf_unity_webapps_application_init (BamfUnityWebappsApplication *self)
 {
   self->priv = BAMF_UNITY_WEBAPPS_APPLICATION_GET_PRIVATE (self);
   
-  bamf_application_set_close_when_empty (BAMF_APPLICATION (self), FALSE);
 }
 
 static void
