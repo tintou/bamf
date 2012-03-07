@@ -46,6 +46,7 @@ struct _BamfApplicationPrivate
   char * wmclass;
   gboolean is_tab_container;
   gboolean show_stubs;
+  gboolean close_when_empty;
 };
 
 #define STUB_KEY  "X-Ayatana-Appmenu-Show-Stubs"
@@ -546,6 +547,7 @@ bamf_application_set_desktop_file_from_list (BamfApplication *self, GList *list)
 static void
 bamf_application_child_removed (BamfView *view, BamfView *child)
 {
+  BamfApplication *self = BAMF_APPLICATION (view);
   if (BAMF_IS_WINDOW (child))
     {
       if (bamf_view_is_on_bus (child))
@@ -557,9 +559,9 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
   g_signal_handlers_disconnect_by_func (G_OBJECT (child), view_urgent_changed, view);
   g_signal_handlers_disconnect_by_func (G_OBJECT (child), view_visible_changed, view);
 
-  bamf_application_ensure_flags (BAMF_APPLICATION (view));
+  bamf_application_ensure_flags (self);
 
-  if (bamf_view_get_children (view) == NULL)
+  if ((bamf_view_get_children (view) == NULL)  && (self->priv->close_when_empty))
     {
       bamf_view_close (view);
     }
@@ -708,6 +710,8 @@ bamf_application_init (BamfApplication * self)
   priv->app_type = g_strdup ("system");
   priv->show_stubs = TRUE;
   priv->wmclass = NULL;
+  
+  priv->close_when_empty = TRUE;
 
   /* Initializing the dbus interface */
   priv->dbus_iface = bamf_dbus_item_application_skeleton_new ();
@@ -819,4 +823,19 @@ bamf_application_get_show_stubs (BamfApplication *application)
 {
     g_return_val_if_fail(BAMF_IS_APPLICATION(application), TRUE);
     return application->priv->show_stubs;
+}
+
+
+gboolean
+bamf_application_get_close_when_empty (BamfApplication *application)
+{
+  g_return_val_if_fail (BAMF_IS_APPLICATION(application), FALSE);
+  return application->priv->close_when_empty;
+}
+
+void
+bamf_application_set_close_when_empty (BamfApplication *application, gboolean close)
+{
+  g_return_if_fail (BAMF_IS_APPLICATION(application));
+  application->priv->close_when_empty = close;
 }

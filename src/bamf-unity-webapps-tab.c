@@ -85,6 +85,8 @@ static void
 bamf_unity_webapps_tab_create_bamf_window (BamfUnityWebappsTab *self,
 					   gulong xid)
 {
+  if (xid == 0)
+    return;
   if (self->priv->legacy_window != NULL)
     g_object_unref (G_OBJECT (self->priv->legacy_window));
   self->priv->legacy_window = bamf_legacy_window_new (wnck_window_get (xid));
