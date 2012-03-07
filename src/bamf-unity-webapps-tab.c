@@ -195,8 +195,6 @@ bamf_unity_webapps_tab_interest_id_set (BamfUnityWebappsTab *self)
 
   bamf_view_set_running (BAMF_VIEW (self), TRUE);
   bamf_view_set_user_visible (BAMF_VIEW (self), TRUE);
-  
-  bamf_matcher_register_view (bamf_matcher_get_default (), BAMF_VIEW (self));
 }
 
 
