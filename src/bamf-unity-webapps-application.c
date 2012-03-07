@@ -23,6 +23,7 @@
 
 #include "bamf-unity-webapps-application.h"
 #include "bamf-unity-webapps-tab.h"
+#include "bamf-matcher.h"
 
 #include <unity-webapps-context.h>
 
@@ -134,11 +135,27 @@ bamf_unity_webapps_application_interest_vanished (UnityWebappsContext *context,
       return;
     }
   
-  bamf_view_close (BAMF_VIEW (child));
-  g_object_unref (BAMF_VIEW (child));
+  bamf_view_remove_child (BAMF_VIEW (self), BAMF_VIEW (child));
   
   //  if (i == 1)
   //    bamf_view_close (BAMF_VIEW (self));
+}
+
+static void
+bamf_unity_webapps_application_child_removed (BamfView *view, BamfView *child)
+{
+  BAMF_VIEW_CLASS (bamf_unity_webapps_application_parent_class)->child_removed (view, child);
+
+  bamf_view_close (BAMF_VIEW (child));
+  g_object_unref (BAMF_VIEW (child));
+}
+
+static void
+bamf_unity_webapps_application_child_added (BamfView *view, BamfView *child)
+{
+  bamf_matcher_register_view (bamf_matcher_get_default (), child);
+  
+  BAMF_VIEW_CLASS (bamf_unity_webapps_application_parent_class)->child_added (view, child);
 }
 
 static void
@@ -171,11 +188,13 @@ bamf_unity_webapps_application_context_set (BamfUnityWebappsApplication *self)
 {
   gchar *desktop_file = g_strdup_printf("%s/.local/share/applications/%s", g_get_home_dir (), unity_webapps_context_get_desktop_name (self->priv->context));
   gchar *wmclass = g_strdup_printf("unity-webapps-%p", self);
-
+  
   bamf_application_set_desktop_file (BAMF_APPLICATION (self), desktop_file);
   bamf_application_set_wmclass (BAMF_APPLICATION (self), wmclass);
 
   bamf_application_set_close_when_empty (BAMF_APPLICATION (self), FALSE);
+  
+  bamf_matcher_register_view (bamf_matcher_get_default (), BAMF_VIEW (self));
   
   bamf_unity_webapps_application_add_existing_interests (self);
   
@@ -256,6 +275,8 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   //  bamf_application_class->request_preview = bamf_unity_webapps_application_request_preview;
   
   bamf_view_class->stable_bus_name = bamf_unity_webapps_application_get_stable_bus_name;
+  bamf_view_class->child_removed = bamf_unity_webapps_application_child_removed;
+  bamf_view_class->child_added = bamf_unity_webapps_application_child_added;
   
   pspec = g_param_spec_object("context", "Context", "The Unity Webapps Context assosciated with the Application",
 			      UNITY_WEBAPPS_TYPE_CONTEXT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);

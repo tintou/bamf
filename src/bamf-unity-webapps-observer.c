@@ -100,8 +100,6 @@ bamf_unity_webapps_observer_context_appeared (UnityWebappsService *service,
 		    observer);
 
   g_hash_table_insert (observer->priv->applications_by_context_name, g_strdup (name), application);
-  
-  bamf_matcher_register_view (bamf_matcher_get_default (), (BamfView *)application);
 }
 
 static void
