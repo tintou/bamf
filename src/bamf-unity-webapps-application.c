@@ -18,6 +18,9 @@
  *
  */
 
+#include <stdlib.h>
+
+
 #include "bamf-unity-webapps-application.h"
 #include "bamf-unity-webapps-tab.h"
 
@@ -200,6 +203,12 @@ bamf_unity_webapps_application_set_property (GObject *object, guint property_id,
     }
 }
 
+static gchar *
+bamf_unity_webapps_application_get_stable_bus_name (BamfView *view)
+{
+  return g_strdup_printf ("application%i", abs (g_str_hash (bamf_application_get_desktop_file (BAMF_APPLICATION (view)))));
+}
+
 
 static void
 bamf_unity_webapps_application_dispose (GObject *object)
@@ -225,6 +234,8 @@ static void
 bamf_unity_webapps_application_init (BamfUnityWebappsApplication *self)
 {
   self->priv = BAMF_UNITY_WEBAPPS_APPLICATION_GET_PRIVATE (self);
+  
+  bamf_application_set_close_when_empty (BAMF_APPLICATION (self), FALSE);
 }
 
 static void
@@ -233,6 +244,7 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   GParamSpec *pspec;
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   //  BamfApplicationClass *bamf_application_class = BAMF_APPLICATION_CLASS (klass);
+  BamfViewClass *bamf_view_class = BAMF_VIEW_CLASS (klass);
   
   object_class->get_property = bamf_unity_webapps_application_get_property;
   object_class->set_property = bamf_unity_webapps_application_set_property;
@@ -241,6 +253,8 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   
   //  bamf_application_class->raise = bamf_unity_webapps_application_raise;
   //  bamf_application_class->request_preview = bamf_unity_webapps_application_request_preview;
+  
+  bamf_view_class->stable_bus_name = bamf_unity_webapps_application_get_stable_bus_name;
   
   pspec = g_param_spec_object("context", "Context", "The Unity Webapps Context assosciated with the Application",
 			      UNITY_WEBAPPS_TYPE_CONTEXT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);

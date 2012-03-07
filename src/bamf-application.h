@@ -78,4 +78,10 @@ BamfApplication * bamf_application_new_from_desktop_files     (GList * desktop_f
 
 BamfApplication * bamf_application_new_with_wmclass           (const char *wmclass);
 
+gboolean bamf_application_get_close_when_empty (BamfApplication *application);
+
+void bamf_application_set_close_when_empty (BamfApplication *application, gboolean close);
+
+
+
 #endif
