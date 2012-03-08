@@ -63,7 +63,9 @@ static void
 bamf_unity_webapps_tab_ensure_flags (BamfUnityWebappsTab *self)
 {
   gboolean window_active;
-  
+
+  // If we don't have a toplevel window assosciated with UnityWebappsContext
+  // determine if it's active. Safer to go with no.
   if (self->priv->legacy_window == NULL)
     {
       bamf_view_set_active (BAMF_VIEW (self), FALSE);
@@ -140,6 +142,10 @@ bamf_unity_webapps_tab_window_changed (UnityWebappsContext *context,
   bamf_unity_webapps_tab_ensure_flags (self);
 }
 
+/*
+ * The activity signal from unity-webapps signifies the visibility of the tab WITHIN its toplevel XID.
+ * we have to mask this with window activity.
+ */
 static void
 bamf_unity_webapps_tab_active_changed (UnityWebappsContext *context,
 				       gint interest_id,
@@ -194,6 +200,9 @@ bamf_unity_webapps_tab_interest_id_set (BamfUnityWebappsTab *self)
   bamf_unity_webapps_tab_initialize_properties (self);
 
   bamf_view_set_running (BAMF_VIEW (self), TRUE);
+  
+  // We don't really use user_visible here, it's not clear to me if we should or not. Maybe it could be used in stead of the internal
+  // tab is active flag...this would let Unity do the masking. Current behavior works well for the current way the pips are specced though.
   bamf_view_set_user_visible (BAMF_VIEW (self), TRUE);
 }
 
