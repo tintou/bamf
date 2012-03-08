@@ -51,6 +51,7 @@ bamf_unity_webapps_observer_context_vanished (UnityWebappsService *service,
   if (application == NULL)
     return;
   
+  bamf_view_set_running (BAMF_VIEW (application), FALSE);
   bamf_view_close (BAMF_VIEW (application));
   
   g_hash_table_remove (observer->priv->applications_by_context_name, name);
