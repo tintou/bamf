@@ -116,6 +116,7 @@ bamf_unity_webapps_application_interest_appeared (UnityWebappsContext *context,
   bamf_view_add_child (BAMF_VIEW (self), interest_view);
   
   bamf_view_set_running (BAMF_VIEW (self), TRUE);
+  bamf_view_set_user_visible (BAMF_VIEW (self), TRUE);
 }
 
 static void
@@ -146,6 +147,7 @@ bamf_unity_webapps_application_child_removed (BamfView *view, BamfView *child)
 {
   BAMF_VIEW_CLASS (bamf_unity_webapps_application_parent_class)->child_removed (view, child);
 
+  bamf_view_set_running (child, FALSE);
   bamf_view_close (BAMF_VIEW (child));
   g_object_unref (BAMF_VIEW (child));
 }
@@ -255,6 +257,8 @@ static void
 bamf_unity_webapps_application_init (BamfUnityWebappsApplication *self)
 {
   self->priv = BAMF_UNITY_WEBAPPS_APPLICATION_GET_PRIVATE (self);
+  
+  bamf_application_set_application_type (BAMF_APPLICATION (self), "webapp");
   
 }
 

@@ -67,6 +67,17 @@ bamf_application_get_application_type (BamfApplication *application)
   return g_strdup (application->priv->app_type);
 }
 
+void
+bamf_application_set_application_type (BamfApplication *application, const gchar *type)
+{
+  g_return_if_fail (BAMF_IS_APPLICATION (application));
+  
+  if (application->priv->app_type)
+    g_free (application->priv->app_type);
+  
+  application->priv->app_type = g_strdup (type);
+}
+
 const char *
 bamf_application_get_desktop_file (BamfApplication *application)
 {
