@@ -1,6 +1,6 @@
 /*
  * bamf-unity-webapps-observer.c
- * Copyright (C) Canonical LTD 2011
+ * Copyright (C) Canonical LTD 2012
  *
  * Author: Robert Carr <racarr@canonical.com>
  * 

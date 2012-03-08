@@ -115,6 +115,9 @@ bamf_unity_webapps_application_interest_appeared (UnityWebappsContext *context,
   
   bamf_view_add_child (BAMF_VIEW (self), interest_view);
   
+  // It's possible that the context had become lonely (i.e. no children) but not yet shut down.
+  // however, if we gain an interest we are always running and "mapped".
+  
   bamf_view_set_running (BAMF_VIEW (self), TRUE);
   bamf_view_set_user_visible (BAMF_VIEW (self), TRUE);
 }
@@ -137,14 +140,14 @@ bamf_unity_webapps_application_interest_vanished (UnityWebappsContext *context,
     }
   
   bamf_view_remove_child (BAMF_VIEW (self), BAMF_VIEW (child));
-  
-  //  if (i == 1)
-  //    bamf_view_close (BAMF_VIEW (self));
 }
 
+/* It doesn't make any sense for a BamfUnityWebappsTab to live without it's assosciated context.
+ * so when our children are removed, dispose of them. */
 static void
 bamf_unity_webapps_application_child_removed (BamfView *view, BamfView *child)
 {
+  // Chain up first before we destroy the object.
   BAMF_VIEW_CLASS (bamf_unity_webapps_application_parent_class)->child_removed (view, child);
 
   bamf_view_set_running (child, FALSE);
@@ -152,6 +155,11 @@ bamf_unity_webapps_application_child_removed (BamfView *view, BamfView *child)
   g_object_unref (BAMF_VIEW (child));
 }
 
+/* 
+ * As soon as we have a tab, we wan't to export it on the bus. We want to make sure tabs are registered with 
+ * the matcher, after the application is added, so we do the registration here rather than
+ * inside BamfUnityWebappsTab 
+ */
 static void
 bamf_unity_webapps_application_child_added (BamfView *view, BamfView *child)
 {
@@ -192,8 +200,15 @@ bamf_unity_webapps_application_context_set (BamfUnityWebappsApplication *self)
   gchar *wmclass = g_strdup_printf("unity-webapps-%p", self);
   
   bamf_application_set_desktop_file (BAMF_APPLICATION (self), desktop_file);
+
+  // TODO: Currently we just put something unique here so the matcher wont get confused within the span of a single run. It's a little
+  // meaningless however...is there something useful we can put here? If not, how can we prevent the matcher from becoming confused
+  // when nothing is here.
   bamf_application_set_wmclass (BAMF_APPLICATION (self), wmclass);
 
+  // Sometimes we might have no children for a short period (for example, the page is reloading), in the case
+  // Unity Webapps will keep the context alive for a while. Allowing for new children to appear...before eventually
+  // shutting it down. So we use this flag to ensure BAMF will not shut us down prematurely.
   bamf_application_set_close_when_empty (BAMF_APPLICATION (self), FALSE);
   
   bamf_matcher_register_view (bamf_matcher_get_default (), BAMF_VIEW (self));
@@ -204,6 +219,7 @@ bamf_unity_webapps_application_context_set (BamfUnityWebappsApplication *self)
   unity_webapps_context_on_interest_vanished (self->priv->context, bamf_unity_webapps_application_interest_vanished, self);
   
   g_free (wmclass);  
+  g_free (desktop_file);
 }
 
 static void
@@ -249,7 +265,6 @@ bamf_unity_webapps_application_finalize (GObject *object)
   
   g_object_unref (self->priv->context);
   
-  
   G_OBJECT_CLASS (bamf_unity_webapps_application_parent_class)->finalize (object);
 }
 
@@ -275,9 +290,6 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   object_class->dispose = bamf_unity_webapps_application_dispose;
   object_class->finalize = bamf_unity_webapps_application_finalize;
   
-  //  bamf_application_class->raise = bamf_unity_webapps_application_raise;
-  //  bamf_application_class->request_preview = bamf_unity_webapps_application_request_preview;
-  
   bamf_view_class->stable_bus_name = bamf_unity_webapps_application_get_stable_bus_name;
   bamf_view_class->child_removed = bamf_unity_webapps_application_child_removed;
   bamf_view_class->child_added = bamf_unity_webapps_application_child_added;
@@ -285,9 +297,6 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   pspec = g_param_spec_object("context", "Context", "The Unity Webapps Context assosciated with the Application",
 			      UNITY_WEBAPPS_TYPE_CONTEXT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
   g_object_class_install_property (object_class, PROP_CONTEXT, pspec);
-  
-  //  pspec = g_param_spec_int("interest-id", "Interest ID", "The Interest ID (unique to Context) for this Application",
-  //			   G_MININT, G_MAXINT, -1, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
   
   
   g_type_class_add_private (klass, sizeof (BamfUnityWebappsApplicationPrivate));
