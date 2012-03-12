@@ -1,6 +1,12 @@
 bamf (0.2.112-0ubuntu1) UNRELEASED; urgency=low
 
   * New upstream release.
+    - bamf matcher messes up refcounting on views (LP: #942070)
+    - Chromium is running, but not showing in launcher or alt-tab. 
+      (LP: #918474)
+    - libbamf leaks memory on view dispose (LP: #942148)
+    - Coverity PW.PARAMETER_HIDDEN - CID 10449 (LP: #937398)
+    - Coverity UNINIT - CID 10451 (LP: #937402)
   * debian/libbamf0.symbols, debian/libbamf3-0.symbols:
     - update symbols for new API
 
