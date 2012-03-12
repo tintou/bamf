@@ -147,15 +147,15 @@ test_path (void)
 static void
 test_path_collision (void)
 {
-  BamfView *view;
-  GList *views, *l;
   int i, j;
   
   for (i = 0; i < 20; i++)
     {
+      GList *views = NULL;
+
       for (j = 0; j < 2000; j++)
         {
-          view = g_object_new (BAMF_TYPE_VIEW, NULL);
+          BamfView * view = g_object_new (BAMF_TYPE_VIEW, NULL);
           g_assert (BAMF_IS_VIEW (view));
 
           views = g_list_prepend (views, view);
@@ -163,13 +163,7 @@ test_path_collision (void)
           bamf_view_export_on_bus (view, gdbus_connection);
         }
 
-      for (l = views; l; l = l->next)
-        {
-          g_object_unref (l->data);
-        }
-
-      g_list_free (views);
-      views = NULL;
+      g_list_free_full (views, g_object_unref);
     }
 }
 
