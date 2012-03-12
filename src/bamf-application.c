@@ -645,6 +645,24 @@ on_dbus_handle_desktop_file (BamfDBusItemApplication *interface,
 }
 
 static gboolean
+on_dbus_handle_application_menu (BamfDBusItemApplication *interface,
+				 GDBusMethodInvocation *invocation,
+				 BamfApplication *self)
+{
+  gchar *name, *path;
+  
+  bamf_application_get_application_menu (self, &name, &path);
+  
+  name = name ? name : "";
+  path = path ? path : "";
+  
+  g_dbus_method_invocation_return_value (invocation,
+					 g_variant_new ("(ss)", name, path));
+  
+  return TRUE;
+}
+
+static gboolean
 on_dbus_handle_application_type (BamfDBusItemApplication *interface,
                                  GDBusMethodInvocation *invocation,
                                  BamfApplication *self)
@@ -742,6 +760,9 @@ bamf_application_init (BamfApplication * self)
 
   g_signal_connect (priv->dbus_iface, "handle-desktop-file",
                     G_CALLBACK (on_dbus_handle_desktop_file), self);
+  
+  g_signal_connect (priv->dbus_iface, "handle-application-menu",
+		    G_CALLBACK (on_dbus_handle_application_menu), self);
 
   g_signal_connect (priv->dbus_iface, "handle-application-type",
                     G_CALLBACK (on_dbus_handle_application_type), self);
@@ -850,4 +871,20 @@ bamf_application_set_close_when_empty (BamfApplication *application, gboolean cl
 {
   g_return_if_fail (BAMF_IS_APPLICATION(application));
   application->priv->close_when_empty = close;
+}
+
+void
+bamf_application_get_application_menu (BamfApplication *application, gchar **name, gchar **object_path)
+{
+  g_return_if_fail (BAMF_IS_APPLICATION (application));
+  
+  if (BAMF_APPLICATION_GET_CLASS (application)->get_application_menu)
+    {
+      BAMF_APPLICATION_GET_CLASS (application)->get_application_menu (application, name, object_path);
+    }
+  else
+    {
+      *name = NULL;
+      *object_path = NULL;
+    }
 }

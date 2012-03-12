@@ -102,6 +102,38 @@ bamf_application_get_desktop_file (BamfApplication *application)
   return file;
 }
 
+gboolean
+bamf_application_get_application_menu (BamfApplication *application,
+				       gchar **name,
+				       gchar **object_path)
+{
+  BamfApplicationPrivate *priv;
+  GError *error = NULL;
+  
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+  
+  priv = application->priv;
+  
+  if (!bamf_view_remote_ready (BAMF_VIEW (application)))
+    return FALSE;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "ApplicationMenu",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, name,
+			  G_TYPE_STRING, object_path,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch application menu path: %s", error->message);
+      g_error_free (error);
+      
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 const gchar *
 bamf_application_get_application_type (BamfApplication *application)
 {
