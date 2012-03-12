@@ -60,11 +60,27 @@ static BamfControl * default_control = NULL;
  */
 
 static void
+bamf_control_dispose (GObject *object)
+{
+  BamfControl *self = BAMF_CONTROL (object);
+
+  if (self->priv->proxy)
+    {
+      g_object_unref (self->priv->proxy);
+      self->priv->proxy = NULL;
+    }
+
+  if (G_OBJECT_CLASS (bamf_control_parent_class)->dispose)
+      G_OBJECT_CLASS (bamf_control_parent_class)->dispose (object);
+}
+
+static void
 bamf_control_class_init (BamfControlClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
 
   g_type_class_add_private (obj_class, sizeof (BamfControlPrivate));
+  obj_class->dispose = bamf_control_dispose;
 }
 
 
