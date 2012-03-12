@@ -115,19 +115,7 @@ bamf_tab_set_property (GObject *object, guint property_id, const GValue *value, 
 static void
 bamf_tab_dispose (GObject *object)
 {
-  BamfTab *self = BAMF_TAB (object);
-  
-  if (self->priv->location)
-    {
-      g_free (self->priv->location);
-      self->priv->location = NULL;
-    }
-  
-  if (self->priv->desktop_id)
-    {
-      g_free (self->priv->desktop_id);
-      self->priv->desktop_id = NULL;
-    }
+  //  BamfTab *self = BAMF_TAB (object);
   
   G_OBJECT_CLASS (bamf_tab_parent_class)->dispose (object);
 }
@@ -136,6 +124,16 @@ static void
 bamf_tab_finalize (GObject *object)
 {
   BamfTab *self = BAMF_TAB (object);
+
+  if (self->priv->location)
+    {
+      g_free (self->priv->location);
+    }
+  
+  if (self->priv->desktop_id)
+    {
+      g_free (self->priv->desktop_id);
+    }
   
   g_object_unref (self->priv->dbus_iface);
   
