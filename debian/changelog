@@ -1,6 +1,8 @@
 bamf (0.2.112-0ubuntu1) UNRELEASED; urgency=low
 
   * New upstream release.
+  * debian/libbamf0.symbols, debian/libbamf3-0.symbols:
+    - update symbols for new API
 
  -- Didier Roche <didrocks@ubuntu.com>  Mon, 12 Mar 2012 10:58:21 +0100
 
