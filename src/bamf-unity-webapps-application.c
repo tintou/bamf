@@ -52,7 +52,18 @@ struct _BamfUnityWebappsApplicationPrivate
 };
 
 
-
+static void
+bamf_unity_webapps_application_get_application_menu (BamfApplication *application,
+						     gchar **name, 
+						     gchar **path)
+{
+  BamfUnityWebappsApplication *self;
+  
+  self = (BamfUnityWebappsApplication *)application;
+  
+  *name = g_strdup (unity_webapps_context_get_context_name (self->priv->context));
+  *path = g_strdup ("/com/canonical/Unity/Webapps/Context/ApplicationActions");
+}
 
 static void
 bamf_unity_webapps_application_get_property (GObject *object, guint property_id, GValue *gvalue, GParamSpec *pspec)
@@ -282,7 +293,7 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
 {
   GParamSpec *pspec;
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  //  BamfApplicationClass *bamf_application_class = BAMF_APPLICATION_CLASS (klass);
+  BamfApplicationClass *bamf_application_class = BAMF_APPLICATION_CLASS (klass);
   BamfViewClass *bamf_view_class = BAMF_VIEW_CLASS (klass);
   
   object_class->get_property = bamf_unity_webapps_application_get_property;
@@ -293,6 +304,8 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   bamf_view_class->stable_bus_name = bamf_unity_webapps_application_get_stable_bus_name;
   bamf_view_class->child_removed = bamf_unity_webapps_application_child_removed;
   bamf_view_class->child_added = bamf_unity_webapps_application_child_added;
+  
+  bamf_application_class->get_application_menu = bamf_unity_webapps_application_get_application_menu;
   
   pspec = g_param_spec_object("context", "Context", "The Unity Webapps Context assosciated with the Application",
 			      UNITY_WEBAPPS_TYPE_CONTEXT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);

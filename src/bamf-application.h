@@ -41,6 +41,8 @@ typedef struct _BamfApplicationPrivate BamfApplicationPrivate;
 struct _BamfApplicationClass
 {
   BamfViewClass parent;
+  
+  void (*get_application_menu) (BamfApplication *application, gchar **name, gchar **path);
 };
 
 struct _BamfApplication
@@ -83,6 +85,8 @@ gboolean bamf_application_get_close_when_empty (BamfApplication *application);
 void bamf_application_set_close_when_empty (BamfApplication *application, gboolean close);
 
 void bamf_application_set_application_type (BamfApplication *application, const gchar *type);
+
+void bamf_application_get_application_menu (BamfApplication *application, gchar **name, gchar **object_path);
 
 
 
