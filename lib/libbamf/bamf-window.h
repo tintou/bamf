@@ -104,10 +104,11 @@ BamfWindowType    bamf_window_get_window_type           (BamfWindow *self);
 
 guint32           bamf_window_get_xid                   (BamfWindow *self);
 
-gchar           * bamf_window_get_utf8_prop             (BamfWindow *self, const char* prop);
+guint32           bamf_window_get_pid                   (BamfWindow *self);
 
 gint              bamf_window_get_monitor               (BamfWindow *self);
 
+gchar           * bamf_window_get_utf8_prop             (BamfWindow *self, const char* prop);
 BamfWindowMaximizationType bamf_window_maximized        (BamfWindow *self);
 
 time_t            bamf_window_last_active               (BamfWindow *self);

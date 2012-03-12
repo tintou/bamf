@@ -259,22 +259,22 @@ bamf_application_dispose (GObject *object)
 {
   BamfApplication *self;
   BamfApplicationPrivate *priv;
-  
+
   self = BAMF_APPLICATION (object);
   priv = self->priv;
-  
+
   if (priv->application_type)
     {
       g_free (priv->application_type);
       priv->application_type = NULL;
     }
-  
+
   if (priv->desktop_file)
     {
       g_free (priv->desktop_file);
       priv->desktop_file = NULL;
-    }  
-  
+    }
+
   if (priv->proxy)
     {
       dbus_g_proxy_disconnect_signal (priv->proxy,
