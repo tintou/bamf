@@ -182,6 +182,32 @@ bamf_tab_set_path (BamfView *view, const gchar *path)
  }
 
 static void
+bamf_tab_set_property (GObject *object, guint property_id, const mGValue *value, GParamSpec *pspec)
+{
+  BamfTab *self;
+  
+  self = BAMF_TAB (object);
+  
+  switch (property_id)
+    {
+    case PROP_LOCATION:
+      g_return_if_fail (self->priv->location == NULL);
+	self->priv->location = g_value_dup_string (value);
+      break;
+    case PROP_DESKTOP_NAME:
+      g_return_if_fail (self->priv->desktop_name == NULL);
+      self->priv->desktop_name = g_value_dup_string (value);
+      break;
+    case PROP_XID:
+      g_return_if_fail (self->priv->xid == 0);
+      self->priv->xid = g_value_get_uint64 (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+}
+
+static void
 bamf_tab_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
 {
   BamfTab *self;
@@ -239,13 +265,27 @@ bamf_tab_dispose (GObject *object)
 static void
 bamf_tab_class_init (BamfTabClass *klass)
 {
+  GParamSpec *pspec;
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
   BamfViewClass *view_class = BAMF_VIEW_CLASS (klass);
   
   obj_class->dispose = bamf_tab_dispose;
   obj_class->get_property = bamf_tab_get_property;
+  obj_class->set_property = bamf_tab_set_property;
   
   view_class->set_path = bamf_tab_set_path;
+
+  pspec = g_param_spec_string("location", "Location", "The Current location of the remote Tab",
+			      NULL, G_PARAM_READWRITE);
+  g_object_class_install_property (obj_class, PROP_LOCATION, pspec);
+  
+  pspec = g_param_spec_string("desktop-name", "Desktop Name", "The Desktop ID assosciated with the application hosted in the remote Tab",
+			      NULL, G_PARAM_READWRITE);
+  g_object_class_install_property (obj_class, PROP_DESKTOP_NAME, pspec);
+  
+  pspec = g_param_spec_uint64("xid", "xid", "XID for the toplevel window containing the remote Tab",
+			      0, G_MAXUINT64, 0, G_PARAM_READWRITE);
+  g_object_class_install_property (obj_class, PROP_XID, pspec);
   
   g_type_class_add_private (obj_class, sizeof(BamfTabPrivate));
 
