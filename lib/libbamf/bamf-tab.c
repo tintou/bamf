@@ -62,6 +62,7 @@ struct _BamfTabPrivate
 
 G_DEFINE_TYPE (BamfTab, bamf_tab, BAMF_TYPE_VIEW)
 
+
 static void
 bamf_tab_fetch_properties (BamfTab *self)
 {
@@ -159,6 +160,13 @@ bamf_tab_set_path (BamfView *view, const gchar *path)
     }
   
   bamf_tab_fetch_properties (self);
+  
+  dbus_g_object_register_marshaller ((GClosureMarshal) bamf_marshal_VOID__STRING_BOXED_POINTER,
+				     G_TYPE_NONE,
+				     G_TYPE_STRING,
+				     G_TYPE_BOXED,
+				     G_TYPE_STRV,
+				     G_TYPE_INVALID);
   
   dbus_g_proxy_add_signal (self->priv->properties_proxy,
 			   "PropertiesChanged",
