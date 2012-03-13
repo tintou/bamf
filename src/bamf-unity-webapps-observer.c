@@ -92,7 +92,10 @@ bamf_unity_webapps_observer_context_appeared (UnityWebappsService *service,
     return;
 
   observer = (BamfUnityWebappsObserver *)user_data;
-  
+
+  if (g_hash_table_lookup (observer->priv->applications_by_context_name, name) != NULL)
+    return;
+
   context = unity_webapps_context_new_for_context_name (observer->priv->service, name);
 
   application = bamf_unity_webapps_application_new (context);
