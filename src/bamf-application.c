@@ -299,10 +299,12 @@ bamf_application_get_xids (BamfApplication *application)
     {
       view = l->data;
 
-      if (!BAMF_IS_WINDOW (view))
-        continue;
-
-      xid = bamf_window_get_xid (BAMF_WINDOW (view));
+      if (BAMF_IS_WINDOW (view))
+	xid = bamf_window_get_xid (BAMF_WINDOW (view));
+      else if (BAMF_IS_TAB (view))
+	xid = bamf_tab_get_xid (BAMF_TAB (view));
+      else
+	continue;
       g_variant_builder_add (&b, "u", xid);
     }
 
