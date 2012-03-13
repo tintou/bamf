@@ -439,8 +439,8 @@ bamf_application_ensure_flags (BamfApplication *self)
     }
 
   bamf_view_set_urgent       (BAMF_VIEW (self), urgent);
-  bamf_view_set_user_visible (BAMF_VIEW (self), visible);
-  if (self->priv->close_when_empty)
+  bamf_view_set_user_visible (BAMF_VIEW (self), TRUE);
+  if ((running == FALSE) && self->priv->close_when_empty)
     bamf_view_set_running      (BAMF_VIEW (self), running);
   bamf_view_set_active       (BAMF_VIEW (self), active);
 }
