@@ -182,7 +182,7 @@ bamf_tab_set_path (BamfView *view, const gchar *path)
  }
 
 static void
-bamf_tab_set_property (GObject *object, guint property_id, const mGValue *value, GParamSpec *pspec)
+bamf_tab_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
   BamfTab *self;
   
