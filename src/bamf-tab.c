@@ -19,6 +19,7 @@
  */
 
 #include "bamf-tab.h"
+#include "bamf-gdbus-view-generated.h"
 
 #define BAMF_TAB_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_TAB, BamfTabPrivate))
