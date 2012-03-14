@@ -66,6 +66,8 @@ const gchar *bamf_tab_get_desktop_name (BamfTab *self);
 const gchar *bamf_tab_get_location (BamfTab *self);
 guint64 bamf_tab_get_xid (BamfTab *self);
 
+gboolean bamf_tab_get_is_foreground_tab (BamfTab *self);
+
 
 
 

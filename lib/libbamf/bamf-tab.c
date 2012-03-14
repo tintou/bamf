@@ -37,7 +37,8 @@ enum
   PROP_0,
   PROP_LOCATION,
   PROP_DESKTOP_NAME,
-  PROP_XID
+  PROP_XID,
+  PROP_IS_FOREGROUND_TAB
 };
     
 
@@ -58,6 +59,7 @@ struct _BamfTabPrivate
   gchar *location;
   gchar *desktop_name;
   guint64 xid;
+  gboolean is_foreground;
 };
 
 G_DEFINE_TYPE (BamfTab, bamf_tab, BAMF_TYPE_VIEW)
@@ -202,6 +204,9 @@ bamf_tab_set_property (GObject *object, guint property_id, const GValue *value, 
       g_return_if_fail (self->priv->xid == 0);
       self->priv->xid = g_value_get_uint64 (value);
       break;
+    case PROP_IS_FOREGROUND_TAB:
+      self->priv->is_foreground = g_value_get_boolean (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     }
@@ -224,6 +229,9 @@ bamf_tab_get_property (GObject *object, guint property_id, GValue *value, GParam
       break;
     case PROP_XID:
       g_value_set_uint64 (value, self->priv->xid);
+      break;
+    case PROP_IS_FOREGROUND_TAB:
+      g_value_set_boolean (value, self->priv->is_foreground);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -461,4 +469,12 @@ bamf_tab_get_xid (BamfTab *self)
   g_return_val_if_fail (BAMF_IS_TAB (self), 0);
   
   return self->priv->xid;
+}
+
+gboolean
+bamf_tab_get_is_foreground_tab (BamfTab *self)
+{
+  g_return_val_if_fail (BAMF_IS_TAB (self), 0);
+  
+  return self->priv->is_foreground;
 }
