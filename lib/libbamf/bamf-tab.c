@@ -36,7 +36,7 @@ enum
 {
   PROP_0,
   PROP_LOCATION,
-  PROP_DESKTOP_NAME,
+  PROP_DESKTOP_ID,
   PROP_XID,
   PROP_IS_FOREGROUND_TAB
 };
@@ -197,12 +197,11 @@ bamf_tab_set_property (GObject *object, guint property_id, const GValue *value, 
       g_return_if_fail (self->priv->location == NULL);
 	self->priv->location = g_value_dup_string (value);
       break;
-    case PROP_DESKTOP_NAME:
+    case PROP_DESKTOP_ID:
       g_return_if_fail (self->priv->desktop_name == NULL);
       self->priv->desktop_name = g_value_dup_string (value);
       break;
     case PROP_XID:
-      g_return_if_fail (self->priv->xid == 0);
       self->priv->xid = g_value_get_uint64 (value);
       break;
     case PROP_IS_FOREGROUND_TAB:
@@ -225,7 +224,7 @@ bamf_tab_get_property (GObject *object, guint property_id, GValue *value, GParam
     case PROP_LOCATION:
       g_value_set_string (value, self->priv->location);
       break;
-    case PROP_DESKTOP_NAME:
+    case PROP_DESKTOP_ID:
       g_value_set_string (value, self->priv->desktop_name);
       break;
     case PROP_XID:
@@ -288,13 +287,17 @@ bamf_tab_class_init (BamfTabClass *klass)
 			      NULL, G_PARAM_READWRITE);
   g_object_class_install_property (obj_class, PROP_LOCATION, pspec);
   
-  pspec = g_param_spec_string("desktop-name", "Desktop Name", "The Desktop ID assosciated with the application hosted in the remote Tab",
+  pspec = g_param_spec_string("desktop-id", "Desktop Name", "The Desktop ID assosciated with the application hosted in the remote Tab",
 			      NULL, G_PARAM_READWRITE);
-  g_object_class_install_property (obj_class, PROP_DESKTOP_NAME, pspec);
+  g_object_class_install_property (obj_class, PROP_DESKTOP_ID, pspec);
   
   pspec = g_param_spec_uint64("xid", "xid", "XID for the toplevel window containing the remote Tab",
 			      0, G_MAXUINT64, 0, G_PARAM_READWRITE);
   g_object_class_install_property (obj_class, PROP_XID, pspec);
+  
+  pspec = g_param_spec_boolean("is-foreground-tab", "Foreground tab", "Whether the tab is the foreground tab in it's toplevel container",
+			       FALSE, G_PARAM_READWRITE);
+  g_object_class_install_property (obj_class, PROP_IS_FOREGROUND_TAB, pspec);
   
   g_type_class_add_private (obj_class, sizeof(BamfTabPrivate));
 

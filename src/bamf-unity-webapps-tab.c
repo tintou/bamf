@@ -163,6 +163,8 @@ bamf_unity_webapps_tab_active_changed (UnityWebappsContext *context,
   
   self->priv->tab_active = is_active;
   bamf_unity_webapps_tab_ensure_flags (self);
+  
+  g_object_set (G_OBJECT (self), "is-foreground-tab", is_active, NULL);
 }
 
 static void
