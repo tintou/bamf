@@ -59,6 +59,7 @@ GType       bamf_tab_get_type    (void) G_GNUC_CONST;
 const gchar *bamf_tab_get_desktop_id (BamfTab *self);
 const gchar *bamf_tab_current_location (BamfTab *self);
 guint64 bamf_tab_get_xid (BamfTab *self);
+gboolean bamf_tab_get_is_foreground_tab (BamfTab *self);
 
 
 void bamf_tab_raise (BamfTab *self);
