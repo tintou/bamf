@@ -80,6 +80,7 @@ bamf_tab_fetch_properties (BamfTab *self)
   dbus_g_proxy_call (self->priv->properties_proxy,
 		     "GetAll", &error,
 		     G_TYPE_STRING, "org.ayatana.bamf.tab",
+		     G_TYPE_INVALID,
 		     dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE), &properties,
 		     G_TYPE_INVALID);
   

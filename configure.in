@@ -4,6 +4,7 @@
 AC_PREREQ([2.63])
 
 AC_INIT(bamf, 0.2.110, dx-team@canonical.com)
+
 AC_PREREQ(2.62)
 
 AC_CONFIG_SRCDIR(src/main.c)
