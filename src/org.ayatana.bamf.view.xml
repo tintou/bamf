@@ -137,5 +137,6 @@
     <property name="location" type="s" access="read"/>
     <property name="xid" type="t" access="read"/>
     <property name="desktop-id" type="s" access="read"/>
+    <property name="is-foreground-tab" type="b" access="read"/>
   </interface>
 </node>

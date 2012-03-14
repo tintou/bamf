@@ -33,7 +33,8 @@ enum
   PROP_0,
   PROP_LOCATION,
   PROP_XID,
-  PROP_DESKTOP_ID
+  PROP_DESKTOP_ID,
+  PROP_IS_FOREGROUND_TAB
 };
 
 struct _BamfTabPrivate
@@ -44,6 +45,7 @@ struct _BamfTabPrivate
   gchar *desktop_id;
 
   guint64 xid;
+  gboolean is_foreground;
 };
 
 static const gchar *
@@ -69,6 +71,9 @@ bamf_tab_get_property (GObject *object, guint property_id, GValue *value, GParam
       break;
     case PROP_DESKTOP_ID:
       g_value_set_string (value, self->priv->desktop_id);
+      break;
+    case PROP_IS_FOREGROUND_TAB:
+      g_value_set_boolean (value, self->priv->is_foreground);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -107,6 +112,9 @@ bamf_tab_set_property (GObject *object, guint property_id, const GValue *value, 
       bamf_dbus_item_tab_set_xid (self->priv->dbus_iface, self->priv->xid);
 
       break;
+    case PROP_IS_FOREGROUND_TAB:
+      self->priv->is_foreground = g_value_get_boolean (value);
+      bamf_dbus_item_tab_set_is_foreground_tab (self->priv->dbus_iface, self->priv->is_foreground);
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
     }
@@ -236,6 +244,10 @@ bamf_tab_class_init (BamfTabClass * klass)
 			      0, G_MAXUINT64, 0, G_PARAM_READWRITE);
   g_object_class_install_property (object_class, PROP_XID, pspec);
   
+  pspec = g_param_spec_boolean ("is-foreground-tab", "Foreground Tab", "Is this tab the foreground tab in it's toplevel container",
+			     FALSE, G_PARAM_READWRITE);
+  g_object_class_install_property (object_class, PROP_IS_FOREGROUND_TAB, pspec);
+  
   
   g_type_class_add_private (klass, sizeof (BamfTabPrivate));
 }
@@ -263,6 +275,14 @@ bamf_tab_get_xid (BamfTab *self)
   g_return_val_if_fail (BAMF_IS_TAB (self), 0);
   
   return self->priv->xid;
+}
+
+gboolean
+bamf_tab_get_is_foreground_tab (BamfTab *self)
+{
+  g_return_val_if_fail (BAMF_IS_TAB (self), 0);
+  
+  return self->priv->is_foreground;
 }
 
 void
