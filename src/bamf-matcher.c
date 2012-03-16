@@ -902,8 +902,7 @@ load_index_file_to_table (BamfMatcher * self,
   directory = g_path_get_dirname (index_file);
   input = g_data_input_stream_new (G_INPUT_STREAM (stream));
 
-
-  while ((line = g_data_input_stream_read_line (input, &length, NULL, NULL)) != NULL)
+  while ((line = g_data_input_stream_read_line (input, &length, NULL, NULL)))
     {
       char *exec;
       char *filename;
@@ -928,6 +927,7 @@ load_index_file_to_table (BamfMatcher * self,
       insert_desktop_file_class_into_table (self, filename, desktop_class_table);
 
       g_string_free (desktop_id, TRUE);
+      g_free (line);
       g_free (filename);
       g_strfreev (parts);
       length = 0;
