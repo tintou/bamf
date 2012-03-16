@@ -790,17 +790,23 @@ load_desktop_file_to_table (BamfMatcher * self,
   desktop_file = g_desktop_app_info_new_from_filename (file);
 
   if (!G_IS_APP_INFO (desktop_file))
-    return;
+    {
+      return;
+    }
 
   if (!g_desktop_app_info_get_show_in (desktop_file, g_getenv ("XDG_CURRENT_DESKTOP")))
-    return;
+    {
+      g_object_unref (desktop_file);
+      return;
+    }
 
   exec = g_strdup (g_app_info_get_commandline (G_APP_INFO (desktop_file)));
   
   if (!exec)
-    return;
-
-  g_object_unref (desktop_file);
+    {
+      g_object_unref (desktop_file);
+      return;
+    }
 
   if (exec_string_should_be_processed (self, exec))
     {
@@ -826,6 +832,7 @@ load_desktop_file_to_table (BamfMatcher * self,
 
   g_free (exec);
   g_string_free (desktop_id, TRUE);
+  g_object_unref (desktop_file);
 }
 
 static void
