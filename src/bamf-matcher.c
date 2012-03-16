@@ -1555,7 +1555,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
       
       if (window_class)
         {
-          char *window_class_down = g_ascii_strdown (g_strdup(window_class), -1);
+          char *window_class_down = g_ascii_strdown (window_class, -1);
           l = g_hash_table_lookup (priv->desktop_id_table, window_class_down);
           g_free (window_class_down);
 
