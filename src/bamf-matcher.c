@@ -1542,10 +1542,17 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
   hint = get_window_hint (window, _NET_WM_DESKTOP_FILE);
   const char *window_class = bamf_legacy_window_get_class_name (window);
 
-  if (hint && hint[0] != '\0' && !is_web_app_window(self, window))
+  if (hint)
     {
-      desktop_files = g_list_prepend (desktop_files, hint);
       /* whew, hard work, didn't even have to make a copy! */
+      if (hint[0] != '\0' && !is_web_app_window(self, window))
+        {
+          desktop_files = g_list_prepend (desktop_files, hint);
+        }
+      else
+        {
+          g_free (hint);
+        }
     }
   else
     {
@@ -1904,6 +1911,7 @@ get_gnome_control_center_window_hint (BamfMatcher * self, BamfLegacyWindow * win
     }
 
   g_free (exec);
+  g_free (role);
 
   return (list ? (char *) list->data : NULL);
 }
