@@ -118,7 +118,6 @@ on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
       else
         priv->active_win = NULL;
 
-
       g_signal_emit_by_name (matcher, "active-window-changed",
                              BAMF_IS_VIEW (last) ? bamf_view_get_path (BAMF_VIEW (last)) : "",
                              BAMF_IS_VIEW (priv->active_win) ? bamf_view_get_path (BAMF_VIEW (priv->active_win)) : "");
@@ -249,7 +248,6 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
   g_signal_connect (G_OBJECT (view), "active-changed",
                     (GCallback) on_view_active_changed, self);
 
-
   if (BAMF_IS_APPLICATION (view))
     {
       bamf_matcher_prepare_path_change (self,
@@ -257,7 +255,6 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
     }
 
   self->priv->views = g_list_prepend (self->priv->views, view);
-  g_object_ref (view);
 
   g_signal_emit_by_name (self, "view-opened", path, type);
   
@@ -290,6 +287,12 @@ bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view, gboolean unref)
               bamf_application_get_desktop_file (BAMF_APPLICATION (view)),
               VIEW_REMOVED);
         }
+
+      if (self->priv->active_app == view)
+        self->priv->active_app = NULL;
+
+      if (self->priv->active_win == view)
+        self->priv->active_win = NULL;
 
       g_object_unref (view);
     }
@@ -801,7 +804,7 @@ load_desktop_file_to_table (BamfMatcher * self,
     }
 
   exec = g_strdup (g_app_info_get_commandline (G_APP_INFO (desktop_file)));
-  
+
   if (!exec)
     {
       g_object_unref (desktop_file);
@@ -1741,7 +1744,6 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
       bamf_application_set_wmclass (best, win_class);
 
       bamf_matcher_register_view (self, BAMF_VIEW (best));
-      g_object_unref (best);
     }
 
   g_list_free_full (possible_apps, g_free);
@@ -1849,7 +1851,6 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
 
   bamfwindow = bamf_window_new (window);
   bamf_matcher_register_view (self, BAMF_VIEW (bamfwindow));
-  g_object_unref (bamfwindow);
 
   bamf_matcher_setup_window_state (self, bamfwindow);
 }
@@ -1951,12 +1952,9 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
 
   if (bamf_legacy_window_get_window_type (window) == BAMF_WINDOW_DESKTOP)
     {
-      BamfWindow *bamfwindow;
-      
-      bamfwindow = bamf_window_new (window);
+      BamfWindow *bamfwindow = bamf_window_new (window);
       bamf_matcher_register_view (self, BAMF_VIEW (bamfwindow));
-      g_object_unref (bamfwindow);
-      
+
       return;
     }
 
@@ -2066,7 +2064,6 @@ bamf_matcher_setup_indicator_state (BamfMatcher *self, BamfIndicator *indicator)
         {
           best = bamf_application_new_from_desktop_file (desktop_file);
           bamf_matcher_register_view (self, BAMF_VIEW (best));
-          g_object_unref (best);
         }
     }
 
