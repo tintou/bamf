@@ -49,12 +49,12 @@ struct _BamfApplicationPrivate
 
 #define STUB_KEY  "X-Ayatana-Appmenu-Show-Stubs"
 
-static char *
+static const char *
 bamf_application_get_icon (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION (view), NULL);
 
-  return g_strdup (BAMF_APPLICATION (view)->priv->icon);
+  return BAMF_APPLICATION (view)->priv->icon;
 }
 
 char *
