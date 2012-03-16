@@ -970,19 +970,22 @@ get_directory_tree_list (GList *dirs)
       if (!enumerator)
         continue;
 
+
       info = g_file_enumerator_next_file (enumerator, NULL, NULL);
-      for (; info; info = g_file_enumerator_next_file (enumerator, NULL, NULL))
+
+      while (info)
         {
-          if (g_file_info_get_file_type (info) != G_FILE_TYPE_DIRECTORY)
-            continue;
-          
-          subpath = g_build_filename (path, g_file_info_get_name (info), NULL);
-          /* append after the current list item for non-recursive recursion love
-           * and to keep the priorities (hierarchy) of the .desktop directories.
-           */
-          dirs = g_list_insert_before (dirs, l->next, subpath);
+          if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY)
+            {
+              /* append after the current list item for non-recursive recursion love
+               * and to keep the priorities (hierarchy) of the .desktop directories.
+               */
+              subpath = g_build_filename (path, g_file_info_get_name (info), NULL);
+              dirs = g_list_insert_before (dirs, l->next, subpath);
+            }
 
           g_object_unref (info);
+          info = g_file_enumerator_next_file (enumerator, NULL, NULL);
         }
 
       g_object_unref (enumerator);
