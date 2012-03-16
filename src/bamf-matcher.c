@@ -46,6 +46,7 @@ typedef enum
   VIEW_REMOVED
 } ViewChangeType;
 
+static BamfMatcher *static_matcher;
 static guint matcher_signals[LAST_SIGNAL] = { 0 };
 
 struct _BamfMatcherPrivate
@@ -2878,6 +2879,8 @@ bamf_matcher_finalize (GObject *object)
   priv->active_app = NULL;
   priv->active_win = NULL;
 
+  static_matcher = NULL;
+
   G_OBJECT_CLASS (bamf_matcher_parent_class)->finalize (object);
 }
 
@@ -2902,12 +2905,10 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
 BamfMatcher *
 bamf_matcher_get_default (void)
 {
-  static BamfMatcher *matcher;
-
-  if (!BAMF_IS_MATCHER (matcher))
+  if (!BAMF_IS_MATCHER (static_matcher))
     {
-      matcher = (BamfMatcher *) g_object_new (BAMF_TYPE_MATCHER, NULL);
+      static_matcher = g_object_new (BAMF_TYPE_MATCHER, NULL);
     }
 
-  return matcher;
+  return static_matcher;
 }
