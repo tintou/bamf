@@ -909,13 +909,14 @@ load_index_file_to_table (BamfMatcher * self,
       GString *desktop_id;
 
       gchar **parts = g_strsplit (line, "\t", 3);
-
       exec = parts[1];
 
       if (exec_string_should_be_processed (self, exec))
         {
           char *tmp = trim_exec_string (self, exec);
-          exec = tmp;
+          g_free (parts[1]);
+          parts[1] = tmp;
+          exec = parts[1];
         }
 
       filename = g_build_filename (directory, parts[0], NULL);
