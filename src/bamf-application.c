@@ -635,6 +635,17 @@ on_dbus_handle_xids (BamfDBusItemApplication *interface,
 }
 
 static gboolean
+on_dbus_handle_focus_xids (BamfDBusItemApplication *interface,
+			   GDBusMethodInvocation *invocation,
+			   BamfApplication *self)
+{
+  GVariant *focus_xids = bamf_application_get_focus_xids (self);
+  g_dbus_method_invocation_return_value (invocation, focus_xids);
+
+  return TRUE;
+}
+
+static gboolean
 on_dbus_handle_desktop_file (BamfDBusItemApplication *interface,
                              GDBusMethodInvocation *invocation,
                              BamfApplication *self)
@@ -759,6 +770,9 @@ bamf_application_init (BamfApplication * self)
 
   g_signal_connect (priv->dbus_iface, "handle-xids",
                     G_CALLBACK (on_dbus_handle_xids), self);
+
+  g_signal_connect (priv->dbus_iface, "handle-focus-xids",
+                    G_CALLBACK (on_dbus_handle_focus_xids), self);
 
   g_signal_connect (priv->dbus_iface, "handle-desktop-file",
                     G_CALLBACK (on_dbus_handle_desktop_file), self);
@@ -889,4 +903,17 @@ bamf_application_get_application_menu (BamfApplication *application, gchar **nam
       *name = NULL;
       *object_path = NULL;
     }
+}
+
+GVariant *
+bamf_application_get_focus_xids (BamfApplication *application)
+{
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
+  
+  if (BAMF_APPLICATION_GET_CLASS (application)->get_focus_xids)
+    {
+      return BAMF_APPLICATION_GET_CLASS (application)->get_focus_xids (application);
+    }
+  
+  return NULL;
 }
