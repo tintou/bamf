@@ -118,6 +118,8 @@ GList * bamf_application_get_windows (BamfApplication *application);
  */
 GArray * bamf_application_get_xids (BamfApplication *application);
 
+GArray * bamf_application_get_focus_xids (BamfApplication *application);
+
 /**
  * bamf_application_get_show_stubs:
  * @application: a #BamfApplication
