@@ -196,6 +196,35 @@ bamf_application_get_xids (BamfApplication *application)
   return xids;
 }
 
+GArray *
+bamf_application_get_focus_xids (BamfApplication *application)
+{
+  BamfApplicationPrivate *priv;
+  GArray *focus_xids;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+  priv = application->priv;
+  
+  if (!bamf_view_remote_ready (BAMF_VIEW (application)))
+    return NULL;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "FocusXids",
+                          &error,
+                          G_TYPE_INVALID,
+                          DBUS_TYPE_G_UINT_ARRAY, &focus_xids,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch focus xids: %s", error->message);
+      g_error_free (error);
+      
+      return NULL;
+    }
+
+  return focus_xids;
+}
+
 GList *
 bamf_application_get_windows (BamfApplication *application)
 {
