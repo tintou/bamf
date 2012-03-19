@@ -291,9 +291,10 @@ bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
   if (self->priv->active_win == view)
     self->priv->active_win = NULL;
 
-  if (g_list_find (self->priv->views, view))
+  GList *listed_view = g_list_find (self->priv->views, view);
+  if (listed_view)
     {
-      self->priv->views = g_list_remove (self->priv->views, view);
+      self->priv->views = g_list_delete_link (self->priv->views, listed_view);
       g_object_unref (view);
     }
 }
