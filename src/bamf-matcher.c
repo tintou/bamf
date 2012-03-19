@@ -233,7 +233,7 @@ on_view_closed (BamfView *view, BamfMatcher *self)
 }
 
 static void
-bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
+bamf_matcher_register_view_stealing_ref (BamfMatcher *self, BamfView *view)
 {
   const char *path, *type;
   GDBusConnection *connection;
@@ -1744,7 +1744,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
 
       bamf_application_set_wmclass (best, win_class);
 
-      bamf_matcher_register_view (self, BAMF_VIEW (best));
+      bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (best));
     }
 
   g_list_free_full (possible_apps, g_free);
@@ -1851,7 +1851,7 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
    */
 
   bamfwindow = bamf_window_new (window);
-  bamf_matcher_register_view (self, BAMF_VIEW (bamfwindow));
+  bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamfwindow));
 
   bamf_matcher_setup_window_state (self, bamfwindow);
 }
@@ -1954,7 +1954,7 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
   if (bamf_legacy_window_get_window_type (window) == BAMF_WINDOW_DESKTOP)
     {
       BamfWindow *bamfwindow = bamf_window_new (window);
-      bamf_matcher_register_view (self, BAMF_VIEW (bamfwindow));
+      bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamfwindow));
 
       return;
     }
@@ -2064,7 +2064,7 @@ bamf_matcher_setup_indicator_state (BamfMatcher *self, BamfIndicator *indicator)
       if (desktop_file)
         {
           best = bamf_application_new_from_desktop_file (desktop_file);
-          bamf_matcher_register_view (self, BAMF_VIEW (best));
+          bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (best));
         }
     }
 
@@ -2080,7 +2080,7 @@ handle_indicator_opened (BamfIndicatorSource *approver, BamfIndicator *indicator
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_INDICATOR (indicator));
   
-  bamf_matcher_register_view (self, BAMF_VIEW (indicator));
+  bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (indicator));
   bamf_matcher_setup_indicator_state (self, indicator);
 }
 
