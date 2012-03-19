@@ -124,7 +124,7 @@ on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
     }
 }
 
-static void bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view, gboolean unref);
+static void bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view);
 
 static gboolean
 emit_paths_changed (gpointer user_data)
@@ -229,7 +229,7 @@ static void bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *de
 static void
 on_view_closed (BamfView *view, BamfMatcher *self)
 {
-  bamf_matcher_unregister_view (self, view, TRUE);
+  bamf_matcher_unregister_view (self, view);
 }
 
 static void
@@ -254,6 +254,7 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
         bamf_application_get_desktop_file (BAMF_APPLICATION (view)), VIEW_ADDED);
     }
 
+  // This steals the reference of the view
   self->priv->views = g_list_prepend (self->priv->views, view);
 
   g_signal_emit_by_name (self, "view-opened", path, type);
@@ -264,7 +265,7 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
 }
 
 static void
-bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view, gboolean unref)
+bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
 {
   const char * path;
   const char * type;
@@ -277,23 +278,22 @@ bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view, gboolean unref)
   g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_closed, self);
   g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_active_changed, self);
 
-  if (unref)
+  if (BAMF_IS_APPLICATION (view))
+    {
+      bamf_matcher_prepare_path_change (self,
+          bamf_application_get_desktop_file (BAMF_APPLICATION (view)),
+          VIEW_REMOVED);
+    }
+
+  if (self->priv->active_app == view)
+    self->priv->active_app = NULL;
+
+  if (self->priv->active_win == view)
+    self->priv->active_win = NULL;
+
+  if (g_list_find (self->priv->views, view))
     {
       self->priv->views = g_list_remove (self->priv->views, view);
-
-      if (BAMF_IS_APPLICATION (view))
-        {
-          bamf_matcher_prepare_path_change (self,
-              bamf_application_get_desktop_file (BAMF_APPLICATION (view)),
-              VIEW_REMOVED);
-        }
-
-      if (self->priv->active_app == view)
-        self->priv->active_app = NULL;
-
-      if (self->priv->active_win == view)
-        self->priv->active_win = NULL;
-
       g_object_unref (view);
     }
 }
@@ -2825,8 +2825,16 @@ bamf_matcher_dispose (GObject *object)
 
   for (l = priv->views; l; l = l->next)
     {
-      bamf_matcher_unregister_view (self, (BamfView*)l->data, FALSE);
+      BamfView *view = BAMF_VIEW (l->data);
+      const gchar *path = bamf_view_get_path (view);
+      const gchar *type = bamf_view_get_view_type (view);
+
+      g_signal_emit_by_name (self, "view-closed", path, type);
+
+      g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_closed, self);
+      g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_active_changed, self);
     }
+
   g_list_free_full (priv->views, g_object_unref);
   priv->views = NULL;
 
