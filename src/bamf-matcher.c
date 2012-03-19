@@ -1926,6 +1926,8 @@ on_gnome_control_center_window_closed (BamfLegacyWindow *window, BamfMatcher* se
 static void
 handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, BamfMatcher *self)
 {
+  BamfWindowType window_type;
+
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
 
@@ -1979,9 +1981,17 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
 
       g_free (old_hint);
     }
+  
+  window_type = bamf_legacy_window_get_window_type (window);
 
-  /* we have a window who is ready to be matched */
-  handle_raw_window (self, window);
+  /* 
+   * We have a window who is ready to be matched. Unless it is a shell 
+   * window in which case we can just ignore it. 
+   */
+  if (window_type != BAMF_WINDOW_UTILITY && window_type != BAMF_WINDOW_DOCK)
+    {
+      handle_raw_window (self, window);
+    }
 }
 
 static void
