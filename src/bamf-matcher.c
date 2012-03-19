@@ -1931,7 +1931,15 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
 
-  if (bamf_legacy_window_get_window_type (window) == BAMF_WINDOW_DESKTOP)
+  window_type = bamf_legacy_window_get_window_type (window);
+
+  /* Ignore shell windows*/
+  if (window_type == BAMF_WINDOW_DOCK || window_type == BAMF_WINDOW_UTILITY)
+    {
+      return;
+    }
+
+  else if (window_type == BAMF_WINDOW_DESKTOP)
     {
       BamfWindow *bamfwindow;
       
@@ -1942,7 +1950,7 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
       return;
     }
 
-  if (is_open_office_window (self, window))
+  else if (is_open_office_window (self, window))
     {
       BamfWindowType win_type = bamf_legacy_window_get_window_type (window);
 
@@ -1982,16 +1990,10 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
       g_free (old_hint);
     }
   
-  window_type = bamf_legacy_window_get_window_type (window);
-
   /* 
-   * We have a window who is ready to be matched. Unless it is a shell 
-   * window in which case we can just ignore it. 
+   * We have a window who is ready to be matched.
    */
-  if (window_type != BAMF_WINDOW_UTILITY && window_type != BAMF_WINDOW_DOCK)
-    {
-      handle_raw_window (self, window);
-    }
+  handle_raw_window (self, window);
 }
 
 static void
