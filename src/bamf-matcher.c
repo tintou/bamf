@@ -1951,7 +1951,15 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
 
-  if (bamf_legacy_window_get_window_type (window) == BAMF_WINDOW_DESKTOP)
+  BamfWindowType win_type = bamf_legacy_window_get_window_type (window);
+
+  if (win_type == BAMF_WINDOW_TOOLBAR || win_type == BAMF_WINDOW_UTILITY ||
+      win_type == BAMF_WINDOW_MENU || win_type == BAMF_WINDOW_DOCK)
+    {
+      return;
+    }
+
+  if (win_type == BAMF_WINDOW_DESKTOP)
     {
       BamfWindow *bamfwindow = bamf_window_new (window);
       bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamfwindow));
@@ -1961,9 +1969,7 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
 
   if (is_open_office_window (self, window))
     {
-      BamfWindowType win_type = bamf_legacy_window_get_window_type (window);
-
-      if (win_type == BAMF_WINDOW_SPLASHSCREEN || win_type == BAMF_WINDOW_TOOLBAR)
+      if (win_type == BAMF_WINDOW_SPLASHSCREEN)
         {
           return;
         }
