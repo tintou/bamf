@@ -2822,22 +2822,11 @@ bamf_matcher_dispose (GObject *object)
 {
   BamfMatcher *self = (BamfMatcher *) object;
   BamfMatcherPrivate *priv = self->priv;
-  GList *l;
 
-  for (l = priv->views; l; l = l->next)
+  while (priv->views)
     {
-      BamfView *view = BAMF_VIEW (l->data);
-      const gchar *path = bamf_view_get_path (view);
-      const gchar *type = bamf_view_get_view_type (view);
-
-      g_signal_emit_by_name (self, "view-closed", path, type);
-
-      g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_closed, self);
-      g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_active_changed, self);
+      bamf_matcher_unregister_view (self, priv->views->data);
     }
-
-  g_list_free_full (priv->views, g_object_unref);
-  priv->views = NULL;
 
   G_OBJECT_CLASS (bamf_matcher_parent_class)->dispose (object);
 }
