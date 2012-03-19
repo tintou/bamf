@@ -1953,21 +1953,19 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
 
   BamfWindowType win_type = bamf_legacy_window_get_window_type (window);
 
-  if (win_type == BAMF_WINDOW_TOOLBAR || win_type == BAMF_WINDOW_UTILITY ||
-      win_type == BAMF_WINDOW_MENU || win_type == BAMF_WINDOW_DOCK)
+
+  if (win_type == BAMF_WINDOW_TOOLBAR || win_type == BAMF_WINDOW_DOCK)
     {
       return;
     }
-
-  if (win_type == BAMF_WINDOW_DESKTOP)
+  else if (win_type == BAMF_WINDOW_DESKTOP)
     {
       BamfWindow *bamfwindow = bamf_window_new (window);
       bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamfwindow));
 
       return;
     }
-
-  if (is_open_office_window (self, window))
+  else if (is_open_office_window (self, window))
     {
       if (win_type == BAMF_WINDOW_SPLASHSCREEN)
         {
