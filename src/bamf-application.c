@@ -635,12 +635,31 @@ on_dbus_handle_xids (BamfDBusItemApplication *interface,
 }
 
 static gboolean
-on_dbus_handle_focus_xids (BamfDBusItemApplication *interface,
+on_dbus_handle_focus_child (BamfDBusItemApplication *interface,
 			   GDBusMethodInvocation *invocation,
 			   BamfApplication *self)
 {
-  GVariant *focus_xids = bamf_application_get_focus_xids (self);
-  g_dbus_method_invocation_return_value (invocation, focus_xids);
+  GVariant *out_variant;
+  BamfView *focus_child;
+  
+  out_variant = NULL;
+  
+  focus_child = bamf_application_get_focus_child (self);
+  
+  if (focus_child == NULL)
+    {
+      out_variant = g_variant_new("(s)", "");
+    }
+  else
+    {
+      const gchar *path;
+      
+      path = bamf_view_get_path (BAMF_VIEW (focus_child));
+      
+      out_variant = g_variant_new("(s)", path);
+    }
+
+  g_dbus_method_invocation_return_value (invocation, out_variant);
 
   return TRUE;
 }
@@ -771,8 +790,8 @@ bamf_application_init (BamfApplication * self)
   g_signal_connect (priv->dbus_iface, "handle-xids",
                     G_CALLBACK (on_dbus_handle_xids), self);
 
-  g_signal_connect (priv->dbus_iface, "handle-focus-xids",
-                    G_CALLBACK (on_dbus_handle_focus_xids), self);
+  g_signal_connect (priv->dbus_iface, "handle-focus-child",
+                    G_CALLBACK (on_dbus_handle_focus_child), self);
 
   g_signal_connect (priv->dbus_iface, "handle-desktop-file",
                     G_CALLBACK (on_dbus_handle_desktop_file), self);
@@ -905,14 +924,14 @@ bamf_application_get_application_menu (BamfApplication *application, gchar **nam
     }
 }
 
-GVariant *
-bamf_application_get_focus_xids (BamfApplication *application)
+BamfView *
+bamf_application_get_focus_child (BamfApplication *application)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
   
-  if (BAMF_APPLICATION_GET_CLASS (application)->get_focus_xids)
+  if (BAMF_APPLICATION_GET_CLASS (application)->get_focus_child)
     {
-      return BAMF_APPLICATION_GET_CLASS (application)->get_focus_xids (application);
+      return BAMF_APPLICATION_GET_CLASS (application)->get_focus_child (application);
     }
   
   return NULL;

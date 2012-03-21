@@ -77,8 +77,8 @@
       <arg name="objectpath" type="s" direction="out"/>
     </method>
     
-    <method name="FocusXids">
-      <arg name="xid" type="au" direction="out"/>
+    <method name="FocusChild">
+      <arg name="path" type="s" direction="out"/>
     </method>
     
     <signal name="WindowRemoved">

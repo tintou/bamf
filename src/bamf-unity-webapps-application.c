@@ -51,26 +51,6 @@ struct _BamfUnityWebappsApplicationPrivate
   UnityWebappsContext *context;
 };
 
-static GVariant *
-bamf_unity_webapps_application_get_focus_xids (BamfApplication *application)
-{
-  BamfUnityWebappsApplication *self;
-  GVariantBuilder b;
-  guint64 xid;
-  
-  self = BAMF_UNITY_WEBAPPS_APPLICATION (application);
-  
-  g_variant_builder_init (&b, G_VARIANT_TYPE("(au)"));
-  g_variant_builder_open (&b, G_VARIANT_TYPE("au"));
-  
-  xid = unity_webapps_context_get_focus_xid (self->priv->context);
-  
-  g_variant_builder_add (&b, "u", (guint32)xid);
-  
-  g_variant_builder_close (&b);
-  
-  return g_variant_builder_end (&b);
-}
 
 static void
 bamf_unity_webapps_application_get_application_menu (BamfApplication *application,
@@ -123,6 +103,23 @@ bamf_unity_webapps_application_find_child_by_interest (BamfUnityWebappsApplicati
   
   return NULL;
 }
+
+static BamfView *
+bamf_unity_webapps_application_get_focus_child (BamfApplication *application)
+{
+  BamfUnityWebappsApplication *self;
+  gint focus_interest;
+  
+  self = BAMF_UNITY_WEBAPPS_APPLICATION (application);
+  
+  focus_interest = unity_webapps_context_get_focus_interest (self->priv->context);
+  
+  if (focus_interest == -1)
+    return NULL;
+
+  return (BamfView *)bamf_unity_webapps_application_find_child_by_interest (self, focus_interest);
+}
+
 
 static void
 bamf_unity_webapps_application_interest_appeared (UnityWebappsContext *context,
@@ -326,7 +323,7 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   bamf_view_class->child_added = bamf_unity_webapps_application_child_added;
   
   bamf_application_class->get_application_menu = bamf_unity_webapps_application_get_application_menu;
-  bamf_application_class->get_focus_xids = bamf_unity_webapps_application_get_focus_xids;
+  bamf_application_class->get_focus_child = bamf_unity_webapps_application_get_focus_child;
   
   pspec = g_param_spec_object("context", "Context", "The Unity Webapps Context assosciated with the Application",
 			      UNITY_WEBAPPS_TYPE_CONTEXT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
