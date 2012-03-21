@@ -43,7 +43,7 @@ struct _BamfApplicationClass
   BamfViewClass parent;
   
   void (*get_application_menu) (BamfApplication *application, gchar **name, gchar **path);
-  GVariant* (*get_focus_xids) (BamfApplication *application);
+  BamfView* (*get_focus_child) (BamfApplication *application);
 };
 
 struct _BamfApplication
@@ -61,7 +61,6 @@ void              bamf_application_set_desktop_file           (BamfApplication *
                                                                const char * desktop_file);
 
 GVariant        * bamf_application_get_xids                   (BamfApplication *application);
-GVariant        * bamf_application_get_focus_xids             (BamfApplication *application);
 
 gboolean          bamf_application_manages_xid                (BamfApplication *application,
                                                                guint32 xid);
@@ -90,6 +89,7 @@ void bamf_application_set_application_type (BamfApplication *application, const 
 
 void bamf_application_get_application_menu (BamfApplication *application, gchar **name, gchar **object_path);
 
+BamfView        * bamf_application_get_focus_child             (BamfApplication *application);
 
 
 #endif

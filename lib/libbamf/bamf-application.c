@@ -196,11 +196,12 @@ bamf_application_get_xids (BamfApplication *application)
   return xids;
 }
 
-GArray *
-bamf_application_get_focus_xids (BamfApplication *application)
+BamfView *
+bamf_application_get_focus_child (BamfApplication *application)
 {
   BamfApplicationPrivate *priv;
-  GArray *focus_xids;
+  BamfView *ret;
+  gchar *path;
   GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
@@ -210,10 +211,10 @@ bamf_application_get_focus_xids (BamfApplication *application)
     return NULL;
 
   if (!dbus_g_proxy_call (priv->proxy,
-                          "FocusXids",
+                          "FocusChild",
                           &error,
                           G_TYPE_INVALID,
-                          DBUS_TYPE_G_UINT_ARRAY, &focus_xids,
+                          G_TYPE_STRING, &path,
                           G_TYPE_INVALID))
     {
       g_warning ("Failed to fetch focus xids: %s", error->message);
@@ -222,7 +223,11 @@ bamf_application_get_focus_xids (BamfApplication *application)
       return NULL;
     }
 
-  return focus_xids;
+  ret = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+  
+  g_free (path);
+  
+  return ret;
 }
 
 GList *
