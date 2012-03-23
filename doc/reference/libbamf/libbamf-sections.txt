@@ -200,6 +200,7 @@ BamfWindowClass
 BamfWindowMaximizationType
 BamfWindowType
 bamf_window_get_monitor
+bamf_window_get_pid
 bamf_window_get_transient
 bamf_window_get_utf8_prop
 bamf_window_get_window_type
