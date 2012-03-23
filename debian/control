@@ -22,6 +22,7 @@ Build-Depends: debhelper (>= 8.1.2ubuntu2),
                gir1.2-wnck-1.0,
                xvfb,
                dbus-x11,
+	       libunity-webapps-dev
 Standards-Version: 3.9.2
 Homepage: https://launchpad.net/bamf
 Vcs-Bzr: https://code.launchpad.net/~ubuntu-desktop/bamf/ubuntu

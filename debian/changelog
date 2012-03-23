@@ -1,3 +1,9 @@
+bamf (0.2.114-0ubuntu2~webapps4) precise; urgency=low
+
+  * More webapps fixes
+
+ -- Robert Carr <racarr@canonical.com>  Fri, 23 Mar 2012 14:04:51 -0400
+
 bamf (0.2.114-0ubuntu2~webapps3) precise; urgency=low
 
   * Try and build again? Key errors on pbuilder
