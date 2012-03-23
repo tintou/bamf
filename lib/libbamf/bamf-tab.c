@@ -194,8 +194,7 @@ bamf_tab_set_property (GObject *object, guint property_id, const GValue *value, 
   switch (property_id)
     {
     case PROP_LOCATION:
-      g_return_if_fail (self->priv->location == NULL);
-	self->priv->location = g_value_dup_string (value);
+      self->priv->location = g_value_dup_string (value);
       break;
     case PROP_DESKTOP_ID:
       g_return_if_fail (self->priv->desktop_name == NULL);
