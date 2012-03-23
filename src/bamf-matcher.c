@@ -46,6 +46,7 @@ typedef enum
   VIEW_REMOVED
 } ViewChangeType;
 
+static BamfMatcher *static_matcher;
 static guint matcher_signals[LAST_SIGNAL] = { 0 };
 
 struct _BamfMatcherPrivate
@@ -117,14 +118,13 @@ on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
       else
         priv->active_win = NULL;
 
-
       g_signal_emit_by_name (matcher, "active-window-changed",
                              BAMF_IS_VIEW (last) ? bamf_view_get_path (BAMF_VIEW (last)) : "",
                              BAMF_IS_VIEW (priv->active_win) ? bamf_view_get_path (BAMF_VIEW (priv->active_win)) : "");
     }
 }
 
-static void bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view, gboolean unref);
+static void bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view);
 
 static gboolean
 emit_paths_changed (gpointer user_data)
@@ -229,11 +229,11 @@ static void bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *de
 static void
 on_view_closed (BamfView *view, BamfMatcher *self)
 {
-  bamf_matcher_unregister_view (self, view, TRUE);
+  bamf_matcher_unregister_view (self, view);
 }
 
 void
-bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
+bamf_matcher_register_view_stealing_ref (BamfMatcher *self, BamfView *view)
 {
   const char *path, *type;
   GDBusConnection *connection;
@@ -248,15 +248,14 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
   g_signal_connect (G_OBJECT (view), "active-changed",
                     (GCallback) on_view_active_changed, self);
 
-
   if (BAMF_IS_APPLICATION (view))
     {
       bamf_matcher_prepare_path_change (self,
         bamf_application_get_desktop_file (BAMF_APPLICATION (view)), VIEW_ADDED);
     }
 
+  // This steals the reference of the view
   self->priv->views = g_list_prepend (self->priv->views, view);
-  g_object_ref (view);
 
   g_signal_emit_by_name (self, "view-opened", path, type);
   
@@ -266,7 +265,7 @@ bamf_matcher_register_view (BamfMatcher *self, BamfView *view)
 }
 
 static void
-bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view, gboolean unref)
+bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
 {
   const char * path;
   const char * type;
@@ -279,17 +278,23 @@ bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view, gboolean unref)
   g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_closed, self);
   g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_active_changed, self);
 
-  if (unref)
+  if (BAMF_IS_APPLICATION (view))
     {
-      self->priv->views = g_list_remove (self->priv->views, view);
+      bamf_matcher_prepare_path_change (self,
+          bamf_application_get_desktop_file (BAMF_APPLICATION (view)),
+          VIEW_REMOVED);
+    }
 
-      if (BAMF_IS_APPLICATION (view))
-        {
-          bamf_matcher_prepare_path_change (self,
-              bamf_application_get_desktop_file (BAMF_APPLICATION (view)),
-              VIEW_REMOVED);
-        }
+  if (self->priv->active_app == view)
+    self->priv->active_app = NULL;
 
+  if (self->priv->active_win == view)
+    self->priv->active_win = NULL;
+
+  GList *listed_view = g_list_find (self->priv->views, view);
+  if (listed_view)
+    {
+      self->priv->views = g_list_delete_link (self->priv->views, listed_view);
       g_object_unref (view);
     }
 }
@@ -789,17 +794,23 @@ load_desktop_file_to_table (BamfMatcher * self,
   desktop_file = g_desktop_app_info_new_from_filename (file);
 
   if (!G_IS_APP_INFO (desktop_file))
-    return;
+    {
+      return;
+    }
 
   if (!g_desktop_app_info_get_show_in (desktop_file, g_getenv ("XDG_CURRENT_DESKTOP")))
-    return;
+    {
+      g_object_unref (desktop_file);
+      return;
+    }
 
   exec = g_strdup (g_app_info_get_commandline (G_APP_INFO (desktop_file)));
-  
-  if (!exec)
-    return;
 
-  g_object_unref (desktop_file);
+  if (!exec)
+    {
+      g_object_unref (desktop_file);
+      return;
+    }
 
   if (exec_string_should_be_processed (self, exec))
     {
@@ -825,6 +836,7 @@ load_desktop_file_to_table (BamfMatcher * self,
 
   g_free (exec);
   g_string_free (desktop_id, TRUE);
+  g_object_unref (desktop_file);
 }
 
 static void
@@ -901,21 +913,21 @@ load_index_file_to_table (BamfMatcher * self,
   directory = g_path_get_dirname (index_file);
   input = g_data_input_stream_new (G_INPUT_STREAM (stream));
 
-
-  while ((line = g_data_input_stream_read_line (input, &length, NULL, NULL)) != NULL)
+  while ((line = g_data_input_stream_read_line (input, &length, NULL, NULL)))
     {
       char *exec;
       char *filename;
       GString *desktop_id;
 
       gchar **parts = g_strsplit (line, "\t", 3);
-
       exec = parts[1];
 
       if (exec_string_should_be_processed (self, exec))
         {
           char *tmp = trim_exec_string (self, exec);
-          exec = tmp;
+          g_free (parts[1]);
+          parts[1] = tmp;
+          exec = parts[1];
         }
 
       filename = g_build_filename (directory, parts[0], NULL);
@@ -927,6 +939,7 @@ load_index_file_to_table (BamfMatcher * self,
       insert_desktop_file_class_into_table (self, filename, desktop_class_table);
 
       g_string_free (desktop_id, TRUE);
+      g_free (line);
       g_free (filename);
       g_strfreev (parts);
       length = 0;
@@ -970,19 +983,22 @@ get_directory_tree_list (GList *dirs)
       if (!enumerator)
         continue;
 
+
       info = g_file_enumerator_next_file (enumerator, NULL, NULL);
-      for (; info; info = g_file_enumerator_next_file (enumerator, NULL, NULL))
+
+      while (info)
         {
-          if (g_file_info_get_file_type (info) != G_FILE_TYPE_DIRECTORY)
-            continue;
-          
-          subpath = g_build_filename (path, g_file_info_get_name (info), NULL);
-          /* append after the current list item for non-recursive recursion love
-           * and to keep the priorities (hierarchy) of the .desktop directories.
-           */
-          dirs = g_list_insert_before (dirs, l->next, subpath);
+          if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY)
+            {
+              /* append after the current list item for non-recursive recursion love
+               * and to keep the priorities (hierarchy) of the .desktop directories.
+               */
+              subpath = g_build_filename (path, g_file_info_get_name (info), NULL);
+              dirs = g_list_insert_before (dirs, l->next, subpath);
+            }
 
           g_object_unref (info);
+          info = g_file_enumerator_next_file (enumerator, NULL, NULL);
         }
 
       g_object_unref (enumerator);
@@ -1530,10 +1546,17 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
   hint = get_window_hint (window, _NET_WM_DESKTOP_FILE);
   const char *window_class = bamf_legacy_window_get_class_name (window);
 
-  if (hint && hint[0] != '\0' && !is_web_app_window(self, window))
+  if (hint)
     {
-      desktop_files = g_list_prepend (desktop_files, hint);
       /* whew, hard work, didn't even have to make a copy! */
+      if (hint[0] != '\0' && !is_web_app_window(self, window))
+        {
+          desktop_files = g_list_prepend (desktop_files, hint);
+        }
+      else
+        {
+          g_free (hint);
+        }
     }
   else
     {
@@ -1543,7 +1566,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
       
       if (window_class)
         {
-          char *window_class_down = g_ascii_strdown (g_strdup(window_class), -1);
+          char *window_class_down = g_ascii_strdown (window_class, -1);
           l = g_hash_table_lookup (priv->desktop_id_table, window_class_down);
           g_free (window_class_down);
 
@@ -1721,8 +1744,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
 
       bamf_application_set_wmclass (best, win_class);
 
-      bamf_matcher_register_view (self, BAMF_VIEW (best));
-      g_object_unref (best);
+      bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (best));
     }
 
   g_list_free_full (possible_apps, g_free);
@@ -1829,8 +1851,7 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
    */
 
   bamfwindow = bamf_window_new (window);
-  bamf_matcher_register_view (self, BAMF_VIEW (bamfwindow));
-  g_object_unref (bamfwindow);
+  bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamfwindow));
 
   bamf_matcher_setup_window_state (self, bamfwindow);
 }
@@ -1892,6 +1913,7 @@ get_gnome_control_center_window_hint (BamfMatcher * self, BamfLegacyWindow * win
     }
 
   g_free (exec);
+  g_free (role);
 
   return (list ? (char *) list->data : NULL);
 }
@@ -1931,12 +1953,9 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
 
   if (bamf_legacy_window_get_window_type (window) == BAMF_WINDOW_DESKTOP)
     {
-      BamfWindow *bamfwindow;
-      
-      bamfwindow = bamf_window_new (window);
-      bamf_matcher_register_view (self, BAMF_VIEW (bamfwindow));
-      g_object_unref (bamfwindow);
-      
+      BamfWindow *bamfwindow = bamf_window_new (window);
+      bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamfwindow));
+
       return;
     }
 
@@ -2046,8 +2065,7 @@ bamf_matcher_setup_indicator_state (BamfMatcher *self, BamfIndicator *indicator)
       if (desktop_file)
         {
           best = bamf_application_new_from_desktop_file (desktop_file);
-          bamf_matcher_register_view (self, BAMF_VIEW (best));
-          g_object_unref (best);
+          bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (best));
         }
     }
 
@@ -2063,7 +2081,7 @@ handle_indicator_opened (BamfIndicatorSource *approver, BamfIndicator *indicator
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_INDICATOR (indicator));
   
-  bamf_matcher_register_view (self, BAMF_VIEW (indicator));
+  bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (indicator));
   bamf_matcher_setup_indicator_state (self, indicator);
 }
 
@@ -2805,14 +2823,11 @@ bamf_matcher_dispose (GObject *object)
 {
   BamfMatcher *self = (BamfMatcher *) object;
   BamfMatcherPrivate *priv = self->priv;
-  GList *l;
 
-  for (l = priv->views; l; l = l->next)
+  while (priv->views)
     {
-      bamf_matcher_unregister_view (self, (BamfView*)l->data, FALSE);
+      bamf_matcher_unregister_view (self, priv->views->data);
     }
-  g_list_free_full (priv->views, g_object_unref);
-  priv->views = NULL;
 
   G_OBJECT_CLASS (bamf_matcher_parent_class)->dispose (object);
 }
@@ -2876,6 +2891,8 @@ bamf_matcher_finalize (GObject *object)
   priv->active_app = NULL;
   priv->active_win = NULL;
 
+  static_matcher = NULL;
+
   G_OBJECT_CLASS (bamf_matcher_parent_class)->finalize (object);
 }
 
@@ -2900,12 +2917,10 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
 BamfMatcher *
 bamf_matcher_get_default (void)
 {
-  static BamfMatcher *matcher;
-
-  if (!BAMF_IS_MATCHER (matcher))
+  if (!BAMF_IS_MATCHER (static_matcher))
     {
-      matcher = (BamfMatcher *) g_object_new (BAMF_TYPE_MATCHER, NULL);
+      static_matcher = g_object_new (BAMF_TYPE_MATCHER, NULL);
     }
 
-  return matcher;
+  return static_matcher;
 }
