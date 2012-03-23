@@ -1,3 +1,9 @@
+bamf (0.2.114-0ubuntu2~webapps2) precise; urgency=low
+
+  * Build fix
+
+ -- Robert Carr <racarr@canonical.com>  Fri, 23 Mar 2012 13:39:21 -0400
+
 bamf (0.2.114-0ubuntu2~webapps1) precise; urgency=low
 
   * Webapps!
