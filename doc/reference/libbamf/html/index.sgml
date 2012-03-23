@@ -37,6 +37,7 @@
 <ANCHOR id="BamfWindowMaximizationType" href="libbamf/BamfWindow.html#BamfWindowMaximizationType">
 <ANCHOR id="BamfWindowType" href="libbamf/BamfWindow.html#BamfWindowType">
 <ANCHOR id="bamf-window-get-monitor" href="libbamf/BamfWindow.html#bamf-window-get-monitor">
+<ANCHOR id="bamf-window-get-pid" href="libbamf/BamfWindow.html#bamf-window-get-pid">
 <ANCHOR id="bamf-window-get-transient" href="libbamf/BamfWindow.html#bamf-window-get-transient">
 <ANCHOR id="bamf-window-get-utf8-prop" href="libbamf/BamfWindow.html#bamf-window-get-utf8-prop">
 <ANCHOR id="bamf-window-get-window-type" href="libbamf/BamfWindow.html#bamf-window-get-window-type">
