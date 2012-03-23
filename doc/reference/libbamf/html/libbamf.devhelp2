@@ -42,6 +42,7 @@
     <keyword type="enum" name="enum BamfWindowMaximizationType" link="BamfWindow.html#BamfWindowMaximizationType"/>
     <keyword type="enum" name="enum BamfWindowType" link="BamfWindow.html#BamfWindowType"/>
     <keyword type="function" name="bamf_window_get_monitor ()" link="BamfWindow.html#bamf-window-get-monitor"/>
+    <keyword type="function" name="bamf_window_get_pid ()" link="BamfWindow.html#bamf-window-get-pid"/>
     <keyword type="function" name="bamf_window_get_transient ()" link="BamfWindow.html#bamf-window-get-transient"/>
     <keyword type="function" name="bamf_window_get_utf8_prop ()" link="BamfWindow.html#bamf-window-get-utf8-prop"/>
     <keyword type="function" name="bamf_window_get_window_type ()" link="BamfWindow.html#bamf-window-get-window-type"/>

@@ -388,7 +388,7 @@ bamf_view_set_user_visible (BamfView *view, gboolean user_visible)
   bamf_view_user_visible_changed (view, user_visible);
 }
 
-char *
+const char *
 bamf_view_get_icon (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
@@ -399,12 +399,15 @@ bamf_view_get_icon (BamfView *view)
   return NULL;
 }
 
-char *
+const char *
 bamf_view_get_name (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
 
-  return g_strdup (view->priv->name);
+  if (BAMF_VIEW_GET_CLASS (view)->get_name)
+    return BAMF_VIEW_GET_CLASS (view)->get_name (view);
+
+  return view->priv->name;
 }
 
 void
@@ -585,10 +588,9 @@ on_dbus_handle_icon (BamfDBusItemView *interface,
                      GDBusMethodInvocation *invocation,
                      BamfView *view)
 {
-  char *icon = bamf_view_get_icon (view);
+  const char *icon = bamf_view_get_icon (view);
   g_dbus_method_invocation_return_value (invocation,
                                          g_variant_new ("(s)", icon ? icon : ""));
-  g_free (icon);
 
   return TRUE;
 }
@@ -598,10 +600,9 @@ on_dbus_handle_name (BamfDBusItemView *interface,
                      GDBusMethodInvocation *invocation,
                      BamfView *view)
 {
-  char *name = bamf_view_get_name (view);
+  const char *name = bamf_view_get_name (view);
   g_dbus_method_invocation_return_value (invocation,
                                          g_variant_new ("(s)", name ? name : ""));
-  g_free (name);
 
   return TRUE;
 }
