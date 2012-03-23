@@ -191,7 +191,7 @@ bamf_unity_webapps_application_child_removed (BamfView *view, BamfView *child)
 static void
 bamf_unity_webapps_application_child_added (BamfView *view, BamfView *child)
 {
-  bamf_matcher_register_view (bamf_matcher_get_default (), child);
+  bamf_matcher_register_view_stealing_ref (bamf_matcher_get_default (), child);
   
   BAMF_VIEW_CLASS (bamf_unity_webapps_application_parent_class)->child_added (view, child);
 }
@@ -239,7 +239,7 @@ bamf_unity_webapps_application_context_set (BamfUnityWebappsApplication *self)
   // shutting it down. So we use this flag to ensure BAMF will not shut us down prematurely.
   bamf_application_set_close_when_empty (BAMF_APPLICATION (self), FALSE);
   
-  bamf_matcher_register_view (bamf_matcher_get_default (), BAMF_VIEW (self));
+  bamf_matcher_register_view_stealing_ref (bamf_matcher_get_default (), BAMF_VIEW (self));
   
   bamf_unity_webapps_application_add_existing_interests (self);
   
