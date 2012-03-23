@@ -118,6 +118,8 @@ GList * bamf_application_get_windows (BamfApplication *application);
  */
 GArray * bamf_application_get_xids (BamfApplication *application);
 
+BamfView * bamf_application_get_focus_child (BamfApplication *application);
+
 /**
  * bamf_application_get_show_stubs:
  * @application: a #BamfApplication
@@ -127,6 +129,10 @@ GArray * bamf_application_get_xids (BamfApplication *application);
  * Returns: Whether the stubs should be shown.
  */
 gboolean bamf_application_get_show_menu_stubs (BamfApplication *application);
+
+gboolean bamf_application_get_application_menu (BamfApplication *application,
+						gchar **name,
+						gchar **object_path);
 
 G_END_DECLS
 

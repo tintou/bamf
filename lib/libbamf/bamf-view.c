@@ -39,6 +39,7 @@
 #include "bamf-factory.h"
 #include "bamf-window.h"
 #include "bamf-marshal.h"
+#include "bamf-tab.h"
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
@@ -67,6 +68,7 @@ enum
   URGENT_CHANGED,
   VISIBLE_CHANGED,
   NAME_CHANGED,
+  CHILD_MOVED,
  
   LAST_SIGNAL,
 };
@@ -460,6 +462,16 @@ bamf_view_get_click_suggestion (BamfView *self)
 }
 
 static void
+bamf_view_child_xid_changed (GObject *object, GParamSpec *pspec, gpointer user_data)
+{
+  BamfView *self;
+  
+  self = (BamfView *)user_data;
+  
+  g_signal_emit (G_OBJECT (self), view_signals[CHILD_MOVED], 0, BAMF_VIEW (object));
+}
+
+static void
 bamf_view_on_child_added (DBusGProxy *proxy, char *path, BamfView *self)
 {
   BamfView *view;
@@ -467,6 +479,10 @@ bamf_view_on_child_added (DBusGProxy *proxy, char *path, BamfView *self)
 
   view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
   priv = self->priv;
+  
+  if (BAMF_IS_TAB (view))
+    g_signal_connect (view, "notify::xid", 
+		      G_CALLBACK (bamf_view_child_xid_changed), self);
 
   if (priv->cached_children)
     {
@@ -484,6 +500,9 @@ bamf_view_on_child_removed (DBusGProxy *proxy, char *path, BamfView *self)
   BamfViewPrivate *priv;
   view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
   priv = self->priv;
+  
+  if (BAMF_IS_TAB (view))
+    g_signal_handlers_disconnect_by_func (view, bamf_view_on_child_added, self);
 
   if (priv->cached_children)
     {
@@ -969,6 +988,16 @@ bamf_view_class_init (BamfViewClass *klass)
   	              g_cclosure_marshal_VOID__OBJECT,
   	              G_TYPE_NONE, 1, 
   	              BAMF_TYPE_VIEW);
+  
+  view_signals [CHILD_MOVED] = 
+    g_signal_new ("child-moved",
+		  G_OBJECT_CLASS_TYPE (klass),
+		  G_SIGNAL_RUN_FIRST,
+		  0,
+		  NULL, NULL,
+		  g_cclosure_marshal_VOID__OBJECT,
+		  G_TYPE_NONE, 1,
+		  BAMF_TYPE_VIEW);
 
   view_signals [RUNNING_CHANGED] = 
   	g_signal_new ("running-changed",
