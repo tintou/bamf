@@ -35,7 +35,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 noinst_PROGRAMS = alt-tabber$(EXEEXT) desktop-file-launcher$(EXEEXT) \
-	tab-source-test$(EXEEXT) interaction-tester$(EXEEXT)
+	interaction-tester$(EXEEXT)
 subdir = tests/functional
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -69,12 +69,6 @@ interaction_tester_OBJECTS = $(am_interaction_tester_OBJECTS)
 interaction_tester_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(top_builddir)/lib/libbamf/libbamf$(VER).la
-am_tab_source_test_OBJECTS =  \
-	tab_source_test-tab-source-test.$(OBJEXT)
-tab_source_test_OBJECTS = $(am_tab_source_test_OBJECTS)
-tab_source_test_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(top_builddir)/lib/libbamf/libbamf$(VER).la
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -89,9 +83,9 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(alt_tabber_SOURCES) $(desktop_file_launcher_SOURCES) \
-	$(interaction_tester_SOURCES) $(tab_source_test_SOURCES)
+	$(interaction_tester_SOURCES)
 DIST_SOURCES = $(alt_tabber_SOURCES) $(desktop_file_launcher_SOURCES) \
-	$(interaction_tester_SOURCES) $(tab_source_test_SOURCES)
+	$(interaction_tester_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -160,6 +154,8 @@ LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
+LIBUNITY_WEBAPPS_CFLAGS = @LIBUNITY_WEBAPPS_CFLAGS@
+LIBUNITY_WEBAPPS_LIBS = @LIBUNITY_WEBAPPS_LIBS@
 LIBWSBIND_CFLAGS = @LIBWSBIND_CFLAGS@
 LIBWSBIND_LIBS = @LIBWSBIND_LIBS@
 LIPO = @LIPO@
@@ -375,9 +371,6 @@ desktop-file-launcher$(EXEEXT): $(desktop_file_launcher_OBJECTS) $(desktop_file_
 interaction-tester$(EXEEXT): $(interaction_tester_OBJECTS) $(interaction_tester_DEPENDENCIES) $(EXTRA_interaction_tester_DEPENDENCIES) 
 	@rm -f interaction-tester$(EXEEXT)
 	$(LINK) $(interaction_tester_OBJECTS) $(interaction_tester_LDADD) $(LIBS)
-tab-source-test$(EXEEXT): $(tab_source_test_OBJECTS) $(tab_source_test_DEPENDENCIES) $(EXTRA_tab_source_test_DEPENDENCIES) 
-	@rm -f tab-source-test$(EXEEXT)
-	$(LINK) $(tab_source_test_OBJECTS) $(tab_source_test_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -388,7 +381,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/alt_tabber-alt-tabber.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/desktop_file_launcher-desktop-file-launcher.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interaction_tester-interaction-tester.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tab_source_test-tab-source-test.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -452,20 +444,6 @@ interaction_tester-interaction-tester.obj: interaction-tester.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='interaction-tester.c' object='interaction_tester-interaction-tester.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(interaction_tester_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o interaction_tester-interaction-tester.obj `if test -f 'interaction-tester.c'; then $(CYGPATH_W) 'interaction-tester.c'; else $(CYGPATH_W) '$(srcdir)/interaction-tester.c'; fi`
-
-tab_source_test-tab-source-test.o: tab-source-test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tab_source_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tab_source_test-tab-source-test.o -MD -MP -MF $(DEPDIR)/tab_source_test-tab-source-test.Tpo -c -o tab_source_test-tab-source-test.o `test -f 'tab-source-test.c' || echo '$(srcdir)/'`tab-source-test.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tab_source_test-tab-source-test.Tpo $(DEPDIR)/tab_source_test-tab-source-test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tab-source-test.c' object='tab_source_test-tab-source-test.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tab_source_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tab_source_test-tab-source-test.o `test -f 'tab-source-test.c' || echo '$(srcdir)/'`tab-source-test.c
-
-tab_source_test-tab-source-test.obj: tab-source-test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tab_source_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tab_source_test-tab-source-test.obj -MD -MP -MF $(DEPDIR)/tab_source_test-tab-source-test.Tpo -c -o tab_source_test-tab-source-test.obj `if test -f 'tab-source-test.c'; then $(CYGPATH_W) 'tab-source-test.c'; else $(CYGPATH_W) '$(srcdir)/tab-source-test.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tab_source_test-tab-source-test.Tpo $(DEPDIR)/tab_source_test-tab-source-test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tab-source-test.c' object='tab_source_test-tab-source-test.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tab_source_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tab_source_test-tab-source-test.obj `if test -f 'tab-source-test.c'; then $(CYGPATH_W) 'tab-source-test.c'; else $(CYGPATH_W) '$(srcdir)/tab-source-test.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

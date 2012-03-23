@@ -82,7 +82,9 @@ am__objects_3 = bamfdaemon-main.$(OBJEXT) \
 	bamfdaemon-bamf-matcher.$(OBJEXT) \
 	bamfdaemon-bamf-application.$(OBJEXT) \
 	bamfdaemon-bamf-window.$(OBJEXT) bamfdaemon-bamf-tab.$(OBJEXT) \
-	bamfdaemon-bamf-tab-source.$(OBJEXT) \
+	bamfdaemon-bamf-unity-webapps-tab.$(OBJEXT) \
+	bamfdaemon-bamf-unity-webapps-observer.$(OBJEXT) \
+	bamfdaemon-bamf-unity-webapps-application.$(OBJEXT) \
 	bamfdaemon-bamf-indicator-source.$(OBJEXT) \
 	bamfdaemon-bamf-indicator.$(OBJEXT) \
 	bamfdaemon-bamf-xutils.$(OBJEXT)
@@ -93,7 +95,7 @@ bamfdaemon_OBJECTS = $(am_bamfdaemon_OBJECTS)
 am__DEPENDENCIES_1 =
 bamfdaemon_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 bamfdaemon_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(bamfdaemon_CFLAGS) \
 	$(CFLAGS) $(bamfdaemon_LDFLAGS) $(LDFLAGS) -o $@
@@ -180,6 +182,8 @@ LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
+LIBUNITY_WEBAPPS_CFLAGS = @LIBUNITY_WEBAPPS_CFLAGS@
+LIBUNITY_WEBAPPS_LIBS = @LIBUNITY_WEBAPPS_LIBS@
 LIBWSBIND_CFLAGS = @LIBWSBIND_CFLAGS@
 LIBWSBIND_LIBS = @LIBWSBIND_LIBS@
 LIPO = @LIPO@
@@ -323,7 +327,9 @@ bamfdaemon_sources = \
 		bamf-application.c \
 		bamf-window.c \
 		bamf-tab.c \
-		bamf-tab-source.c \
+	        bamf-unity-webapps-tab.c \
+		bamf-unity-webapps-observer.c \
+		bamf-unity-webapps-application.c \
 		bamf-indicator-source.c \
 		bamf-indicator.c \
 		bamf-xutils.c \
@@ -342,7 +348,8 @@ bamfdaemon_headers = \
 		bamf-window.h \
 		bamf-application.h \
 		bamf-tab.h \
-		bamf-tab-source.h \
+		bamf-unity-webapps-tab.h \
+		bamf-unity-webapps-observer.h \
 		bamf-indicator-source.h \
 		bamf-indicator.h \
 		bamf-xutils.h \
@@ -366,6 +373,7 @@ bamfdaemon_LDADD = \
 		$(GTK_LIBS) \
 		$(WNCK_LIBS) \
 		$(GTOP_LIBS) \
+		$(LIBUNITY_WEBAPPS_LIBS) \
 		$(NULL)
 
 bamfdaemon_CFLAGS = \
@@ -377,6 +385,7 @@ bamfdaemon_CFLAGS = \
 		$(GTK_CFLAGS) \
 		$(WNCK_CFLAGS) \
 		$(GTOP_CFLAGS) \
+		$(LIBUNITY_WEBAPPS_CFLAGS) \
 		$(NULL)
 
 bamfdaemon_LDFLAGS = \
@@ -486,8 +495,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-legacy-window.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-marshal.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-matcher.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-tab-source.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-tab.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-unity-webapps-application.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-unity-webapps-observer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-unity-webapps-tab.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-view.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-window.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-bamf-xutils.Po@am__quote@
@@ -738,19 +749,47 @@ bamfdaemon-bamf-tab.obj: bamf-tab.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-tab.obj `if test -f 'bamf-tab.c'; then $(CYGPATH_W) 'bamf-tab.c'; else $(CYGPATH_W) '$(srcdir)/bamf-tab.c'; fi`
 
-bamfdaemon-bamf-tab-source.o: bamf-tab-source.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-tab-source.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-tab-source.Tpo -c -o bamfdaemon-bamf-tab-source.o `test -f 'bamf-tab-source.c' || echo '$(srcdir)/'`bamf-tab-source.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-tab-source.Tpo $(DEPDIR)/bamfdaemon-bamf-tab-source.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-tab-source.c' object='bamfdaemon-bamf-tab-source.o' libtool=no @AMDEPBACKSLASH@
+bamfdaemon-bamf-unity-webapps-tab.o: bamf-unity-webapps-tab.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-unity-webapps-tab.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-unity-webapps-tab.Tpo -c -o bamfdaemon-bamf-unity-webapps-tab.o `test -f 'bamf-unity-webapps-tab.c' || echo '$(srcdir)/'`bamf-unity-webapps-tab.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-unity-webapps-tab.Tpo $(DEPDIR)/bamfdaemon-bamf-unity-webapps-tab.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-unity-webapps-tab.c' object='bamfdaemon-bamf-unity-webapps-tab.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-tab-source.o `test -f 'bamf-tab-source.c' || echo '$(srcdir)/'`bamf-tab-source.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-unity-webapps-tab.o `test -f 'bamf-unity-webapps-tab.c' || echo '$(srcdir)/'`bamf-unity-webapps-tab.c
 
-bamfdaemon-bamf-tab-source.obj: bamf-tab-source.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-tab-source.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-tab-source.Tpo -c -o bamfdaemon-bamf-tab-source.obj `if test -f 'bamf-tab-source.c'; then $(CYGPATH_W) 'bamf-tab-source.c'; else $(CYGPATH_W) '$(srcdir)/bamf-tab-source.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-tab-source.Tpo $(DEPDIR)/bamfdaemon-bamf-tab-source.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-tab-source.c' object='bamfdaemon-bamf-tab-source.obj' libtool=no @AMDEPBACKSLASH@
+bamfdaemon-bamf-unity-webapps-tab.obj: bamf-unity-webapps-tab.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-unity-webapps-tab.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-unity-webapps-tab.Tpo -c -o bamfdaemon-bamf-unity-webapps-tab.obj `if test -f 'bamf-unity-webapps-tab.c'; then $(CYGPATH_W) 'bamf-unity-webapps-tab.c'; else $(CYGPATH_W) '$(srcdir)/bamf-unity-webapps-tab.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-unity-webapps-tab.Tpo $(DEPDIR)/bamfdaemon-bamf-unity-webapps-tab.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-unity-webapps-tab.c' object='bamfdaemon-bamf-unity-webapps-tab.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-tab-source.obj `if test -f 'bamf-tab-source.c'; then $(CYGPATH_W) 'bamf-tab-source.c'; else $(CYGPATH_W) '$(srcdir)/bamf-tab-source.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-unity-webapps-tab.obj `if test -f 'bamf-unity-webapps-tab.c'; then $(CYGPATH_W) 'bamf-unity-webapps-tab.c'; else $(CYGPATH_W) '$(srcdir)/bamf-unity-webapps-tab.c'; fi`
+
+bamfdaemon-bamf-unity-webapps-observer.o: bamf-unity-webapps-observer.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-unity-webapps-observer.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-unity-webapps-observer.Tpo -c -o bamfdaemon-bamf-unity-webapps-observer.o `test -f 'bamf-unity-webapps-observer.c' || echo '$(srcdir)/'`bamf-unity-webapps-observer.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-unity-webapps-observer.Tpo $(DEPDIR)/bamfdaemon-bamf-unity-webapps-observer.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-unity-webapps-observer.c' object='bamfdaemon-bamf-unity-webapps-observer.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-unity-webapps-observer.o `test -f 'bamf-unity-webapps-observer.c' || echo '$(srcdir)/'`bamf-unity-webapps-observer.c
+
+bamfdaemon-bamf-unity-webapps-observer.obj: bamf-unity-webapps-observer.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-unity-webapps-observer.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-unity-webapps-observer.Tpo -c -o bamfdaemon-bamf-unity-webapps-observer.obj `if test -f 'bamf-unity-webapps-observer.c'; then $(CYGPATH_W) 'bamf-unity-webapps-observer.c'; else $(CYGPATH_W) '$(srcdir)/bamf-unity-webapps-observer.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-unity-webapps-observer.Tpo $(DEPDIR)/bamfdaemon-bamf-unity-webapps-observer.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-unity-webapps-observer.c' object='bamfdaemon-bamf-unity-webapps-observer.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-unity-webapps-observer.obj `if test -f 'bamf-unity-webapps-observer.c'; then $(CYGPATH_W) 'bamf-unity-webapps-observer.c'; else $(CYGPATH_W) '$(srcdir)/bamf-unity-webapps-observer.c'; fi`
+
+bamfdaemon-bamf-unity-webapps-application.o: bamf-unity-webapps-application.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-unity-webapps-application.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-unity-webapps-application.Tpo -c -o bamfdaemon-bamf-unity-webapps-application.o `test -f 'bamf-unity-webapps-application.c' || echo '$(srcdir)/'`bamf-unity-webapps-application.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-unity-webapps-application.Tpo $(DEPDIR)/bamfdaemon-bamf-unity-webapps-application.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-unity-webapps-application.c' object='bamfdaemon-bamf-unity-webapps-application.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-unity-webapps-application.o `test -f 'bamf-unity-webapps-application.c' || echo '$(srcdir)/'`bamf-unity-webapps-application.c
+
+bamfdaemon-bamf-unity-webapps-application.obj: bamf-unity-webapps-application.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-unity-webapps-application.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-unity-webapps-application.Tpo -c -o bamfdaemon-bamf-unity-webapps-application.obj `if test -f 'bamf-unity-webapps-application.c'; then $(CYGPATH_W) 'bamf-unity-webapps-application.c'; else $(CYGPATH_W) '$(srcdir)/bamf-unity-webapps-application.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-unity-webapps-application.Tpo $(DEPDIR)/bamfdaemon-bamf-unity-webapps-application.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-unity-webapps-application.c' object='bamfdaemon-bamf-unity-webapps-application.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-unity-webapps-application.obj `if test -f 'bamf-unity-webapps-application.c'; then $(CYGPATH_W) 'bamf-unity-webapps-application.c'; else $(CYGPATH_W) '$(srcdir)/bamf-unity-webapps-application.c'; fi`
 
 bamfdaemon-bamf-indicator-source.o: bamf-indicator-source.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-indicator-source.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-indicator-source.Tpo -c -o bamfdaemon-bamf-indicator-source.o `test -f 'bamf-indicator-source.c' || echo '$(srcdir)/'`bamf-indicator-source.c

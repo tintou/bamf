@@ -27,6 +27,7 @@
 #define __BAMF_TAB_SOURCE_H__
 
 #include <glib-object.h>
+#include "bamf-tab.h"
 
 G_BEGIN_DECLS
 
