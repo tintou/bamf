@@ -1,6 +1,7 @@
 bamf (0.2.114-0ubuntu1) UNRELEASED; urgency=low
 
   * New upstream release.
+    - invalid valgrind read errors (LP: #929468)
 
  -- Didier Roche <didrocks@ubuntu.com>  Fri, 23 Mar 2012 14:16:41 +0100
 
