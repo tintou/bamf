@@ -9,10 +9,12 @@ BamfWindow
 
 </para>
 
+
 <!-- ##### SECTION See_Also ##### -->
 <para>
 
 </para>
+
 
 <!-- ##### SECTION Stability_Level ##### -->
 
@@ -78,6 +80,15 @@ BamfWindow
 @BAMF_WINDOW_SPLASHSCREEN: 
 
 <!-- ##### FUNCTION bamf_window_get_monitor ##### -->
+<para>
+
+</para>
+
+@self: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_window_get_pid ##### -->
 <para>
 
 </para>
