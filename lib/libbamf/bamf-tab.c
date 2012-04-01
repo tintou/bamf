@@ -64,26 +64,26 @@ struct _BamfTabPrivate
 
 G_DEFINE_TYPE (BamfTab, bamf_tab, BAMF_TYPE_VIEW)
 
-
 static void
-bamf_tab_fetch_properties (BamfTab *self)
+bamf_tab_got_properties (DBusGProxy *proxy,
+			 DBusGProxyCall *call_id,
+			 void *user_data)
 {
+  BamfTab *self;
   GHashTable *properties;
   GError *error;
   GHashTableIter iter;
   gpointer key, value;
 
   
-  properties = NULL;
+  self = BAMF_TAB (user_data);
+  
   error = NULL;
   
-  dbus_g_proxy_call (self->priv->properties_proxy,
-		     "GetAll", &error,
-		     G_TYPE_STRING, "org.ayatana.bamf.tab",
-		     G_TYPE_INVALID,
-		     dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE), &properties,
-		     G_TYPE_INVALID);
-  
+  dbus_g_proxy_end_call (proxy, call_id, &error,
+			 dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE), &properties,
+			 G_TYPE_INVALID);
+
   if (error != NULL)
     {
       g_critical ("Failed to fetch BamfTab properties: %s", error->message);
@@ -103,7 +103,20 @@ bamf_tab_fetch_properties (BamfTab *self)
     {
       g_object_set_property (G_OBJECT (self), (const gchar *)key, (GValue *)value);
     }
-  
+
+}
+
+
+static void
+bamf_tab_fetch_properties (BamfTab *self)
+{
+  dbus_g_proxy_begin_call (self->priv->properties_proxy,
+			   "GetAll", 
+			   bamf_tab_got_properties,
+			   g_object_ref (G_OBJECT (self)),
+			   (GDestroyNotify)g_object_unref,
+			   G_TYPE_STRING, "org.ayatana.bamf.tab",
+			   G_TYPE_INVALID);
   
 }
 
