@@ -466,6 +466,15 @@ view_visible_changed (BamfView *view, gboolean visible, BamfApplication *self)
 }
 
 static void
+view_xid_changed (GObject *object, GParamSpec *pspec, gpointer user_data)
+{
+  BamfApplication *self;
+  
+  self = (BamfApplication *)user_data;
+  bamf_application_ensure_flags (self);
+}
+
+static void
 view_exported (BamfView *view, BamfApplication *self)
 {
   g_signal_emit_by_name (self, "window-added", bamf_view_get_path (view));
@@ -493,6 +502,12 @@ bamf_application_child_added (BamfView *view, BamfView *child)
                     (GCallback) view_urgent_changed, view);
   g_signal_connect (G_OBJECT (child), "user-visible-changed",
                     (GCallback) view_visible_changed, view);
+
+  if (BAMF_IS_TAB (child))
+    {
+      g_signal_connect (G_OBJECT (child), "notify::xid",
+			(GCallback) view_xid_changed, view);
+    }
 
   bamf_application_ensure_flags (BAMF_APPLICATION (view));
 
