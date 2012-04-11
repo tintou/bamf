@@ -469,6 +469,7 @@ bamf_view_child_xid_changed (GObject *object, GParamSpec *pspec, gpointer user_d
   self = (BamfView *)user_data;
   
   g_signal_emit (G_OBJECT (self), view_signals[CHILD_MOVED], 0, BAMF_VIEW (object));
+  g_signal_emit (G_OBJECT (self), view_signals[VISIBLE_CHANGED], 0);
 }
 
 static void
