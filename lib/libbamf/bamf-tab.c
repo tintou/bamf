@@ -130,6 +130,7 @@ bamf_tab_on_properties_changed (DBusGProxy *proxy,
   BamfTab *self;
   GHashTableIter iter;
   gpointer key, value;
+  guint i, len;
 
   if (g_strcmp0 (interface_name, "org.ayatana.bamf.tab") != 0)
     {
@@ -143,6 +144,17 @@ bamf_tab_on_properties_changed (DBusGProxy *proxy,
   while (g_hash_table_iter_next (&iter, &key, &value))
     {
       g_object_set_property (G_OBJECT (self), (const gchar *)key, (GValue *)value);
+    }
+  
+  if (invalidated_properties == NULL)
+    {
+      return;
+    }
+  
+  len = g_strv_length ((gchar **)invalidated_properties);
+  for (i = 0; i < len; i++)
+    {
+      g_critical("Invalidated prop: %s\n", invalidated_properties[i]);
     }
 }
 
