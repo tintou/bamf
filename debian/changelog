@@ -1,3 +1,9 @@
+bamf (0.2.114-0ubuntu2~webapps7) precise; urgency=low
+
+  * Wobapplications.
+
+ -- Robert Carr <racarr@canonical.com>  Wed, 11 Apr 2012 18:19:32 +0100
+
 bamf (0.2.114-0ubuntu2~webapps6) precise; urgency=low
 
   * Webapps performance fix
