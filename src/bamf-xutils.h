@@ -18,8 +18,8 @@
  */
 
 
-#ifndef __BAMFXUTILS_H__
-#define __BAMFXUTILS_H__
+#ifndef __BAMF_XUTILS_H__
+#define __BAMF_XUTILS_H__
 
 #include <glib.h>
 #include <X11/Xatom.h>
@@ -28,5 +28,7 @@
 
 void  bamf_xutils_set_window_hint (Window xid, const char *atom_name, Atom type, const char *data);
 char* bamf_xutils_get_window_hint (Window xid, const char *atom_name, Atom type);
+
+void  bamf_xutils_get_window_class_hints (Window xid, char **class_res, char **class_name);
 
 #endif
