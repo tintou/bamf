@@ -29,6 +29,6 @@
 void  bamf_xutils_set_window_hint (Window xid, const char *atom_name, Atom type, const char *data);
 char* bamf_xutils_get_window_hint (Window xid, const char *atom_name, Atom type);
 
-void  bamf_xutils_get_window_class_hints (Window xid, char **class_res, char **class_name);
+void  bamf_xutils_get_window_class_hints (Window xid, char **class_instance_name, char **class_name);
 
 #endif
