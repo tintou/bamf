@@ -129,7 +129,7 @@ bamf_xutils_set_window_hint (Window xid, const char *atom_name, Atom type, const
 }
 
 void
-bamf_xutils_get_window_class_hints (Window xid, char **class_res, char **class_name)
+bamf_xutils_get_window_class_hints (Window xid, char **class_instance_name, char **class_name)
 {
   Display *xdisplay;
   gboolean close_display = FALSE;
@@ -152,9 +152,9 @@ bamf_xutils_get_window_class_hints (Window xid, char **class_res, char **class_n
     *class_name = g_convert (class_hint.res_class, -1, "utf-8", "iso-8859-1",
                              NULL, NULL, NULL);
 
-  if (class_res && class_hint.res_name)
-    *class_res = g_convert (class_hint.res_name, -1, "utf-8", "iso-8859-1",
-                            NULL, NULL, NULL);
+  if (class_instance_name && class_hint.res_name)
+    *class_instance_name = g_convert (class_hint.res_name, -1, "utf-8", "iso-8859-1",
+                                      NULL, NULL, NULL);
 
   XFree (class_hint.res_class);
   XFree (class_hint.res_name);

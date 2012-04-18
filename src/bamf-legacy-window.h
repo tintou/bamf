@@ -70,19 +70,20 @@ struct _BamfLegacyWindowClass
 {
   GObjectClass parent;
 
-  const char * (*get_name)             (BamfLegacyWindow *legacy_window);
-  const char * (*get_class_name)       (BamfLegacyWindow *legacy_window);
-  char       * (*get_exec_string)      (BamfLegacyWindow *legacy_window);
-  char       * (*get_app_id)           (BamfLegacyWindow *legacy_window);
-  char       * (*get_unique_bus_name)  (BamfLegacyWindow *legacy_window);
-  char       * (*get_menu_object_path) (BamfLegacyWindow *legacy_window);
-  gint         (*get_pid)              (BamfLegacyWindow *legacy_window);
-  guint32      (*get_xid)              (BamfLegacyWindow *legacy_window);
-  gboolean     (*needs_attention)      (BamfLegacyWindow *legacy_window);
-  gboolean     (*is_active)            (BamfLegacyWindow *legacy_window);
-  gboolean     (*is_skip_tasklist)     (BamfLegacyWindow *legacy_window);
-  gboolean     (*is_desktop)           (BamfLegacyWindow *legacy_window);
-  gboolean     (*is_dialog)            (BamfLegacyWindow *legacy_window);
+  const char * (*get_name)                (BamfLegacyWindow *legacy_window);
+  const char * (*get_class_name)          (BamfLegacyWindow *legacy_window);
+  const char * (*get_class_instance_name) (BamfLegacyWindow *legacy_window);
+  char       * (*get_exec_string)         (BamfLegacyWindow *legacy_window);
+  char       * (*get_app_id)              (BamfLegacyWindow *legacy_window);
+  char       * (*get_unique_bus_name)     (BamfLegacyWindow *legacy_window);
+  char       * (*get_menu_object_path)    (BamfLegacyWindow *legacy_window);
+  gint         (*get_pid)                 (BamfLegacyWindow *legacy_window);
+  guint32      (*get_xid)                 (BamfLegacyWindow *legacy_window);
+  gboolean     (*needs_attention)         (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_active)               (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_skip_tasklist)        (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_desktop)              (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_dialog)               (BamfLegacyWindow *legacy_window);
   BamfWindowMaximizationType (*maximized) (BamfLegacyWindow *legacy_window);
 
   void         (*get_geometry)         (BamfLegacyWindow *self,
@@ -126,9 +127,7 @@ BamfWindowType     bamf_legacy_window_get_window_type      (BamfLegacyWindow *se
 
 BamfWindowMaximizationType bamf_legacy_window_maximized    (BamfLegacyWindow *self);
 
-#ifdef USE_GTK3
 const char       * bamf_legacy_window_get_class_instance_name (BamfLegacyWindow *self);
-#endif
 
 const char       * bamf_legacy_window_get_class_name       (BamfLegacyWindow *self);
 
