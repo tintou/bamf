@@ -88,7 +88,9 @@ bamf_xutils_get_window_hint (Window xid, const char *atom_name, Atom type)
 
   if (result == Success && numItems > 0)
     {
-      hint = g_strdup ((char*) buffer);
+      if (buffer && buffer[0] != '\0')
+        hint = g_strdup ((char*) buffer);
+
       XFree (buffer);
     }
 
@@ -148,11 +150,11 @@ bamf_xutils_get_window_class_hints (Window xid, char **class_instance_name, char
 
   XGetClassHint(xdisplay, xid, &class_hint);
 
-  if (class_name && class_hint.res_class)
+  if (class_name && class_hint.res_class && class_hint.res_class[0] != 0)
     *class_name = g_convert (class_hint.res_class, -1, "utf-8", "iso-8859-1",
                              NULL, NULL, NULL);
 
-  if (class_instance_name && class_hint.res_name)
+  if (class_instance_name && class_hint.res_name && class_hint.res_name[0] != 0)
     *class_instance_name = g_convert (class_hint.res_name, -1, "utf-8", "iso-8859-1",
                                       NULL, NULL, NULL);
 
