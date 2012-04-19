@@ -2365,6 +2365,7 @@ bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
       }
     }
 
+  g_list_free (windows);
   g_variant_builder_close (&b);
 
   return g_variant_builder_end (&b);
