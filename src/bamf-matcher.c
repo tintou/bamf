@@ -28,6 +28,7 @@
 #include "bamf-legacy-screen.h"
 #include "bamf-indicator-source.h"
 #include "bamf-xutils.h"
+#include <strings.h>
 
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, BAMF_DBUS_TYPE_MATCHER_SKELETON);
 #define BAMF_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -126,6 +127,37 @@ on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
 
 static void bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view);
 
+static BamfApplication *
+bamf_matcher_get_application_by_desktop_file (BamfMatcher *self, const char *desktop_file)
+{
+  GList *l;
+  BamfView *view;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
+
+  if (!desktop_file)
+    return NULL;
+
+  for (l = self->priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_APPLICATION (view))
+        continue;
+
+      BamfApplication *app = BAMF_APPLICATION (view);
+      const gchar *app_desktop;
+      app_desktop = bamf_application_get_desktop_file (app);
+
+      if (g_strcmp0 (desktop_file, app_desktop) == 0)
+        {
+          return app;
+        }
+    }
+
+  return NULL;
+}
+
 static gboolean
 emit_paths_changed (gpointer user_data)
 {
@@ -177,11 +209,7 @@ emit_paths_changed (gpointer user_data)
 
 static void bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *desktop_file, ViewChangeType change_type)
 {
-  GList *l;
-  BamfView *view;
   BamfMatcherPrivate *priv;
-  const char *app_desktop;
-  gboolean found = FALSE;
 
   if (desktop_file == NULL) return;
 
@@ -189,26 +217,12 @@ static void bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *de
 
   priv = self->priv;
 
-  for (l = priv->views; l; l = l->next)
-    {
-      view = l->data;
-
-      if (!BAMF_IS_APPLICATION (view) || !bamf_view_is_running (view))
-        continue;
-
-      app_desktop = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
-      if (!app_desktop) continue;
-
-      if (g_strcmp0 (desktop_file, app_desktop) == 0)
-        {
-          found = TRUE;
-          break;
-        }
-    }
-
   /* the app was already running (ADDED) / had more instances which are still
    * there (REMOVED) */
-  if (found) return;
+  if (bamf_matcher_get_application_by_desktop_file (self, desktop_file))
+    {
+      return;
+    }
 
   if (!priv->opened_closed_paths_table)
     {
@@ -258,7 +272,7 @@ bamf_matcher_register_view_stealing_ref (BamfMatcher *self, BamfView *view)
   self->priv->views = g_list_prepend (self->priv->views, view);
 
   g_signal_emit_by_name (self, "view-opened", path, type);
-  
+
   // trigger manually since this is already active
   if (bamf_view_is_active (view))
     on_view_active_changed (view, TRUE, self);
@@ -1514,59 +1528,134 @@ static gboolean
 is_web_app_window (BamfMatcher *self, BamfLegacyWindow *window)
 {
   const char *window_class = bamf_legacy_window_get_class_name (window);
-#ifdef USE_GTK3
   const char *instance_name = bamf_legacy_window_get_class_instance_name(window);
-  // chromium uses url wm_class strings to represent its web apps. These apps
-  // will still have the same parent pid and hints as the main chrome window, so we
-  // skip the hint check. We can tell a window is a chrome web app window if its instance
-  // name is google-chrome but its window class is not Google-chrome
-  return !g_strcmp0(instance_name, "google-chrome") && g_strcmp0(window_class, "Google-chrome");
-#else
-  return g_str_has_prefix(window_class, "crx_");
-#endif
+
+  // Chrome/Chromium uses url wm_class strings to represent its web apps.
+  // These apps will still have the same parent pid and hints as the main chrome
+  // window, so we skip the hint check.
+  // We can tell a window is a chrome web app window if its instance name is
+  // not google-chrome but its window class is Google-chrome
+  // We can tell a window is chromium web app window if its instance name is
+  // not chromium-browser but its window class is Chromium Browser
+
+  gboolean valid_app = FALSE;
+
+  if (g_strcmp0 (window_class, "Google-chrome") == 0 &&
+      g_strcmp0 (instance_name, "google-chrome") != 0)
+    {
+      valid_app = TRUE;
+    }
+  else if (g_strcmp0 (window_class, "Chromium-browser") == 0 &&
+           g_strcmp0 (instance_name, "chromium-browser") != 0)
+    {
+      valid_app = TRUE;
+    }
+
+  return valid_app;
+}
+
+static gboolean
+bamf_matcher_window_skips_hint_set (BamfMatcher *self, BamfLegacyWindow *window)
+{
+  gboolean skip_hint_set = FALSE;
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), TRUE);
+
+  skip_hint_set = is_web_app_window (self, window);
+
+  return skip_hint_set;
+}
+
+static GList *
+bamf_matcher_get_class_matching_desktop_files (BamfMatcher *self, const gchar *class_name)
+{
+  GList* desktop_files = NULL;
+  gpointer key;
+  gpointer value;
+  GHashTableIter iter;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
+  g_hash_table_iter_init (&iter, self->priv->desktop_class_table);
+
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      gchar* desktop_file = g_strdup (key);
+      gchar* desktop_class = value;
+
+      if (g_strcmp0 (desktop_class, class_name) == 0)
+        {
+          desktop_files = g_list_prepend (desktop_files, desktop_file);
+        }
+    }
+
+  return desktop_files;
+}
+
+static gboolean
+bamf_matcher_has_instance_class_desktop_file (BamfMatcher *self, const gchar *class_name)
+{
+  gpointer key;
+  gpointer value;
+  GHashTableIter iter;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), FALSE);
+  g_hash_table_iter_init (&iter, self->priv->desktop_class_table);
+
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      gchar* desktop_class = value;
+
+      if (g_strcmp0 (desktop_class, class_name) == 0)
+        {
+          return TRUE;
+        }
+    }
+
+  return FALSE;
 }
 
 static GList *
 bamf_matcher_possible_applications_for_window (BamfMatcher *self,
                                                BamfWindow *bamf_window)
 {
-  char *hint = NULL;
   BamfMatcherPrivate *priv;
-  gint pid;
   BamfLegacyWindow *window;
-  GList *desktop_files = NULL, *pid_list = NULL, *l;
+  GList *desktop_files = NULL, *l;
+  char *desktop_file = NULL;
+  char *desktop_class = NULL;
 
   g_return_val_if_fail (BAMF_IS_WINDOW (bamf_window), NULL);
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
 
   priv = self->priv;
-
   window = bamf_window_get_window (bamf_window);
 
-  hint = get_window_hint (window, _NET_WM_DESKTOP_FILE);
-  const char *window_class = bamf_legacy_window_get_class_name (window);
+  desktop_file = get_window_hint (window, _NET_WM_DESKTOP_FILE);
 
-  if (hint)
+  const char *class_name = bamf_legacy_window_get_class_name (window);
+  const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
+  gboolean known_desktop_class = bamf_matcher_has_instance_class_desktop_file (self, instance_name);
+
+  if (desktop_file)
     {
-      /* whew, hard work, didn't even have to make a copy! */
-      if (hint[0] != '\0' && !is_web_app_window(self, window))
+      desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
+
+      if (!known_desktop_class || g_strcmp0 (desktop_class, desktop_file) == 0)
         {
-          desktop_files = g_list_prepend (desktop_files, hint);
+          desktop_files = g_list_prepend (desktop_files, desktop_file);
         }
       else
         {
-          g_free (hint);
+          g_free (desktop_file);
         }
     }
-  else
+
+  desktop_file = NULL;
+
+  if (!desktop_files)
     {
-      
-      char *desktop_file;
-      char *desktop_class;
-      
-      if (window_class)
+      if (class_name)
         {
-          char *window_class_down = g_ascii_strdown (window_class, -1);
+          char *window_class_down = g_ascii_strdown (class_name, -1);
           l = g_hash_table_lookup (priv->desktop_id_table, window_class_down);
           g_free (window_class_down);
 
@@ -1577,11 +1666,14 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
               if (desktop_file)
                 {
                   desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
-                  if ((desktop_class == NULL || g_strcmp0 (desktop_class, window_class) == 0) &&
-                      !g_list_find_custom (desktop_files, desktop_file,
-                                           (GCompareFunc) g_strcmp0))
+
+                  if (!known_desktop_class || g_strcmp0 (desktop_class, instance_name) == 0)
                     {
-                      desktop_files = g_list_prepend (desktop_files, g_strdup (desktop_file));
+                      if (!g_list_find_custom (desktop_files, desktop_file,
+                                               (GCompareFunc) g_strcmp0))
+                        {
+                          desktop_files = g_list_prepend (desktop_files, g_strdup (desktop_file));
+                        }
                     }
                 }
             }
@@ -1589,31 +1681,10 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
           desktop_files = g_list_reverse (desktop_files);
         }
 
-      /* Iterate over the desktop class table, and add matching desktop files */
-      gpointer key;
-      gpointer value;
-      GHashTableIter iter;
-      g_hash_table_iter_init (&iter, priv->desktop_class_table);
-
-      while (g_hash_table_iter_next (&iter, &key, &value))
-        {
-          desktop_file = g_strdup (key);
-          desktop_class = value;
-          if (g_strcmp0 (desktop_class, window_class) == 0 &&
-              !g_list_find_custom (desktop_files, desktop_file, (GCompareFunc) g_strcmp0))
-            {
-              desktop_files = g_list_prepend (desktop_files, desktop_file);
-            }
-          else
-            {
-              g_free (desktop_file);
-            }
-        }
-
-      pid = bamf_legacy_window_get_pid (window);
-      pid_list = bamf_matcher_possible_applications_for_pid (self, pid);
+      gint pid = bamf_legacy_window_get_pid (window);
+      GList *pid_list = bamf_matcher_possible_applications_for_pid (self, pid);
       
-      /* Append these files to the end to give preference to window_class style picking.
+      /* Append these files to the end to give preference to class_name style picking.
          This style of matching is prefered and used by GNOME Shell however does not work
          very well in practice, thus requiring the fallback here */
       for (l = pid_list; l; l = l->next)
@@ -1627,10 +1698,10 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
             {
               gboolean append = FALSE;
 
-              if (window_class)
+              if (instance_name)
                 {
                   desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
-                  if (desktop_class == NULL || g_strcmp0 (desktop_class, window_class) == 0)
+                  if (!known_desktop_class || g_strcmp0 (desktop_class, instance_name) == 0)
                     {
                       append = TRUE;
                     }
@@ -1671,7 +1742,12 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
       g_list_free (pid_list);
     }
-  
+
+  if (!desktop_files && known_desktop_class)
+    {
+      desktop_files = bamf_matcher_get_class_matching_desktop_files (self, instance_name);
+    }
+
   return desktop_files;
 }
 
@@ -1681,57 +1757,114 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
 {
   GList *possible_apps, *l;
   BamfLegacyWindow *window;
-  GList *views, *a;
-  const char *win_class;
-  const char *desktop_file;
-  const char *app_class;
+  const gchar *app_class;
   BamfApplication *app = NULL, *best = NULL;
-  BamfView *view;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_WINDOW (bamf_window));
 
   window = bamf_window_get_window (bamf_window);
-  views = self->priv->views;
 
   possible_apps = bamf_matcher_possible_applications_for_window (self, bamf_window);
-  win_class = bamf_legacy_window_get_class_name (window);
+  const char *win_instance = bamf_legacy_window_get_class_instance_name (window);
+  const char *win_class_name = bamf_legacy_window_get_class_name (window);
 
-  /* Loop over every application, inside that application see if its .desktop file
-   * matches with any of our possible hits. If so we match it. If we have no possible hits
-   * fall back to secondary matching. 
-   */
-  for (a = views; a; a = a->next)
+  app_class = win_instance;
+
+  /* Loop over every possible desktop file that could match the window, and try
+   * to reuse an already-opened window that uses it.
+   * Desktop files are ordered by priority, so we try to use the first possible,
+   * wm_class matching applications have the priority, btw. */
+  if (possible_apps)
     {
-      view = a->data;
-
-      if (!BAMF_IS_APPLICATION (view))
-        continue;
-
-      app = BAMF_APPLICATION (view);
-      app_class = bamf_application_get_wmclass (app);
-      desktop_file = bamf_application_get_desktop_file (app);
-
-      if (possible_apps)
+      /* primary matching */
+      for (l = possible_apps; l; l = l->next)
         {
-          /* primary matching */
+          const gchar *desktop_file = l->data;
+          app = bamf_matcher_get_application_by_desktop_file (self, desktop_file);
 
-          for (l = possible_apps; l; l = l->next)
+          if (BAMF_IS_APPLICATION (app))
             {
-              if (g_strcmp0 (desktop_file, l->data) == 0)
+              const gchar *app_desktop_class;
+              app_desktop_class = bamf_application_get_wmclass (app);
+
+              if (win_instance && app_desktop_class && strcasecmp (win_instance, app_desktop_class) == 0)
                 {
-                  if (!best || !g_strcmp0 (win_class, app_class))
-                    best = app;
+                  best = app;
                   break;
+                }
+              else if (!best)
+                {
+                  best = app;
                 }
             }
         }
-      else if (desktop_file == NULL) 
+
+      /* If a "best" application has been found, we should check again if the
+       * desktop file that is going to be used is really the best one we have.
+       * To do this, we compare the window class name with the desktop class
+       * of both candidates to ensure that really is the best one.
+       * This is important to avoid that very-similar (which differ only by
+       * StartupWMClass) running desktop files, would be wrongly used to match
+       * an incompatible window. */
+      if (BAMF_IS_APPLICATION (best) && possible_apps)
         {
-          /* secondary matching */
-          
-          if (bamf_application_contains_similar_to_window (app, bamf_window) && (!best || !g_strcmp0 (win_class, app_class)))
-            best = app;
+          const gchar *best_app_desktop = bamf_application_get_desktop_file (best);
+          const gchar *best_desktop = possible_apps->data;
+
+          if (win_class_name && g_strcmp0 (best_app_desktop, best_desktop) != 0)
+            {
+              const gchar *best_app_class;
+              const gchar *best_desktop_class;
+
+              best_app_class = bamf_application_get_wmclass (best);
+              best_desktop_class = g_hash_table_lookup (self->priv->desktop_class_table, best_desktop);
+
+              /* We compare the two classes using their "distance" from the
+               * desidered class value */
+              if (best_app_class && best_desktop_class)
+                {
+                  int max_chars = strlen(win_class_name);
+                  int app_diff = strncasecmp (win_class_name, best_app_class, max_chars);
+                  int desktop_diff = strncasecmp (win_class_name, best_desktop_class, max_chars);
+
+                  if (abs (desktop_diff) < abs (app_diff))
+                    {
+                      best = bamf_matcher_get_application_by_desktop_file (self, best_desktop);
+                    }
+                }
+            }
+        }
+    }
+  else
+    {
+      /* secondary matching */
+      GList *a;
+      BamfView *view;
+      const gchar *app_desktop_class;
+
+      for (a = self->priv->views; a; a = a->next)
+        {
+          view = a->data;
+
+          if (!BAMF_IS_APPLICATION (view))
+            continue;
+
+          app = BAMF_APPLICATION (view);
+          app_desktop_class = bamf_application_get_wmclass (app);
+
+          if (bamf_application_contains_similar_to_window (app, bamf_window))
+            {
+              if (win_instance && g_strcmp0 (win_instance, app_desktop_class) == 0)
+                {
+                  best = app;
+                  break;
+                }
+              else if (!best)
+                {
+                  best = app;
+                }
+            }
         }
     }
 
@@ -1742,8 +1875,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
       else
         best = bamf_application_new ();
 
-      bamf_application_set_wmclass (best, win_class);
-
+      bamf_application_set_wmclass (best, app_class);
       bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (best));
     }
 
@@ -1760,7 +1892,7 @@ ensure_window_hint_set (BamfMatcher *self,
 {
   GArray *pids;
   GHashTable *registered_pids;
-  char *window_hint = NULL;
+  char *desktop_file_hint = NULL;
   gint i, pid;
   gpointer key;
 
@@ -1769,49 +1901,33 @@ ensure_window_hint_set (BamfMatcher *self,
 
   registered_pids = self->priv->registered_pids;
 
-  // web apps can end up forcing their parent browsers to match on them, so remove from pid table if this is the case
-  if (is_web_app_window (self, window))
+  /* Some windows such as web applications shares the pid with their parent
+   * browser so, we have to ignore them */
+  if (bamf_matcher_window_skips_hint_set (self, window))
     {
+      return;
+    }
+
+  desktop_file_hint = get_window_hint (window, _NET_WM_DESKTOP_FILE);
+
+  if (desktop_file_hint)
+    {
+      /* already set, make sure we know about this
+       * fact for future windows of this applications */
       pid = bamf_legacy_window_get_pid (window);
 
       if (pid > 0)
         {
-          gpointer key = GINT_TO_POINTER (pid);
-          const char* result = g_hash_table_lookup (registered_pids, key);
-          if (result && g_str_has_prefix (result, "/home/"))
+          key = GINT_TO_POINTER (pid);
+
+          if (!g_hash_table_lookup (registered_pids, key))
             {
-              g_hash_table_remove (registered_pids, key);
+              g_hash_table_insert (registered_pids, key, g_strdup (desktop_file_hint));
             }
         }
 
+      g_free (desktop_file_hint);
       return;
-    }
-
-  window_hint = get_window_hint (window, _NET_WM_DESKTOP_FILE);
-  if (window_hint)
-    {
-      if (window_hint[0] != '\0')
-        {
-          /* already set, make sure we know about this
-           * fact for future windows of this applications */
-          pid = bamf_legacy_window_get_pid (window);
-
-          if (pid > 0)
-            {
-              key = GINT_TO_POINTER (pid);
-
-              if (!g_hash_table_lookup (registered_pids, key))
-                {
-                  g_hash_table_insert (registered_pids, key, g_strdup (window_hint));
-                }
-            }
-
-          g_free (window_hint);
-          return;
-        }
-
-      g_free (window_hint);
-      window_hint = NULL;
     }
 
   pids = pid_parent_tree (self, bamf_legacy_window_get_pid (window));
@@ -1821,15 +1937,15 @@ ensure_window_hint_set (BamfMatcher *self,
       pid = g_array_index (pids, gint, i);
       key = GINT_TO_POINTER (pid);
 
-      window_hint = g_hash_table_lookup (registered_pids, key);
-      if (window_hint != NULL && window_hint[0] != '\0')
+      desktop_file_hint = g_hash_table_lookup (registered_pids, key);
+      if (desktop_file_hint != NULL && desktop_file_hint[0] != '\0')
         break;
     }
 
   g_array_free (pids, TRUE);
 
-  if (window_hint)
-    set_window_hint (window, _NET_WM_DESKTOP_FILE, window_hint);
+  if (desktop_file_hint)
+    set_window_hint (window, _NET_WM_DESKTOP_FILE, desktop_file_hint);
 }
 
 static void
@@ -1895,13 +2011,6 @@ get_gnome_control_center_window_hint (BamfMatcher * self, BamfLegacyWindow * win
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
 
   role = get_window_hint (window, WM_WINDOW_ROLE);
-
-  if (role && role[0] == '\0')
-    {
-      g_free (role);
-      role = NULL;
-    }
-
   exec = g_strconcat ("gnome-control-center", (role ? " " : NULL), role, NULL);
 
   desktopFileTable = self->priv->desktop_file_table;
@@ -2013,15 +2122,11 @@ static void
 bamf_matcher_setup_indicator_state (BamfMatcher *self, BamfIndicator *indicator)
 {
   GList *possible_apps, *l;
-  GList *views, *a;
   const char *desktop_file;
   BamfApplication *app = NULL, *best = NULL;
-  BamfView *view;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_INDICATOR (indicator));
-  
-  views = self->priv->views;
 
   possible_apps = bamf_matcher_possible_applications_for_pid (self, bamf_indicator_get_pid (indicator));
 
@@ -2029,27 +2134,17 @@ bamf_matcher_setup_indicator_state (BamfMatcher *self, BamfIndicator *indicator)
    * matches with any of our possible hits. If so we match it. If we have no possible hits
    * fall back to secondary matching. 
    */
-  for (a = views; a && !best; a = a->next)
+  if (possible_apps)
     {
-      view = a->data;
-
-      if (!BAMF_IS_APPLICATION (view))
-        continue;
-
-      app = BAMF_APPLICATION (view);
-      desktop_file = bamf_application_get_desktop_file (app);
-      
-      if (possible_apps)
+      for (l = possible_apps; l; l = l->next)
         {
-          /* primary matching */
+          desktop_file = l->data;
+          app = bamf_matcher_get_application_by_desktop_file (self, desktop_file);
 
-          for (l = possible_apps; l; l = l->next)
+          if (BAMF_IS_APPLICATION (app))
             {
-              if (g_strcmp0 (desktop_file, l->data) == 0)
-                {
-                  best = app;
-                  break;
-                }
+              best = app;
+              break;
             }
         }
     }
@@ -2279,27 +2374,15 @@ gboolean
 bamf_matcher_application_is_running (BamfMatcher *matcher,
                                      const char *application)
 {
-  const char * desktop_file;
-  GList *l;
-  BamfView *view;
-  BamfMatcherPrivate *priv;
+  BamfApplication *app;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), FALSE);
 
-  priv = matcher->priv;
+  app = bamf_matcher_get_application_by_desktop_file (matcher, application);
 
-  for (l = priv->views; l; l = l->next)
+  if (BAMF_IS_APPLICATION (app))
     {
-      view = l->data;
-
-      if (!BAMF_IS_APPLICATION (view))
-        continue;
-
-      desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
-      if (g_strcmp0 (desktop_file, application) == 0)
-        {
-          return bamf_view_is_running (view);
-        }
+      return bamf_view_is_running (BAMF_VIEW (app));
     }
 
   return FALSE;
@@ -2370,27 +2453,15 @@ bamf_matcher_dbus_path_for_application (BamfMatcher *matcher,
                                         const char *application)
 {
   const char * path = "";
-  const char * desktop_file;
-  GList *l;
-  BamfView *view;
-  BamfMatcherPrivate *priv;
+  BamfApplication *app;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
 
-  priv = matcher->priv;
+  app = bamf_matcher_get_application_by_desktop_file (matcher, application);
 
-  for (l = priv->views; l; l = l->next)
+  if (BAMF_IS_APPLICATION (app))
     {
-      view = l->data;
-
-      if (!BAMF_IS_APPLICATION (view))
-        continue;
-
-      desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
-      if (g_strcmp0 (desktop_file, application) == 0)
-        {
-          path = bamf_view_get_path (view);
-        }
+      return bamf_view_get_path (BAMF_VIEW (app));
     }
 
   return path;
@@ -2530,29 +2601,16 @@ bamf_matcher_xids_for_application (BamfMatcher *matcher,
 {
   GVariantBuilder b;
   GVariant *xids;
-  const char * desktop_file;
-  GList *l;
-  BamfView *view;
-  BamfMatcherPrivate *priv;
+  BamfApplication *app;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
 
-  priv = matcher->priv;
   xids = NULL;
+  app = bamf_matcher_get_application_by_desktop_file (matcher, application);
 
-  for (l = priv->views; l; l = l->next)
+  if (BAMF_IS_APPLICATION (app))
     {
-      view = l->data;
-
-      if (!BAMF_IS_APPLICATION (view))
-        continue;
-
-      desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
-      if (g_strcmp0 (desktop_file, application) == 0)
-        {
-          xids = bamf_application_get_xids (BAMF_APPLICATION (view));
-          break;
-        }
+      xids = bamf_application_get_xids (app);
     }
 
   if (!xids)
