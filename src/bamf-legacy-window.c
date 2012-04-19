@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Canonical Ltd
+ * Copyright (C) 2010-2012 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -367,10 +368,10 @@ void
 bamf_legacy_window_get_geometry (BamfLegacyWindow *self, gint *x, gint *y,
                                  gint *width, gint *height)
 {
-  *x = 0;
-  *y = 0;
-  *width = 0;
-  *height = 0;
+  if (x) *x = 0;
+  if (y) *y = 0;
+  if (width) *width = 0;
+  if (height) *height = 0;
 
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
 
