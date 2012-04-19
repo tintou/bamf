@@ -22,7 +22,7 @@
 #include <string.h>
 
 static Display *
-get_xdisplay(gboolean *opened)
+get_xdisplay (gboolean *opened)
 {
   Display *xdisplay;
   xdisplay = gdk_x11_get_default_xdisplay ();
