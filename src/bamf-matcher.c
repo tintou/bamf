@@ -1758,6 +1758,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
   GList *possible_apps, *l;
   BamfLegacyWindow *window;
   const gchar *app_class;
+  const gchar *app_desktop = NULL;
   BamfApplication *app = NULL, *best = NULL;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
@@ -1824,13 +1825,14 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
                * desidered class value */
               if (best_app_class && best_desktop_class)
                 {
-                  int max_chars = strlen(win_class_name);
+                  int max_chars = strlen (win_class_name);
                   int app_diff = strncasecmp (win_class_name, best_app_class, max_chars);
                   int desktop_diff = strncasecmp (win_class_name, best_desktop_class, max_chars);
 
                   if (abs (desktop_diff) < abs (app_diff))
                     {
                       best = bamf_matcher_get_application_by_desktop_file (self, best_desktop);
+                      app_desktop = best_desktop;
                     }
                 }
             }
@@ -1870,18 +1872,26 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
 
   if (!best)
     {
+      if (app_desktop)
+        {
+          best = bamf_application_new_from_desktop_file (app_desktop);
+        }
       if (possible_apps)
-        best = bamf_application_new_from_desktop_files (possible_apps);
+        {
+          best = bamf_application_new_from_desktop_files (possible_apps);
+        }
       else
-        best = bamf_application_new ();
+        {
+          best = bamf_application_new ();
+        }
 
       bamf_application_set_wmclass (best, app_class);
       bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (best));
     }
 
-  g_list_free_full (possible_apps, g_free);
-
   bamf_view_add_child (BAMF_VIEW (best), BAMF_VIEW (bamf_window));
+
+  g_list_free_full (possible_apps, g_free);
 }
 
 /* Ensures that the window hint is set if a registered pid matches, and that set window hints
