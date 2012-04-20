@@ -1876,7 +1876,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
         {
           best = bamf_application_new_from_desktop_file (app_desktop);
         }
-      if (possible_apps)
+      else if (possible_apps)
         {
           best = bamf_application_new_from_desktop_files (possible_apps);
         }
