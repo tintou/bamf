@@ -239,7 +239,7 @@ bamf_application_on_window_added (DBusGProxy *proxy, char *path, BamfApplication
 {
   BamfView *view;
 
-  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+  view = bamf_factory_view_for_path_type (bamf_factory_get_default (), path, "window");
 
   g_signal_emit (G_OBJECT (self), application_signals[WINDOW_ADDED], 0, view);
 }
@@ -249,7 +249,7 @@ bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplicati
 {
   BamfView *view;
 
-  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+  view = bamf_factory_view_for_path_type (bamf_factory_get_default (), path, "window");
 
   g_signal_emit (G_OBJECT (self), application_signals[WINDOW_REMOVED], 0, view);
 }
