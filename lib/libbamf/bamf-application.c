@@ -185,6 +185,7 @@ bamf_application_get_windows (BamfApplication *application)
         }
     }
 
+  g_list_free (children);
   return windows;
 }
 
