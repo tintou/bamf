@@ -71,6 +71,10 @@ GType             bamf_factory_get_type             (void) G_GNUC_CONST;
 BamfView        * bamf_factory_view_for_path        (BamfFactory * factory,
                                                      const char * path);
 
+BamfView        * bamf_factory_view_for_path_type   (BamfFactory * factory,
+                                                     const char * path,
+                                                     const char * type);
+
 BamfApplication * bamf_factory_app_for_file         (BamfFactory * factory,
                                                      const char * path,
                                                      gboolean create);
