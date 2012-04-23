@@ -134,7 +134,10 @@ bamf_matcher_on_view_opened (DBusGProxy *proxy,
 {
   BamfView *view;
 
-  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+  view = bamf_factory_view_for_path_type (bamf_factory_get_default (), path, type);
+
+  if (!BAMF_IS_VIEW (view))
+    return;
 
   g_signal_emit (matcher, matcher_signals[VIEW_OPENED], 0, view);
 }
@@ -147,7 +150,7 @@ bamf_matcher_on_view_closed (DBusGProxy *proxy,
 {
   BamfView *view;
 
-  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+  view = bamf_factory_view_for_path_type (bamf_factory_get_default (), path, type);
 
   if (!BAMF_IS_VIEW (view))
     return;
@@ -161,14 +164,11 @@ bamf_matcher_on_active_application_changed (DBusGProxy *proxy,
                                             char *new_path,
                                             BamfMatcher *matcher)
 {
-  BamfView *old_view = NULL;
-  BamfView *new_view = NULL;
+  BamfView *old_view;
+  BamfView *new_view;
 
-  if (old_path && strlen (old_path) > 0)
-    old_view = bamf_factory_view_for_path (bamf_factory_get_default (), old_path);
-
-  if (new_path && strlen (new_path) > 0)
-    new_view = bamf_factory_view_for_path (bamf_factory_get_default (), new_path);
+  old_view = bamf_factory_view_for_path_type (bamf_factory_get_default (), old_path, "application");
+  new_view = bamf_factory_view_for_path_type (bamf_factory_get_default (), new_path, "application");
 
   g_signal_emit (matcher, matcher_signals[ACTIVE_APPLICATION_CHANGED], 0, old_view, new_view);
 }
@@ -179,14 +179,11 @@ bamf_matcher_on_active_window_changed (DBusGProxy *proxy,
                                        char *new_path,
                                        BamfMatcher *matcher)
 {
-  BamfView *old_view = NULL;
-  BamfView *new_view = NULL;
+  BamfView *old_view;
+  BamfView *new_view;
 
-  if (old_path && strlen (old_path) > 0)
-    old_view = bamf_factory_view_for_path (bamf_factory_get_default (), old_path);
-
-  if (new_path && strlen (new_path) > 0)
-    new_view = bamf_factory_view_for_path (bamf_factory_get_default (), new_path);
+  old_view = bamf_factory_view_for_path_type (bamf_factory_get_default (), old_path, "window");
+  new_view = bamf_factory_view_for_path_type (bamf_factory_get_default (), new_path, "window");
 
   g_signal_emit (matcher, matcher_signals[ACTIVE_WINDOW_CHANGED], 0, old_view, new_view);
 }
@@ -325,7 +322,7 @@ bamf_matcher_get_active_application (BamfMatcher *matcher)
   if (!app)
     return NULL;
 
-  view = bamf_factory_view_for_path (bamf_factory_get_default (), app);
+  view = bamf_factory_view_for_path_type (bamf_factory_get_default (), app, "application");
   g_free (app);
 
   if (!BAMF_IS_APPLICATION (view))
@@ -360,7 +357,7 @@ bamf_matcher_get_active_window (BamfMatcher *matcher)
   if (!app)
     return NULL;
 
-  view = bamf_factory_view_for_path (bamf_factory_get_default (), app);
+  view = bamf_factory_view_for_path_type (bamf_factory_get_default (), app, "window");
   g_free (app);
 
   if (!BAMF_IS_WINDOW (view))
@@ -407,7 +404,7 @@ bamf_matcher_get_application_for_xid (BamfMatcher  *matcher,
   if (!app)
     return NULL;
 
-  view = bamf_factory_view_for_path (bamf_factory_get_default (), app);
+  view = bamf_factory_view_for_path_type (bamf_factory_get_default (), app, "application");
   
   g_free (app);
 
@@ -476,9 +473,9 @@ bamf_matcher_get_applications (BamfMatcher *matcher)
   len = g_strv_length (array);
   for (i = len-1; i >= 0; i--)
     {
-      view = bamf_factory_view_for_path (bamf_factory_get_default (), array[i]);
+      view = bamf_factory_view_for_path_type (bamf_factory_get_default (), array[i], "application");
 
-      if (view)
+      if (BAMF_IS_APPLICATION (view))
         result = g_list_prepend (result, view);
     }
   
@@ -517,9 +514,9 @@ bamf_matcher_get_windows (BamfMatcher *matcher)
   len = g_strv_length (array);
   for (i = len-1; i >= 0; i--)
     {
-      view = bamf_factory_view_for_path (bamf_factory_get_default (), array[i]);
+      view = bamf_factory_view_for_path_type (bamf_factory_get_default (), array[i], "window");
 
-      if (view)
+      if (BAMF_IS_WINDOW (view))
         result = g_list_prepend (result, view);
     }
   
@@ -560,9 +557,9 @@ bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
   len = g_strv_length (array);
   for (i = len-1; i >= 0; i--)
     {
-      view = bamf_factory_view_for_path (bamf_factory_get_default (), array[i]);
+      view = bamf_factory_view_for_path_type (bamf_factory_get_default (), array[i], "window");
 
-      if (view)
+      if (BAMF_IS_WINDOW (view))
         result = g_list_prepend (result, view);
     }
   
@@ -618,9 +615,9 @@ bamf_matcher_get_running_applications (BamfMatcher *matcher)
   len = g_strv_length (array);
   for (i = len-1; i >= 0; i--)
     {
-      view = bamf_factory_view_for_path (bamf_factory_get_default (), array[i]);
+      view = bamf_factory_view_for_path_type (bamf_factory_get_default (), array[i], "application");
 
-      if (view)
+      if (BAMF_IS_APPLICATION (view))
         result = g_list_prepend (result, view);
     }
 
