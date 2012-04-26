@@ -543,6 +543,16 @@ bamf_view_on_user_visible_changed (DBusGProxy *proxy, gboolean visible, BamfView
 }
 
 static void
+on_view_proxy_destroyed (GObject *proxy, gpointer user_data)
+{
+  BamfView *view = user_data;
+  g_return_if_fail (BAMF_IS_VIEW (view));
+
+  view->priv->checked_flags = 0x0;
+  view->priv->proxy = NULL;
+}
+
+static void
 bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
 {
   BamfViewPrivate *priv;
@@ -593,6 +603,8 @@ bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
                                      "UserVisibleChanged",
                                      (GCallback) bamf_view_on_user_visible_changed,
                                      self);
+
+      g_signal_handlers_disconnect_by_func (priv->proxy, on_view_proxy_destroyed, self);
       g_object_unref (priv->proxy);
       priv->proxy = NULL;
     }
@@ -737,6 +749,7 @@ bamf_view_dispose (GObject *object)
                                      (GCallback) bamf_view_on_name_changed,
                                      view);
 
+      g_signal_handlers_disconnect_by_func (priv->proxy, on_view_proxy_destroyed, view);
       g_object_unref (priv->proxy);
       priv->proxy = NULL;
     }
@@ -784,16 +797,6 @@ bamf_view_reset_flags (BamfView *view)
     }
 }
 
-static void
-on_view_proxy_destroyed (GObject *proxy, gpointer user_data)
-{
-  BamfView *view = user_data;
-  g_return_if_fail (BAMF_IS_VIEW (view));
-
-  view->priv->checked_flags = 0x0;
-  view->priv->proxy = NULL;
-}
-
 void
 bamf_view_set_path (BamfView *view, const char *path)
 {
@@ -811,6 +814,7 @@ bamf_view_set_path (BamfView *view, const char *path)
 
   if (priv->proxy)
     {
+      g_signal_handlers_disconnect_by_func (priv->proxy, on_view_proxy_destroyed, view);
       g_object_unref (priv->proxy);
     }
 
@@ -826,7 +830,7 @@ bamf_view_set_path (BamfView *view, const char *path)
       return;
     }
 
-  g_signal_connect (priv->proxy, "destroy", G_CALLBACK(on_view_proxy_destroyed), view);
+  g_signal_connect (priv->proxy, "destroy", G_CALLBACK (on_view_proxy_destroyed), view);
 
   dbus_g_proxy_add_signal (priv->proxy,
                            "ActiveChanged",
