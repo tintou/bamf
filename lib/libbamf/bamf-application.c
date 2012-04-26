@@ -247,8 +247,10 @@ static void
 bamf_application_on_window_added (DBusGProxy *proxy, char *path, BamfApplication *self)
 {
   BamfView *view;
+  BamfFactory *factory;
 
-  view = bamf_factory_view_for_path_type (bamf_factory_get_default (), path, "window");
+  factory = bamf_factory_get_default ();
+  view = bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_WINDOW);
 
   if (BAMF_IS_WINDOW (view))
     {
@@ -267,8 +269,10 @@ static void
 bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplication *self)
 {
   BamfView *view;
+  BamfFactory *factory;
 
-  view = bamf_factory_view_for_path_type (bamf_factory_get_default (), path, "window");
+  factory = bamf_factory_get_default ();
+  view = bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_WINDOW);
 
   if (BAMF_IS_WINDOW (view))
     {

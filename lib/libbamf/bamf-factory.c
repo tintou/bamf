@@ -160,20 +160,57 @@ bamf_factory_app_for_file (BamfFactory * factory,
   return result;
 }
 
+static
+BamfFactoryViewType compute_factory_type_by_str (const char *type)
+{
+  BamfFactoryViewType factory_type = BAMF_FACTORY_NONE;
+
+  if (type && type[0] != '\0')
+    {
+      if (g_strcmp0 (type, "window") == 0)
+        {
+          factory_type = BAMF_FACTORY_WINDOW;
+        }
+      else if (g_strcmp0 (type, "application") == 0)
+        {
+          factory_type = BAMF_FACTORY_APPLICATION;
+        }
+      else if (g_strcmp0 (type, "indicator") == 0)
+        {
+          factory_type = BAMF_FACTORY_INDICATOR;
+        }
+      else if (g_strcmp0 (type, "view") == 0)
+        {
+          factory_type = BAMF_FACTORY_VIEW;
+        }
+    }
+
+  return factory_type;
+}
+
 BamfView * 
 bamf_factory_view_for_path (BamfFactory * factory, const char * path)
 {
-  return bamf_factory_view_for_path_type (factory, path, NULL);
+  return bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_NONE);
+}
+
+BamfView * 
+bamf_factory_view_for_path_type_str (BamfFactory * factory, const char * path,
+                                                            const char * type)
+{
+  g_return_val_if_fail (BAMF_IS_FACTORY (factory), NULL);
+  BamfFactoryViewType factory_type = compute_factory_type_by_str (type);
+
+  return bamf_factory_view_for_path_type (factory, path, factory_type);
 }
 
 BamfView * 
 bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
-                                                        const char * type)
+                                                        BamfFactoryViewType type)
 {
   GHashTable *views;
   BamfView *view;
   GList *l;
-  gchar *computed_type = NULL;
   gboolean created = FALSE;
 
   g_return_val_if_fail (BAMF_IS_FACTORY (factory), NULL);
@@ -182,32 +219,39 @@ bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
     return NULL;
   
   views = factory->priv->views;
-
   view = g_hash_table_lookup (views, path);
   
   if (BAMF_IS_VIEW (view))
     return view;
 
-  if (!type || type[0] == '\0')
+  if (type == BAMF_FACTORY_NONE)
     {
       view = g_object_new (BAMF_TYPE_VIEW, NULL);
       bamf_view_set_path (view, path);
-      computed_type = g_strdup (bamf_view_get_view_type (view));
+      type = compute_factory_type_by_str (bamf_view_get_view_type (view));
       g_object_unref (view);
-      type = computed_type;
       view = NULL;
     }
 
-  if (g_strcmp0 (type, "application") == 0)
-    view = BAMF_VIEW (bamf_application_new (path));
-  else if (g_strcmp0 (type, "window") == 0)
-    view = BAMF_VIEW (bamf_window_new (path));
-  else if (g_strcmp0 (type, "indicator") == 0)
-    view = BAMF_VIEW (bamf_indicator_new (path));
+  switch (type)
+  {
+    case BAMF_FACTORY_VIEW:
+      view = g_object_new (BAMF_TYPE_VIEW, NULL);
+      break;
+    case BAMF_FACTORY_WINDOW:
+      view = BAMF_VIEW (bamf_window_new (path));
+      break;
+    case BAMF_FACTORY_APPLICATION:
+      view = BAMF_VIEW (bamf_application_new (path));
+      break;
+    case BAMF_FACTORY_INDICATOR:
+      view = BAMF_VIEW (bamf_indicator_new (path));
+      break;
+    case BAMF_FACTORY_NONE:
+      view = NULL;
+  }
 
   created = TRUE;
-  g_free (computed_type);
-
   BamfView *matched_view = NULL;
 
   if (BAMF_IS_APPLICATION (view))
