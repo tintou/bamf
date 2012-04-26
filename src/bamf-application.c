@@ -300,17 +300,20 @@ bamf_application_get_xids (BamfApplication *application)
 
 gboolean
 bamf_application_contains_similar_to_window (BamfApplication *self,
-                                             BamfWindow *window)
+                                             BamfWindow *bamf_window)
 {
-  gboolean result = FALSE;
-  const char *class, *owned_class;
   GList *children, *l;
   BamfView *child;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (self), FALSE);
-  g_return_val_if_fail (BAMF_IS_WINDOW (window), FALSE);
+  g_return_val_if_fail (BAMF_IS_WINDOW (bamf_window), FALSE);
 
-  class = bamf_legacy_window_get_class_name (bamf_window_get_window (window));
+  BamfLegacyWindow *window = bamf_window_get_window (bamf_window);
+  const char *window_class = bamf_legacy_window_get_class_name (window);
+  const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
+
+  if (!window_class || !instance_name)
+    return FALSE;
 
   children = bamf_view_get_children (BAMF_VIEW (self));
   for (l = children; l; l = l->next)
@@ -320,16 +323,18 @@ bamf_application_contains_similar_to_window (BamfApplication *self,
       if (!BAMF_IS_WINDOW (child))
         continue;
 
-      owned_class = bamf_legacy_window_get_class_name (bamf_window_get_window (BAMF_WINDOW (child)));
+      window = bamf_window_get_window (BAMF_WINDOW (child));
+      const char *owned_win_class = bamf_legacy_window_get_class_name (window);
+      const char *owned_instance = bamf_legacy_window_get_class_instance_name (window);
 
-      if (g_strcmp0 (class, owned_class) == 0)
+      if (g_strcmp0 (window_class, owned_win_class) == 0 &&
+          g_strcmp0 (instance_name, owned_instance) == 0)
         {
-          result = TRUE;
-          break;
+          return TRUE;
         }
     }
 
-  return result;
+  return FALSE;
 }
 
 gboolean
