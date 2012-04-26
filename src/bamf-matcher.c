@@ -1528,7 +1528,7 @@ static gboolean
 is_web_app_window (BamfMatcher *self, BamfLegacyWindow *window)
 {
   const char *window_class = bamf_legacy_window_get_class_name (window);
-  const char *instance_name = bamf_legacy_window_get_class_instance_name(window);
+  const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
 
   // Chrome/Chromium uses url wm_class strings to represent its web apps.
   // These apps will still have the same parent pid and hints as the main chrome
@@ -1541,12 +1541,14 @@ is_web_app_window (BamfMatcher *self, BamfLegacyWindow *window)
   gboolean valid_app = FALSE;
 
   if (g_strcmp0 (window_class, "Google-chrome") == 0 &&
-      g_strcmp0 (instance_name, "google-chrome") != 0)
+      g_strcmp0 (instance_name, "google-chrome") != 0 &&
+      !g_str_has_prefix (instance_name, "Google-chrome"))
     {
       valid_app = TRUE;
     }
   else if (g_strcmp0 (window_class, "Chromium-browser") == 0 &&
-           g_strcmp0 (instance_name, "chromium-browser") != 0)
+           g_strcmp0 (instance_name, "chromium-browser") != 0 &&
+           !g_str_has_prefix (instance_name, "Chromium-browser"))
     {
       valid_app = TRUE;
     }
@@ -1635,11 +1637,16 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
   const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
   gboolean known_desktop_class = bamf_matcher_has_instance_class_desktop_file (self, instance_name);
 
+  if (!known_desktop_class)
+  {
+    known_desktop_class = is_web_app_window (self, window);
+  }
+
   if (desktop_file)
     {
       desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
 
-      if (!known_desktop_class || g_strcmp0 (desktop_class, desktop_file) == 0)
+      if (!known_desktop_class || g_strcmp0 (desktop_class, instance_name) == 0)
         {
           desktop_files = g_list_prepend (desktop_files, desktop_file);
         }
@@ -1730,7 +1737,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
                             }
                         }
                     }
-                  
+
                   desktop_files = g_list_insert_before (desktop_files, last, desktop_file);
                 }
               else
