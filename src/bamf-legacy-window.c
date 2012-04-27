@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Canonical Ltd
+ * Copyright (C) 2010-2012 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -47,6 +48,10 @@ struct _BamfLegacyWindowPrivate
 {
   WnckWindow * legacy_window;
   char       * mini_icon_path;
+#ifndef USE_GTK3
+  char       * group_name;
+  char       * instance_name;
+#endif
   gulong       closed_id;
   gulong       name_changed_id;
   gulong       state_changed_id;
@@ -105,7 +110,6 @@ bamf_legacy_window_is_skip_tasklist (BamfLegacyWindow *self)
   return wnck_window_is_skip_tasklist (self->priv->legacy_window);
 }
 
-#ifdef USE_GTK3
 const char *
 bamf_legacy_window_get_class_instance_name (BamfLegacyWindow *self)
 {
@@ -115,17 +119,29 @@ bamf_legacy_window_get_class_instance_name (BamfLegacyWindow *self)
 
   window = self->priv->legacy_window;
 
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_class_instance_name)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_class_instance_name (self);
+
   if (!window)
     return NULL;
 
+#ifdef USE_GTK3
   return wnck_window_get_class_instance_name (window);
-}
+
+#else
+  if (!self->priv->instance_name)
+    {
+      Window xid = wnck_window_get_xid (window);
+      bamf_xutils_get_window_class_hints (xid, &self->priv->instance_name, NULL);
+    }
+
+  return self->priv->instance_name;
 #endif
+}
 
 const char *
 bamf_legacy_window_get_class_name (BamfLegacyWindow *self)
 {
-  WnckClassGroup *group;
   WnckWindow *window;
 
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
@@ -138,12 +154,18 @@ bamf_legacy_window_get_class_name (BamfLegacyWindow *self)
   if (!window)
     return NULL;
 
-  group = wnck_window_get_class_group (window);
+#ifdef USE_GTK3
+  return wnck_window_get_class_group_name (window);
 
-  if (!group)
-    return NULL;
+#else
+  if (!self->priv->group_name)
+    {
+      Window xid = wnck_window_get_xid (window);
+      bamf_xutils_get_window_class_hints (xid, NULL, &self->priv->group_name);
+    }
 
-  return wnck_class_group_get_res_class (group);
+  return self->priv->group_name;
+#endif
 }
 
 const char *
@@ -186,7 +208,7 @@ bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
     {
       g_string_append (exec, argv[i]);
       if (argv[i + 1] != NULL)
-	g_string_append (exec, " ");
+        g_string_append (exec, " ");
       g_free (argv[i]);
       i++;
     }
@@ -252,7 +274,6 @@ guint32
 bamf_legacy_window_get_xid (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), 0);
-
 
   if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_xid)
     return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_xid (self);
@@ -347,10 +368,10 @@ void
 bamf_legacy_window_get_geometry (BamfLegacyWindow *self, gint *x, gint *y,
                                  gint *width, gint *height)
 {
-  *x = 0;
-  *y = 0;
-  *width = 0;
-  *height = 0;
+  if (x) *x = 0;
+  if (y) *y = 0;
+  if (width) *width = 0;
+  if (height) *height = 0;
 
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
 
@@ -477,6 +498,20 @@ bamf_legacy_window_dispose (GObject *object)
       g_free (self->priv->mini_icon_path);
       self->priv->mini_icon_path = NULL;
     }
+
+#ifndef USE_GTK3
+  if (self->priv->group_name)
+    {
+      g_free (self->priv->group_name);
+      self->priv->group_name = NULL;
+    }
+
+  if (self->priv->instance_name)
+    {
+      g_free (self->priv->instance_name);
+      self->priv->instance_name = NULL;
+    }
+#endif
 
   if (self->priv->legacy_window)
     {
