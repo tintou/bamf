@@ -740,6 +740,8 @@ bamf_view_dispose (GObject *object)
       g_object_unref (priv->proxy);
       priv->proxy = NULL;
     }
+
+  G_OBJECT_CLASS (bamf_view_parent_class)->dispose (object);
 }
 
 const char * 
