@@ -1,3 +1,12 @@
+bamf (0.2.116-0ubuntu1) UNRELEASED; urgency=low
+
+  * New upstream release.
+  * debian/control:
+    - remove Multi-Arch: same for the -dbg package
+      (Closes: #669980, #658057)
+
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 27 Apr 2012 08:34:42 +0200
+
 bamf (0.2.114-0ubuntu1) precise-proposed; urgency=low
 
   * New upstream release.

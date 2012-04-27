@@ -465,7 +465,9 @@ bamf_view_export_on_bus (BamfView *view, GDBusConnection *connection)
 
       ifaces = g_dbus_object_get_interfaces (G_DBUS_OBJECT (view));
 
-      for (l = ifaces; l; l = l->next)
+      /* The dbus object interface list is in reversed order, we try to export
+       * the interfaces in bottom to top order (BamfView should be the first) */
+      for (l = g_list_last(ifaces); l; l = l->prev)
         {
           g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (l->data),
                                             connection, path, &error);
