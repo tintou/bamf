@@ -114,7 +114,6 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          libbamf0 (= ${binary:Version}),
          libbamf3-0 (= ${binary:Version}),
-Multi-Arch: same
 Description: Window matching library - debugging symbols
  bamf matches application windows to desktop files
  .
