@@ -103,7 +103,8 @@ BamfWindow * bamf_window_get_transient (BamfWindow *self)
   if (!path)
     return NULL;
 
-  transient = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+  BamfFactory *factory = bamf_factory_get_default ();
+  transient = bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_WINDOW);
   g_free (path);  
 
   if (!BAMF_IS_WINDOW (transient))
