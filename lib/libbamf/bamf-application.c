@@ -37,6 +37,7 @@
 #include "bamf-application.h"
 #include "bamf-window.h"
 #include "bamf-factory.h"
+#include "bamf-application-private.h"
 #include "bamf-view-private.h"
 
 #include <gio/gdesktopappinfo.h>
@@ -66,6 +67,7 @@ struct _BamfApplicationPrivate
   DBusGProxy      *proxy;
   gchar           *application_type;
   gchar           *desktop_file;
+  GList           *cached_xids;
   int              show_stubs;
 };
 
@@ -96,6 +98,12 @@ bamf_application_get_desktop_file (BamfApplication *application)
       g_error_free (error);
 
       return NULL;
+    }
+
+  if (file && file[0] == '\0')
+    {
+      g_free (file);
+      file = NULL;
     }
 
   priv->desktop_file = file;
@@ -185,6 +193,7 @@ bamf_application_get_windows (BamfApplication *application)
         }
     }
 
+  g_list_free (children);
   return windows;
 }
 
@@ -238,20 +247,48 @@ static void
 bamf_application_on_window_added (DBusGProxy *proxy, char *path, BamfApplication *self)
 {
   BamfView *view;
+  BamfFactory *factory;
 
-  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+  factory = bamf_factory_get_default ();
+  view = bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_WINDOW);
 
-  g_signal_emit (G_OBJECT (self), application_signals[WINDOW_ADDED], 0, view);
+  if (BAMF_IS_WINDOW (view))
+    {
+      guint32 xid = bamf_window_get_xid (BAMF_WINDOW (view));
+
+      if (!g_list_find (self->priv->cached_xids, GUINT_TO_POINTER (xid)))
+      {
+        self->priv->cached_xids = g_list_prepend (self->priv->cached_xids, GUINT_TO_POINTER (xid));
+      }
+
+      g_signal_emit (G_OBJECT (self), application_signals[WINDOW_ADDED], 0, view);
+    }
 }
 
 static void
 bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplication *self)
 {
   BamfView *view;
+  BamfFactory *factory;
 
-  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
+  factory = bamf_factory_get_default ();
+  view = bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_WINDOW);
 
-  g_signal_emit (G_OBJECT (self), application_signals[WINDOW_REMOVED], 0, view);
+  if (BAMF_IS_WINDOW (view))
+    {
+      guint32 xid = bamf_window_get_xid (BAMF_WINDOW (view));
+      self->priv->cached_xids = g_list_remove (self->priv->cached_xids, GUINT_TO_POINTER (xid));
+
+      g_signal_emit (G_OBJECT (self), application_signals[WINDOW_REMOVED], 0, view);
+    }
+}
+
+GList *
+bamf_application_get_cached_xids (BamfApplication *self)
+{
+  g_return_val_if_fail (BAMF_IS_APPLICATION (self), NULL);
+
+  return self->priv->cached_xids;
 }
 
 static void
@@ -289,6 +326,12 @@ bamf_application_dispose (GObject *object)
 
       g_object_unref (priv->proxy);
       priv->proxy = NULL;
+    }
+
+  if (priv->cached_xids)
+    {
+      g_list_free (priv->cached_xids);
+      priv->cached_xids = NULL;
     }
 
   if (G_OBJECT_CLASS (bamf_application_parent_class)->dispose)
@@ -335,6 +378,26 @@ bamf_application_set_path (BamfView *view, const char *path)
                                (GCallback) bamf_application_on_window_removed,
                                self,
                                NULL);
+
+  GList *children, *l;
+  children = bamf_view_get_children (view);
+
+  if (priv->cached_xids)
+    {
+      g_list_free (priv->cached_xids);
+      priv->cached_xids = NULL;
+    }
+
+  for (l = children; l; l = l->next)
+    {
+      if (!BAMF_IS_WINDOW (l->data))
+        continue;
+
+      guint32 xid = bamf_window_get_xid (BAMF_WINDOW (l->data));
+      priv->cached_xids = g_list_prepend (priv->cached_xids, GUINT_TO_POINTER (xid));
+    }
+
+  g_list_free (children);
 }
 
 static void
