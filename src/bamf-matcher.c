@@ -1638,7 +1638,22 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
   const char *class_name = bamf_legacy_window_get_class_name (window);
   const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
-  gboolean known_desktop_class = bamf_matcher_has_instance_class_desktop_file (self, instance_name);
+
+  const char *target_class = instance_name;
+  gboolean known_desktop_class = bamf_matcher_has_instance_class_desktop_file (self, target_class);
+
+  if (!known_desktop_class)
+  {
+    if (is_web_app_window (self, window))
+      {
+        known_desktop_class = TRUE;
+      }
+    else
+      {
+        target_class = class_name;
+        known_desktop_class = bamf_matcher_has_instance_class_desktop_file (self, target_class);
+      }
+  }
 
   if (!known_desktop_class)
   {
@@ -1649,7 +1664,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
     {
       desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
 
-      if (!known_desktop_class || g_strcmp0 (desktop_class, instance_name) == 0)
+      if ((!known_desktop_class && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
         {
           desktop_files = g_list_prepend (desktop_files, desktop_file);
         }
@@ -1677,7 +1692,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
                 {
                   desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
 
-                  if (!known_desktop_class || g_strcmp0 (desktop_class, instance_name) == 0)
+                  if ((!known_desktop_class && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
                     {
                       if (!g_list_find_custom (desktop_files, desktop_file,
                                                (GCompareFunc) g_strcmp0))
@@ -1708,10 +1723,10 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
             {
               gboolean append = FALSE;
 
-              if (instance_name)
+              if (target_class)
                 {
                   desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
-                  if (!known_desktop_class || g_strcmp0 (desktop_class, instance_name) == 0)
+                  if ((!known_desktop_class && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
                     {
                       append = TRUE;
                     }
@@ -1755,7 +1770,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
   if (!desktop_files && known_desktop_class)
     {
-      desktop_files = bamf_matcher_get_class_matching_desktop_files (self, instance_name);
+      desktop_files = bamf_matcher_get_class_matching_desktop_files (self, target_class);
     }
 
   return desktop_files;
@@ -2347,7 +2362,6 @@ compare_windows_by_stack_order (gconstpointer a, gconstpointer b)
   return (idx_a < idx_b) ? -1 : 1;
 }
 
-
 GVariant *
 bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
 {
@@ -2515,8 +2529,12 @@ bamf_matcher_register_favorites (BamfMatcher *matcher,
       if (g_list_find_custom (priv->favorites, fav, (GCompareFunc) g_strcmp0))
         continue;
 
-      priv->favorites = g_list_prepend (priv->favorites, g_strdup (fav));
       bamf_matcher_load_desktop_file (matcher, fav);
+
+      if (!g_hash_table_lookup (priv->desktop_class_table, fav))
+      {
+        priv->favorites = g_list_prepend (priv->favorites, g_strdup (fav));
+      }
     }
 
   g_signal_emit (matcher, matcher_signals[FAVORITES_CHANGED], 0);
