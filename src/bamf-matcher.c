@@ -1796,14 +1796,12 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
    * to reuse an already-opened window that uses it.
    * Desktop files are ordered by priority, so we try to use the first possible,
    * wm_class matching applications have the priority, btw. */
-   g_debug("Bamf window: %s: possible apps: %p",bamf_view_get_name(BAMF_VIEW(bamf_window)),possible_apps);
   if (possible_apps)
     {
       /* primary matching */
       for (l = possible_apps; l; l = l->next)
         {
           const gchar *desktop_file = l->data;
-          g_debug("Possible desktop %s",desktop_file);
           app = bamf_matcher_get_application_by_desktop_file (self, desktop_file);
 
           if (BAMF_IS_APPLICATION (app))
