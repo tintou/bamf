@@ -1626,7 +1626,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
   BamfLegacyWindow *window;
   GList *desktop_files = NULL, *l;
   char *desktop_file = NULL;
-  char *desktop_class = NULL;
+  const char *desktop_class = NULL;
 
   g_return_val_if_fail (BAMF_IS_WINDOW (bamf_window), NULL);
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
@@ -1657,7 +1657,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
   if (desktop_file)
     {
-      desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
+      desktop_class = bamf_matcher_get_desktop_file_class (self, desktop_file);
 
       if ((!filter_by_wmclass && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
         {
@@ -1685,7 +1685,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
               if (desktop_file)
                 {
-                  desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
+                  desktop_class = bamf_matcher_get_desktop_file_class (self, desktop_file);
 
                   if ((!filter_by_wmclass && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
                     {
@@ -1720,7 +1720,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
               if (target_class)
                 {
-                  desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
+                  desktop_class = bamf_matcher_get_desktop_file_class (self, desktop_file);
                   if ((!filter_by_wmclass && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
                     {
                       append = TRUE;
@@ -1796,12 +1796,14 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
    * to reuse an already-opened window that uses it.
    * Desktop files are ordered by priority, so we try to use the first possible,
    * wm_class matching applications have the priority, btw. */
+   g_debug("Bamf window: %s: possible apps: %p",bamf_view_get_name(BAMF_VIEW(bamf_window)),possible_apps);
   if (possible_apps)
     {
       /* primary matching */
       for (l = possible_apps; l; l = l->next)
         {
           const gchar *desktop_file = l->data;
+          g_debug("Possible desktop %s",desktop_file);
           app = bamf_matcher_get_application_by_desktop_file (self, desktop_file);
 
           if (BAMF_IS_APPLICATION (app))
@@ -1839,7 +1841,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
               const gchar *best_desktop_class;
 
               best_app_class = bamf_application_get_wmclass (best);
-              best_desktop_class = g_hash_table_lookup (self->priv->desktop_class_table, best_desktop);
+              best_desktop_class = bamf_matcher_get_desktop_file_class (self, best_desktop);
 
               /* We compare the two classes using their "distance" from the
                * desidered class value */
@@ -2253,6 +2255,15 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
     }
 }
 
+const char *
+bamf_matcher_get_desktop_file_class (BamfMatcher * self, const char * desktop_file)
+{
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
+  g_return_val_if_fail (desktop_file, NULL);
+
+  return g_hash_table_lookup (self->priv->desktop_class_table, desktop_file);
+}
+
 static int
 x_error_handler (Display *display, XErrorEvent *event)
 {
@@ -2525,11 +2536,7 @@ bamf_matcher_register_favorites (BamfMatcher *matcher,
         continue;
 
       bamf_matcher_load_desktop_file (matcher, fav);
-
-      if (!g_hash_table_lookup (priv->desktop_class_table, fav))
-      {
-        priv->favorites = g_list_prepend (priv->favorites, g_strdup (fav));
-      }
+      priv->favorites = g_list_prepend (priv->favorites, g_strdup (fav));
     }
 
   g_signal_emit (matcher, matcher_signals[FAVORITES_CHANGED], 0);
