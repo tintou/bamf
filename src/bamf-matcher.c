@@ -1640,31 +1640,26 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
   const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
 
   const char *target_class = instance_name;
-  gboolean known_desktop_class = bamf_matcher_has_instance_class_desktop_file (self, target_class);
+  gboolean filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
 
-  if (!known_desktop_class)
+  if (!filter_by_wmclass)
   {
     if (is_web_app_window (self, window))
       {
-        known_desktop_class = TRUE;
+        filter_by_wmclass = TRUE;
       }
     else
       {
         target_class = class_name;
-        known_desktop_class = bamf_matcher_has_instance_class_desktop_file (self, target_class);
+        filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
       }
-  }
-
-  if (!known_desktop_class)
-  {
-    known_desktop_class = is_web_app_window (self, window);
   }
 
   if (desktop_file)
     {
       desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
 
-      if ((!known_desktop_class && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
+      if ((!filter_by_wmclass && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
         {
           desktop_files = g_list_prepend (desktop_files, desktop_file);
         }
@@ -1692,7 +1687,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
                 {
                   desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
 
-                  if ((!known_desktop_class && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
+                  if ((!filter_by_wmclass && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
                     {
                       if (!g_list_find_custom (desktop_files, desktop_file,
                                                (GCompareFunc) g_strcmp0))
@@ -1726,7 +1721,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
               if (target_class)
                 {
                   desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
-                  if ((!known_desktop_class && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
+                  if ((!filter_by_wmclass && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
                     {
                       append = TRUE;
                     }
@@ -1768,7 +1763,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
       g_list_free (pid_list);
     }
 
-  if (!desktop_files && known_desktop_class)
+  if (!desktop_files && filter_by_wmclass)
     {
       desktop_files = bamf_matcher_get_class_matching_desktop_files (self, target_class);
     }
