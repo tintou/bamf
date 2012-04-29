@@ -489,11 +489,12 @@ bamf_application_child_added (BamfView *view, BamfView *child)
 }
 
 static char *
-bamf_application_favorite_from_list (BamfApplication *self, GList *list)
+bamf_application_favorite_from_list (BamfApplication *self, GList *desktop_list)
 {
   BamfMatcher *matcher;
   GList *favs, *l;
   char *result = NULL;
+  const char *desktop_class;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (self), NULL);
 
@@ -504,10 +505,15 @@ bamf_application_favorite_from_list (BamfApplication *self, GList *list)
     {
       for (l = favs; l; l = l->next)
         {
-          if (g_list_find_custom (list, l->data, (GCompareFunc) g_strcmp0))
+          if (g_list_find_custom (desktop_list, l->data, (GCompareFunc) g_strcmp0))
             {
-              result = l->data;
-              break;
+              desktop_class = bamf_matcher_get_desktop_file_class (matcher, l->data);
+
+              if (!desktop_class || g_strcmp0 (self->priv->wmclass, desktop_class) == 0)
+                {
+                  result = l->data;
+                  break;
+                }
             }
         }
     }
