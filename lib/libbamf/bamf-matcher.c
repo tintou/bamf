@@ -67,10 +67,19 @@ struct _BamfMatcherPrivate
 {
   DBusGConnection *connection;
   DBusGProxy      *proxy;
-  GList           *views;
 };
 
 static BamfMatcher * default_matcher = NULL;
+
+static void bamf_matcher_dispose (GObject *object);
+
+static void
+bamf_matcher_finalize (GObject *object)
+{
+  default_matcher = NULL;
+
+  G_OBJECT_CLASS (bamf_matcher_parent_class)->finalize (object);
+}
 
 static void
 bamf_matcher_class_init (BamfMatcherClass *klass)
@@ -78,6 +87,8 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
 
   g_type_class_add_private (obj_class, sizeof (BamfMatcherPrivate));
+  obj_class->dispose = bamf_matcher_dispose;
+  obj_class->finalize = bamf_matcher_finalize;
 
   matcher_signals [VIEW_OPENED] = 
     g_signal_new ("view-opened",
@@ -281,6 +292,46 @@ bamf_matcher_init (BamfMatcher *self)
                                "StackingOrderChanged",
                                (GCallback) bamf_matcher_on_stacking_order_changed,
                                self, NULL);
+}
+
+static void
+bamf_matcher_dispose (GObject *object)
+{
+  BamfMatcher *self = BAMF_MATCHER (object);
+  BamfMatcherPrivate *priv = self->priv;
+
+  if (priv->proxy)
+    {
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                      "ViewOpened",
+                                      (GCallback) bamf_matcher_on_view_opened,
+                                      self);
+
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                      "ViewClosed",
+                                      (GCallback) bamf_matcher_on_view_closed,
+                                      self);
+
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                      "ActiveApplicationChanged",
+                                      (GCallback) bamf_matcher_on_active_application_changed,
+                                      self);
+
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                      "ActiveWindowChanged",
+                                      (GCallback) bamf_matcher_on_active_window_changed,
+                                      self);
+
+      dbus_g_proxy_disconnect_signal (priv->proxy,
+                                      "StackingOrderChanged",
+                                      (GCallback) bamf_matcher_on_stacking_order_changed,
+                                      self);
+
+      g_object_unref (priv->proxy);
+      priv->proxy = NULL;
+    }
+
+  G_OBJECT_CLASS (bamf_matcher_parent_class)->dispose (object);
 }
 
 /*
