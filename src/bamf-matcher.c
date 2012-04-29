@@ -210,6 +210,7 @@ emit_paths_changed (gpointer user_data)
 static void bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *desktop_file, ViewChangeType change_type)
 {
   BamfMatcherPrivate *priv;
+  BamfApplication *app;
 
   if (desktop_file == NULL) return;
 
@@ -219,7 +220,9 @@ static void bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *de
 
   /* the app was already running (ADDED) / had more instances which are still
    * there (REMOVED) */
-  if (bamf_matcher_get_application_by_desktop_file (self, desktop_file))
+  app = bamf_matcher_get_application_by_desktop_file (self, desktop_file);
+
+  if (BAMF_IS_APPLICATION (app) && bamf_view_is_running (BAMF_VIEW (app)))
     {
       return;
     }
