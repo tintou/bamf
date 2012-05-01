@@ -45,6 +45,7 @@ sources_h = \
 
 libbamf_la_SOURCES = \
   bamf-factory.h \
+  bamf-application-private.h \
   bamf-view-private.h \
   $(sources_h) \
   $(libbamf_sources) \
@@ -64,7 +65,8 @@ libbamf_la_CPPFLAGS = \
   -fPIC \
   -DDATADIR=\""$(datadir)"\" \
   -I$(top_srcdir)/lib \
-  -I$(top_builddir)/lib \
+  -I$(top_srcdir)/lib/libbamf \
+  -I$(top_builddir)/lib/libbamf \
   $(LIBWSBIND_CFLAGS) \
   $(GLIB_CFLAGS) \
   $(DBUS_CFLAGS) \

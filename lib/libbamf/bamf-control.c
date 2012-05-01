@@ -61,7 +61,7 @@ static BamfControl * default_control = NULL;
 static void
 bamf_control_dispose (GObject *object)
 {
-  BamfControl *self = (BamfControl *) object;
+  BamfControl *self = BAMF_CONTROL (object);
 
   if (self->priv->proxy)
     {

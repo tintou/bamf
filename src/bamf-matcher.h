@@ -46,6 +46,7 @@
 #define BAMF_MATCHER_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_MATCHER, BamfMatcherClass))
 
 #define _NET_WM_DESKTOP_FILE "_NET_WM_DESKTOP_FILE"
+#define WM_WINDOW_ROLE       "WM_WINDOW_ROLE"
 
 typedef struct _BamfMatcher BamfMatcher;
 typedef struct _BamfMatcherClass BamfMatcherClass;
@@ -101,6 +102,9 @@ GVariant    * bamf_matcher_tab_dbus_paths                (BamfMatcher *matcher);
 
 GVariant    * bamf_matcher_xids_for_application          (BamfMatcher *matcher,
                                                           const char *application);
+
+GVariant    * bamf_matcher_get_window_stack_for_monitor  (BamfMatcher *matcher,
+                                                          gint monitor);
 
 BamfMatcher * bamf_matcher_get_default                   (void);
 

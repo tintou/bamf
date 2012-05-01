@@ -49,12 +49,12 @@ struct _BamfApplicationPrivate
 
 #define STUB_KEY  "X-Ayatana-Appmenu-Show-Stubs"
 
-static char *
+static const char *
 bamf_application_get_icon (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION (view), NULL);
 
-  return g_strdup (BAMF_APPLICATION (view)->priv->icon);
+  return BAMF_APPLICATION (view)->priv->icon;
 }
 
 char *
@@ -65,30 +65,26 @@ bamf_application_get_application_type (BamfApplication *application)
   return g_strdup (application->priv->app_type);
 }
 
-char *
+const char *
 bamf_application_get_desktop_file (BamfApplication *application)
 {
   BamfApplicationPrivate *priv;
-  char *result = NULL;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
   priv = application->priv;
 
-  result = g_strdup (priv->desktop_file);
-  return result;
+  return priv->desktop_file;
 }
 
-char *
+const char *
 bamf_application_get_wmclass (BamfApplication *application)
 {
   BamfApplicationPrivate *priv;
-  char *result = NULL;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
   priv = application->priv;
 
-  result = g_strdup (priv->wmclass);
-  return result;
+  return priv->wmclass;
 }
 
 static gboolean
@@ -111,7 +107,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
   GDesktopAppInfo *desktop;
   GKeyFile * keyfile;
   GIcon *gicon;
-  const GList *children, *l;
+  GList *children, *l;
   const char *class;
   char *icon = NULL, *name = NULL;
   GError *error;
@@ -276,7 +272,7 @@ bamf_application_set_wmclass (BamfApplication *application,
 GVariant *
 bamf_application_get_xids (BamfApplication *application)
 {
-  const GList *l;
+  GList *l;
   GVariantBuilder b;
   BamfView *view;
   guint32 xid;
@@ -308,7 +304,7 @@ bamf_application_contains_similar_to_window (BamfApplication *self,
 {
   gboolean result = FALSE;
   const char *class, *owned_class;
-  const GList *children, *l;
+  GList *children, *l;
   BamfView *child;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (self), FALSE);
@@ -340,7 +336,7 @@ gboolean
 bamf_application_manages_xid (BamfApplication *application,
                               guint32 xid)
 {
-  const GList *l;
+  GList *l;
   gboolean result = FALSE;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
@@ -372,7 +368,7 @@ static char *
 bamf_application_get_stable_bus_name (BamfView *view)
 {
   BamfApplication *self;
-  const GList *children, *l;
+  GList *children, *l;
   BamfView *child;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (view), NULL);
@@ -400,7 +396,7 @@ static void
 bamf_application_ensure_flags (BamfApplication *self)
 {
   gboolean urgent = FALSE, visible = FALSE, running = FALSE, active = FALSE;
-  const GList *l;
+  GList *l;
   BamfView *view;
 
   for (l = bamf_view_get_children (BAMF_VIEW (self)); l; l = l->next)

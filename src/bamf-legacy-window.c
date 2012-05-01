@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Canonical Ltd
+ * Copyright (C) 2010-2012 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -21,6 +22,7 @@
 
 #include "bamf-legacy-window.h"
 #include "bamf-legacy-screen.h"
+#include "bamf-xutils.h"
 #include <libgtop-2.0/glibtop.h>
 #include <glibtop/procargs.h>
 #include <glibtop/procuid.h>
@@ -34,6 +36,7 @@ enum
 {
   NAME_CHANGED,
   STATE_CHANGED,
+  GEOMETRY_CHANGED,
   CLOSED,
 
   LAST_SIGNAL,
@@ -45,9 +48,14 @@ struct _BamfLegacyWindowPrivate
 {
   WnckWindow * legacy_window;
   char       * mini_icon_path;
+#ifndef USE_GTK3
+  char       * group_name;
+  char       * instance_name;
+#endif
   gulong       closed_id;
   gulong       name_changed_id;
   gulong       state_changed_id;
+  gulong       geometry_changed_id;
   gboolean     is_closed;
 };
 
@@ -94,7 +102,6 @@ bamf_legacy_window_is_skip_tasklist (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), FALSE);
 
-
   if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->is_skip_tasklist)
     return BAMF_LEGACY_WINDOW_GET_CLASS (self)->is_skip_tasklist (self);
 
@@ -103,7 +110,6 @@ bamf_legacy_window_is_skip_tasklist (BamfLegacyWindow *self)
   return wnck_window_is_skip_tasklist (self->priv->legacy_window);
 }
 
-#ifdef USE_GTK3
 const char *
 bamf_legacy_window_get_class_instance_name (BamfLegacyWindow *self)
 {
@@ -113,17 +119,29 @@ bamf_legacy_window_get_class_instance_name (BamfLegacyWindow *self)
 
   window = self->priv->legacy_window;
 
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_class_instance_name)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_class_instance_name (self);
+
   if (!window)
     return NULL;
 
+#ifdef USE_GTK3
   return wnck_window_get_class_instance_name (window);
-}
+
+#else
+  if (!self->priv->instance_name)
+    {
+      Window xid = wnck_window_get_xid (window);
+      bamf_xutils_get_window_class_hints (xid, &self->priv->instance_name, NULL);
+    }
+
+  return self->priv->instance_name;
 #endif
+}
 
 const char *
 bamf_legacy_window_get_class_name (BamfLegacyWindow *self)
 {
-  WnckClassGroup *group;
   WnckWindow *window;
 
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
@@ -136,12 +154,18 @@ bamf_legacy_window_get_class_name (BamfLegacyWindow *self)
   if (!window)
     return NULL;
 
-  group = wnck_window_get_class_group (window);
+#ifdef USE_GTK3
+  return wnck_window_get_class_group_name (window);
 
-  if (!group)
-    return NULL;
+#else
+  if (!self->priv->group_name)
+    {
+      Window xid = wnck_window_get_xid (window);
+      bamf_xutils_get_window_class_hints (xid, NULL, &self->priv->group_name);
+    }
 
-  return wnck_class_group_get_res_class (group);
+  return self->priv->group_name;
+#endif
 }
 
 const char *
@@ -184,7 +208,7 @@ bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
     {
       g_string_append (exec, argv[i]);
       if (argv[i + 1] != NULL)
-	g_string_append (exec, " ");
+        g_string_append (exec, " ");
       g_free (argv[i]);
       i++;
     }
@@ -238,7 +262,6 @@ bamf_legacy_window_get_pid (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), 0);
 
-
   if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_pid)
     return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_pid (self);
 
@@ -252,7 +275,6 @@ bamf_legacy_window_get_xid (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), 0);
 
-
   if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_xid)
     return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_xid (self);
 
@@ -262,7 +284,7 @@ bamf_legacy_window_get_xid (BamfLegacyWindow *self)
   return (guint32) wnck_window_get_xid (self->priv->legacy_window);
 }
 
-BamfLegacyWindow * 
+BamfLegacyWindow *
 bamf_legacy_window_get_transient (BamfLegacyWindow *self)
 {
   BamfLegacyScreen *screen;
@@ -294,6 +316,19 @@ bamf_legacy_window_get_transient (BamfLegacyWindow *self)
   return NULL;
 }
 
+gint
+bamf_legacy_window_get_stacking_position (BamfLegacyWindow *self)
+{
+  BamfLegacyScreen *screen;
+  
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), -1);
+
+  screen = bamf_legacy_screen_get_default ();
+  g_return_val_if_fail (BAMF_IS_LEGACY_SCREEN (screen), -1);
+  
+  return g_list_index (bamf_legacy_screen_get_windows (screen), self);
+}
+
 static void
 handle_name_changed (WnckWindow *window, BamfLegacyWindow *self)
 {
@@ -313,12 +348,90 @@ handle_state_changed (WnckWindow *window,
   g_signal_emit (self, legacy_window_signals[STATE_CHANGED], 0);
 }
 
+static void
+handle_geometry_changed (WnckWindow *window, BamfLegacyWindow *self)
+{
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
+
+  g_signal_emit (self, legacy_window_signals[GEOMETRY_CHANGED], 0);
+}
+
 gboolean 
 bamf_legacy_window_is_closed (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), TRUE);
   
   return self->priv->is_closed;
+}
+
+void
+bamf_legacy_window_get_geometry (BamfLegacyWindow *self, gint *x, gint *y,
+                                 gint *width, gint *height)
+{
+  if (x) *x = 0;
+  if (y) *y = 0;
+  if (width) *width = 0;
+  if (height) *height = 0;
+
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_app_id)
+    BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_app_id (self);
+
+  if (!self->priv->legacy_window)
+    return;
+
+  wnck_window_get_geometry (self->priv->legacy_window, x, y, width, height);
+}
+
+BamfWindowMaximizationType
+bamf_legacy_window_maximized (BamfLegacyWindow *self)
+{
+  WnckWindowState window_state;
+  BamfWindowMaximizationType maximization_type;
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), BAMF_WINDOW_FLOATING);
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->maximized)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->maximized (self);
+
+  if (!self->priv->legacy_window)
+    return BAMF_WINDOW_FLOATING;
+
+  window_state = wnck_window_get_state (self->priv->legacy_window);
+
+  gboolean vertical = (window_state & WNCK_WINDOW_STATE_MAXIMIZED_VERTICALLY);
+  gboolean horizontal = (window_state & WNCK_WINDOW_STATE_MAXIMIZED_HORIZONTALLY);
+
+  if (vertical && horizontal)
+    {
+      maximization_type = BAMF_WINDOW_MAXIMIZED;
+    }
+  else if (horizontal)
+    {
+      maximization_type = BAMF_WINDOW_HORIZONTAL_MAXIMIZED;
+    }
+  else if (vertical)
+    {
+      maximization_type = BAMF_WINDOW_VERTICAL_MAXIMIZED;
+    }
+  else
+    {
+      maximization_type = BAMF_WINDOW_FLOATING;
+    }
+
+  return maximization_type;
+}
+
+char *
+bamf_legacy_window_get_utf8_xprop (BamfLegacyWindow *self, const char* prop)
+{
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
+
+  if (!self->priv->legacy_window)
+    return NULL;
+
+  guint xid = bamf_legacy_window_get_xid (self);
+  return bamf_xutils_get_window_hint (xid, prop, XInternAtom(gdk_x11_get_default_xdisplay (), "UTF8_STRING", False));
 }
 
 static void
@@ -386,6 +499,20 @@ bamf_legacy_window_dispose (GObject *object)
       self->priv->mini_icon_path = NULL;
     }
 
+#ifndef USE_GTK3
+  if (self->priv->group_name)
+    {
+      g_free (self->priv->group_name);
+      self->priv->group_name = NULL;
+    }
+
+  if (self->priv->instance_name)
+    {
+      g_free (self->priv->instance_name);
+      self->priv->instance_name = NULL;
+    }
+#endif
+
   if (self->priv->legacy_window)
     {
       g_signal_handler_disconnect (self->priv->legacy_window,
@@ -393,6 +520,9 @@ bamf_legacy_window_dispose (GObject *object)
 
       g_signal_handler_disconnect (self->priv->legacy_window,
                                    self->priv->state_changed_id);
+
+      g_signal_handler_disconnect (self->priv->legacy_window,
+                                   self->priv->geometry_changed_id);
     }
 
   G_OBJECT_CLASS (bamf_legacy_window_parent_class)->dispose (object);
@@ -422,33 +552,40 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
   g_type_class_add_private (klass, sizeof (BamfLegacyWindowPrivate));
 
   legacy_window_signals [NAME_CHANGED] =
-  	g_signal_new ("name-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfLegacyWindowClass, name_changed),
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__VOID,
-  	              G_TYPE_NONE, 0);
+    g_signal_new (BAMF_LEGACY_WINDOW_SIGNAL_NAME_CHANGED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfLegacyWindowClass, name_changed),
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
 
   legacy_window_signals [STATE_CHANGED] =
-  	g_signal_new ("state-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfLegacyWindowClass, state_changed),
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__VOID,
-  	              G_TYPE_NONE, 0);
+    g_signal_new (BAMF_LEGACY_WINDOW_SIGNAL_STATE_CHANGED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfLegacyWindowClass, state_changed),
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
+
+  legacy_window_signals [GEOMETRY_CHANGED] =
+    g_signal_new (BAMF_LEGACY_WINDOW_SIGNAL_GEOMETRY_CHANGED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfLegacyWindowClass, geometry_changed),
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
 
   legacy_window_signals [CLOSED] =
-  	g_signal_new ("closed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfLegacyWindowClass, closed),
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__VOID,
-  	              G_TYPE_NONE, 0);
-
-
+    g_signal_new (BAMF_LEGACY_WINDOW_SIGNAL_CLOSED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfLegacyWindowClass, closed),
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
 }
 
 BamfLegacyWindow *
@@ -460,10 +597,13 @@ bamf_legacy_window_new (WnckWindow *legacy_window)
   self->priv->legacy_window = legacy_window;
 
   self->priv->name_changed_id = g_signal_connect (G_OBJECT (legacy_window), "name-changed",
-    		                       (GCallback) handle_name_changed, self);
+                                                  (GCallback) handle_name_changed, self);
 
   self->priv->state_changed_id = g_signal_connect (G_OBJECT (legacy_window), "state-changed",
-                                       (GCallback) handle_state_changed, self);
+                                                   (GCallback) handle_state_changed, self);
+
+  self->priv->geometry_changed_id = g_signal_connect (G_OBJECT (legacy_window), "geometry-changed",
+                                                      (GCallback) handle_geometry_changed, self);
 
   return self;
 }

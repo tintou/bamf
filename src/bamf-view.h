@@ -42,9 +42,10 @@ struct _BamfViewClass
   GList *names;
 
   /*< methods >*/
-  const char *   (*view_type)                 (BamfView *view);
-  char *         (*stable_bus_name)           (BamfView *view);
-  char *         (*get_icon)                  (BamfView *view);
+  const char * (*view_type)                 (BamfView *view);
+  char *       (*stable_bus_name)           (BamfView *view);
+  const char * (*get_name)                  (BamfView *view);
+  const char * (*get_icon)                  (BamfView *view);
 
   /*< random stuff >*/
   gboolean (* urgent_changed)       (BamfView *view, gboolean urgent);
@@ -74,11 +75,11 @@ void          bamf_view_close              (BamfView *view);
 
 GVariant    * bamf_view_get_children_paths (BamfView *view);
 
-const GList * bamf_view_get_children       (BamfView *view);
+GList       * bamf_view_get_children       (BamfView *view);
 
 GVariant    * bamf_view_get_parent_paths   (BamfView *view);
 
-const GList * bamf_view_get_parents        (BamfView *view);
+GList       * bamf_view_get_parents        (BamfView *view);
 
 const char  * bamf_view_get_path           (BamfView *view);
 
@@ -97,12 +98,12 @@ void          bamf_view_set_user_visible   (BamfView *view, gboolean user_visibl
 gboolean      bamf_view_is_urgent          (BamfView *view);
 void          bamf_view_set_urgent         (BamfView *view, gboolean urgent);
 
-char        * bamf_view_get_icon           (BamfView *view);
+const char  * bamf_view_get_icon           (BamfView *view);
 
-char        * bamf_view_get_name           (BamfView *view);
+const char  * bamf_view_get_name           (BamfView *view);
 void          bamf_view_set_name           (BamfView *view, const char * name);
 
-char        * bamf_view_get_parent_path    (BamfView *view);
+const char  * bamf_view_get_parent_path    (BamfView *view);
 
 BamfView    * bamf_view_get_parent         (BamfView *view);
 void          bamf_view_set_parent         (BamfView *view, BamfView *parent);

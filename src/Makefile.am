@@ -46,6 +46,7 @@ bamfdaemon_sources = \
 		bamf-tab-source.c \
 		bamf-indicator-source.c \
 		bamf-indicator.c \
+		bamf-xutils.c \
 		$(NULL)
 
 bamfdaemon_headers = \
@@ -64,6 +65,7 @@ bamfdaemon_headers = \
 		bamf-tab-source.h \
 		bamf-indicator-source.h \
 		bamf-indicator.h \
+		bamf-xutils.h \
 		$(NULL)
 
 bamfdaemon_SOURCES = \
@@ -93,6 +95,7 @@ bamfdaemon_CFLAGS = \
 		-Wall -std=c99 \
 		-DDATADIR=\""$(datadir)"\" \
 		-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
+		-I$(top_srcdir)/src \
 		$(GLIB_CFLAGS) \
 		$(GTK_CFLAGS) \
 		$(WNCK_CFLAGS) \
