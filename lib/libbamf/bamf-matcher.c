@@ -222,7 +222,7 @@ static void
 bamf_matcher_init (BamfMatcher *self)
 {
   BamfMatcherPrivate *priv;
-  GError           *error = NULL;
+  GError *error = NULL;
 
   priv = self->priv = BAMF_MATCHER_GET_PRIVATE (self);
 
@@ -512,7 +512,7 @@ bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
     {
       g_warning ("Failed to fetch paths: %s", error->message);
       g_error_free (error);
-      
+
       return NULL;
     }
 
@@ -528,7 +528,7 @@ bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
       if (BAMF_IS_WINDOW (view))
         result = g_list_prepend (result, view);
     }
-  
+
   g_strfreev (array);
   return result;
 }

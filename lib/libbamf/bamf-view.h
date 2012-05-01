@@ -50,13 +50,13 @@ G_BEGIN_DECLS
         BAMF_TYPE_VIEW, BamfViewClass))
 
 #define BAMF_VIEW_SIGNAL_ACTIVE_CHANGED       "active-changed"
-#define BAMF_VIEW_SIGNAL_CLOSED               "closed"
-#define BAMF_VIEW_SIGNAL_CHILD_ADDED          "child-added"
-#define BAMF_VIEW_SIGNAL_CHILD_REMOVED        "child-removed"
 #define BAMF_VIEW_SIGNAL_RUNNING_CHANGED      "running-changed"
 #define BAMF_VIEW_SIGNAL_URGENT_CHANGED       "urgent-changed"
 #define BAMF_VIEW_SIGNAL_USER_VISIBLE_CHANGED "user-visible-changed"
 #define BAMF_VIEW_SIGNAL_NAME_CHANGED         "name-changed"
+#define BAMF_VIEW_SIGNAL_CHILD_ADDED          "child-added"
+#define BAMF_VIEW_SIGNAL_CHILD_REMOVED        "child-removed"
+#define BAMF_VIEW_SIGNAL_CLOSED               "closed"
 
 typedef enum
 {
