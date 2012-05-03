@@ -51,6 +51,9 @@ G_BEGIN_DECLS
 #define BAMF_WINDOW_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj),\
         BAMF_TYPE_WINDOW, BamfWindowClass))
 
+#define BAMF_WINDOW_SIGNAL_MONITOR_CHANGED   "monitor-changed"
+#define BAMF_WINDOW_SIGNAL_MAXIMIZED_CHANGED "maximized-changed"
+
 typedef struct _BamfWindow        BamfWindow;
 typedef struct _BamfWindowClass   BamfWindowClass;
 typedef struct _BamfWindowPrivate BamfWindowPrivate;
@@ -71,7 +74,8 @@ typedef enum
   BAMF_WINDOW_TOOLBAR,      /* tearoff toolbar */
   BAMF_WINDOW_MENU,         /* tearoff menu */
   BAMF_WINDOW_UTILITY,      /* palette/toolbox window */
-  BAMF_WINDOW_SPLASHSCREEN  /* splash screen */
+  BAMF_WINDOW_SPLASHSCREEN, /* splash screen */
+  BAMF_WINDOW_UNKNOWN
 } BamfWindowType;
 
 typedef enum
