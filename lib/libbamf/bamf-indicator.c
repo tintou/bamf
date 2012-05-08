@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Canonical Ltd.
+ * Copyright 2010-2012 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -38,9 +38,8 @@
 #include "bamf-view-private.h"
 #include "bamf-indicator.h"
 #include "bamf-factory.h"
-#include <dbus/dbus.h>
-#include <dbus/dbus-glib.h>
-#include <dbus/dbus-glib-lowlevel.h>
+// Move to a general place!
+#include <libbamf-private/bamf-private.h>
 
 G_DEFINE_TYPE (BamfIndicator, bamf_indicator, BAMF_TYPE_VIEW);
 
@@ -49,55 +48,66 @@ G_DEFINE_TYPE (BamfIndicator, bamf_indicator, BAMF_TYPE_VIEW);
 
 struct _BamfIndicatorPrivate
 {
-  DBusGConnection *connection;
-  DBusGProxy      *proxy;
-  gchar *path;
-  gchar *dbus_menu;
-  gchar *address;
+  BamfDBusItemIndicator *proxy;
+  gchar                 *path;
+  gchar                 *dbus_menu;
+  gchar                 *address;
 };
 
 const gchar * 
 bamf_indicator_get_dbus_menu_path (BamfIndicator *self)
 {
   BamfIndicatorPrivate *priv;
-  gchar *path = NULL;
-  DBusGProxy *proxy;
-  GValue value = {0};
+  GDBusProxy *gproxy;
+  GVariant *value;
   GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_INDICATOR (self), NULL);
   priv = self->priv;
-  
+
   if (priv->dbus_menu)
     return priv->dbus_menu;
-  
+
   if (!bamf_view_remote_ready (BAMF_VIEW (self)))
     return NULL;
-  
-  proxy = dbus_g_proxy_new_for_name (priv->connection,
-                                     bamf_indicator_get_remote_address (self),
-                                     bamf_indicator_get_remote_path (self),
-                                     "org.freedesktop.DBus.Properties");
-  
-  if (!dbus_g_proxy_call (proxy,
-                          "Get",
-                          &error,
-                          G_TYPE_STRING, "org.kde.StatusNotifierItem",
-                          G_TYPE_STRING, "Menu",
-                          G_TYPE_INVALID,
-                          G_TYPE_VALUE, &value,
-                          G_TYPE_INVALID))
+
+  gproxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                          G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES|
+                                          G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS|
+                                          G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                                          NULL,
+                                          "org.freedesktop.DBus.Properties",
+                                          bamf_indicator_get_remote_path (self),
+                                          bamf_indicator_get_remote_address (self),
+                                          NULL, &error);
+
+  if (!gproxy || error)
+    {
+      g_warning ("Failed to connect to proxy: %s", error ? error->message : "");
+      g_error_free (error);
+
+      return NULL;
+    }
+
+  value = g_dbus_proxy_call_sync (gproxy, "Get",
+                                  g_variant_new ("(ss)", "org.kde.StatusNotifierItem", "Menu"),
+                                  G_DBUS_CALL_FLAGS_NONE,
+                                  -1,
+                                  NULL,
+                                  &error);
+
+  if (error)
     {
       g_warning ("Failed to fetch remote path: %s", error->message);
       g_error_free (error);
-      
+
       return NULL;
     }
-  
-  path = g_value_get_boxed (&value);
-  priv->dbus_menu = path;
 
-  g_object_unref (proxy);
+  priv->dbus_menu = g_variant_dup_string (value, NULL);
+
+  g_variant_unref (value);
+  g_object_unref (gproxy);
   return priv->dbus_menu;
 }
 
@@ -117,16 +127,11 @@ bamf_indicator_get_remote_path (BamfIndicator *self)
   if (!bamf_view_remote_ready (BAMF_VIEW (self)))
     return NULL;
   
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "Path",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &path,
-                          G_TYPE_INVALID))
+  if (!bamf_dbus_item_indicator_call_path_sync (priv->proxy, &path, NULL, &error))
     {
-      g_warning ("Failed to fetch remote path: %s", error->message);
+      g_warning ("Failed to fetch remote path: %s", error ? error->message : "");
       g_error_free (error);
-      
+
       return NULL;
     }
 
@@ -151,16 +156,11 @@ bamf_indicator_get_remote_address (BamfIndicator *self)
   if (!bamf_view_remote_ready (BAMF_VIEW (self)))
     return NULL;
   
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "Address",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &address,
-                          G_TYPE_INVALID))
+  if (!bamf_dbus_item_indicator_call_address_sync (priv->proxy, &address, NULL, &error))
     {
-      g_warning ("Failed to fetch remote path: %s", error->message);
+      g_warning ("Failed to fetch remote path: %s", error ? error->message : "");
       g_error_free (error);
-      
+
       return NULL;
     }
 
@@ -174,7 +174,7 @@ bamf_indicator_dispose (GObject *object)
 {
   BamfIndicator *self;
   BamfIndicatorPrivate *priv;
-  
+
   self = BAMF_INDICATOR (object);
   priv = self->priv;
 
@@ -183,25 +183,25 @@ bamf_indicator_dispose (GObject *object)
       g_object_unref (priv->proxy);
       priv->proxy = NULL;
     }
-  
+
   if (priv->path)
     {
       g_free (priv->path);
       priv->path = NULL;
     }
-  
+
   if (priv->dbus_menu)
     {
       g_free (priv->dbus_menu);
       priv->dbus_menu = NULL;
     }
-  
+
   if (priv->address)
     {
       g_free (priv->address);
       priv->address = NULL;
     }
-  
+
   if (G_OBJECT_CLASS (bamf_indicator_parent_class)->dispose)
     G_OBJECT_CLASS (bamf_indicator_parent_class)->dispose (object);
 }
@@ -211,17 +211,19 @@ bamf_indicator_set_path (BamfView *view, const char *path)
 {
   BamfIndicator *self;
   BamfIndicatorPrivate *priv;
-  
+  GError *error = NULL;
+
   self = BAMF_INDICATOR (view);
   priv = self->priv;
 
-  priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
-                                           "org.ayatana.bamf",
-                                           path,
-                                           "org.ayatana.bamf.indicator");
+  priv->proxy = bamf_dbus_item_indicator_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                                                 G_DBUS_PROXY_FLAGS_NONE,
+                                                                 "org.ayatana.bamf",
+                                                                 path, NULL, &error);
   if (priv->proxy == NULL)
     {
-      g_error ("Unable to get org.ayatana.bamf.indicator indicator");
+      g_error ("Unable to get org.ayatana.bamf.indicator indicator: %s", error ? error->message : "");
+      g_error_free (error);
     }
 }
 
@@ -233,28 +235,14 @@ bamf_indicator_class_init (BamfIndicatorClass *klass)
 
   g_type_class_add_private (obj_class, sizeof (BamfIndicatorPrivate));
   
-  obj_class->dispose     = bamf_indicator_dispose;
-  view_class->set_path   = bamf_indicator_set_path;
+  obj_class->dispose = bamf_indicator_dispose;
+  view_class->set_path = bamf_indicator_set_path;
 }
-
 
 static void
 bamf_indicator_init (BamfIndicator *self)
 {
-  BamfIndicatorPrivate *priv;
-  GError           *error = NULL;
-
-  priv = self->priv = BAMF_INDICATOR_GET_PRIVATE (self);
-
-  priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-  if (priv->connection == NULL)
-    {
-      g_critical ("Failed to open connection to bus: %s",
-               error != NULL ? error->message : "Unknown");
-      if (error)
-        g_error_free (error);
-      return;
-    }
+  self->priv = BAMF_INDICATOR_GET_PRIVATE (self);
 }
 
 BamfIndicator *
