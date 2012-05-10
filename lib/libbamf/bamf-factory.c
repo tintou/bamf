@@ -41,6 +41,7 @@
 #include "bamf-application.h"
 #include "bamf-application-private.h"
 #include "bamf-indicator.h"
+#include "bamf-tab.h"
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
@@ -247,8 +248,12 @@ bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
     case BAMF_FACTORY_INDICATOR:
       view = BAMF_VIEW (bamf_indicator_new (path));
       break;
+    case BAMF_FACTORY_TAB:
+      view = BAMF_VIEW (bamf_tab_new (path));
+      break;
     case BAMF_FACTORY_NONE:
       view = NULL;
+      break;
   }
 
   created = TRUE;
