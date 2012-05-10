@@ -246,7 +246,7 @@ on_view_closed (BamfView *view, BamfMatcher *self)
   bamf_matcher_unregister_view (self, view);
 }
 
-static void
+void
 bamf_matcher_register_view_stealing_ref (BamfMatcher *self, BamfView *view)
 {
   const char *path, *type;
@@ -2119,7 +2119,8 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
     }
 
   /* we have a window who is ready to be matched */
-  handle_raw_window (self, window);
+  if (bamf_legacy_window_get_window_type (window) != BAMF_WINDOW_DOCK)
+    handle_raw_window (self, window);
 }
 
 static void
