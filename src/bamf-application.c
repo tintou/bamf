@@ -120,17 +120,20 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
   if (self->priv->desktop_file)
     {
       keyfile = g_key_file_new();
-      if (!g_key_file_load_from_file(keyfile, self->priv->desktop_file, G_KEY_FILE_NONE, NULL)) {
+
+      if (!g_key_file_load_from_file(keyfile, self->priv->desktop_file, G_KEY_FILE_NONE, NULL))
+        {
           g_key_file_free(keyfile);
-        return;
-      }
+          return;
+        }
 
       desktop = g_desktop_app_info_new_from_keyfile (keyfile);
 
-      if (!G_IS_APP_INFO (desktop)) {
-        g_key_file_free(keyfile);
-        return;
-      }
+      if (!G_IS_APP_INFO (desktop))
+        {
+          g_key_file_free(keyfile);
+          return;
+        }
 
       gicon = g_app_info_get_icon (G_APP_INFO (desktop));
 
@@ -139,14 +142,15 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
       if (gicon)
         icon = g_icon_to_string (gicon);
 
-      if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, STUB_KEY, NULL)) {
-        /* This will error to return false, which is okay as it seems
-           unlikely anyone will want to set this flag except to turn
-           off the stub menus. */
-        self->priv->show_stubs = g_key_file_get_boolean (keyfile,
-                                                         G_KEY_FILE_DESKTOP_GROUP,
-                                                         STUB_KEY, NULL);
-      }
+      if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, STUB_KEY, NULL))
+        {
+          /* This will error to return false, which is okay as it seems
+             unlikely anyone will want to set this flag except to turn
+             off the stub menus. */
+          self->priv->show_stubs = g_key_file_get_boolean (keyfile,
+                                                           G_KEY_FILE_DESKTOP_GROUP,
+                                                           STUB_KEY, NULL);
+        }
       
       if (g_key_file_has_key (keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL))
         {
