@@ -249,6 +249,8 @@ bamf_application_on_window_added (DBusGProxy *proxy, char *path, BamfApplication
   BamfView *view;
   BamfFactory *factory;
 
+  g_return_if_fail (BAMF_IS_APPLICATION (self));
+
   factory = bamf_factory_get_default ();
   view = bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_WINDOW);
 
@@ -270,6 +272,8 @@ bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplicati
 {
   BamfView *view;
   BamfFactory *factory;
+
+  g_return_if_fail (BAMF_IS_APPLICATION (self));
 
   factory = bamf_factory_get_default ();
   view = bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_WINDOW);
@@ -312,6 +316,12 @@ bamf_application_dispose (GObject *object)
       priv->desktop_file = NULL;
     }
 
+  if (priv->cached_xids)
+    {
+      g_list_free (priv->cached_xids);
+      priv->cached_xids = NULL;
+    }
+
   if (priv->proxy)
     {
       dbus_g_proxy_disconnect_signal (priv->proxy,
@@ -326,12 +336,6 @@ bamf_application_dispose (GObject *object)
 
       g_object_unref (priv->proxy);
       priv->proxy = NULL;
-    }
-
-  if (priv->cached_xids)
-    {
-      g_list_free (priv->cached_xids);
-      priv->cached_xids = NULL;
     }
 
   if (G_OBJECT_CLASS (bamf_application_parent_class)->dispose)
