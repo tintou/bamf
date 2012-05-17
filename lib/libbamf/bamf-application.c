@@ -296,6 +296,31 @@ bamf_application_get_cached_xids (BamfApplication *self)
 }
 
 static void
+bamf_application_unset_proxy (BamfApplication* self)
+{
+  BamfApplicationPrivate *priv;
+
+  g_return_if_fail (BAMF_IS_APPLICATION (self));
+  priv = self->priv;
+
+  if (!priv->proxy)
+    return;
+
+  dbus_g_proxy_disconnect_signal (priv->proxy,
+                                 "WindowAdded",
+                                 (GCallback) bamf_application_on_window_added,
+                                 self);
+
+  dbus_g_proxy_disconnect_signal (priv->proxy,
+                                 "WindowRemoved",
+                                 (GCallback) bamf_application_on_window_removed,
+                                 self);
+
+  g_object_unref (priv->proxy);
+  priv->proxy = NULL;
+}
+
+static void
 bamf_application_dispose (GObject *object)
 {
   BamfApplication *self;
@@ -322,21 +347,7 @@ bamf_application_dispose (GObject *object)
       priv->cached_xids = NULL;
     }
 
-  if (priv->proxy)
-    {
-      dbus_g_proxy_disconnect_signal (priv->proxy,
-                                     "WindowAdded",
-                                     (GCallback) bamf_application_on_window_added,
-                                     self);
-
-      dbus_g_proxy_disconnect_signal (priv->proxy,
-                                     "WindowRemoved",
-                                     (GCallback) bamf_application_on_window_removed,
-                                     self);
-
-      g_object_unref (priv->proxy);
-      priv->proxy = NULL;
-    }
+  bamf_application_unset_proxy (self);
 
   if (G_OBJECT_CLASS (bamf_application_parent_class)->dispose)
     G_OBJECT_CLASS (bamf_application_parent_class)->dispose (object);
@@ -351,6 +362,7 @@ bamf_application_set_path (BamfView *view, const char *path)
   self = BAMF_APPLICATION (view);
   priv = self->priv;
 
+  bamf_application_unset_proxy (self);
   priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
                                            "org.ayatana.bamf",
                                            path,
