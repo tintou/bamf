@@ -228,6 +228,31 @@ bamf_window_on_maximized_changed (DBusGProxy *proxy, gint old, gint new, BamfWin
 }
 
 static void
+bamf_window_unset_proxy (BamfWindow *self)
+{
+  BamfWindowPrivate *priv;
+
+  g_return_if_fail (BAMF_IS_WINDOW (self));
+  priv = self->priv;
+
+  if (!priv->proxy)
+    return;
+
+  dbus_g_proxy_disconnect_signal (self->priv->proxy,
+                                  "MaximizedChanged",
+                                  (GCallback) bamf_window_on_maximized_changed,
+                                  self);
+
+  dbus_g_proxy_disconnect_signal (self->priv->proxy,
+                                  "MonitorChanged",
+                                  (GCallback) bamf_window_on_monitor_changed,
+                                  self);
+
+  g_object_unref (priv->proxy);
+  priv->proxy = NULL;
+}
+
+static void
 bamf_window_set_path (BamfView *view, const char *path)
 {
   BamfWindow *self;
@@ -236,6 +261,7 @@ bamf_window_set_path (BamfView *view, const char *path)
   self = BAMF_WINDOW (view);
   priv = self->priv;
 
+  bamf_window_unset_proxy (self);
   priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
                                            "org.ayatana.bamf",
                                            path,
@@ -380,26 +406,9 @@ static void
 bamf_window_dispose (GObject *object)
 {
   BamfWindow *self;
-  BamfWindowPrivate *priv;
   
   self = BAMF_WINDOW (object);
-  priv = self->priv;
-  
-  if (priv->proxy)
-    {
-      dbus_g_proxy_disconnect_signal (priv->proxy,
-                                      "MaximizedChanged",
-                                      (GCallback) bamf_window_on_maximized_changed,
-                                      self);
-
-      dbus_g_proxy_disconnect_signal (priv->proxy,
-                                      "MonitorChanged",
-                                      (GCallback) bamf_window_on_monitor_changed,
-                                      self);
-
-      g_object_unref (priv->proxy);
-      priv->proxy = NULL;
-    }
+  bamf_window_unset_proxy (self);
 
   if (G_OBJECT_CLASS (bamf_window_parent_class)->dispose)
     G_OBJECT_CLASS (bamf_window_parent_class)->dispose (object);
@@ -467,7 +476,7 @@ bamf_window_new (const char * path)
 {
   BamfWindow *self;
   self = g_object_new (BAMF_TYPE_WINDOW, NULL);
-  
+
   bamf_view_set_path (BAMF_VIEW (self), path);
 
   return self;
