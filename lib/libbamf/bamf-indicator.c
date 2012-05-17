@@ -214,6 +214,11 @@ bamf_indicator_set_path (BamfView *view, const char *path)
   self = BAMF_INDICATOR (view);
   priv = self->priv;
 
+  if (priv->proxy)
+    {
+      g_object_unref (priv->proxy);
+    }
+
   priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
                                            "org.ayatana.bamf",
                                            path,
