@@ -659,9 +659,11 @@ pid_parent_tree (BamfMatcher *self, gint pid)
 }
 
 static gboolean
-exec_string_should_be_processed (BamfMatcher *self,
-                                 char *exec)
+exec_string_should_be_processed (const char *exec)
 {
+  if (!exec)
+    return TRUE;
+
   return !g_str_has_prefix (exec, "ooffice") && !g_str_has_prefix (exec, "libreoffice");
 }
 
@@ -829,7 +831,7 @@ load_desktop_file_to_table (BamfMatcher * self,
       return;
     }
 
-  if (exec_string_should_be_processed (self, exec))
+  if (exec_string_should_be_processed (exec))
     {
       /**
        * Set of nasty hacks which should be removed some day. We wish to keep the full exec
@@ -939,7 +941,7 @@ load_index_file_to_table (BamfMatcher * self,
       gchar **parts = g_strsplit (line, "\t", 3);
       exec = parts[1];
 
-      if (exec_string_should_be_processed (self, exec))
+      if (exec_string_should_be_processed (exec))
         {
           char *tmp = trim_exec_string (self, exec);
           g_free (parts[1]);
@@ -1377,6 +1379,9 @@ is_open_office_window (BamfMatcher * self, BamfLegacyWindow * window)
 {
   const char *class_name = bamf_legacy_window_get_class_name (window);
 
+  if (!class_name)
+    return FALSE;
+
   return (g_str_has_prefix (class_name, "LibreOffice") ||
           g_str_has_prefix (class_name, "libreoffice") ||
           g_str_has_prefix (class_name, "OpenOffice") ||
@@ -1543,17 +1548,20 @@ is_web_app_window (BamfMatcher *self, BamfLegacyWindow *window)
 
   gboolean valid_app = FALSE;
 
-  if (g_strcmp0 (window_class, "Google-chrome") == 0 &&
-      g_strcmp0 (instance_name, "google-chrome") != 0 &&
-      !g_str_has_prefix (instance_name, "Google-chrome"))
+  if (instance_name && window_class)
     {
-      valid_app = TRUE;
-    }
-  else if (g_strcmp0 (window_class, "Chromium-browser") == 0 &&
-           g_strcmp0 (instance_name, "chromium-browser") != 0 &&
-           !g_str_has_prefix (instance_name, "Chromium-browser"))
-    {
-      valid_app = TRUE;
+      if (g_strcmp0 (window_class, "Google-chrome") == 0 &&
+          g_strcmp0 (instance_name, "google-chrome") != 0 &&
+          !g_str_has_prefix (instance_name, "Google-chrome"))
+        {
+          valid_app = TRUE;
+        }
+      else if (g_strcmp0 (window_class, "Chromium-browser") == 0 &&
+               g_strcmp0 (instance_name, "chromium-browser") != 0 &&
+               !g_str_has_prefix (instance_name, "Chromium-browser"))
+        {
+          valid_app = TRUE;
+        }
     }
 
   return valid_app;
@@ -1620,40 +1628,24 @@ bamf_matcher_has_instance_class_desktop_file (BamfMatcher *self, const gchar *cl
 
 static GList *
 bamf_matcher_possible_applications_for_window (BamfMatcher *self,
-                                               BamfWindow *bamf_window)
+                                               BamfWindow *bamf_window,
+                                               const char *target_class,
+                                               gboolean filter_by_wmclass)
 {
   BamfMatcherPrivate *priv;
   BamfLegacyWindow *window;
   GList *desktop_files = NULL, *l;
   char *desktop_file = NULL;
   const char *desktop_class = NULL;
+  const char *class_name = NULL;
 
   g_return_val_if_fail (BAMF_IS_WINDOW (bamf_window), NULL);
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
 
   priv = self->priv;
   window = bamf_window_get_window (bamf_window);
-
   desktop_file = get_window_hint (window, _NET_WM_DESKTOP_FILE);
-
-  const char *class_name = bamf_legacy_window_get_class_name (window);
-  const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
-
-  const char *target_class = instance_name;
-  gboolean filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
-
-  if (!filter_by_wmclass)
-  {
-    if (is_web_app_window (self, window))
-      {
-        filter_by_wmclass = TRUE;
-      }
-    else
-      {
-        target_class = class_name;
-        filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
-      }
-  }
+  class_name = bamf_legacy_window_get_class_name (window);
 
   if (desktop_file)
     {
@@ -1777,6 +1769,8 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
 {
   GList *possible_apps, *l;
   BamfLegacyWindow *window;
+  const gchar *win_instance;
+  const gchar *win_class_name;
   const gchar *app_class;
   const gchar *app_desktop = NULL;
   BamfApplication *app = NULL, *best = NULL;
@@ -1785,12 +1779,28 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
   g_return_if_fail (BAMF_IS_WINDOW (bamf_window));
 
   window = bamf_window_get_window (bamf_window);
+  win_instance = bamf_legacy_window_get_class_instance_name (window);
+  win_class_name = bamf_legacy_window_get_class_name (window);
 
-  possible_apps = bamf_matcher_possible_applications_for_window (self, bamf_window);
-  const char *win_instance = bamf_legacy_window_get_class_instance_name (window);
-  const char *win_class_name = bamf_legacy_window_get_class_name (window);
+  const char *target_class = win_instance;
+  gboolean known_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
 
-  app_class = win_instance;
+  if (!known_wmclass)
+  {
+    if (is_web_app_window (self, window))
+      {
+        // This ensures that a new application is created even for unknown webapps
+        known_wmclass = TRUE;
+      }
+    else
+      {
+        target_class = win_class_name;
+        known_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
+      }
+  }
+
+  possible_apps = bamf_matcher_possible_applications_for_window (self, bamf_window, target_class, known_wmclass);
+  app_class = target_class;
 
   /* Loop over every possible desktop file that could match the window, and try
    * to reuse an already-opened window that uses it.
@@ -1809,7 +1819,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
               const gchar *app_desktop_class;
               app_desktop_class = bamf_application_get_wmclass (app);
 
-              if (win_instance && app_desktop_class && strcasecmp (win_instance, app_desktop_class) == 0)
+              if (target_class && app_desktop_class && strcasecmp (target_class, app_desktop_class) == 0)
                 {
                   best = app;
                   break;
@@ -1877,7 +1887,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
 
           if (bamf_application_contains_similar_to_window (app, bamf_window))
             {
-              if (win_instance && g_strcmp0 (win_instance, app_desktop_class) == 0)
+              if (target_class && g_strcmp0 (target_class, app_desktop_class) == 0)
                 {
                   best = app;
                   break;
