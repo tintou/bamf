@@ -1544,12 +1544,14 @@ is_web_app_window (BamfMatcher *self, BamfLegacyWindow *window)
   gboolean valid_app = FALSE;
 
   if (g_strcmp0 (window_class, "Google-chrome") == 0 &&
-      g_strcmp0 (instance_name, "google-chrome") != 0)
+      g_strcmp0 (instance_name, "google-chrome") != 0 &&
+      !g_str_has_prefix (instance_name, "Google-chrome"))
     {
       valid_app = TRUE;
     }
   else if (g_strcmp0 (window_class, "Chromium-browser") == 0 &&
-           g_strcmp0 (instance_name, "chromium-browser") != 0)
+           g_strcmp0 (instance_name, "chromium-browser") != 0 &&
+           !g_str_has_prefix (instance_name, "Chromium-browser"))
     {
       valid_app = TRUE;
     }
@@ -1637,6 +1639,11 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
   const char *class_name = bamf_legacy_window_get_class_name (window);
   const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
   gboolean known_desktop_class = bamf_matcher_has_instance_class_desktop_file (self, instance_name);
+
+  if (!known_desktop_class)
+  {
+    known_desktop_class = is_web_app_window (self, window);
+  }
 
   if (desktop_file)
     {
