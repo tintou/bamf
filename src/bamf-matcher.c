@@ -1629,8 +1629,7 @@ bamf_matcher_has_instance_class_desktop_file (BamfMatcher *self, const gchar *cl
 static GList *
 bamf_matcher_possible_applications_for_window (BamfMatcher *self,
                                                BamfWindow *bamf_window,
-                                               const char *target_class,
-                                               gboolean filter_by_wmclass)
+                                               const char **target_class_out)
 {
   BamfMatcherPrivate *priv;
   BamfLegacyWindow *window;
@@ -1638,6 +1637,9 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
   char *desktop_file = NULL;
   const char *desktop_class = NULL;
   const char *class_name = NULL;
+  const char *instance_name = NULL;
+  const char *target_class = NULL;
+  gboolean filter_by_wmclass = FALSE;
 
   g_return_val_if_fail (BAMF_IS_WINDOW (bamf_window), NULL);
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
@@ -1646,6 +1648,24 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
   window = bamf_window_get_window (bamf_window);
   desktop_file = get_window_hint (window, _NET_WM_DESKTOP_FILE);
   class_name = bamf_legacy_window_get_class_name (window);
+  instance_name = bamf_legacy_window_get_class_instance_name (window);
+
+  target_class = instance_name;
+  filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
+
+  if (!filter_by_wmclass)
+  {
+    if (is_web_app_window (self, window))
+      {
+        // This ensures that a new application is created even for unknown webapps
+        filter_by_wmclass = TRUE;
+      }
+    else
+      {
+        target_class = class_name;
+        filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
+      }
+  }
 
   if (desktop_file)
     {
@@ -1760,46 +1780,34 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
       desktop_files = bamf_matcher_get_class_matching_desktop_files (self, target_class);
     }
 
+  if (target_class_out)
+    {
+      *target_class_out = target_class;
+    }
+
   return desktop_files;
 }
 
-static void
-bamf_matcher_setup_window_state (BamfMatcher *self,
-                                 BamfWindow *bamf_window)
+static BamfApplication *
+bamf_matcher_get_application_for_window (BamfMatcher *self,
+                                         BamfWindow *bamf_window,
+                                         gboolean *new_application)
 {
   GList *possible_apps, *l;
   BamfLegacyWindow *window;
-  const gchar *win_instance;
   const gchar *win_class_name;
-  const gchar *app_class;
+  const gchar *target_class = NULL;
+  const gchar *app_class = NULL;
   const gchar *app_desktop = NULL;
   BamfApplication *app = NULL, *best = NULL;
 
-  g_return_if_fail (BAMF_IS_MATCHER (self));
-  g_return_if_fail (BAMF_IS_WINDOW (bamf_window));
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
+  g_return_val_if_fail (BAMF_IS_WINDOW (bamf_window), NULL);
 
   window = bamf_window_get_window (bamf_window);
-  win_instance = bamf_legacy_window_get_class_instance_name (window);
   win_class_name = bamf_legacy_window_get_class_name (window);
 
-  const char *target_class = win_instance;
-  gboolean known_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
-
-  if (!known_wmclass)
-  {
-    if (is_web_app_window (self, window))
-      {
-        // This ensures that a new application is created even for unknown webapps
-        known_wmclass = TRUE;
-      }
-    else
-      {
-        target_class = win_class_name;
-        known_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
-      }
-  }
-
-  possible_apps = bamf_matcher_possible_applications_for_window (self, bamf_window, target_class, known_wmclass);
+  possible_apps = bamf_matcher_possible_applications_for_window (self, bamf_window, &target_class);
   app_class = target_class;
 
   /* Loop over every possible desktop file that could match the window, and try
@@ -1916,12 +1924,19 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
         }
 
       bamf_application_set_wmclass (best, app_class);
-      bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (best));
+
+      if (new_application)
+        *new_application = TRUE;
+    }
+  else
+    {
+      if (new_application)
+        *new_application = FALSE;
     }
 
-  bamf_view_add_child (BAMF_VIEW (best), BAMF_VIEW (bamf_window));
-
   g_list_free_full (possible_apps, g_free);
+
+  return best;
 }
 
 /* Ensures that the window hint is set if a registered pid matches, and that set window hints
@@ -1992,6 +2007,7 @@ static void
 handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
 {
   BamfWindow *bamfwindow;
+  BamfApplication *bamfapplication;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
@@ -2009,7 +2025,15 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
   bamfwindow = bamf_window_new (window);
   bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamfwindow));
 
-  bamf_matcher_setup_window_state (self, bamfwindow);
+  gboolean new_app = FALSE;
+  bamfapplication = bamf_matcher_get_application_for_window (self, bamfwindow, &new_app);
+
+  if (new_app)
+    {
+      bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamfapplication));
+    }
+
+  bamf_view_add_child (BAMF_VIEW (bamfapplication), BAMF_VIEW (bamfwindow));
 }
 
 static void
