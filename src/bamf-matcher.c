@@ -2247,7 +2247,7 @@ void
 bamf_matcher_load_desktop_file (BamfMatcher * self,
                                 const char * desktop_file)
 {
-  GList *l, *ll;
+  GList *vl, *wl;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
 
@@ -2259,23 +2259,23 @@ bamf_matcher_load_desktop_file (BamfMatcher * self,
 
   /* If an application with no .desktop file has windows that matches
    * the new added .desktop file, then we try to re-match them. */
-  for (l = self->priv->views; l; l = l->next)
+  for (vl = self->priv->views; vl; vl = vl->next)
     {
-      if (!BAMF_IS_APPLICATION (l->data))
+      if (!BAMF_IS_APPLICATION (vl->data))
         continue;
 
-      BamfApplication *app = BAMF_APPLICATION (l->data);
+      BamfApplication *app = BAMF_APPLICATION (vl->data);
 
       if (!bamf_application_get_desktop_file (app))
         {
           GList *children = bamf_view_get_children (BAMF_VIEW (app));
 
-          for (ll = children; ll; ll = ll->next)
+          for (wl = children; wl; wl = wl->next)
           {
-            if (!BAMF_IS_WINDOW (ll->data))
+            if (!BAMF_IS_WINDOW (wl->data))
               continue;
 
-            BamfWindow *win = BAMF_WINDOW (ll->data);
+            BamfWindow *win = BAMF_WINDOW (wl->data);
             GList *desktops = bamf_matcher_possible_applications_for_window (self, win, NULL);
 
             if (g_list_find_custom (desktops, desktop_file, (GCompareFunc) g_strcmp0))
