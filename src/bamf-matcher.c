@@ -210,6 +210,7 @@ emit_paths_changed (gpointer user_data)
 static void bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *desktop_file, ViewChangeType change_type)
 {
   BamfMatcherPrivate *priv;
+  BamfApplication *app;
 
   if (desktop_file == NULL) return;
 
@@ -219,7 +220,9 @@ static void bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *de
 
   /* the app was already running (ADDED) / had more instances which are still
    * there (REMOVED) */
-  if (bamf_matcher_get_application_by_desktop_file (self, desktop_file))
+  app = bamf_matcher_get_application_by_desktop_file (self, desktop_file);
+
+  if (BAMF_IS_APPLICATION (app) && bamf_view_is_running (BAMF_VIEW (app)))
     {
       return;
     }
@@ -1528,7 +1531,7 @@ static gboolean
 is_web_app_window (BamfMatcher *self, BamfLegacyWindow *window)
 {
   const char *window_class = bamf_legacy_window_get_class_name (window);
-  const char *instance_name = bamf_legacy_window_get_class_instance_name(window);
+  const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
 
   // Chrome/Chromium uses url wm_class strings to represent its web apps.
   // These apps will still have the same parent pid and hints as the main chrome
@@ -1639,7 +1642,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
     {
       desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
 
-      if (!known_desktop_class || g_strcmp0 (desktop_class, desktop_file) == 0)
+      if (!known_desktop_class || g_strcmp0 (desktop_class, instance_name) == 0)
         {
           desktop_files = g_list_prepend (desktop_files, desktop_file);
         }
@@ -1730,7 +1733,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
                             }
                         }
                     }
-                  
+
                   desktop_files = g_list_insert_before (desktop_files, last, desktop_file);
                 }
               else
