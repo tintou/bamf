@@ -120,17 +120,20 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
   if (self->priv->desktop_file)
     {
       keyfile = g_key_file_new();
-      if (!g_key_file_load_from_file(keyfile, self->priv->desktop_file, G_KEY_FILE_NONE, NULL)) {
+
+      if (!g_key_file_load_from_file(keyfile, self->priv->desktop_file, G_KEY_FILE_NONE, NULL))
+        {
           g_key_file_free(keyfile);
-        return;
-      }
+          return;
+        }
 
       desktop = g_desktop_app_info_new_from_keyfile (keyfile);
 
-      if (!G_IS_APP_INFO (desktop)) {
-        g_key_file_free(keyfile);
-        return;
-      }
+      if (!G_IS_APP_INFO (desktop))
+        {
+          g_key_file_free(keyfile);
+          return;
+        }
 
       gicon = g_app_info_get_icon (G_APP_INFO (desktop));
 
@@ -139,14 +142,15 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
       if (gicon)
         icon = g_icon_to_string (gicon);
 
-      if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, STUB_KEY, NULL)) {
-        /* This will error to return false, which is okay as it seems
-           unlikely anyone will want to set this flag except to turn
-           off the stub menus. */
-        self->priv->show_stubs = g_key_file_get_boolean (keyfile,
-                                                         G_KEY_FILE_DESKTOP_GROUP,
-                                                         STUB_KEY, NULL);
-      }
+      if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, STUB_KEY, NULL))
+        {
+          /* This will error to return false, which is okay as it seems
+             unlikely anyone will want to set this flag except to turn
+             off the stub menus. */
+          self->priv->show_stubs = g_key_file_get_boolean (keyfile,
+                                                           G_KEY_FILE_DESKTOP_GROUP,
+                                                           STUB_KEY, NULL);
+        }
       
       if (g_key_file_has_key (keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL))
         {
@@ -300,17 +304,20 @@ bamf_application_get_xids (BamfApplication *application)
 
 gboolean
 bamf_application_contains_similar_to_window (BamfApplication *self,
-                                             BamfWindow *window)
+                                             BamfWindow *bamf_window)
 {
-  gboolean result = FALSE;
-  const char *class, *owned_class;
   GList *children, *l;
   BamfView *child;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (self), FALSE);
-  g_return_val_if_fail (BAMF_IS_WINDOW (window), FALSE);
+  g_return_val_if_fail (BAMF_IS_WINDOW (bamf_window), FALSE);
 
-  class = bamf_legacy_window_get_class_name (bamf_window_get_window (window));
+  BamfLegacyWindow *window = bamf_window_get_window (bamf_window);
+  const char *window_class = bamf_legacy_window_get_class_name (window);
+  const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
+
+  if (!window_class || !instance_name)
+    return FALSE;
 
   children = bamf_view_get_children (BAMF_VIEW (self));
   for (l = children; l; l = l->next)
@@ -320,16 +327,18 @@ bamf_application_contains_similar_to_window (BamfApplication *self,
       if (!BAMF_IS_WINDOW (child))
         continue;
 
-      owned_class = bamf_legacy_window_get_class_name (bamf_window_get_window (BAMF_WINDOW (child)));
+      window = bamf_window_get_window (BAMF_WINDOW (child));
+      const char *owned_win_class = bamf_legacy_window_get_class_name (window);
+      const char *owned_instance = bamf_legacy_window_get_class_instance_name (window);
 
-      if (g_strcmp0 (class, owned_class) == 0)
+      if (g_strcmp0 (window_class, owned_win_class) == 0 &&
+          g_strcmp0 (instance_name, owned_instance) == 0)
         {
-          result = TRUE;
-          break;
+          return TRUE;
         }
     }
 
-  return result;
+  return FALSE;
 }
 
 gboolean
@@ -484,11 +493,12 @@ bamf_application_child_added (BamfView *view, BamfView *child)
 }
 
 static char *
-bamf_application_favorite_from_list (BamfApplication *self, GList *list)
+bamf_application_favorite_from_list (BamfApplication *self, GList *desktop_list)
 {
   BamfMatcher *matcher;
   GList *favs, *l;
   char *result = NULL;
+  const char *desktop_class;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (self), NULL);
 
@@ -499,10 +509,15 @@ bamf_application_favorite_from_list (BamfApplication *self, GList *list)
     {
       for (l = favs; l; l = l->next)
         {
-          if (g_list_find_custom (list, l->data, (GCompareFunc) g_strcmp0))
+          if (g_list_find_custom (desktop_list, l->data, (GCompareFunc) g_strcmp0))
             {
-              result = l->data;
-              break;
+              desktop_class = bamf_matcher_get_desktop_file_class (matcher, l->data);
+
+              if (!desktop_class || g_strcmp0 (self->priv->wmclass, desktop_class) == 0)
+                {
+                  result = l->data;
+                  break;
+                }
             }
         }
     }
