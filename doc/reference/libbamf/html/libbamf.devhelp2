@@ -53,9 +53,12 @@
     <keyword type="signal" name="The &quot;monitor-changed&quot; signal" link="BamfWindow.html#BamfWindow-monitor-changed"/>
     <keyword type="struct" name="struct BamfFactory" link="BamfFactory.html#BamfFactory-struct"/>
     <keyword type="struct" name="struct BamfFactoryClass" link="BamfFactory.html#BamfFactoryClass"/>
+    <keyword type="enum" name="enum BamfFactoryViewType" link="BamfFactory.html#BamfFactoryViewType"/>
     <keyword type="function" name="bamf_factory_app_for_file ()" link="BamfFactory.html#bamf-factory-app-for-file"/>
     <keyword type="function" name="bamf_factory_get_default ()" link="BamfFactory.html#bamf-factory-get-default"/>
     <keyword type="function" name="bamf_factory_view_for_path ()" link="BamfFactory.html#bamf-factory-view-for-path"/>
+    <keyword type="function" name="bamf_factory_view_for_path_type ()" link="BamfFactory.html#bamf-factory-view-for-path-type"/>
+    <keyword type="function" name="bamf_factory_view_for_path_type_str ()" link="BamfFactory.html#bamf-factory-view-for-path-type-str"/>
     <keyword type="struct" name="struct BamfControl" link="BamfControl.html#BamfControl-struct"/>
     <keyword type="struct" name="struct BamfControlClass" link="BamfControl.html#BamfControlClass"/>
     <keyword type="function" name="bamf_control_get_default ()" link="BamfControl.html#bamf-control-get-default"/>
