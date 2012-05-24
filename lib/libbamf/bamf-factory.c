@@ -39,6 +39,7 @@
 #include "bamf-view-private.h"
 #include "bamf-window.h"
 #include "bamf-application.h"
+#include "bamf-application-private.h"
 #include "bamf-indicator.h"
 
 #include <dbus/dbus.h>
@@ -159,68 +160,181 @@ bamf_factory_app_for_file (BamfFactory * factory,
   return result;
 }
 
+static
+BamfFactoryViewType compute_factory_type_by_str (const char *type)
+{
+  BamfFactoryViewType factory_type = BAMF_FACTORY_NONE;
+
+  if (type && type[0] != '\0')
+    {
+      if (g_strcmp0 (type, "window") == 0)
+        {
+          factory_type = BAMF_FACTORY_WINDOW;
+        }
+      else if (g_strcmp0 (type, "application") == 0)
+        {
+          factory_type = BAMF_FACTORY_APPLICATION;
+        }
+      else if (g_strcmp0 (type, "indicator") == 0)
+        {
+          factory_type = BAMF_FACTORY_INDICATOR;
+        }
+      else if (g_strcmp0 (type, "view") == 0)
+        {
+          factory_type = BAMF_FACTORY_VIEW;
+        }
+    }
+
+  return factory_type;
+}
+
 BamfView * 
-bamf_factory_view_for_path (BamfFactory * factory,
-                            const char * path)
+bamf_factory_view_for_path (BamfFactory * factory, const char * path)
+{
+  return bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_NONE);
+}
+
+BamfView * 
+bamf_factory_view_for_path_type_str (BamfFactory * factory, const char * path,
+                                                            const char * type)
+{
+  g_return_val_if_fail (BAMF_IS_FACTORY (factory), NULL);
+  BamfFactoryViewType factory_type = compute_factory_type_by_str (type);
+
+  return bamf_factory_view_for_path_type (factory, path, factory_type);
+}
+
+BamfView * 
+bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
+                                                        BamfFactoryViewType type)
 {
   GHashTable *views;
   BamfView *view;
   GList *l;
-  gchar *type;
   gboolean created = FALSE;
 
   g_return_val_if_fail (BAMF_IS_FACTORY (factory), NULL);
   
-  if (!path || strlen (path) == 0)
+  if (!path || path[0] == '\0')
     return NULL;
   
   views = factory->priv->views;
-
   view = g_hash_table_lookup (views, path);
   
   if (BAMF_IS_VIEW (view))
     return view;
-  
-  view = g_object_new (BAMF_TYPE_VIEW, NULL);
-  bamf_view_set_path (view, path);
-  type = g_strdup (bamf_view_get_view_type (view));
-  g_object_unref (view);
-  
-  view = NULL;
-  if (g_strcmp0 (type, "application") == 0)
-    view = BAMF_VIEW (bamf_application_new (path));
-  else if (g_strcmp0 (type, "window") == 0)
-    view = BAMF_VIEW (bamf_window_new (path));
-  else if (g_strcmp0 (type, "indicator") == 0)
-    view = BAMF_VIEW (bamf_indicator_new (path));
-  
+
+  if (type == BAMF_FACTORY_NONE)
+    {
+      view = g_object_new (BAMF_TYPE_VIEW, NULL);
+      bamf_view_set_path (view, path);
+      type = compute_factory_type_by_str (bamf_view_get_view_type (view));
+      g_object_unref (view);
+      view = NULL;
+    }
+
+  switch (type)
+  {
+    case BAMF_FACTORY_VIEW:
+      view = g_object_new (BAMF_TYPE_VIEW, NULL);
+      break;
+    case BAMF_FACTORY_WINDOW:
+      view = BAMF_VIEW (bamf_window_new (path));
+      break;
+    case BAMF_FACTORY_APPLICATION:
+      view = BAMF_VIEW (bamf_application_new (path));
+      break;
+    case BAMF_FACTORY_INDICATOR:
+      view = BAMF_VIEW (bamf_indicator_new (path));
+      break;
+    case BAMF_FACTORY_NONE:
+      view = NULL;
+  }
+
   created = TRUE;
-  
+  BamfView *matched_view = NULL;
+
   if (BAMF_IS_APPLICATION (view))
     {
       /* handle case where a favorite exists and this matches it */
       const char *local_desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
+      GList *local_children = bamf_view_get_children (view);
+
       for (l = factory->priv->local_views; l; l = l->next)
         {
-          /* remote ready views are already matched */
-          if (bamf_view_remote_ready (BAMF_VIEW (l->data)) || !BAMF_IS_APPLICATION (l->data))
+          if (!BAMF_IS_APPLICATION (l->data))
             continue;
-          
-          const char *list_desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (l->data));
-          
-          if (g_strcmp0 (local_desktop_file, list_desktop_file) == 0)
-            {
-              created = FALSE;
-              g_object_unref (view);
 
-              view = BAMF_VIEW (l->data);
-              bamf_view_set_path (view, path);
-              g_object_ref_sink (view);
+          BamfView *list_view = BAMF_VIEW (l->data);
+          BamfApplication *list_app = BAMF_APPLICATION (l->data);
+
+          const char *list_desktop_file = bamf_application_get_desktop_file (list_app);
+
+          /* We try to match applications by desktop files */
+          if (local_desktop_file && g_strcmp0 (local_desktop_file, list_desktop_file) == 0)
+            {
+              matched_view = list_view;
+              break;
+            }
+
+          /* If the primary search doesn't give out any result, we fallback
+           * to children window comparison */
+          if (!matched_view)
+            {
+              GList *list_children, *ll;
+              list_children = bamf_application_get_cached_xids (list_app);
+
+              for (ll = local_children; ll; ll = ll->next)
+                {
+                  if (!BAMF_IS_WINDOW (ll->data))
+                    continue;
+
+                  guint32 local_xid = bamf_window_get_xid (BAMF_WINDOW (ll->data));
+
+                  if (g_list_find (list_children, GUINT_TO_POINTER (local_xid)))
+                    {
+                      matched_view = list_view;
+                      break;
+                    }
+                }
+            }
+        }
+
+      g_list_free (local_children);
+    }
+  else if (BAMF_IS_WINDOW (view))
+    {
+      guint32 local_xid = bamf_window_get_xid (BAMF_WINDOW (view));
+
+      for (l = factory->priv->local_views; l; l = l->next)
+        {
+          if (!BAMF_IS_WINDOW (l->data))
+            continue;
+
+          BamfView *list_view = BAMF_VIEW (l->data);
+          BamfWindow *list_win = BAMF_WINDOW (l->data);
+
+          guint32 list_xid = bamf_window_get_xid (list_win);
+
+          /* We try to match windows by xid */
+          if (local_xid != 0 && local_xid == list_xid)
+            {
+              matched_view = list_view;
               break;
             }
         }
     }
-  
+
+  if (matched_view)
+    {
+      created = FALSE;
+      g_object_unref (view);
+
+      view = matched_view;
+      bamf_view_set_path (view, path);
+      g_object_ref_sink (view);
+    }
+
   if (view)
     {
       bamf_factory_register_view (factory, view, path);
@@ -231,8 +345,7 @@ bamf_factory_view_for_path (BamfFactory * factory,
           g_object_ref_sink (view);
         }
     }
-  
-  g_free (type);
+
   return view;
 }
 
