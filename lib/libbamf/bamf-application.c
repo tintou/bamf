@@ -288,7 +288,7 @@ bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplicati
 }
 
 GList *
-bamf_application_get_cached_xids (BamfApplication *self)
+bamf_priv_application_get_cached_xids (BamfApplication *self)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION (self), NULL);
 
