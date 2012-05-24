@@ -25,6 +25,6 @@
 
 #include <libbamf/bamf-application.h>
 
-GList *bamf_priv_application_get_cached_xids (BamfApplication *app);
+GList *_bamf_application_get_cached_xids (BamfApplication *app);
 
 #endif
