@@ -67,7 +67,7 @@ libbamf_la_CPPFLAGS = \
   $(NULL)
 
 libbamf_la_LDFLAGS = \
-  -export-symbols-regex "^bamf_(application|control|indicator|matcher|tab|view|window){1}_" \
+  -export-symbols-regex "^bamf_(application|control|indicator|matcher|tab|view|window)_" \
   -shared \
   $(NULL)
 
