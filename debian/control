@@ -24,7 +24,7 @@ Build-Depends: debhelper (>= 8.1.2ubuntu2),
                dbus-x11,
 Standards-Version: 3.9.2
 Homepage: https://launchpad.net/bamf
-Vcs-Bzr: https://code.launchpad.net/~ubuntu-desktop/bamf/ubuntu
+Vcs-Bzr: https://code.launchpad.net/~ubuntu-desktop/bamf/precise
 
 Package: bamfdaemon
 Architecture: any
