@@ -35,6 +35,17 @@ BamfFactory
 
 @parent_class: 
 
+<!-- ##### ENUM BamfFactoryViewType ##### -->
+<para>
+
+</para>
+
+@BAMF_FACTORY_VIEW: 
+@BAMF_FACTORY_WINDOW: 
+@BAMF_FACTORY_APPLICATION: 
+@BAMF_FACTORY_INDICATOR: 
+@BAMF_FACTORY_NONE: 
+
 <!-- ##### FUNCTION bamf_factory_app_for_file ##### -->
 <para>
 
@@ -62,6 +73,28 @@ BamfFactory
 
 @factory: 
 @path: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_factory_view_for_path_type ##### -->
+<para>
+
+</para>
+
+@factory: 
+@path: 
+@type: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_factory_view_for_path_type_str ##### -->
+<para>
+
+</para>
+
+@factory: 
+@path: 
+@type: 
 @Returns: 
 
 
