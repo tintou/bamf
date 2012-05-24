@@ -1,6 +1,7 @@
-bamf (0.2.116-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.118-0ubuntu1) UNRELEASED; urgency=low
 
-  * New upstream release.
+  [ Didier Roche ]
+  * New upstream release. (0.2.116)
     - multiple instances or double icons of application detected on bamfdaemon
       respawn (LP: #928912)
     - unity confused with chrome/chromium web apps (LP: #692462)
@@ -10,7 +11,16 @@ bamf (0.2.116-0ubuntu1) UNRELEASED; urgency=low
     - remove Multi-Arch: same for the -dbg package
       (Closes: #669980, #658057)
 
- -- Didier Roche <didrocks@ubuntu.com>  Fri, 27 Apr 2012 08:34:42 +0200
+  [ Alan Pope ]
+  * New upstream release.
+    - Unity crashed in bamf_application_on_window_removed (LP: #1000577)
+    - Locked smuxi launcher icon does not indicate smuxi running status
+      (LP: #999820)
+    - No launcher icon or Alt+Tab entry for Gimp windows (LP: #995916)
+    - the RunningApplicationsChanged signal is no longer emitted when an 
+      application is closed since r460 (LP: #989551)
+
+ -- Alan Pope <popey@ubuntu.com>  Wed, 23 May 2012 09:10:08 +0100
 
 bamf (0.2.114-0ubuntu1) precise-proposed; urgency=low
 
