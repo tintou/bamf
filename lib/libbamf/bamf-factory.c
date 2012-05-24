@@ -282,7 +282,7 @@ bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
           if (!matched_view)
             {
               GList *list_children, *ll;
-              list_children = bamf_application_get_cached_xids (list_app);
+              list_children = bamf_priv_application_get_cached_xids (list_app);
 
               for (ll = local_children; ll; ll = ll->next)
                 {
