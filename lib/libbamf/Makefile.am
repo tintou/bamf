@@ -67,8 +67,8 @@ libbamf_la_CPPFLAGS = \
   $(NULL)
 
 libbamf_la_LDFLAGS = \
-  -export-symbols-regex "^bamf_(application|control|indicator|matcher|tab|view|window)_" \
   -shared \
+  -export-symbols-regex "^bamf_" \
   $(NULL)
 
 libbamf3_la_SOURCES = $(libbamf_la_SOURCES)
@@ -81,7 +81,7 @@ DISTCLEANFILES += \
 	$(NULL)
 
 glib_marshal_list = bamf-marshal.list
-glib_marshal_prefix = bamf_marshal
+glib_marshal_prefix = _bamf_marshal
 
 bamf-tab-source-glue.h: bamf-tab-source-glue.xml
 	$(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_tab_source --mode=glib-server --output=$@ $<
