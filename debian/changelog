@@ -1,4 +1,4 @@
-bamf (0.2.118-1) UNRELEASED; urgency=low
+bamf (0.2.118-1) unstable; urgency=low
 
   * Backport latest release to debian
   * debian/control:
