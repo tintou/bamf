@@ -1,7 +1,7 @@
 Source: bamf
 Section: libs
 Priority: optional
-Maintainer: Ubuntu Core Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Maintainer: Didier Roche <didrocks@ubuntu.com>
 Uploaders: Andrea Veri <and@debian.org>
 Build-Depends: debhelper (>= 8.1.2ubuntu2),
                cdbs (>= 0.4.90ubuntu9),
