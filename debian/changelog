@@ -1,3 +1,11 @@
+bamf (0.2.118-1) UNRELEASED; urgency=low
+
+  * Backport latest release to debian
+  * debian/control:
+    - bump Standards-Version to latest
+
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 01 Jun 2012 11:51:11 +0200
+
 bamf (0.2.118-0ubuntu1) quantal; urgency=low
 
   [ Didier Roche ]
@@ -94,6 +102,22 @@ bamf (0.2.106-0ubuntu1) precise; urgency=low
     - bump libglib2.0-dev to 2.28
 
  -- Didier Roche <didrocks@ubuntu.com>  Thu, 12 Jan 2012 17:01:43 +0100
+
+bamf (0.2.104-1) unstable; urgency=low
+
+   [ Didier Roche ]
+   * Initial upload to Debian. Package grabbed from Ubuntu,
+     we'll keep this package in sync within the two
+     distributions.
+   * debian/control:
+     - removed gir's package for now, still not building
+       correctly.
+ 
+   [ Andrea Veri ]
+   * debian/control:
+     - changed Maintainer accordingly.
+     - added myself into uploaders.
+ -- Didier Roche <didrocks@ubuntu.com>  Mon, 21 Nov 2011 10:56:21 +0100
 
 bamf (0.2.104-0ubuntu1) oneiric; urgency=low
 
