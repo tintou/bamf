@@ -45,10 +45,10 @@ Depends: ${shlibs:Depends},
 Breaks: unity (<< 3.2.12)
 Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
-Description: Window matching library - shared library
+Description: Window matching library - shared library (gtk2)
  bamf matches application windows to desktop files
  .
- This package contains shared libraries to be used by applications.
+ This package contains shared libraries to be used by gtk2 applications.
 
 Package: libbamf3-0
 Architecture: any
@@ -72,10 +72,11 @@ Depends: ${shlibs:Depends},
          libwnck-dev,
          libglib2.0-dev (>= 2.23.0-1ubuntu3~),
 Suggests: libbamf-doc
-Description: Window matching library - development files
+Description: Window matching library - development files (gtk2)
  bamf matches application windows to desktop files
  .
- This package contains files that are needed to build applications.
+ This package contains files that are needed to build applications on
+ gtk2 stack.
 
 Package: libbamf3-dev
 Section: libdevel

@@ -6,6 +6,7 @@ bamf (0.2.118-1) UNRELEASED; urgency=low
     - remove build-dep only used for unit tests
     - replace the gtk2 variant of the wnck introspection gir package with 
       gtk3 one
+    - ensure the gtk2/gtk3 version doesn't have the same description
   * debian/*.symbols:
     - adding some PRIVATE symbols to make lintian happy. We saw that bamf
       is exporting by error some of its private symbols. This will be fixed
@@ -13,6 +14,8 @@ bamf (0.2.118-1) UNRELEASED; urgency=low
       files)
   * debian/rules:
     - add hardening flags (thanks Andrea)
+  * debian/sources/format:
+    - added to specify we use format 1.0
 
  -- Didier Roche <didrocks@ubuntu.com>  Fri, 01 Jun 2012 11:51:11 +0200
 
