@@ -11,6 +11,8 @@ bamf (0.2.118-1) UNRELEASED; urgency=low
       is exporting by error some of its private symbols. This will be fixed
       in next released (and so the symbols will be removed from the .symbols
       files)
+  * debian/rules:
+    - add hardening flags (thanks Andrea)
 
  -- Didier Roche <didrocks@ubuntu.com>  Fri, 01 Jun 2012 11:51:11 +0200
 

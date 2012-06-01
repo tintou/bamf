@@ -14,6 +14,7 @@ DEB_CONFIGURE_EXTRA_FLAGS_gtk3 = --with-gtk=3
 DEB_CONFIGURE_EXTRA_FLAGS += --enable-introspection=no --enable-gtk-doc \
 	--libdir=\$${prefix}/lib/$(DEB_HOST_MULTIARCH) \
 	--enable-headless-tests \
+	$(shell dpkg-buildflags --export=configure) \
 	$(DEB_CONFIGURE_EXTRA_FLAGS_$(cdbs_make_curflavor))
 
 # install flavors on top of each other (gtk3 wins because it is last)
