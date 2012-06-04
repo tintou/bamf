@@ -457,7 +457,7 @@ bamf_view_export_on_bus (BamfView *view, GDBusConnection *connection)
   if (!view->priv->path)
     {
       char *stable_name = bamf_view_get_stable_bus_name (view);
-      path = g_strdup_printf ("%s/%s", BAMF_DBUS_PATH, stable_name);
+      path = g_strconcat (BAMF_DBUS_BASE_PATH"/", stable_name, NULL);
       g_free (stable_name);
 
       BAMF_VIEW_GET_CLASS (view)->names = g_list_prepend (BAMF_VIEW_GET_CLASS (view)->names, path);

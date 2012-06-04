@@ -67,7 +67,7 @@ main (gint argc, gchar *argv[])
   loop = g_main_loop_new (NULL, FALSE);
 
   g_bus_own_name (G_BUS_TYPE_SESSION,
-                  BAMF_DBUS_SERVICE".test",
+                  BAMF_DBUS_SERVICE_NAME".test",
                   G_BUS_NAME_OWNER_FLAGS_NONE,
                   on_bus_acquired,
                   NULL,

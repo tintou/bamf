@@ -23,12 +23,6 @@
 
 #include <libbamf-private/bamf-private.h>
 
-#define BAMF_DBUS_PATH "/org/ayatana/bamf"
-#define BAMF_DBUS_SERVICE "org.ayatana.bamf"
-
-#define BAMF_CONTROL_PATH "/org/ayatana/bamf/control"
-#define BAMF_MATCHER_PATH "/org/ayatana/bamf/matcher"
-
-#define BAMF_INDICATOR_SOURCE_PATH "/org/ayatana/bamf/IndicatorSource"
+#define BAMF_INDICATOR_SOURCE_PATH BAMF_DBUS_BASE_PATH"/IndicatorSource"
 
 #endif

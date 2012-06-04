@@ -24,4 +24,10 @@
 #include "bamf-gdbus-view-generated.h"
 #include "bamf-gdbus-browser-generated.h"
 
+#define BAMF_DBUS_SERVICE_NAME "org.ayatana.bamf"
+
+#define BAMF_DBUS_BASE_PATH "/org/ayatana/bamf"
+#define BAMF_DBUS_CONTROL_PATH BAMF_DBUS_BASE_PATH"/control"
+#define BAMF_DBUS_MATCHER_PATH BAMF_DBUS_BASE_PATH"/matcher"
+
 #endif

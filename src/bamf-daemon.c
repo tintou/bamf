@@ -68,24 +68,24 @@ bamf_on_bus_acquired (GDBusConnection *connection, const gchar *name,
 
   g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (self->priv->matcher),
                                     connection,
-                                    BAMF_MATCHER_PATH,
+                                    BAMF_DBUS_MATCHER_PATH,
                                     &error);
 
   if (error)
     {
-      g_critical ("Can't register BAMF matcher at path %s: %s", BAMF_MATCHER_PATH,
+      g_critical ("Can't register BAMF matcher at path %s: %s", BAMF_DBUS_MATCHER_PATH,
                                                                 error->message);
       g_clear_error (&error);
     }
 
   g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (self->priv->control),
                                     connection,
-                                    BAMF_CONTROL_PATH,
+                                    BAMF_DBUS_CONTROL_PATH,
                                     &error);
 
   if (error)
     {
-      g_critical ("Can't register BAMF control at path %s: %s", BAMF_CONTROL_PATH,
+      g_critical ("Can't register BAMF control at path %s: %s", BAMF_DBUS_CONTROL_PATH,
                                                                 error->message);
       g_clear_error (&error);
     }
@@ -127,7 +127,7 @@ bamf_daemon_start (BamfDaemon *self)
   if (bamf_daemon_is_running (self))
     return;
 
-  g_bus_own_name (G_BUS_TYPE_SESSION, BAMF_DBUS_SERVICE,
+  g_bus_own_name (G_BUS_TYPE_SESSION, BAMF_DBUS_SERVICE_NAME,
                   G_BUS_NAME_OWNER_FLAGS_NONE,
                   (GBusAcquiredCallback) bamf_on_bus_acquired,
                   (GBusNameAcquiredCallback) bamf_on_name_acquired,
