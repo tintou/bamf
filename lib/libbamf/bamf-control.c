@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Canonical Ltd.
+ * Copyright 2010-2012 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -35,9 +35,8 @@
 #include <config.h>
 #endif
 
-#include "bamf-control.h"
-
 #include <libbamf-private/bamf-private.h>
+#include "bamf-control.h"
 
 G_DEFINE_TYPE (BamfControl, bamf_control, G_TYPE_OBJECT);
 
@@ -100,13 +99,13 @@ bamf_control_init (BamfControl *self)
 
   priv->proxy = bamf_dbus_control_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
                                                           G_DBUS_PROXY_FLAGS_NONE,
-                                                          "org.ayatana.bamf",
-                                                          "/org/ayatana/bamf/control",
+                                                          BAMF_DBUS_SERVICE_NAME,
+                                                          BAMF_DBUS_CONTROL_PATH,
                                                           NULL, &error);
 
   if (error)
     {
-      g_error ("Unable to get org.ayatana.bamf.control controller: %s", error->message);
+      g_error ("Unable to get "BAMF_DBUS_CONTROL_PATH" controller: %s", error->message);
       g_error_free (error);
     }
 }
