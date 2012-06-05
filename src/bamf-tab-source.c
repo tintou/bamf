@@ -68,7 +68,7 @@ bamf_tab_source_tab_ids (BamfTabSource *self)
   g_return_val_if_fail (BAMF_IS_TAB_SOURCE (self), NULL);
   priv = self->priv;
 
-  if (!bamf_dbus_browser__call_tab_ids_sync (priv->proxy, &ids, NULL, &error))
+  if (!bamf_dbus_browser_call_tab_ids_sync (priv->proxy, &ids, NULL, &error))
     {
       g_warning ("Failed to get tab ids: %s", error->message);
       g_error_free (error);
@@ -87,7 +87,7 @@ bamf_tab_source_show_tab (BamfTabSource *self, char *id)
   g_return_if_fail (BAMF_IS_TAB_SOURCE (self));
   priv = self->priv;
 
-  if (!bamf_dbus_browser__call_show_tab_sync (priv->proxy, id, NULL, &error))
+  if (!bamf_dbus_browser_call_show_tab_sync (priv->proxy, id, NULL, &error))
     {
       g_warning ("Failed to show tab: %s", error->message);
       g_error_free (error);
@@ -105,8 +105,8 @@ bamf_tab_source_get_tab_preview (BamfTabSource *self,
   g_return_val_if_fail (BAMF_IS_TAB_SOURCE (self), NULL);
   priv = self->priv;
 
-  if (!bamf_dbus_browser__call_tab_preview_sync (priv->proxy, id, &preview_data,
-                                                 NULL, &error))
+  if (!bamf_dbus_browser_call_tab_preview_sync (priv->proxy, id, &preview_data,
+                                                NULL, &error))
     {
       g_warning ("Failed to get tab preview data: %s", error->message);
       g_error_free (error);
@@ -127,7 +127,7 @@ bamf_tab_source_get_tab_uri (BamfTabSource *self,
   g_return_val_if_fail (BAMF_IS_TAB_SOURCE (self), NULL);
   priv = self->priv;
 
-  if (!bamf_dbus_browser__call_tab_uri_sync (priv->proxy, id, &uri, NULL, &error))
+  if (!bamf_dbus_browser_call_tab_uri_sync (priv->proxy, id, &uri, NULL, &error))
     {
       g_warning ("Failed to get tab URI: %s", error->message);
       g_error_free (error);
@@ -148,7 +148,7 @@ bamf_tab_source_get_tab_xid (BamfTabSource *self,
   g_return_val_if_fail (BAMF_IS_TAB_SOURCE (self), 0);
   priv = self->priv;
 
-  if (!bamf_dbus_browser__call_tab_xid_sync (priv->proxy, id, &xid, NULL, &error))
+  if (!bamf_dbus_browser_call_tab_xid_sync (priv->proxy, id, &xid, NULL, &error))
     {
       g_warning ("Failed to get tab XID: %s", error->message);
       g_error_free (error);
@@ -251,7 +251,7 @@ on_proxy_ready_cb (GDBusProxy *proxy, GAsyncResult *res, BamfTabSource *self)
   GError *error = NULL;
   g_return_if_fail (BAMF_IS_TAB_SOURCE (self));
 
-  bproxy = bamf_dbus_browser__proxy_new_for_bus_finish (res, &error);
+  bproxy = bamf_dbus_browser_proxy_new_for_bus_finish (res, &error);
 
   if (error)
     {
@@ -304,13 +304,13 @@ bamf_tab_source_reconnect (GObject *object, GParamSpec *pspec, BamfTabSource *se
       self->priv->proxy = NULL;
     }
 
-  bamf_dbus_browser__proxy_new_for_bus (G_BUS_TYPE_SESSION,
-                                        G_DBUS_PROXY_FLAGS_NONE,
-                                        self->priv->bus,
-                                        self->priv->path,
-                                        NULL,
-                                        (GAsyncReadyCallback) on_proxy_ready_cb,
-                                        self);
+  bamf_dbus_browser_proxy_new_for_bus (G_BUS_TYPE_SESSION,
+                                       G_DBUS_PROXY_FLAGS_NONE,
+                                       self->priv->bus,
+                                       self->priv->path,
+                                       NULL,
+                                       (GAsyncReadyCallback) on_proxy_ready_cb,
+                                       self);
 }
 
 static void
@@ -325,13 +325,13 @@ bamf_tab_source_constructed (GObject *object)
   source = BAMF_TAB_SOURCE (object);
   priv = source->priv;
 
-  bamf_dbus_browser__proxy_new_for_bus (G_BUS_TYPE_SESSION,
-                                        G_DBUS_PROXY_FLAGS_NONE,
-                                        priv->bus,
-                                        priv->path,
-                                        NULL,
-                                        (GAsyncReadyCallback) on_proxy_ready_cb,
-                                        source);
+  bamf_dbus_browser_proxy_new_for_bus (G_BUS_TYPE_SESSION,
+                                       G_DBUS_PROXY_FLAGS_NONE,
+                                       priv->bus,
+                                       priv->path,
+                                       NULL,
+                                       (GAsyncReadyCallback) on_proxy_ready_cb,
+                                       source);
 }
 
 static void
