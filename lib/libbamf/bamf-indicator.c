@@ -68,7 +68,7 @@ bamf_indicator_get_dbus_menu_path (BamfIndicator *self)
   if (priv->dbus_menu)
     return priv->dbus_menu;
 
-  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
+  if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
     return NULL;
 
   gproxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
@@ -124,7 +124,7 @@ bamf_indicator_get_remote_path (BamfIndicator *self)
   if (priv->path)
     return priv->path;
   
-  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
+  if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
     return NULL;
   
   if (!bamf_dbus_item_indicator_call_path_sync (priv->proxy, &path, NULL, &error))
@@ -153,7 +153,7 @@ bamf_indicator_get_remote_address (BamfIndicator *self)
   if (priv->address)
     return priv->address;
   
-  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
+  if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
     return NULL;
   
   if (!bamf_dbus_item_indicator_call_address_sync (priv->proxy, &address, NULL, &error))
@@ -216,6 +216,11 @@ bamf_indicator_set_path (BamfView *view, const char *path)
   self = BAMF_INDICATOR (view);
   priv = self->priv;
 
+  if (priv->proxy)
+    {
+      g_object_unref (priv->proxy);
+    }
+
   priv->proxy = bamf_dbus_item_indicator_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
                                                                  G_DBUS_PROXY_FLAGS_NONE,
                                                                  "org.ayatana.bamf",
@@ -251,7 +256,7 @@ bamf_indicator_new (const char * path)
   BamfIndicator *self;
   self = g_object_new (BAMF_TYPE_INDICATOR, NULL);
 
-  bamf_view_set_path (BAMF_VIEW (self), path);
+  _bamf_view_set_path (BAMF_VIEW (self), path);
 
   return self;
 }

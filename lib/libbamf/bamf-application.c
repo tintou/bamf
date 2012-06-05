@@ -85,7 +85,7 @@ bamf_application_get_desktop_file (BamfApplication *application)
   if (priv->desktop_file)
     return priv->desktop_file;
 
-  if (!bamf_view_remote_ready (BAMF_VIEW (application)))
+  if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return NULL;
 
   if (!dbus_g_proxy_call (priv->proxy,
@@ -124,7 +124,7 @@ bamf_application_get_application_type (BamfApplication *application)
   if (priv->application_type)
     return priv->application_type;
 
-  if (!bamf_view_remote_ready (BAMF_VIEW (application)))
+  if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return NULL;
 
   if (!dbus_g_proxy_call (priv->proxy,
@@ -154,7 +154,7 @@ bamf_application_get_xids (BamfApplication *application)
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
   priv = application->priv;
 
-  if (!bamf_view_remote_ready (BAMF_VIEW (application)))
+  if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return NULL;
 
   if (!dbus_g_proxy_call (priv->proxy,
@@ -209,7 +209,7 @@ bamf_application_get_show_menu_stubs (BamfApplication * application)
 
   priv = application->priv;
 
-  if (!bamf_view_remote_ready (BAMF_VIEW (application)))
+  if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return TRUE;
 
   if (priv->show_stubs == -1)
@@ -250,8 +250,10 @@ bamf_application_on_window_added (DBusGProxy *proxy, char *path, BamfApplication
   BamfView *view;
   BamfFactory *factory;
 
-  factory = bamf_factory_get_default ();
-  view = bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_WINDOW);
+  g_return_if_fail (BAMF_IS_APPLICATION (self));
+
+  factory = _bamf_factory_get_default ();
+  view = _bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_WINDOW);
 
   if (BAMF_IS_WINDOW (view))
     {
@@ -272,8 +274,10 @@ bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplicati
   BamfView *view;
   BamfFactory *factory;
 
-  factory = bamf_factory_get_default ();
-  view = bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_WINDOW);
+  g_return_if_fail (BAMF_IS_APPLICATION (self));
+
+  factory = _bamf_factory_get_default ();
+  view = _bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_WINDOW);
 
   if (BAMF_IS_WINDOW (view))
     {
@@ -285,11 +289,36 @@ bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplicati
 }
 
 GList *
-bamf_application_get_cached_xids (BamfApplication *self)
+_bamf_application_get_cached_xids (BamfApplication *self)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION (self), NULL);
 
   return self->priv->cached_xids;
+}
+
+static void
+bamf_application_unset_proxy (BamfApplication* self)
+{
+  BamfApplicationPrivate *priv;
+
+  g_return_if_fail (BAMF_IS_APPLICATION (self));
+  priv = self->priv;
+
+  if (!priv->proxy)
+    return;
+
+  dbus_g_proxy_disconnect_signal (priv->proxy,
+                                 "WindowAdded",
+                                 (GCallback) bamf_application_on_window_added,
+                                 self);
+
+  dbus_g_proxy_disconnect_signal (priv->proxy,
+                                 "WindowRemoved",
+                                 (GCallback) bamf_application_on_window_removed,
+                                 self);
+
+  g_object_unref (priv->proxy);
+  priv->proxy = NULL;
 }
 
 static void
@@ -313,27 +342,13 @@ bamf_application_dispose (GObject *object)
       priv->desktop_file = NULL;
     }
 
-  if (priv->proxy)
-    {
-      dbus_g_proxy_disconnect_signal (priv->proxy,
-                                     "WindowAdded",
-                                     (GCallback) bamf_application_on_window_added,
-                                     self);
-
-      dbus_g_proxy_disconnect_signal (priv->proxy,
-                                     "WindowRemoved",
-                                     (GCallback) bamf_application_on_window_removed,
-                                     self);
-
-      g_object_unref (priv->proxy);
-      priv->proxy = NULL;
-    }
-
   if (priv->cached_xids)
     {
       g_list_free (priv->cached_xids);
       priv->cached_xids = NULL;
     }
+
+  bamf_application_unset_proxy (self);
 
   if (G_OBJECT_CLASS (bamf_application_parent_class)->dispose)
     G_OBJECT_CLASS (bamf_application_parent_class)->dispose (object);
@@ -348,6 +363,7 @@ bamf_application_set_path (BamfView *view, const char *path)
   self = BAMF_APPLICATION (view);
   priv = self->priv;
 
+  bamf_application_unset_proxy (self);
   priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
                                            "org.ayatana.bamf",
                                            path,
@@ -443,7 +459,7 @@ bamf_application_load_data_from_file (BamfApplication *self)
 		    }
 		}
 
-  bamf_view_set_name (BAMF_VIEW (self), name);
+  _bamf_view_set_name (BAMF_VIEW (self), name);
 
   gicon = g_app_info_get_icon (G_APP_INFO (desktop_info));
   icon = g_icon_to_string (gicon);
@@ -451,7 +467,7 @@ bamf_application_load_data_from_file (BamfApplication *self)
   if (!icon)
     icon = g_strdup ("application-default-icon");
 
-  bamf_view_set_icon (BAMF_VIEW (self), icon);
+  _bamf_view_set_icon (BAMF_VIEW (self), icon);
   g_free (icon);
   g_key_file_free (keyfile);
   g_free (name);
@@ -516,7 +532,7 @@ bamf_application_new (const char * path)
   BamfApplication *self;
   self = g_object_new (BAMF_TYPE_APPLICATION, NULL);
 
-  bamf_view_set_path (BAMF_VIEW (self), path);
+  _bamf_view_set_path (BAMF_VIEW (self), path);
 
   return self;
 }

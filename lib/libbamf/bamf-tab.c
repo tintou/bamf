@@ -191,18 +191,18 @@ bamf_tab_class_init (BamfTabClass *klass)
   g_object_class_install_property (object_class, PROP_PREVIEW, pspec);
 
   g_type_class_add_private (object_class, sizeof (BamfTabPrivate));
-  
-  tab_signals [URI_CHANGED] = 
+
+  tab_signals [URI_CHANGED] =
     g_signal_new (BAMF_TAB_SIGNAL_URI_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfTabClass, uri_changed),
                   NULL, NULL,
-                  bamf_marshal_VOID__STRING_STRING,
-                  G_TYPE_NONE, 2, 
+                  _bamf_marshal_VOID__STRING_STRING,
+                  G_TYPE_NONE, 2,
                   G_TYPE_STRING, G_TYPE_STRING);
 
-  tab_signals [PREVIEW_UPDATED] = 
+  tab_signals [PREVIEW_UPDATED] =
     g_signal_new (BAMF_TAB_SIGNAL_PREVIEW_UPDATED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,

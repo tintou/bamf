@@ -222,7 +222,7 @@ bamf_tab_source_class_init (BamfTabSourceClass *klass)
                   G_SIGNAL_RUN_FIRST,
                   0,
                   NULL, NULL,
-                  bamf_marshal_VOID__STRING_STRING_STRING,
+                  _bamf_marshal_VOID__STRING_STRING_STRING,
                   G_TYPE_NONE, 3,
                   G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
