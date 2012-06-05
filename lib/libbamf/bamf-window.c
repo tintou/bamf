@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Canonical Ltd.
+ * Copyright 2010-2012 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -35,12 +35,11 @@
 #include <config.h>
 #endif
 
+#include <libbamf-private/bamf-private.h>
 #include "bamf-view-private.h"
 #include "bamf-window.h"
 #include "bamf-factory.h"
 #include "bamf-marshal.h"
-// Move to a general place!
-#include <libbamf-private/bamf-private.h>
 
 G_DEFINE_TYPE (BamfWindow, bamf_window, BAMF_TYPE_VIEW);
 
@@ -71,7 +70,7 @@ time_t
 bamf_window_last_active (BamfWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_WINDOW (self), 0);
-  
+
   return self->priv->last_active;
 }
 
@@ -95,7 +94,7 @@ bamf_window_get_transient (BamfWindow *self)
       g_error_free (error);
       return NULL;
     }
-  
+
   if (!path)
     return NULL;
 
@@ -107,7 +106,6 @@ bamf_window_get_transient (BamfWindow *self)
 
   BamfFactory *factory = _bamf_factory_get_default ();
   transient = _bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_WINDOW);
-
   g_free (path);
 
   if (!BAMF_IS_WINDOW (transient))
@@ -171,10 +169,10 @@ bamf_window_get_xid (BamfWindow *self)
   BamfWindowPrivate *priv;
   guint32 xid = 0;
   GError *error = NULL;
-  
+
   g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
   priv = self->priv;
-  
+
   if (priv->xid != 0)
     return priv->xid;
 
@@ -281,7 +279,7 @@ bamf_window_active_changed (BamfView *view, gboolean active)
   g_return_if_fail (BAMF_IS_WINDOW (view));
 
   self = BAMF_WINDOW (view);
-  
+
   if (active)
     self->priv->last_active = time (NULL);
 }
@@ -308,7 +306,7 @@ bamf_window_unset_proxy (BamfWindow *self)
   g_return_if_fail (BAMF_IS_WINDOW (self));
   priv = self->priv;
 
-  if (!priv->proxy)
+  if (!G_IS_DBUS_PROXY (priv->proxy))
     return;
 
   g_signal_handlers_disconnect_by_func (priv->proxy, bamf_window_on_maximized_changed, self);
@@ -331,11 +329,11 @@ bamf_window_set_path (BamfView *view, const char *path)
   bamf_window_unset_proxy (self);
   priv->proxy = bamf_dbus_item_window_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
                                                               G_DBUS_PROXY_FLAGS_NONE,
-                                                              "org.ayatana.bamf",
+                                                              BAMF_DBUS_SERVICE_NAME,
                                                               path, NULL, &error);
-  if (priv->proxy == NULL)
+  if (!G_IS_DBUS_PROXY (priv->proxy))
     {
-      g_error ("Unable to get org.ayatana.bamf.window window: %s", error ? error->message : "");
+      g_error ("Unable to get "BAMF_DBUS_SERVICE_NAME" window: %s", error ? error->message : "");
       g_error_free (error);
       return;
     }
@@ -370,12 +368,12 @@ bamf_window_class_init (BamfWindowClass *klass)
   BamfViewClass *view_class = BAMF_VIEW_CLASS (klass);
 
   g_type_class_add_private (obj_class, sizeof (BamfWindowPrivate));
-  
+
   obj_class->dispose = bamf_window_dispose;
   view_class->active_changed = bamf_window_active_changed;
   view_class->set_path = bamf_window_set_path;
-  
-  window_signals[MONITOR_CHANGED] = 
+
+  window_signals[MONITOR_CHANGED] =
     g_signal_new (BAMF_WINDOW_SIGNAL_MONITOR_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
@@ -385,7 +383,7 @@ bamf_window_class_init (BamfWindowClass *klass)
                   G_TYPE_NONE, 2,
                   G_TYPE_INT, G_TYPE_INT);
 
-  window_signals[MAXIMIZED_CHANGED] = 
+  window_signals[MAXIMIZED_CHANGED] =
     g_signal_new (BAMF_WINDOW_SIGNAL_MAXIMIZED_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
@@ -413,7 +411,6 @@ bamf_window_new (const char * path)
 {
   BamfWindow *self;
   self = g_object_new (BAMF_TYPE_WINDOW, NULL);
-
   _bamf_view_set_path (BAMF_VIEW (self), path);
 
   return self;
