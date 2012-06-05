@@ -35,11 +35,10 @@
 #include <config.h>
 #endif
 
+#include <libbamf-private/bamf-private.h>
 #include "bamf-view-private.h"
 #include "bamf-indicator.h"
 #include "bamf-factory.h"
-// Move to a general place!
-#include <libbamf-private/bamf-private.h>
 
 G_DEFINE_TYPE (BamfIndicator, bamf_indicator, BAMF_TYPE_VIEW);
 
@@ -223,11 +222,11 @@ bamf_indicator_set_path (BamfView *view, const char *path)
 
   priv->proxy = bamf_dbus_item_indicator_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
                                                                  G_DBUS_PROXY_FLAGS_NONE,
-                                                                 "org.ayatana.bamf",
+                                                                 BAMF_DBUS_SERVICE_NAME,
                                                                  path, NULL, &error);
   if (priv->proxy == NULL)
     {
-      g_error ("Unable to get org.ayatana.bamf.indicator indicator: %s", error ? error->message : "");
+      g_error ("Unable to get "BAMF_DBUS_SERVICE_NAME" indicator: %s", error ? error->message : "");
       g_error_free (error);
     }
 }
@@ -239,7 +238,7 @@ bamf_indicator_class_init (BamfIndicatorClass *klass)
   BamfViewClass *view_class = BAMF_VIEW_CLASS (klass);
 
   g_type_class_add_private (obj_class, sizeof (BamfIndicatorPrivate));
-  
+
   obj_class->dispose = bamf_indicator_dispose;
   view_class->set_path = bamf_indicator_set_path;
 }
