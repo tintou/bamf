@@ -151,12 +151,12 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
                                                            G_KEY_FILE_DESKTOP_GROUP,
                                                            STUB_KEY, NULL);
         }
-      
+
       if (g_key_file_has_key (keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL))
         {
           /* Grab the better name if its available */
           gchar *fullname = NULL;
-          error = NULL; 
+          error = NULL;
           fullname = g_key_file_get_locale_string (keyfile,
                                                    G_KEY_FILE_DESKTOP_GROUP,
                                                    "X-GNOME-FullName", NULL,
@@ -184,16 +184,20 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
           view = l->data;
           if (!BAMF_IS_WINDOW (view))
             continue;
-          
+
           window = BAMF_WINDOW (view);
-          
+
           do
             {
               class = bamf_legacy_window_get_class_name (bamf_window_get_window (window));
-              icon = g_utf8_strdown (class, -1);
 
-              if (icon_name_is_valid (icon))
-                break;
+              if (class)
+                {
+                  icon = g_utf8_strdown (class, -1);
+
+                  if (icon_name_is_valid (icon))
+                    break;
+                }
 
               g_free (icon);
               icon = bamf_legacy_window_get_exec_string (bamf_window_get_window (window));
@@ -208,14 +212,14 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
 
           name = g_strdup (bamf_legacy_window_get_name (bamf_window_get_window (window)));
         }
-        
+
       if (!icon)
         {
           if (window)
             {
               icon = g_strdup (bamf_legacy_window_save_mini_icon (bamf_window_get_window (window)));
             }
-          
+
           if (!icon)
             {
               icon = g_strdup ("application-default-icon");
@@ -394,10 +398,10 @@ bamf_application_get_stable_bus_name (BamfView *view)
       if (!BAMF_IS_WINDOW (child))
         continue;
 
-      return g_strdup_printf ("application%s", 
+      return g_strdup_printf ("application%s",
                               bamf_legacy_window_get_class_name (bamf_window_get_window (BAMF_WINDOW (child))));
     }
-  
+
   return g_strdup_printf ("application%p", view);
 }
 
@@ -416,7 +420,7 @@ bamf_application_ensure_flags (BamfApplication *self)
         continue;
 
       running = TRUE;
-      
+
       if (BAMF_IS_INDICATOR (view))
         visible = TRUE;
 
@@ -504,7 +508,7 @@ bamf_application_favorite_from_list (BamfApplication *self, GList *desktop_list)
 
   matcher = bamf_matcher_get_default ();
   favs = bamf_matcher_get_favorites (matcher);
-  
+
   if (favs)
     {
       for (l = favs; l; l = l->next)
@@ -549,7 +553,7 @@ bamf_application_set_desktop_file_from_list (BamfApplication *self, GList *list)
   priv->desktop_file_list = g_list_reverse (priv->desktop_file_list);
 
   desktop_file = bamf_application_favorite_from_list (self, priv->desktop_file_list);
-  
+
   /* items, after reversing them, are in priority order */
   if (!desktop_file)
     desktop_file = list->data;
@@ -583,10 +587,10 @@ static void
 matcher_favorites_changed (BamfMatcher *matcher, BamfApplication *self)
 {
   char *new_desktop_file = NULL;
-  
+
   g_return_if_fail (BAMF_IS_APPLICATION (self));
   g_return_if_fail (BAMF_IS_MATCHER (matcher));
-  
+
   new_desktop_file = bamf_application_favorite_from_list (self, self->priv->desktop_file_list);
 
   if (new_desktop_file)
@@ -670,7 +674,7 @@ bamf_application_dispose (GObject *object)
       g_free (priv->desktop_file);
       priv->desktop_file = NULL;
     }
-    
+
   if (priv->desktop_file_list)
     {
       g_list_free_full (priv->desktop_file_list, g_free);
@@ -748,7 +752,7 @@ bamf_application_init (BamfApplication * self)
   bamf_dbus_item_object_skeleton_set_application (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
                                                   priv->dbus_iface);
 
-  g_signal_connect (G_OBJECT (bamf_matcher_get_default ()), "favorites-changed", 
+  g_signal_connect (G_OBJECT (bamf_matcher_get_default ()), "favorites-changed",
                     (GCallback) matcher_favorites_changed, self);
 }
 
@@ -800,10 +804,10 @@ bamf_application_new_from_desktop_files (GList *desktop_files)
 {
   BamfApplication *application;
   application = (BamfApplication *) g_object_new (BAMF_TYPE_APPLICATION, NULL);
-  
+
   bamf_application_set_desktop_file_from_list (application, desktop_files);
-  
-  return application;  
+
+  return application;
 }
 
 BamfApplication *
