@@ -98,6 +98,9 @@ const gchar     * bamf_application_get_application_type (BamfApplication *applic
  */
 const gchar     * bamf_application_get_desktop_file     (BamfApplication *application);
 
+gchar ** bamf_application_get_dnd_mimes (BamfApplication *application);
+
+
 /**
  * bamf_application_get_windows:
  * @application: a #BamfApplication

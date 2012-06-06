@@ -281,8 +281,7 @@ static void
 bamf_unity_webapps_application_dispose (GObject *object)
 {
   //  BamfUnityWebappsApplication *self = BAMF_UNITY_WEBAPPS_APPLICATION (object);
-  
-    
+
   G_OBJECT_CLASS (bamf_unity_webapps_application_parent_class)->dispose (object);
 }
 
@@ -290,19 +289,37 @@ static void
 bamf_unity_webapps_application_finalize (GObject *object)
 {
   BamfUnityWebappsApplication *self = BAMF_UNITY_WEBAPPS_APPLICATION (object);
-  
+
   g_object_unref (self->priv->context);
-  
+
   G_OBJECT_CLASS (bamf_unity_webapps_application_parent_class)->finalize (object);
 }
+
+static void
+on_accept_data_changed (UnityWebappsContext *context, const gchar **file, gpointer user_data)
+{
+  BamfUnityWebappsApplication *self = BAMF_UNITY_WEBAPPS_APPLICATION (user_data);
+
+  bamf_application_emit_dnd_mimes_changed (BAMF_APPLICATION (self));
+}
+
 
 static void
 bamf_unity_webapps_application_init (BamfUnityWebappsApplication *self)
 {
   self->priv = BAMF_UNITY_WEBAPPS_APPLICATION_GET_PRIVATE (self);
-  
+
   bamf_application_set_application_type (BAMF_APPLICATION (self), "webapp");
-  
+
+  g_signal_connect (self->priv->context, "accept-data-changed", G_CALLBACK (on_accept_data_changed), self);
+}
+
+static char **
+bamf_unity_webapps_application_get_dnd_mimes (BamfApplication *application)
+{
+  BamfUnityWebappsApplication *self = BAMF_UNITY_WEBAPPS_APPLICATION (application);
+
+  return unity_webapps_context_get_application_accept_data (self->priv->context);
 }
 
 static void
@@ -324,6 +341,7 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   
   bamf_application_class->get_application_menu = bamf_unity_webapps_application_get_application_menu;
   bamf_application_class->get_focus_child = bamf_unity_webapps_application_get_focus_child;
+  bamf_application_class->get_dnd_mimes = bamf_unity_webapps_application_get_dnd_mimes;
   
   pspec = g_param_spec_object("context", "Context", "The Unity Webapps Context assosciated with the Application",
 			      UNITY_WEBAPPS_TYPE_CONTEXT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);

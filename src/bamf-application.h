@@ -44,6 +44,8 @@ struct _BamfApplicationClass
   
   void (*get_application_menu) (BamfApplication *application, gchar **name, gchar **path);
   BamfView* (*get_focus_child) (BamfApplication *application);
+  char ** (*get_dnd_mimes) (BamfApplication *application);
+
 };
 
 struct _BamfApplication
@@ -56,9 +58,13 @@ struct _BamfApplication
 
 GType             bamf_application_get_type                   (void) G_GNUC_CONST;
 
+void              bamf_application_emit_dnd_mimes_changed     (BamfApplication *application);
+
 const char      * bamf_application_get_desktop_file           (BamfApplication *application);
 void              bamf_application_set_desktop_file           (BamfApplication *application,
                                                                const char * desktop_file);
+
+char           ** bamf_application_get_dnd_mimes              (BamfApplication *application);
 
 GVariant        * bamf_application_get_xids                   (BamfApplication *application);
 
