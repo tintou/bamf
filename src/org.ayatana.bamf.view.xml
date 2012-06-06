@@ -69,6 +69,9 @@
     <method name="DesktopFile">
       <arg name="desktop_file" type="s" direction="out"/>
     </method>
+    <method name="DndMimes">
+      <arg name="dnd_mimes" type="as" direction="out"/>
+    </method>
     <method name="ApplicationType">
       <arg name="type" type="s" direction="out"/>
     </method>
@@ -76,16 +79,19 @@
       <arg name="busname" type="s" direction="out"/>
       <arg name="objectpath" type="s" direction="out"/>
     </method>
-    
+
     <method name="FocusChild">
       <arg name="path" type="s" direction="out"/>
     </method>
-    
+
     <signal name="WindowRemoved">
       <arg name="path" type="s"/>
     </signal>
     <signal name="WindowAdded">
       <arg name="path" type="s"/>
+    </signal>
+    <signal name="DndMimesChanged">
+      <arg name="dnd_mimes" type="as"/>
     </signal>
   </interface>
 
