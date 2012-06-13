@@ -151,6 +151,8 @@ bamf_matcher_on_view_opened (DBusGProxy *proxy,
   if (!BAMF_IS_VIEW (view))
     return;
 
+  /* We manually set the view as not closed, to avoid issues like bug #925421 */
+  _bamf_view_set_closed (view, FALSE);
   g_signal_emit (matcher, matcher_signals[VIEW_OPENED], 0, view);
 }
 
@@ -168,6 +170,8 @@ bamf_matcher_on_view_closed (DBusGProxy *proxy,
   if (!BAMF_IS_VIEW (view))
     return;
 
+  /* We manually set the view as closed, to avoid issues like bug #925421 */
+  _bamf_view_set_closed (view, TRUE);
   g_signal_emit (matcher, matcher_signals[VIEW_CLOSED], 0, view);
 }
 
