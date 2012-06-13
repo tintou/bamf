@@ -17,22 +17,13 @@ test_libbamf_CPPFLAGS = \
   -I$(top_srcdir)/src \
   -I$(top_srcdir)/lib/libbamf \
   -I$(top_builddir)/lib/libbamf \
-  -DWNCK_I_KNOW_THIS_IS_UNSTABLE \
   -DTESTDIR=\""$(top_srcdir)/tests/libbamf"\" \
   $(GCC_FLAGS) \
-  $(GTK_CFLAGS) \
-  $(WNCK_CFLAGS) \
-  $(LIBWSBIND_CFLAGS) \
-  $(DBUS_CFLAGS) \
   $(GLIB_CFLAGS)
 
 test_libbamf_LDADD = \
   $(top_builddir)/lib/libbamf/libbamf$(VER).la \
-  $(LIBWSBIND_LIBS) \
-  $(WNCK_LIBS) \
-  $(GLIB_LIBS) \
-  $(GTK_LIBS) \
-  $(DBUS_LIBS)
+  $(GLIB_LIBS)
 
 # Run tests as part of make check
 if ENABLE_HEADLESS_TESTS

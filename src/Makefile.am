@@ -1,7 +1,7 @@
 CLEANFILES =
 DISTCLEANFILES =
 BUILT_SOURCES =
-EXTRA_DIST = 
+EXTRA_DIST =
 
 include $(top_srcdir)/Makefile.am.marshal
 

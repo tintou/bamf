@@ -23,13 +23,11 @@ alt_tabber_CPPFLAGS = \
   -DWNCK_I_KNOW_THIS_IS_UNSTABLE \
   $(LIBWSBIND_CFLAGS) \
   $(GLIB_CFLAGS) \
-  $(DBUS_CFLAGS) \
   $(NULL)
 
 alt_tabber_LDADD = \
   $(LIBWSBIND_LIBS) \
   $(GLIB_LIBS) \
-  $(DBUS_LIBS) \
   $(top_builddir)/lib/libbamf/libbamf$(VER).la
   
 # tab-source-test
@@ -43,13 +41,11 @@ tab_source_test_CPPFLAGS = \
   -DWNCK_I_KNOW_THIS_IS_UNSTABLE \
   $(LIBWSBIND_CFLAGS) \
   $(GLIB_CFLAGS) \
-  $(DBUS_CFLAGS) \
   $(NULL)
 
 tab_source_test_LDADD = \
   $(LIBWSBIND_LIBS) \
   $(GLIB_LIBS) \
-  $(DBUS_LIBS) \
   $(top_builddir)/lib/libbamf/libbamf$(VER).la
 
 # interaction-tester
@@ -63,13 +59,11 @@ interaction_tester_CPPFLAGS = \
   -DWNCK_I_KNOW_THIS_IS_UNSTABLE \
   $(LIBWSBIND_CFLAGS) \
   $(GLIB_CFLAGS) \
-  $(DBUS_CFLAGS) \
   $(NULL)
 
 interaction_tester_LDADD = \
   $(LIBWSBIND_LIBS) \
   $(GLIB_LIBS) \
-  $(DBUS_LIBS) \
   $(top_builddir)/lib/libbamf/libbamf$(VER).la
 
 
