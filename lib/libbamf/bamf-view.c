@@ -569,13 +569,8 @@ bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
       priv->cached_children = NULL;
     }
 
-  if (priv->sticky)
-    {
-      bamf_view_unset_proxy (self);
-    }
-  
   g_object_ref (self);
-  
+
   // must be emitted before path is cleared as path is utilized in cleanup
   g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
 
@@ -584,7 +579,7 @@ bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
       g_free (priv->path);
       priv->path = NULL;
     }
-    
+
   g_object_unref (self);
 }
 
