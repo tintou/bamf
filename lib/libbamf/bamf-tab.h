@@ -83,7 +83,7 @@ gchar   * bamf_tab_get_uri     (BamfTab *self);
 
 void      bamf_tab_set_uri     (BamfTab *self,
                                 gchar *uri);
-                                
+
 void      bamf_tab_show        (BamfTab *self);
 
 BamfTab * bamf_tab_new         (gchar *id, gchar *uri);

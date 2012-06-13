@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Canonical Ltd.
+ * Copyright 2010-2012 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -175,7 +175,7 @@ bamf_tab_class_init (BamfTabClass *klass)
 {
   GParamSpec *pspec;
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
-          
+
   object_class->constructed = bamf_tab_constructed;
   object_class->dispose = bamf_tab_dispose;
   object_class->set_property = bamf_tab_set_property;

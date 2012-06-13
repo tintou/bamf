@@ -9,106 +9,126 @@ endif
 CLEANFILES =
 DISTCLEANFILES =
 BUILT_SOURCES =
-EXTRA_DIST = 
+EXTRA_DIST =
 
 INCLUDE = \
-  -I$(top_builddir)/lib \
+	-I$(top_builddir)/lib \
+	$(NULL)
+
+libbamf_xml_gdbus_files = \
+  org.ayatana.bamf.tabsource.xml \
   $(NULL)
 
+libbamf_gdbus_files = \
+	bamf-gdbus-tab-source-generated.c \
+	bamf-gdbus-tab-source-generated.h \
+	$(NULL)
+
+libbamf_built_sources = \
+	bamf-marshal.c \
+	bamf-marshal.h \
+	$(libbamf_gdbus_files) \
+	$(NULL)
 
 include $(top_srcdir)/Makefile.am.marshal
 
 libbamf_sources = \
-  bamf-application.c \
-  bamf-control.c \
-  bamf-matcher.c \
-  bamf-view.c \
-  bamf-window.c \
-  bamf-factory.c \
-  bamf-tab-source.c \
-  bamf-tab.c \
-  bamf-indicator.c \
-  bamf-marshal.c \
-  $(NULL)
+	bamf-application.c \
+	bamf-control.c \
+	bamf-matcher.c \
+	bamf-view.c \
+	bamf-window.c \
+	bamf-factory.c \
+	bamf-tab-source.c \
+	bamf-tab.c \
+	bamf-indicator.c \
+	$(NULL)
 
-sources_h = \
-  bamf-application.h \
-  bamf-indicator.h \
-  bamf-control.h \
-  bamf-matcher.h \
-  bamf-view.h \
-  bamf-window.h \
-  bamf-tab-source.h \
-  bamf-tab.h \
-  libbamf.h \
-  $(NULL)
+libbamf_headers = \
+	bamf-application.h \
+	bamf-indicator.h \
+	bamf-control.h \
+	bamf-matcher.h \
+	bamf-view.h \
+	bamf-window.h \
+	bamf-tab-source.h \
+	bamf-tab.h \
+	libbamf.h \
+	$(NULL)
+
+libbamf_private_headers = \
+	bamf-factory.h \
+	bamf-application-private.h \
+	bamf-view-private.h \
+	$(NULL)
 
 libbamf_la_SOURCES = \
-  bamf-factory.h \
-  bamf-application-private.h \
-  bamf-view-private.h \
-  $(sources_h) \
-  $(libbamf_sources) \
-  bamf-tab-source-glue.h \
-  bamf-marshal.h \
-  $(NULL)
+	$(libbamf_built_sources) \
+  $(libbamf_private_headers) \
+  $(libbamf_headers) \
+	$(libbamf_sources) \
+	$(NULL)
 
 libbamf_la_LIBADD = \
-  $(top_builddir)/lib/libbamf-private/libbamf-private.la \
-  $(LIBWSBIND_LIBS) \
-  $(GLIB_LIBS) \
-  $(DBUS_LIBS) \
-  $(NULL)
+	$(top_builddir)/lib/libbamf-private/libbamf-private.la \
+	$(LIBWSBIND_LIBS) \
+	$(GLIB_LIBS) \
+	$(NULL)
 
 libbamf_la_CPPFLAGS = \
-  -Wall -std=c99 \
-  -fPIC \
-  -DDATADIR=\""$(datadir)"\" \
-  -I$(top_srcdir)/lib \
-  -I$(top_srcdir)/lib/libbamf \
-  -I$(top_builddir)/lib/libbamf \
-  $(LIBWSBIND_CFLAGS) \
-  $(GLIB_CFLAGS) \
-  $(DBUS_CFLAGS) \
-  $(NULL)
+	-Wall -std=c99 \
+	-fPIC \
+	-DDATADIR=\""$(datadir)"\" \
+	-I$(top_srcdir)/lib \
+	-I$(top_srcdir)/lib/libbamf \
+	-I$(top_builddir)/lib/libbamf \
+	$(LIBWSBIND_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(NULL)
 
 libbamf_la_LDFLAGS = \
-  -shared \
-  -export-symbols-regex "^bamf_" \
-  $(NULL)
+	-shared \
+	-export-symbols-regex "^bamf_" \
+	$(NULL)
 
 libbamf3_la_SOURCES = $(libbamf_la_SOURCES)
 libbamf3_la_LIBADD = $(libbamf_la_LIBADD)
 libbamf3_la_CPPFLAGS = $(libbamf_la_CPPFLAGS)
 libbamf3_la_LDFLAGS = $(libbamf_la_LDFLAGS)
 
-DISTCLEANFILES += \
-	bamf-tab-source-glue.h \
-	$(NULL)
+library_includedir=$(includedir)/libbamf$(VER)/libbamf
+library_include_HEADERS = \
+	$(sources_h)
+
+libbamf_pcdir = $(libdir)/pkgconfig
+libbamf_pc_DATA = \
+	libbamf$(VER).pc
 
 glib_marshal_list = bamf-marshal.list
 glib_marshal_prefix = _bamf_marshal
 
-bamf-tab-source-glue.h: bamf-tab-source-glue.xml
-	$(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_tab_source --mode=glib-server --output=$@ $<
+bamf-gdbus-tab-source-generated.c bamf-gdbus-tab-source-generated.h: org.ayatana.bamf.tabsource.xml
+	$(AM_V_GEN) $(GDBUS_CODEGEN) \
+	--generate-c-code bamf-gdbus-tab-source-generated \
+	--c-namespace BamfDBusTab \
+	--interface-prefix org.ayatana.bamf \
+	$<
 
 BUILT_SOURCES += \
-	bamf-tab-source-glue.h \
+	$(libbamf_gdbus_files) \
 	$(NULL)
 
 EXTRA_DIST += \
-	bamf-tab-source-glue.xml \
+	$(libbamf_xml_gdbus_files) \
 	$(NULL)
 
+DISTCLEANFILES += \
+	$(libbamf_built_sources) \
+	$(NULL)
 
-library_includedir=$(includedir)/libbamf$(VER)/libbamf
-library_include_HEADERS = \
-  $(sources_h)
-
-libbamf_pcdir = $(libdir)/pkgconfig
-libbamf_pc_DATA = \
-  libbamf$(VER).pc
-
+CLEANFILES += \
+	$(libbamf_built_sources) \
+	$(NULL)
 
 #########################
 # GObject Introsepction 
