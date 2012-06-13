@@ -456,6 +456,7 @@ bamf_view_export_on_bus (BamfView *view, GDBusConnection *connection)
 
   if (!view->priv->path)
     {
+      gboolean exported = TRUE;
       char *stable_name = bamf_view_get_stable_bus_name (view);
       path = g_strconcat (BAMF_DBUS_BASE_PATH"/", stable_name, NULL);
       g_free (stable_name);
@@ -467,18 +468,19 @@ bamf_view_export_on_bus (BamfView *view, GDBusConnection *connection)
 
       /* The dbus object interface list is in reversed order, we try to export
        * the interfaces in bottom to top order (BamfView should be the first) */
-      for (l = g_list_last(ifaces); l; l = l->prev)
+      for (l = g_list_last (ifaces); l; l = l->prev)
         {
           g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (l->data),
                                             connection, path, &error);
+          if (error)
+          {
+            g_critical ("Can't register BAMF view interface: %s", error->message);
+            g_clear_error (&error);
+            exported = FALSE;
+          }
         }
 
-      if (error)
-        {
-          g_critical ("Can't register BAMF view: %s", error->message);
-          g_error_free (error);
-        }
-      else
+      if (exported)
         {
           g_signal_emit (view, view_signals[EXPORTED], 0);
         }
