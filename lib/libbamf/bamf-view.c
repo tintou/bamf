@@ -67,7 +67,7 @@ enum
   URGENT_CHANGED,
   VISIBLE_CHANGED,
   NAME_CHANGED,
- 
+
   LAST_SIGNAL,
 };
 
@@ -552,6 +552,9 @@ on_view_proxy_destroyed (GObject *proxy, gpointer user_data)
 
   view->priv->checked_flags = 0x0;
   view->priv->proxy = NULL;
+
+  g_free (view->priv->path);
+  view->priv->path = NULL;
 }
 
 static void
@@ -571,15 +574,7 @@ bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
 
   g_object_ref (self);
 
-  // must be emitted before path is cleared as path is utilized in cleanup
   g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
-
-  if (priv->path)
-    {
-      g_free (priv->path);
-      priv->path = NULL;
-    }
-
   g_object_unref (self);
 }
 
@@ -603,7 +598,7 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
   switch (property_id)
     {
       case PROP_PATH:
-        g_value_set_string (value, self->priv->path);
+        g_value_set_string (value, self->priv->is_closed ? NULL : self->priv->path);
         break;
       
       case PROP_ACTIVE:
@@ -723,11 +718,11 @@ bamf_view_dispose (GObject *object)
   G_OBJECT_CLASS (bamf_view_parent_class)->dispose (object);
 }
 
-const char * 
+const char *
 _bamf_view_get_path (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  
+
   return view->priv->path;
 }
 
@@ -769,17 +764,20 @@ void
 _bamf_view_set_path (BamfView *view, const char *path)
 {
   BamfViewPrivate *priv;
-  
+
   g_return_if_fail (BAMF_IS_VIEW (view));
-  
+  g_return_if_fail (path);
+
   priv = view->priv;
   priv->is_closed = FALSE;
 
-  if (priv->path)
+  if (priv->proxy && g_strcmp0 (priv->path, path) == 0)
     {
-      g_free (priv->path);
+      // The proxy path has not been changed, no need to unset and re-set it again
+      return;
     }
 
+  g_free (priv->path);
   bamf_view_unset_proxy (view);
 
   priv->path = g_strdup (path);
@@ -819,15 +817,15 @@ _bamf_view_set_path (BamfView *view, const char *path)
                            "RunningChanged",
                            G_TYPE_BOOLEAN,
                            G_TYPE_INVALID);
-  
+
   dbus_g_proxy_add_signal (priv->proxy,
                            "UrgentChanged",
-                           G_TYPE_BOOLEAN, 
+                           G_TYPE_BOOLEAN,
                            G_TYPE_INVALID);
-  
+
   dbus_g_proxy_add_signal (priv->proxy,
                            "UserVisibleChanged",
-                           G_TYPE_BOOLEAN, 
+                           G_TYPE_BOOLEAN,
                            G_TYPE_INVALID);
 
   dbus_g_proxy_add_signal (priv->proxy,
@@ -871,7 +869,7 @@ _bamf_view_set_path (BamfView *view, const char *path)
                                (GCallback) bamf_view_on_urgent_changed,
                                view,
                                NULL);
-  
+
   dbus_g_proxy_connect_signal (priv->proxy,
                                "UserVisibleChanged",
                                (GCallback) bamf_view_on_user_visible_changed,
