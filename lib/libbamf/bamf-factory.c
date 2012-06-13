@@ -107,6 +107,7 @@ on_view_weak_unref (BamfFactory *self, BamfView *view)
 {
   g_return_if_fail (BAMF_IS_FACTORY (self));
   self->priv->local_views = g_list_remove (self->priv->local_views, view);
+  self->priv->registered_views = g_list_remove (self->priv->registered_views, view);
 }
 
 static void
@@ -204,9 +205,9 @@ _bamf_factory_view_for_path_type_str (BamfFactory * factory, const char * path,
   return _bamf_factory_view_for_path_type (factory, path, factory_type);
 }
 
-BamfView * 
+BamfView *
 _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
-                                                        BamfFactoryViewType type)
+                                                         BamfFactoryViewType type)
 {
   GHashTable *views;
   BamfView *view;
