@@ -683,7 +683,10 @@ bamf_view_dispose (GObject *object)
       GDBusInterfaceSkeleton *iface = G_DBUS_INTERFACE_SKELETON (l->data);
 
       if (g_dbus_interface_skeleton_get_object_path (iface))
+      {
+        g_dbus_interface_skeleton_flush (iface);
         g_dbus_interface_skeleton_unexport (iface);
+      }
     }
   g_list_free (ifaces);
 
