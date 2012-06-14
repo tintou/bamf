@@ -147,15 +147,15 @@ test_path (void)
 static void
 test_path_collision (void)
 {
-  BamfView *view;
-  GList *views, *l;
   int i, j;
   
   for (i = 0; i < 20; i++)
     {
+      GList *views = NULL;
+
       for (j = 0; j < 2000; j++)
         {
-          view = g_object_new (BAMF_TYPE_VIEW, NULL);
+          BamfView * view = g_object_new (BAMF_TYPE_VIEW, NULL);
           g_assert (BAMF_IS_VIEW (view));
 
           views = g_list_prepend (views, view);
@@ -163,13 +163,7 @@ test_path_collision (void)
           bamf_view_export_on_bus (view, gdbus_connection);
         }
 
-      for (l = views; l; l = l->next)
-        {
-          g_object_unref (l->data);
-        }
-
-      g_list_free (views);
-      views = NULL;
+      g_list_free_full (views, g_object_unref);
     }
 }
 
@@ -187,24 +181,24 @@ test_children (void)
   g_assert (bamf_view_get_children (parent) == NULL);
 
   bamf_view_add_child (parent, child1);
-  g_assert (g_list_length ((GList*)bamf_view_get_children (parent)) == 1);
-  g_assert (g_list_nth_data ((GList*)bamf_view_get_children (parent), 0) == child1);
+  g_assert (g_list_length (bamf_view_get_children (parent)) == 1);
+  g_assert (g_list_nth_data (bamf_view_get_children (parent), 0) == child1);
 
   bamf_view_add_child (parent, child2);
   bamf_view_add_child (parent, child3);
-  g_assert (g_list_length ((GList*)bamf_view_get_children (parent)) == 3);
+  g_assert (g_list_length (bamf_view_get_children (parent)) == 3);
 
   bamf_view_close (child1);
   g_object_unref (child1);
-  g_assert (g_list_length ((GList*)bamf_view_get_children (parent)) == 2);
+  g_assert (g_list_length (bamf_view_get_children (parent)) == 2);
 
   bamf_view_close (child2);
   g_object_unref (child2);
-  g_assert (g_list_length ((GList*)bamf_view_get_children (parent)) == 1);
+  g_assert (g_list_length (bamf_view_get_children (parent)) == 1);
 
   bamf_view_close (child3);
   g_object_unref (child3);
-  g_assert (g_list_length ((GList*)bamf_view_get_children (parent)) == 0);
+  g_assert (g_list_length (bamf_view_get_children (parent)) == 0);
 
   bamf_view_close (parent);
   g_object_unref (parent);
@@ -234,7 +228,7 @@ test_children_paths (void)
   bamf_view_add_child (parent, child1);
   bamf_view_add_child (parent, child2);
   bamf_view_add_child (parent, child3);
-  g_assert (g_list_length ((GList*)bamf_view_get_children (parent)) == 3);
+  g_assert (g_list_length (bamf_view_get_children (parent)) == 3);
 
   container = bamf_view_get_children_paths (parent);
   g_assert (g_variant_type_equal (g_variant_get_type (container),

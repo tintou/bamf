@@ -166,8 +166,10 @@ bamf_view_close (BamfView *view)
 
   if (emit)
     {
-      g_signal_emit_by_name (view, "closed");
+      g_object_ref (view);
       g_signal_emit (view, view_signals[CLOSED_INTERNAL], 0);
+      g_signal_emit_by_name (view, "closed");
+      g_object_unref (view);
     }
 }
 
@@ -206,7 +208,7 @@ bamf_view_get_children_paths (BamfView *view)
   return g_variant_builder_end (&b);
 }
 
-const GList *
+GList *
 bamf_view_get_children (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
@@ -241,7 +243,7 @@ bamf_view_get_parent_paths (BamfView *view)
   return g_variant_builder_end (&b);
 }
 
-const GList *
+GList *
 bamf_view_get_parents (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
@@ -386,7 +388,7 @@ bamf_view_set_user_visible (BamfView *view, gboolean user_visible)
   bamf_view_user_visible_changed (view, user_visible);
 }
 
-char *
+const char *
 bamf_view_get_icon (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
@@ -397,12 +399,15 @@ bamf_view_get_icon (BamfView *view)
   return NULL;
 }
 
-char *
+const char *
 bamf_view_get_name (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
 
-  return g_strdup (view->priv->name);
+  if (BAMF_VIEW_GET_CLASS (view)->get_name)
+    return BAMF_VIEW_GET_CLASS (view)->get_name (view);
+
+  return view->priv->name;
 }
 
 void
@@ -460,7 +465,9 @@ bamf_view_export_on_bus (BamfView *view, GDBusConnection *connection)
 
       ifaces = g_dbus_object_get_interfaces (G_DBUS_OBJECT (view));
 
-      for (l = ifaces; l; l = l->next)
+      /* The dbus object interface list is in reversed order, we try to export
+       * the interfaces in bottom to top order (BamfView should be the first) */
+      for (l = g_list_last(ifaces); l; l = l->prev)
         {
           g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (l->data),
                                             connection, path, &error);
@@ -583,10 +590,9 @@ on_dbus_handle_icon (BamfDBusItemView *interface,
                      GDBusMethodInvocation *invocation,
                      BamfView *view)
 {
-  char *icon = bamf_view_get_icon (view);
+  const char *icon = bamf_view_get_icon (view);
   g_dbus_method_invocation_return_value (invocation,
                                          g_variant_new ("(s)", icon ? icon : ""));
-  g_free (icon);
 
   return TRUE;
 }
@@ -596,10 +602,9 @@ on_dbus_handle_name (BamfDBusItemView *interface,
                      GDBusMethodInvocation *invocation,
                      BamfView *view)
 {
-  char *name = bamf_view_get_name (view);
+  const char *name = bamf_view_get_name (view);
   g_dbus_method_invocation_return_value (invocation,
                                          g_variant_new ("(s)", name ? name : ""));
-  g_free (name);
 
   return TRUE;
 }

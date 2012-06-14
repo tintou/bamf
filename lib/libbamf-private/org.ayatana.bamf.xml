@@ -30,6 +30,9 @@
     <method name="RunningApplications">
       <arg name="paths" type="as" direction="out"/>
     </method>
+    <method name="RunningApplicationsDesktopFiles">
+      <arg name="paths" type="as" direction="out"/>
+    </method>
     <method name="RegisterFavorites">
       <arg name="favorites" type="as" direction="in"/>
     </method>
@@ -57,6 +60,10 @@
     <method name="ActiveApplication">
       <arg name="application" type="s" direction="out"/>
     </method>
+    <method name="WindowStackForMonitor">
+      <arg name="monitor_id" type="i" direction="in"/>
+      <arg name="window_list" type="as" direction="out"/>
+    </method>
     <signal name="ActiveApplicationChanged">
       <arg name="old_app" type="s"/>
       <arg name="new_app" type="s"/>
@@ -72,6 +79,12 @@
     <signal name="ViewOpened">
       <arg name="path" type="s"/>
       <arg name="type" type="s"/>
+    </signal>
+    <signal name="StackingOrderChanged">
+    </signal>
+    <signal name="RunningApplicationsChanged">
+      <arg name="opened_desktop_files" type="as"/>
+      <arg name="closed_desktop_files" type="as"/>
     </signal>
   </interface>
 </node>

@@ -37,6 +37,11 @@
 #define BAMF_IS_LEGACY_WINDOW_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_LEGACY_WINDOW))
 #define BAMF_LEGACY_WINDOW_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_LEGACY_WINDOW, BamfLegacyWindowClass))
 
+#define BAMF_LEGACY_WINDOW_SIGNAL_NAME_CHANGED     "name-changed"
+#define BAMF_LEGACY_WINDOW_SIGNAL_STATE_CHANGED    "state-changed"
+#define BAMF_LEGACY_WINDOW_SIGNAL_GEOMETRY_CHANGED "geometry-changed"
+#define BAMF_LEGACY_WINDOW_SIGNAL_CLOSED           "closed"
+
 typedef struct _BamfLegacyWindow BamfLegacyWindow;
 typedef struct _BamfLegacyWindowClass BamfLegacyWindowClass;
 typedef struct _BamfLegacyWindowPrivate BamfLegacyWindowPrivate;
@@ -53,25 +58,43 @@ typedef enum
   BAMF_WINDOW_SPLASHSCREEN  /* splash screen */
 } BamfWindowType;
 
+typedef enum
+{
+  BAMF_WINDOW_FLOATING,
+  BAMF_WINDOW_HORIZONTAL_MAXIMIZED,
+  BAMF_WINDOW_VERTICAL_MAXIMIZED,
+  BAMF_WINDOW_MAXIMIZED
+} BamfWindowMaximizationType;
+
 struct _BamfLegacyWindowClass
 {
   GObjectClass parent;
 
-  const char * (*get_name)           (BamfLegacyWindow *legacy_window);
-  const char * (*get_class_name)     (BamfLegacyWindow *legacy_window);
-  char       * (*get_exec_string)    (BamfLegacyWindow *legacy_window);
-  gint         (*get_pid)            (BamfLegacyWindow *legacy_window);
-  guint32      (*get_xid)            (BamfLegacyWindow *legacy_window);
-  gboolean     (*needs_attention)    (BamfLegacyWindow *legacy_window);
-  gboolean     (*is_active)          (BamfLegacyWindow *legacy_window);
-  gboolean     (*is_skip_tasklist)   (BamfLegacyWindow *legacy_window);
-  gboolean     (*is_desktop)         (BamfLegacyWindow *legacy_window);
-  gboolean     (*is_dialog)          (BamfLegacyWindow *legacy_window);
+  const char * (*get_name)                (BamfLegacyWindow *legacy_window);
+  const char * (*get_class_name)          (BamfLegacyWindow *legacy_window);
+  const char * (*get_class_instance_name) (BamfLegacyWindow *legacy_window);
+  char       * (*get_exec_string)         (BamfLegacyWindow *legacy_window);
+  char       * (*get_app_id)              (BamfLegacyWindow *legacy_window);
+  char       * (*get_unique_bus_name)     (BamfLegacyWindow *legacy_window);
+  char       * (*get_menu_object_path)    (BamfLegacyWindow *legacy_window);
+  gint         (*get_pid)                 (BamfLegacyWindow *legacy_window);
+  guint32      (*get_xid)                 (BamfLegacyWindow *legacy_window);
+  gboolean     (*needs_attention)         (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_active)               (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_skip_tasklist)        (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_desktop)              (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_dialog)               (BamfLegacyWindow *legacy_window);
+  BamfWindowMaximizationType (*maximized) (BamfLegacyWindow *legacy_window);
+
+  void         (*get_geometry)         (BamfLegacyWindow *self,
+                                        gint *x, gint *y,
+                                        gint *width, gint *height);
 
   /*< signals >*/
-  void     (*name_changed)    (BamfLegacyWindow *legacy_window);
-  void     (*state_changed)   (BamfLegacyWindow *legacy_window);
-  void     (*closed)          (BamfLegacyWindow *legacy_window);
+  void     (*name_changed)     (BamfLegacyWindow *legacy_window);
+  void     (*state_changed)    (BamfLegacyWindow *legacy_window);
+  void     (*geometry_changed) (BamfLegacyWindow *legacy_window);
+  void     (*closed)           (BamfLegacyWindow *legacy_window);
 };
 
 struct _BamfLegacyWindow
@@ -82,38 +105,46 @@ struct _BamfLegacyWindow
   BamfLegacyWindowPrivate *priv;
 };
 
-GType              bamf_legacy_window_get_type          (void) G_GNUC_CONST;
+GType              bamf_legacy_window_get_type             (void) G_GNUC_CONST;
 
-guint32            bamf_legacy_window_get_xid           (BamfLegacyWindow *self);
+guint32            bamf_legacy_window_get_xid              (BamfLegacyWindow *self);
 
-gint               bamf_legacy_window_get_pid           (BamfLegacyWindow *self);
+gint               bamf_legacy_window_get_pid              (BamfLegacyWindow *self);
 
-gboolean           bamf_legacy_window_is_active         (BamfLegacyWindow *self);
+void               bamf_legacy_window_get_geometry         (BamfLegacyWindow *self,
+                                                            gint *x, gint *y,
+                                                            gint *width, gint *height);
 
-gboolean           bamf_legacy_window_is_skip_tasklist  (BamfLegacyWindow *self);
+gboolean           bamf_legacy_window_is_active            (BamfLegacyWindow *self);
 
-gboolean           bamf_legacy_window_needs_attention   (BamfLegacyWindow *self);
+gboolean           bamf_legacy_window_is_skip_tasklist     (BamfLegacyWindow *self);
 
-gboolean           bamf_legacy_window_is_closed         (BamfLegacyWindow *self);
+gboolean           bamf_legacy_window_needs_attention      (BamfLegacyWindow *self);
 
-BamfWindowType     bamf_legacy_window_get_window_type   (BamfLegacyWindow *self);
+gboolean           bamf_legacy_window_is_closed            (BamfLegacyWindow *self);
 
-#ifdef USE_GTK3
+BamfWindowType     bamf_legacy_window_get_window_type      (BamfLegacyWindow *self);
+
+BamfWindowMaximizationType bamf_legacy_window_maximized    (BamfLegacyWindow *self);
+
 const char       * bamf_legacy_window_get_class_instance_name (BamfLegacyWindow *self);
-#endif
 
-const char       * bamf_legacy_window_get_class_name    (BamfLegacyWindow *self);
+const char       * bamf_legacy_window_get_class_name       (BamfLegacyWindow *self);
 
-const char       * bamf_legacy_window_get_name          (BamfLegacyWindow *self);
+const char       * bamf_legacy_window_get_name             (BamfLegacyWindow *self);
 
-const char       * bamf_legacy_window_save_mini_icon    (BamfLegacyWindow *self);
+const char       * bamf_legacy_window_save_mini_icon       (BamfLegacyWindow *self);
 
-char             * bamf_legacy_window_get_exec_string   (BamfLegacyWindow *self);
+char             * bamf_legacy_window_get_exec_string      (BamfLegacyWindow *self);
 
-BamfLegacyWindow * bamf_legacy_window_get_transient     (BamfLegacyWindow *self);
+BamfLegacyWindow * bamf_legacy_window_get_transient        (BamfLegacyWindow *self);
 
-void               bamf_legacy_window_reopen            (BamfLegacyWindow *self);
+char             * bamf_legacy_window_get_utf8_xprop       (BamfLegacyWindow *self, const char* prop);
 
-BamfLegacyWindow * bamf_legacy_window_new               (WnckWindow *legacy_window);
+gint               bamf_legacy_window_get_stacking_position (BamfLegacyWindow *self);
+
+void               bamf_legacy_window_reopen               (BamfLegacyWindow *self);
+
+BamfLegacyWindow * bamf_legacy_window_new                  (WnckWindow *legacy_window);
 
 #endif

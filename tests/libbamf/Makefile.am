@@ -14,6 +14,7 @@ test_libbamf_SOURCES = \
 test_libbamf_CPPFLAGS = \
   -I$(top_srcdir) \
   -I$(top_srcdir)/lib \
+  -I$(top_srcdir)/src \
   -I$(top_srcdir)/lib/libbamf \
   -I$(top_builddir)/lib/libbamf \
   -DWNCK_I_KNOW_THIS_IS_UNSTABLE \

@@ -40,6 +40,7 @@ sources_h = \
 
 libbamf_la_SOURCES = \
   bamf-factory.h \
+  bamf-application-private.h \
   bamf-view-private.h \
   $(sources_h) \
   $(libbamf_sources) \
@@ -58,14 +59,16 @@ libbamf_la_CPPFLAGS = \
   -fPIC \
   -DDATADIR=\""$(datadir)"\" \
   -I$(top_srcdir)/lib \
-  -I$(top_builddir)/lib \
+  -I$(top_srcdir)/lib/libbamf \
+  -I$(top_builddir)/lib/libbamf \
   $(LIBWSBIND_CFLAGS) \
   $(GLIB_CFLAGS) \
   $(DBUS_CFLAGS) \
   $(NULL)
 
 libbamf_la_LDFLAGS = \
-  -shared -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
+  -shared \
+  -export-symbols-regex "^bamf_" \
   $(NULL)
 
 libbamf3_la_SOURCES = $(libbamf_la_SOURCES)
@@ -78,7 +81,7 @@ DISTCLEANFILES += \
 	$(NULL)
 
 glib_marshal_list = bamf-marshal.list
-glib_marshal_prefix = bamf_marshal
+glib_marshal_prefix = _bamf_marshal
 
 bamf-tab-source-glue.h: bamf-tab-source-glue.xml
 	$(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_tab_source --mode=glib-server --output=$@ $<

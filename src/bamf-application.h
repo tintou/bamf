@@ -53,7 +53,7 @@ struct _BamfApplication
 
 GType             bamf_application_get_type                   (void) G_GNUC_CONST;
 
-char            * bamf_application_get_desktop_file           (BamfApplication *application);
+const char      * bamf_application_get_desktop_file           (BamfApplication *application);
 void              bamf_application_set_desktop_file           (BamfApplication *application,
                                                                const char * desktop_file);
 
@@ -65,7 +65,7 @@ gboolean          bamf_application_manages_xid                (BamfApplication *
 gboolean          bamf_application_contains_similar_to_window (BamfApplication *app, 
                                                                BamfWindow *window);
 
-char            * bamf_application_get_wmclass                (BamfApplication *application);
+const char      * bamf_application_get_wmclass                (BamfApplication *application);
 void              bamf_application_set_wmclass                (BamfApplication *application,
                                                                const char *wmclass);
 

@@ -1,8 +1,8 @@
 /*
- * bamf-view-private.h
+ * bamf-application-private.h
  * This file is part of BAMF
  *
- * Copyright (C) 2010 - Jason Smith
+ * Copyright (C) 2012 - Marco Trevisan (Treviño)
  *
  * BAMF is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,20 +20,11 @@
  * Boston, MA  02110-1301  USA
  */
 
-#ifndef _BAMF_VIEW_PRIVATE_H_
-#define _BAMF_VIEW_PRIVATE_H_
+#ifndef _BAMF_APPLICATION_PRIVATE_H_
+#define _BAMF_APPLICATION_PRIVATE_H_
 
-#include <libbamf/bamf-view.h>
+#include <libbamf/bamf-application.h>
 
-void _bamf_view_set_path (BamfView *view, const char *dbus_path);
+GList *_bamf_application_get_cached_xids (BamfApplication *app);
 
-const char * _bamf_view_get_path (BamfView *view);
-
-gboolean _bamf_view_remote_ready (BamfView *view);
-
-void _bamf_view_reset_flags (BamfView *view);
-
-void _bamf_view_set_name (BamfView *view, const char *name);
-
-void _bamf_view_set_icon (BamfView *view, const char *icon);
 #endif

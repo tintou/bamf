@@ -54,6 +54,15 @@ typedef struct _BamfFactory        BamfFactory;
 typedef struct _BamfFactoryClass   BamfFactoryClass;
 typedef struct _BamfFactoryPrivate BamfFactoryPrivate;
 
+typedef enum
+{
+  BAMF_FACTORY_VIEW,
+  BAMF_FACTORY_WINDOW,
+  BAMF_FACTORY_APPLICATION,
+  BAMF_FACTORY_INDICATOR,
+  BAMF_FACTORY_NONE
+} BamfFactoryViewType;
+
 struct _BamfFactory
 {
   GObject parent;
@@ -66,16 +75,24 @@ struct _BamfFactoryClass
   GObjectClass parent_class;
 };
 
-GType             bamf_factory_get_type             (void) G_GNUC_CONST;
+GType             bamf_factory_get_type              (void) G_GNUC_CONST;
 
-BamfView        * bamf_factory_view_for_path        (BamfFactory * factory,
-                                                     const char * path);
+BamfView        * _bamf_factory_view_for_path        (BamfFactory * factory,
+                                                      const char * path);
 
-BamfApplication * bamf_factory_app_for_file         (BamfFactory * factory,
+BamfView        * _bamf_factory_view_for_path_type   (BamfFactory * factory,
+                                                      const char * path,
+                                                      BamfFactoryViewType type);
+
+BamfView        * _bamf_factory_view_for_path_type_str (BamfFactory * factory,
+                                                        const char * path,
+                                                        const char * type);
+
+BamfApplication * _bamf_factory_app_for_file         (BamfFactory * factory,
                                                      const char * path,
                                                      gboolean create);
 
-BamfFactory     * bamf_factory_get_default          (void);
+BamfFactory     * _bamf_factory_get_default          (void);
 
 G_END_DECLS
 

@@ -51,10 +51,8 @@ main (int argc, char **argv)
 
   if (error)
     {
-      g_error_free (error);
-      error = NULL;
-
-      g_print ("%s\n", g_option_context_get_help (options, TRUE, NULL));
+      g_print ("%s, error: %s\n", g_option_context_get_help (options, TRUE, NULL), error->message);
+      g_clear_error (&error);
       exit (1);
     }
 

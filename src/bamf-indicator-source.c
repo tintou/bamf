@@ -42,7 +42,7 @@ struct _BamfIndicatorSourcePrivate
 
 G_DEFINE_TYPE (BamfIndicatorSource, bamf_indicator_source, STATUS_NOTIFIER_APPROVER_TYPE__SKELETON)
 
-const GList *
+GList *
 bamf_indicator_source_get_indicators (BamfIndicatorSource *self)
 {
   g_return_val_if_fail (BAMF_IS_INDICATOR_SOURCE (self), NULL);
@@ -74,7 +74,7 @@ rejudge_approval (BamfIndicator *indicator, BamfIndicatorSource *self)
 
   const char *address = bamf_indicator_get_address (indicator);
   const char *path = bamf_indicator_get_path (indicator);
-  const GList *parents = bamf_view_get_parents (BAMF_VIEW (indicator));
+  GList *parents = bamf_view_get_parents (BAMF_VIEW (indicator));
   gboolean approve = TRUE;
 
   switch (self->priv->behavior)
@@ -152,8 +152,7 @@ bamf_indicator_source_approve_item (BamfIndicatorSource *self,
       if (error)
         {
           g_warning ("Could not get indicator process id: %s", error->message);
-          g_error_free (error);
-          error = NULL;
+          g_clear_error (&error);
         }
 
       g_return_val_if_fail (G_IS_DBUS_PROXY (gproxy), TRUE);
@@ -167,7 +166,7 @@ bamf_indicator_source_approve_item (BamfIndicatorSource *self,
       if (error)
         {
           g_warning ("Could not get indicator process id: %s", error->message);
-          g_error_free (error);
+          g_clear_error (&error);
           return TRUE;
         }
 
@@ -201,7 +200,7 @@ bamf_indicator_source_approve_item (BamfIndicatorSource *self,
       g_signal_emit (self, indicator_source_signals[INDICATOR_OPENED], 0, indicator);
     }
 
-  const GList *parents = bamf_view_get_parents (BAMF_VIEW (indicator));
+  GList *parents = bamf_view_get_parents (BAMF_VIEW (indicator));
 
   switch (self->priv->behavior)
     {
@@ -227,13 +226,14 @@ bamf_indicator_source_register_notification_approver (BamfIndicatorSource *self)
   GDBusProxy *gproxy;
   GError *error = NULL;
   gchar *owner;
+  GVariant* result;
 
   gproxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
                                           G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES|
                                           G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS|
                                           G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
                                           NULL,
-                                          "com.canonical.indicator.application",
+                                          "org.kde.StatusNotifierWatcher",//"com.canonical.indicator.application",
                                           "/StatusNotifierWatcher",
                                           "org.kde.StatusNotifierWatcher",
                                           NULL,
@@ -258,7 +258,7 @@ bamf_indicator_source_register_notification_approver (BamfIndicatorSource *self)
           g_variant_builder_init (&array, G_VARIANT_TYPE ("as"));
           g_variant_builder_add_value (&tuple, g_variant_builder_end (&array));
 
-          g_dbus_proxy_call_sync (gproxy, "XAyatanaRegisterNotificationApprover",
+          result = g_dbus_proxy_call_sync (gproxy, "XAyatanaRegisterNotificationApprover",
                                            g_variant_builder_end (&tuple),
                                            G_DBUS_CALL_FLAGS_NONE,
                                            -1,
@@ -272,6 +272,7 @@ bamf_indicator_source_register_notification_approver (BamfIndicatorSource *self)
                                 (GCallback) status_notifier_proxy_owner_changed,
                                 self);
 
+              g_variant_unref (result);
               if (self->priv->proxy)
                 g_object_unref (self->priv->proxy);
 

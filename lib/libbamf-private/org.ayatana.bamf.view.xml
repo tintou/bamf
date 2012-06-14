@@ -84,12 +84,33 @@
     <method name="GetXid">
       <arg name="xid" type="u" direction="out"/>
     </method>
+    <method name="GetPid">
+      <arg name="pid" type="u" direction="out"/>
+    </method>
     <method name="Transient">
       <arg name="path" type="s" direction="out"/>
     </method>
     <method name="WindowType">
       <arg name="type" type="u" direction="out"/>
     </method>
+    <method name="Xprop">
+      <arg name="xprop" type="s" direction="in"/>
+      <arg name="name" type="s" direction="out"/>
+    </method>
+    <method name="Monitor">
+      <arg name="monitor_number" type="i" direction="out"/>
+    </method>
+    <method name="Maximized">
+      <arg name="maximized" type="i" direction="out"/>
+    </method>
+    <signal name="MonitorChanged">
+      <arg name="old" type="i" direction="out"/>
+      <arg name="new" type="i" direction="out"/>
+    </signal>
+    <signal name="MaximizedChanged">
+      <arg name="old" type="i" direction="out"/>
+      <arg name="new" type="i" direction="out"/>
+    </signal>
   </interface>
 
   <interface name="org.ayatana.bamf.indicator">
