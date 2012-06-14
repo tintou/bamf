@@ -125,7 +125,7 @@ bamf_window_get_window_type (BamfWindow *self)
   priv = self->priv;
 
   if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
-    return 0;
+    return BAMF_WINDOW_UNKNOWN;
 
   if (!bamf_dbus_item_window_call_window_type_sync (priv->proxy, &type, NULL, &error))
     {
@@ -197,6 +197,7 @@ bamf_window_get_utf8_prop (BamfWindow *self, const char* xprop)
   GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
+  g_return_val_if_fail (xprop, NULL);
   priv = self->priv;
 
   if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
@@ -204,7 +205,7 @@ bamf_window_get_utf8_prop (BamfWindow *self, const char* xprop)
 
   if (!bamf_dbus_item_window_call_xprop_sync (priv->proxy, xprop, &result, NULL, &error))
     {
-      g_warning ("Failed to fetch property: %s", error ? error->message : "");
+      g_warning ("Failed to fetch property `%s': %s", xprop, error ? error->message : "");
       g_error_free (error);
 
       return NULL;
