@@ -440,7 +440,7 @@ bamf_view_get_stable_bus_name (BamfView *view)
 
   if (BAMF_VIEW_GET_CLASS (view)->stable_bus_name)
     return BAMF_VIEW_GET_CLASS (view)->stable_bus_name (view);
-    
+
   return g_strdup_printf ("view%p", view);
 }
 
@@ -683,12 +683,13 @@ bamf_view_dispose (GObject *object)
       GDBusInterfaceSkeleton *iface = G_DBUS_INTERFACE_SKELETON (l->data);
 
       if (g_dbus_interface_skeleton_get_object_path (iface))
-      {
-        g_dbus_interface_skeleton_flush (iface);
-        g_dbus_interface_skeleton_unexport (iface);
-      }
+        {
+          g_dbus_interface_skeleton_flush (iface);
+          g_dbus_interface_skeleton_unexport (iface);
+        }
     }
-  g_list_free (ifaces);
+
+  g_list_free_full (ifaces, g_object_unref);
 
   if (priv->name)
     {
