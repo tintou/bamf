@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Canonical Ltd.
+ * Copyright 2010-2012 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -57,7 +57,7 @@ enum
   URGENT_CHANGED,
   VISIBLE_CHANGED,
   NAME_CHANGED,
- 
+
   LAST_SIGNAL,
 };
 
@@ -77,7 +77,6 @@ static guint view_signals[LAST_SIGNAL] = { 0 };
 struct _BamfViewPrivate
 {
   BamfDBusItemView *proxy;
-  gchar            *path;
   gchar            *type;
   gchar            *local_icon;
   gchar            *local_name;
@@ -112,7 +111,7 @@ bamf_view_get_children (BamfView *view)
 
   if (!bamf_dbus_item_view_call_children_sync (priv->proxy, &children, NULL, &error))
     {
-      g_warning ("Unable to fetch children: %s\n", error->message);
+      g_warning ("Unable to fetch children: %s\n", error ? error->message : "");
       g_error_free (error);
       return NULL;
     }
@@ -148,15 +147,21 @@ bamf_view_is_active (BamfView *view)
   if (BAMF_VIEW_GET_CLASS (view)->is_active)
     return BAMF_VIEW_GET_CLASS (view)->is_active (view);
 
+  if (!_bamf_view_remote_ready (view))
+    return FALSE;
+
   return bamf_dbus_item_view_get_active (view->priv->proxy);
 
 }
 
-gboolean          
+gboolean
 bamf_view_user_visible (BamfView *self)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (self), FALSE);
-  
+
+  if (!_bamf_view_remote_ready (self))
+    return FALSE;
+
   return bamf_dbus_item_view_get_user_visible (self->priv->proxy);
 }
 
@@ -164,9 +169,12 @@ gboolean
 bamf_view_is_running (BamfView *self)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (self), FALSE);
-  
+
   if (BAMF_VIEW_GET_CLASS (self)->is_running)
     return BAMF_VIEW_GET_CLASS (self)->is_running (self);
+
+  if (!_bamf_view_remote_ready (self))
+    return FALSE;
 
   return bamf_dbus_item_view_get_running (self->priv->proxy);
 }
@@ -175,9 +183,12 @@ gboolean
 bamf_view_is_urgent (BamfView *self)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (self), FALSE);
-  
+
   if (BAMF_VIEW_GET_CLASS (self)->is_urgent)
     return BAMF_VIEW_GET_CLASS (self)->is_urgent (self);
+
+  if (!_bamf_view_remote_ready (self))
+    return FALSE;
 
   return bamf_dbus_item_view_get_urgent (self->priv->proxy);
 }
@@ -186,17 +197,14 @@ void
 _bamf_view_set_name (BamfView *view, const char *name)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
-  
-  if (!g_strcmp0 (name, view->priv->local_name))
+
+  if (g_strcmp0 (name, view->priv->local_name) == 0)
     return;
 
   g_free (view->priv->local_name);
+  view->priv->local_name = NULL;
 
-  if (name && name[0] == '\0')
-    {
-      view->priv->local_name = NULL;
-    }
-  else
+  if (name && name[0] != '\0')
     {
       view->priv->local_name = g_strdup (name);
     }
@@ -208,35 +216,32 @@ _bamf_view_set_icon (BamfView *view, const char *icon)
   g_return_if_fail (BAMF_IS_VIEW (view));
 
   g_free (view->priv->local_icon);
+  view->priv->local_icon = NULL;
 
-  if (icon && icon[0] == '\0')
-    {
-      view->priv->local_icon = NULL;
-    }
-  else
+  if (icon && icon[0] != '\0')
     {
       view->priv->local_icon = g_strdup (icon);
     }
 }
 
-gboolean 
+gboolean
 bamf_view_is_sticky (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-  
+
   return view->priv->sticky;
 }
 
-void 
+void
 bamf_view_set_sticky (BamfView *view, gboolean value)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
-  
+
   if (value == view->priv->sticky)
     return;
 
   view->priv->sticky = value;
-  
+
   if (value)
     g_object_ref_sink (view);
   else
@@ -252,7 +257,7 @@ bamf_view_get_icon (BamfView *self)
 
   g_return_val_if_fail (BAMF_IS_VIEW (self), NULL);
   priv = self->priv;
-  
+
   if (BAMF_VIEW_GET_CLASS (self)->get_icon)
     return BAMF_VIEW_GET_CLASS (self)->get_icon (self);
 
@@ -261,19 +266,16 @@ bamf_view_get_icon (BamfView *self)
 
   if (!bamf_dbus_item_view_call_icon_sync (priv->proxy, &icon, NULL, &error))
     {
-      g_warning ("Failed to fetch icon: %s", error->message);
+      g_warning ("Failed to fetch icon: %s", error ? error->message : "");
       g_error_free (error);
 
       return NULL;
     }
 
-  if (icon && icon[0] == '\0')
-    {
-      g_free (icon);
-      return NULL;
-    }
+  _bamf_view_set_icon (self, icon);
+  g_free (icon);
 
-  return icon;
+  return g_strdup (priv->local_icon);
 }
 
 gchar *
@@ -285,34 +287,34 @@ bamf_view_get_name (BamfView *self)
 
   g_return_val_if_fail (BAMF_IS_VIEW (self), NULL);
   priv = self->priv;
-  
+
   if (BAMF_VIEW_GET_CLASS (self)->get_name)
     return BAMF_VIEW_GET_CLASS (self)->get_name (self);
 
-  if (!_bamf_view_remote_ready (self))
+  if (!_bamf_view_remote_ready (self) || priv->local_name)
     return g_strdup (priv->local_name);
-    
+
   if (!bamf_dbus_item_view_call_name_sync (priv->proxy, &name, NULL, &error))
     {
-      g_warning ("Failed to fetch name: %s", error->message);
+      g_warning ("Failed to fetch name: %s", error ? error->message : "");
       g_error_free (error);
 
       return NULL;
     }
 
-  if (name && name[0] == '\0')
-    {
-      g_free (name);
-      return NULL;
-    }
+  _bamf_view_set_name (self, name);
+  g_free (name);
 
-  return name;
+  return g_strdup (priv->local_name);
 }
 
-gboolean 
+gboolean
 _bamf_view_remote_ready (BamfView *view)
 {
-  return BAMF_IS_VIEW (view) && view->priv->proxy;
+  if (BAMF_IS_VIEW (view) && G_IS_DBUS_PROXY (view->priv->proxy))
+    return !view->priv->is_closed;
+
+  return FALSE;
 }
 
 const gchar *
@@ -324,16 +326,20 @@ bamf_view_get_view_type (BamfView *self)
 
   g_return_val_if_fail (BAMF_IS_VIEW (self), NULL);
   priv = self->priv;
-  
+
   if (BAMF_VIEW_GET_CLASS (self)->view_type)
     return BAMF_VIEW_GET_CLASS (self)->view_type (self);
-  
+
   if (priv->type)
     return priv->type;
 
+  if (!_bamf_view_remote_ready (self))
+    return NULL;
+
   if (!bamf_dbus_item_view_call_view_type_sync (priv->proxy, &type, NULL, &error))
     {
-      //g_warning ("Failed to fetch view type at %s: %s", dbus_g_proxy_get_path (priv->proxy), error ? error->message : "");
+      const gchar *path = g_dbus_proxy_get_object_path (G_DBUS_PROXY (priv->proxy));
+      g_warning ("Failed to fetch view type at %s: %s", path, error ? error->message : "");
       g_error_free (error);
       return NULL;
     }
@@ -342,19 +348,19 @@ bamf_view_get_view_type (BamfView *self)
   return type;
 }
 
-BamfClickBehavior 
+BamfClickBehavior
 bamf_view_get_click_suggestion (BamfView *self)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (self), BAMF_CLICK_BEHAVIOR_NONE);
 
   if (BAMF_VIEW_GET_CLASS (self)->click_behavior)
     return BAMF_VIEW_GET_CLASS (self)->click_behavior (self);
-    
+
   return BAMF_CLICK_BEHAVIOR_NONE;
 }
 
 static void
-bamf_view_on_child_added (BamfDBusItemView *proxy, char *path, BamfView *self)
+bamf_view_on_child_added (BamfDBusItemView *proxy, const char *path, BamfView *self)
 {
   BamfView *view;
   BamfViewPrivate *priv;
@@ -391,7 +397,7 @@ bamf_view_on_child_removed (BamfDBusItemView *proxy, char *path, BamfView *self)
 static void
 bamf_view_on_active_changed (BamfDBusItemView *proxy, gboolean active, BamfView *self)
 {
-  g_signal_emit (G_OBJECT(self), view_signals[ACTIVE_CHANGED], 0, active);
+  g_signal_emit (G_OBJECT (self), view_signals[ACTIVE_CHANGED], 0, active);
   g_object_notify (G_OBJECT (self), "active");
 }
 
@@ -442,22 +448,8 @@ bamf_view_on_closed (BamfDBusItemView *proxy, BamfView *self)
       priv->cached_children = NULL;
     }
 
-  if (priv->sticky)
-    {
-      bamf_view_unset_proxy (self);
-    }
-  
   g_object_ref (self);
-  
-  // must be emitted before path is cleared as path is utilized in cleanup
   g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
-
-  if (priv->path)
-    {
-      g_free (priv->path);
-      priv->path = NULL;
-    }
-    
   g_object_unref (self);
 }
 
@@ -467,7 +459,7 @@ bamf_view_set_property (GObject *object, guint property_id, const GValue *value,
   switch (property_id)
     {
       default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     }
 }
 
@@ -481,27 +473,27 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
   switch (property_id)
     {
       case PROP_PATH:
-        g_value_set_string (value, self->priv->path);
+        g_value_set_string (value, self->priv->is_closed ? NULL : _bamf_view_get_path (self));
         break;
-      
+
       case PROP_ACTIVE:
         g_value_set_boolean (value, bamf_view_is_active (self));
         break;
-      
+
       case PROP_RUNNING:
         g_value_set_boolean (value, bamf_view_is_running (self));
         break;
-      
+
       case PROP_URGENT:
         g_value_set_boolean (value, bamf_view_is_urgent (self));
         break;
-      
+
       case PROP_USER_VISIBLE:
         g_value_set_boolean (value, bamf_view_user_visible (self));
         break;
-      
+
       default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     }
 }
 
@@ -538,18 +530,12 @@ bamf_view_dispose (GObject *object)
 
   priv = view->priv;
 
-  if (priv->path)
-    {
-      g_free (priv->path);
-      priv->path = NULL;
-    }
-
   if (priv->type)
     {
       g_free (priv->type);
       priv->type = NULL;
     }
- 
+
   if (priv->local_icon)
     {
       g_free (priv->local_icon);
@@ -573,42 +559,42 @@ bamf_view_dispose (GObject *object)
   G_OBJECT_CLASS (bamf_view_parent_class)->dispose (object);
 }
 
-const char * 
+const char *
 _bamf_view_get_path (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  
-  return view->priv->path;
+
+  if (G_IS_DBUS_PROXY (view->priv->proxy))
+    return g_dbus_proxy_get_object_path (G_DBUS_PROXY (view->priv->proxy));
+
+  return NULL;
 }
 
 void
 _bamf_view_reset_flags (BamfView *view)
 {
+  gboolean user_visible;
+  gboolean active;
+  gboolean running;
+  gboolean urgent;
+
   g_return_if_fail (BAMF_IS_VIEW (view));
 
-  if (bamf_view_user_visible (view))
-    {
-      g_signal_emit (G_OBJECT(view), view_signals[VISIBLE_CHANGED], 0, TRUE);
-      g_object_notify (G_OBJECT (view), "user-visible");
-    }
-  
-  if (bamf_view_is_active (view))
-    {
-      g_signal_emit (G_OBJECT(view), view_signals[ACTIVE_CHANGED], 0, TRUE);
-      g_object_notify (G_OBJECT (view), "active");
-    }
-  
-  if (bamf_view_is_running (view))
-    {
-      g_signal_emit (G_OBJECT(view), view_signals[RUNNING_CHANGED], 0, TRUE);
-      g_object_notify (G_OBJECT (view), "running");
-    }
-    
-  if (bamf_view_is_urgent (view))
-    {
-      g_signal_emit (G_OBJECT(view), view_signals[URGENT_CHANGED], 0, TRUE);
-      g_object_notify (G_OBJECT (view), "urgent");
-    }
+  user_visible = bamf_view_user_visible (view);
+  g_signal_emit (G_OBJECT (view), view_signals[VISIBLE_CHANGED], 0, user_visible);
+  g_object_notify (G_OBJECT (view), "user-visible");
+
+  active = bamf_view_is_active (view);
+  g_signal_emit (G_OBJECT (view), view_signals[ACTIVE_CHANGED], 0, active);
+  g_object_notify (G_OBJECT (view), "active");
+
+  running = bamf_view_is_running (view);
+  g_signal_emit (G_OBJECT (view), view_signals[RUNNING_CHANGED], 0, running);
+  g_object_notify (G_OBJECT (view), "running");
+
+  urgent = bamf_view_is_urgent (view);
+  g_signal_emit (G_OBJECT (view), view_signals[URGENT_CHANGED], 0, urgent);
+  g_object_notify (G_OBJECT (view), "urgent");
 }
 
 void
@@ -622,28 +608,28 @@ _bamf_view_set_path (BamfView *view, const char *path)
 
   priv = view->priv;
 
-  if (g_strcmp0 (priv->path, path) == 0)
-    return;
-
   priv->is_closed = FALSE;
 
-  if (priv->path)
-    {
-      g_free (priv->path);
-    }
+  if (g_strcmp0 (_bamf_view_get_path (view), path) == 0)
+  {
+    // The proxy path has not been changed, no need to unset and re-set it again
+    _bamf_view_reset_flags (view);
+    return;
+  }
 
   bamf_view_unset_proxy (view);
   priv->proxy = bamf_dbus_item_view_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
                                                             G_DBUS_PROXY_FLAGS_NONE,
-                                                            "org.ayatana.bamf",
+                                                            BAMF_DBUS_SERVICE_NAME,
                                                             path, NULL, &error);
-
-  if (priv->proxy == NULL)
+  if (!G_IS_DBUS_PROXY (priv->proxy))
     {
-      g_critical ("Unable to get org.ayatana.bamf.view view: %s", error->message);
+      g_critical ("Unable to get "BAMF_DBUS_SERVICE_NAME" view: %s", error ? error ? error->message : "" : "");
       g_error_free (error);
       return;
     }
+
+  _bamf_view_reset_flags (view);
 
   g_signal_connect (priv->proxy, "active-changed",
                     G_CALLBACK (bamf_view_on_active_changed), view);
@@ -693,88 +679,88 @@ bamf_view_class_init (BamfViewClass *klass)
 
   pspec = g_param_spec_string ("path", "path", "path", NULL, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_PATH, pspec);
-  
+
   pspec = g_param_spec_boolean ("active", "active", "active", FALSE, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_ACTIVE, pspec);
 
   pspec = g_param_spec_boolean ("urgent", "urgent", "urgent", FALSE, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_URGENT, pspec);
-  
+
   pspec = g_param_spec_boolean ("running", "running", "running", FALSE, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_RUNNING, pspec);
-  
+
   pspec = g_param_spec_boolean ("user-visible", "user-visible", "user-visible", FALSE, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_USER_VISIBLE, pspec);
 
   g_type_class_add_private (obj_class, sizeof (BamfViewPrivate));
 
-  view_signals [ACTIVE_CHANGED] = 
+  view_signals [ACTIVE_CHANGED] =
     g_signal_new (BAMF_VIEW_SIGNAL_ACTIVE_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (BamfViewClass, active_changed), 
+                  G_STRUCT_OFFSET (BamfViewClass, active_changed),
                   NULL, NULL,
                   g_cclosure_marshal_VOID__BOOLEAN,
-                  G_TYPE_NONE, 1, 
+                  G_TYPE_NONE, 1,
                   G_TYPE_BOOLEAN);
 
-  view_signals [CLOSED] = 
+  view_signals [CLOSED] =
     g_signal_new (BAMF_VIEW_SIGNAL_CLOSED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (BamfViewClass, closed), 
+                  G_STRUCT_OFFSET (BamfViewClass, closed),
                   NULL, NULL,
                   g_cclosure_marshal_VOID__VOID,
                   G_TYPE_NONE, 0);
 
-  view_signals [CHILD_ADDED] = 
+  view_signals [CHILD_ADDED] =
     g_signal_new (BAMF_VIEW_SIGNAL_CHILD_ADDED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (BamfViewClass, child_added), 
+                  G_STRUCT_OFFSET (BamfViewClass, child_added),
                   NULL, NULL,
                   g_cclosure_marshal_VOID__OBJECT,
-                  G_TYPE_NONE, 1, 
+                  G_TYPE_NONE, 1,
                   BAMF_TYPE_VIEW);
 
-  view_signals [CHILD_REMOVED] = 
+  view_signals [CHILD_REMOVED] =
     g_signal_new (BAMF_VIEW_SIGNAL_CHILD_REMOVED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (BamfViewClass, child_removed), 
+                  G_STRUCT_OFFSET (BamfViewClass, child_removed),
                   NULL, NULL,
                   g_cclosure_marshal_VOID__OBJECT,
-                  G_TYPE_NONE, 1, 
+                  G_TYPE_NONE, 1,
                   BAMF_TYPE_VIEW);
 
-  view_signals [RUNNING_CHANGED] = 
+  view_signals [RUNNING_CHANGED] =
     g_signal_new (BAMF_VIEW_SIGNAL_RUNNING_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (BamfViewClass, running_changed), 
+                  G_STRUCT_OFFSET (BamfViewClass, running_changed),
                   NULL, NULL,
                   g_cclosure_marshal_VOID__BOOLEAN,
-                  G_TYPE_NONE, 1, 
+                  G_TYPE_NONE, 1,
                   G_TYPE_BOOLEAN);
 
-  view_signals [URGENT_CHANGED] = 
+  view_signals [URGENT_CHANGED] =
     g_signal_new (BAMF_VIEW_SIGNAL_URGENT_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (BamfViewClass, urgent_changed), 
+                  G_STRUCT_OFFSET (BamfViewClass, urgent_changed),
                   NULL, NULL,
                   g_cclosure_marshal_VOID__BOOLEAN,
-                  G_TYPE_NONE, 1, 
+                  G_TYPE_NONE, 1,
                   G_TYPE_BOOLEAN);
 
-  view_signals [VISIBLE_CHANGED] = 
+  view_signals [VISIBLE_CHANGED] =
     g_signal_new (BAMF_VIEW_SIGNAL_USER_VISIBLE_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (BamfViewClass, user_visible_changed), 
+                  G_STRUCT_OFFSET (BamfViewClass, user_visible_changed),
                   NULL, NULL,
                   g_cclosure_marshal_VOID__BOOLEAN,
-                  G_TYPE_NONE, 1, 
+                  G_TYPE_NONE, 1,
                   G_TYPE_BOOLEAN);
 
   view_signals [NAME_CHANGED] =
@@ -792,7 +778,6 @@ bamf_view_class_init (BamfViewClass *klass)
 static void
 bamf_view_init (BamfView *self)
 {
-  g_debug("Making new view: USING MY LIBRARY");
   BamfViewPrivate *priv;
 
   priv = self->priv = BAMF_VIEW_GET_PRIVATE (self);
