@@ -56,6 +56,14 @@ struct _BamfViewPrivate
   GList * children;
   GList * parents;
   gboolean closed;
+
+  /* FIXME: temporary cache these properties until we don't export the view
+   * to the bus, we need this until the skeleton won't be smart enough to emit
+   * signals as soon as the object is exported */
+  gboolean running;
+  gboolean user_visible;
+  gboolean urgent;
+  gboolean active;
 };
 
 static void
@@ -310,6 +318,9 @@ bamf_view_is_active (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
+  if (!bamf_view_is_on_bus (view))
+    return view->priv->active;
+
   return bamf_dbus_item_view_get_active (view->priv->dbus_iface);
 }
 
@@ -322,7 +333,10 @@ bamf_view_set_active (BamfView *view,
   if (active == bamf_view_is_active (view))
     return;
 
-  bamf_dbus_item_view_set_active (view->priv->dbus_iface, active);
+  if (bamf_view_is_on_bus (view))
+    bamf_dbus_item_view_set_active (view->priv->dbus_iface, active);
+
+  view->priv->active = active;
   bamf_view_active_changed (view, active);
 }
 
@@ -330,6 +344,9 @@ gboolean
 bamf_view_is_urgent (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
+
+  if (!bamf_view_is_on_bus (view))
+    return view->priv->urgent;
 
   return bamf_dbus_item_view_get_urgent (view->priv->dbus_iface);
 }
@@ -343,7 +360,10 @@ bamf_view_set_urgent (BamfView *view,
   if (urgent == bamf_view_is_urgent (view))
     return;
 
-  bamf_dbus_item_view_set_urgent (view->priv->dbus_iface, urgent);
+  if (bamf_view_is_on_bus (view))
+    bamf_dbus_item_view_set_urgent (view->priv->dbus_iface, urgent);
+
+  view->priv->urgent = urgent;
   bamf_view_urgent_changed (view, urgent);
 }
 
@@ -351,6 +371,9 @@ gboolean
 bamf_view_is_running (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
+
+  if (!bamf_view_is_on_bus (view))
+    return view->priv->running;
 
   return bamf_dbus_item_view_get_running (view->priv->dbus_iface);
 }
@@ -364,7 +387,10 @@ bamf_view_set_running (BamfView *view,
   if (running == bamf_view_is_running (view))
     return;
 
-  bamf_dbus_item_view_set_running (view->priv->dbus_iface, running);
+  if (bamf_view_is_on_bus (view))
+    bamf_dbus_item_view_set_running (view->priv->dbus_iface, running);
+
+  view->priv->running = running;
   bamf_view_running_changed (view, running);
 }
 
@@ -372,6 +398,9 @@ gboolean
 bamf_view_user_visible (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
+
+  if (!bamf_view_is_on_bus (view))
+    return view->priv->user_visible;
 
   return bamf_dbus_item_view_get_user_visible (view->priv->dbus_iface);
 }
@@ -384,7 +413,10 @@ bamf_view_set_user_visible (BamfView *view, gboolean user_visible)
   if (user_visible == bamf_view_user_visible (view))
     return;
 
-  bamf_dbus_item_view_set_user_visible (view->priv->dbus_iface, user_visible);
+  if (bamf_view_is_on_bus (view))
+    bamf_dbus_item_view_set_user_visible (view->priv->dbus_iface, user_visible);
+
+  view->priv->user_visible = user_visible;
   bamf_view_user_visible_changed (view, user_visible);
 }
 
@@ -482,6 +514,17 @@ bamf_view_export_on_bus (BamfView *view, GDBusConnection *connection)
 
       if (exported)
         {
+          /* FIXME: if we change the properties before that the view has been
+           * exported, the skeleton doesn't emit the proper signals to notify
+           * the proxy that the values have been changed, and this causes
+           * the properties not to be updated on the client side.
+           * So we store the values locally until the proxy is not exported,
+           * then we notify our clients. */
+          bamf_view_set_active (view, view->priv->active);
+          bamf_view_set_running (view, view->priv->running);
+          bamf_view_set_user_visible (view, view->priv->user_visible);
+          bamf_view_set_urgent (view, view->priv->urgent);
+
           g_signal_emit (view, view_signals[EXPORTED], 0);
         }
 
@@ -675,8 +718,6 @@ bamf_view_dispose (GObject *object)
   BamfView *view = BAMF_VIEW (object);
   BamfViewPrivate *priv = view->priv;
 
-  g_dbus_object_skeleton_flush (G_DBUS_OBJECT_SKELETON (view));
-
   if (priv->name)
     {
       g_free (priv->name);
@@ -700,6 +741,8 @@ bamf_view_dispose (GObject *object)
       g_list_free (priv->parents);
       priv->parents = NULL;
     }
+
+  g_dbus_object_skeleton_flush (G_DBUS_OBJECT_SKELETON (view));
 
   G_OBJECT_CLASS (bamf_view_parent_class)->dispose (object);
 }
