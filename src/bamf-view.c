@@ -674,22 +674,8 @@ bamf_view_dispose (GObject *object)
 {
   BamfView *view = BAMF_VIEW (object);
   BamfViewPrivate *priv = view->priv;
-  GList *ifaces, *l;
 
-  ifaces = g_dbus_object_get_interfaces (G_DBUS_OBJECT (view));
-
-  for (l = ifaces; l; l = l->next)
-    {
-      GDBusInterfaceSkeleton *iface = G_DBUS_INTERFACE_SKELETON (l->data);
-
-      if (g_dbus_interface_skeleton_get_object_path (iface))
-        {
-          g_dbus_interface_skeleton_flush (iface);
-          g_dbus_interface_skeleton_unexport (iface);
-        }
-    }
-
-  g_list_free_full (ifaces, g_object_unref);
+  g_dbus_object_skeleton_flush (G_DBUS_OBJECT_SKELETON (view));
 
   if (priv->name)
     {
