@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Canonical Ltd.
+ * Copyright 2010-2012 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -35,6 +35,7 @@
 #include <config.h>
 #endif
 
+#include <libbamf-private/bamf-private.h>
 #include "bamf-factory.h"
 #include "bamf-view.h"
 #include "bamf-view-private.h"
@@ -42,9 +43,6 @@
 #include "bamf-application.h"
 #include "bamf-application-private.h"
 #include "bamf-indicator.h"
-
-#include <libbamf-private/bamf-private.h>
-#include <string.h>
 
 G_DEFINE_TYPE (BamfFactory, bamf_factory, G_TYPE_OBJECT);
 
@@ -143,7 +141,9 @@ static void
 on_view_weak_unref (BamfFactory *self, BamfView *view)
 {
   g_return_if_fail (BAMF_IS_FACTORY (self));
+
   self->priv->local_views = g_list_remove (self->priv->local_views, view);
+  self->priv->registered_views = g_list_remove (self->priv->registered_views, view);
 }
 
 static void
@@ -157,16 +157,16 @@ bamf_factory_register_view (BamfFactory *self, BamfView *view, const char *path)
   if (g_list_find (self->priv->registered_views, view))
     return;
 
-  self->priv->registered_views = g_list_prepend (self->priv->registered_views, view);
-
   g_signal_connect (G_OBJECT (view), "closed", (GCallback) on_view_closed, self);
   g_object_weak_ref (G_OBJECT (view), (GWeakNotify) on_view_weak_unref, self);
+
+  self->priv->registered_views = g_list_prepend (self->priv->registered_views, view);
 }
 
-BamfApplication * 
+BamfApplication *
 _bamf_factory_app_for_file (BamfFactory * factory,
-                           const char * path,
-                           gboolean create)
+                            const char * path,
+                            gboolean create)
 {
   BamfApplication *result = NULL, *app;
   GList *l;
@@ -180,12 +180,8 @@ _bamf_factory_app_for_file (BamfFactory * factory,
       app = BAMF_APPLICATION (l->data);
       if (g_strcmp0 (bamf_application_get_desktop_file (app), path) == 0)
         {
-          app = BAMF_APPLICATION (l->data);
-          if (g_strcmp0 (bamf_application_get_desktop_file (app), path) == 0)
-            {
-              result = app;
-              break;
-            }
+          result = app;
+          break;
         }
     }
 
@@ -194,8 +190,10 @@ _bamf_factory_app_for_file (BamfFactory * factory,
     {
       /* delay registration until match time */
       result = bamf_application_new_favorite (path);
-      if (result)
-        factory->priv->local_views = g_list_prepend (factory->priv->local_views, result);
+      if (result && !g_list_find (factory->priv->local_views, result))
+        {
+          factory->priv->local_views = g_list_prepend (factory->priv->local_views, result);
+        }
     }
 
   return result;
@@ -229,15 +227,15 @@ BamfFactoryViewType compute_factory_type_by_str (const char *type)
   return factory_type;
 }
 
-BamfView * 
+BamfView *
 _bamf_factory_view_for_path (BamfFactory * factory, const char * path)
 {
   return _bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_NONE);
 }
 
-BamfView * 
+BamfView *
 _bamf_factory_view_for_path_type_str (BamfFactory * factory, const char * path,
-                                                            const char * type)
+                                                             const char * type)
 {
   g_return_val_if_fail (BAMF_IS_FACTORY (factory), NULL);
   BamfFactoryViewType factory_type = compute_factory_type_by_str (type);
@@ -245,9 +243,9 @@ _bamf_factory_view_for_path_type_str (BamfFactory * factory, const char * path,
   return _bamf_factory_view_for_path_type (factory, path, factory_type);
 }
 
-BamfView * 
+BamfView *
 _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
-                                                        BamfFactoryViewType type)
+                                                         BamfFactoryViewType type)
 {
   GHashTable *views;
   BamfView *view;
@@ -256,13 +254,13 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
   gboolean created = FALSE;
 
   g_return_val_if_fail (BAMF_IS_FACTORY (factory), NULL);
-  
+
   if (!path || path[0] == '\0')
     return NULL;
-  
+
   views = factory->priv->views;
   view = g_hash_table_lookup (views, path);
-  
+
   if (BAMF_IS_VIEW (view))
     return view;
 
@@ -272,11 +270,11 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
     {
       vproxy = bamf_dbus_item_view_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
                                                            G_DBUS_PROXY_FLAGS_NONE,
-                                                           "org.ayatana.bamf",
+                                                           BAMF_DBUS_SERVICE_NAME,
                                                            path, NULL, NULL);
-      if (vproxy)
+      if (G_IS_DBUS_PROXY (vproxy))
         {
-          char *type_str;
+          char *type_str = NULL;
           bamf_dbus_item_view_call_view_type_sync (vproxy, &type_str, NULL, NULL);
           type = compute_factory_type_by_str (type_str);
           g_free (type_str);
@@ -389,7 +387,7 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
   if (view)
     {
       bamf_factory_register_view (factory, view, path);
-      
+
       if (created)
         {
           factory->priv->local_views = g_list_prepend (factory->priv->local_views, view);
@@ -400,12 +398,12 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
   return view;
 }
 
-BamfFactory * 
+BamfFactory *
 _bamf_factory_get_default (void)
 {
   if (BAMF_IS_FACTORY (factory))
     return factory;
-  
+
   factory = (BamfFactory *) g_object_new (BAMF_TYPE_FACTORY, NULL);
   return factory;
 }
