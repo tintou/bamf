@@ -34,7 +34,7 @@ struct _BamfControlPrivate
   GList *sources;
 };
 
-static void 
+static void
 bamf_control_on_launched_callback (GDBusConnection *connection,
                                    const gchar *sender_name,
                                    const gchar *object_path,
@@ -209,10 +209,8 @@ bamf_control_register_tab_provider (BamfControl *control,
 {
   BamfTabSource *source;
 
-  if (!path || !sender)
-    {
-      return;
-    }
+  g_return_if_fail (path && path[0] != '\0');
+  g_return_if_fail (sender && sender[0] != '\0');
 
   source = bamf_tab_source_new (g_strdup (sender), g_strdup (path));
 
