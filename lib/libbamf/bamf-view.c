@@ -415,7 +415,10 @@ bamf_view_get_name (BamfView *self)
 gboolean 
 _bamf_view_remote_ready (BamfView *view)
 {
-  return BAMF_IS_VIEW (view) && view->priv->proxy;
+  if (BAMF_IS_VIEW (view) && view->priv->proxy)
+    return !view->priv->is_closed;
+
+  return FALSE;
 }
 
 const gchar *
