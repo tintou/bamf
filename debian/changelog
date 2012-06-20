@@ -3,6 +3,8 @@ bamf (0.2.118-0ubuntu0.2) UNRELEASED; urgency=low
   * Cherry-pick from upstream:
     - Started applications pinned to the launcher are not set as running
       (LP: #976642)
+    - sometimes icons get dropped from the launcher when they should not
+      (LP: #925421)
 
  -- Łukasz 'sil2100' Zemczak <lukasz.zemczak@canonical.com>  Wed, 20 Jun 2012 19:09:43 +0100
 

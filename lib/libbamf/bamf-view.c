@@ -560,20 +560,30 @@ on_view_proxy_destroyed (GObject *proxy, gpointer user_data)
   view->priv->path = NULL;
 }
 
+void
+_bamf_view_set_closed (BamfView *view, gboolean closed)
+{
+  BamfViewPrivate *priv;
+  g_return_if_fail (BAMF_IS_VIEW (view));
+
+  priv = view->priv;
+
+  if (priv->is_closed != closed)
+    {
+      priv->is_closed = closed;
+
+      if (closed && priv->cached_children)
+        {
+          g_list_free_full (priv->cached_children, g_object_unref);
+          priv->cached_children = NULL;
+        }
+    }
+}
+
 static void
 bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
 {
-  BamfViewPrivate *priv;
-
-  priv = self->priv;
-
-  priv->is_closed = TRUE;
-
-  if (priv->cached_children)
-    {
-      g_list_free_full (priv->cached_children, g_object_unref);
-      priv->cached_children = NULL;
-    }
+  _bamf_view_set_closed (self, TRUE);
 
   g_object_ref (self);
 
@@ -772,7 +782,8 @@ bamf_view_set_path (BamfView *view, const char *path)
   g_return_if_fail (path);
 
   priv = view->priv;
-  priv->is_closed = FALSE;
+
+  _bamf_view_set_closed (view, FALSE);
 
   if (priv->proxy && g_strcmp0 (priv->path, path) == 0)
     {
@@ -1017,8 +1028,7 @@ bamf_view_init (BamfView *self)
   GError *error = NULL;
 
   priv = self->priv = BAMF_VIEW_GET_PRIVATE (self);
-
-  priv->is_closed = TRUE;
+  _bamf_view_set_closed (self, TRUE);
 
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   if (priv->connection == NULL)
