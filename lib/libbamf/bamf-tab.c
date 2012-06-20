@@ -194,7 +194,7 @@ bamf_tab_class_init (BamfTabClass *klass)
   	              G_SIGNAL_RUN_FIRST,
   	              G_STRUCT_OFFSET (BamfTabClass, uri_changed),
   	              NULL, NULL,
-  	              bamf_marshal_VOID__STRING_STRING,
+  	              _bamf_marshal_VOID__STRING_STRING,
   	              G_TYPE_NONE, 2, 
   	              G_TYPE_STRING, G_TYPE_STRING);
   
