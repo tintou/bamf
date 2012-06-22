@@ -683,7 +683,8 @@ bamf_view_dispose (GObject *object)
       if (g_dbus_interface_skeleton_get_object_path (iface))
         g_dbus_interface_skeleton_unexport (iface);
     }
-  g_list_free (ifaces);
+
+  g_list_free_full (ifaces, g_object_unref);
 
   if (priv->name)
     {
