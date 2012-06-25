@@ -1,4 +1,4 @@
-bamf (0.2.118-1ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.118-1ubuntu1) quantal; urgency=low
 
   * Sync from debian. No more difference.
   * Cherry-pick from upstream:
@@ -11,7 +11,7 @@ bamf (0.2.118-1ubuntu1) UNRELEASED; urgency=low
   * debian/control:
     - change packaging location to canonical branch (lp:ubuntu/bamf)
 
- -- Didier Roche <didrocks@ubuntu.com>  Mon, 25 Jun 2012 10:52:12 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Mon, 25 Jun 2012 11:01:57 +0200
 
 bamf (0.2.118-1) unstable; urgency=low
 
