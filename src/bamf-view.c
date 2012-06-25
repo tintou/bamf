@@ -267,6 +267,8 @@ bamf_view_add_child (BamfView *view,
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (BAMF_IS_VIEW (child));
 
+  g_object_ref (child);
+  
   g_signal_connect (G_OBJECT (child), "closed-internal",
                     (GCallback) bamf_view_handle_child_closed, view);
 
@@ -291,6 +293,8 @@ bamf_view_remove_child (BamfView *view,
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (BAMF_IS_VIEW (child));
 
+  g_object_unref (child);
+  
   g_signal_handlers_disconnect_by_func (child, bamf_view_handle_child_closed, view);
 
   /* Make sure our parent child lists are ok, pay attention to whose list you add parents to */
