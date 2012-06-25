@@ -1,4 +1,5 @@
 libbamf3.so.0 libbamf3-0 #MINVER#
+ _bamf_view_set_closed@Base 0.2.118
  bamf_application_get_application_type@Base 0.2.20
  bamf_application_get_cached_xids@Base 0.2.118
  bamf_application_get_desktop_file@Base 0.2.20
