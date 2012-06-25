@@ -67,7 +67,7 @@ enum
   URGENT_CHANGED,
   VISIBLE_CHANGED,
   NAME_CHANGED,
- 
+
   LAST_SIGNAL,
 };
 
@@ -415,7 +415,10 @@ bamf_view_get_name (BamfView *self)
 gboolean 
 bamf_view_remote_ready (BamfView *view)
 {
-  return BAMF_IS_VIEW (view) && view->priv->proxy;
+  if (BAMF_IS_VIEW (view) && view->priv->proxy)
+    return !view->priv->is_closed;
+
+  return FALSE;
 }
 
 const gchar *
@@ -552,39 +555,39 @@ on_view_proxy_destroyed (GObject *proxy, gpointer user_data)
 
   view->priv->checked_flags = 0x0;
   view->priv->proxy = NULL;
+
+  g_free (view->priv->path);
+  view->priv->path = NULL;
+}
+
+void
+_bamf_view_set_closed (BamfView *view, gboolean closed)
+{
+  BamfViewPrivate *priv;
+  g_return_if_fail (BAMF_IS_VIEW (view));
+
+  priv = view->priv;
+
+  if (priv->is_closed != closed)
+    {
+      priv->is_closed = closed;
+
+      if (closed && priv->cached_children)
+        {
+          g_list_free_full (priv->cached_children, g_object_unref);
+          priv->cached_children = NULL;
+        }
+    }
 }
 
 static void
 bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
 {
-  BamfViewPrivate *priv;
+  _bamf_view_set_closed (self, TRUE);
 
-  priv = self->priv;
-
-  priv->is_closed = TRUE;
-
-  if (priv->cached_children)
-    {
-      g_list_free_full (priv->cached_children, g_object_unref);
-      priv->cached_children = NULL;
-    }
-
-  if (priv->sticky)
-    {
-      bamf_view_unset_proxy (self);
-    }
-  
   g_object_ref (self);
-  
-  // must be emitted before path is cleared as path is utilized in cleanup
-  g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
 
-  if (priv->path)
-    {
-      g_free (priv->path);
-      priv->path = NULL;
-    }
-    
+  g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
   g_object_unref (self);
 }
 
@@ -608,7 +611,7 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
   switch (property_id)
     {
       case PROP_PATH:
-        g_value_set_string (value, self->priv->path);
+        g_value_set_string (value, self->priv->is_closed ? NULL : self->priv->path);
         break;
       
       case PROP_ACTIVE:
@@ -732,7 +735,7 @@ const char *
 bamf_view_get_path (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-  
+
   return view->priv->path;
 }
 
@@ -774,17 +777,21 @@ void
 bamf_view_set_path (BamfView *view, const char *path)
 {
   BamfViewPrivate *priv;
-  
-  g_return_if_fail (BAMF_IS_VIEW (view));
-  
-  priv = view->priv;
-  priv->is_closed = FALSE;
 
-  if (priv->path)
+  g_return_if_fail (BAMF_IS_VIEW (view));
+  g_return_if_fail (path);
+
+  priv = view->priv;
+
+  _bamf_view_set_closed (view, FALSE);
+
+  if (priv->proxy && g_strcmp0 (priv->path, path) == 0)
     {
-      g_free (priv->path);
+      // The proxy path has not been changed, no need to unset and re-set it again
+      return;
     }
 
+  g_free (priv->path);
   bamf_view_unset_proxy (view);
 
   priv->path = g_strdup (path);
@@ -824,15 +831,15 @@ bamf_view_set_path (BamfView *view, const char *path)
                            "RunningChanged",
                            G_TYPE_BOOLEAN,
                            G_TYPE_INVALID);
-  
+
   dbus_g_proxy_add_signal (priv->proxy,
                            "UrgentChanged",
-                           G_TYPE_BOOLEAN, 
+                           G_TYPE_BOOLEAN,
                            G_TYPE_INVALID);
-  
+
   dbus_g_proxy_add_signal (priv->proxy,
                            "UserVisibleChanged",
-                           G_TYPE_BOOLEAN, 
+                           G_TYPE_BOOLEAN,
                            G_TYPE_INVALID);
 
   dbus_g_proxy_add_signal (priv->proxy,
@@ -876,7 +883,7 @@ bamf_view_set_path (BamfView *view, const char *path)
                                (GCallback) bamf_view_on_urgent_changed,
                                view,
                                NULL);
-  
+
   dbus_g_proxy_connect_signal (priv->proxy,
                                "UserVisibleChanged",
                                (GCallback) bamf_view_on_user_visible_changed,
@@ -1021,8 +1028,7 @@ bamf_view_init (BamfView *self)
   GError *error = NULL;
 
   priv = self->priv = BAMF_VIEW_GET_PRIVATE (self);
-
-  priv->is_closed = TRUE;
+  _bamf_view_set_closed (self, TRUE);
 
   priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
   if (priv->connection == NULL)

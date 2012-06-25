@@ -107,6 +107,7 @@ on_view_weak_unref (BamfFactory *self, BamfView *view)
 {
   g_return_if_fail (BAMF_IS_FACTORY (self));
   self->priv->local_views = g_list_remove (self->priv->local_views, view);
+  self->priv->registered_views = g_list_remove (self->priv->registered_views, view);
 }
 
 static void
