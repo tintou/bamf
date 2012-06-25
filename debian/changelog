@@ -8,6 +8,8 @@ bamf (0.2.118-1ubuntu1) UNRELEASED; urgency=low
       (LP: #925421)
   * debian/*symbols:
     - add new private symbol (will not be exported after next release)
+  * debian/control:
+    - change packaging location to canonical branch (lp:ubuntu/bamf)
 
  -- Didier Roche <didrocks@ubuntu.com>  Mon, 25 Jun 2012 10:52:12 +0200
 
