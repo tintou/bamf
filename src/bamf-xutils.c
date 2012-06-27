@@ -21,6 +21,29 @@
 #include "bamf-xutils.h"
 #include <string.h>
 
+static Display *
+get_xdisplay (gboolean *opened)
+{
+  Display *xdisplay;
+  xdisplay = gdk_x11_get_default_xdisplay ();
+
+  if (opened)
+    *opened = FALSE;
+
+  if (!xdisplay)
+    {
+      xdisplay = XOpenDisplay (NULL);
+
+      if (xdisplay)
+        {
+          if (opened)
+            *opened = TRUE;
+        }
+    }
+
+  return xdisplay;
+}
+
 char *
 bamf_xutils_get_window_hint (Window xid, const char *atom_name, Atom type)
 {
@@ -32,22 +55,17 @@ bamf_xutils_get_window_hint (Window xid, const char *atom_name, Atom type)
   gulong numItems;
   gulong bytesAfter;
   unsigned char *buffer;
-  gboolean close_display = TRUE;
+  gboolean close_display = FALSE;
 
   g_return_val_if_fail ((xid != 0), NULL);
   g_return_val_if_fail (atom_name, NULL);
 
-  XDisplay = XOpenDisplay (NULL);
+  XDisplay = get_xdisplay (&close_display);
+
   if (!XDisplay)
   {
-    XDisplay = gdk_x11_get_default_xdisplay ();
-    if (!XDisplay)
-    {
-      g_warning ("%s: Unable to get a valid XDisplay", G_STRFUNC);
-      return hint;
-    }
-    
-    close_display = FALSE;
+    g_warning ("%s: Unable to get a valid XDisplay", G_STRFUNC);
+    return NULL;
   }
 
   atom = XInternAtom (XDisplay, atom_name, FALSE);
@@ -70,7 +88,9 @@ bamf_xutils_get_window_hint (Window xid, const char *atom_name, Atom type)
 
   if (result == Success && numItems > 0)
     {
-      hint = g_strdup ((char*) buffer);
+      if (buffer && buffer[0] != '\0')
+        hint = g_strdup ((char*) buffer);
+
       XFree (buffer);
     }
 
@@ -81,22 +101,18 @@ void
 bamf_xutils_set_window_hint (Window xid, const char *atom_name, Atom type, const char *data)
 {
   Display *XDisplay;
-  gboolean close_display = TRUE;
+  gboolean close_display = FALSE;
 
   g_return_if_fail (xid != 0);
   g_return_if_fail (atom_name);
   g_return_if_fail (data);
   
-  XDisplay = XOpenDisplay (NULL);
+  XDisplay = get_xdisplay (&close_display);
+
   if (!XDisplay)
   {
-    XDisplay = gdk_x11_get_default_xdisplay ();
-    if (!XDisplay)
-    {
-      g_warning ("%s: Unable to get a valid XDisplay", G_STRFUNC);
-      return;
-    }
-    close_display = FALSE;
+    g_warning ("%s: Unable to get a valid XDisplay", G_STRFUNC);
+    return;
   }
 
   XChangeProperty (XDisplay,
@@ -112,4 +128,36 @@ bamf_xutils_set_window_hint (Window xid, const char *atom_name, Atom type, const
 
   if (close_display)
     XCloseDisplay (XDisplay);
+}
+
+void
+bamf_xutils_get_window_class_hints (Window xid, char **class_instance_name, char **class_name)
+{
+  Display *xdisplay;
+  gboolean close_display = FALSE;
+
+  xdisplay = get_xdisplay (&close_display);
+
+  if (!xdisplay)
+  {
+    g_warning ("%s: Unable to get a valid XDisplay", G_STRFUNC);
+    return;
+  }
+
+  XClassHint class_hint;
+  class_hint.res_name = NULL;
+  class_hint.res_class = NULL;
+
+  XGetClassHint(xdisplay, xid, &class_hint);
+
+  if (class_name && class_hint.res_class && class_hint.res_class[0] != 0)
+    *class_name = g_convert (class_hint.res_class, -1, "utf-8", "iso-8859-1",
+                             NULL, NULL, NULL);
+
+  if (class_instance_name && class_hint.res_name && class_hint.res_name[0] != 0)
+    *class_instance_name = g_convert (class_hint.res_name, -1, "utf-8", "iso-8859-1",
+                                      NULL, NULL, NULL);
+
+  XFree (class_hint.res_class);
+  XFree (class_hint.res_name);
 }

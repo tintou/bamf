@@ -47,6 +47,9 @@ struct _BamfApplicationPrivate
   gboolean is_tab_container;
   gboolean show_stubs;
   gboolean close_when_empty;
+
+  gchar **mimes;
+  gboolean mimes_initialized;
 };
 
 #define STUB_KEY  "X-Ayatana-Appmenu-Show-Stubs"
@@ -57,6 +60,75 @@ bamf_application_get_icon (BamfView *view)
   g_return_val_if_fail (BAMF_IS_APPLICATION (view), NULL);
 
   return BAMF_APPLICATION (view)->priv->icon;
+}
+
+void
+bamf_application_emit_dnd_mimes_changed (BamfApplication *application)
+{
+  gchar **mimes = bamf_application_get_dnd_mimes (application);
+
+  if (!mimes)
+    {
+      gchar *empty[] = {NULL};
+
+      mimes = g_strdupv (empty);
+    }
+
+  g_signal_emit_by_name (application->priv->dbus_iface, "dnd-mimes-changed", mimes);
+  application->priv->mimes_initialized = TRUE;
+
+  if (application->priv->mimes)
+    g_strfreev (application->priv->mimes);
+
+  application->priv->mimes = mimes;
+}
+
+static char **
+bamf_application_default_get_dnd_mimes (BamfApplication *application)
+{
+  const char *desktop_file = bamf_application_get_desktop_file (application);
+
+  if (!desktop_file)
+    return NULL;
+
+  GKeyFile* key_file = g_key_file_new ();
+  GError *error = NULL;
+
+  g_key_file_load_from_file (key_file, desktop_file, (GKeyFileFlags) 0, &error);
+  application->priv->mimes_initialized = TRUE;
+
+  if (error)
+    {
+      g_key_file_free(key_file);
+      g_error_free (error);
+      return NULL;
+    }
+
+  char** mimes = g_key_file_get_string_list (key_file, "Desktop Entry", "MimeType", NULL, NULL);
+
+  g_key_file_free (key_file);
+
+  bamf_application_emit_dnd_mimes_changed (application);
+
+  return mimes;
+}
+
+char **
+bamf_application_get_dnd_mimes (BamfApplication *application)
+{
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
+
+  if (application->priv->mimes_initialized)
+    return g_strdupv (application->priv->mimes);
+
+  gchar **mimes = BAMF_APPLICATION_GET_CLASS (application)->get_dnd_mimes (application);
+
+  if (application->priv->mimes)
+    g_strfreev (application->priv->mimes);
+
+  application->priv->mimes = mimes;
+
+  return g_strdupv (mimes);
 }
 
 char *
@@ -692,6 +764,35 @@ on_dbus_handle_desktop_file (BamfDBusItemApplication *interface,
 }
 
 static gboolean
+on_dbus_handle_dnd_mimes (BamfDBusItemApplication *interface,
+                          GDBusMethodInvocation *invocation,
+                          BamfApplication *self)
+{
+  gchar **mimes = bamf_application_get_dnd_mimes (self);
+
+  GVariantBuilder *builder;
+  GVariant *value;
+  gchar **it;
+
+  builder = g_variant_builder_new (G_VARIANT_TYPE ("as"));
+  if (mimes)
+    for (it = mimes; *it; it++)
+      {
+        g_variant_builder_add (builder, "s", *it);
+      }
+  value = g_variant_new ("(as)", builder);
+
+  g_dbus_method_invocation_return_value (invocation,
+                                         value);
+
+  g_variant_builder_unref (builder);
+
+  g_strfreev (mimes);
+
+  return TRUE;
+}
+
+static gboolean
 on_dbus_handle_application_menu (BamfDBusItemApplication *interface,
 				 GDBusMethodInvocation *invocation,
 				 BamfApplication *self)
@@ -760,6 +861,9 @@ bamf_application_dispose (GObject *object)
       priv->wmclass = NULL;
     }
 
+  g_strfreev (priv->mimes);
+  priv->mimes = NULL;
+
   g_signal_handlers_disconnect_by_func (G_OBJECT (bamf_matcher_get_default ()),
                                         matcher_favorites_changed, object);
 
@@ -810,7 +914,10 @@ bamf_application_init (BamfApplication * self)
 
   g_signal_connect (priv->dbus_iface, "handle-desktop-file",
                     G_CALLBACK (on_dbus_handle_desktop_file), self);
-  
+
+  g_signal_connect (priv->dbus_iface, "handle-dnd-mimes",
+                    G_CALLBACK (on_dbus_handle_dnd_mimes), self);
+
   g_signal_connect (priv->dbus_iface, "handle-application-menu",
 		    G_CALLBACK (on_dbus_handle_application_menu), self);
 
@@ -844,6 +951,8 @@ bamf_application_class_init (BamfApplicationClass * klass)
   view_class->child_removed = bamf_application_child_removed;
   view_class->get_icon = bamf_application_get_icon;
   view_class->stable_bus_name = bamf_application_get_stable_bus_name;
+
+  klass->get_dnd_mimes = bamf_application_default_get_dnd_mimes;
 
   g_type_class_add_private (klass, sizeof (BamfApplicationPrivate));
 }
