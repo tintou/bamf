@@ -1,3 +1,9 @@
+bamf (0.2.118-0ubuntu2~webapps12) precise; urgency=low
+
+  * Webapps rebuild
+
+ -- Maxim Ermilov <maxim.ermilov@canonical.com>  Thu, 27 June 2012 22:55:22 +0100
+
 bamf (0.2.114-0ubuntu2~webapps8) precise; urgency=low
 
   * Webapps rebuild
