@@ -84,7 +84,7 @@ glib_marshal_list = bamf-marshal.list
 glib_marshal_prefix = _bamf_marshal
 
 bamf-tab-source-glue.h: bamf-tab-source-glue.xml
-	$(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_tab_source --mode=glib-server --output=$@ $<
+	$(AM_V_GEN)$(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_tab_source --mode=glib-server --output=$@ $<
 
 BUILT_SOURCES += \
 	bamf-tab-source-glue.h \
