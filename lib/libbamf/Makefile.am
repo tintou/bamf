@@ -110,7 +110,7 @@ libbamf_pc_DATA = \
 #########################
 
 INTROSPECTION_GIRS = 
-INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir) --warn-all
+INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)
 INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
 
 if HAVE_INTROSPECTION
