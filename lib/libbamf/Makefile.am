@@ -145,15 +145,15 @@ endif
 # VAPI Files
 #########################
 
-#if HAVE_INTROSPECTION
+if HAVE_INTROSPECTION
 
-#vapidir = $(datadir)/vala/vapi
-#vapi_DATA = Bamf-0.2.vapi
+vapidir = $(datadir)/vala/vapi
+vapi_DATA = libbamf$(VER).vapi
 
-#Bamf-0.2.vapi: Bamf-0.2.gir
-#	$(VALA_API_GEN) --library=Bamf-0.2 $<
+$(vapi_DATA): $(INTROSPECTION_GIRS)
+	$(AM_V_GEN)$(VALA_API_GEN) --library=$(@:.vapi=) $<
 
-#CLEANFILES += $(vapi_DATA)
+DISTCLEANFILES += $(vapi_DATA)
 
-#endif
+endif
 
