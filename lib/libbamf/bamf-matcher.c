@@ -470,7 +470,7 @@ bamf_matcher_get_active_window (BamfMatcher *matcher)
  *
  * Used to fetch the #BamfApplication containing the passed window.
  *
- * Returns: (transfer none) (nullable): The #BamfApplication representing the xid passed, or NULL if none exists.
+ * Returns: (transfer none): The #BamfApplication representing the xid passed, or NULL if none exists.
  */
 BamfApplication * 
 bamf_matcher_get_application_for_window  (BamfMatcher *matcher,
@@ -491,7 +491,7 @@ bamf_matcher_get_application_for_window  (BamfMatcher *matcher,
  *
  * Used to fetch the #BamfApplication containing the passed xid.
  *
- * Returns: (transfer none) (nullable): The #BamfApplication representing the xid passed, or NULL if none exists.
+ * Returns: (transfer none): The #BamfApplication representing the xid passed, or NULL if none exists.
  */
 BamfApplication *
 bamf_matcher_get_application_for_xid (BamfMatcher  *matcher,
@@ -824,7 +824,7 @@ bamf_matcher_get_tabs (BamfMatcher *matcher)
  * Used to fetch all xid's associated with an application. Useful for performing window
  * 
  *
- * Returns: (element-type guint32) (transfer none): A list of xids.
+ * Returns: (element-type guint32) (transfer full): A list of xids.
  */
 GArray *
 bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
@@ -840,7 +840,7 @@ bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
  * @desktop_file_path: Path to the desktop file
  * @create_if_not_found: Create a #BamfApplication if one isn't found
  *
- * Returns: (transfer none) (nullable): A #BamfApplication for given desktop file.
+ * Returns: (transfer none): A #BamfApplication for given desktop file.
  */
 BamfApplication * 
 bamf_matcher_get_application_for_desktop_file (BamfMatcher *matcher,
