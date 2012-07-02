@@ -352,7 +352,7 @@ bamf_matcher_dispose (GObject *object)
  *
  * Returns the default matcher. This matcher is owned by bamf and shared between other callers.
  *
- * Returns: (transfer none): A new #BamfMatcher
+ * Returns: (transfer full): A new #BamfMatcher
  */
 BamfMatcher *
 bamf_matcher_get_default (void)
