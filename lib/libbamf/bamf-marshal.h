@@ -1,44 +1,44 @@
 
-#ifndef __bamf_marshal_MARSHAL_H__
-#define __bamf_marshal_MARSHAL_H__
+#ifndef ___bamf_marshal_MARSHAL_H__
+#define ___bamf_marshal_MARSHAL_H__
 
 #include	<glib-object.h>
 
 G_BEGIN_DECLS
 
 /* VOID:STRING,STRING (./bamf-marshal.list:20) */
-extern void bamf_marshal_VOID__STRING_STRING (GClosure     *closure,
-                                              GValue       *return_value,
-                                              guint         n_param_values,
-                                              const GValue *param_values,
-                                              gpointer      invocation_hint,
-                                              gpointer      marshal_data);
+extern void _bamf_marshal_VOID__STRING_STRING (GClosure     *closure,
+                                               GValue       *return_value,
+                                               guint         n_param_values,
+                                               const GValue *param_values,
+                                               gpointer      invocation_hint,
+                                               gpointer      marshal_data);
 
 /* VOID:STRING,STRING,STRING (./bamf-marshal.list:21) */
-extern void bamf_marshal_VOID__STRING_STRING_STRING (GClosure     *closure,
-                                                     GValue       *return_value,
-                                                     guint         n_param_values,
-                                                     const GValue *param_values,
-                                                     gpointer      invocation_hint,
-                                                     gpointer      marshal_data);
+extern void _bamf_marshal_VOID__STRING_STRING_STRING (GClosure     *closure,
+                                                      GValue       *return_value,
+                                                      guint         n_param_values,
+                                                      const GValue *param_values,
+                                                      gpointer      invocation_hint,
+                                                      gpointer      marshal_data);
 
 /* VOID:OBJECT,OBJECT (./bamf-marshal.list:22) */
-extern void bamf_marshal_VOID__OBJECT_OBJECT (GClosure     *closure,
-                                              GValue       *return_value,
-                                              guint         n_param_values,
-                                              const GValue *param_values,
-                                              gpointer      invocation_hint,
-                                              gpointer      marshal_data);
+extern void _bamf_marshal_VOID__OBJECT_OBJECT (GClosure     *closure,
+                                               GValue       *return_value,
+                                               guint         n_param_values,
+                                               const GValue *param_values,
+                                               gpointer      invocation_hint,
+                                               gpointer      marshal_data);
 
 /* VOID:INT,INT (./bamf-marshal.list:23) */
-extern void bamf_marshal_VOID__INT_INT (GClosure     *closure,
-                                        GValue       *return_value,
-                                        guint         n_param_values,
-                                        const GValue *param_values,
-                                        gpointer      invocation_hint,
-                                        gpointer      marshal_data);
+extern void _bamf_marshal_VOID__INT_INT (GClosure     *closure,
+                                         GValue       *return_value,
+                                         guint         n_param_values,
+                                         const GValue *param_values,
+                                         gpointer      invocation_hint,
+                                         gpointer      marshal_data);
 
 G_END_DECLS
 
-#endif /* __bamf_marshal_MARSHAL_H__ */
+#endif /* ___bamf_marshal_MARSHAL_H__ */
 
