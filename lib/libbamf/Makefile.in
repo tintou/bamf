@@ -372,7 +372,8 @@ libbamf_la_CPPFLAGS = \
   $(NULL)
 
 libbamf_la_LDFLAGS = \
-  -shared -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
+  -shared \
+  -export-symbols-regex "^bamf_" \
   $(NULL)
 
 libbamf3_la_SOURCES = $(libbamf_la_SOURCES)
@@ -380,7 +381,7 @@ libbamf3_la_LIBADD = $(libbamf_la_LIBADD)
 libbamf3_la_CPPFLAGS = $(libbamf_la_CPPFLAGS)
 libbamf3_la_LDFLAGS = $(libbamf_la_LDFLAGS)
 glib_marshal_list = bamf-marshal.list
-glib_marshal_prefix = bamf_marshal
+glib_marshal_prefix = _bamf_marshal
 library_includedir = $(includedir)/libbamf$(VER)/libbamf
 library_include_HEADERS = \
   $(sources_h)
