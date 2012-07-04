@@ -95,7 +95,7 @@ on_view_closed (BamfView *view, BamfFactory *self)
   
   g_return_if_fail (BAMF_IS_VIEW (view));
   
-  path = bamf_view_get_path (view);
+  path = _bamf_view_get_path (view);
   if (path)
     g_hash_table_remove (self->priv->views, path);
   
@@ -128,7 +128,7 @@ bamf_factory_register_view (BamfFactory *self, BamfView *view, const char *path)
 }
 
 BamfApplication * 
-bamf_factory_app_for_file (BamfFactory * factory,
+_bamf_factory_app_for_file (BamfFactory * factory,
                            const char * path,
                            gboolean create)
 {
@@ -190,24 +190,24 @@ BamfFactoryViewType compute_factory_type_by_str (const char *type)
 }
 
 BamfView * 
-bamf_factory_view_for_path (BamfFactory * factory, const char * path)
+_bamf_factory_view_for_path (BamfFactory * factory, const char * path)
 {
-  return bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_NONE);
+  return _bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_NONE);
 }
 
 BamfView * 
-bamf_factory_view_for_path_type_str (BamfFactory * factory, const char * path,
+_bamf_factory_view_for_path_type_str (BamfFactory * factory, const char * path,
                                                             const char * type)
 {
   g_return_val_if_fail (BAMF_IS_FACTORY (factory), NULL);
   BamfFactoryViewType factory_type = compute_factory_type_by_str (type);
 
-  return bamf_factory_view_for_path_type (factory, path, factory_type);
+  return _bamf_factory_view_for_path_type (factory, path, factory_type);
 }
 
-BamfView * 
-bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
-                                                        BamfFactoryViewType type)
+BamfView *
+_bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
+                                                         BamfFactoryViewType type)
 {
   GHashTable *views;
   BamfView *view;
@@ -228,7 +228,7 @@ bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
   if (type == BAMF_FACTORY_NONE)
     {
       view = g_object_new (BAMF_TYPE_VIEW, NULL);
-      bamf_view_set_path (view, path);
+      _bamf_view_set_path (view, path);
       type = compute_factory_type_by_str (bamf_view_get_view_type (view));
       g_object_unref (view);
       view = NULL;
@@ -283,7 +283,7 @@ bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
           if (!matched_view)
             {
               GList *list_children, *ll;
-              list_children = bamf_application_get_cached_xids (list_app);
+              list_children = _bamf_application_get_cached_xids (list_app);
 
               for (ll = local_children; ll; ll = ll->next)
                 {
@@ -332,7 +332,7 @@ bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
       g_object_unref (view);
 
       view = matched_view;
-      bamf_view_set_path (view, path);
+      _bamf_view_set_path (view, path);
       g_object_ref_sink (view);
     }
 
@@ -351,7 +351,7 @@ bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
 }
 
 BamfFactory * 
-bamf_factory_get_default (void)
+_bamf_factory_get_default (void)
 {
   
   if (BAMF_IS_FACTORY (factory))

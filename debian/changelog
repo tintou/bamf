@@ -1,3 +1,13 @@
+bamf (0.2.120-0ubuntu1) UNRELEASED; urgency=low
+
+  * New upstream release.
+    - Started applications pinned to the launcher are not set as running
+      (LP: #976642)
+    - sometimes icons get dropped from the launcher when they should not
+      (LP: #925421)
+
+ -- Łukasz 'sil2100' Zemczak <lukasz.zemczak@canonical.com>  Wed, 04 Jul 2012 16:22:19 +0200
+
 bamf (0.2.118-1ubuntu1) quantal; urgency=low
 
   * Sync from debian. No more difference.
