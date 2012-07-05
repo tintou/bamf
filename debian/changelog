@@ -6,7 +6,8 @@ bamf (0.2.120-0ubuntu1) UNRELEASED; urgency=low
     - sometimes icons get dropped from the launcher when they should not
       (LP: #925421)
   * debian/libbamf0.symbols, debian/libbamf3-0.symbols:
-    - removed symbols that are no longer exported
+    - removed symbols that were wrongly exported upstream before (private 
+      symbols)
 
  -- Łukasz 'sil2100' Zemczak <lukasz.zemczak@canonical.com>  Wed, 04 Jul 2012 16:22:19 +0200
 
