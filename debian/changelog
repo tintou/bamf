@@ -1,5 +1,6 @@
-bamf (0.2.120-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.120-0ubuntu1) quantal; urgency=low
 
+  [ Łukasz 'sil2100' Zemczak ]
   * New upstream release.
     - Started applications pinned to the launcher are not set as running
       (LP: #976642)
@@ -9,7 +10,7 @@ bamf (0.2.120-0ubuntu1) UNRELEASED; urgency=low
     - removed symbols that were wrongly exported upstream before (private 
       symbols)
 
- -- Łukasz 'sil2100' Zemczak <lukasz.zemczak@canonical.com>  Wed, 04 Jul 2012 16:22:19 +0200
+ -- Didier Roche <didrocks@ubuntu.com>  Tue, 10 Jul 2012 08:41:32 +0200
 
 bamf (0.2.118-1ubuntu1) quantal; urgency=low
 
