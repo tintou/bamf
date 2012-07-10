@@ -105,16 +105,16 @@ static void
 bamf_view_set_flag (BamfView *view, guint flag, gboolean value)
 {
   BamfViewPrivate *priv;
-  
+
   g_return_if_fail (BAMF_IS_VIEW (view));
-  
+
   priv = view->priv;
-  
+
   if (value)
     priv->set_flags |= flag;
   else
     priv->set_flags &= ~flag;
-  
+
   priv->checked_flags |= flag;
 }
 
@@ -122,11 +122,11 @@ static gboolean
 bamf_view_flag_is_set (BamfView *view, guint flag)
 {
   BamfViewPrivate *priv;
-  
+
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-  
+
   priv = view->priv;
-  
+
   return priv->checked_flags & flag;
 }
 
@@ -134,11 +134,11 @@ static gboolean
 bamf_view_get_flag (BamfView *view, guint flag)
 {
   BamfViewPrivate *priv;
-  
+
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-  
+
   priv = view->priv;
-  
+
   return priv->set_flags & flag;
 }
 
@@ -244,11 +244,11 @@ bamf_view_is_active (BamfView *view)
 
 }
 
-gboolean          
+gboolean
 bamf_view_user_visible (BamfView *self)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (self), FALSE);
-  
+
   return bamf_view_get_boolean (self, "UserVisible", BAMF_VIEW_VISIBLE_FLAG);
 
 }
@@ -257,7 +257,7 @@ gboolean
 bamf_view_is_running (BamfView *self)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (self), FALSE);
-  
+
   if (BAMF_VIEW_GET_CLASS (self)->is_running)
     return BAMF_VIEW_GET_CLASS (self)->is_running (self);
 
@@ -268,7 +268,7 @@ gboolean
 bamf_view_is_urgent (BamfView *self)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (self), FALSE);
-  
+
   if (BAMF_VIEW_GET_CLASS (self)->is_urgent)
     return BAMF_VIEW_GET_CLASS (self)->is_urgent (self);
 
@@ -279,7 +279,7 @@ void
 _bamf_view_set_name (BamfView *view, const char *name)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
-  
+
   if (!g_strcmp0 (name, view->priv->local_name))
     return;
 
@@ -312,24 +312,24 @@ _bamf_view_set_icon (BamfView *view, const char *icon)
     }
 }
 
-gboolean 
+gboolean
 bamf_view_is_sticky (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-  
+
   return view->priv->sticky;
 }
 
-void 
+void
 bamf_view_set_sticky (BamfView *view, gboolean value)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
-  
+
   if (value == view->priv->sticky)
     return;
 
   view->priv->sticky = value;
-  
+
   if (value)
     g_object_ref_sink (view);
   else
@@ -345,7 +345,7 @@ bamf_view_get_icon (BamfView *self)
 
   g_return_val_if_fail (BAMF_IS_VIEW (self), NULL);
   priv = self->priv;
-  
+
   if (BAMF_VIEW_GET_CLASS (self)->get_icon)
     return BAMF_VIEW_GET_CLASS (self)->get_icon (self);
 
@@ -361,14 +361,14 @@ bamf_view_get_icon (BamfView *self)
     {
       g_warning ("Failed to fetch icon: %s", error->message);
       g_error_free (error);
-      
+
       return NULL;
     }
 
   if (icon && icon[0] == '\0')
     {
       g_free (icon);
-      return NULL;
+      return g_strdup ("application-default-icon");
     }
 
   return icon;
@@ -383,13 +383,13 @@ bamf_view_get_name (BamfView *self)
 
   g_return_val_if_fail (BAMF_IS_VIEW (self), NULL);
   priv = self->priv;
-  
+
   if (BAMF_VIEW_GET_CLASS (self)->get_name)
     return BAMF_VIEW_GET_CLASS (self)->get_name (self);
 
   if (!_bamf_view_remote_ready (self))
     return g_strdup (priv->local_name);
-    
+
   if (!dbus_g_proxy_call (priv->proxy,
                           "Name",
                           &error,
@@ -399,7 +399,7 @@ bamf_view_get_name (BamfView *self)
     {
       g_warning ("Failed to fetch name: %s", error->message);
       g_error_free (error);
-      
+
       return NULL;
     }
 
@@ -412,7 +412,7 @@ bamf_view_get_name (BamfView *self)
   return name;
 }
 
-gboolean 
+gboolean
 _bamf_view_remote_ready (BamfView *view)
 {
   if (BAMF_IS_VIEW (view) && view->priv->proxy)
@@ -430,10 +430,10 @@ bamf_view_get_view_type (BamfView *self)
 
   g_return_val_if_fail (BAMF_IS_VIEW (self), NULL);
   priv = self->priv;
-  
+
   if (BAMF_VIEW_GET_CLASS (self)->view_type)
     return BAMF_VIEW_GET_CLASS (self)->view_type (self);
-  
+
   if (priv->type)
     return priv->type;
 
@@ -453,14 +453,14 @@ bamf_view_get_view_type (BamfView *self)
   return type;
 }
 
-BamfClickBehavior 
+BamfClickBehavior
 bamf_view_get_click_suggestion (BamfView *self)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (self), BAMF_CLICK_BEHAVIOR_NONE);
 
   if (BAMF_VIEW_GET_CLASS (self)->click_behavior)
     return BAMF_VIEW_GET_CLASS (self)->click_behavior (self);
-    
+
   return BAMF_CLICK_BEHAVIOR_NONE;
 }
 
@@ -612,23 +612,23 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
       case PROP_PATH:
         g_value_set_string (value, self->priv->is_closed ? NULL : self->priv->path);
         break;
-      
+
       case PROP_ACTIVE:
         g_value_set_boolean (value, bamf_view_is_active (self));
         break;
-      
+
       case PROP_RUNNING:
         g_value_set_boolean (value, bamf_view_is_running (self));
         break;
-      
+
       case PROP_URGENT:
         g_value_set_boolean (value, bamf_view_is_urgent (self));
         break;
-      
+
       case PROP_USER_VISIBLE:
         g_value_set_boolean (value, bamf_view_user_visible (self));
         break;
-      
+
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
     }
@@ -706,7 +706,7 @@ bamf_view_dispose (GObject *object)
       g_free (priv->type);
       priv->type = NULL;
     }
- 
+
   if (priv->local_icon)
     {
       g_free (priv->local_icon);
@@ -752,19 +752,19 @@ _bamf_view_reset_flags (BamfView *view)
       g_signal_emit (G_OBJECT(view), view_signals[VISIBLE_CHANGED], 0, TRUE);
       g_object_notify (G_OBJECT (view), "user-visible");
     }
-  
+
   if (bamf_view_is_active (view))
     {
       g_signal_emit (G_OBJECT(view), view_signals[ACTIVE_CHANGED], 0, TRUE);
       g_object_notify (G_OBJECT (view), "active");
     }
-  
+
   if (bamf_view_is_running (view))
     {
       g_signal_emit (G_OBJECT(view), view_signals[RUNNING_CHANGED], 0, TRUE);
       g_object_notify (G_OBJECT (view), "running");
     }
-    
+
   if (bamf_view_is_urgent (view))
     {
       g_signal_emit (G_OBJECT(view), view_signals[URGENT_CHANGED], 0, TRUE);
@@ -924,88 +924,88 @@ bamf_view_class_init (BamfViewClass *klass)
 
   pspec = g_param_spec_string ("path", "path", "path", NULL, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_PATH, pspec);
-  
+
   pspec = g_param_spec_boolean ("active", "active", "active", FALSE, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_ACTIVE, pspec);
 
   pspec = g_param_spec_boolean ("urgent", "urgent", "urgent", FALSE, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_URGENT, pspec);
-  
+
   pspec = g_param_spec_boolean ("running", "running", "running", FALSE, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_RUNNING, pspec);
-  
+
   pspec = g_param_spec_boolean ("user-visible", "user-visible", "user-visible", FALSE, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_USER_VISIBLE, pspec);
 
   g_type_class_add_private (obj_class, sizeof (BamfViewPrivate));
 
-  view_signals [ACTIVE_CHANGED] = 
+  view_signals [ACTIVE_CHANGED] =
   	g_signal_new ("active-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, active_changed), 
+  	              G_STRUCT_OFFSET (BamfViewClass, active_changed),
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
+  	              G_TYPE_NONE, 1,
   	              G_TYPE_BOOLEAN);
 
-  view_signals [CLOSED] = 
+  view_signals [CLOSED] =
   	g_signal_new ("closed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, closed), 
+  	              G_STRUCT_OFFSET (BamfViewClass, closed),
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__VOID,
   	              G_TYPE_NONE, 0);
 
-  view_signals [CHILD_ADDED] = 
+  view_signals [CHILD_ADDED] =
   	g_signal_new ("child-added",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, child_added), 
+  	              G_STRUCT_OFFSET (BamfViewClass, child_added),
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1, 
+  	              G_TYPE_NONE, 1,
   	              BAMF_TYPE_VIEW);
 
-  view_signals [CHILD_REMOVED] = 
+  view_signals [CHILD_REMOVED] =
   	g_signal_new ("child-removed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, child_removed), 
+  	              G_STRUCT_OFFSET (BamfViewClass, child_removed),
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1, 
+  	              G_TYPE_NONE, 1,
   	              BAMF_TYPE_VIEW);
 
-  view_signals [RUNNING_CHANGED] = 
+  view_signals [RUNNING_CHANGED] =
   	g_signal_new ("running-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, running_changed), 
+  	              G_STRUCT_OFFSET (BamfViewClass, running_changed),
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
+  	              G_TYPE_NONE, 1,
   	              G_TYPE_BOOLEAN);
 
-  view_signals [URGENT_CHANGED] = 
+  view_signals [URGENT_CHANGED] =
   	g_signal_new ("urgent-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, urgent_changed), 
+  	              G_STRUCT_OFFSET (BamfViewClass, urgent_changed),
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
+  	              G_TYPE_NONE, 1,
   	              G_TYPE_BOOLEAN);
-  
-  view_signals [VISIBLE_CHANGED] = 
+
+  view_signals [VISIBLE_CHANGED] =
   	g_signal_new ("user-visible-changed",
   	              G_OBJECT_CLASS_TYPE (klass),
   	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, user_visible_changed), 
+  	              G_STRUCT_OFFSET (BamfViewClass, user_visible_changed),
   	              NULL, NULL,
   	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
+  	              G_TYPE_NONE, 1,
   	              G_TYPE_BOOLEAN);
 
   view_signals [NAME_CHANGED] =
