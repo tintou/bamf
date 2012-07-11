@@ -140,7 +140,13 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
       name = g_strdup (g_app_info_get_display_name (G_APP_INFO (desktop)));
 
       if (gicon)
+      {
         icon = g_icon_to_string (gicon);
+      }
+      else
+      {
+        icon = g_strdup ("application-default-icon");
+      }
 
       if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, STUB_KEY, NULL))
         {
