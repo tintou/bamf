@@ -292,8 +292,6 @@ bamf_view_remove_child (BamfView *view,
 
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (BAMF_IS_VIEW (child));
-
-  g_object_unref (child);
   
   g_signal_handlers_disconnect_by_func (child, bamf_view_handle_child_closed, view);
 
@@ -307,6 +305,8 @@ bamf_view_remove_child (BamfView *view,
   // Do this by hand so we can pass and object instead of a string
   if (BAMF_VIEW_GET_CLASS (view)->child_removed)
     BAMF_VIEW_GET_CLASS (view)->child_removed (view, child);
+  
+  g_object_unref (child);
 }
 
 gboolean
@@ -703,13 +703,13 @@ bamf_view_dispose (GObject *object)
 
   if (priv->children)
     {
-      g_list_free (priv->children);
+      g_list_free_full (priv->children, g_object_unref);
       priv->children = NULL;
     }
 
   if (priv->parents)
     {
-      g_list_free (priv->parents);
+      g_list_free_full (priv->parents, g_object_unref);
       priv->parents = NULL;
     }
 
