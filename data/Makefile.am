@@ -4,6 +4,6 @@ service_DATA=org.ayatana.bamf.service
 EXTRA_DIST=org.ayatana.bamf.service.in
 
 org.ayatana.bamf.service: org.ayatana.bamf.service.in
-	sed "s,@LIBEXECDIR@,$(libexecdir)," $< > $@
+	$(AM_V_GEN)sed "s,@LIBEXECDIR@,$(libexecdir)," $< > $@
 
 CLEANFILES = org.ayatana.bamf.service

@@ -142,6 +142,15 @@ bamf_view_get_flag (BamfView *view, guint flag)
   return priv->set_flags & flag;
 }
 
+/**
+ * bamf_view_get_children:
+ * @view: a #BamfView
+ *
+ * Note: Makes sever dbus calls the first time this is called on a view. Dbus messaging is reduced afterwards.
+ *
+ * Returns: (element-type Bamf.View) (transfer container): Returns a list of #BamfView which must be
+ *           freed after usage. Elements of the list are owned by bamf and should not be unreffed.
+ */
 GList *
 bamf_view_get_children (BamfView *view)
 {
@@ -224,6 +233,12 @@ bamf_view_get_boolean (BamfView *self, const char *method_name, guint flag)
   return result;
 }
 
+/**
+ * bamf_view_is_closed:
+ * @view: a #BamfView
+ *
+ * Determines if the view is closed or not.
+ */
 gboolean
 bamf_view_is_closed (BamfView *view)
 {
@@ -232,6 +247,12 @@ bamf_view_is_closed (BamfView *view)
   return view->priv->is_closed;
 }
 
+/**
+ * bamf_view_is_active:
+ * @view: a #BamfView
+ *
+ * Determines if the view is currently active and focused by the user. Useful for an active window indicator. 
+ */
 gboolean
 bamf_view_is_active (BamfView *view)
 {
@@ -244,7 +265,14 @@ bamf_view_is_active (BamfView *view)
 
 }
 
-gboolean          
+/**
+ * bamf_view_user_visible:
+ * @view: a #BamfView
+ *
+ * Returns a boolean useful for determining if a particular view is "user visible". User visible
+ * is a concept relating to whether or not a window should be shown in a launcher tasklist.
+ */
+gboolean
 bamf_view_user_visible (BamfView *self)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (self), FALSE);
@@ -253,6 +281,12 @@ bamf_view_user_visible (BamfView *self)
 
 }
 
+/**
+ * bamf_view_is_running:
+ * @view: a #BamfView
+ *
+ * Determines if the view is currently running. Useful for a running window indicator. 
+ */
 gboolean
 bamf_view_is_running (BamfView *self)
 {
@@ -264,6 +298,12 @@ bamf_view_is_running (BamfView *self)
   return bamf_view_get_boolean (self, "IsRunning", BAMF_VIEW_RUNNING_FLAG);
 }
 
+/**
+ * bamf_view_is_urgent:
+ * @view: a #BamfView
+ *
+ * Determines if the view is currently requiring attention. Useful for a running window indicator. 
+ */
 gboolean
 bamf_view_is_urgent (BamfView *self)
 {
@@ -336,6 +376,12 @@ bamf_view_set_sticky (BamfView *view, gboolean value)
     g_object_unref (view);
 }
 
+/**
+ * bamf_view_get_icon:
+ * @view: a #BamfView
+ *
+ * Gets the icon of a view. This icon is used to visually represent the view. 
+ */
 gchar *
 bamf_view_get_icon (BamfView *self)
 {
@@ -374,6 +420,12 @@ bamf_view_get_icon (BamfView *self)
   return icon;
 }
 
+/**
+ * bamf_view_get_name:
+ * @view: a #BamfView
+ *
+ * Gets the name of a view. This name is a short name best used to represent the view with text. 
+ */
 gchar *
 bamf_view_get_name (BamfView *self)
 {
@@ -421,6 +473,15 @@ _bamf_view_remote_ready (BamfView *view)
   return FALSE;
 }
 
+/**
+ * bamf_view_get_view_type:
+ * @view: a #BamfView
+ *
+ * The view type of a window is a short string used to represent all views of the same class. These
+ * descriptions should not be used to do casting as they are not considered stable.
+ *
+ * Virtual: view_type
+ */
 const gchar *
 bamf_view_get_view_type (BamfView *self)
 {
