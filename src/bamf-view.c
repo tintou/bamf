@@ -267,7 +267,9 @@ bamf_view_add_child (BamfView *view,
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (BAMF_IS_VIEW (child));
 
+  /* Specifically ref the child and view coming in. */
   g_object_ref (child);
+  g_object_ref (view);
   
   g_signal_connect (G_OBJECT (child), "closed-internal",
                     (GCallback) bamf_view_handle_child_closed, view);
@@ -302,11 +304,13 @@ bamf_view_remove_child (BamfView *view,
   removed = bamf_view_get_path (child);
   g_signal_emit_by_name (view, "child-removed", removed);
 
-  // Do this by hand so we can pass and object instead of a string
+  // Do this by hand so we can pass an object instead of a string
   if (BAMF_VIEW_GET_CLASS (view)->child_removed)
     BAMF_VIEW_GET_CLASS (view)->child_removed (view, child);
   
+  /* Specifically unref the child and view coming in.*/
   g_object_unref (child);
+  g_object_unref (view);
 }
 
 gboolean
