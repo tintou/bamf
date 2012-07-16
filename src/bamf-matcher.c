@@ -139,8 +139,6 @@ bamf_matcher_get_application_by_desktop_file (BamfMatcher *self, const char *des
   if (!desktop_file)
     return NULL;
 
-	g_mutex_lock(&(self->priv->views_list_mutex));
-
   for (l = self->priv->views; l; l = l->next)
     {
       view = l->data;
@@ -154,11 +152,9 @@ bamf_matcher_get_application_by_desktop_file (BamfMatcher *self, const char *des
 
       if (g_strcmp0 (desktop_file, app_desktop) == 0)
         {
-          g_mutex_unlock(&(self->priv->views_list_mutex));
           return app;
         }
     }
-  g_mutex_unlock(&(self->priv->views_list_mutex));
 
   return NULL;
 }
@@ -277,9 +273,7 @@ bamf_matcher_register_view_stealing_ref (BamfMatcher *self, BamfView *view)
     }
 
   // This steals the reference of the view
-	g_mutex_lock(&(self->priv->views_list_mutex));
   self->priv->views = g_list_prepend (self->priv->views, view);
-	g_mutex_unlock(&(self->priv->views_list_mutex));
 
   g_signal_emit_by_name (self, "view-opened", path, type);
 
@@ -316,14 +310,14 @@ bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
     self->priv->active_win = NULL;
   // This steals the reference of the view
 
-	g_mutex_lock(&(self->priv->views_list_mutex));    
+	g_mutex_lock (&(self->priv->views_list_mutex));    
   GList *listed_view = g_list_find (self->priv->views, view);
   if (listed_view)
     {
       self->priv->views = g_list_delete_link (self->priv->views, listed_view);
       g_object_unref (view);
     }
-	g_mutex_unlock(&(self->priv->views_list_mutex));    
+	g_mutex_unlock (&(self->priv->views_list_mutex));    
 }
 
 static char *
@@ -1284,7 +1278,9 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
         }
       else if (filetype != G_FILE_TYPE_UNKNOWN)
         {
+          g_mutex_lock (&(self->priv->views_list_mutex)); 
           bamf_matcher_load_desktop_file (self, path);
+          g_mutex_unlock (&(self->priv->views_list_mutex)); 
         }
     }
 
@@ -1893,7 +1889,6 @@ bamf_matcher_get_application_for_window (BamfMatcher *self,
       BamfView *view;
       const gchar *app_desktop_class;
       
-      g_mutex_lock(&(self->priv->views_list_mutex));    
       for (a = self->priv->views; a; a = a->next)
         {
           view = a->data;
@@ -1917,7 +1912,6 @@ bamf_matcher_get_application_for_window (BamfMatcher *self,
                 }
             }
         }
-        g_mutex_unlock(&(self->priv->views_list_mutex));    
     }
 
   if (!best)
@@ -2271,7 +2265,6 @@ bamf_matcher_load_desktop_file (BamfMatcher * self,
 
   /* If an application with no .desktop file has windows that matches
    * the new added .desktop file, then we try to re-match them. */
-	g_mutex_lock(&(self->priv->views_list_mutex));
    
   for (vl = self->priv->views; vl; vl = vl->next)
     {
@@ -2300,7 +2293,6 @@ bamf_matcher_load_desktop_file (BamfMatcher * self,
           }
         }
     }
-	g_mutex_unlock(&(self->priv->views_list_mutex));
 }
 
 void
@@ -2364,7 +2356,6 @@ bamf_matcher_get_active_application (BamfMatcher *matcher)
 
   priv = matcher->priv;
 
-	g_mutex_lock(&(matcher->priv->views_list_mutex));
   for (l = priv->views; l; l = l->next)
     {
       view = l->data;
@@ -2374,11 +2365,9 @@ bamf_matcher_get_active_application (BamfMatcher *matcher)
 
       if (bamf_view_is_active (view))
         {
-          g_mutex_unlock(&(matcher->priv->views_list_mutex));
           return bamf_view_get_path (view);
         }
     }
-	g_mutex_unlock(&(matcher->priv->views_list_mutex));
 
   return "";
 }
@@ -2394,7 +2383,6 @@ bamf_matcher_get_active_window (BamfMatcher *matcher)
 
   priv = matcher->priv;
 
-  g_mutex_lock(&(matcher->priv->views_list_mutex));
   for (l = priv->views; l; l = l->next)
     {
       view = l->data;
@@ -2404,12 +2392,9 @@ bamf_matcher_get_active_window (BamfMatcher *matcher)
 
       if (bamf_view_is_active (view))
         {
-          g_mutex_unlock(&(matcher->priv->views_list_mutex));
           return bamf_view_get_path (view);
         }
     }
-	g_mutex_unlock(&(matcher->priv->views_list_mutex));
-
   return "";
 }
 
@@ -2425,7 +2410,6 @@ bamf_matcher_application_for_xid (BamfMatcher *matcher,
 
   priv = matcher->priv;
   
-  g_mutex_lock(&(matcher->priv->views_list_mutex));
   for (l = priv->views; l; l = l->next)
     {
       view = l->data;
@@ -2435,11 +2419,9 @@ bamf_matcher_application_for_xid (BamfMatcher *matcher,
 
       if (bamf_application_manages_xid (BAMF_APPLICATION (view), xid))
         {
-          g_mutex_unlock(&(matcher->priv->views_list_mutex));
           return bamf_view_get_path (view);
         }
     }
-	g_mutex_unlock(&(matcher->priv->views_list_mutex));
   return "";
 }
 
@@ -2467,8 +2449,6 @@ bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
 
   windows = NULL;
 
-  g_mutex_lock(&(matcher->priv->views_list_mutex));    
-
   for (l = matcher->priv->views; l; l = l->next)
     {
       if (BAMF_IS_WINDOW (l->data))
@@ -2477,7 +2457,6 @@ bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
                                           compare_windows_by_stack_order);
         }
     }
-	g_mutex_unlock(&(matcher->priv->views_list_mutex));    
 
   g_variant_builder_init (&b, G_VARIANT_TYPE ("(as)"));
   g_variant_builder_open (&b, G_VARIANT_TYPE ("as"));
@@ -2535,8 +2514,6 @@ bamf_matcher_window_dbus_paths (BamfMatcher *matcher)
 
   priv = matcher->priv;
 
-	g_mutex_lock(&(matcher->priv->views_list_mutex));    
-
   for (l = priv->views; l; l = l->next)
     {
       view = l->data;
@@ -2546,8 +2523,7 @@ bamf_matcher_window_dbus_paths (BamfMatcher *matcher)
 
       g_variant_builder_add (&b, "s", bamf_view_get_path (view));
     }
-	g_mutex_unlock(&(matcher->priv->views_list_mutex));    
-
+    
   g_variant_builder_close (&b);
 
   return g_variant_builder_end (&b);
@@ -2568,7 +2544,6 @@ bamf_matcher_application_dbus_paths (BamfMatcher *matcher)
 
   priv = matcher->priv;
 
-  g_mutex_lock(&(matcher->priv->views_list_mutex));    
   for (l = priv->views; l; l = l->next)
     {
       view = l->data;
@@ -2578,7 +2553,6 @@ bamf_matcher_application_dbus_paths (BamfMatcher *matcher)
 
       g_variant_builder_add (&b, "s", bamf_view_get_path (view));
     }
-	g_mutex_unlock(&(matcher->priv->views_list_mutex));    
 
   g_variant_builder_close (&b);
 
@@ -2652,8 +2626,7 @@ bamf_matcher_running_application_paths (BamfMatcher *matcher)
   g_variant_builder_open (&b, G_VARIANT_TYPE ("as"));
 
   priv = matcher->priv;
-
-  g_mutex_lock(&(matcher->priv->views_list_mutex));
+  
   for (l = priv->views; l; l = l->next)
     {
       view = l->data;
@@ -2663,7 +2636,6 @@ bamf_matcher_running_application_paths (BamfMatcher *matcher)
 
       g_variant_builder_add (&b, "s", bamf_view_get_path (view));
     }
-	g_mutex_unlock(&(matcher->priv->views_list_mutex));
 
   g_variant_builder_close (&b);
 
@@ -2690,7 +2662,6 @@ bamf_matcher_running_applications_desktop_files (BamfMatcher *matcher)
   
   priv = matcher->priv;
 
-	g_mutex_lock(&(matcher->priv->views_list_mutex));    
   for (l = priv->views; l; l = l->next)
     {
       view = l->data;
@@ -2708,7 +2679,6 @@ bamf_matcher_running_applications_desktop_files (BamfMatcher *matcher)
                                     (GCompareDataFunc) g_strcmp0, NULL);
         }
     }
-	g_mutex_unlock(&(matcher->priv->views_list_mutex));    
 
   iter = g_sequence_get_begin_iter (paths);
   while (!g_sequence_iter_is_end (iter))
@@ -2934,7 +2904,7 @@ bamf_matcher_init (BamfMatcher * self)
 
   priv = self->priv = BAMF_MATCHER_GET_PRIVATE (self);
 	
-  g_mutex_init(&(priv->views_list_mutex));
+  g_mutex_init (&(priv->views_list_mutex));
 
   priv->known_pids = g_array_new (FALSE, TRUE, sizeof (gint));
   priv->bad_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex *));
