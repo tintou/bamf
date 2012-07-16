@@ -154,6 +154,7 @@ bamf_matcher_get_application_by_desktop_file (BamfMatcher *self, const char *des
 
       if (g_strcmp0 (desktop_file, app_desktop) == 0)
         {
+          g_mutex_unlock(&(self->priv->views_list_mutex));
           return app;
         }
     }
@@ -2299,7 +2300,7 @@ bamf_matcher_load_desktop_file (BamfMatcher * self,
           }
         }
     }
-	g_mutex_unlock(&(self->priv->views_list_mutex));    
+	g_mutex_unlock(&(self->priv->views_list_mutex));
 }
 
 void
@@ -2373,6 +2374,7 @@ bamf_matcher_get_active_application (BamfMatcher *matcher)
 
       if (bamf_view_is_active (view))
         {
+          g_mutex_unlock(&(matcher->priv->views_list_mutex));
           return bamf_view_get_path (view);
         }
     }
@@ -2402,6 +2404,7 @@ bamf_matcher_get_active_window (BamfMatcher *matcher)
 
       if (bamf_view_is_active (view))
         {
+          g_mutex_unlock(&(matcher->priv->views_list_mutex));
           return bamf_view_get_path (view);
         }
     }
@@ -2432,11 +2435,11 @@ bamf_matcher_application_for_xid (BamfMatcher *matcher,
 
       if (bamf_application_manages_xid (BAMF_APPLICATION (view), xid))
         {
+          g_mutex_unlock(&(matcher->priv->views_list_mutex));
           return bamf_view_get_path (view);
         }
     }
 	g_mutex_unlock(&(matcher->priv->views_list_mutex));
-
   return "";
 }
 
