@@ -308,16 +308,18 @@ bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
 
   if (self->priv->active_win == view)
     self->priv->active_win = NULL;
-  // This steals the reference of the view
-
-	g_mutex_lock (&(self->priv->views_list_mutex));    
+  // This steals the reference of the view  
   GList *listed_view = g_list_find (self->priv->views, view);
   if (listed_view)
     {
+      gboolean locked;
+      locked = g_mutex_trylock (&(self->priv->views_list_mutex));    
       self->priv->views = g_list_delete_link (self->priv->views, listed_view);
       g_object_unref (view);
+      if (locked)
+        g_mutex_unlock (&(self->priv->views_list_mutex));    
+
     }
-	g_mutex_unlock (&(self->priv->views_list_mutex));    
 }
 
 static char *
@@ -1277,13 +1279,16 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
             }
         }
       else if (filetype != G_FILE_TYPE_UNKNOWN)
-        {
-          g_mutex_lock (&(self->priv->views_list_mutex)); 
-          bamf_matcher_load_desktop_file (self, path);
-          g_mutex_unlock (&(self->priv->views_list_mutex)); 
+        { 
+          gboolean locked;
+          locked = g_mutex_trylock (&(self->priv->views_list_mutex)); 
+          if (locked)
+            {
+              bamf_matcher_load_desktop_file (self, path);
+              g_mutex_unlock (&(self->priv->views_list_mutex)); 
+            }
         }
     }
-
   g_free (path);
 }
 
