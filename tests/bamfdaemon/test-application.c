@@ -107,7 +107,7 @@ static void
 test_desktop_no_icon (void)
 {
   BamfApplication    *application;
-  const char no_icon_desktop[] = "data/no-icon.desktop";
+  const char no_icon_desktop[] = TESTDIR"/bamfdaemon/data/no-icon.desktop";
 
   application = bamf_application_new_from_desktop_file (no_icon_desktop);
   g_assert (g_strcmp0 (bamf_application_get_desktop_file (application), no_icon_desktop) == 0);
