@@ -189,7 +189,7 @@ bamf_tab_set_path (BamfView *view, const gchar *path)
   
   bamf_tab_fetch_properties (self);
   
-  dbus_g_object_register_marshaller ((GClosureMarshal) bamf_marshal_VOID__STRING_BOXED_POINTER,
+  dbus_g_object_register_marshaller ((GClosureMarshal) _bamf_marshal_VOID__STRING_BOXED_POINTER,
 				     G_TYPE_NONE,
 				     G_TYPE_STRING,
 				     G_TYPE_BOXED,
@@ -360,7 +360,7 @@ bamf_tab_new (const gchar *path)
   
   self = g_object_new (BAMF_TYPE_TAB, NULL);
   
-  bamf_view_set_path (BAMF_VIEW (self), path);
+  _bamf_view_set_path (BAMF_VIEW (self), path);
   
   return self;
 }
@@ -372,7 +372,7 @@ bamf_tab_raise (BamfTab *self)
 
   g_return_val_if_fail (BAMF_IS_TAB (self), FALSE);
   
-  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
+  if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
     return FALSE;
   
   error = NULL;
@@ -398,7 +398,7 @@ bamf_tab_close (BamfTab *self)
 
   g_return_val_if_fail (BAMF_IS_TAB (self), FALSE);
   
-  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
+  if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
     return FALSE;
   
   error = NULL;

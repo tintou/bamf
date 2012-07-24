@@ -290,7 +290,7 @@ bamf_application_get_focus_child (BamfApplication *application)
       return NULL;
     }
 
-  ret = _bamf_factory_view_for_path (bamf_factory_get_default (), path);
+  ret = _bamf_factory_view_for_path (_bamf_factory_get_default (), path);
   
   g_free (path);
   
