@@ -210,6 +210,7 @@ emit_paths_changed (gpointer user_data)
 static void bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *desktop_file, ViewChangeType change_type)
 {
   BamfMatcherPrivate *priv;
+  BamfApplication *app;
 
   if (desktop_file == NULL) return;
 
@@ -219,7 +220,9 @@ static void bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *de
 
   /* the app was already running (ADDED) / had more instances which are still
    * there (REMOVED) */
-  if (bamf_matcher_get_application_by_desktop_file (self, desktop_file))
+  app = bamf_matcher_get_application_by_desktop_file (self, desktop_file);
+
+  if (BAMF_IS_APPLICATION (app) && bamf_view_is_running (BAMF_VIEW (app)))
     {
       return;
     }
@@ -656,9 +659,11 @@ pid_parent_tree (BamfMatcher *self, gint pid)
 }
 
 static gboolean
-exec_string_should_be_processed (BamfMatcher *self,
-                                 char *exec)
+exec_string_should_be_processed (const char *exec)
 {
+  if (!exec)
+    return TRUE;
+
   return !g_str_has_prefix (exec, "ooffice") && !g_str_has_prefix (exec, "libreoffice");
 }
 
@@ -826,7 +831,7 @@ load_desktop_file_to_table (BamfMatcher * self,
       return;
     }
 
-  if (exec_string_should_be_processed (self, exec))
+  if (exec_string_should_be_processed (exec))
     {
       /**
        * Set of nasty hacks which should be removed some day. We wish to keep the full exec
@@ -936,7 +941,7 @@ load_index_file_to_table (BamfMatcher * self,
       gchar **parts = g_strsplit (line, "\t", 3);
       exec = parts[1];
 
-      if (exec_string_should_be_processed (self, exec))
+      if (exec_string_should_be_processed (exec))
         {
           char *tmp = trim_exec_string (self, exec);
           g_free (parts[1]);
@@ -1374,6 +1379,9 @@ is_open_office_window (BamfMatcher * self, BamfLegacyWindow * window)
 {
   const char *class_name = bamf_legacy_window_get_class_name (window);
 
+  if (!class_name)
+    return FALSE;
+
   return (g_str_has_prefix (class_name, "LibreOffice") ||
           g_str_has_prefix (class_name, "libreoffice") ||
           g_str_has_prefix (class_name, "OpenOffice") ||
@@ -1528,7 +1536,7 @@ static gboolean
 is_web_app_window (BamfMatcher *self, BamfLegacyWindow *window)
 {
   const char *window_class = bamf_legacy_window_get_class_name (window);
-  const char *instance_name = bamf_legacy_window_get_class_instance_name(window);
+  const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
 
   // Chrome/Chromium uses url wm_class strings to represent its web apps.
   // These apps will still have the same parent pid and hints as the main chrome
@@ -1540,15 +1548,20 @@ is_web_app_window (BamfMatcher *self, BamfLegacyWindow *window)
 
   gboolean valid_app = FALSE;
 
-  if (g_strcmp0 (window_class, "Google-chrome") == 0 &&
-      g_strcmp0 (instance_name, "google-chrome") != 0)
+  if (instance_name && window_class)
     {
-      valid_app = TRUE;
-    }
-  else if (g_strcmp0 (window_class, "Chromium-browser") == 0 &&
-           g_strcmp0 (instance_name, "chromium-browser") != 0)
-    {
-      valid_app = TRUE;
+      if (g_strcmp0 (window_class, "Google-chrome") == 0 &&
+          g_strcmp0 (instance_name, "google-chrome") != 0 &&
+          !g_str_has_prefix (instance_name, "Google-chrome"))
+        {
+          valid_app = TRUE;
+        }
+      else if (g_strcmp0 (window_class, "Chromium-browser") == 0 &&
+               g_strcmp0 (instance_name, "chromium-browser") != 0 &&
+               !g_str_has_prefix (instance_name, "Chromium-browser"))
+        {
+          valid_app = TRUE;
+        }
     }
 
   return valid_app;
@@ -1615,31 +1628,50 @@ bamf_matcher_has_instance_class_desktop_file (BamfMatcher *self, const gchar *cl
 
 static GList *
 bamf_matcher_possible_applications_for_window (BamfMatcher *self,
-                                               BamfWindow *bamf_window)
+                                               BamfWindow *bamf_window,
+                                               const char **target_class_out)
 {
   BamfMatcherPrivate *priv;
   BamfLegacyWindow *window;
   GList *desktop_files = NULL, *l;
   char *desktop_file = NULL;
-  char *desktop_class = NULL;
+  const char *desktop_class = NULL;
+  const char *class_name = NULL;
+  const char *instance_name = NULL;
+  const char *target_class = NULL;
+  gboolean filter_by_wmclass = FALSE;
 
   g_return_val_if_fail (BAMF_IS_WINDOW (bamf_window), NULL);
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
 
   priv = self->priv;
   window = bamf_window_get_window (bamf_window);
-
   desktop_file = get_window_hint (window, _NET_WM_DESKTOP_FILE);
+  class_name = bamf_legacy_window_get_class_name (window);
+  instance_name = bamf_legacy_window_get_class_instance_name (window);
 
-  const char *class_name = bamf_legacy_window_get_class_name (window);
-  const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
-  gboolean known_desktop_class = bamf_matcher_has_instance_class_desktop_file (self, instance_name);
+  target_class = instance_name;
+  filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
+
+  if (!filter_by_wmclass)
+  {
+    if (is_web_app_window (self, window))
+      {
+        // This ensures that a new application is created even for unknown webapps
+        filter_by_wmclass = TRUE;
+      }
+    else
+      {
+        target_class = class_name;
+        filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
+      }
+  }
 
   if (desktop_file)
     {
-      desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
+      desktop_class = bamf_matcher_get_desktop_file_class (self, desktop_file);
 
-      if (!known_desktop_class || g_strcmp0 (desktop_class, desktop_file) == 0)
+      if ((!filter_by_wmclass && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
         {
           desktop_files = g_list_prepend (desktop_files, desktop_file);
         }
@@ -1665,9 +1697,9 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
               if (desktop_file)
                 {
-                  desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
+                  desktop_class = bamf_matcher_get_desktop_file_class (self, desktop_file);
 
-                  if (!known_desktop_class || g_strcmp0 (desktop_class, instance_name) == 0)
+                  if ((!filter_by_wmclass && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
                     {
                       if (!g_list_find_custom (desktop_files, desktop_file,
                                                (GCompareFunc) g_strcmp0))
@@ -1698,10 +1730,10 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
             {
               gboolean append = FALSE;
 
-              if (instance_name)
+              if (target_class)
                 {
-                  desktop_class = g_hash_table_lookup (priv->desktop_class_table, desktop_file);
-                  if (!known_desktop_class || g_strcmp0 (desktop_class, instance_name) == 0)
+                  desktop_class = bamf_matcher_get_desktop_file_class (self, desktop_file);
+                  if ((!filter_by_wmclass && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
                     {
                       append = TRUE;
                     }
@@ -1730,7 +1762,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
                             }
                         }
                     }
-                  
+
                   desktop_files = g_list_insert_before (desktop_files, last, desktop_file);
                 }
               else
@@ -1743,34 +1775,40 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
       g_list_free (pid_list);
     }
 
-  if (!desktop_files && known_desktop_class)
+  if (!desktop_files && filter_by_wmclass)
     {
-      desktop_files = bamf_matcher_get_class_matching_desktop_files (self, instance_name);
+      desktop_files = bamf_matcher_get_class_matching_desktop_files (self, target_class);
+    }
+
+  if (target_class_out)
+    {
+      *target_class_out = target_class;
     }
 
   return desktop_files;
 }
 
-static void
-bamf_matcher_setup_window_state (BamfMatcher *self,
-                                 BamfWindow *bamf_window)
+static BamfApplication *
+bamf_matcher_get_application_for_window (BamfMatcher *self,
+                                         BamfWindow *bamf_window,
+                                         gboolean *new_application)
 {
   GList *possible_apps, *l;
   BamfLegacyWindow *window;
-  const gchar *app_class;
+  const gchar *win_class_name;
+  const gchar *target_class = NULL;
+  const gchar *app_class = NULL;
   const gchar *app_desktop = NULL;
   BamfApplication *app = NULL, *best = NULL;
 
-  g_return_if_fail (BAMF_IS_MATCHER (self));
-  g_return_if_fail (BAMF_IS_WINDOW (bamf_window));
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
+  g_return_val_if_fail (BAMF_IS_WINDOW (bamf_window), NULL);
 
   window = bamf_window_get_window (bamf_window);
+  win_class_name = bamf_legacy_window_get_class_name (window);
 
-  possible_apps = bamf_matcher_possible_applications_for_window (self, bamf_window);
-  const char *win_instance = bamf_legacy_window_get_class_instance_name (window);
-  const char *win_class_name = bamf_legacy_window_get_class_name (window);
-
-  app_class = win_instance;
+  possible_apps = bamf_matcher_possible_applications_for_window (self, bamf_window, &target_class);
+  app_class = target_class;
 
   /* Loop over every possible desktop file that could match the window, and try
    * to reuse an already-opened window that uses it.
@@ -1789,7 +1827,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
               const gchar *app_desktop_class;
               app_desktop_class = bamf_application_get_wmclass (app);
 
-              if (win_instance && app_desktop_class && strcasecmp (win_instance, app_desktop_class) == 0)
+              if (target_class && app_desktop_class && strcasecmp (target_class, app_desktop_class) == 0)
                 {
                   best = app;
                   break;
@@ -1819,7 +1857,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
               const gchar *best_desktop_class;
 
               best_app_class = bamf_application_get_wmclass (best);
-              best_desktop_class = g_hash_table_lookup (self->priv->desktop_class_table, best_desktop);
+              best_desktop_class = bamf_matcher_get_desktop_file_class (self, best_desktop);
 
               /* We compare the two classes using their "distance" from the
                * desidered class value */
@@ -1857,7 +1895,7 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
 
           if (bamf_application_contains_similar_to_window (app, bamf_window))
             {
-              if (win_instance && g_strcmp0 (win_instance, app_desktop_class) == 0)
+              if (target_class && g_strcmp0 (target_class, app_desktop_class) == 0)
                 {
                   best = app;
                   break;
@@ -1886,12 +1924,19 @@ bamf_matcher_setup_window_state (BamfMatcher *self,
         }
 
       bamf_application_set_wmclass (best, app_class);
-      bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (best));
+
+      if (new_application)
+        *new_application = TRUE;
+    }
+  else
+    {
+      if (new_application)
+        *new_application = FALSE;
     }
 
-  bamf_view_add_child (BAMF_VIEW (best), BAMF_VIEW (bamf_window));
-
   g_list_free_full (possible_apps, g_free);
+
+  return best;
 }
 
 /* Ensures that the window hint is set if a registered pid matches, and that set window hints
@@ -1962,6 +2007,7 @@ static void
 handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
 {
   BamfWindow *bamfwindow;
+  BamfApplication *bamfapplication;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
@@ -1979,7 +2025,15 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
   bamfwindow = bamf_window_new (window);
   bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamfwindow));
 
-  bamf_matcher_setup_window_state (self, bamfwindow);
+  gboolean new_app = FALSE;
+  bamfapplication = bamf_matcher_get_application_for_window (self, bamfwindow, &new_app);
+
+  if (new_app)
+    {
+      bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamfapplication));
+    }
+
+  bamf_view_add_child (BAMF_VIEW (bamfapplication), BAMF_VIEW (bamfwindow));
 }
 
 static void
@@ -2194,6 +2248,8 @@ void
 bamf_matcher_load_desktop_file (BamfMatcher * self,
                                 const char * desktop_file)
 {
+  GList *vl, *wl;
+
   g_return_if_fail (BAMF_IS_MATCHER (self));
 
   load_desktop_file_to_table (self,
@@ -2201,6 +2257,36 @@ bamf_matcher_load_desktop_file (BamfMatcher * self,
                               self->priv->desktop_file_table,
                               self->priv->desktop_id_table,
                               self->priv->desktop_class_table);
+
+  /* If an application with no .desktop file has windows that matches
+   * the new added .desktop file, then we try to re-match them. */
+  for (vl = self->priv->views; vl; vl = vl->next)
+    {
+      if (!BAMF_IS_APPLICATION (vl->data))
+        continue;
+
+      BamfApplication *app = BAMF_APPLICATION (vl->data);
+
+      if (!bamf_application_get_desktop_file (app))
+        {
+          GList *children = bamf_view_get_children (BAMF_VIEW (app));
+
+          for (wl = children; wl; wl = wl->next)
+          {
+            if (!BAMF_IS_WINDOW (wl->data))
+              continue;
+
+            BamfWindow *win = BAMF_WINDOW (wl->data);
+            GList *desktops = bamf_matcher_possible_applications_for_window (self, win, NULL);
+
+            if (g_list_find_custom (desktops, desktop_file, (GCompareFunc) g_strcmp0))
+              {
+                BamfLegacyWindow *legacy_window = bamf_window_get_window (win);
+                bamf_legacy_window_reopen (legacy_window);
+              }
+          }
+        }
+    }
 }
 
 void
@@ -2232,6 +2318,15 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
     {
       ensure_window_hint_set (self, glist_item->data);
     }
+}
+
+const char *
+bamf_matcher_get_desktop_file_class (BamfMatcher * self, const char * desktop_file)
+{
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
+  g_return_val_if_fail (desktop_file, NULL);
+
+  return g_hash_table_lookup (self->priv->desktop_class_table, desktop_file);
 }
 
 static int
@@ -2337,7 +2432,6 @@ compare_windows_by_stack_order (gconstpointer a, gconstpointer b)
 
   return (idx_a < idx_b) ? -1 : 1;
 }
-
 
 GVariant *
 bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
@@ -2506,8 +2600,8 @@ bamf_matcher_register_favorites (BamfMatcher *matcher,
       if (g_list_find_custom (priv->favorites, fav, (GCompareFunc) g_strcmp0))
         continue;
 
-      priv->favorites = g_list_prepend (priv->favorites, g_strdup (fav));
       bamf_matcher_load_desktop_file (matcher, fav);
+      priv->favorites = g_list_prepend (priv->favorites, g_strdup (fav));
     }
 
   g_signal_emit (matcher, matcher_signals[FAVORITES_CHANGED], 0);

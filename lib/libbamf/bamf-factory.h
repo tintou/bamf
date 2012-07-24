@@ -76,24 +76,24 @@ struct _BamfFactoryClass
   GObjectClass parent_class;
 };
 
-GType             bamf_factory_get_type             (void) G_GNUC_CONST;
+GType             bamf_factory_get_type              (void) G_GNUC_CONST;
 
-BamfView        * bamf_factory_view_for_path        (BamfFactory * factory,
-                                                     const char * path);
+BamfView        * _bamf_factory_view_for_path        (BamfFactory * factory,
+                                                      const char * path);
 
-BamfView        * bamf_factory_view_for_path_type   (BamfFactory * factory,
-                                                     const char * path,
-                                                     BamfFactoryViewType type);
+BamfView        * _bamf_factory_view_for_path_type   (BamfFactory * factory,
+                                                      const char * path,
+                                                      BamfFactoryViewType type);
 
-BamfView        * bamf_factory_view_for_path_type_str (BamfFactory * factory,
-                                                       const char * path,
-                                                       const char * type);
+BamfView        * _bamf_factory_view_for_path_type_str (BamfFactory * factory,
+                                                        const char * path,
+                                                        const char * type);
 
-BamfApplication * bamf_factory_app_for_file         (BamfFactory * factory,
+BamfApplication * _bamf_factory_app_for_file         (BamfFactory * factory,
                                                      const char * path,
                                                      gboolean create);
 
-BamfFactory     * bamf_factory_get_default          (void);
+BamfFactory     * _bamf_factory_get_default          (void);
 
 G_END_DECLS
 

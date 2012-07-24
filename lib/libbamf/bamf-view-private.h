@@ -25,15 +25,18 @@
 
 #include <libbamf/bamf-view.h>
 
-void bamf_view_set_path (BamfView *view, const char *dbus_path);
+void _bamf_view_set_path (BamfView *view, const char *dbus_path);
 
-const char * bamf_view_get_path (BamfView *view);
+const char * _bamf_view_get_path (BamfView *view);
 
-gboolean bamf_view_remote_ready (BamfView *view);
+gboolean _bamf_view_remote_ready (BamfView *view);
 
-void bamf_view_reset_flags (BamfView *view);
+void _bamf_view_reset_flags (BamfView *view);
 
-void bamf_view_set_name (BamfView *view, const char *name);
+void _bamf_view_set_name (BamfView *view, const char *name);
 
-void bamf_view_set_icon (BamfView *view, const char *icon);
+void _bamf_view_set_icon (BamfView *view, const char *icon);
+
+void _bamf_view_set_closed (BamfView *view, gboolean closed);
+
 #endif
