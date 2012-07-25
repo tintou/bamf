@@ -1,3 +1,9 @@
+bamf (0.2.118-0ubuntu2~webapps13) precise; urgency=low
+
+  * Backport fix where applications are superfously set to user-visible (Causing some notify-osd windows to show up on launcher)
+
+ -- Robert Carr <robert.carr@canonical.com>  Wed, 25 Jul 2012 12:08:53 -0700
+
 bamf (0.2.118-0ubuntu2~webapps12) precise; urgency=low
 
   * Webapps rebuild
