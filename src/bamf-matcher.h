@@ -75,6 +75,9 @@ void          bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
                                                           const char *application,
                                                           gint pid);
 
+const char  * bamf_matcher_get_desktop_file_class        (BamfMatcher * self,
+                                                          const char * desktop_file);
+
 const char  * bamf_matcher_get_active_application        (BamfMatcher *matcher);
 
 const char  * bamf_matcher_get_active_window             (BamfMatcher *matcher);

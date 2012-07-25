@@ -4,6 +4,30 @@ bamf (0.2.118-0ubuntu2~webapps12) precise; urgency=low
 
  -- Maxim Ermilov <maxim.ermilov@canonical.com>  Thu, 27 June 2012 22:55:22 +0100
 
+bamf (0.2.118-0ubuntu0.1) precise-proposed; urgency=low
+
+  [ Didier Roche ]
+  * New upstream release. (0.2.116)
+    - multiple instances or double icons of application detected on bamfdaemon
+      respawn (LP: #928912)
+    - unity confused with chrome/chromium web apps (LP: #692462)
+    - BamfView's dispose() method doesn't invoke the superclass' dispose()
+      (LP: #986888)
+  * debian/control:
+    - remove Multi-Arch: same for the -dbg package
+      (Closes: #669980, #658057)
+
+  [ Alan Pope ]
+  * New upstream release.
+    - Unity crashed in bamf_application_on_window_removed (LP: #1000577)
+    - Locked smuxi launcher icon does not indicate smuxi running status
+      (LP: #999820)
+    - No launcher icon or Alt+Tab entry for Gimp windows (LP: #995916)
+    - the RunningApplicationsChanged signal is no longer emitted when an 
+      application is closed since r460 (LP: #989551)
+
+ -- Alan Pope <popey@ubuntu.com>  Wed, 23 May 2012 09:10:08 +0100
+
 bamf (0.2.114-0ubuntu2~webapps8) precise; urgency=low
 
   * Webapps rebuild

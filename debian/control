@@ -25,7 +25,7 @@ Build-Depends: debhelper (>= 8.1.2ubuntu2),
 	       libunity-webapps-dev
 Standards-Version: 3.9.2
 Homepage: https://launchpad.net/bamf
-Vcs-Bzr: https://code.launchpad.net/~ubuntu-desktop/bamf/ubuntu
+Vcs-Bzr: https://code.launchpad.net/~ubuntu-desktop/bamf/precise
 
 Package: bamfdaemon
 Architecture: any
@@ -115,7 +115,6 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          libbamf0 (= ${binary:Version}),
          libbamf3-0 (= ${binary:Version}),
-Multi-Arch: same
 Description: Window matching library - debugging symbols
  bamf matches application windows to desktop files
  .
