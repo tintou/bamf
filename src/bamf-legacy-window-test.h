@@ -66,6 +66,7 @@ struct _BamfLegacyWindowTest
   gboolean is_closed;
   GdkRectangle geometry;
   BamfWindowMaximizationType maximized;
+  BamfWindowType window_type;
 };
 
 struct _BamfLegacyWindowTestClass
