@@ -18,7 +18,7 @@
  */
 
 #include "bamf-legacy-screen.h"
-#include "bamf-legacy-window-test.h"
+#include "bamf-legacy-screen-private.h"
 #include <gio/gio.h>
 
 G_DEFINE_TYPE (BamfLegacyScreen, bamf_legacy_screen, G_TYPE_OBJECT);
@@ -100,14 +100,8 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
       class = parts[3];
       exec  = parts[4];
 
-      window = BAMF_LEGACY_WINDOW (bamf_legacy_window_test_new (xid, name, class, exec));
-      self->priv->windows = g_list_append (self->priv->windows, window);
-      g_signal_emit (window, legacy_screen_signals[STACKING_CHANGED], 0);
-
-      g_signal_connect (G_OBJECT (window), "closed",
-                        (GCallback) handle_window_closed, self);
-
-      g_signal_emit (self, legacy_screen_signals[WINDOW_OPENED], 0, window);
+      BamfLegacyWindowTest *test_win = bamf_legacy_window_test_new (xid, name, class, exec);
+      _bamf_legacy_screen_open_test_window (self, test_win);
     }
   else if (g_strcmp0 (parts[0], "close") == 0 && parts_size == 2)
     {
@@ -116,7 +110,7 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
           window = l->data;
           if (bamf_legacy_window_get_xid (window) == xid)
             {
-              bamf_legacy_window_test_close (BAMF_LEGACY_WINDOW_TEST (window));
+              _bamf_legacy_screen_close_test_window (self, BAMF_LEGACY_WINDOW_TEST (window));
               break;
             }
         }
@@ -463,4 +457,44 @@ bamf_legacy_screen_get_default ()
                     (GCallback) handle_active_window_changed, self);
 
   return self;
+}
+
+
+// Private functions for testing purposes
+
+void _bamf_legacy_screen_open_test_window (BamfLegacyScreen *self, BamfLegacyWindowTest *test_window)
+{
+  GList *l;
+  BamfLegacyWindow *window;
+  guint xid;
+
+  g_return_if_fail (BAMF_IS_LEGACY_SCREEN (self));
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (test_window));
+
+  window = BAMF_LEGACY_WINDOW (test_window);
+  xid = bamf_legacy_window_get_xid (window);
+
+  for (l = self->priv->windows; l; l = l->next)
+    {
+      if (bamf_legacy_window_get_xid (BAMF_LEGACY_WINDOW (l->data)) == xid)
+        {
+          return;
+        }
+    }
+
+  self->priv->windows = g_list_append (self->priv->windows, window);
+  g_signal_emit (self, legacy_screen_signals[STACKING_CHANGED], 0);
+
+  g_signal_connect (G_OBJECT (window), "closed",
+                    (GCallback) handle_window_closed, self);
+
+  g_signal_emit (self, legacy_screen_signals[WINDOW_OPENED], 0, window);
+}
+
+void _bamf_legacy_screen_close_test_window (BamfLegacyScreen *self, BamfLegacyWindowTest *test_window)
+{
+  g_return_if_fail (BAMF_IS_LEGACY_SCREEN (self));
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (test_window));
+
+  bamf_legacy_window_test_close (BAMF_LEGACY_WINDOW_TEST (test_window));
 }
