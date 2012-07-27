@@ -32,14 +32,13 @@ static void test_open_windows (void);
 
 static GDBusConnection *gdbus_connection = NULL;
 
+#define DOMAIN "/Matcher"
 #define DATA_DIR "bamfdaemon/data"
 #define TEST_BAMF_APP_DESKTOP TESTDIR "/" DATA_DIR "/test-bamf-app.desktop"
 
 void
 test_matcher_create_suite (GDBusConnection *connection)
 {
-#define DOMAIN "/Matcher"
-
   gdbus_connection = connection;
 
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
@@ -90,6 +89,7 @@ test_allocation (void)
   /* Check it allocates */
   matcher = bamf_matcher_get_default ();
   g_assert (BAMF_IS_MATCHER (matcher));
+  g_object_unref (matcher);
 }
 
 static void
@@ -119,8 +119,8 @@ test_open_windows (void)
   BamfLegacyWindowTest *test_win;
   guint xid;
 
-  matcher = bamf_matcher_get_default ();
   screen = bamf_legacy_screen_get_default();
+  matcher = bamf_matcher_get_default ();
 
   export_matcher_on_bus (matcher);
 
@@ -145,4 +145,7 @@ test_open_windows (void)
       g_free (class);
       g_free (exec);
     }
+
+  g_object_unref (matcher);
+  g_object_unref (screen);
 }
