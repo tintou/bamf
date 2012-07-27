@@ -29,6 +29,7 @@
 static void test_allocation (void);
 static void test_load_desktop_file (void);
 static void test_open_windows (void);
+static void test_match_desktop_application (void);
 
 static GDBusConnection *gdbus_connection = NULL;
 
@@ -44,6 +45,7 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
   g_test_add_func (DOMAIN"/LoadDesktopFile", test_load_desktop_file);
   g_test_add_func (DOMAIN"/OpenWindows", test_open_windows);
+  g_test_add_func (DOMAIN"/MatchDesktopApplication", test_match_desktop_application);
 }
 
 static void
@@ -67,6 +69,27 @@ find_window_in_matcher (BamfMatcher *matcher, BamfLegacyWindow *legacy)
   BamfWindow *found_window = NULL;
 
   for (l = matcher->priv->views; l; l = l->next)
+    {
+      if (!BAMF_IS_WINDOW (l->data))
+        continue;
+
+      if (bamf_window_get_window (BAMF_WINDOW (l->data)) == legacy)
+      {
+        g_assert (!found_window);
+        found_window = l->data;
+      }
+    }
+
+  return found_window;
+}
+
+static BamfWindow *
+find_window_in_app (BamfApplication *app, BamfLegacyWindow *legacy)
+{
+  GList *l;
+  BamfWindow *found_window = NULL;
+
+  for (l = bamf_view_get_children (BAMF_VIEW (app)); l; l = l->next)
     {
       if (!BAMF_IS_WINDOW (l->data))
         continue;
@@ -118,13 +141,14 @@ test_open_windows (void)
   BamfLegacyWindow *window;
   BamfLegacyWindowTest *test_win;
   guint xid;
+  const int window_count = 500;
 
   screen = bamf_legacy_screen_get_default();
   matcher = bamf_matcher_get_default ();
 
   export_matcher_on_bus (matcher);
 
-  for (xid = G_MAXINT; xid > G_MAXINT-500; xid--)
+  for (xid = G_MAXINT; xid > G_MAXINT-window_count; xid--)
     {
       gchar *name = g_strdup_printf ("Test Window %u", xid);
       gchar *class = g_strdup_printf ("test-class-%u", xid);
@@ -144,6 +168,55 @@ test_open_windows (void)
       g_free (name);
       g_free (class);
       g_free (exec);
+    }
+
+  g_object_unref (matcher);
+  g_object_unref (screen);
+}
+
+static void
+test_match_desktop_application (void)
+{
+  BamfMatcher *matcher;
+  BamfLegacyScreen *screen;
+  BamfLegacyWindow *window;
+  BamfLegacyWindowTest *test_win;
+  BamfApplication *app;
+  GList *test_windows = NULL, *l, *app_children;
+  guint xid;
+  const int window_count = 5;
+
+  screen = bamf_legacy_screen_get_default();
+  matcher = bamf_matcher_get_default ();
+  char *exec = "testbamfapp";
+  char *class = "test_bamf_app";
+
+  export_matcher_on_bus (matcher);
+  bamf_matcher_load_desktop_file (matcher, TEST_BAMF_APP_DESKTOP);
+
+  for (xid = G_MAXINT; xid > G_MAXINT-window_count; xid--)
+    {
+      gchar *name = g_strdup_printf ("Test Window %u", xid);
+
+      test_win = bamf_legacy_window_test_new (xid, name, class, exec);
+      window = BAMF_LEGACY_WINDOW (test_win);
+      test_windows = g_list_prepend (test_windows, window);
+
+      _bamf_legacy_screen_open_test_window (screen, test_win);
+      g_free (name);
+    }
+
+  app = bamf_matcher_get_application_by_xid (matcher, G_MAXINT);
+  g_assert (app);
+
+  g_assert (bamf_matcher_get_application_by_desktop_file (matcher, TEST_BAMF_APP_DESKTOP) == app);
+
+  app_children = bamf_view_get_children (BAMF_VIEW (app));
+  g_assert_cmpuint (g_list_length (app_children), ==, window_count);
+
+  for (l = test_windows; l; l = l->next)
+    {
+      g_assert (find_window_in_app (app, BAMF_LEGACY_WINDOW (l->data)));
     }
 
   g_object_unref (matcher);
