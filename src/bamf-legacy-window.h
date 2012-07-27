@@ -84,11 +84,12 @@ struct _BamfLegacyWindowClass
   gboolean     (*is_skip_tasklist)        (BamfLegacyWindow *legacy_window);
   gboolean     (*is_desktop)              (BamfLegacyWindow *legacy_window);
   gboolean     (*is_dialog)               (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_closed)               (BamfLegacyWindow *legacy_window);
   BamfWindowMaximizationType (*maximized) (BamfLegacyWindow *legacy_window);
-
-  void         (*get_geometry)         (BamfLegacyWindow *self,
-                                        gint *x, gint *y,
-                                        gint *width, gint *height);
+  void         (*get_geometry)            (BamfLegacyWindow *legacy_window,
+                                           gint *x, gint *y,
+                                           gint *width, gint *height);
+  void         (*reopen)                  (BamfLegacyWindow *legacy_window);
 
   /*< signals >*/
   void     (*name_changed)     (BamfLegacyWindow *legacy_window);
