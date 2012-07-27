@@ -63,6 +63,7 @@ struct _BamfLegacyWindowTest
   gboolean is_desktop;
   gboolean is_skip;
   gboolean is_active;
+  gboolean is_closed;
   GdkRectangle geometry;
   BamfWindowMaximizationType maximized;
 };
@@ -137,5 +138,8 @@ bamf_legacy_window_test_close (BamfLegacyWindowTest *self);
 
 BamfLegacyWindowTest *
 bamf_legacy_window_test_new (guint32 xid, gchar *name, gchar *klass, gchar *exec);
+
+BamfLegacyWindowTest *
+bamf_legacy_window_copy (BamfLegacyWindowTest *self);
 
 #endif
