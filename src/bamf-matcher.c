@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include "bamf-matcher.h"
+#include "bamf-matcher-private.h"
 #include "bamf-application.h"
 #include "bamf-window.h"
 #include "bamf-legacy-window.h"
@@ -49,24 +50,6 @@ typedef enum
 
 static BamfMatcher *static_matcher;
 static guint matcher_signals[LAST_SIGNAL] = { 0 };
-
-struct _BamfMatcherPrivate
-{
-  GArray          * bad_prefixes;
-  GArray          * good_prefixes;
-  GArray          * known_pids;
-  GHashTable      * desktop_id_table;
-  GHashTable      * desktop_file_table;
-  GHashTable      * desktop_class_table;
-  GHashTable      * registered_pids;
-  GHashTable      * opened_closed_paths_table;
-  GList           * views;
-  GList           * monitors;
-  GList           * favorites;
-  BamfView        * active_app;
-  BamfView        * active_win;
-  guint             dispatch_changes_id;
-};
 
 static void
 on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
