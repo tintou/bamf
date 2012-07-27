@@ -86,6 +86,7 @@ struct _BamfLegacyWindowClass
   gboolean     (*is_dialog)               (BamfLegacyWindow *legacy_window);
   gboolean     (*is_closed)               (BamfLegacyWindow *legacy_window);
   BamfWindowMaximizationType (*maximized) (BamfLegacyWindow *legacy_window);
+  BamfWindowType (*get_window_type)       (BamfLegacyWindow *legacy_window);
   void         (*get_geometry)            (BamfLegacyWindow *legacy_window,
                                            gint *x, gint *y,
                                            gint *width, gint *height);
