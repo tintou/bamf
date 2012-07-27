@@ -78,6 +78,10 @@ BamfWindowType
 bamf_legacy_window_get_window_type (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), 0);
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_window_type)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_window_type (self);
+
   g_return_val_if_fail (self->priv->legacy_window, 0);
 
   return (BamfWindowType) wnck_window_get_window_type (self->priv->legacy_window);
@@ -87,7 +91,6 @@ gboolean
 bamf_legacy_window_needs_attention (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), FALSE);
-
 
   if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->needs_attention)
     return BAMF_LEGACY_WINDOW_GET_CLASS (self)->needs_attention (self);
