@@ -24,8 +24,6 @@
 #include "bamf-matcher-private.h"
 #include "bamf-application.h"
 #include "bamf-window.h"
-#include "bamf-legacy-window.h"
-#include "bamf-legacy-window-test.h"
 #include "bamf-legacy-screen.h"
 #include "bamf-indicator-source.h"
 #include "bamf-xutils.h"
@@ -110,7 +108,7 @@ on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
 
 static void bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view);
 
-static BamfApplication *
+BamfApplication *
 bamf_matcher_get_application_by_desktop_file (BamfMatcher *self, const char *desktop_file)
 {
   GList *l;
@@ -135,6 +133,30 @@ bamf_matcher_get_application_by_desktop_file (BamfMatcher *self, const char *des
       if (g_strcmp0 (desktop_file, app_desktop) == 0)
         {
           return app;
+        }
+    }
+
+  return NULL;
+}
+
+BamfApplication *
+bamf_matcher_get_application_by_xid (BamfMatcher *self, guint xid)
+{
+  GList *l;
+  BamfView *view;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
+
+  for (l = self->priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_APPLICATION (view))
+        continue;
+
+      if (bamf_application_manages_xid (BAMF_APPLICATION (view), xid))
+        {
+          return BAMF_APPLICATION (view);
         }
     }
 
@@ -2392,26 +2414,14 @@ const char *
 bamf_matcher_application_for_xid (BamfMatcher *matcher,
                                   guint32 xid)
 {
-  GList *l;
-  BamfView *view;
-  BamfMatcherPrivate *priv;
+  BamfApplication *app;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
 
-  priv = matcher->priv;
+  app = bamf_matcher_get_application_by_xid (matcher, xid);
 
-  for (l = priv->views; l; l = l->next)
-    {
-      view = l->data;
-
-      if (!BAMF_IS_APPLICATION (view))
-        continue;
-
-      if (bamf_application_manages_xid (BAMF_APPLICATION (view), xid))
-        {
-          return bamf_view_get_path (view);
-        }
-    }
+  if (BAMF_IS_APPLICATION (app))
+    return bamf_view_get_path (BAMF_VIEW (app));
 
   return "";
 }
