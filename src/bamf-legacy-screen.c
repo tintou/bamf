@@ -25,6 +25,8 @@ G_DEFINE_TYPE (BamfLegacyScreen, bamf_legacy_screen, G_TYPE_OBJECT);
 #define BAMF_LEGACY_SCREEN_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_LEGACY_SCREEN, BamfLegacyScreenPrivate))
 
+static BamfLegacyScreen *static_screen = NULL;
+
 enum
 {
   WINDOW_OPENED,
@@ -376,9 +378,22 @@ handle_active_window_changed (WnckScreen *screen, WnckWindow *previous, BamfLega
 }
 
 static void
-bamf_legacy_screen_dispose (GObject *object)
+bamf_legacy_screen_finalize (GObject *object)
 {
-  G_OBJECT_CLASS (bamf_legacy_screen_parent_class)->dispose (object);
+  BamfLegacyScreen *self = BAMF_LEGACY_SCREEN (object);
+
+  if (self->priv->windows)
+    g_list_free_full (self->priv->windows, g_object_unref);
+
+  if (self->priv->file)
+    g_object_unref (self->priv->file);
+
+  if (self->priv->stream)
+    g_object_unref (self->priv->stream);
+
+  static_screen = NULL;
+
+  G_OBJECT_CLASS (bamf_legacy_screen_parent_class)->finalize (object);
 }
 
 static void
@@ -392,7 +407,7 @@ bamf_legacy_screen_class_init (BamfLegacyScreenClass * klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->dispose      = bamf_legacy_screen_dispose;
+  object_class->finalize = bamf_legacy_screen_finalize;
 
   g_type_class_add_private (klass, sizeof (BamfLegacyScreenPrivate));
 
@@ -435,15 +450,16 @@ bamf_legacy_screen_class_init (BamfLegacyScreenClass * klass)
                   G_TYPE_NONE, 0);
 }
 
-static BamfLegacyScreen *self = NULL;
-
 BamfLegacyScreen *
 bamf_legacy_screen_get_default ()
 {
-  if (self)
-    return self;
+  BamfLegacyScreen *self;
+
+  if (static_screen)
+    return static_screen;
 
   self = (BamfLegacyScreen *) g_object_new (BAMF_TYPE_LEGACY_SCREEN, NULL);
+  static_screen = self;
 
   self->priv->legacy_screen = wnck_screen_get_default ();
 
@@ -456,7 +472,7 @@ bamf_legacy_screen_get_default ()
   g_signal_connect (G_OBJECT (self->priv->legacy_screen), "active-window-changed",
                     (GCallback) handle_active_window_changed, self);
 
-  return self;
+  return static_screen;
 }
 
 
