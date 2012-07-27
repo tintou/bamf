@@ -2238,7 +2238,7 @@ handle_indicator_opened (BamfIndicatorSource *approver, BamfIndicator *indicator
 {
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_INDICATOR (indicator));
-  
+
   bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (indicator));
   bamf_matcher_setup_indicator_state (self, indicator);
 }
@@ -2258,7 +2258,12 @@ bamf_matcher_load_desktop_file (BamfMatcher * self,
                               self->priv->desktop_class_table);
 
   /* If an application with no .desktop file has windows that matches
-   * the new added .desktop file, then we try to re-match them. */
+   * the new added .desktop file, then we try to re-match them.
+   * We use another list to save the windows that should be re-matched to avoid
+   * that the list that we're iterating is changed, since reopening a window
+   * makes it to be removed from the views. */
+  GList *to_rematch = NULL;
+
   for (vl = self->priv->views; vl; vl = vl->next)
     {
       if (!BAMF_IS_APPLICATION (vl->data))
@@ -2271,21 +2276,29 @@ bamf_matcher_load_desktop_file (BamfMatcher * self,
           GList *children = bamf_view_get_children (BAMF_VIEW (app));
 
           for (wl = children; wl; wl = wl->next)
-          {
-            if (!BAMF_IS_WINDOW (wl->data))
-              continue;
+            {
+              if (!BAMF_IS_WINDOW (wl->data))
+                continue;
 
-            BamfWindow *win = BAMF_WINDOW (wl->data);
-            GList *desktops = bamf_matcher_possible_applications_for_window (self, win, NULL);
+              BamfWindow *win = BAMF_WINDOW (wl->data);
+              GList *desktops = bamf_matcher_possible_applications_for_window (self, win, NULL);
 
-            if (g_list_find_custom (desktops, desktop_file, (GCompareFunc) g_strcmp0))
-              {
-                BamfLegacyWindow *legacy_window = bamf_window_get_window (win);
-                bamf_legacy_window_reopen (legacy_window);
-              }
-          }
+              if (g_list_find_custom (desktops, desktop_file, (GCompareFunc) g_strcmp0))
+                {
+                  BamfLegacyWindow *legacy_window = bamf_window_get_window (win);
+                  to_rematch = g_list_prepend (to_rematch, legacy_window);
+                }
+            }
         }
     }
+
+    for (wl = to_rematch; wl; wl = wl->next)
+      {
+        BamfLegacyWindow *legacy_window = BAMF_LEGACY_WINDOW (wl->data);
+        bamf_legacy_window_reopen (legacy_window);
+      }
+
+    g_list_free (to_rematch);
 }
 
 void
