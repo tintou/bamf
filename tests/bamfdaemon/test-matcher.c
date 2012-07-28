@@ -162,10 +162,12 @@ test_open_windows (void)
       _bamf_legacy_screen_open_test_window (screen, test_win);
       g_assert (g_list_find (bamf_legacy_screen_get_windows (screen), test_win));
       g_assert (find_window_in_matcher (matcher, window));
+      g_assert (bamf_matcher_get_application_by_xid (matcher, xid));
 
       _bamf_legacy_screen_close_test_window (screen, test_win);
       g_assert (!g_list_find (bamf_legacy_screen_get_windows (screen), test_win));
       g_assert (!find_window_in_matcher (matcher, window));
+      g_assert (!bamf_matcher_get_application_by_xid (matcher, xid));
 
       g_free (name);
       g_free (class);
