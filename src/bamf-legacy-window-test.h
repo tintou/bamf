@@ -54,7 +54,8 @@ struct _BamfLegacyWindowTest
   guint32 xid;
   gint    pid;
   char * name;
-  char * klass;
+  char * wm_class_name;
+  char * wm_class_instance;
   char * exec;
   char * application_id;
   char * unique_bus_name;
@@ -138,7 +139,7 @@ void
 bamf_legacy_window_test_close (BamfLegacyWindowTest *self);
 
 BamfLegacyWindowTest *
-bamf_legacy_window_test_new (guint32 xid, gchar *name, gchar *klass, gchar *exec);
+bamf_legacy_window_test_new (guint32 xid, gchar *name, gchar *wmclass_name, gchar *exec);
 
 BamfLegacyWindowTest *
 bamf_legacy_window_copy (BamfLegacyWindowTest *self);
