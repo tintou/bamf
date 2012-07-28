@@ -31,6 +31,7 @@ static void test_load_desktop_file (void);
 static void test_open_windows (void);
 static void test_match_desktopless_application (void);
 static void test_match_desktop_application (void);
+static void test_new_desktop_matches_unmatched_windows (void);
 
 static GDBusConnection *gdbus_connection = NULL;
 
@@ -48,6 +49,7 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/OpenWindows", test_open_windows);
   g_test_add_func (DOMAIN"/MatchDesktopLessApplication", test_match_desktopless_application);
   g_test_add_func (DOMAIN"/MatchDesktopApplication", test_match_desktop_application);
+  g_test_add_func (DOMAIN"/NewMatchesUnmatchedWindows", test_new_desktop_matches_unmatched_windows);
 }
 
 static void
@@ -271,6 +273,52 @@ test_match_desktop_application (void)
     }
 
   g_list_free (test_windows);
+  g_object_unref (matcher);
+  g_object_unref (screen);
+}
+
+static void
+test_new_desktop_matches_unmatched_windows (void)
+{
+  BamfMatcher *matcher;
+  BamfLegacyScreen *screen;
+  BamfLegacyWindowTest *test_win;
+  BamfApplication *app;
+  GList *app_children;
+  guint xid = 0;
+  const int window_count = 5;
+
+  screen = bamf_legacy_screen_get_default();
+  matcher = bamf_matcher_get_default ();
+  char *exec = "testbamfapp";
+  char *class = "test_bamf_app";
+
+  export_matcher_on_bus (matcher);
+  g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, TEST_BAMF_APP_DESKTOP));
+
+  for (xid = G_MAXUINT; xid > G_MAXUINT-window_count; xid--)
+    {
+      gchar *name = g_strdup_printf ("Test Window %u", xid);
+
+      test_win = bamf_legacy_window_test_new (xid, name, class, exec);
+      _bamf_legacy_screen_open_test_window (screen, test_win);
+
+      g_free (name);
+    }
+
+  bamf_matcher_load_desktop_file (matcher, TEST_BAMF_APP_DESKTOP);
+
+  app = bamf_matcher_get_application_by_desktop_file (matcher, TEST_BAMF_APP_DESKTOP);
+  g_assert (app);
+
+  app_children = bamf_view_get_children (BAMF_VIEW (app));
+  g_assert_cmpuint (g_list_length (app_children), ==, window_count);
+
+  for (xid = G_MAXUINT; xid > G_MAXUINT-window_count; xid--)
+    {
+      g_assert (bamf_matcher_get_application_by_xid (matcher, xid) == app);
+    }
+
   g_object_unref (matcher);
   g_object_unref (screen);
 }
