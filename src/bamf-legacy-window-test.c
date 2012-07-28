@@ -148,13 +148,23 @@ bamf_legacy_window_test_get_name (BamfLegacyWindow *legacy_window)
 }
 
 static const char *
-bamf_legacy_window_test_get_class (BamfLegacyWindow *legacy_window)
+bamf_legacy_window_test_get_class_name (BamfLegacyWindow *legacy_window)
 {
   BamfLegacyWindowTest *self;
 
   self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
 
-  return  self->klass;
+  return  self->wm_class_name;
+}
+
+static const char *
+bamf_legacy_window_test_get_class_instance_name (BamfLegacyWindow *legacy_window)
+{
+  BamfLegacyWindowTest *self;
+
+  self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
+
+  return  self->wm_class_instance;
 }
 
 char *
@@ -332,7 +342,8 @@ bamf_legacy_window_test_class_init (BamfLegacyWindowTestClass *klass)
 
   obj_class->dispose          = bamf_legacy_window_test_dispose;
   win_class->get_name         = bamf_legacy_window_test_get_name;
-  win_class->get_class_name   = bamf_legacy_window_test_get_class;
+  win_class->get_class_name   = bamf_legacy_window_test_get_class_name;
+  win_class->get_class_instance_name = bamf_legacy_window_test_get_class_instance_name;
   win_class->get_exec_string  = bamf_legacy_window_test_get_exec_string;
   win_class->get_xid          = bamf_legacy_window_test_get_xid;
   win_class->get_pid          = bamf_legacy_window_test_get_pid;
@@ -369,7 +380,8 @@ bamf_legacy_window_copy (BamfLegacyWindowTest *self)
   copy->xid = self->xid;
   copy->pid = self->pid;
   copy->name = g_strdup (self->name);
-  copy->klass = g_strdup (self->klass);
+  copy->wm_class_name = g_strdup (self->wm_class_name);
+  copy->wm_class_instance = g_strdup (self->wm_class_instance);
   copy->exec = g_strdup (self->exec);
   copy->application_id = g_strdup (self->application_id);
   copy->unique_bus_name = g_strdup (self->unique_bus_name);
@@ -387,7 +399,7 @@ bamf_legacy_window_copy (BamfLegacyWindowTest *self)
 }
 
 BamfLegacyWindowTest *
-bamf_legacy_window_test_new (guint32 xid, gchar *name, gchar *klass, gchar *exec)
+bamf_legacy_window_test_new (guint32 xid, gchar *name, gchar *wmclass_name, gchar *exec)
 {
   BamfLegacyWindowTest *self;
 
@@ -395,7 +407,7 @@ bamf_legacy_window_test_new (guint32 xid, gchar *name, gchar *klass, gchar *exec
   self->window_type = BAMF_WINDOW_NORMAL;
   self->xid = xid;
   self->name = g_strdup (name);
-  self->klass = g_strdup (klass);
+  self->wm_class_name = g_strdup (wmclass_name);
   self->exec = g_strdup (exec);
 
   return self;
