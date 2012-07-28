@@ -218,6 +218,7 @@ test_match_desktopless_application (void)
       g_assert (find_window_in_app (app, BAMF_LEGACY_WINDOW (l->data)));
     }
 
+  g_list_free (test_windows);
   g_object_unref (matcher);
   g_object_unref (screen);
 }
@@ -254,10 +255,10 @@ test_match_desktop_application (void)
       g_free (name);
     }
 
-  app = bamf_matcher_get_application_by_xid (matcher, G_MAXINT);
+  app = bamf_matcher_get_application_by_desktop_file (matcher, TEST_BAMF_APP_DESKTOP);
   g_assert (app);
 
-  g_assert (bamf_matcher_get_application_by_desktop_file (matcher, TEST_BAMF_APP_DESKTOP) == app);
+  g_assert (bamf_matcher_get_application_by_xid (matcher, G_MAXINT) == app);
 
   app_children = bamf_view_get_children (BAMF_VIEW (app));
   g_assert_cmpuint (g_list_length (app_children), ==, window_count);
@@ -267,6 +268,7 @@ test_match_desktop_application (void)
       g_assert (find_window_in_app (app, BAMF_LEGACY_WINDOW (l->data)));
     }
 
+  g_list_free (test_windows);
   g_object_unref (matcher);
   g_object_unref (screen);
 }
