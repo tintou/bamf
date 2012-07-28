@@ -2297,13 +2297,13 @@ bamf_matcher_load_desktop_file (BamfMatcher * self,
         }
     }
 
-    for (wl = to_rematch; wl; wl = wl->next)
-      {
-        BamfLegacyWindow *legacy_window = BAMF_LEGACY_WINDOW (wl->data);
-        bamf_legacy_window_reopen (legacy_window);
-      }
+  for (wl = to_rematch; wl; wl = wl->next)
+    {
+      BamfLegacyWindow *legacy_window = BAMF_LEGACY_WINDOW (wl->data);
+      bamf_legacy_window_reopen (legacy_window);
+    }
 
-    g_list_free (to_rematch);
+  g_list_free (to_rematch);
 }
 
 void
