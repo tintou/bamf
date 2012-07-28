@@ -150,7 +150,7 @@ test_open_windows (void)
 
   export_matcher_on_bus (matcher);
 
-  for (xid = G_MAXINT; xid > G_MAXINT-window_count; xid--)
+  for (xid = G_MAXUINT; xid > G_MAXUINT-window_count; xid--)
     {
       gchar *name = g_strdup_printf ("Test Window %u", xid);
       gchar *class = g_strdup_printf ("test-class-%u", xid);
@@ -197,7 +197,7 @@ test_match_desktopless_application (void)
 
   export_matcher_on_bus (matcher);
 
-  for (xid = G_MAXINT; xid > G_MAXINT-window_count; xid--)
+  for (xid = G_MAXUINT; xid > G_MAXUINT-window_count; xid--)
     {
       gchar *name = g_strdup_printf ("Test Window %u", xid);
 
@@ -209,7 +209,7 @@ test_match_desktopless_application (void)
       g_free (name);
     }
 
-  app = bamf_matcher_get_application_by_xid (matcher, G_MAXINT);
+  app = bamf_matcher_get_application_by_xid (matcher, G_MAXUINT);
   g_assert (app);
 
   app_children = bamf_view_get_children (BAMF_VIEW (app));
@@ -245,7 +245,7 @@ test_match_desktop_application (void)
   export_matcher_on_bus (matcher);
   bamf_matcher_load_desktop_file (matcher, TEST_BAMF_APP_DESKTOP);
 
-  for (xid = G_MAXINT; xid > G_MAXINT-window_count; xid--)
+  for (xid = G_MAXUINT; xid > G_MAXUINT-window_count; xid--)
     {
       gchar *name = g_strdup_printf ("Test Window %u", xid);
 
@@ -260,7 +260,7 @@ test_match_desktop_application (void)
   app = bamf_matcher_get_application_by_desktop_file (matcher, TEST_BAMF_APP_DESKTOP);
   g_assert (app);
 
-  g_assert (bamf_matcher_get_application_by_xid (matcher, G_MAXINT) == app);
+  g_assert (bamf_matcher_get_application_by_xid (matcher, G_MAXUINT) == app);
 
   app_children = bamf_view_get_children (BAMF_VIEW (app));
   g_assert_cmpuint (g_list_length (app_children), ==, window_count);
@@ -274,3 +274,4 @@ test_match_desktop_application (void)
   g_object_unref (matcher);
   g_object_unref (screen);
 }
+

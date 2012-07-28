@@ -265,7 +265,7 @@ bamf_window_get_stable_bus_name (BamfView *view)
   g_return_val_if_fail (BAMF_IS_WINDOW (view), NULL);  
   self = BAMF_WINDOW (view);
 
-  return g_strdup_printf ("window%i", bamf_legacy_window_get_xid (self->priv->legacy_window));
+  return g_strdup_printf ("window%u", bamf_legacy_window_get_xid (self->priv->legacy_window));
 }
 
 gint
