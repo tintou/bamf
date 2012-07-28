@@ -513,4 +513,7 @@ void _bamf_legacy_screen_close_test_window (BamfLegacyScreen *self, BamfLegacyWi
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (test_window));
 
   bamf_legacy_window_test_close (BAMF_LEGACY_WINDOW_TEST (test_window));
+
+  self->priv->windows = g_list_remove (self->priv->windows, test_window);
+  g_signal_emit (self, legacy_screen_signals[WINDOW_CLOSED], 0, test_window);
 }
