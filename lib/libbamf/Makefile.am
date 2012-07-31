@@ -24,7 +24,6 @@ libbamf_sources = \
   bamf-tab-source.c \
   bamf-tab.c \
   bamf-indicator.c \
-  bamf-marshal.c \
   $(NULL)
 
 sources_h = \
@@ -45,8 +44,7 @@ libbamf_la_SOURCES = \
   bamf-view-private.h \
   $(sources_h) \
   $(libbamf_sources) \
-  bamf-tab-source-glue.h \
-  bamf-marshal.h \
+  $(BUILT_SOURCES) \
   $(NULL)
 
 libbamf_la_LIBADD = \
@@ -126,7 +124,7 @@ Bamf_0_2_gir_CFLAGS = \
 	-I$(top_builddir)/lib \
 	$(NULL)
 Bamf_0_2_gir_LIBS = libbamf.la
-Bamf_0_2_gir_FILES = $(addprefix $(srcdir)/, $(introspection_sources))
+Bamf_0_2_gir_FILES = $(introspection_sources)
 Bamf_0_2_gir_EXPORT_PACKAGES = libbamf$(VER)
 
 INTROSPECTION_GIRS += Bamf-0.2.gir
