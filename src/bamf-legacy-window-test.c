@@ -240,8 +240,8 @@ bamf_legacy_window_test_maximized (BamfLegacyWindow *legacy_window)
 void
 bamf_legacy_window_test_close (BamfLegacyWindowTest *self)
 {
-  g_signal_emit_by_name (self, "closed");
   self->is_closed = TRUE;
+  g_signal_emit_by_name (self, "closed");
 }
 
 void
