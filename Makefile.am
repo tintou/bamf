@@ -10,5 +10,5 @@ SUBDIRS = \
   doc
 
 EXTRA_DIST = COPYING.LGPL autogen.sh build.rules.mk
-DISTCHECK_CONFIGURE_FLAGS = --enable-introspection=no --enable-gtk-doc
+DISTCHECK_CONFIGURE_FLAGS = --enable-introspection=no --enable-gtk-doc=yes
 

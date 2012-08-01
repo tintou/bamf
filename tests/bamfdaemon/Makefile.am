@@ -82,6 +82,8 @@ test_bamf_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
 		$(NULL)
 
+EXTRA_DIST = data
+
 # Run tests as part of make check
 if ENABLE_HEADLESS_TESTS
 check-local: test-headless
