@@ -148,7 +148,7 @@ dist-hook:
 	find $(top_distdir)/src -name bamf-gdbus-\*-generated.\* -exec rm -v {} \;
 
 BUILT_SOURCES += \
-		$(bamfdaemon_built_files) \
+		$(bamfdaemon_gdbus_files) \
 		$(NULL)
 
 EXTRA_DIST += \
