@@ -147,6 +147,10 @@ bamf-gdbus-indicator-source-generated.c bamf-gdbus-indicator-source-generated.h:
 dist-hook:
 	find $(top_distdir)/src -name bamf-gdbus-\*-generated.\* -exec rm -v {} \;
 
+BUILT_SOURCES += \
+		$(bamfdaemon_built_files) \
+		$(NULL)
+
 EXTRA_DIST += \
 		$(bamfdaemon_xml_gdbus_files) \
 		$(NULL)
