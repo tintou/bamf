@@ -53,7 +53,9 @@ bamfdaemon_sources = \
 		bamf-application.c \
 		bamf-window.c \
 		bamf-tab.c \
-		bamf-tab-source.c \
+	        bamf-unity-webapps-tab.c \
+		bamf-unity-webapps-observer.c \
+		bamf-unity-webapps-application.c \
 		bamf-indicator-source.c \
 		bamf-indicator.c \
 		bamf-xutils.c \
@@ -74,7 +76,8 @@ bamfdaemon_headers = \
 		bamf-window.h \
 		bamf-application.h \
 		bamf-tab.h \
-		bamf-tab-source.h \
+		bamf-unity-webapps-tab.h \
+		bamf-unity-webapps-observer.h \
 		bamf-indicator-source.h \
 		bamf-indicator.h \
 		bamf-xutils.h \
@@ -98,6 +101,7 @@ bamfdaemon_LDADD = \
 		$(GTK_LIBS) \
 		$(WNCK_LIBS) \
 		$(GTOP_LIBS) \
+		$(LIBUNITY_WEBAPPS_LIBS) \
 		$(NULL)
 
 bamfdaemon_CFLAGS = \
@@ -109,6 +113,7 @@ bamfdaemon_CFLAGS = \
 		$(GTK_CFLAGS) \
 		$(WNCK_CFLAGS) \
 		$(GTOP_CFLAGS) \
+		$(LIBUNITY_WEBAPPS_CFLAGS) \
 		$(NULL)
 
 bamfdaemon_LDFLAGS = \
