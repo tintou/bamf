@@ -12,6 +12,7 @@ BUILT_SOURCES =
 EXTRA_DIST = 
 
 include $(top_srcdir)/Makefile.am.marshal
+-include $(INTROSPECTION_MAKEFILE)
 
 libbamf_sources = \
   bamf-application.c \
@@ -23,7 +24,6 @@ libbamf_sources = \
   bamf-tab-source.c \
   bamf-tab.c \
   bamf-indicator.c \
-  bamf-marshal.c \
   $(NULL)
 
 sources_h = \
@@ -44,8 +44,7 @@ libbamf_la_SOURCES = \
   bamf-view-private.h \
   $(sources_h) \
   $(libbamf_sources) \
-  bamf-tab-source-glue.h \
-  bamf-marshal.h \
+  $(BUILT_SOURCES) \
   $(NULL)
 
 libbamf_la_LIBADD = \
@@ -84,7 +83,7 @@ glib_marshal_list = bamf-marshal.list
 glib_marshal_prefix = _bamf_marshal
 
 bamf-tab-source-glue.h: bamf-tab-source-glue.xml
-	$(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_tab_source --mode=glib-server --output=$@ $<
+	$(AM_V_GEN)$(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_tab_source --mode=glib-server --output=$@ $<
 
 BUILT_SOURCES += \
 	bamf-tab-source-glue.h \
@@ -108,47 +107,51 @@ libbamf_pc_DATA = \
 # GObject Introsepction 
 #########################
 
-#-include $(INTROSPECTION_MAKEFILE)
-#INTROSPECTION_GIRS = 
-#INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)
-#INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
+INTROSPECTION_GIRS = 
+INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)
+INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
 
-#if HAVE_INTROSPECTION
+if HAVE_INTROSPECTION
 
-#introspection_sources = $(library_include_HEADERS)
+introspection_sources = $(libbamf_la_SOURCES)
 
-#Bamf-0.2.gir: libbamf.la
-#Bamf_0_2_gir_INCLUDES = \
-#	GObject-2.0
-#Bamf_0_2_gir_CFLAGS = --c-include='libbamf/libbamf.h' $(LIBBAMF_CFLAGS) -I$(top_srcdir)/lib -I$(top_builddir)/lib
-#Bamf_0_2_gir_LIBS = libbamf.la 
-#Bamf_0_2_gir_FILES = $(addprefix $(srcdir)/, $(introspection_sources))
-#
-#INTROSPECTION_GIRS += Bamf-0.2.gir
-#
-#girdir = $(datadir)/gir-1.0
-#dist_gir_DATA = $(INTROSPECTION_GIRS)
+Bamf-0.2.gir: libbamf.la
+Bamf_0_2_gir_INCLUDES = GObject-2.0 GLib-2.0
+Bamf_0_2_gir_CFLAGS = \
+	--c-include='libbamf/libbamf.h' \
+	$(DBUS_CFLAGS) \
+	-I$(top_srcdir)/lib \
+	-I$(top_builddir)/lib \
+	$(NULL)
+Bamf_0_2_gir_LIBS = libbamf.la
+Bamf_0_2_gir_FILES = $(introspection_sources)
+Bamf_0_2_gir_EXPORT_PACKAGES = libbamf$(VER)
 
-#typelibdir = $(libdir)/girepository-1.0
-#typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
+INTROSPECTION_GIRS += Bamf-0.2.gir
 
-#CLEANFILES += $(dist_gir_DATA) $(typelib_DATA)
+girdir = $(datadir)/gir-1.0
+dist_gir_DATA = $(INTROSPECTION_GIRS)
 
-#endif
+typelibdir = $(libdir)/girepository-1.0
+typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
+
+CLEANFILES += $(dist_gir_DATA) $(typelib_DATA)
+
+endif
 
 #########################
 # VAPI Files
 #########################
 
-#if HAVE_INTROSPECTION
+if HAVE_INTROSPECTION
 
-#vapidir = $(datadir)/vala/vapi
-#vapi_DATA = Bamf-0.2.vapi
+vapidir = $(datadir)/vala/vapi
+vapi_DATA = libbamf$(VER).vapi
 
-#Bamf-0.2.vapi: Bamf-0.2.gir
-#	$(VALA_API_GEN) --library=Bamf-0.2 $<
+$(vapi_DATA): $(INTROSPECTION_GIRS)
+	$(AM_V_GEN)$(VALA_API_GEN) --library=$(@:.vapi=) $<
 
-#CLEANFILES += $(vapi_DATA)
+DISTCLEANFILES += $(vapi_DATA)
 
-#endif
+endif
 
