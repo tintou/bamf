@@ -175,8 +175,29 @@ Used to fetch the active <a class="link" href="BamfWindow.html" title="BamfWindo
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *desktop_file_path</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> create_if_not_found</code></em>);</pre>
-<p>
-</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>matcher</code></em> :</span></p></td>
+<td>a <a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>desktop_file_path</code></em> :</span></p></td>
+<td>Path to the desktop file</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>create_if_not_found</code></em> :</span></p></td>
+<td>Create a <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> if one isn't found</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>A <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> for given desktop file. <span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span>
+</td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -201,7 +222,7 @@ Used to fetch the <a class="link" href="BamfApplication.html" title="BamfApplica
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>The <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> representing the xid passed, or NULL if none exists. <span class="annotation">[<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym>]</span>
+<td>The <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> representing the xid passed, or NULL if none exists. <span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span>
 </td>
 </tr>
 </tbody>
@@ -230,7 +251,7 @@ Used to fetch the <a class="link" href="BamfApplication.html" title="BamfApplica
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>The <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> representing the xid passed, or NULL if none exists. <span class="annotation">[<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym>]</span>
+<td>The <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a> representing the xid passed, or NULL if none exists. <span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span>
 </td>
 </tr>
 </tbody>
@@ -241,7 +262,10 @@ Used to fetch the <a class="link" href="BamfApplication.html" title="BamfApplica
 <a name="bamf-matcher-get-applications"></a><h3>bamf_matcher_get_applications ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-Lists.html#GList"><span class="returnvalue">GList</span></a> *             bamf_matcher_get_applications       (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>);</pre>
 <p>
-Used to fetch all xid's associated with an application. Useful for performing window
+Used to fetch all <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a>'s running or not. Application authors who wish to only 
+see running applications should use bamf_matcher_get_running_applications instead. The reason
+this method is needed is bamf will occasionally track applications which are not currently
+running for nefarious purposes.
 </p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -253,7 +277,7 @@ Used to fetch all xid's associated with an application. Useful for performing wi
 </tr>
 <tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>A list of xids. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> guint32][<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span>
+<td>A list of <a class="link" href="BamfApplication.html" title="BamfApplication"><span class="type">BamfApplication</span></a>'s. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> Bamf.Application][<acronym title="Free data container after the code is done."><span class="acronym">transfer container</span></acronym>]</span>
 </td>
 </tr>
 </tbody>
@@ -270,7 +294,7 @@ Returns the default matcher. This matcher is owned by bamf and shared between ot
 <col align="left" valign="top">
 <tbody><tr>
 <td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>A new <a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a>. <span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span>
+<td>A new <a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a>. <span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span>
 </td>
 </tr></tbody>
 </table></div>
@@ -382,7 +406,23 @@ Used to fetch all windows that BAMF knows about.
                                                         (<em class="parameter"><code><a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *matcher</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *application</code></em>);</pre>
 <p>
+Used to fetch all xid's associated with an application. Useful for performing window
 </p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>matcher</code></em> :</span></p></td>
+<td>a <a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>A list of xids. <span class="annotation">[<acronym title="Generics and defining elements of containers and arrays."><span class="acronym">element-type</span></acronym> guint32][<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span>
+</td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">

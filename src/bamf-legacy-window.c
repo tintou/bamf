@@ -78,6 +78,10 @@ BamfWindowType
 bamf_legacy_window_get_window_type (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), 0);
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_window_type)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_window_type (self);
+
   g_return_val_if_fail (self->priv->legacy_window, 0);
 
   return (BamfWindowType) wnck_window_get_window_type (self->priv->legacy_window);
@@ -87,7 +91,6 @@ gboolean
 bamf_legacy_window_needs_attention (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), FALSE);
-
 
   if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->needs_attention)
     return BAMF_LEGACY_WINDOW_GET_CLASS (self)->needs_attention (self);
@@ -356,11 +359,14 @@ handle_geometry_changed (WnckWindow *window, BamfLegacyWindow *self)
   g_signal_emit (self, legacy_window_signals[GEOMETRY_CHANGED], 0);
 }
 
-gboolean 
+gboolean
 bamf_legacy_window_is_closed (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), TRUE);
-  
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->is_closed)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->is_closed (self);
+
   return self->priv->is_closed;
 }
 
@@ -463,6 +469,10 @@ void
 bamf_legacy_window_reopen (BamfLegacyWindow *self)
 {
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->reopen)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->reopen (self);
+
   g_return_if_fail (WNCK_IS_WINDOW (self->priv->legacy_window));
 
   guint xid = bamf_legacy_window_get_xid (self);
@@ -488,13 +498,13 @@ bamf_legacy_window_dispose (GObject *object)
 
   g_signal_handler_disconnect (wnck_screen_get_default (),
                                self->priv->closed_id);
-                               
+
   if (self->priv->mini_icon_path)
     {
       file = g_file_new_for_path (self->priv->mini_icon_path);
       g_file_delete (file, NULL, NULL);
       g_object_unref (file);
-      
+
       g_free (self->priv->mini_icon_path);
       self->priv->mini_icon_path = NULL;
     }

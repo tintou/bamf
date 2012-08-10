@@ -1,7 +1,8 @@
+# Defined as these will be needed by Makefile.am.marshal
 CLEANFILES =
 DISTCLEANFILES =
 BUILT_SOURCES =
-EXTRA_DIST = 
+EXTRA_DIST =
 
 include $(top_srcdir)/Makefile.am.marshal
 
@@ -65,9 +66,11 @@ bamfdaemon_headers = \
 		bamf-legacy-window.h \
 		bamf-legacy-window-test.h \
 		bamf-legacy-screen.h \
+		bamf-legacy-screen-private.h \
 		bamf-view.h \
 		bamf-control.h \
 		bamf-matcher.h \
+		bamf-matcher-private.h \
 		bamf-window.h \
 		bamf-application.h \
 		bamf-tab.h \
@@ -78,14 +81,13 @@ bamfdaemon_headers = \
 		$(NULL)
 
 bamfdaemon_SOURCES = \
-		$(bamfdaemon_built_sources) \
 		$(bamfdaemon_sources) \
 		$(bamfdaemon_headers) \
 		$(NULL)
 
-nodist_EXTRA_bamfdaemon_SOURCES = \
-	$(bamfdaemon_gdbus_files) \
-	$(NULL)
+nodist_bamfdaemon_SOURCES = \
+		$(bamfdaemon_built_sources) \
+		$(NULL)
 
 glib_marshal_list = bamf-marshal.list
 glib_marshal_prefix = bamf_marshal
@@ -141,6 +143,9 @@ bamf-gdbus-indicator-source-generated.c bamf-gdbus-indicator-source-generated.h:
 		--c-namespace StatusNotifierApprover \
 		--interface-prefix com.canonical.StatusNotifierApprover \
 		$<
+
+dist-hook:
+	find $(top_distdir)/src -name bamf-gdbus-\*-generated.\* -exec rm -v {} \;
 
 BUILT_SOURCES += \
 		$(bamfdaemon_gdbus_files) \
