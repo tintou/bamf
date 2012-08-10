@@ -68,8 +68,40 @@ struct _BamfApplicationPrivate
   gchar           *application_type;
   gchar           *desktop_file;
   GList           *cached_xids;
-  int              show_stubs;
+  gchar           **cached_mimes;
+  gboolean        mimes_initialized;
+  int             show_stubs;
 };
+
+gchar **
+bamf_application_get_dnd_mimes (BamfApplication *application)
+{
+  GError *error = NULL;
+  gchar **mimes = NULL;
+
+  if (application->priv->mimes_initialized)
+    return g_strdupv (application->priv->cached_mimes);
+
+  if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
+    return NULL;
+
+  if (!dbus_g_proxy_call (application->priv->proxy,
+                          "DndMimes",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRV, &mimes,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch mimes: %s", error->message);
+      g_error_free (error);
+
+      return NULL;
+    }
+  application->priv->mimes_initialized = TRUE;
+  application->priv->cached_mimes = g_strdupv (mimes);
+
+  return mimes;
+}
 
 /**
  * bamf_application_get_desktop_file:
@@ -117,6 +149,38 @@ bamf_application_get_desktop_file (BamfApplication *application)
 
   priv->desktop_file = file;
   return file;
+}
+
+gboolean
+bamf_application_get_application_menu (BamfApplication *application,
+                                      gchar **name,
+                                      gchar **object_path)
+{
+  BamfApplicationPrivate *priv;
+  GError *error = NULL;
+  
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+  
+  priv = application->priv;
+  
+  if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
+    return FALSE;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "ApplicationMenu",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, name,
+                         G_TYPE_STRING, object_path,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch application menu path: %s", error->message);
+      g_error_free (error);
+      
+      return FALSE;
+    }
+
+  return TRUE;
 }
 
 /**
@@ -287,6 +351,16 @@ bamf_application_get_click_suggestion (BamfView *view)
 }
 
 static void
+bamf_application_on_dnd_mimes_changed (DBusGProxy *proxy, const gchar *const *mimes, BamfApplication *self)
+{
+  if (self->priv->cached_mimes)
+    g_strfreev (self->priv->cached_mimes);
+
+  self->priv->cached_mimes = g_strdupv ((gchar**)mimes);
+  self->priv->mimes_initialized = TRUE;
+}
+
+static void
 bamf_application_on_window_added (DBusGProxy *proxy, char *path, BamfApplication *self)
 {
   BamfView *view;
@@ -330,6 +404,40 @@ bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplicati
     }
 }
 
+BamfView *
+bamf_application_get_focus_child (BamfApplication *application)
+{
+  BamfApplicationPrivate *priv;
+  BamfView *ret;
+  gchar *path;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+  priv = application->priv;
+  
+  if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
+    return NULL;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "FocusChild",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &path,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch focus xids: %s", error->message);
+      g_error_free (error);
+      
+      return NULL;
+    }
+
+  ret = _bamf_factory_view_for_path (_bamf_factory_get_default (), path);
+  
+  g_free (path);
+  
+  return ret;
+}
+
 GList *
 _bamf_application_get_cached_xids (BamfApplication *self)
 {
@@ -358,6 +466,10 @@ bamf_application_unset_proxy (BamfApplication* self)
                                  "WindowRemoved",
                                  (GCallback) bamf_application_on_window_removed,
                                  self);
+  dbus_g_proxy_disconnect_signal (priv->proxy,
+				  "DndMimesChanged",
+				  (GCallback) bamf_application_on_dnd_mimes_changed,
+				  self);
 
   g_object_unref (priv->proxy);
   priv->proxy = NULL;
@@ -389,7 +501,7 @@ bamf_application_dispose (GObject *object)
       g_list_free (priv->cached_xids);
       priv->cached_xids = NULL;
     }
-
+  
   bamf_application_unset_proxy (self);
 
   if (G_OBJECT_CLASS (bamf_application_parent_class)->dispose)
@@ -406,6 +518,7 @@ bamf_application_set_path (BamfView *view, const char *path)
   priv = self->priv;
 
   bamf_application_unset_proxy (self);
+
   priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
                                            "org.ayatana.bamf",
                                            path,
@@ -426,6 +539,11 @@ bamf_application_set_path (BamfView *view, const char *path)
                            G_TYPE_STRING,
                            G_TYPE_INVALID);
 
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "DndMimesChanged",
+                           G_TYPE_STRV,
+                           G_TYPE_INVALID);
+
   dbus_g_proxy_connect_signal (priv->proxy,
                                "WindowAdded",
                                (GCallback) bamf_application_on_window_added,
@@ -435,6 +553,12 @@ bamf_application_set_path (BamfView *view, const char *path)
   dbus_g_proxy_connect_signal (priv->proxy,
                                "WindowRemoved",
                                (GCallback) bamf_application_on_window_removed,
+                               self,
+                               NULL);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "DndMimesChanged",
+                               (GCallback) bamf_application_on_dnd_mimes_changed,
                                self,
                                NULL);
 

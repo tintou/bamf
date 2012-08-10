@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2011 Canonical Ltd
+ * Copyright (C) 2010-2012 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -13,9 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Authored by: Jason Smith <jason.smith@canonical.com>
- *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
- *
+ * Authored by: Robert Carr <racarr@canonical.com>
  */
 
 #ifndef __BAMFTAB_H__
@@ -23,7 +21,6 @@
 
 #include "bamf.h"
 #include "bamf-view.h"
-#include "bamf-tab-source.h"
 #include <glib.h>
 #include <glib-object.h>
 
@@ -38,9 +35,15 @@ typedef struct _BamfTab BamfTab;
 typedef struct _BamfTabClass BamfTabClass;
 typedef struct _BamfTabPrivate BamfTabPrivate;
 
+typedef void (*BamfTabPreviewReadyCallback) (BamfTab *, const gchar *, gpointer);
+
 struct _BamfTabClass
 {
   BamfViewClass parent;
+  
+  void (*raise) (BamfTab *self);
+  void (*close) (BamfTab *self);
+  void (*request_preview) (BamfTab *self, BamfTabPreviewReadyCallback callback, gpointer user_data);
 };
 
 struct _BamfTab
@@ -53,14 +56,17 @@ struct _BamfTab
 
 GType       bamf_tab_get_type    (void) G_GNUC_CONST;
 
-char      * bamf_tab_current_uri (BamfTab *self);
+const gchar *bamf_tab_get_desktop_id (BamfTab *self);
+const gchar *bamf_tab_current_location (BamfTab *self);
+guint64 bamf_tab_get_xid (BamfTab *self);
+gboolean bamf_tab_get_is_foreground_tab (BamfTab *self);
 
-void        bamf_tab_show        (BamfTab *self);
 
-guint32     bamf_tab_parent_xid  (BamfTab *tab);
+void bamf_tab_raise (BamfTab *self);
+void bamf_tab_close (BamfTab *self);
 
-gchar     * bamf_tab_get_preview (BamfTab *tab);
+void bamf_tab_request_preview (BamfTab *self, BamfTabPreviewReadyCallback callback, gpointer user_data);
 
-BamfTab   * bamf_tab_new         (BamfTabSource *source, const char *tab_id);
+
 
 #endif
