@@ -67,12 +67,7 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bamfdaemondir)"
 PROGRAMS = $(bamfdaemon_PROGRAMS)
-am__objects_1 = bamfdaemon-bamf-gdbus-generated.$(OBJEXT) \
-	bamfdaemon-bamf-gdbus-view-generated.$(OBJEXT) \
-	bamfdaemon-bamf-gdbus-browser-generated.$(OBJEXT) \
-	bamfdaemon-bamf-gdbus-indicator-source-generated.$(OBJEXT)
-am__objects_2 = bamfdaemon-bamf-marshal.$(OBJEXT) $(am__objects_1)
-am__objects_3 = bamfdaemon-main.$(OBJEXT) \
+am__objects_1 = bamfdaemon-main.$(OBJEXT) \
 	bamfdaemon-bamf-daemon.$(OBJEXT) \
 	bamfdaemon-bamf-legacy-window.$(OBJEXT) \
 	bamfdaemon-bamf-legacy-window-test.$(OBJEXT) \
@@ -86,15 +81,24 @@ am__objects_3 = bamfdaemon-main.$(OBJEXT) \
 	bamfdaemon-bamf-indicator-source.$(OBJEXT) \
 	bamfdaemon-bamf-indicator.$(OBJEXT) \
 	bamfdaemon-bamf-xutils.$(OBJEXT)
-am__objects_4 =
-am_bamfdaemon_OBJECTS = $(am__objects_2) $(am__objects_3) \
-	$(am__objects_4)
-bamfdaemon_OBJECTS = $(am_bamfdaemon_OBJECTS)
+am__objects_2 =
+am_bamfdaemon_OBJECTS = $(am__objects_1) $(am__objects_2)
+am__objects_3 = bamfdaemon-bamf-gdbus-generated.$(OBJEXT) \
+	bamfdaemon-bamf-gdbus-view-generated.$(OBJEXT) \
+	bamfdaemon-bamf-gdbus-browser-generated.$(OBJEXT) \
+	bamfdaemon-bamf-gdbus-indicator-source-generated.$(OBJEXT)
+am__objects_4 = bamfdaemon-bamf-marshal.$(OBJEXT) $(am__objects_3)
+nodist_bamfdaemon_OBJECTS = $(am__objects_4)
+bamfdaemon_OBJECTS = $(am_bamfdaemon_OBJECTS) \
+	$(nodist_bamfdaemon_OBJECTS)
 am__DEPENDENCIES_1 =
 bamfdaemon_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
-bamfdaemon_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+AM_V_lt = $(am__v_lt_@AM_V@)
+am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+am__v_lt_0 = --silent
+bamfdaemon_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(bamfdaemon_CFLAGS) \
 	$(CFLAGS) $(bamfdaemon_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -103,14 +107,27 @@ am__depfiles_maybe = depfiles
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CFLAGS) $(CFLAGS)
+AM_V_CC = $(am__v_CC_@AM_V@)
+am__v_CC_ = $(am__v_CC_@AM_DEFAULT_V@)
+am__v_CC_0 = @echo "  CC    " $@;
+AM_V_at = $(am__v_at_@AM_V@)
+am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
+am__v_at_0 = @
 CCLD = $(CC)
-LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
-SOURCES = $(bamfdaemon_SOURCES) $(nodist_EXTRA_bamfdaemon_SOURCES)
+LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+AM_V_CCLD = $(am__v_CCLD_@AM_V@)
+am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
+am__v_CCLD_0 = @echo "  CCLD  " $@;
+AM_V_GEN = $(am__v_GEN_@AM_V@)
+am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
+am__v_GEN_0 = @echo "  GEN   " $@;
+SOURCES = $(bamfdaemon_SOURCES) $(nodist_bamfdaemon_SOURCES)
 DIST_SOURCES = $(bamfdaemon_SOURCES)
 ETAGS = etags
 CTAGS = ctags
@@ -119,6 +136,7 @@ ACLOCAL = @ACLOCAL@
 ACLOCAL_AMFLAFS = @ACLOCAL_AMFLAFS@
 ACLOCAL_AMFLAGS = @ACLOCAL_AMFLAGS@
 AMTAR = @AMTAR@
+AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AR = @AR@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
@@ -272,6 +290,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+
+# Defined as these will be needed by Makefile.am.marshal
 CLEANFILES = stamp-marshal $(bamfdaemon_built_sources) $(NULL)
 DISTCLEANFILES = $(marshal_h) $(marshal_c) $(bamfdaemon_built_sources) \
 	$(NULL)
@@ -336,9 +356,11 @@ bamfdaemon_headers = \
 		bamf-legacy-window.h \
 		bamf-legacy-window-test.h \
 		bamf-legacy-screen.h \
+		bamf-legacy-screen-private.h \
 		bamf-view.h \
 		bamf-control.h \
 		bamf-matcher.h \
+		bamf-matcher-private.h \
 		bamf-window.h \
 		bamf-application.h \
 		bamf-tab.h \
@@ -349,14 +371,13 @@ bamfdaemon_headers = \
 		$(NULL)
 
 bamfdaemon_SOURCES = \
-		$(bamfdaemon_built_sources) \
 		$(bamfdaemon_sources) \
 		$(bamfdaemon_headers) \
 		$(NULL)
 
-nodist_EXTRA_bamfdaemon_SOURCES = \
-	$(bamfdaemon_gdbus_files) \
-	$(NULL)
+nodist_bamfdaemon_SOURCES = \
+		$(bamfdaemon_built_sources) \
+		$(NULL)
 
 glib_marshal_list = bamf-marshal.list
 glib_marshal_prefix = bamf_marshal
@@ -464,7 +485,7 @@ clean-bamfdaemonPROGRAMS:
 	rm -f $$list
 bamfdaemon$(EXEEXT): $(bamfdaemon_OBJECTS) $(bamfdaemon_DEPENDENCIES) $(EXTRA_bamfdaemon_DEPENDENCIES) 
 	@rm -f bamfdaemon$(EXEEXT)
-	$(bamfdaemon_LINK) $(bamfdaemon_OBJECTS) $(bamfdaemon_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(bamfdaemon_LINK) $(bamfdaemon_OBJECTS) $(bamfdaemon_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -494,305 +515,305 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bamfdaemon-main.Po@am__quote@
 
 .c.o:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c $<
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c `$(CYGPATH_W) '$<'`
 
 .c.lo:
-@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
-
-bamfdaemon-bamf-marshal.o: bamf-marshal.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-marshal.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-marshal.Tpo -c -o bamfdaemon-bamf-marshal.o `test -f 'bamf-marshal.c' || echo '$(srcdir)/'`bamf-marshal.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-marshal.Tpo $(DEPDIR)/bamfdaemon-bamf-marshal.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-marshal.c' object='bamfdaemon-bamf-marshal.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-marshal.o `test -f 'bamf-marshal.c' || echo '$(srcdir)/'`bamf-marshal.c
-
-bamfdaemon-bamf-marshal.obj: bamf-marshal.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-marshal.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-marshal.Tpo -c -o bamfdaemon-bamf-marshal.obj `if test -f 'bamf-marshal.c'; then $(CYGPATH_W) 'bamf-marshal.c'; else $(CYGPATH_W) '$(srcdir)/bamf-marshal.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-marshal.Tpo $(DEPDIR)/bamfdaemon-bamf-marshal.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-marshal.c' object='bamfdaemon-bamf-marshal.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-marshal.obj `if test -f 'bamf-marshal.c'; then $(CYGPATH_W) 'bamf-marshal.c'; else $(CYGPATH_W) '$(srcdir)/bamf-marshal.c'; fi`
-
-bamfdaemon-bamf-gdbus-generated.o: bamf-gdbus-generated.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-gdbus-generated.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-gdbus-generated.Tpo -c -o bamfdaemon-bamf-gdbus-generated.o `test -f 'bamf-gdbus-generated.c' || echo '$(srcdir)/'`bamf-gdbus-generated.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-gdbus-generated.Tpo $(DEPDIR)/bamfdaemon-bamf-gdbus-generated.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-gdbus-generated.c' object='bamfdaemon-bamf-gdbus-generated.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-gdbus-generated.o `test -f 'bamf-gdbus-generated.c' || echo '$(srcdir)/'`bamf-gdbus-generated.c
-
-bamfdaemon-bamf-gdbus-generated.obj: bamf-gdbus-generated.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-gdbus-generated.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-gdbus-generated.Tpo -c -o bamfdaemon-bamf-gdbus-generated.obj `if test -f 'bamf-gdbus-generated.c'; then $(CYGPATH_W) 'bamf-gdbus-generated.c'; else $(CYGPATH_W) '$(srcdir)/bamf-gdbus-generated.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-gdbus-generated.Tpo $(DEPDIR)/bamfdaemon-bamf-gdbus-generated.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-gdbus-generated.c' object='bamfdaemon-bamf-gdbus-generated.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-gdbus-generated.obj `if test -f 'bamf-gdbus-generated.c'; then $(CYGPATH_W) 'bamf-gdbus-generated.c'; else $(CYGPATH_W) '$(srcdir)/bamf-gdbus-generated.c'; fi`
-
-bamfdaemon-bamf-gdbus-view-generated.o: bamf-gdbus-view-generated.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-gdbus-view-generated.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-gdbus-view-generated.Tpo -c -o bamfdaemon-bamf-gdbus-view-generated.o `test -f 'bamf-gdbus-view-generated.c' || echo '$(srcdir)/'`bamf-gdbus-view-generated.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-gdbus-view-generated.Tpo $(DEPDIR)/bamfdaemon-bamf-gdbus-view-generated.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-gdbus-view-generated.c' object='bamfdaemon-bamf-gdbus-view-generated.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-gdbus-view-generated.o `test -f 'bamf-gdbus-view-generated.c' || echo '$(srcdir)/'`bamf-gdbus-view-generated.c
-
-bamfdaemon-bamf-gdbus-view-generated.obj: bamf-gdbus-view-generated.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-gdbus-view-generated.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-gdbus-view-generated.Tpo -c -o bamfdaemon-bamf-gdbus-view-generated.obj `if test -f 'bamf-gdbus-view-generated.c'; then $(CYGPATH_W) 'bamf-gdbus-view-generated.c'; else $(CYGPATH_W) '$(srcdir)/bamf-gdbus-view-generated.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-gdbus-view-generated.Tpo $(DEPDIR)/bamfdaemon-bamf-gdbus-view-generated.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-gdbus-view-generated.c' object='bamfdaemon-bamf-gdbus-view-generated.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-gdbus-view-generated.obj `if test -f 'bamf-gdbus-view-generated.c'; then $(CYGPATH_W) 'bamf-gdbus-view-generated.c'; else $(CYGPATH_W) '$(srcdir)/bamf-gdbus-view-generated.c'; fi`
-
-bamfdaemon-bamf-gdbus-browser-generated.o: bamf-gdbus-browser-generated.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-gdbus-browser-generated.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-gdbus-browser-generated.Tpo -c -o bamfdaemon-bamf-gdbus-browser-generated.o `test -f 'bamf-gdbus-browser-generated.c' || echo '$(srcdir)/'`bamf-gdbus-browser-generated.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-gdbus-browser-generated.Tpo $(DEPDIR)/bamfdaemon-bamf-gdbus-browser-generated.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-gdbus-browser-generated.c' object='bamfdaemon-bamf-gdbus-browser-generated.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-gdbus-browser-generated.o `test -f 'bamf-gdbus-browser-generated.c' || echo '$(srcdir)/'`bamf-gdbus-browser-generated.c
-
-bamfdaemon-bamf-gdbus-browser-generated.obj: bamf-gdbus-browser-generated.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-gdbus-browser-generated.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-gdbus-browser-generated.Tpo -c -o bamfdaemon-bamf-gdbus-browser-generated.obj `if test -f 'bamf-gdbus-browser-generated.c'; then $(CYGPATH_W) 'bamf-gdbus-browser-generated.c'; else $(CYGPATH_W) '$(srcdir)/bamf-gdbus-browser-generated.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-gdbus-browser-generated.Tpo $(DEPDIR)/bamfdaemon-bamf-gdbus-browser-generated.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-gdbus-browser-generated.c' object='bamfdaemon-bamf-gdbus-browser-generated.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-gdbus-browser-generated.obj `if test -f 'bamf-gdbus-browser-generated.c'; then $(CYGPATH_W) 'bamf-gdbus-browser-generated.c'; else $(CYGPATH_W) '$(srcdir)/bamf-gdbus-browser-generated.c'; fi`
-
-bamfdaemon-bamf-gdbus-indicator-source-generated.o: bamf-gdbus-indicator-source-generated.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-gdbus-indicator-source-generated.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-gdbus-indicator-source-generated.Tpo -c -o bamfdaemon-bamf-gdbus-indicator-source-generated.o `test -f 'bamf-gdbus-indicator-source-generated.c' || echo '$(srcdir)/'`bamf-gdbus-indicator-source-generated.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-gdbus-indicator-source-generated.Tpo $(DEPDIR)/bamfdaemon-bamf-gdbus-indicator-source-generated.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-gdbus-indicator-source-generated.c' object='bamfdaemon-bamf-gdbus-indicator-source-generated.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-gdbus-indicator-source-generated.o `test -f 'bamf-gdbus-indicator-source-generated.c' || echo '$(srcdir)/'`bamf-gdbus-indicator-source-generated.c
-
-bamfdaemon-bamf-gdbus-indicator-source-generated.obj: bamf-gdbus-indicator-source-generated.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-gdbus-indicator-source-generated.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-gdbus-indicator-source-generated.Tpo -c -o bamfdaemon-bamf-gdbus-indicator-source-generated.obj `if test -f 'bamf-gdbus-indicator-source-generated.c'; then $(CYGPATH_W) 'bamf-gdbus-indicator-source-generated.c'; else $(CYGPATH_W) '$(srcdir)/bamf-gdbus-indicator-source-generated.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-gdbus-indicator-source-generated.Tpo $(DEPDIR)/bamfdaemon-bamf-gdbus-indicator-source-generated.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-gdbus-indicator-source-generated.c' object='bamfdaemon-bamf-gdbus-indicator-source-generated.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-gdbus-indicator-source-generated.obj `if test -f 'bamf-gdbus-indicator-source-generated.c'; then $(CYGPATH_W) 'bamf-gdbus-indicator-source-generated.c'; else $(CYGPATH_W) '$(srcdir)/bamf-gdbus-indicator-source-generated.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
 bamfdaemon-main.o: main.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-main.o -MD -MP -MF $(DEPDIR)/bamfdaemon-main.Tpo -c -o bamfdaemon-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-main.Tpo $(DEPDIR)/bamfdaemon-main.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='main.c' object='bamfdaemon-main.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-main.o -MD -MP -MF $(DEPDIR)/bamfdaemon-main.Tpo -c -o bamfdaemon-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-main.Tpo $(DEPDIR)/bamfdaemon-main.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='main.c' object='bamfdaemon-main.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
 
 bamfdaemon-main.obj: main.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-main.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-main.Tpo -c -o bamfdaemon-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-main.Tpo $(DEPDIR)/bamfdaemon-main.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='main.c' object='bamfdaemon-main.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-main.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-main.Tpo -c -o bamfdaemon-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-main.Tpo $(DEPDIR)/bamfdaemon-main.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='main.c' object='bamfdaemon-main.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
 
 bamfdaemon-bamf-daemon.o: bamf-daemon.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-daemon.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-daemon.Tpo -c -o bamfdaemon-bamf-daemon.o `test -f 'bamf-daemon.c' || echo '$(srcdir)/'`bamf-daemon.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-daemon.Tpo $(DEPDIR)/bamfdaemon-bamf-daemon.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-daemon.c' object='bamfdaemon-bamf-daemon.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-daemon.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-daemon.Tpo -c -o bamfdaemon-bamf-daemon.o `test -f 'bamf-daemon.c' || echo '$(srcdir)/'`bamf-daemon.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-daemon.Tpo $(DEPDIR)/bamfdaemon-bamf-daemon.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-daemon.c' object='bamfdaemon-bamf-daemon.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-daemon.o `test -f 'bamf-daemon.c' || echo '$(srcdir)/'`bamf-daemon.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-daemon.o `test -f 'bamf-daemon.c' || echo '$(srcdir)/'`bamf-daemon.c
 
 bamfdaemon-bamf-daemon.obj: bamf-daemon.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-daemon.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-daemon.Tpo -c -o bamfdaemon-bamf-daemon.obj `if test -f 'bamf-daemon.c'; then $(CYGPATH_W) 'bamf-daemon.c'; else $(CYGPATH_W) '$(srcdir)/bamf-daemon.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-daemon.Tpo $(DEPDIR)/bamfdaemon-bamf-daemon.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-daemon.c' object='bamfdaemon-bamf-daemon.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-daemon.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-daemon.Tpo -c -o bamfdaemon-bamf-daemon.obj `if test -f 'bamf-daemon.c'; then $(CYGPATH_W) 'bamf-daemon.c'; else $(CYGPATH_W) '$(srcdir)/bamf-daemon.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-daemon.Tpo $(DEPDIR)/bamfdaemon-bamf-daemon.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-daemon.c' object='bamfdaemon-bamf-daemon.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-daemon.obj `if test -f 'bamf-daemon.c'; then $(CYGPATH_W) 'bamf-daemon.c'; else $(CYGPATH_W) '$(srcdir)/bamf-daemon.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-daemon.obj `if test -f 'bamf-daemon.c'; then $(CYGPATH_W) 'bamf-daemon.c'; else $(CYGPATH_W) '$(srcdir)/bamf-daemon.c'; fi`
 
 bamfdaemon-bamf-legacy-window.o: bamf-legacy-window.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-legacy-window.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-legacy-window.Tpo -c -o bamfdaemon-bamf-legacy-window.o `test -f 'bamf-legacy-window.c' || echo '$(srcdir)/'`bamf-legacy-window.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-legacy-window.Tpo $(DEPDIR)/bamfdaemon-bamf-legacy-window.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-legacy-window.c' object='bamfdaemon-bamf-legacy-window.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-legacy-window.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-legacy-window.Tpo -c -o bamfdaemon-bamf-legacy-window.o `test -f 'bamf-legacy-window.c' || echo '$(srcdir)/'`bamf-legacy-window.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-legacy-window.Tpo $(DEPDIR)/bamfdaemon-bamf-legacy-window.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-legacy-window.c' object='bamfdaemon-bamf-legacy-window.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-legacy-window.o `test -f 'bamf-legacy-window.c' || echo '$(srcdir)/'`bamf-legacy-window.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-legacy-window.o `test -f 'bamf-legacy-window.c' || echo '$(srcdir)/'`bamf-legacy-window.c
 
 bamfdaemon-bamf-legacy-window.obj: bamf-legacy-window.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-legacy-window.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-legacy-window.Tpo -c -o bamfdaemon-bamf-legacy-window.obj `if test -f 'bamf-legacy-window.c'; then $(CYGPATH_W) 'bamf-legacy-window.c'; else $(CYGPATH_W) '$(srcdir)/bamf-legacy-window.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-legacy-window.Tpo $(DEPDIR)/bamfdaemon-bamf-legacy-window.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-legacy-window.c' object='bamfdaemon-bamf-legacy-window.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-legacy-window.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-legacy-window.Tpo -c -o bamfdaemon-bamf-legacy-window.obj `if test -f 'bamf-legacy-window.c'; then $(CYGPATH_W) 'bamf-legacy-window.c'; else $(CYGPATH_W) '$(srcdir)/bamf-legacy-window.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-legacy-window.Tpo $(DEPDIR)/bamfdaemon-bamf-legacy-window.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-legacy-window.c' object='bamfdaemon-bamf-legacy-window.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-legacy-window.obj `if test -f 'bamf-legacy-window.c'; then $(CYGPATH_W) 'bamf-legacy-window.c'; else $(CYGPATH_W) '$(srcdir)/bamf-legacy-window.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-legacy-window.obj `if test -f 'bamf-legacy-window.c'; then $(CYGPATH_W) 'bamf-legacy-window.c'; else $(CYGPATH_W) '$(srcdir)/bamf-legacy-window.c'; fi`
 
 bamfdaemon-bamf-legacy-window-test.o: bamf-legacy-window-test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-legacy-window-test.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-legacy-window-test.Tpo -c -o bamfdaemon-bamf-legacy-window-test.o `test -f 'bamf-legacy-window-test.c' || echo '$(srcdir)/'`bamf-legacy-window-test.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-legacy-window-test.Tpo $(DEPDIR)/bamfdaemon-bamf-legacy-window-test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-legacy-window-test.c' object='bamfdaemon-bamf-legacy-window-test.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-legacy-window-test.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-legacy-window-test.Tpo -c -o bamfdaemon-bamf-legacy-window-test.o `test -f 'bamf-legacy-window-test.c' || echo '$(srcdir)/'`bamf-legacy-window-test.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-legacy-window-test.Tpo $(DEPDIR)/bamfdaemon-bamf-legacy-window-test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-legacy-window-test.c' object='bamfdaemon-bamf-legacy-window-test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-legacy-window-test.o `test -f 'bamf-legacy-window-test.c' || echo '$(srcdir)/'`bamf-legacy-window-test.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-legacy-window-test.o `test -f 'bamf-legacy-window-test.c' || echo '$(srcdir)/'`bamf-legacy-window-test.c
 
 bamfdaemon-bamf-legacy-window-test.obj: bamf-legacy-window-test.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-legacy-window-test.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-legacy-window-test.Tpo -c -o bamfdaemon-bamf-legacy-window-test.obj `if test -f 'bamf-legacy-window-test.c'; then $(CYGPATH_W) 'bamf-legacy-window-test.c'; else $(CYGPATH_W) '$(srcdir)/bamf-legacy-window-test.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-legacy-window-test.Tpo $(DEPDIR)/bamfdaemon-bamf-legacy-window-test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-legacy-window-test.c' object='bamfdaemon-bamf-legacy-window-test.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-legacy-window-test.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-legacy-window-test.Tpo -c -o bamfdaemon-bamf-legacy-window-test.obj `if test -f 'bamf-legacy-window-test.c'; then $(CYGPATH_W) 'bamf-legacy-window-test.c'; else $(CYGPATH_W) '$(srcdir)/bamf-legacy-window-test.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-legacy-window-test.Tpo $(DEPDIR)/bamfdaemon-bamf-legacy-window-test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-legacy-window-test.c' object='bamfdaemon-bamf-legacy-window-test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-legacy-window-test.obj `if test -f 'bamf-legacy-window-test.c'; then $(CYGPATH_W) 'bamf-legacy-window-test.c'; else $(CYGPATH_W) '$(srcdir)/bamf-legacy-window-test.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-legacy-window-test.obj `if test -f 'bamf-legacy-window-test.c'; then $(CYGPATH_W) 'bamf-legacy-window-test.c'; else $(CYGPATH_W) '$(srcdir)/bamf-legacy-window-test.c'; fi`
 
 bamfdaemon-bamf-legacy-screen.o: bamf-legacy-screen.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-legacy-screen.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-legacy-screen.Tpo -c -o bamfdaemon-bamf-legacy-screen.o `test -f 'bamf-legacy-screen.c' || echo '$(srcdir)/'`bamf-legacy-screen.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-legacy-screen.Tpo $(DEPDIR)/bamfdaemon-bamf-legacy-screen.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-legacy-screen.c' object='bamfdaemon-bamf-legacy-screen.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-legacy-screen.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-legacy-screen.Tpo -c -o bamfdaemon-bamf-legacy-screen.o `test -f 'bamf-legacy-screen.c' || echo '$(srcdir)/'`bamf-legacy-screen.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-legacy-screen.Tpo $(DEPDIR)/bamfdaemon-bamf-legacy-screen.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-legacy-screen.c' object='bamfdaemon-bamf-legacy-screen.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-legacy-screen.o `test -f 'bamf-legacy-screen.c' || echo '$(srcdir)/'`bamf-legacy-screen.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-legacy-screen.o `test -f 'bamf-legacy-screen.c' || echo '$(srcdir)/'`bamf-legacy-screen.c
 
 bamfdaemon-bamf-legacy-screen.obj: bamf-legacy-screen.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-legacy-screen.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-legacy-screen.Tpo -c -o bamfdaemon-bamf-legacy-screen.obj `if test -f 'bamf-legacy-screen.c'; then $(CYGPATH_W) 'bamf-legacy-screen.c'; else $(CYGPATH_W) '$(srcdir)/bamf-legacy-screen.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-legacy-screen.Tpo $(DEPDIR)/bamfdaemon-bamf-legacy-screen.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-legacy-screen.c' object='bamfdaemon-bamf-legacy-screen.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-legacy-screen.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-legacy-screen.Tpo -c -o bamfdaemon-bamf-legacy-screen.obj `if test -f 'bamf-legacy-screen.c'; then $(CYGPATH_W) 'bamf-legacy-screen.c'; else $(CYGPATH_W) '$(srcdir)/bamf-legacy-screen.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-legacy-screen.Tpo $(DEPDIR)/bamfdaemon-bamf-legacy-screen.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-legacy-screen.c' object='bamfdaemon-bamf-legacy-screen.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-legacy-screen.obj `if test -f 'bamf-legacy-screen.c'; then $(CYGPATH_W) 'bamf-legacy-screen.c'; else $(CYGPATH_W) '$(srcdir)/bamf-legacy-screen.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-legacy-screen.obj `if test -f 'bamf-legacy-screen.c'; then $(CYGPATH_W) 'bamf-legacy-screen.c'; else $(CYGPATH_W) '$(srcdir)/bamf-legacy-screen.c'; fi`
 
 bamfdaemon-bamf-view.o: bamf-view.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-view.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-view.Tpo -c -o bamfdaemon-bamf-view.o `test -f 'bamf-view.c' || echo '$(srcdir)/'`bamf-view.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-view.Tpo $(DEPDIR)/bamfdaemon-bamf-view.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-view.c' object='bamfdaemon-bamf-view.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-view.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-view.Tpo -c -o bamfdaemon-bamf-view.o `test -f 'bamf-view.c' || echo '$(srcdir)/'`bamf-view.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-view.Tpo $(DEPDIR)/bamfdaemon-bamf-view.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-view.c' object='bamfdaemon-bamf-view.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-view.o `test -f 'bamf-view.c' || echo '$(srcdir)/'`bamf-view.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-view.o `test -f 'bamf-view.c' || echo '$(srcdir)/'`bamf-view.c
 
 bamfdaemon-bamf-view.obj: bamf-view.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-view.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-view.Tpo -c -o bamfdaemon-bamf-view.obj `if test -f 'bamf-view.c'; then $(CYGPATH_W) 'bamf-view.c'; else $(CYGPATH_W) '$(srcdir)/bamf-view.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-view.Tpo $(DEPDIR)/bamfdaemon-bamf-view.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-view.c' object='bamfdaemon-bamf-view.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-view.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-view.Tpo -c -o bamfdaemon-bamf-view.obj `if test -f 'bamf-view.c'; then $(CYGPATH_W) 'bamf-view.c'; else $(CYGPATH_W) '$(srcdir)/bamf-view.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-view.Tpo $(DEPDIR)/bamfdaemon-bamf-view.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-view.c' object='bamfdaemon-bamf-view.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-view.obj `if test -f 'bamf-view.c'; then $(CYGPATH_W) 'bamf-view.c'; else $(CYGPATH_W) '$(srcdir)/bamf-view.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-view.obj `if test -f 'bamf-view.c'; then $(CYGPATH_W) 'bamf-view.c'; else $(CYGPATH_W) '$(srcdir)/bamf-view.c'; fi`
 
 bamfdaemon-bamf-control.o: bamf-control.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-control.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-control.Tpo -c -o bamfdaemon-bamf-control.o `test -f 'bamf-control.c' || echo '$(srcdir)/'`bamf-control.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-control.Tpo $(DEPDIR)/bamfdaemon-bamf-control.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-control.c' object='bamfdaemon-bamf-control.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-control.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-control.Tpo -c -o bamfdaemon-bamf-control.o `test -f 'bamf-control.c' || echo '$(srcdir)/'`bamf-control.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-control.Tpo $(DEPDIR)/bamfdaemon-bamf-control.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-control.c' object='bamfdaemon-bamf-control.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-control.o `test -f 'bamf-control.c' || echo '$(srcdir)/'`bamf-control.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-control.o `test -f 'bamf-control.c' || echo '$(srcdir)/'`bamf-control.c
 
 bamfdaemon-bamf-control.obj: bamf-control.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-control.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-control.Tpo -c -o bamfdaemon-bamf-control.obj `if test -f 'bamf-control.c'; then $(CYGPATH_W) 'bamf-control.c'; else $(CYGPATH_W) '$(srcdir)/bamf-control.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-control.Tpo $(DEPDIR)/bamfdaemon-bamf-control.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-control.c' object='bamfdaemon-bamf-control.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-control.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-control.Tpo -c -o bamfdaemon-bamf-control.obj `if test -f 'bamf-control.c'; then $(CYGPATH_W) 'bamf-control.c'; else $(CYGPATH_W) '$(srcdir)/bamf-control.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-control.Tpo $(DEPDIR)/bamfdaemon-bamf-control.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-control.c' object='bamfdaemon-bamf-control.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-control.obj `if test -f 'bamf-control.c'; then $(CYGPATH_W) 'bamf-control.c'; else $(CYGPATH_W) '$(srcdir)/bamf-control.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-control.obj `if test -f 'bamf-control.c'; then $(CYGPATH_W) 'bamf-control.c'; else $(CYGPATH_W) '$(srcdir)/bamf-control.c'; fi`
 
 bamfdaemon-bamf-matcher.o: bamf-matcher.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-matcher.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-matcher.Tpo -c -o bamfdaemon-bamf-matcher.o `test -f 'bamf-matcher.c' || echo '$(srcdir)/'`bamf-matcher.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-matcher.Tpo $(DEPDIR)/bamfdaemon-bamf-matcher.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-matcher.c' object='bamfdaemon-bamf-matcher.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-matcher.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-matcher.Tpo -c -o bamfdaemon-bamf-matcher.o `test -f 'bamf-matcher.c' || echo '$(srcdir)/'`bamf-matcher.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-matcher.Tpo $(DEPDIR)/bamfdaemon-bamf-matcher.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-matcher.c' object='bamfdaemon-bamf-matcher.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-matcher.o `test -f 'bamf-matcher.c' || echo '$(srcdir)/'`bamf-matcher.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-matcher.o `test -f 'bamf-matcher.c' || echo '$(srcdir)/'`bamf-matcher.c
 
 bamfdaemon-bamf-matcher.obj: bamf-matcher.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-matcher.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-matcher.Tpo -c -o bamfdaemon-bamf-matcher.obj `if test -f 'bamf-matcher.c'; then $(CYGPATH_W) 'bamf-matcher.c'; else $(CYGPATH_W) '$(srcdir)/bamf-matcher.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-matcher.Tpo $(DEPDIR)/bamfdaemon-bamf-matcher.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-matcher.c' object='bamfdaemon-bamf-matcher.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-matcher.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-matcher.Tpo -c -o bamfdaemon-bamf-matcher.obj `if test -f 'bamf-matcher.c'; then $(CYGPATH_W) 'bamf-matcher.c'; else $(CYGPATH_W) '$(srcdir)/bamf-matcher.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-matcher.Tpo $(DEPDIR)/bamfdaemon-bamf-matcher.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-matcher.c' object='bamfdaemon-bamf-matcher.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-matcher.obj `if test -f 'bamf-matcher.c'; then $(CYGPATH_W) 'bamf-matcher.c'; else $(CYGPATH_W) '$(srcdir)/bamf-matcher.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-matcher.obj `if test -f 'bamf-matcher.c'; then $(CYGPATH_W) 'bamf-matcher.c'; else $(CYGPATH_W) '$(srcdir)/bamf-matcher.c'; fi`
 
 bamfdaemon-bamf-application.o: bamf-application.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-application.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-application.Tpo -c -o bamfdaemon-bamf-application.o `test -f 'bamf-application.c' || echo '$(srcdir)/'`bamf-application.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-application.Tpo $(DEPDIR)/bamfdaemon-bamf-application.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-application.c' object='bamfdaemon-bamf-application.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-application.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-application.Tpo -c -o bamfdaemon-bamf-application.o `test -f 'bamf-application.c' || echo '$(srcdir)/'`bamf-application.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-application.Tpo $(DEPDIR)/bamfdaemon-bamf-application.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-application.c' object='bamfdaemon-bamf-application.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-application.o `test -f 'bamf-application.c' || echo '$(srcdir)/'`bamf-application.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-application.o `test -f 'bamf-application.c' || echo '$(srcdir)/'`bamf-application.c
 
 bamfdaemon-bamf-application.obj: bamf-application.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-application.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-application.Tpo -c -o bamfdaemon-bamf-application.obj `if test -f 'bamf-application.c'; then $(CYGPATH_W) 'bamf-application.c'; else $(CYGPATH_W) '$(srcdir)/bamf-application.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-application.Tpo $(DEPDIR)/bamfdaemon-bamf-application.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-application.c' object='bamfdaemon-bamf-application.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-application.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-application.Tpo -c -o bamfdaemon-bamf-application.obj `if test -f 'bamf-application.c'; then $(CYGPATH_W) 'bamf-application.c'; else $(CYGPATH_W) '$(srcdir)/bamf-application.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-application.Tpo $(DEPDIR)/bamfdaemon-bamf-application.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-application.c' object='bamfdaemon-bamf-application.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-application.obj `if test -f 'bamf-application.c'; then $(CYGPATH_W) 'bamf-application.c'; else $(CYGPATH_W) '$(srcdir)/bamf-application.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-application.obj `if test -f 'bamf-application.c'; then $(CYGPATH_W) 'bamf-application.c'; else $(CYGPATH_W) '$(srcdir)/bamf-application.c'; fi`
 
 bamfdaemon-bamf-window.o: bamf-window.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-window.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-window.Tpo -c -o bamfdaemon-bamf-window.o `test -f 'bamf-window.c' || echo '$(srcdir)/'`bamf-window.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-window.Tpo $(DEPDIR)/bamfdaemon-bamf-window.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-window.c' object='bamfdaemon-bamf-window.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-window.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-window.Tpo -c -o bamfdaemon-bamf-window.o `test -f 'bamf-window.c' || echo '$(srcdir)/'`bamf-window.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-window.Tpo $(DEPDIR)/bamfdaemon-bamf-window.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-window.c' object='bamfdaemon-bamf-window.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-window.o `test -f 'bamf-window.c' || echo '$(srcdir)/'`bamf-window.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-window.o `test -f 'bamf-window.c' || echo '$(srcdir)/'`bamf-window.c
 
 bamfdaemon-bamf-window.obj: bamf-window.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-window.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-window.Tpo -c -o bamfdaemon-bamf-window.obj `if test -f 'bamf-window.c'; then $(CYGPATH_W) 'bamf-window.c'; else $(CYGPATH_W) '$(srcdir)/bamf-window.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-window.Tpo $(DEPDIR)/bamfdaemon-bamf-window.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-window.c' object='bamfdaemon-bamf-window.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-window.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-window.Tpo -c -o bamfdaemon-bamf-window.obj `if test -f 'bamf-window.c'; then $(CYGPATH_W) 'bamf-window.c'; else $(CYGPATH_W) '$(srcdir)/bamf-window.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-window.Tpo $(DEPDIR)/bamfdaemon-bamf-window.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-window.c' object='bamfdaemon-bamf-window.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-window.obj `if test -f 'bamf-window.c'; then $(CYGPATH_W) 'bamf-window.c'; else $(CYGPATH_W) '$(srcdir)/bamf-window.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-window.obj `if test -f 'bamf-window.c'; then $(CYGPATH_W) 'bamf-window.c'; else $(CYGPATH_W) '$(srcdir)/bamf-window.c'; fi`
 
 bamfdaemon-bamf-tab.o: bamf-tab.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-tab.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-tab.Tpo -c -o bamfdaemon-bamf-tab.o `test -f 'bamf-tab.c' || echo '$(srcdir)/'`bamf-tab.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-tab.Tpo $(DEPDIR)/bamfdaemon-bamf-tab.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-tab.c' object='bamfdaemon-bamf-tab.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-tab.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-tab.Tpo -c -o bamfdaemon-bamf-tab.o `test -f 'bamf-tab.c' || echo '$(srcdir)/'`bamf-tab.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-tab.Tpo $(DEPDIR)/bamfdaemon-bamf-tab.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-tab.c' object='bamfdaemon-bamf-tab.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-tab.o `test -f 'bamf-tab.c' || echo '$(srcdir)/'`bamf-tab.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-tab.o `test -f 'bamf-tab.c' || echo '$(srcdir)/'`bamf-tab.c
 
 bamfdaemon-bamf-tab.obj: bamf-tab.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-tab.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-tab.Tpo -c -o bamfdaemon-bamf-tab.obj `if test -f 'bamf-tab.c'; then $(CYGPATH_W) 'bamf-tab.c'; else $(CYGPATH_W) '$(srcdir)/bamf-tab.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-tab.Tpo $(DEPDIR)/bamfdaemon-bamf-tab.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-tab.c' object='bamfdaemon-bamf-tab.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-tab.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-tab.Tpo -c -o bamfdaemon-bamf-tab.obj `if test -f 'bamf-tab.c'; then $(CYGPATH_W) 'bamf-tab.c'; else $(CYGPATH_W) '$(srcdir)/bamf-tab.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-tab.Tpo $(DEPDIR)/bamfdaemon-bamf-tab.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-tab.c' object='bamfdaemon-bamf-tab.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-tab.obj `if test -f 'bamf-tab.c'; then $(CYGPATH_W) 'bamf-tab.c'; else $(CYGPATH_W) '$(srcdir)/bamf-tab.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-tab.obj `if test -f 'bamf-tab.c'; then $(CYGPATH_W) 'bamf-tab.c'; else $(CYGPATH_W) '$(srcdir)/bamf-tab.c'; fi`
 
 bamfdaemon-bamf-tab-source.o: bamf-tab-source.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-tab-source.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-tab-source.Tpo -c -o bamfdaemon-bamf-tab-source.o `test -f 'bamf-tab-source.c' || echo '$(srcdir)/'`bamf-tab-source.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-tab-source.Tpo $(DEPDIR)/bamfdaemon-bamf-tab-source.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-tab-source.c' object='bamfdaemon-bamf-tab-source.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-tab-source.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-tab-source.Tpo -c -o bamfdaemon-bamf-tab-source.o `test -f 'bamf-tab-source.c' || echo '$(srcdir)/'`bamf-tab-source.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-tab-source.Tpo $(DEPDIR)/bamfdaemon-bamf-tab-source.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-tab-source.c' object='bamfdaemon-bamf-tab-source.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-tab-source.o `test -f 'bamf-tab-source.c' || echo '$(srcdir)/'`bamf-tab-source.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-tab-source.o `test -f 'bamf-tab-source.c' || echo '$(srcdir)/'`bamf-tab-source.c
 
 bamfdaemon-bamf-tab-source.obj: bamf-tab-source.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-tab-source.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-tab-source.Tpo -c -o bamfdaemon-bamf-tab-source.obj `if test -f 'bamf-tab-source.c'; then $(CYGPATH_W) 'bamf-tab-source.c'; else $(CYGPATH_W) '$(srcdir)/bamf-tab-source.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-tab-source.Tpo $(DEPDIR)/bamfdaemon-bamf-tab-source.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-tab-source.c' object='bamfdaemon-bamf-tab-source.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-tab-source.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-tab-source.Tpo -c -o bamfdaemon-bamf-tab-source.obj `if test -f 'bamf-tab-source.c'; then $(CYGPATH_W) 'bamf-tab-source.c'; else $(CYGPATH_W) '$(srcdir)/bamf-tab-source.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-tab-source.Tpo $(DEPDIR)/bamfdaemon-bamf-tab-source.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-tab-source.c' object='bamfdaemon-bamf-tab-source.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-tab-source.obj `if test -f 'bamf-tab-source.c'; then $(CYGPATH_W) 'bamf-tab-source.c'; else $(CYGPATH_W) '$(srcdir)/bamf-tab-source.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-tab-source.obj `if test -f 'bamf-tab-source.c'; then $(CYGPATH_W) 'bamf-tab-source.c'; else $(CYGPATH_W) '$(srcdir)/bamf-tab-source.c'; fi`
 
 bamfdaemon-bamf-indicator-source.o: bamf-indicator-source.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-indicator-source.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-indicator-source.Tpo -c -o bamfdaemon-bamf-indicator-source.o `test -f 'bamf-indicator-source.c' || echo '$(srcdir)/'`bamf-indicator-source.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-indicator-source.Tpo $(DEPDIR)/bamfdaemon-bamf-indicator-source.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-indicator-source.c' object='bamfdaemon-bamf-indicator-source.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-indicator-source.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-indicator-source.Tpo -c -o bamfdaemon-bamf-indicator-source.o `test -f 'bamf-indicator-source.c' || echo '$(srcdir)/'`bamf-indicator-source.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-indicator-source.Tpo $(DEPDIR)/bamfdaemon-bamf-indicator-source.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-indicator-source.c' object='bamfdaemon-bamf-indicator-source.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-indicator-source.o `test -f 'bamf-indicator-source.c' || echo '$(srcdir)/'`bamf-indicator-source.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-indicator-source.o `test -f 'bamf-indicator-source.c' || echo '$(srcdir)/'`bamf-indicator-source.c
 
 bamfdaemon-bamf-indicator-source.obj: bamf-indicator-source.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-indicator-source.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-indicator-source.Tpo -c -o bamfdaemon-bamf-indicator-source.obj `if test -f 'bamf-indicator-source.c'; then $(CYGPATH_W) 'bamf-indicator-source.c'; else $(CYGPATH_W) '$(srcdir)/bamf-indicator-source.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-indicator-source.Tpo $(DEPDIR)/bamfdaemon-bamf-indicator-source.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-indicator-source.c' object='bamfdaemon-bamf-indicator-source.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-indicator-source.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-indicator-source.Tpo -c -o bamfdaemon-bamf-indicator-source.obj `if test -f 'bamf-indicator-source.c'; then $(CYGPATH_W) 'bamf-indicator-source.c'; else $(CYGPATH_W) '$(srcdir)/bamf-indicator-source.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-indicator-source.Tpo $(DEPDIR)/bamfdaemon-bamf-indicator-source.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-indicator-source.c' object='bamfdaemon-bamf-indicator-source.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-indicator-source.obj `if test -f 'bamf-indicator-source.c'; then $(CYGPATH_W) 'bamf-indicator-source.c'; else $(CYGPATH_W) '$(srcdir)/bamf-indicator-source.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-indicator-source.obj `if test -f 'bamf-indicator-source.c'; then $(CYGPATH_W) 'bamf-indicator-source.c'; else $(CYGPATH_W) '$(srcdir)/bamf-indicator-source.c'; fi`
 
 bamfdaemon-bamf-indicator.o: bamf-indicator.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-indicator.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-indicator.Tpo -c -o bamfdaemon-bamf-indicator.o `test -f 'bamf-indicator.c' || echo '$(srcdir)/'`bamf-indicator.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-indicator.Tpo $(DEPDIR)/bamfdaemon-bamf-indicator.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-indicator.c' object='bamfdaemon-bamf-indicator.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-indicator.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-indicator.Tpo -c -o bamfdaemon-bamf-indicator.o `test -f 'bamf-indicator.c' || echo '$(srcdir)/'`bamf-indicator.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-indicator.Tpo $(DEPDIR)/bamfdaemon-bamf-indicator.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-indicator.c' object='bamfdaemon-bamf-indicator.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-indicator.o `test -f 'bamf-indicator.c' || echo '$(srcdir)/'`bamf-indicator.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-indicator.o `test -f 'bamf-indicator.c' || echo '$(srcdir)/'`bamf-indicator.c
 
 bamfdaemon-bamf-indicator.obj: bamf-indicator.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-indicator.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-indicator.Tpo -c -o bamfdaemon-bamf-indicator.obj `if test -f 'bamf-indicator.c'; then $(CYGPATH_W) 'bamf-indicator.c'; else $(CYGPATH_W) '$(srcdir)/bamf-indicator.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-indicator.Tpo $(DEPDIR)/bamfdaemon-bamf-indicator.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-indicator.c' object='bamfdaemon-bamf-indicator.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-indicator.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-indicator.Tpo -c -o bamfdaemon-bamf-indicator.obj `if test -f 'bamf-indicator.c'; then $(CYGPATH_W) 'bamf-indicator.c'; else $(CYGPATH_W) '$(srcdir)/bamf-indicator.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-indicator.Tpo $(DEPDIR)/bamfdaemon-bamf-indicator.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-indicator.c' object='bamfdaemon-bamf-indicator.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-indicator.obj `if test -f 'bamf-indicator.c'; then $(CYGPATH_W) 'bamf-indicator.c'; else $(CYGPATH_W) '$(srcdir)/bamf-indicator.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-indicator.obj `if test -f 'bamf-indicator.c'; then $(CYGPATH_W) 'bamf-indicator.c'; else $(CYGPATH_W) '$(srcdir)/bamf-indicator.c'; fi`
 
 bamfdaemon-bamf-xutils.o: bamf-xutils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-xutils.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-xutils.Tpo -c -o bamfdaemon-bamf-xutils.o `test -f 'bamf-xutils.c' || echo '$(srcdir)/'`bamf-xutils.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-xutils.Tpo $(DEPDIR)/bamfdaemon-bamf-xutils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-xutils.c' object='bamfdaemon-bamf-xutils.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-xutils.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-xutils.Tpo -c -o bamfdaemon-bamf-xutils.o `test -f 'bamf-xutils.c' || echo '$(srcdir)/'`bamf-xutils.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-xutils.Tpo $(DEPDIR)/bamfdaemon-bamf-xutils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-xutils.c' object='bamfdaemon-bamf-xutils.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-xutils.o `test -f 'bamf-xutils.c' || echo '$(srcdir)/'`bamf-xutils.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-xutils.o `test -f 'bamf-xutils.c' || echo '$(srcdir)/'`bamf-xutils.c
 
 bamfdaemon-bamf-xutils.obj: bamf-xutils.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-xutils.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-xutils.Tpo -c -o bamfdaemon-bamf-xutils.obj `if test -f 'bamf-xutils.c'; then $(CYGPATH_W) 'bamf-xutils.c'; else $(CYGPATH_W) '$(srcdir)/bamf-xutils.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/bamfdaemon-bamf-xutils.Tpo $(DEPDIR)/bamfdaemon-bamf-xutils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bamf-xutils.c' object='bamfdaemon-bamf-xutils.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-xutils.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-xutils.Tpo -c -o bamfdaemon-bamf-xutils.obj `if test -f 'bamf-xutils.c'; then $(CYGPATH_W) 'bamf-xutils.c'; else $(CYGPATH_W) '$(srcdir)/bamf-xutils.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-xutils.Tpo $(DEPDIR)/bamfdaemon-bamf-xutils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-xutils.c' object='bamfdaemon-bamf-xutils.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-xutils.obj `if test -f 'bamf-xutils.c'; then $(CYGPATH_W) 'bamf-xutils.c'; else $(CYGPATH_W) '$(srcdir)/bamf-xutils.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-xutils.obj `if test -f 'bamf-xutils.c'; then $(CYGPATH_W) 'bamf-xutils.c'; else $(CYGPATH_W) '$(srcdir)/bamf-xutils.c'; fi`
+
+bamfdaemon-bamf-marshal.o: bamf-marshal.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-marshal.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-marshal.Tpo -c -o bamfdaemon-bamf-marshal.o `test -f 'bamf-marshal.c' || echo '$(srcdir)/'`bamf-marshal.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-marshal.Tpo $(DEPDIR)/bamfdaemon-bamf-marshal.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-marshal.c' object='bamfdaemon-bamf-marshal.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-marshal.o `test -f 'bamf-marshal.c' || echo '$(srcdir)/'`bamf-marshal.c
+
+bamfdaemon-bamf-marshal.obj: bamf-marshal.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-marshal.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-marshal.Tpo -c -o bamfdaemon-bamf-marshal.obj `if test -f 'bamf-marshal.c'; then $(CYGPATH_W) 'bamf-marshal.c'; else $(CYGPATH_W) '$(srcdir)/bamf-marshal.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-marshal.Tpo $(DEPDIR)/bamfdaemon-bamf-marshal.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-marshal.c' object='bamfdaemon-bamf-marshal.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-marshal.obj `if test -f 'bamf-marshal.c'; then $(CYGPATH_W) 'bamf-marshal.c'; else $(CYGPATH_W) '$(srcdir)/bamf-marshal.c'; fi`
+
+bamfdaemon-bamf-gdbus-generated.o: bamf-gdbus-generated.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-gdbus-generated.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-gdbus-generated.Tpo -c -o bamfdaemon-bamf-gdbus-generated.o `test -f 'bamf-gdbus-generated.c' || echo '$(srcdir)/'`bamf-gdbus-generated.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-gdbus-generated.Tpo $(DEPDIR)/bamfdaemon-bamf-gdbus-generated.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-gdbus-generated.c' object='bamfdaemon-bamf-gdbus-generated.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-gdbus-generated.o `test -f 'bamf-gdbus-generated.c' || echo '$(srcdir)/'`bamf-gdbus-generated.c
+
+bamfdaemon-bamf-gdbus-generated.obj: bamf-gdbus-generated.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-gdbus-generated.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-gdbus-generated.Tpo -c -o bamfdaemon-bamf-gdbus-generated.obj `if test -f 'bamf-gdbus-generated.c'; then $(CYGPATH_W) 'bamf-gdbus-generated.c'; else $(CYGPATH_W) '$(srcdir)/bamf-gdbus-generated.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-gdbus-generated.Tpo $(DEPDIR)/bamfdaemon-bamf-gdbus-generated.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-gdbus-generated.c' object='bamfdaemon-bamf-gdbus-generated.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-gdbus-generated.obj `if test -f 'bamf-gdbus-generated.c'; then $(CYGPATH_W) 'bamf-gdbus-generated.c'; else $(CYGPATH_W) '$(srcdir)/bamf-gdbus-generated.c'; fi`
+
+bamfdaemon-bamf-gdbus-view-generated.o: bamf-gdbus-view-generated.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-gdbus-view-generated.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-gdbus-view-generated.Tpo -c -o bamfdaemon-bamf-gdbus-view-generated.o `test -f 'bamf-gdbus-view-generated.c' || echo '$(srcdir)/'`bamf-gdbus-view-generated.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-gdbus-view-generated.Tpo $(DEPDIR)/bamfdaemon-bamf-gdbus-view-generated.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-gdbus-view-generated.c' object='bamfdaemon-bamf-gdbus-view-generated.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-gdbus-view-generated.o `test -f 'bamf-gdbus-view-generated.c' || echo '$(srcdir)/'`bamf-gdbus-view-generated.c
+
+bamfdaemon-bamf-gdbus-view-generated.obj: bamf-gdbus-view-generated.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-gdbus-view-generated.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-gdbus-view-generated.Tpo -c -o bamfdaemon-bamf-gdbus-view-generated.obj `if test -f 'bamf-gdbus-view-generated.c'; then $(CYGPATH_W) 'bamf-gdbus-view-generated.c'; else $(CYGPATH_W) '$(srcdir)/bamf-gdbus-view-generated.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-gdbus-view-generated.Tpo $(DEPDIR)/bamfdaemon-bamf-gdbus-view-generated.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-gdbus-view-generated.c' object='bamfdaemon-bamf-gdbus-view-generated.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-gdbus-view-generated.obj `if test -f 'bamf-gdbus-view-generated.c'; then $(CYGPATH_W) 'bamf-gdbus-view-generated.c'; else $(CYGPATH_W) '$(srcdir)/bamf-gdbus-view-generated.c'; fi`
+
+bamfdaemon-bamf-gdbus-browser-generated.o: bamf-gdbus-browser-generated.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-gdbus-browser-generated.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-gdbus-browser-generated.Tpo -c -o bamfdaemon-bamf-gdbus-browser-generated.o `test -f 'bamf-gdbus-browser-generated.c' || echo '$(srcdir)/'`bamf-gdbus-browser-generated.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-gdbus-browser-generated.Tpo $(DEPDIR)/bamfdaemon-bamf-gdbus-browser-generated.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-gdbus-browser-generated.c' object='bamfdaemon-bamf-gdbus-browser-generated.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-gdbus-browser-generated.o `test -f 'bamf-gdbus-browser-generated.c' || echo '$(srcdir)/'`bamf-gdbus-browser-generated.c
+
+bamfdaemon-bamf-gdbus-browser-generated.obj: bamf-gdbus-browser-generated.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-gdbus-browser-generated.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-gdbus-browser-generated.Tpo -c -o bamfdaemon-bamf-gdbus-browser-generated.obj `if test -f 'bamf-gdbus-browser-generated.c'; then $(CYGPATH_W) 'bamf-gdbus-browser-generated.c'; else $(CYGPATH_W) '$(srcdir)/bamf-gdbus-browser-generated.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-gdbus-browser-generated.Tpo $(DEPDIR)/bamfdaemon-bamf-gdbus-browser-generated.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-gdbus-browser-generated.c' object='bamfdaemon-bamf-gdbus-browser-generated.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-gdbus-browser-generated.obj `if test -f 'bamf-gdbus-browser-generated.c'; then $(CYGPATH_W) 'bamf-gdbus-browser-generated.c'; else $(CYGPATH_W) '$(srcdir)/bamf-gdbus-browser-generated.c'; fi`
+
+bamfdaemon-bamf-gdbus-indicator-source-generated.o: bamf-gdbus-indicator-source-generated.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-gdbus-indicator-source-generated.o -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-gdbus-indicator-source-generated.Tpo -c -o bamfdaemon-bamf-gdbus-indicator-source-generated.o `test -f 'bamf-gdbus-indicator-source-generated.c' || echo '$(srcdir)/'`bamf-gdbus-indicator-source-generated.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-gdbus-indicator-source-generated.Tpo $(DEPDIR)/bamfdaemon-bamf-gdbus-indicator-source-generated.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-gdbus-indicator-source-generated.c' object='bamfdaemon-bamf-gdbus-indicator-source-generated.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-gdbus-indicator-source-generated.o `test -f 'bamf-gdbus-indicator-source-generated.c' || echo '$(srcdir)/'`bamf-gdbus-indicator-source-generated.c
+
+bamfdaemon-bamf-gdbus-indicator-source-generated.obj: bamf-gdbus-indicator-source-generated.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -MT bamfdaemon-bamf-gdbus-indicator-source-generated.obj -MD -MP -MF $(DEPDIR)/bamfdaemon-bamf-gdbus-indicator-source-generated.Tpo -c -o bamfdaemon-bamf-gdbus-indicator-source-generated.obj `if test -f 'bamf-gdbus-indicator-source-generated.c'; then $(CYGPATH_W) 'bamf-gdbus-indicator-source-generated.c'; else $(CYGPATH_W) '$(srcdir)/bamf-gdbus-indicator-source-generated.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/bamfdaemon-bamf-gdbus-indicator-source-generated.Tpo $(DEPDIR)/bamfdaemon-bamf-gdbus-indicator-source-generated.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bamf-gdbus-indicator-source-generated.c' object='bamfdaemon-bamf-gdbus-indicator-source-generated.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(bamfdaemon_CFLAGS) $(CFLAGS) -c -o bamfdaemon-bamf-gdbus-indicator-source-generated.obj `if test -f 'bamf-gdbus-indicator-source-generated.c'; then $(CYGPATH_W) 'bamf-gdbus-indicator-source-generated.c'; else $(CYGPATH_W) '$(srcdir)/bamf-gdbus-indicator-source-generated.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -882,6 +903,9 @@ distdir: $(DISTFILES)
 	    || exit 1; \
 	  fi; \
 	done
+	$(MAKE) $(AM_MAKEFLAGS) \
+	  top_distdir="$(top_distdir)" distdir="$(distdir)" \
+	  dist-hook
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
@@ -999,7 +1023,7 @@ uninstall-am: uninstall-bamfdaemonPROGRAMS
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean \
 	clean-bamfdaemonPROGRAMS clean-generic clean-libtool ctags \
-	distclean distclean-compile distclean-generic \
+	dist-hook distclean distclean-compile distclean-generic \
 	distclean-libtool distclean-tags distdir dvi dvi-am html \
 	html-am info info-am install install-am \
 	install-bamfdaemonPROGRAMS install-data install-data-am \
@@ -1014,7 +1038,7 @@ uninstall-am: uninstall-bamfdaemonPROGRAMS
 
 
 stamp-marshal: $(glib_marshal_list)
-	$(QUIET_GEN)$(GLIB_GENMARSHAL) \
+	$(AM_V_GEN)$(GLIB_GENMARSHAL) \
 		--prefix=$(glib_marshal_prefix) \
 		--header \
 	$(srcdir)/$(glib_marshal_list) > xgen-mh \
@@ -1026,7 +1050,7 @@ $(marshal_h): stamp-marshal
 	@true
 
 $(marshal_c): $(marshal_h)
-	$(QUIET_GEN)(echo "#include \"$(marshal_h)\"" ; \
+	$(AM_V_GEN)(echo "#include \"$(marshal_h)\"" ; \
 	$(GLIB_GENMARSHAL) \
 		--prefix=$(glib_marshal_prefix) \
 		--body \
@@ -1062,6 +1086,9 @@ bamf-gdbus-indicator-source-generated.c bamf-gdbus-indicator-source-generated.h:
 		--c-namespace StatusNotifierApprover \
 		--interface-prefix com.canonical.StatusNotifierApprover \
 		$<
+
+dist-hook:
+	find $(top_distdir)/src -name bamf-gdbus-\*-generated.\* -exec rm -v {} \;
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
