@@ -78,6 +78,7 @@ bamfdaemon_headers = \
 		bamf-tab.h \
 		bamf-unity-webapps-tab.h \
 		bamf-unity-webapps-observer.h \
+		bamf-unity-webapps-application.h \
 		bamf-indicator-source.h \
 		bamf-indicator.h \
 		bamf-xutils.h \
