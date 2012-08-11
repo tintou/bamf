@@ -3,8 +3,11 @@
 <TITLE>BamfApplication</TITLE>
 BamfApplication
 BamfApplicationClass
+bamf_application_get_application_menu
 bamf_application_get_application_type
 bamf_application_get_desktop_file
+bamf_application_get_dnd_mimes
+bamf_application_get_focus_child
 bamf_application_get_show_menu_stubs
 bamf_application_get_windows
 bamf_application_get_xids
@@ -17,6 +20,11 @@ BAMF_IS_APPLICATION_CLASS
 BAMF_TYPE_APPLICATION
 BamfApplicationPrivate
 bamf_application_get_type
+</SECTION>
+
+<SECTION>
+<FILE>bamf-application-private</FILE>
+
 </SECTION>
 
 <SECTION>
@@ -45,9 +53,7 @@ bamf_control_get_type
 <TITLE>BamfFactory</TITLE>
 BamfFactory
 BamfFactoryClass
-bamf_factory_app_for_file
-bamf_factory_get_default
-bamf_factory_view_for_path
+BamfFactoryViewType
 <SUBSECTION Standard>
 BAMF_FACTORY
 BAMF_FACTORY_CLASS
@@ -114,13 +120,15 @@ bamf_matcher_get_type
 BAMF_TAB_CONST
 BamfTab
 BamfTabClass
-bamf_tab_get_id
-bamf_tab_get_preview
-bamf_tab_get_uri
+BamfTabPreviewReadyCallback
+bamf_tab_close
+bamf_tab_get_desktop_name
+bamf_tab_get_is_foreground_tab
+bamf_tab_get_location
+bamf_tab_get_xid
 bamf_tab_new
-bamf_tab_set_preview
-bamf_tab_set_uri
-bamf_tab_show
+bamf_tab_raise
+bamf_tab_request_preview
 <SUBSECTION Standard>
 BAMF_IS_TAB
 BAMF_IS_TAB_CLASS
@@ -185,11 +193,7 @@ bamf_view_get_type
 
 <SECTION>
 <FILE>bamf-view-private</FILE>
-bamf_view_get_path
-bamf_view_remote_ready
-bamf_view_set_icon
-bamf_view_set_name
-bamf_view_set_path
+
 </SECTION>
 
 <SECTION>

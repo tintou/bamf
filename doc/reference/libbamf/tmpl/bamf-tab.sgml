@@ -9,10 +9,12 @@ BamfTab
 
 </para>
 
+
 <!-- ##### SECTION See_Also ##### -->
 <para>
 
 </para>
+
 
 <!-- ##### SECTION Stability_Level ##### -->
 
@@ -42,17 +44,18 @@ BamfTab
 </para>
 
 @parent_class: 
-@show: 
-@uri_changed: 
-@preview_updated: 
-@_tab_padding1: 
-@_tab_padding2: 
-@_tab_padding3: 
-@_tab_padding4: 
-@_tab_padding5: 
-@_tab_padding6: 
 
-<!-- ##### FUNCTION bamf_tab_get_id ##### -->
+<!-- ##### USER_FUNCTION BamfTabPreviewReadyCallback ##### -->
+<para>
+
+</para>
+
+@self: 
+@preview_data: 
+@user_data: 
+
+
+<!-- ##### FUNCTION bamf_tab_close ##### -->
 <para>
 
 </para>
@@ -61,7 +64,7 @@ BamfTab
 @Returns: 
 
 
-<!-- ##### FUNCTION bamf_tab_get_preview ##### -->
+<!-- ##### FUNCTION bamf_tab_get_desktop_name ##### -->
 <para>
 
 </para>
@@ -70,7 +73,25 @@ BamfTab
 @Returns: 
 
 
-<!-- ##### FUNCTION bamf_tab_get_uri ##### -->
+<!-- ##### FUNCTION bamf_tab_get_is_foreground_tab ##### -->
+<para>
+
+</para>
+
+@self: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_tab_get_location ##### -->
+<para>
+
+</para>
+
+@self: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_tab_get_xid ##### -->
 <para>
 
 </para>
@@ -84,34 +105,26 @@ BamfTab
 
 </para>
 
-@id: 
-@uri: 
+@path: 
 @Returns: 
 
 
-<!-- ##### FUNCTION bamf_tab_set_preview ##### -->
+<!-- ##### FUNCTION bamf_tab_raise ##### -->
 <para>
 
 </para>
 
 @self: 
-@uri: 
+@Returns: 
 
 
-<!-- ##### FUNCTION bamf_tab_set_uri ##### -->
+<!-- ##### FUNCTION bamf_tab_request_preview ##### -->
 <para>
 
 </para>
 
 @self: 
-@uri: 
-
-
-<!-- ##### FUNCTION bamf_tab_show ##### -->
-<para>
-
-</para>
-
-@self: 
+@callback: 
+@user_data: 
 
 

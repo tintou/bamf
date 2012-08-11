@@ -53,6 +53,7 @@
     <keyword type="signal" name="The &quot;monitor-changed&quot; signal" link="BamfWindow.html#BamfWindow-monitor-changed"/>
     <keyword type="struct" name="struct BamfFactory" link="BamfFactory.html#BamfFactory-struct"/>
     <keyword type="struct" name="struct BamfFactoryClass" link="BamfFactory.html#BamfFactoryClass"/>
+    <keyword type="enum" name="enum BamfFactoryViewType" link="BamfFactory.html#BamfFactoryViewType"/>
     <keyword type="struct" name="struct BamfControl" link="BamfControl.html#BamfControl-struct"/>
     <keyword type="struct" name="struct BamfControlClass" link="BamfControl.html#BamfControlClass"/>
     <keyword type="function" name="bamf_control_get_default ()" link="BamfControl.html#bamf-control-get-default"/>
@@ -94,6 +95,7 @@
     <keyword type="property" name="The &quot;user-visible&quot; property" link="BamfView.html#BamfView--user-visible"/>
     <keyword type="signal" name="The &quot;active-changed&quot; signal" link="BamfView.html#BamfView-active-changed"/>
     <keyword type="signal" name="The &quot;child-added&quot; signal" link="BamfView.html#BamfView-child-added"/>
+    <keyword type="signal" name="The &quot;child-moved&quot; signal" link="BamfView.html#BamfView-child-moved"/>
     <keyword type="signal" name="The &quot;child-removed&quot; signal" link="BamfView.html#BamfView-child-removed"/>
     <keyword type="signal" name="The &quot;closed&quot; signal" link="BamfView.html#BamfView-closed"/>
     <keyword type="signal" name="The &quot;name-changed&quot; signal" link="BamfView.html#BamfView-name-changed"/>
@@ -102,8 +104,11 @@
     <keyword type="signal" name="The &quot;user-visible-changed&quot; signal" link="BamfView.html#BamfView-user-visible-changed"/>
     <keyword type="struct" name="struct BamfApplication" link="BamfApplication.html#BamfApplication-struct"/>
     <keyword type="struct" name="struct BamfApplicationClass" link="BamfApplication.html#BamfApplicationClass"/>
+    <keyword type="function" name="bamf_application_get_application_menu ()" link="BamfApplication.html#bamf-application-get-application-menu"/>
     <keyword type="function" name="bamf_application_get_application_type ()" link="BamfApplication.html#bamf-application-get-application-type"/>
     <keyword type="function" name="bamf_application_get_desktop_file ()" link="BamfApplication.html#bamf-application-get-desktop-file"/>
+    <keyword type="function" name="bamf_application_get_dnd_mimes ()" link="BamfApplication.html#bamf-application-get-dnd-mimes"/>
+    <keyword type="function" name="bamf_application_get_focus_child ()" link="BamfApplication.html#bamf-application-get-focus-child"/>
     <keyword type="function" name="bamf_application_get_show_menu_stubs ()" link="BamfApplication.html#bamf-application-get-show-menu-stubs"/>
     <keyword type="function" name="bamf_application_get_windows ()" link="BamfApplication.html#bamf-application-get-windows"/>
     <keyword type="function" name="bamf_application_get_xids ()" link="BamfApplication.html#bamf-application-get-xids"/>

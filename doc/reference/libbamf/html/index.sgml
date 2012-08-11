@@ -54,6 +54,7 @@
 <ANCHOR id="BamfFactory.details" href="libbamf/BamfFactory.html#BamfFactory.details">
 <ANCHOR id="BamfFactory-struct" href="libbamf/BamfFactory.html#BamfFactory-struct">
 <ANCHOR id="BamfFactoryClass" href="libbamf/BamfFactory.html#BamfFactoryClass">
+<ANCHOR id="BamfFactoryViewType" href="libbamf/BamfFactory.html#BamfFactoryViewType">
 <ANCHOR id="BamfControl" href="libbamf/BamfControl.html">
 <ANCHOR id="BamfControl.synopsis" href="libbamf/BamfControl.html#BamfControl.synopsis">
 <ANCHOR id="BamfControl.object-hierarchy" href="libbamf/BamfControl.html#BamfControl.object-hierarchy">
@@ -118,6 +119,7 @@
 <ANCHOR id="BamfView.signal-details" href="libbamf/BamfView.html#BamfView.signal-details">
 <ANCHOR id="BamfView-active-changed" href="libbamf/BamfView.html#BamfView-active-changed">
 <ANCHOR id="BamfView-child-added" href="libbamf/BamfView.html#BamfView-child-added">
+<ANCHOR id="BamfView-child-moved" href="libbamf/BamfView.html#BamfView-child-moved">
 <ANCHOR id="BamfView-child-removed" href="libbamf/BamfView.html#BamfView-child-removed">
 <ANCHOR id="BamfView-closed" href="libbamf/BamfView.html#BamfView-closed">
 <ANCHOR id="BamfView-name-changed" href="libbamf/BamfView.html#BamfView-name-changed">
@@ -132,8 +134,11 @@
 <ANCHOR id="BamfApplication.details" href="libbamf/BamfApplication.html#BamfApplication.details">
 <ANCHOR id="BamfApplication-struct" href="libbamf/BamfApplication.html#BamfApplication-struct">
 <ANCHOR id="BamfApplicationClass" href="libbamf/BamfApplication.html#BamfApplicationClass">
+<ANCHOR id="bamf-application-get-application-menu" href="libbamf/BamfApplication.html#bamf-application-get-application-menu">
 <ANCHOR id="bamf-application-get-application-type" href="libbamf/BamfApplication.html#bamf-application-get-application-type">
 <ANCHOR id="bamf-application-get-desktop-file" href="libbamf/BamfApplication.html#bamf-application-get-desktop-file">
+<ANCHOR id="bamf-application-get-dnd-mimes" href="libbamf/BamfApplication.html#bamf-application-get-dnd-mimes">
+<ANCHOR id="bamf-application-get-focus-child" href="libbamf/BamfApplication.html#bamf-application-get-focus-child">
 <ANCHOR id="bamf-application-get-show-menu-stubs" href="libbamf/BamfApplication.html#bamf-application-get-show-menu-stubs">
 <ANCHOR id="bamf-application-get-windows" href="libbamf/BamfApplication.html#bamf-application-get-windows">
 <ANCHOR id="bamf-application-get-xids" href="libbamf/BamfApplication.html#bamf-application-get-xids">

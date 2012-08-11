@@ -1,11 +1,10 @@
-bamf (0.2.122-0ubuntu2~webapps1) UNRELEASED; urgency=low
+bamf (0.2.122+webapps1-0ubuntu1) quantal; urgency=low
 
-  * debian/patches/webapps.patch
-    - webapps integration 
+  * New snapshot with webapps integration
   * debian/control
     - build depend on libunity-webapps-dev
 
- -- Ken VanDine <ken.vandine@canonical.com>  Fri, 10 Aug 2012 14:57:07 -0400
+ -- Ken VanDine <ken.vandine@canonical.com>  Sat, 11 Aug 2012 01:11:52 -0400
 
 bamf (0.2.122-0ubuntu1) quantal-proposed; urgency=low
 

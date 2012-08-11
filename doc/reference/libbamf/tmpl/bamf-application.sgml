@@ -9,10 +9,12 @@ BamfApplication
 
 </para>
 
+
 <!-- ##### SECTION See_Also ##### -->
 <para>
 
 </para>
+
 
 <!-- ##### SECTION Stability_Level ##### -->
 
@@ -49,6 +51,17 @@ BamfApplication
 
 @parent_class: 
 
+<!-- ##### FUNCTION bamf_application_get_application_menu ##### -->
+<para>
+
+</para>
+
+@application: 
+@name: 
+@object_path: 
+@Returns: 
+
+
 <!-- ##### FUNCTION bamf_application_get_application_type ##### -->
 <para>
 
@@ -59,6 +72,24 @@ BamfApplication
 
 
 <!-- ##### FUNCTION bamf_application_get_desktop_file ##### -->
+<para>
+
+</para>
+
+@application: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_application_get_dnd_mimes ##### -->
+<para>
+
+</para>
+
+@application: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_application_get_focus_child ##### -->
 <para>
 
 </para>

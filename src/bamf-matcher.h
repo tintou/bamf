@@ -23,6 +23,7 @@
 #define __BAMFMATCHER_H__
 
 #include "bamf.h"
+#include "bamf-view.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -108,6 +109,8 @@ GVariant    * bamf_matcher_xids_for_application          (BamfMatcher *matcher,
 
 GVariant    * bamf_matcher_get_window_stack_for_monitor  (BamfMatcher *matcher,
                                                           gint monitor);
+
+void bamf_matcher_register_view_stealing_ref (BamfMatcher *self, BamfView *view);
 
 BamfMatcher * bamf_matcher_get_default                   (void);
 

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT(bamf, 0.2.122, dx-team@canonical.com)
+AC_INIT(bamf, 0.2.122+webapps1, dx-team@canonical.com)
 AC_PREREQ(2.62)
 
 AC_CONFIG_SRCDIR(src/main.c)
@@ -119,6 +119,14 @@ AC_PATH_PROG([GLIB_GENMARSHAL], [glib-genmarshal])
 # GTK-DOC
 ###########################
 GTK_DOC_CHECK(1.0)
+
+###########################
+# libunity_webapps
+###########################
+PKG_CHECK_MODULES(LIBUNITY_WEBAPPS, libunity_webapps-0.2)
+
+AC_SUBST(LIBUNITY_WEBAPPS_CFLAGS)
+AC_SUBST(LIBUNITY_WEBAPPS_LIBS)
 
 ###########################
 # Headless tests

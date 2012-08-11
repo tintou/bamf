@@ -9,10 +9,12 @@ BamfView
 
 </para>
 
+
 <!-- ##### SECTION See_Also ##### -->
 <para>
 
 </para>
+
 
 <!-- ##### SECTION Stability_Level ##### -->
 
@@ -49,6 +51,14 @@ BamfView
 @arg1: 
 
 <!-- ##### SIGNAL BamfView::child-added ##### -->
+<para>
+
+</para>
+
+@bamfview: the object which received the signal.
+@arg1: 
+
+<!-- ##### SIGNAL BamfView::child-moved ##### -->
 <para>
 
 </para>
