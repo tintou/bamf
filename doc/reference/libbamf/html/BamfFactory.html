@@ -41,6 +41,7 @@
 <a name="BamfFactory.synopsis"></a><h2>Synopsis</h2>
 <pre class="synopsis">struct              <a class="link" href="BamfFactory.html#BamfFactory-struct" title="struct BamfFactory">BamfFactory</a>;
 struct              <a class="link" href="BamfFactory.html#BamfFactoryClass" title="struct BamfFactoryClass">BamfFactoryClass</a>;
+enum                <a class="link" href="BamfFactory.html#BamfFactoryViewType" title="enum BamfFactoryViewType">BamfFactoryViewType</a>;
 </pre>
 </div>
 <div class="refsect1">
@@ -70,6 +71,21 @@ struct              <a class="link" href="BamfFactory.html#BamfFactoryClass" tit
 <pre class="programlisting">struct BamfFactoryClass {
   GObjectClass parent_class;
 };
+</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="BamfFactoryViewType"></a><h3>enum BamfFactoryViewType</h3>
+<pre class="programlisting">typedef enum {
+  BAMF_FACTORY_VIEW,
+  BAMF_FACTORY_WINDOW,
+  BAMF_FACTORY_APPLICATION,
+  BAMF_FACTORY_INDICATOR,
+  BAMF_FACTORY_TAB,
+  BAMF_FACTORY_NONE
+} BamfFactoryViewType;
 </pre>
 <p>
 </p>
