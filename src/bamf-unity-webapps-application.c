@@ -234,11 +234,6 @@ bamf_unity_webapps_application_context_set (BamfUnityWebappsApplication *self)
   // when nothing is here.
   bamf_application_set_wmclass (BAMF_APPLICATION (self), wmclass);
 
-  // Sometimes we might have no children for a short period (for example, the page is reloading), in the case
-  // Unity Webapps will keep the context alive for a while. Allowing for new children to appear...before eventually
-  // shutting it down. So we use this flag to ensure BAMF will not shut us down prematurely.
-  bamf_application_set_close_when_empty (BAMF_APPLICATION (self), FALSE);
-  
   bamf_matcher_register_view_stealing_ref (bamf_matcher_get_default (), BAMF_VIEW (self));
   
   bamf_unity_webapps_application_add_existing_interests (self);
@@ -322,6 +317,15 @@ bamf_unity_webapps_application_get_supported_mime_types (BamfApplication *applic
   return unity_webapps_context_get_application_accept_data (self->priv->context);
 }
 
+static gboolean
+bamf_unity_webapps_application_get_close_when_empty (BamfApplication *application)
+{
+  // Sometimes we might have no children for a short period (for example, the page is reloading), in the case
+  // Unity Webapps will keep the context alive for a while. Allowing for new children to appear...before eventually
+  // shutting it down. So we use this flag to ensure BAMF will not shut us down prematurely.
+  return TRUE;
+}
+
 static void
 bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * klass)
 {
@@ -342,6 +346,7 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   bamf_application_class->get_application_menu = bamf_unity_webapps_application_get_application_menu;
   bamf_application_class->get_focus_child = bamf_unity_webapps_application_get_focus_child;
   bamf_application_class->get_supported_mime_types = bamf_unity_webapps_application_get_supported_mime_types;
+  bamf_application_class->get_close_when_empty = bamf_unity_webapps_application_get_close_when_empty;
   
   pspec = g_param_spec_object("context", "Context", "The Unity Webapps Context assosciated with the Application",
 			      UNITY_WEBAPPS_TYPE_CONTEXT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
