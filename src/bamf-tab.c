@@ -122,14 +122,6 @@ bamf_tab_set_property (GObject *object, guint property_id, const GValue *value, 
 }
 
 static void
-bamf_tab_dispose (GObject *object)
-{
-  //  BamfTab *self = BAMF_TAB (object);
-  
-  G_OBJECT_CLASS (bamf_tab_parent_class)->dispose (object);
-}
-
-static void
 bamf_tab_finalize (GObject *object)
 {
   BamfTab *self = BAMF_TAB (object);
@@ -229,7 +221,6 @@ bamf_tab_class_init (BamfTabClass * klass)
   
   object_class->get_property = bamf_tab_get_property;
   object_class->set_property = bamf_tab_set_property;
-  object_class->dispose = bamf_tab_dispose;
   object_class->finalize = bamf_tab_finalize;
   view_class->view_type = bamf_tab_get_view_type;
   

@@ -38,14 +38,6 @@ enum
   PROP_CONTEXT,
 };
 
-/*enum
-{
-  VANISHED,
-  LAST_SIGNAL
-};
-
-static guint unity_webapps_application_signals[LAST_SIGNAL] = { 0 };*/
-
 struct _BamfUnityWebappsApplicationPrivate
 {
   UnityWebappsContext *context;
@@ -62,7 +54,7 @@ bamf_unity_webapps_application_get_application_menu (BamfApplication *applicatio
   self = (BamfUnityWebappsApplication *)application;
   
   *name = g_strdup (unity_webapps_context_get_context_name (self->priv->context));
-  *path = g_strdup ("/com/canonical/Unity/Webapps/Context/ApplicationActions");
+  *path = g_strdup (UNITY_WEBAPPS_CONTEXT_MENU_PATH);
 }
 
 static void
