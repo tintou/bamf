@@ -265,14 +265,6 @@ bamf_unity_webapps_application_get_stable_bus_name (BamfView *view)
 
 
 static void
-bamf_unity_webapps_application_dispose (GObject *object)
-{
-  //  BamfUnityWebappsApplication *self = BAMF_UNITY_WEBAPPS_APPLICATION (object);
-
-  G_OBJECT_CLASS (bamf_unity_webapps_application_parent_class)->dispose (object);
-}
-
-static void
 bamf_unity_webapps_application_finalize (GObject *object)
 {
   BamfUnityWebappsApplication *self = BAMF_UNITY_WEBAPPS_APPLICATION (object);
@@ -328,7 +320,6 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   
   object_class->get_property = bamf_unity_webapps_application_get_property;
   object_class->set_property = bamf_unity_webapps_application_set_property;
-  object_class->dispose = bamf_unity_webapps_application_dispose;
   object_class->finalize = bamf_unity_webapps_application_finalize;
   
   bamf_view_class->stable_bus_name = bamf_unity_webapps_application_get_stable_bus_name;
