@@ -46,7 +46,6 @@ struct _BamfApplicationPrivate
   char * wmclass;
   gboolean is_tab_container;
   gboolean show_stubs;
-  gboolean close_when_empty;
 
   gchar **mimes;
   gboolean mimes_initialized;
@@ -81,6 +80,12 @@ bamf_application_emit_supported_mime_types_changed (BamfApplication *application
     g_strfreev (application->priv->mimes);
 
   application->priv->mimes = mimes;
+}
+
+static gboolean
+bamf_application_default_get_close_when_empty (BamfApplication *application)
+{
+  return TRUE;
 }
 
 static gchar **
@@ -497,7 +502,7 @@ bamf_application_get_stable_bus_name (BamfView *view)
 static void
 bamf_application_ensure_flags (BamfApplication *self)
 {
-  gboolean urgent = FALSE, visible = FALSE, running = FALSE, active = FALSE;
+  gboolean urgent = FALSE, visible = FALSE, running = FALSE, active = FALSE, close_when_empty;
   GList *l;
   BamfView *view;
 
@@ -527,10 +532,11 @@ bamf_application_ensure_flags (BamfApplication *self)
         break;
     }
 
+  close_when_empty = bamf_application_get_close_when_empty (self);
   bamf_view_set_urgent       (BAMF_VIEW (self), urgent);
-  if (!((self->priv->close_when_empty == FALSE) && running == FALSE))
+  if (!((close_when_empty == FALSE) && running == FALSE))
     bamf_view_set_user_visible (BAMF_VIEW (self), visible);
-  if ((running == TRUE) || self->priv->close_when_empty)
+  if ((running == TRUE) || close_when_empty)
     bamf_view_set_running      (BAMF_VIEW (self), running);
   bamf_view_set_active       (BAMF_VIEW (self), active);
 }
@@ -684,7 +690,7 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
 
   bamf_application_ensure_flags (self);
 
-  if ((bamf_view_get_children (view) == NULL)  && (self->priv->close_when_empty))
+  if ((bamf_view_get_children (view) == NULL)  && (bamf_application_get_close_when_empty (self)))
     {
       bamf_view_close (view);
     }
@@ -914,8 +920,6 @@ bamf_application_init (BamfApplication * self)
   priv->show_stubs = TRUE;
   priv->wmclass = NULL;
   
-  priv->close_when_empty = TRUE;
-
   /* Initializing the dbus interface */
   priv->dbus_iface = bamf_dbus_item_application_skeleton_new ();
 
@@ -975,6 +979,7 @@ bamf_application_class_init (BamfApplicationClass * klass)
   view_class->stable_bus_name = bamf_application_get_stable_bus_name;
 
   klass->get_supported_mime_types = bamf_application_default_get_supported_mime_types;
+  klass->get_close_when_empty = bamf_application_default_get_close_when_empty;
 
   g_type_class_add_private (klass, sizeof (BamfApplicationPrivate));
 }
@@ -1044,14 +1049,12 @@ gboolean
 bamf_application_get_close_when_empty (BamfApplication *application)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION(application), FALSE);
-  return application->priv->close_when_empty;
-}
-
-void
-bamf_application_set_close_when_empty (BamfApplication *application, gboolean close)
-{
-  g_return_if_fail (BAMF_IS_APPLICATION(application));
-  application->priv->close_when_empty = close;
+  
+  if (BAMF_APPLICATION_GET_CLASS (application)->get_close_when_empty)
+    {
+      return BAMF_APPLICATION_GET_CLASS (application)->get_close_when_empty(application);
+    }
+  return TRUE;
 }
 
 void
