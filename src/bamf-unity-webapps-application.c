@@ -216,11 +216,11 @@ bamf_unity_webapps_application_add_existing_interests (BamfUnityWebappsApplicati
 static void
 bamf_unity_webapps_application_context_set (BamfUnityWebappsApplication *self)
 {
-  gchar *desktop_file = g_strdup_printf("%s/.local/share/applications/%s", g_get_home_dir (), unity_webapps_context_get_desktop_name (self->priv->context));
   gchar *wmclass = g_strdup_printf("unity-webapps-%p", self);
   
-  bamf_application_set_desktop_file (BAMF_APPLICATION (self), desktop_file);
-
+  bamf_application_set_desktop_file_from_id (BAMF_APPLICATION (self),
+					     unity_webapps_context_get_desktop_name (self->priv->context));
+  
   // TODO: Currently we just put something unique here so the matcher wont get confused within the span of a single run. It's a little
   // meaningless however...is there something useful we can put here? If not, how can we prevent the matcher from becoming confused
   // when nothing is here.
@@ -234,7 +234,6 @@ bamf_unity_webapps_application_context_set (BamfUnityWebappsApplication *self)
   unity_webapps_context_on_interest_vanished (self->priv->context, bamf_unity_webapps_application_interest_vanished, self);
   
   g_free (wmclass);  
-  g_free (desktop_file);
 }
 
 static void
