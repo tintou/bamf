@@ -69,8 +69,8 @@
     <method name="DesktopFile">
       <arg name="desktop_file" type="s" direction="out"/>
     </method>
-    <method name="DndMimes">
-      <arg name="dnd_mimes" type="as" direction="out"/>
+    <method name="SupportedMimeTypes">
+      <arg name="mime_types" type="as" direction="out"/>
     </method>
     <method name="ApplicationType">
       <arg name="type" type="s" direction="out"/>
@@ -90,7 +90,7 @@
     <signal name="WindowAdded">
       <arg name="path" type="s"/>
     </signal>
-    <signal name="DndMimesChanged">
+    <signal name="SupportedMimeTypesChanged">
       <arg name="dnd_mimes" type="as"/>
     </signal>
   </interface>
