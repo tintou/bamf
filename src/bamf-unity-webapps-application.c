@@ -176,7 +176,7 @@ bamf_unity_webapps_application_child_removed (BamfView *view, BamfView *child)
 }
 
 /* 
- * As soon as we have a tab, we wan't to export it on the bus. We want to make sure tabs are registered with 
+ * As soon as we have a tab, we want to export it on the bus. We want to make sure tabs are registered with 
  * the matcher, after the application is added, so we do the registration here rather than
  * inside BamfUnityWebappsTab 
  */

@@ -354,6 +354,28 @@ bamf_application_set_desktop_file (BamfApplication *application,
   bamf_application_setup_icon_and_name (application);
 }
 
+gboolean
+bamf_application_set_desktop_file_from_id (BamfApplication *application,
+					   const char *desktop_id)
+{
+  GDesktopAppInfo *info;
+  const char *filename;
+  
+  info = g_desktop_app_info_new (desktop_id);
+  
+  if (info == NULL)
+    {
+      g_warning ("Failed to load desktop file from desktop ID: %s", desktop_id);
+      return FALSE;
+    }
+  filename = g_desktop_app_info_get_filename (info);
+  bamf_application_set_desktop_file (application, filename);
+  
+  g_object_unref (G_OBJECT (info));
+  
+  return TRUE;
+}
+
 void
 bamf_application_set_wmclass (BamfApplication *application,
                               const char *wmclass)
