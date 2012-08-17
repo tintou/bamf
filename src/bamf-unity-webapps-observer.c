@@ -88,7 +88,7 @@ bamf_unity_webapps_observer_context_appeared (UnityWebappsService *service,
   UnityWebappsContext *context;
   BamfApplication *application;
 
-  if (name[0] == '\0')
+  if (name == NULL || name[0] == '\0')
     return;
 
   observer = (BamfUnityWebappsObserver *)user_data;
