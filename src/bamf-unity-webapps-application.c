@@ -300,7 +300,7 @@ on_accept_data_changed (UnityWebappsContext *context, const gchar **file, gpoint
 {
   BamfUnityWebappsApplication *self = BAMF_UNITY_WEBAPPS_APPLICATION (user_data);
 
-  bamf_application_emit_dnd_mimes_changed (BAMF_APPLICATION (self));
+  bamf_application_emit_supported_mime_types_changed (BAMF_APPLICATION (self));
 }
 
 
@@ -315,7 +315,7 @@ bamf_unity_webapps_application_init (BamfUnityWebappsApplication *self)
 }
 
 static char **
-bamf_unity_webapps_application_get_dnd_mimes (BamfApplication *application)
+bamf_unity_webapps_application_get_supported_mime_types (BamfApplication *application)
 {
   BamfUnityWebappsApplication *self = BAMF_UNITY_WEBAPPS_APPLICATION (application);
 
@@ -341,7 +341,7 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   
   bamf_application_class->get_application_menu = bamf_unity_webapps_application_get_application_menu;
   bamf_application_class->get_focus_child = bamf_unity_webapps_application_get_focus_child;
-  bamf_application_class->get_dnd_mimes = bamf_unity_webapps_application_get_dnd_mimes;
+  bamf_application_class->get_supported_mime_types = bamf_unity_webapps_application_get_supported_mime_types;
   
   pspec = g_param_spec_object("context", "Context", "The Unity Webapps Context assosciated with the Application",
 			      UNITY_WEBAPPS_TYPE_CONTEXT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);

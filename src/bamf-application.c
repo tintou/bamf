@@ -63,9 +63,9 @@ bamf_application_get_icon (BamfView *view)
 }
 
 void
-bamf_application_emit_dnd_mimes_changed (BamfApplication *application)
+bamf_application_emit_supported_mime_types_changed (BamfApplication *application)
 {
-  gchar **mimes = bamf_application_get_dnd_mimes (application);
+  gchar **mimes = bamf_application_get_supported_mime_types (application);
 
   if (!mimes)
     {
@@ -74,7 +74,7 @@ bamf_application_emit_dnd_mimes_changed (BamfApplication *application)
       mimes = g_strdupv (empty);
     }
 
-  g_signal_emit_by_name (application->priv->dbus_iface, "dnd-mimes-changed", mimes);
+  g_signal_emit_by_name (application->priv->dbus_iface, "supported-mime-types-changed", mimes);
   application->priv->mimes_initialized = TRUE;
 
   if (application->priv->mimes)
@@ -83,8 +83,8 @@ bamf_application_emit_dnd_mimes_changed (BamfApplication *application)
   application->priv->mimes = mimes;
 }
 
-static char **
-bamf_application_default_get_dnd_mimes (BamfApplication *application)
+static gchar **
+bamf_application_default_get_supported_mime_types (BamfApplication *application)
 {
   const char *desktop_file = bamf_application_get_desktop_file (application);
 
@@ -108,20 +108,20 @@ bamf_application_default_get_dnd_mimes (BamfApplication *application)
 
   g_key_file_free (key_file);
 
-  bamf_application_emit_dnd_mimes_changed (application);
+  bamf_application_emit_supported_mime_types_changed (application);
 
   return mimes;
 }
 
 char **
-bamf_application_get_dnd_mimes (BamfApplication *application)
+bamf_application_get_supported_mime_types (BamfApplication *application)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
 
   if (application->priv->mimes_initialized)
     return g_strdupv (application->priv->mimes);
 
-  gchar **mimes = BAMF_APPLICATION_GET_CLASS (application)->get_dnd_mimes (application);
+  gchar **mimes = BAMF_APPLICATION_GET_CLASS (application)->get_supported_mime_types (application);
 
   if (application->priv->mimes)
     g_strfreev (application->priv->mimes);
@@ -786,11 +786,11 @@ on_dbus_handle_desktop_file (BamfDBusItemApplication *interface,
 }
 
 static gboolean
-on_dbus_handle_dnd_mimes (BamfDBusItemApplication *interface,
+on_dbus_handle_supported_mime_types (BamfDBusItemApplication *interface,
                           GDBusMethodInvocation *invocation,
                           BamfApplication *self)
 {
-  gchar **mimes = bamf_application_get_dnd_mimes (self);
+  gchar **mimes = bamf_application_get_supported_mime_types (self);
 
   GVariantBuilder *builder;
   GVariant *value;
@@ -937,8 +937,8 @@ bamf_application_init (BamfApplication * self)
   g_signal_connect (priv->dbus_iface, "handle-desktop-file",
                     G_CALLBACK (on_dbus_handle_desktop_file), self);
 
-  g_signal_connect (priv->dbus_iface, "handle-dnd-mimes",
-                    G_CALLBACK (on_dbus_handle_dnd_mimes), self);
+  g_signal_connect (priv->dbus_iface, "handle-supported-mime-types",
+                    G_CALLBACK (on_dbus_handle_supported_mime_types), self);
 
   g_signal_connect (priv->dbus_iface, "handle-application-menu",
 		    G_CALLBACK (on_dbus_handle_application_menu), self);
@@ -974,7 +974,7 @@ bamf_application_class_init (BamfApplicationClass * klass)
   view_class->get_icon = bamf_application_get_icon;
   view_class->stable_bus_name = bamf_application_get_stable_bus_name;
 
-  klass->get_dnd_mimes = bamf_application_default_get_dnd_mimes;
+  klass->get_supported_mime_types = bamf_application_default_get_supported_mime_types;
 
   g_type_class_add_private (klass, sizeof (BamfApplicationPrivate));
 }
