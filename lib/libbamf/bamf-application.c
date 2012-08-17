@@ -74,7 +74,7 @@ struct _BamfApplicationPrivate
 };
 
 gchar **
-bamf_application_get_dnd_mimes (BamfApplication *application)
+bamf_application_get_supported_mime_types (BamfApplication *application)
 {
   GError *error = NULL;
   gchar **mimes = NULL;
@@ -86,7 +86,7 @@ bamf_application_get_dnd_mimes (BamfApplication *application)
     return NULL;
 
   if (!dbus_g_proxy_call (application->priv->proxy,
-                          "DndMimes",
+                          "SupportedMimeTypes",
                           &error,
                           G_TYPE_INVALID,
                           G_TYPE_STRV, &mimes,
@@ -351,7 +351,7 @@ bamf_application_get_click_suggestion (BamfView *view)
 }
 
 static void
-bamf_application_on_dnd_mimes_changed (DBusGProxy *proxy, const gchar *const *mimes, BamfApplication *self)
+bamf_application_on_supported_mime_types_changed (DBusGProxy *proxy, const gchar *const *mimes, BamfApplication *self)
 {
   if (self->priv->cached_mimes)
     g_strfreev (self->priv->cached_mimes);
@@ -467,8 +467,8 @@ bamf_application_unset_proxy (BamfApplication* self)
                                  (GCallback) bamf_application_on_window_removed,
                                  self);
   dbus_g_proxy_disconnect_signal (priv->proxy,
-				  "DndMimesChanged",
-				  (GCallback) bamf_application_on_dnd_mimes_changed,
+				  "SupportedMimeTypesChanged",
+				  (GCallback) bamf_application_on_supported_mime_types_changed,
 				  self);
 
   g_object_unref (priv->proxy);
@@ -540,7 +540,7 @@ bamf_application_set_path (BamfView *view, const char *path)
                            G_TYPE_INVALID);
 
   dbus_g_proxy_add_signal (priv->proxy,
-                           "DndMimesChanged",
+                           "SupportedMimeTypesChanged",
                            G_TYPE_STRV,
                            G_TYPE_INVALID);
 
@@ -557,8 +557,8 @@ bamf_application_set_path (BamfView *view, const char *path)
                                NULL);
 
   dbus_g_proxy_connect_signal (priv->proxy,
-                               "DndMimesChanged",
-                               (GCallback) bamf_application_on_dnd_mimes_changed,
+                               "SupportedMimeTypesChanged",
+                               (GCallback) bamf_application_on_supported_mime_types_changed,
                                self,
                                NULL);
 
