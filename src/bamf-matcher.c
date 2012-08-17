@@ -2178,8 +2178,7 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
     }
 
   /* we have a window who is ready to be matched */
-  if (bamf_legacy_window_get_window_type (window) != BAMF_WINDOW_DOCK)
-    handle_raw_window (self, window);
+  handle_raw_window (self, window);
 }
 
 static void
