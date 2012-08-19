@@ -140,8 +140,6 @@ bamf_control_init (BamfControl * self)
 
   g_signal_connect (self, "handle-register-application-for-pid",
                     G_CALLBACK (on_dbus_handle_register_application_for_pid), self);
-  
-  bamf_unity_webapps_observer_new ();
 }
 
 static void
