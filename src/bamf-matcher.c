@@ -254,7 +254,7 @@ on_view_closed (BamfView *view, BamfMatcher *self)
   bamf_matcher_unregister_view (self, view);
 }
 
-void
+static void
 bamf_matcher_register_view_stealing_ref (BamfMatcher *self, BamfView *view)
 {
   const char *path, *type;
@@ -2894,6 +2894,32 @@ on_dbus_handle_window_stack_for_monitor (BamfDBusMatcher *interface,
 }
 
 static void
+on_webapp_child_added (BamfView *application,
+		       BamfView *child,
+		       gpointer user_data)
+{
+  BamfMatcher *self;
+  
+  self = (BamfMatcher *)user_data;
+  bamf_matcher_register_view_stealing_ref (self, child);
+}
+
+static void
+on_webapp_appeared (BamfUnityWebappsObserver *observer,
+		    BamfApplication *application,
+		    gpointer user_data)
+{
+  BamfMatcher *self;
+  
+  self = (BamfMatcher *)user_data;
+  
+  bamf_matcher_register_view_stealing_ref (self, (BamfView *)application);
+  
+  g_signal_connect_object (application, "child-added", G_CALLBACK (on_webapp_child_added),
+			   self, 0);
+}
+
+static void
 bamf_matcher_init (BamfMatcher * self)
 {
   BamfMatcherPrivate *priv;
@@ -2984,6 +3010,13 @@ bamf_matcher_init (BamfMatcher * self)
 
   g_signal_connect (self, "handle-window-stack-for-monitor",
                     G_CALLBACK (on_dbus_handle_window_stack_for_monitor), self);
+  
+  priv->webapps_observer = bamf_unity_webapps_observer_new ();
+  
+  g_signal_connect_object (priv->webapps_observer,
+			   "application-appeared",
+			   G_CALLBACK (on_webapp_appeared),
+			   self, 0);
 }
 
 static void
@@ -2995,6 +3028,12 @@ bamf_matcher_dispose (GObject *object)
   while (priv->views)
     {
       bamf_matcher_unregister_view (self, priv->views->data);
+    }
+  
+  if (priv->webapps_observer)
+    {
+      g_object_unref (G_OBJECT (priv->webapps_observer));
+      priv->webapps_observer = NULL;
     }
 
   G_OBJECT_CLASS (bamf_matcher_parent_class)->dispose (object);

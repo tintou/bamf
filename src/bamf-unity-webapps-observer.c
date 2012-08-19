@@ -4,7 +4,7 @@
  *
  * Author: Robert Carr <racarr@canonical.com>
  * 
- unity-webapps is free software: you can redistribute it and/or modify it
+ * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -32,6 +32,14 @@ struct _BamfUnityWebappsObserverPrivate {
 };
 
 G_DEFINE_TYPE(BamfUnityWebappsObserver, bamf_unity_webapps_observer, G_TYPE_OBJECT)
+
+enum 
+{
+  APPLICATION_APPEARED,
+  LAST_SIGNAL
+};
+
+static guint webapps_observer_signals[LAST_SIGNAL] = { 0 };
 
 
 #define BAMF_UNITY_WEBAPPS_OBSERVER_GET_PRIVATE(object) (G_TYPE_INSTANCE_GET_PRIVATE ((object), BAMF_TYPE_UNITY_WEBAPPS_OBSERVER, BamfUnityWebappsObserverPrivate))
@@ -104,6 +112,8 @@ bamf_unity_webapps_observer_context_appeared (UnityWebappsService *service,
 		    observer);
 
   g_hash_table_insert (observer->priv->applications_by_context_name, g_strdup (name), application);
+  
+  g_signal_emit (service, webapps_observer_signals[APPLICATION_APPEARED], 0, application);
 }
 
 static void
@@ -211,6 +221,15 @@ bamf_unity_webapps_observer_class_init (BamfUnityWebappsObserverClass *klass)
   object_class->finalize = bamf_unity_webapps_observer_finalize;
   
   g_type_class_add_private (object_class, sizeof(BamfUnityWebappsObserverPrivate));
+  
+  webapps_observer_signals [APPLICATION_APPEARED] = 
+    g_signal_new ("application-appeared",
+		  G_OBJECT_CLASS_TYPE (klass),
+		  0,
+		  0, NULL, NULL,
+		  g_cclosure_marshal_VOID__OBJECT,
+		  G_TYPE_NONE, 1,
+		  BAMF_TYPE_APPLICATION);
   
 }
 

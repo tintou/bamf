@@ -62,6 +62,8 @@ struct _BamfTabPrivate
   gboolean is_foreground;
 };
 
+static void bamf_tab_unset_proxy (BamfTab *self);
+
 G_DEFINE_TYPE (BamfTab, bamf_tab, BAMF_TYPE_VIEW)
 
 static void
@@ -165,6 +167,8 @@ bamf_tab_set_path (BamfView *view, const gchar *path)
   
   self = BAMF_TAB (view);
   
+  bamf_tab_unset_proxy (self);
+  
   self->priv->tab_proxy = dbus_g_proxy_new_for_name (self->priv->connection,
 						 "org.ayatana.bamf",
 						 path,
@@ -263,12 +267,32 @@ bamf_tab_get_property (GObject *object, guint property_id, GValue *value, GParam
 }
 
 static void
-bamf_tab_dispose (GObject *object)
+bamf_tab_unset_proxy (BamfTab *self)
+{
+  if (self->priv->tab_proxy)
+    {
+      g_object_unref (G_OBJECT (self->priv->tab_proxy));
+      self->priv->tab_proxy = NULL;
+    }
+  
+  if (self->priv->properties_proxy)
+    {
+      dbus_g_proxy_disconnect_signal (self->priv->properties_proxy,
+				      "PropertiesChanged",
+				      (GCallback) bamf_tab_on_properties_changed,
+				      self);
+      g_object_unref (G_OBJECT (self->priv->properties_proxy));
+      self->priv->properties_proxy = NULL;
+    }
+}
+
+static void
+bamf_tab_finalize (GObject *object)
 {
   BamfTab *self;
   
   self = BAMF_TAB (object);
-  
+
   if (self->priv->location != NULL)
     {
       g_free (self->priv->location);
@@ -277,18 +301,17 @@ bamf_tab_dispose (GObject *object)
     {
       g_free (self->priv->desktop_name);
     }
-  if (self->priv->tab_proxy != NULL)
-    {
-      g_object_unref (G_OBJECT (self->priv->tab_proxy));
-    }
-  if (self->priv->properties_proxy != NULL)
-    {
-      dbus_g_proxy_disconnect_signal (self->priv->properties_proxy,
-				      "PropertiesChanged",
-				      (GCallback) bamf_tab_on_properties_changed,
-				      self);
-      g_object_unref (G_OBJECT (self->priv->properties_proxy));
-    }
+}
+
+static void
+bamf_tab_dispose (GObject *object)
+{
+  BamfTab *self;
+  
+  self = BAMF_TAB (object);
+
+  bamf_tab_unset_proxy (self);
+
   if (G_OBJECT_CLASS (bamf_tab_parent_class)->dispose)
     G_OBJECT_CLASS (bamf_tab_parent_class)->dispose (object);
 }
@@ -301,6 +324,7 @@ bamf_tab_class_init (BamfTabClass *klass)
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
   BamfViewClass *view_class = BAMF_VIEW_CLASS (klass);
   
+  obj_class->finalize = bamf_tab_finalize;
   obj_class->dispose = bamf_tab_dispose;
   obj_class->get_property = bamf_tab_get_property;
   obj_class->set_property = bamf_tab_set_property;
@@ -459,6 +483,7 @@ bamf_tab_request_preview (BamfTab *self, BamfTabPreviewReadyCallback callback, g
   bamf_tab_preview_request_user_data *data;
 
   g_return_if_fail (BAMF_IS_TAB (self));
+  g_return_if_fail (callback != NULL);
   
   data = g_malloc0 (sizeof (bamf_tab_preview_request_user_data));
   data->self = self;

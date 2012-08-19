@@ -175,19 +175,6 @@ bamf_unity_webapps_application_child_removed (BamfView *view, BamfView *child)
   g_object_unref (BAMF_VIEW (child));
 }
 
-/* 
- * As soon as we have a tab, we want to export it on the bus. We want to make sure tabs are registered with 
- * the matcher, after the application is added, so we do the registration here rather than
- * inside BamfUnityWebappsTab 
- */
-static void
-bamf_unity_webapps_application_child_added (BamfView *view, BamfView *child)
-{
-  bamf_matcher_register_view_stealing_ref (bamf_matcher_get_default (), child);
-  
-  BAMF_VIEW_CLASS (bamf_unity_webapps_application_parent_class)->child_added (view, child);
-}
-
 static void
 bamf_unity_webapps_application_add_existing_interests (BamfUnityWebappsApplication *self)
 {
@@ -216,24 +203,13 @@ bamf_unity_webapps_application_add_existing_interests (BamfUnityWebappsApplicati
 static void
 bamf_unity_webapps_application_context_set (BamfUnityWebappsApplication *self)
 {
-  gchar *wmclass = g_strdup_printf("unity-webapps-%p", self);
-  
   bamf_application_set_desktop_file_from_id (BAMF_APPLICATION (self),
 					     unity_webapps_context_get_desktop_name (self->priv->context));
-  
-  // TODO: Currently we just put something unique here so the matcher wont get confused within the span of a single run. It's a little
-  // meaningless however...is there something useful we can put here? If not, how can we prevent the matcher from becoming confused
-  // when nothing is here.
-  bamf_application_set_wmclass (BAMF_APPLICATION (self), wmclass);
-
-  bamf_matcher_register_view_stealing_ref (bamf_matcher_get_default (), BAMF_VIEW (self));
   
   bamf_unity_webapps_application_add_existing_interests (self);
   
   unity_webapps_context_on_interest_appeared (self->priv->context, bamf_unity_webapps_application_interest_appeared, self);
   unity_webapps_context_on_interest_vanished (self->priv->context, bamf_unity_webapps_application_interest_vanished, self);
-  
-  g_free (wmclass);  
 }
 
 static void
@@ -323,7 +299,6 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   
   bamf_view_class->stable_bus_name = bamf_unity_webapps_application_get_stable_bus_name;
   bamf_view_class->child_removed = bamf_unity_webapps_application_child_removed;
-  bamf_view_class->child_added = bamf_unity_webapps_application_child_added;
   
   bamf_application_class->get_application_menu = bamf_unity_webapps_application_get_application_menu;
   bamf_application_class->get_focus_child = bamf_unity_webapps_application_get_focus_child;
