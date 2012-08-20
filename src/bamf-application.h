@@ -46,6 +46,7 @@ struct _BamfApplicationClass
   BamfView* (*get_focus_child) (BamfApplication *application);
   char ** (*get_supported_mime_types) (BamfApplication *application);
   gboolean (*get_close_when_empty) (BamfApplication *application);
+  void (*supported_mimes_changed) (BamfApplication *application, const gchar **mimes);
 
 };
 
