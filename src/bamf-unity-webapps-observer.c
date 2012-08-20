@@ -113,7 +113,7 @@ bamf_unity_webapps_observer_context_appeared (UnityWebappsService *service,
 
   g_hash_table_insert (observer->priv->applications_by_context_name, g_strdup (name), application);
   
-  g_signal_emit (service, webapps_observer_signals[APPLICATION_APPEARED], 0, application);
+  g_signal_emit (observer, webapps_observer_signals[APPLICATION_APPEARED], 0, application);
 }
 
 static void
@@ -214,11 +214,32 @@ bamf_unity_webapps_observer_finalize (GObject *object)
 }
 
 static void
+bamf_unity_webapps_observer_constructed (GObject *object)
+{
+  BamfUnityWebappsObserver *observer;
+  
+  observer = (BamfUnityWebappsObserver *)object;
+  if (G_OBJECT_CLASS (bamf_unity_webapps_observer_parent_class)->constructed)
+    {
+      G_OBJECT_CLASS (bamf_unity_webapps_observer_parent_class)->constructed (object);
+    }
+
+  observer->priv->service_watch_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
+						       "com.canonical.Unity.Webapps.Service",
+						       G_BUS_NAME_WATCHER_FLAGS_NONE,
+						       bamf_unity_webapps_observer_service_appeared,
+						       bamf_unity_webapps_observer_service_vanished,
+						       observer, NULL /* User data free func */);
+
+}
+
+static void
 bamf_unity_webapps_observer_class_init (BamfUnityWebappsObserverClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   
   object_class->finalize = bamf_unity_webapps_observer_finalize;
+  object_class->constructed = bamf_unity_webapps_observer_constructed;
   
   g_type_class_add_private (object_class, sizeof(BamfUnityWebappsObserverPrivate));
   
@@ -233,19 +254,14 @@ bamf_unity_webapps_observer_class_init (BamfUnityWebappsObserverClass *klass)
   
 }
 
+
+
 static void
 bamf_unity_webapps_observer_init (BamfUnityWebappsObserver *observer)
 {
   observer->priv = BAMF_UNITY_WEBAPPS_OBSERVER_GET_PRIVATE (observer);
   
   observer->priv->service = NULL;
-  
-  observer->priv->service_watch_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
-						       "com.canonical.Unity.Webapps.Service",
-						       G_BUS_NAME_WATCHER_FLAGS_NONE,
-						       bamf_unity_webapps_observer_service_appeared,
-						       bamf_unity_webapps_observer_service_vanished,
-						       observer, NULL /* User data free func */);
   
   observer->priv->applications_by_context_name = g_hash_table_new_full (g_str_hash, g_str_equal,
 									g_free, NULL);

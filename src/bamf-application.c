@@ -286,6 +286,10 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
           do
             {
               class = bamf_legacy_window_get_class_name (bamf_window_get_window (window));
+	      
+	      if (class == NULL)
+		break;
+
               icon = g_utf8_strdown (class, -1);
 
               if (icon_name_is_valid (icon))

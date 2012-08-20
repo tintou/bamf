@@ -98,4 +98,5 @@ gboolean bamf_application_get_close_when_empty (BamfApplication *application);
 gboolean bamf_application_set_desktop_file_from_id (BamfApplication *application, const char *id);
 
 
+
 #endif

@@ -44,6 +44,14 @@ struct _BamfUnityWebappsApplicationPrivate
 };
 
 
+enum {
+  TAB_APPEARED,
+  LAST_SIGNAL
+};
+
+static guint webapps_application_signals[LAST_SIGNAL] = {0};
+
+
 static void
 bamf_unity_webapps_application_get_application_menu (BamfApplication *application,
 						     gchar **name, 
@@ -162,6 +170,13 @@ bamf_unity_webapps_application_interest_vanished (UnityWebappsContext *context,
   bamf_view_remove_child (BAMF_VIEW (self), BAMF_VIEW (child));
 }
 
+static void
+bamf_unity_webapps_application_child_added (BamfView *view, BamfView *child)
+{
+  g_signal_emit (view, webapps_application_signals [TAB_APPEARED], 0, child);
+  BAMF_VIEW_CLASS (bamf_unity_webapps_application_parent_class)->child_added (view, child);
+}
+
 /* It doesn't make any sense for a BamfUnityWebappsTab to live without it's assosciated context.
  * so when our children are removed, dispose of them. */
 static void
@@ -175,7 +190,7 @@ bamf_unity_webapps_application_child_removed (BamfView *view, BamfView *child)
   g_object_unref (BAMF_VIEW (child));
 }
 
-static void
+void
 bamf_unity_webapps_application_add_existing_interests (BamfUnityWebappsApplication *self)
 {
   GVariant *interests, *interest_variant;
@@ -205,8 +220,6 @@ bamf_unity_webapps_application_context_set (BamfUnityWebappsApplication *self)
 {
   bamf_application_set_desktop_file_from_id (BAMF_APPLICATION (self),
 					     unity_webapps_context_get_desktop_name (self->priv->context));
-  
-  bamf_unity_webapps_application_add_existing_interests (self);
   
   unity_webapps_context_on_interest_appeared (self->priv->context, bamf_unity_webapps_application_interest_appeared, self);
   unity_webapps_context_on_interest_vanished (self->priv->context, bamf_unity_webapps_application_interest_vanished, self);
@@ -257,6 +270,16 @@ on_accept_data_changed (UnityWebappsContext *context, const gchar **file, gpoint
   bamf_application_emit_supported_mime_types_changed (BAMF_APPLICATION (self));
 }
 
+static void
+bamf_unity_webapps_application_constructed (GObject *object)
+{
+  BamfUnityWebappsApplication *self;
+  
+  self = (BamfUnityWebappsApplication *)object;
+
+  g_signal_connect (self->priv->context, "accept-data-changed", G_CALLBACK (on_accept_data_changed), self);
+}
+
 
 static void
 bamf_unity_webapps_application_init (BamfUnityWebappsApplication *self)
@@ -265,7 +288,6 @@ bamf_unity_webapps_application_init (BamfUnityWebappsApplication *self)
 
   bamf_application_set_application_type (BAMF_APPLICATION (self), "webapp");
 
-  g_signal_connect (self->priv->context, "accept-data-changed", G_CALLBACK (on_accept_data_changed), self);
 }
 
 static char **
@@ -296,9 +318,11 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   object_class->get_property = bamf_unity_webapps_application_get_property;
   object_class->set_property = bamf_unity_webapps_application_set_property;
   object_class->finalize = bamf_unity_webapps_application_finalize;
+  object_class->constructed = bamf_unity_webapps_application_constructed;
   
   bamf_view_class->stable_bus_name = bamf_unity_webapps_application_get_stable_bus_name;
   bamf_view_class->child_removed = bamf_unity_webapps_application_child_removed;
+  bamf_view_class->child_added = bamf_unity_webapps_application_child_added;
   
   bamf_application_class->get_application_menu = bamf_unity_webapps_application_get_application_menu;
   bamf_application_class->get_focus_child = bamf_unity_webapps_application_get_focus_child;
@@ -308,6 +332,14 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   pspec = g_param_spec_object("context", "Context", "The Unity Webapps Context assosciated with the Application",
 			      UNITY_WEBAPPS_TYPE_CONTEXT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
   g_object_class_install_property (object_class, PROP_CONTEXT, pspec);
+  
+  webapps_application_signals[TAB_APPEARED] = g_signal_new("tab-appeared",
+				    G_OBJECT_CLASS_TYPE (klass),
+				    0,
+				    0, NULL, NULL,
+				    g_cclosure_marshal_VOID__OBJECT,
+							   G_TYPE_NONE, 1,
+				    BAMF_TYPE_VIEW);
   
   
   g_type_class_add_private (klass, sizeof (BamfUnityWebappsApplicationPrivate));

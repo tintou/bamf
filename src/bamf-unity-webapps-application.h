@@ -55,6 +55,9 @@ GType       bamf_unity_webapps_application_get_type    (void) G_GNUC_CONST;
 BamfApplication *bamf_unity_webapps_application_new (UnityWebappsContext *context);
 UnityWebappsContext *bamf_unity_webapps_application_get_context (BamfUnityWebappsApplication *application);
 
+void
+bamf_unity_webapps_application_add_existing_interests (BamfUnityWebappsApplication *self);
+
 
 
 #endif
