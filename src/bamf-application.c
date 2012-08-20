@@ -51,6 +51,13 @@ struct _BamfApplicationPrivate
   gboolean mimes_initialized;
 };
 
+enum {
+  SUPPORTED_MIMES_CHANGED,
+  LAST_SIGNAL
+};
+
+static guint application_signals[LAST_SIGNAL] = { 0 };
+
 #define STUB_KEY  "X-Ayatana-Appmenu-Show-Stubs"
 
 static const char *
@@ -62,16 +69,19 @@ bamf_application_get_icon (BamfView *view)
 }
 
 void
-bamf_application_emit_supported_mime_types_changed (BamfApplication *application)
+bamf_application_supported_mime_types_changed (BamfApplication *application,
+					       const gchar **maybe_mimes)
 {
-  gchar **mimes = bamf_application_get_supported_mime_types (application);
+  gchar **mimes;
 
-  if (!mimes)
+  if (!maybe_mimes)
     {
       gchar *empty[] = {NULL};
 
       mimes = g_strdupv (empty);
     }
+  
+  mimes = (gchar **)maybe_mimes;
 
   g_signal_emit_by_name (application->priv->dbus_iface, "supported-mime-types-changed", mimes);
   application->priv->mimes_initialized = TRUE;
@@ -80,6 +90,12 @@ bamf_application_emit_supported_mime_types_changed (BamfApplication *application
     g_strfreev (application->priv->mimes);
 
   application->priv->mimes = mimes;
+  
+  if (maybe_mimes == NULL)
+    {
+      g_strfreev (mimes);
+    }
+
 }
 
 static gboolean
@@ -113,7 +129,7 @@ bamf_application_default_get_supported_mime_types (BamfApplication *application)
 
   g_key_file_free (key_file);
 
-  bamf_application_emit_supported_mime_types_changed (application);
+  g_signal_emit (application, application_signals[SUPPORTED_MIMES_CHANGED], 0, mimes);
 
   return mimes;
 }
@@ -1006,8 +1022,19 @@ bamf_application_class_init (BamfApplicationClass * klass)
 
   klass->get_supported_mime_types = bamf_application_default_get_supported_mime_types;
   klass->get_close_when_empty = bamf_application_default_get_close_when_empty;
+  klass->supported_mimes_changed = bamf_application_supported_mime_types_changed;
 
   g_type_class_add_private (klass, sizeof (BamfApplicationPrivate));
+  
+  application_signals[SUPPORTED_MIMES_CHANGED] = 
+    g_signal_new ("supported-mimes-changed",
+		  G_OBJECT_CLASS_TYPE (klass),
+		  G_SIGNAL_RUN_FIRST,
+		  G_STRUCT_OFFSET (BamfApplicationClass, supported_mimes_changed),
+		  NULL, NULL,
+		  g_cclosure_marshal_generic,
+		  G_TYPE_NONE, 1,
+		  G_TYPE_STRV);		  
 }
 
 BamfApplication *

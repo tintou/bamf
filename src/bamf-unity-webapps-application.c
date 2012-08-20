@@ -267,7 +267,7 @@ on_accept_data_changed (UnityWebappsContext *context, const gchar **file, gpoint
 {
   BamfUnityWebappsApplication *self = BAMF_UNITY_WEBAPPS_APPLICATION (user_data);
 
-  bamf_application_emit_supported_mime_types_changed (BAMF_APPLICATION (self));
+  g_signal_emit_by_name (self, "supported-mimes-changed", file);
 }
 
 static void
