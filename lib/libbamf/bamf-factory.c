@@ -186,9 +186,9 @@ BamfFactoryViewType compute_factory_type_by_str (const char *type)
           factory_type = BAMF_FACTORY_VIEW;
         }
       else if (g_strcmp0 (type, "tab") == 0)
-	{
-	  factory_type = BAMF_FACTORY_TAB;
-	}
+        {
+          factory_type = BAMF_FACTORY_TAB;
+        }
     }
 
   return factory_type;
