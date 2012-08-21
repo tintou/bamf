@@ -105,7 +105,7 @@ bamf_unity_webapps_application_find_child_by_interest (BamfUnityWebappsApplicati
 }
 
 static BamfView *
-bamf_unity_webapps_application_get_focus_child (BamfApplication *application)
+bamf_unity_webapps_application_get_focusable_child (BamfApplication *application)
 {
   BamfUnityWebappsApplication *self;
   gint focus_interest;
@@ -325,7 +325,7 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   bamf_view_class->child_added = bamf_unity_webapps_application_child_added;
   
   bamf_application_class->get_application_menu = bamf_unity_webapps_application_get_application_menu;
-  bamf_application_class->get_focus_child = bamf_unity_webapps_application_get_focus_child;
+  bamf_application_class->get_focusable_child = bamf_unity_webapps_application_get_focusable_child;
   bamf_application_class->get_supported_mime_types = bamf_unity_webapps_application_get_supported_mime_types;
   bamf_application_class->get_close_when_empty = bamf_unity_webapps_application_get_close_when_empty;
   
