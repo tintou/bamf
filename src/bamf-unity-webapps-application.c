@@ -31,7 +31,7 @@
 BAMF_TYPE_UNITY_WEBAPPS_APPLICATION, BamfUnityWebappsApplicationPrivate))
 
 G_DEFINE_TYPE(BamfUnityWebappsApplication, bamf_unity_webapps_application, BAMF_TYPE_APPLICATION);
-	
+        
 enum
 {
   PROP_0,
@@ -54,8 +54,8 @@ static guint webapps_application_signals[LAST_SIGNAL] = {0};
 
 static void
 bamf_unity_webapps_application_get_application_menu (BamfApplication *application,
-						     gchar **name, 
-						     gchar **path)
+                                                     gchar **name, 
+                                                     gchar **path)
 {
   BamfUnityWebappsApplication *self;
   
@@ -84,7 +84,7 @@ bamf_unity_webapps_application_get_property (GObject *object, guint property_id,
 
 static BamfUnityWebappsTab *
 bamf_unity_webapps_application_find_child_by_interest (BamfUnityWebappsApplication *application,
-						       gint interest_id)
+                                                       gint interest_id)
 {
   GList *children, *walk;
   BamfUnityWebappsTab *child;
@@ -96,9 +96,9 @@ bamf_unity_webapps_application_find_child_by_interest (BamfUnityWebappsApplicati
       child = BAMF_UNITY_WEBAPPS_TAB (walk->data);
       
       if (interest_id == bamf_unity_webapps_tab_get_interest_id (child))
-	{
-	  return child;
-	}
+        {
+          return child;
+        }
     }
   
   return NULL;
@@ -123,8 +123,8 @@ bamf_unity_webapps_application_get_focusable_child (BamfApplication *application
 
 static void
 bamf_unity_webapps_application_interest_appeared (UnityWebappsContext *context,
-						  gint interest_id,
-						  gpointer user_data)
+                                                  gint interest_id,
+                                                  gpointer user_data)
 {
   BamfUnityWebappsApplication *self;
   BamfView *interest_view;
@@ -152,8 +152,8 @@ bamf_unity_webapps_application_interest_appeared (UnityWebappsContext *context,
 
 static void
 bamf_unity_webapps_application_interest_vanished (UnityWebappsContext *context,
-						  gint interest_id,
-						  gpointer user_data)
+                                                  gint interest_id,
+                                                  gpointer user_data)
 {
   BamfUnityWebappsApplication *self;
   BamfUnityWebappsTab *child;
@@ -219,7 +219,7 @@ static void
 bamf_unity_webapps_application_context_set (BamfUnityWebappsApplication *self)
 {
   bamf_application_set_desktop_file_from_id (BAMF_APPLICATION (self),
-					     unity_webapps_context_get_desktop_name (self->priv->context));
+                                             unity_webapps_context_get_desktop_name (self->priv->context));
   
   unity_webapps_context_on_interest_appeared (self->priv->context, bamf_unity_webapps_application_interest_appeared, self);
   unity_webapps_context_on_interest_vanished (self->priv->context, bamf_unity_webapps_application_interest_vanished, self);
@@ -330,16 +330,16 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   bamf_application_class->get_close_when_empty = bamf_unity_webapps_application_get_close_when_empty;
   
   pspec = g_param_spec_object("context", "Context", "The Unity Webapps Context assosciated with the Application",
-			      UNITY_WEBAPPS_TYPE_CONTEXT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+                              UNITY_WEBAPPS_TYPE_CONTEXT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
   g_object_class_install_property (object_class, PROP_CONTEXT, pspec);
   
   webapps_application_signals[TAB_APPEARED] = g_signal_new("tab-appeared",
-				    G_OBJECT_CLASS_TYPE (klass),
-				    0,
-				    0, NULL, NULL,
-				    g_cclosure_marshal_VOID__OBJECT,
-							   G_TYPE_NONE, 1,
-				    BAMF_TYPE_VIEW);
+                                    G_OBJECT_CLASS_TYPE (klass),
+                                    0,
+                                    0, NULL, NULL,
+                                    g_cclosure_marshal_VOID__OBJECT,
+                                                           G_TYPE_NONE, 1,
+                                    BAMF_TYPE_VIEW);
   
   
   g_type_class_add_private (klass, sizeof (BamfUnityWebappsApplicationPrivate));

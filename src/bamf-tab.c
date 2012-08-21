@@ -26,8 +26,8 @@ BAMF_TYPE_TAB, BamfTabPrivate))
 
 static void bamf_tab_dbus_iface_init (BamfDBusItemTabIface *iface);
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (BamfTab, bamf_tab, BAMF_TYPE_VIEW,
-				  G_IMPLEMENT_INTERFACE (BAMF_DBUS_ITEM_TYPE_TAB,
-							 bamf_tab_dbus_iface_init));
+                                  G_IMPLEMENT_INTERFACE (BAMF_DBUS_ITEM_TYPE_TAB,
+                                                         bamf_tab_dbus_iface_init));
 
 enum
 {
@@ -114,8 +114,8 @@ bamf_tab_finalize (GObject *object)
 
 static gboolean
 on_dbus_handle_raise (BamfDBusItemView *interface,
-		      GDBusMethodInvocation *invocation,
-		      BamfTab *self)
+                      GDBusMethodInvocation *invocation,
+                      BamfTab *self)
 {
   bamf_tab_raise (self);
   
@@ -126,8 +126,8 @@ on_dbus_handle_raise (BamfDBusItemView *interface,
 
 static gboolean
 on_dbus_handle_close (BamfDBusItemView *interface,
-		      GDBusMethodInvocation *invocation,
-		      BamfTab *self)
+                      GDBusMethodInvocation *invocation,
+                      BamfTab *self)
 {
   bamf_tab_close (self);
   
@@ -138,8 +138,8 @@ on_dbus_handle_close (BamfDBusItemView *interface,
 
 static void
 bamf_tab_preview_ready (BamfTab *self,
-			const gchar *preview_data,
-			gpointer user_data)
+                        const gchar *preview_data,
+                        gpointer user_data)
 {
   GDBusMethodInvocation *invocation;
   
@@ -150,8 +150,8 @@ bamf_tab_preview_ready (BamfTab *self,
 
 static gboolean
 on_dbus_handle_request_preview (BamfDBusItemView *interface,
-				GDBusMethodInvocation *invocation,
-				BamfTab *self)
+                                GDBusMethodInvocation *invocation,
+                                BamfTab *self)
 {
   bamf_tab_request_preview (self, bamf_tab_preview_ready, invocation);
   
@@ -166,14 +166,14 @@ bamf_tab_init (BamfTab *self)
   self->priv->dbus_iface = bamf_dbus_item_tab_skeleton_new ();
   
   g_signal_connect (self->priv->dbus_iface, "handle-raise",
-		    G_CALLBACK (on_dbus_handle_raise), self);
+                    G_CALLBACK (on_dbus_handle_raise), self);
   g_signal_connect (self->priv->dbus_iface, "handle-close",
-		    G_CALLBACK (on_dbus_handle_close), self);
+                    G_CALLBACK (on_dbus_handle_close), self);
   g_signal_connect (self->priv->dbus_iface, "handle-request-preview",
-		    G_CALLBACK (on_dbus_handle_request_preview), self);
+                    G_CALLBACK (on_dbus_handle_request_preview), self);
   
   bamf_dbus_item_object_skeleton_set_tab (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
-					  self->priv->dbus_iface);
+                                          self->priv->dbus_iface);
 }
 
 

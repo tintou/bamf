@@ -39,12 +39,12 @@
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 
-#define BAMF_TYPE_MATCHER			(bamf_matcher_get_type ())
-#define BAMF_MATCHER(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_MATCHER, BamfMatcher))
-#define BAMF_IS_MATCHER(obj)			(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_MATCHER))
-#define BAMF_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_MATCHER, BamfMatcherClass))
-#define BAMF_IS_MATCHER_CLASS(klass)		(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_MATCHER))
-#define BAMF_MATCHER_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_MATCHER, BamfMatcherClass))
+#define BAMF_TYPE_MATCHER                       (bamf_matcher_get_type ())
+#define BAMF_MATCHER(obj)                       (G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_MATCHER, BamfMatcher))
+#define BAMF_IS_MATCHER(obj)                    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_MATCHER))
+#define BAMF_MATCHER_CLASS(klass)               (G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_MATCHER, BamfMatcherClass))
+#define BAMF_IS_MATCHER_CLASS(klass)            (G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_MATCHER))
+#define BAMF_MATCHER_GET_CLASS(obj)             (G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_MATCHER, BamfMatcherClass))
 
 #define _NET_WM_DESKTOP_FILE "_NET_WM_DESKTOP_FILE"
 #define WM_WINDOW_ROLE       "WM_WINDOW_ROLE"

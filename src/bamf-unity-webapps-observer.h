@@ -37,14 +37,14 @@ typedef struct _BamfUnityWebappsObserver BamfUnityWebappsObserver;
 
 
 struct _BamfUnityWebappsObserver {
-	GObject object;
+        GObject object;
 
-	BamfUnityWebappsObserverPrivate *priv;
+        BamfUnityWebappsObserverPrivate *priv;
 };
 
 
 struct _BamfUnityWebappsObserverClass {
-	GObjectClass parent_class;
+        GObjectClass parent_class;
 };
 
 GType bamf_unity_webapps_observer_get_type (void) G_GNUC_CONST;

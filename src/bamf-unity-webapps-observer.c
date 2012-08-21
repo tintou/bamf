@@ -46,8 +46,8 @@ static guint webapps_observer_signals[LAST_SIGNAL] = { 0 };
 
 static void
 bamf_unity_webapps_observer_context_vanished (UnityWebappsService *service,
-					     const gchar *name,
-					     gpointer user_data)
+                                             const gchar *name,
+                                             gpointer user_data)
 {
   BamfUnityWebappsObserver *observer;
   BamfApplication *application;
@@ -68,7 +68,7 @@ bamf_unity_webapps_observer_context_vanished (UnityWebappsService *service,
 
 static void 
 bamf_unity_webapps_application_closed (BamfView *view,
-				       gpointer user_data)
+                                       gpointer user_data)
 {
   BamfUnityWebappsObserver *observer;
   BamfUnityWebappsApplication *application;
@@ -89,8 +89,8 @@ bamf_unity_webapps_application_closed (BamfView *view,
 
 static void
 bamf_unity_webapps_observer_context_appeared (UnityWebappsService *service,
-					      const gchar *name,
-					      gpointer user_data)
+                                              const gchar *name,
+                                              gpointer user_data)
 {
   BamfUnityWebappsObserver *observer;
   UnityWebappsContext *context;
@@ -109,7 +109,7 @@ bamf_unity_webapps_observer_context_appeared (UnityWebappsService *service,
   application = bamf_unity_webapps_application_new (context);
   
   g_signal_connect (G_OBJECT (application), "closed-internal", G_CALLBACK (bamf_unity_webapps_application_closed),
-		    observer);
+                    observer);
 
   g_hash_table_insert (observer->priv->applications_by_context_name, g_strdup (name), application);
   
@@ -118,7 +118,7 @@ bamf_unity_webapps_observer_context_appeared (UnityWebappsService *service,
 
 static void
 bamf_unity_webapps_observer_register_existing_contexts (BamfUnityWebappsObserver *observer,
-							UnityWebappsService *service)
+                                                        UnityWebappsService *service)
 {
   gchar **contexts;
   gint i, len;
@@ -143,9 +143,9 @@ bamf_unity_webapps_observer_register_existing_contexts (BamfUnityWebappsObserver
 
 static void
 bamf_unity_webapps_observer_service_appeared (GDBusConnection *connection,
-					      const gchar *name,
-					      const gchar *name_owner,
-					      gpointer user_data)
+                                              const gchar *name,
+                                              const gchar *name_owner,
+                                              gpointer user_data)
 {
   BamfUnityWebappsObserver *observer;
   
@@ -170,7 +170,7 @@ bamf_unity_webapps_observer_close_all (BamfUnityWebappsObserver *observer)
   for (walk = names; walk != NULL; walk = walk->next)
     {
       bamf_unity_webapps_observer_context_vanished (observer->priv->service, (const gchar *)walk->data,
-						    observer);
+                                                    observer);
     }
   
   g_list_free (names);
@@ -180,8 +180,8 @@ bamf_unity_webapps_observer_close_all (BamfUnityWebappsObserver *observer)
 
 static void
 bamf_unity_webapps_observer_service_vanished (GDBusConnection *connection,
-					      const gchar *name,
-					      gpointer user_data)
+                                              const gchar *name,
+                                              gpointer user_data)
 {
   BamfUnityWebappsObserver *observer;
   observer = (BamfUnityWebappsObserver *)user_data;
@@ -225,11 +225,11 @@ bamf_unity_webapps_observer_constructed (GObject *object)
     }
 
   observer->priv->service_watch_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
-						       "com.canonical.Unity.Webapps.Service",
-						       G_BUS_NAME_WATCHER_FLAGS_NONE,
-						       bamf_unity_webapps_observer_service_appeared,
-						       bamf_unity_webapps_observer_service_vanished,
-						       observer, NULL /* User data free func */);
+                                                       "com.canonical.Unity.Webapps.Service",
+                                                       G_BUS_NAME_WATCHER_FLAGS_NONE,
+                                                       bamf_unity_webapps_observer_service_appeared,
+                                                       bamf_unity_webapps_observer_service_vanished,
+                                                       observer, NULL /* User data free func */);
 
 }
 
@@ -245,12 +245,12 @@ bamf_unity_webapps_observer_class_init (BamfUnityWebappsObserverClass *klass)
   
   webapps_observer_signals [APPLICATION_APPEARED] = 
     g_signal_new ("application-appeared",
-		  G_OBJECT_CLASS_TYPE (klass),
-		  0,
-		  0, NULL, NULL,
-		  g_cclosure_marshal_VOID__OBJECT,
-		  G_TYPE_NONE, 1,
-		  BAMF_TYPE_APPLICATION);
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1,
+                  BAMF_TYPE_APPLICATION);
   
 }
 
@@ -264,7 +264,7 @@ bamf_unity_webapps_observer_init (BamfUnityWebappsObserver *observer)
   observer->priv->service = NULL;
   
   observer->priv->applications_by_context_name = g_hash_table_new_full (g_str_hash, g_str_equal,
-									g_free, NULL);
+                                                                        g_free, NULL);
 }
 
 BamfUnityWebappsObserver *
