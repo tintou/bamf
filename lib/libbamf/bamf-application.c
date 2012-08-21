@@ -405,7 +405,7 @@ bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplicati
 }
 
 BamfView *
-bamf_application_get_focus_child (BamfApplication *application)
+bamf_application_get_focusable_child (BamfApplication *application)
 {
   BamfApplicationPrivate *priv;
   BamfView *ret;
@@ -419,7 +419,7 @@ bamf_application_get_focus_child (BamfApplication *application)
     return NULL;
 
   if (!dbus_g_proxy_call (priv->proxy,
-                          "FocusChild",
+                          "FocusableChild",
                           &error,
                           G_TYPE_INVALID,
                           G_TYPE_STRING, &path,

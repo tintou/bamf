@@ -80,7 +80,7 @@
       <arg name="objectpath" type="s" direction="out"/>
     </method>
 
-    <method name="FocusChild">
+    <method name="FocusableChild">
       <arg name="path" type="s" direction="out"/>
     </method>
 
