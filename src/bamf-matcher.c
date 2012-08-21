@@ -2897,8 +2897,8 @@ on_dbus_handle_window_stack_for_monitor (BamfDBusMatcher *interface,
 
 static void
 on_webapp_child_added (BamfView *application,
-		       BamfView *child,
-		       gpointer user_data)
+                       BamfView *child,
+                       gpointer user_data)
 {
   BamfMatcher *self;
   
@@ -2908,8 +2908,8 @@ on_webapp_child_added (BamfView *application,
 
 static void
 on_webapp_appeared (BamfUnityWebappsObserver *observer,
-		    BamfApplication *application,
-		    gpointer user_data)
+                    BamfApplication *application,
+                    gpointer user_data)
 {
   BamfMatcher *self;
   
@@ -2918,7 +2918,7 @@ on_webapp_appeared (BamfUnityWebappsObserver *observer,
   bamf_matcher_register_view_stealing_ref (self, (BamfView *)application);
   
   g_signal_connect (application, "tab-appeared", G_CALLBACK (on_webapp_child_added),
-		    self);
+                    self);
   bamf_unity_webapps_application_add_existing_interests (BAMF_UNITY_WEBAPPS_APPLICATION (application));
 }
 
@@ -3017,9 +3017,9 @@ bamf_matcher_init (BamfMatcher * self)
   priv->webapps_observer = bamf_unity_webapps_observer_new ();
   
   g_signal_connect (priv->webapps_observer,
-		    "application-appeared",
-		    G_CALLBACK (on_webapp_appeared),
-		    self);
+                    "application-appeared",
+                    G_CALLBACK (on_webapp_appeared),
+                    self);
 }
 
 static void

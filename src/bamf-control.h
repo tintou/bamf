@@ -27,12 +27,12 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 
-#define BAMF_TYPE_CONTROL			(bamf_control_get_type ())
-#define BAMF_CONTROL(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_CONTROL, BamfControl))
-#define BAMF_IS_CONTROL(obj)			(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_CONTROL))
-#define BAMF_CONTROL_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_CONTROL, BamfControlClass))
-#define BAMF_IS_CONTROL_CLASS(klass)		(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_CONTROL))
-#define BAMF_CONTROL_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_CONTROL, BamfControlClass))
+#define BAMF_TYPE_CONTROL                       (bamf_control_get_type ())
+#define BAMF_CONTROL(obj)                       (G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_CONTROL, BamfControl))
+#define BAMF_IS_CONTROL(obj)                    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_CONTROL))
+#define BAMF_CONTROL_CLASS(klass)               (G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_CONTROL, BamfControlClass))
+#define BAMF_IS_CONTROL_CLASS(klass)            (G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_CONTROL))
+#define BAMF_CONTROL_GET_CLASS(obj)             (G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_CONTROL, BamfControlClass))
 
 typedef struct _BamfControl BamfControl;
 typedef struct _BamfControlClass BamfControlClass;

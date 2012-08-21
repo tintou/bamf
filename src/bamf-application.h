@@ -27,12 +27,12 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BAMF_TYPE_APPLICATION			(bamf_application_get_type ())
-#define BAMF_APPLICATION(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_APPLICATION, BamfApplication))
-#define BAMF_IS_APPLICATION(obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_APPLICATION))
-#define BAMF_APPLICATION_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_APPLICATION, BamfApplicationClass))
-#define BAMF_IS_APPLICATION_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_APPLICATION))
-#define BAMF_APPLICATION_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_APPLICATION, BamfApplicationClass))
+#define BAMF_TYPE_APPLICATION                   (bamf_application_get_type ())
+#define BAMF_APPLICATION(obj)                   (G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_APPLICATION, BamfApplication))
+#define BAMF_IS_APPLICATION(obj)                (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_APPLICATION))
+#define BAMF_APPLICATION_CLASS(klass)           (G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_APPLICATION, BamfApplicationClass))
+#define BAMF_IS_APPLICATION_CLASS(klass)        (G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_APPLICATION))
+#define BAMF_APPLICATION_GET_CLASS(obj)         (G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_APPLICATION, BamfApplicationClass))
 
 typedef struct _BamfApplication BamfApplication;
 typedef struct _BamfApplicationClass BamfApplicationClass;

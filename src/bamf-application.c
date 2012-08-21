@@ -70,7 +70,7 @@ bamf_application_get_icon (BamfView *view)
 
 void
 bamf_application_supported_mime_types_changed (BamfApplication *application,
-					       const gchar **maybe_mimes)
+                                               const gchar **maybe_mimes)
 {
   gchar **mimes;
 
@@ -302,9 +302,9 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
           do
             {
               class = bamf_legacy_window_get_class_name (bamf_window_get_window (window));
-	      
-	      if (class == NULL)
-		break;
+              
+              if (class == NULL)
+                break;
 
               icon = g_utf8_strdown (class, -1);
 
@@ -376,7 +376,7 @@ bamf_application_set_desktop_file (BamfApplication *application,
 
 gboolean
 bamf_application_set_desktop_file_from_id (BamfApplication *application,
-					   const char *desktop_id)
+                                           const char *desktop_id)
 {
   GDesktopAppInfo *info;
   const char *filename;
@@ -429,11 +429,11 @@ bamf_application_get_xids (BamfApplication *application)
       view = l->data;
 
       if (BAMF_IS_WINDOW (view))
-	xid = bamf_window_get_xid (BAMF_WINDOW (view));
+        xid = bamf_window_get_xid (BAMF_WINDOW (view));
       else if (BAMF_IS_TAB (view))
-	xid = bamf_tab_get_xid (BAMF_TAB (view));
+        xid = bamf_tab_get_xid (BAMF_TAB (view));
       else
-	continue;
+        continue;
       g_variant_builder_add (&b, "u", xid);
     }
 
@@ -642,7 +642,7 @@ bamf_application_child_added (BamfView *view, BamfView *child)
   if (BAMF_IS_TAB (child))
     {
       g_signal_connect (G_OBJECT (child), "notify::xid",
-			(GCallback) view_xid_changed, view);
+                        (GCallback) view_xid_changed, view);
     }
 
   bamf_application_ensure_flags (BAMF_APPLICATION (view));
@@ -793,8 +793,8 @@ on_dbus_handle_xids (BamfDBusItemApplication *interface,
 
 static gboolean
 on_dbus_handle_focusable_child (BamfDBusItemApplication *interface,
-			   GDBusMethodInvocation *invocation,
-			   BamfApplication *self)
+                           GDBusMethodInvocation *invocation,
+                           BamfApplication *self)
 {
   GVariant *out_variant;
   BamfView *focusable_child;
@@ -864,8 +864,8 @@ on_dbus_handle_supported_mime_types (BamfDBusItemApplication *interface,
 
 static gboolean
 on_dbus_handle_application_menu (BamfDBusItemApplication *interface,
-				 GDBusMethodInvocation *invocation,
-				 BamfApplication *self)
+                                 GDBusMethodInvocation *invocation,
+                                 BamfApplication *self)
 {
   gchar *name, *path;
   
@@ -875,7 +875,7 @@ on_dbus_handle_application_menu (BamfDBusItemApplication *interface,
   path = path ? path : "";
   
   g_dbus_method_invocation_return_value (invocation,
-					 g_variant_new ("(ss)", name, path));
+                                         g_variant_new ("(ss)", name, path));
   
   return TRUE;
 }
@@ -987,7 +987,7 @@ bamf_application_init (BamfApplication * self)
                     G_CALLBACK (on_dbus_handle_supported_mime_types), self);
 
   g_signal_connect (priv->dbus_iface, "handle-application-menu",
-		    G_CALLBACK (on_dbus_handle_application_menu), self);
+                    G_CALLBACK (on_dbus_handle_application_menu), self);
 
   g_signal_connect (priv->dbus_iface, "handle-application-type",
                     G_CALLBACK (on_dbus_handle_application_type), self);
@@ -1028,13 +1028,13 @@ bamf_application_class_init (BamfApplicationClass * klass)
   
   application_signals[SUPPORTED_MIMES_CHANGED] = 
     g_signal_new ("supported-mimes-changed",
-		  G_OBJECT_CLASS_TYPE (klass),
-		  G_SIGNAL_RUN_FIRST,
-		  G_STRUCT_OFFSET (BamfApplicationClass, supported_mimes_changed),
-		  NULL, NULL,
-		  g_cclosure_marshal_generic,
-		  G_TYPE_NONE, 1,
-		  G_TYPE_STRV);		  
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfApplicationClass, supported_mimes_changed),
+                  NULL, NULL,
+                  g_cclosure_marshal_generic,
+                  G_TYPE_NONE, 1,
+                  G_TYPE_STRV);           
 }
 
 BamfApplication *

@@ -24,12 +24,12 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BAMF_TYPE_TAB			(bamf_tab_get_type ())
-#define BAMF_TAB(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_TAB, BamfTab))
-#define BAMF_IS_TAB(obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_TAB))
-#define BAMF_TAB_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_TAB, BamfTabClass))
-#define BAMF_IS_TAB_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_TAB))
-#define BAMF_TAB_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_TAB, BamfTabClass))
+#define BAMF_TYPE_TAB                   (bamf_tab_get_type ())
+#define BAMF_TAB(obj)                   (G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_TAB, BamfTab))
+#define BAMF_IS_TAB(obj)                (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_TAB))
+#define BAMF_TAB_CLASS(klass)           (G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_TAB, BamfTabClass))
+#define BAMF_IS_TAB_CLASS(klass)        (G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_TAB))
+#define BAMF_TAB_GET_CLASS(obj)         (G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_TAB, BamfTabClass))
 
 typedef struct _BamfTab BamfTab;
 typedef struct _BamfTabClass BamfTabClass;

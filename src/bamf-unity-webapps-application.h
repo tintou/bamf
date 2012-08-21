@@ -26,12 +26,12 @@
 #include "bamf-application.h"
 
 
-#define BAMF_TYPE_UNITY_WEBAPPS_APPLICATION			(bamf_unity_webapps_application_get_type ())
-#define BAMF_UNITY_WEBAPPS_APPLICATION(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_UNITY_WEBAPPS_APPLICATION, BamfUnityWebappsApplication))
-#define BAMF_IS_UNITY_WEBAPPS_APPLICATION(obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_UNITY_WEBAPPS_APPLICATION))
-#define BAMF_UNITY_WEBAPPS_APPLICATION_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_UNITY_WEBAPPS_APPLICATION, BamfUnityWebappsApplicationClass))
-#define BAMF_IS_UNITY_WEBAPPS_APPLICATION_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_UNITY_WEBAPPS_APPLICATION))
-#define BAMF_UNITY_WEBAPPS_APPLICATION_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_UNITY_WEBAPPS_APPLICATION, BamfUnityWebappsUnityWebappsApplicationClass))
+#define BAMF_TYPE_UNITY_WEBAPPS_APPLICATION                     (bamf_unity_webapps_application_get_type ())
+#define BAMF_UNITY_WEBAPPS_APPLICATION(obj)                     (G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_UNITY_WEBAPPS_APPLICATION, BamfUnityWebappsApplication))
+#define BAMF_IS_UNITY_WEBAPPS_APPLICATION(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_UNITY_WEBAPPS_APPLICATION))
+#define BAMF_UNITY_WEBAPPS_APPLICATION_CLASS(klass)             (G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_UNITY_WEBAPPS_APPLICATION, BamfUnityWebappsApplicationClass))
+#define BAMF_IS_UNITY_WEBAPPS_APPLICATION_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_UNITY_WEBAPPS_APPLICATION))
+#define BAMF_UNITY_WEBAPPS_APPLICATION_GET_CLASS(obj)           (G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_UNITY_WEBAPPS_APPLICATION, BamfUnityWebappsUnityWebappsApplicationClass))
 
 typedef struct _BamfUnityWebappsApplication BamfUnityWebappsApplication;
 typedef struct _BamfUnityWebappsApplicationClass BamfUnityWebappsApplicationClass;
