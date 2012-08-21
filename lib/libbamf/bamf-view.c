@@ -548,7 +548,7 @@ bamf_view_on_child_added (DBusGProxy *proxy, char *path, BamfView *self)
   
   if (BAMF_IS_TAB (view))
     g_signal_connect (view, "notify::xid", 
-		      G_CALLBACK (bamf_view_child_xid_changed), self);
+                      G_CALLBACK (bamf_view_child_xid_changed), self);
 
   if (priv->cached_children)
     {
@@ -1020,83 +1020,83 @@ bamf_view_class_init (BamfViewClass *klass)
   g_type_class_add_private (obj_class, sizeof (BamfViewPrivate));
 
   view_signals [ACTIVE_CHANGED] = 
-  	g_signal_new ("active-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, active_changed), 
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
-  	              G_TYPE_BOOLEAN);
+        g_signal_new ("active-changed",
+                      G_OBJECT_CLASS_TYPE (klass),
+                      G_SIGNAL_RUN_FIRST,
+                      G_STRUCT_OFFSET (BamfViewClass, active_changed), 
+                      NULL, NULL,
+                      g_cclosure_marshal_VOID__BOOLEAN,
+                      G_TYPE_NONE, 1, 
+                      G_TYPE_BOOLEAN);
 
   view_signals [CLOSED] = 
-  	g_signal_new ("closed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, closed), 
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__VOID,
-  	              G_TYPE_NONE, 0);
+        g_signal_new ("closed",
+                      G_OBJECT_CLASS_TYPE (klass),
+                      G_SIGNAL_RUN_FIRST,
+                      G_STRUCT_OFFSET (BamfViewClass, closed), 
+                      NULL, NULL,
+                      g_cclosure_marshal_VOID__VOID,
+                      G_TYPE_NONE, 0);
 
   view_signals [CHILD_ADDED] = 
-  	g_signal_new ("child-added",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, child_added), 
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1, 
-  	              BAMF_TYPE_VIEW);
+        g_signal_new ("child-added",
+                      G_OBJECT_CLASS_TYPE (klass),
+                      G_SIGNAL_RUN_FIRST,
+                      G_STRUCT_OFFSET (BamfViewClass, child_added), 
+                      NULL, NULL,
+                      g_cclosure_marshal_VOID__OBJECT,
+                      G_TYPE_NONE, 1, 
+                      BAMF_TYPE_VIEW);
 
   view_signals [CHILD_REMOVED] = 
-  	g_signal_new ("child-removed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, child_removed), 
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1, 
-  	              BAMF_TYPE_VIEW);
+        g_signal_new ("child-removed",
+                      G_OBJECT_CLASS_TYPE (klass),
+                      G_SIGNAL_RUN_FIRST,
+                      G_STRUCT_OFFSET (BamfViewClass, child_removed), 
+                      NULL, NULL,
+                      g_cclosure_marshal_VOID__OBJECT,
+                      G_TYPE_NONE, 1, 
+                      BAMF_TYPE_VIEW);
   
   view_signals [CHILD_MOVED] = 
     g_signal_new ("child-moved",
-		  G_OBJECT_CLASS_TYPE (klass),
-		  G_SIGNAL_RUN_FIRST,
-		  0,
-		  NULL, NULL,
-		  g_cclosure_marshal_VOID__OBJECT,
-		  G_TYPE_NONE, 1,
-		  BAMF_TYPE_VIEW);
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  0,
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1,
+                  BAMF_TYPE_VIEW);
 
   view_signals [RUNNING_CHANGED] = 
-  	g_signal_new ("running-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, running_changed), 
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
-  	              G_TYPE_BOOLEAN);
+        g_signal_new ("running-changed",
+                      G_OBJECT_CLASS_TYPE (klass),
+                      G_SIGNAL_RUN_FIRST,
+                      G_STRUCT_OFFSET (BamfViewClass, running_changed), 
+                      NULL, NULL,
+                      g_cclosure_marshal_VOID__BOOLEAN,
+                      G_TYPE_NONE, 1, 
+                      G_TYPE_BOOLEAN);
 
   view_signals [URGENT_CHANGED] = 
-  	g_signal_new ("urgent-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, urgent_changed), 
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
-  	              G_TYPE_BOOLEAN);
+        g_signal_new ("urgent-changed",
+                      G_OBJECT_CLASS_TYPE (klass),
+                      G_SIGNAL_RUN_FIRST,
+                      G_STRUCT_OFFSET (BamfViewClass, urgent_changed), 
+                      NULL, NULL,
+                      g_cclosure_marshal_VOID__BOOLEAN,
+                      G_TYPE_NONE, 1, 
+                      G_TYPE_BOOLEAN);
   
   view_signals [VISIBLE_CHANGED] = 
-  	g_signal_new ("user-visible-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              G_STRUCT_OFFSET (BamfViewClass, user_visible_changed), 
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__BOOLEAN,
-  	              G_TYPE_NONE, 1, 
-  	              G_TYPE_BOOLEAN);
+        g_signal_new ("user-visible-changed",
+                      G_OBJECT_CLASS_TYPE (klass),
+                      G_SIGNAL_RUN_FIRST,
+                      G_STRUCT_OFFSET (BamfViewClass, user_visible_changed), 
+                      NULL, NULL,
+                      g_cclosure_marshal_VOID__BOOLEAN,
+                      G_TYPE_NONE, 1, 
+                      G_TYPE_BOOLEAN);
 
   view_signals [NAME_CHANGED] =
         g_signal_new ("name-changed",
@@ -1104,8 +1104,8 @@ bamf_view_class_init (BamfViewClass *klass)
                       0,
                       0, NULL, NULL,
                       _bamf_marshal_VOID__STRING_STRING,
-  	              G_TYPE_NONE, 2,
-  	              G_TYPE_STRING,
+                      G_TYPE_NONE, 2,
+                      G_TYPE_STRING,
                       G_TYPE_STRING);
 }
 

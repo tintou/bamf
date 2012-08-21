@@ -467,9 +467,9 @@ bamf_application_unset_proxy (BamfApplication* self)
                                  (GCallback) bamf_application_on_window_removed,
                                  self);
   dbus_g_proxy_disconnect_signal (priv->proxy,
-				  "SupportedMimeTypesChanged",
-				  (GCallback) bamf_application_on_supported_mime_types_changed,
-				  self);
+                                  "SupportedMimeTypesChanged",
+                                  (GCallback) bamf_application_on_supported_mime_types_changed,
+                                  self);
 
   g_object_unref (priv->proxy);
   priv->proxy = NULL;
@@ -607,23 +607,23 @@ bamf_application_load_data_from_file (BamfApplication *self)
   name = g_strdup (g_app_info_get_name (G_APP_INFO (desktop_info)));
 
   if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL))
-		{
-		  /* Grab the better name if its available */
-		  gchar *fullname = NULL;
-		  error = NULL;
-		  fullname = g_key_file_get_locale_string (keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL, &error);
-		  if (error != NULL)
-		    {
-		      g_error_free (error);
-		      if (fullname)
-		        g_free (fullname);
-		    }
-		  else
-		    {
-		      g_free (name);
-		      name = fullname;
-		    }
-		}
+                {
+                  /* Grab the better name if its available */
+                  gchar *fullname = NULL;
+                  error = NULL;
+                  fullname = g_key_file_get_locale_string (keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL, &error);
+                  if (error != NULL)
+                    {
+                      g_error_free (error);
+                      if (fullname)
+                        g_free (fullname);
+                    }
+                  else
+                    {
+                      g_free (name);
+                      name = fullname;
+                    }
+                }
 
   _bamf_view_set_name (BAMF_VIEW (self), name);
 
@@ -653,22 +653,22 @@ bamf_application_class_init (BamfApplicationClass *klass)
   g_type_class_add_private (obj_class, sizeof (BamfApplicationPrivate));
 
   application_signals [WINDOW_ADDED] =
-  	g_signal_new ("window-added",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1,
-  	              BAMF_TYPE_VIEW);
+        g_signal_new ("window-added",
+                      G_OBJECT_CLASS_TYPE (klass),
+                      0,
+                      0, NULL, NULL,
+                      g_cclosure_marshal_VOID__OBJECT,
+                      G_TYPE_NONE, 1,
+                      BAMF_TYPE_VIEW);
 
   application_signals [WINDOW_REMOVED] =
-  	g_signal_new ("window-removed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1,
-  	              BAMF_TYPE_VIEW);
+        g_signal_new ("window-removed",
+                      G_OBJECT_CLASS_TYPE (klass),
+                      0,
+                      0, NULL, NULL,
+                      g_cclosure_marshal_VOID__OBJECT,
+                      G_TYPE_NONE, 1,
+                      BAMF_TYPE_VIEW);
 }
 
 

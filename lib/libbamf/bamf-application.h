@@ -90,8 +90,8 @@ BamfView * bamf_application_get_focusable_child (BamfApplication *application);
 gboolean          bamf_application_get_show_menu_stubs  (BamfApplication *application);
 
 gboolean bamf_application_get_application_menu (BamfApplication *application,
-						gchar **name,
-						gchar **object_path);
+                                                gchar **name,
+                                                gchar **object_path);
 
 G_END_DECLS
 

@@ -68,8 +68,8 @@ G_DEFINE_TYPE (BamfTab, bamf_tab, BAMF_TYPE_VIEW)
 
 static void
 bamf_tab_got_properties (DBusGProxy *proxy,
-			 DBusGProxyCall *call_id,
-			 void *user_data)
+                         DBusGProxyCall *call_id,
+                         void *user_data)
 {
   BamfTab *self;
   GHashTable *properties;
@@ -83,8 +83,8 @@ bamf_tab_got_properties (DBusGProxy *proxy,
   error = NULL;
   
   dbus_g_proxy_end_call (proxy, call_id, &error,
-			 dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE), &properties,
-			 G_TYPE_INVALID);
+                         dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE), &properties,
+                         G_TYPE_INVALID);
 
   if (error != NULL)
     {
@@ -113,21 +113,21 @@ static void
 bamf_tab_fetch_properties (BamfTab *self)
 {
   dbus_g_proxy_begin_call (self->priv->properties_proxy,
-			   "GetAll", 
-			   bamf_tab_got_properties,
-			   g_object_ref (G_OBJECT (self)),
-			   (GDestroyNotify)g_object_unref,
-			   G_TYPE_STRING, "org.ayatana.bamf.tab",
-			   G_TYPE_INVALID);
+                           "GetAll", 
+                           bamf_tab_got_properties,
+                           g_object_ref (G_OBJECT (self)),
+                           (GDestroyNotify)g_object_unref,
+                           G_TYPE_STRING, "org.ayatana.bamf.tab",
+                           G_TYPE_INVALID);
   
 }
 
 static void
 bamf_tab_on_properties_changed (DBusGProxy *proxy,
-				const gchar *interface_name,
-				GHashTable *changed_properties,
-				const gchar **invalidated_properties,
-				gpointer user_data)
+                                const gchar *interface_name,
+                                GHashTable *changed_properties,
+                                const gchar **invalidated_properties,
+                                gpointer user_data)
 {
   BamfTab *self;
   GHashTableIter iter;
@@ -170,9 +170,9 @@ bamf_tab_set_path (BamfView *view, const gchar *path)
   bamf_tab_unset_proxy (self);
   
   self->priv->tab_proxy = dbus_g_proxy_new_for_name (self->priv->connection,
-						 "org.ayatana.bamf",
-						 path,
-						 "org.ayatana.bamf.tab");
+                                                 "org.ayatana.bamf",
+                                                 path,
+                                                 "org.ayatana.bamf.tab");
   
   if (self->priv->tab_proxy == NULL)
     {
@@ -181,9 +181,9 @@ bamf_tab_set_path (BamfView *view, const gchar *path)
     }
   
   self->priv->properties_proxy = dbus_g_proxy_new_for_name (self->priv->connection,
-							    "org.ayatana.bamf",
-							    path,
-							    "org.freedesktop.DBus.Properties");
+                                                            "org.ayatana.bamf",
+                                                            path,
+                                                            "org.freedesktop.DBus.Properties");
 
   if (self->priv->properties_proxy == NULL)
     {
@@ -194,23 +194,23 @@ bamf_tab_set_path (BamfView *view, const gchar *path)
   bamf_tab_fetch_properties (self);
   
   dbus_g_object_register_marshaller ((GClosureMarshal) _bamf_marshal_VOID__STRING_BOXED_POINTER,
-				     G_TYPE_NONE,
-				     G_TYPE_STRING,
-				     G_TYPE_BOXED,
-				     G_TYPE_STRV,
-				     G_TYPE_INVALID);
+                                     G_TYPE_NONE,
+                                     G_TYPE_STRING,
+                                     G_TYPE_BOXED,
+                                     G_TYPE_STRV,
+                                     G_TYPE_INVALID);
   
   dbus_g_proxy_add_signal (self->priv->properties_proxy,
-			   "PropertiesChanged",
-			   G_TYPE_STRING,
-			   dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE),
-			   G_TYPE_STRV,
-			   G_TYPE_INVALID);
+                           "PropertiesChanged",
+                           G_TYPE_STRING,
+                           dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE),
+                           G_TYPE_STRV,
+                           G_TYPE_INVALID);
   dbus_g_proxy_connect_signal (self->priv->properties_proxy,
-			       "PropertiesChanged",
-			       (GCallback) bamf_tab_on_properties_changed,
-			       self,
-			       NULL);
+                               "PropertiesChanged",
+                               (GCallback) bamf_tab_on_properties_changed,
+                               self,
+                               NULL);
  }
 
 static void
@@ -278,9 +278,9 @@ bamf_tab_unset_proxy (BamfTab *self)
   if (self->priv->properties_proxy)
     {
       dbus_g_proxy_disconnect_signal (self->priv->properties_proxy,
-				      "PropertiesChanged",
-				      (GCallback) bamf_tab_on_properties_changed,
-				      self);
+                                      "PropertiesChanged",
+                                      (GCallback) bamf_tab_on_properties_changed,
+                                      self);
       g_object_unref (G_OBJECT (self->priv->properties_proxy));
       self->priv->properties_proxy = NULL;
     }
@@ -332,19 +332,19 @@ bamf_tab_class_init (BamfTabClass *klass)
   view_class->set_path = bamf_tab_set_path;
 
   pspec = g_param_spec_string("location", "Location", "The Current location of the remote Tab",
-			      NULL, G_PARAM_READWRITE);
+                              NULL, G_PARAM_READWRITE);
   g_object_class_install_property (obj_class, PROP_LOCATION, pspec);
   
   pspec = g_param_spec_string("desktop-id", "Desktop Name", "The Desktop ID assosciated with the application hosted in the remote Tab",
-			      NULL, G_PARAM_READWRITE);
+                              NULL, G_PARAM_READWRITE);
   g_object_class_install_property (obj_class, PROP_DESKTOP_ID, pspec);
   
   pspec = g_param_spec_uint64("xid", "xid", "XID for the toplevel window containing the remote Tab",
-			      0, G_MAXUINT64, 0, G_PARAM_READWRITE);
+                              0, G_MAXUINT64, 0, G_PARAM_READWRITE);
   g_object_class_install_property (obj_class, PROP_XID, pspec);
   
   pspec = g_param_spec_boolean("is-foreground-tab", "Foreground tab", "Whether the tab is the foreground tab in it's toplevel container",
-			       FALSE, G_PARAM_READWRITE);
+                               FALSE, G_PARAM_READWRITE);
   g_object_class_install_property (obj_class, PROP_IS_FOREGROUND_TAB, pspec);
   
   g_type_class_add_private (obj_class, sizeof(BamfTabPrivate));
@@ -402,9 +402,9 @@ bamf_tab_raise (BamfTab *self)
   error = NULL;
   
   if (!dbus_g_proxy_call (self->priv->tab_proxy,
-			  "Raise",
-			  &error,
-			  G_TYPE_INVALID))
+                          "Raise",
+                          &error,
+                          G_TYPE_INVALID))
     {
       g_warning ("Failed to invoke Raise method: %s", error->message);
       g_error_free (error);
@@ -428,9 +428,9 @@ bamf_tab_close (BamfTab *self)
   error = NULL;
   
   if (!dbus_g_proxy_call (self->priv->tab_proxy,
-			  "Close",
-			  &error,
-			  G_TYPE_INVALID))
+                          "Close",
+                          &error,
+                          G_TYPE_INVALID))
     {
       g_warning ("Failed to invoke Close method: %s", error->message);
       g_error_free (error);
@@ -449,8 +449,8 @@ typedef struct _bamf_tab_preview_request_user_data {
 
 static void
 bamf_tab_on_preview_ready (DBusGProxy *proxy,
-			   DBusGProxyCall *call_id,
-			   gpointer user_data)
+                           DBusGProxyCall *call_id,
+                           gpointer user_data)
 {
   BamfTab *self;
   bamf_tab_preview_request_user_data *data;
@@ -491,11 +491,11 @@ bamf_tab_request_preview (BamfTab *self, BamfTabPreviewReadyCallback callback, g
   data->user_data = user_data;
   
   dbus_g_proxy_begin_call (self->priv->tab_proxy,
-			   "RequestPreview",
-			   bamf_tab_on_preview_ready,
-			   data,
-			   (GDestroyNotify)g_free,
-			   G_TYPE_INVALID);  
+                           "RequestPreview",
+                           bamf_tab_on_preview_ready,
+                           data,
+                           (GDestroyNotify)g_free,
+                           G_TYPE_INVALID);  
   
  }
  
