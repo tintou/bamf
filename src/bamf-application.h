@@ -43,7 +43,7 @@ struct _BamfApplicationClass
   BamfViewClass parent;
   
   void (*get_application_menu) (BamfApplication *application, gchar **name, gchar **path);
-  BamfView* (*get_focus_child) (BamfApplication *application);
+  BamfView* (*get_focusable_child) (BamfApplication *application);
   char ** (*get_supported_mime_types) (BamfApplication *application);
   gboolean (*get_close_when_empty) (BamfApplication *application);
   void (*supported_mimes_changed) (BamfApplication *application, const gchar **mimes);
@@ -93,7 +93,7 @@ void bamf_application_set_application_type (BamfApplication *application, const 
 
 void bamf_application_get_application_menu (BamfApplication *application, gchar **name, gchar **object_path);
 
-BamfView        * bamf_application_get_focus_child             (BamfApplication *application);
+BamfView        * bamf_application_get_focusable_child             (BamfApplication *application);
 
 gboolean bamf_application_get_close_when_empty (BamfApplication *application);
 gboolean bamf_application_set_desktop_file_from_id (BamfApplication *application, const char *id);

@@ -85,7 +85,7 @@ GList           * bamf_application_get_windows          (BamfApplication *applic
 
 GArray          * bamf_application_get_xids             (BamfApplication *application);
 
-BamfView * bamf_application_get_focus_child (BamfApplication *application);
+BamfView * bamf_application_get_focusable_child (BamfApplication *application);
 
 gboolean          bamf_application_get_show_menu_stubs  (BamfApplication *application);
 
