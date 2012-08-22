@@ -27,17 +27,17 @@
 
 G_BEGIN_DECLS
 
-#define BAMF_TYPE_INDICATOR_SOURCE			(bamf_indicator_source_get_type ())
-#define BAMF_INDICATOR_SOURCE(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_INDICATOR_SOURCE, BamfIndicatorSource))
-#define BAMF_INDICATOR_SOURCE_CONST(obj)		(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_INDICATOR_SOURCE, BamfIndicatorSource const))
-#define BAMF_INDICATOR_SOURCE_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_INDICATOR_SOURCE, BamfIndicatorSourceClass))
-#define BAMF_IS_INDICATOR_SOURCE(obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_INDICATOR_SOURCE))
-#define BAMF_IS_INDICATOR_SOURCE_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_INDICATOR_SOURCE))
-#define BAMF_INDICATOR_SOURCE_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_INDICATOR_SOURCE, BamfIndicatorSourceClass))
+#define BAMF_TYPE_INDICATOR_SOURCE                      (bamf_indicator_source_get_type ())
+#define BAMF_INDICATOR_SOURCE(obj)                      (G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_INDICATOR_SOURCE, BamfIndicatorSource))
+#define BAMF_INDICATOR_SOURCE_CONST(obj)                (G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_INDICATOR_SOURCE, BamfIndicatorSource const))
+#define BAMF_INDICATOR_SOURCE_CLASS(klass)              (G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_INDICATOR_SOURCE, BamfIndicatorSourceClass))
+#define BAMF_IS_INDICATOR_SOURCE(obj)           (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_INDICATOR_SOURCE))
+#define BAMF_IS_INDICATOR_SOURCE_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_INDICATOR_SOURCE))
+#define BAMF_INDICATOR_SOURCE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_INDICATOR_SOURCE, BamfIndicatorSourceClass))
 
-typedef struct _BamfIndicatorSource	BamfIndicatorSource;
-typedef struct _BamfIndicatorSourceClass	BamfIndicatorSourceClass;
-typedef struct _BamfIndicatorSourcePrivate	BamfIndicatorSourcePrivate;
+typedef struct _BamfIndicatorSource     BamfIndicatorSource;
+typedef struct _BamfIndicatorSourceClass        BamfIndicatorSourceClass;
+typedef struct _BamfIndicatorSourcePrivate      BamfIndicatorSourcePrivate;
 
 enum
 {

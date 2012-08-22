@@ -26,12 +26,12 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BAMF_TYPE_LEGACY_SCREEN			(bamf_legacy_screen_get_type ())
-#define BAMF_LEGACY_SCREEN(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_LEGACY_SCREEN, BamfLegacyScreen))
-#define BAMF_IS_LEGACY_SCREEN(obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_LEGACY_SCREEN))
-#define BAMF_LEGACY_SCREEN_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_LEGACY_SCREEN, BamfLegacyScreenClass))
-#define BAMF_IS_LEGACY_SCREEN_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_LEGACY_SCREEN))
-#define BAMF_LEGACY_SCREEN_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_LEGACY_SCREEN, BamfLegacyScreenClass))
+#define BAMF_TYPE_LEGACY_SCREEN                 (bamf_legacy_screen_get_type ())
+#define BAMF_LEGACY_SCREEN(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_LEGACY_SCREEN, BamfLegacyScreen))
+#define BAMF_IS_LEGACY_SCREEN(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_LEGACY_SCREEN))
+#define BAMF_LEGACY_SCREEN_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_LEGACY_SCREEN, BamfLegacyScreenClass))
+#define BAMF_IS_LEGACY_SCREEN_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_LEGACY_SCREEN))
+#define BAMF_LEGACY_SCREEN_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_LEGACY_SCREEN, BamfLegacyScreenClass))
 
 #define BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENED         "window-opened"
 #define BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_CLOSED         "window-closed"
