@@ -121,6 +121,14 @@ AC_PATH_PROG([GLIB_GENMARSHAL], [glib-genmarshal])
 GTK_DOC_CHECK(1.0)
 
 ###########################
+# libunity_webapps
+###########################
+PKG_CHECK_MODULES(LIBUNITY_WEBAPPS, libunity_webapps-0.2)
+
+AC_SUBST(LIBUNITY_WEBAPPS_CFLAGS)
+AC_SUBST(LIBUNITY_WEBAPPS_LIBS)
+
+###########################
 # Headless tests
 ###########################
 AC_ARG_ENABLE([headless-tests],
