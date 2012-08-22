@@ -30,12 +30,12 @@
 #include <glib-object.h>
 #include <libwnck/libwnck.h>
 
-#define BAMF_TYPE_LEGACY_WINDOW			(bamf_legacy_window_get_type ())
-#define BAMF_LEGACY_WINDOW(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_LEGACY_WINDOW, BamfLegacyWindow))
-#define BAMF_IS_LEGACY_WINDOW(obj)		(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_LEGACY_WINDOW))
-#define BAMF_LEGACY_WINDOW_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_LEGACY_WINDOW, BamfLegacyWindowClass))
-#define BAMF_IS_LEGACY_WINDOW_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_LEGACY_WINDOW))
-#define BAMF_LEGACY_WINDOW_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_LEGACY_WINDOW, BamfLegacyWindowClass))
+#define BAMF_TYPE_LEGACY_WINDOW                 (bamf_legacy_window_get_type ())
+#define BAMF_LEGACY_WINDOW(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_LEGACY_WINDOW, BamfLegacyWindow))
+#define BAMF_IS_LEGACY_WINDOW(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_LEGACY_WINDOW))
+#define BAMF_LEGACY_WINDOW_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_LEGACY_WINDOW, BamfLegacyWindowClass))
+#define BAMF_IS_LEGACY_WINDOW_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_LEGACY_WINDOW))
+#define BAMF_LEGACY_WINDOW_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_LEGACY_WINDOW, BamfLegacyWindowClass))
 
 #define BAMF_LEGACY_WINDOW_SIGNAL_NAME_CHANGED     "name-changed"
 #define BAMF_LEGACY_WINDOW_SIGNAL_STATE_CHANGED    "state-changed"
