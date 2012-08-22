@@ -207,8 +207,11 @@ bamf_unity_webapps_observer_finalize (GObject *object)
   g_hash_table_destroy (observer->priv->applications_by_context_name);
   
   g_bus_unwatch_name (observer->priv->service_watch_id);
-  
-  g_object_unref (G_OBJECT (observer->priv->service));
+
+  if (observer->priv->service)
+    {
+      g_object_unref (G_OBJECT (observer->priv->service));
+    }
   
   G_OBJECT_CLASS (bamf_unity_webapps_observer_parent_class)->finalize (object);
 }
