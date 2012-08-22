@@ -31,19 +31,19 @@
 #define BAMF_TYPE_LEGACY_WINDOW_TEST (bamf_legacy_window_test_get_type ())
 
 #define BAMF_LEGACY_WINDOW_TEST(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj),\
-	BAMF_TYPE_LEGACY_WINDOW_TEST, BamfLegacyWindowTest))
+        BAMF_TYPE_LEGACY_WINDOW_TEST, BamfLegacyWindowTest))
 
 #define BAMF_LEGACY_WINDOW_TEST_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass),\
-	BAMF_TYPE_LEGACY_WINDOW_TEST, BamfLegacyWindowTestClass))
+        BAMF_TYPE_LEGACY_WINDOW_TEST, BamfLegacyWindowTestClass))
 
 #define BAMF_IS_LEGACY_WINDOW_TEST(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj),\
-	BAMF_TYPE_LEGACY_WINDOW_TEST))
+        BAMF_TYPE_LEGACY_WINDOW_TEST))
 
 #define BAMF_IS_LEGACY_WINDOW_TEST_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),\
-	BAMF_TYPE_LEGACY_WINDOW_TEST))
+        BAMF_TYPE_LEGACY_WINDOW_TEST))
 
 #define BAMF_LEGACY_WINDOW_TEST_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj),\
-	BAMF_TYPE_LEGACY_WINDOW_TEST, BamfLegacyWindowTestClass))
+        BAMF_TYPE_LEGACY_WINDOW_TEST, BamfLegacyWindowTestClass))
 
 typedef struct _BamfLegacyWindowTest        BamfLegacyWindowTest;
 typedef struct _BamfLegacyWindowTestClass   BamfLegacyWindowTestClass;

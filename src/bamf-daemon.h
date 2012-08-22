@@ -24,12 +24,12 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BAMF_TYPE_DAEMON			(bamf_daemon_get_type ())
-#define BAMF_DAEMON(obj)			(G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_DAEMON, BamfDaemon))
-#define BAMF_IS_DAEMON(obj)			(G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_DAEMON))
-#define BAMF_DAEMON_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_DAEMON, BamfDaemonClass))
-#define BAMF_IS_DAEMON_CLASS(klass)		(G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_DAEMON))
-#define BAMF_DAEMON_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_DAEMON, BamfDaemonClass))
+#define BAMF_TYPE_DAEMON                        (bamf_daemon_get_type ())
+#define BAMF_DAEMON(obj)                        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_DAEMON, BamfDaemon))
+#define BAMF_IS_DAEMON(obj)                     (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_DAEMON))
+#define BAMF_DAEMON_CLASS(klass)                (G_TYPE_CHECK_CLASS_CAST ((klass), BAMF_TYPE_DAEMON, BamfDaemonClass))
+#define BAMF_IS_DAEMON_CLASS(klass)             (G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_DAEMON))
+#define BAMF_DAEMON_GET_CLASS(obj)              (G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_DAEMON, BamfDaemonClass))
 
 typedef struct _BamfDaemon BamfDaemon;
 typedef struct _BamfDaemonClass BamfDaemonClass;
