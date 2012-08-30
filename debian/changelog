@@ -8,6 +8,8 @@ bamf (0.3.0-0ubuntu1) UNRELEASED; urgency=low
   [ Łukasz 'sil2100' Zemczak ]
   * New upstream release.
     - added webapps support
+  * debian/libbamf0.symbols:
+    - updated symbol file, removed some broken methods
 
  -- Łukasz 'sil2100' Zemczak <lukasz.zemczak@canonical.com>  Wed, 22 Aug 2012 19:31:48 +0200
 
