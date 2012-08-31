@@ -1,9 +1,17 @@
-bamf (0.2.122-0ubuntu2) UNRELEASED; urgency=low
+bamf (0.3.0-0ubuntu1) UNRELEASED; urgency=low
 
-  * debian/control: Build-Depends on libunity-webapps-dev to prepare
-    the landing of the branch using it
+  [ Sebastien Bacher ]
+  * debian/control: 
+    - Build-Depends on libunity-webapps-dev to prepare the landing of the 
+      branch using it
 
- -- Sebastien Bacher <seb128@ubuntu.com>  Wed, 22 Aug 2012 15:08:12 +0200
+  [ Łukasz 'sil2100' Zemczak ]
+  * New upstream release.
+    - added webapps support
+  * debian/libbamf0.symbols:
+    - updated symbol file, removed some broken methods
+
+ -- Łukasz 'sil2100' Zemczak <lukasz.zemczak@canonical.com>  Wed, 22 Aug 2012 19:31:48 +0200
 
 bamf (0.2.122-0ubuntu1) quantal-proposed; urgency=low
 
