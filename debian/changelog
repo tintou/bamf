@@ -1,4 +1,4 @@
-bamf (0.3.0-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.3.0-0ubuntu1) quantal-proposed; urgency=low
 
   * Note that while technically that update breaks compatibility by 
     dropping some public functions the corresponding code never worked and 
@@ -15,7 +15,7 @@ bamf (0.3.0-0ubuntu1) UNRELEASED; urgency=low
   * debian/libbamf0.symbols:
     - updated symbol file, removed some broken methods
 
- -- Sebastien Bacher <seb128@ubuntu.com>  Fri, 31 Aug 2012 19:47:32 +0200
+ -- Sebastien Bacher <seb128@ubuntu.com>  Fri, 31 Aug 2012 21:59:04 +0200
 
 bamf (0.2.122-0ubuntu1) quantal-proposed; urgency=low
 
