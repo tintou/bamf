@@ -1,9 +1,13 @@
 bamf (0.3.0-0ubuntu1) UNRELEASED; urgency=low
 
-  [ Sebastien Bacher ]
+  * Note that while technically that update breaks compatibility by 
+    dropping some public functions the corresponding code never worked and 
+    it has been verified those were not used by any rdepends.
   * debian/control: 
     - Build-Depends on libunity-webapps-dev to prepare the landing of the 
       branch using it
+  * debian/libbamf3-0.symbols:
+    - updated as well
 
   [ Łukasz 'sil2100' Zemczak ]
   * New upstream release.
@@ -11,7 +15,7 @@ bamf (0.3.0-0ubuntu1) UNRELEASED; urgency=low
   * debian/libbamf0.symbols:
     - updated symbol file, removed some broken methods
 
- -- Łukasz 'sil2100' Zemczak <lukasz.zemczak@canonical.com>  Wed, 22 Aug 2012 19:31:48 +0200
+ -- Sebastien Bacher <seb128@ubuntu.com>  Fri, 31 Aug 2012 19:47:32 +0200
 
 bamf (0.2.122-0ubuntu1) quantal-proposed; urgency=low
 
