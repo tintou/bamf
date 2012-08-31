@@ -78,10 +78,10 @@ on_state_file_load_timeout (BamfLegacyScreen *self)
     return FALSE;
 
   // Line format:
-  // open	<xid> 	<name>	<wmclass> <exec>
-  // close	<xid>
-  // attention	<xid>	<true/false>
-  // skip	<xid>	<true/false>
+  // open       <xid>   <name>  <wmclass> <exec>
+  // close      <xid>
+  // attention  <xid>   <true/false>
+  // skip       <xid>   <true/false>
   // geometry <xid> <x> <y> <width> <height>
   // maximized <xid> <maximized/vmaximized/hmaximized/floating>
 
