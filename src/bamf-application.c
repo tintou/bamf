@@ -576,7 +576,7 @@ bamf_application_ensure_flags (BamfApplication *self)
 
   close_when_empty = bamf_application_get_close_when_empty (self);
   bamf_view_set_urgent       (BAMF_VIEW (self), urgent);
-  if (!((close_when_empty == FALSE) && running == FALSE))
+  if (close_when_empty == TRUE || running == TRUE)
     bamf_view_set_user_visible (BAMF_VIEW (self), visible);
   if ((running == TRUE) || close_when_empty)
     bamf_view_set_running      (BAMF_VIEW (self), running);
