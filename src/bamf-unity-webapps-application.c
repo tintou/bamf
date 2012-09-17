@@ -304,7 +304,7 @@ bamf_unity_webapps_application_get_close_when_empty (BamfApplication *applicatio
   // Sometimes we might have no children for a short period (for example, the page is reloading), in the case
   // Unity Webapps will keep the context alive for a while. Allowing for new children to appear...before eventually
   // shutting it down. So we use this flag to ensure BAMF will not shut us down prematurely.
-  return TRUE;
+  return FALSE;
 }
 
 static void
