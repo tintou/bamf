@@ -1,8 +1,8 @@
-bamf (0.3.0-0ubuntu2~build1) quantal; urgency=low
+bamf (0.3.0-0ubuntu2) quantal-proposed; urgency=low
 
-  * rebuild for latest libunity-webapps
+  * rebuild against libunity-webapps 2.3.3
 
- -- Ken VanDine <ken.vandine@canonical.com>  Mon, 10 Sep 2012 12:52:54 -0400
+ -- Ken VanDine <ken.vandine@canonical.com>  Wed, 19 Sep 2012 12:32:09 -0400
 
 bamf (0.3.0-0ubuntu1) quantal-proposed; urgency=low
 
