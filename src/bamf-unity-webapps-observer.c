@@ -107,6 +107,8 @@ bamf_unity_webapps_observer_context_appeared (UnityWebappsService *service,
   context = unity_webapps_context_new_for_context_name (observer->priv->service, name);
 
   application = bamf_unity_webapps_application_new (context);
+
+  g_object_ref_sink (application);
   
   g_signal_connect (G_OBJECT (application), "closed-internal", G_CALLBACK (bamf_unity_webapps_application_closed),
                     observer);
