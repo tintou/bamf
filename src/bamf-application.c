@@ -44,11 +44,9 @@ struct _BamfApplicationPrivate
   char * app_type;
   char * icon;
   char * wmclass;
+  char ** mimes;
   gboolean is_tab_container;
   gboolean show_stubs;
-
-  gchar **mimes;
-  gboolean mimes_initialized;
 };
 
 enum {
@@ -70,32 +68,25 @@ bamf_application_get_icon (BamfView *view)
 
 void
 bamf_application_supported_mime_types_changed (BamfApplication *application,
-                                               const gchar **maybe_mimes)
+                                               const gchar **new_mimes)
 {
-  gchar **mimes;
+  gchar **mimes = (gchar **) new_mimes;
 
-  if (!maybe_mimes)
+  if (!new_mimes)
     {
       gchar *empty[] = {NULL};
-
-      mimes = g_strdupv (empty);
+      mimes = empty;
     }
-  
-  mimes = (gchar **)maybe_mimes;
 
   g_signal_emit_by_name (application->priv->dbus_iface, "supported-mime-types-changed", mimes);
-  application->priv->mimes_initialized = TRUE;
+
+  if (!new_mimes)
+    mimes = NULL;
 
   if (application->priv->mimes)
     g_strfreev (application->priv->mimes);
 
   application->priv->mimes = mimes;
-  
-  if (maybe_mimes == NULL)
-    {
-      g_strfreev (mimes);
-    }
-
 }
 
 static gboolean
@@ -116,7 +107,6 @@ bamf_application_default_get_supported_mime_types (BamfApplication *application)
   GError *error = NULL;
 
   g_key_file_load_from_file (key_file, desktop_file, (GKeyFileFlags) 0, &error);
-  application->priv->mimes_initialized = TRUE;
 
   if (error)
     {
@@ -139,14 +129,10 @@ bamf_application_get_supported_mime_types (BamfApplication *application)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
 
-  if (application->priv->mimes_initialized)
+  if (application->priv->mimes)
     return g_strdupv (application->priv->mimes);
 
   gchar **mimes = BAMF_APPLICATION_GET_CLASS (application)->get_supported_mime_types (application);
-
-  if (application->priv->mimes)
-    g_strfreev (application->priv->mimes);
-
   application->priv->mimes = mimes;
 
   return g_strdupv (mimes);
@@ -835,28 +821,30 @@ on_dbus_handle_desktop_file (BamfDBusItemApplication *interface,
 
 static gboolean
 on_dbus_handle_supported_mime_types (BamfDBusItemApplication *interface,
-                          GDBusMethodInvocation *invocation,
-                          BamfApplication *self)
+                                     GDBusMethodInvocation *invocation,
+                                     BamfApplication *self)
 {
-  gchar **mimes = bamf_application_get_supported_mime_types (self);
-
-  GVariantBuilder *builder;
+  GVariantBuilder b;
   GVariant *value;
   gchar **it;
 
-  builder = g_variant_builder_new (G_VARIANT_TYPE ("as"));
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("(as)"));
+  g_variant_builder_open (&b, G_VARIANT_TYPE ("as"));
+
+  gchar **mimes = bamf_application_get_supported_mime_types (self);
+
   if (mimes)
-    for (it = mimes; *it; it++)
-      {
-        g_variant_builder_add (builder, "s", *it);
-      }
-  value = g_variant_new ("(as)", builder);
+    {
+      for (it = mimes; *it; it++)
+        {
+          g_variant_builder_add (&b, "s", *it);
+        }
+    }
 
-  g_dbus_method_invocation_return_value (invocation,
-                                         value);
+  g_variant_builder_close (&b);
+  value = g_variant_builder_end (&b);
 
-  g_variant_builder_unref (builder);
-
+  g_dbus_method_invocation_return_value (invocation, value);
   g_strfreev (mimes);
 
   return TRUE;
@@ -868,15 +856,15 @@ on_dbus_handle_application_menu (BamfDBusItemApplication *interface,
                                  BamfApplication *self)
 {
   gchar *name, *path;
-  
+
   bamf_application_get_application_menu (self, &name, &path);
-  
+
   name = name ? name : "";
   path = path ? path : "";
-  
+
   g_dbus_method_invocation_return_value (invocation,
                                          g_variant_new ("(ss)", name, path));
-  
+
   return TRUE;
 }
 
@@ -1025,8 +1013,8 @@ bamf_application_class_init (BamfApplicationClass * klass)
   klass->supported_mimes_changed = bamf_application_supported_mime_types_changed;
 
   g_type_class_add_private (klass, sizeof (BamfApplicationPrivate));
-  
-  application_signals[SUPPORTED_MIMES_CHANGED] = 
+
+  application_signals[SUPPORTED_MIMES_CHANGED] =
     g_signal_new ("supported-mimes-changed",
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
@@ -1034,7 +1022,7 @@ bamf_application_class_init (BamfApplicationClass * klass)
                   NULL, NULL,
                   g_cclosure_marshal_generic,
                   G_TYPE_NONE, 1,
-                  G_TYPE_STRV);           
+                  G_TYPE_STRV);
 }
 
 BamfApplication *
