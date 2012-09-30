@@ -83,8 +83,6 @@ bamf_unity_webapps_application_closed (BamfView *view,
   context_name = unity_webapps_context_get_context_name (context);
   
   g_hash_table_remove (observer->priv->applications_by_context_name, context_name);
-  
-  g_object_unref (G_OBJECT (view));
 }
 
 static void
@@ -108,8 +106,6 @@ bamf_unity_webapps_observer_context_appeared (UnityWebappsService *service,
 
   application = bamf_unity_webapps_application_new (context);
 
-  g_object_ref_sink (application);
-  
   g_signal_connect (G_OBJECT (application), "closed-internal", G_CALLBACK (bamf_unity_webapps_application_closed),
                     observer);
 
