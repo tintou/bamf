@@ -75,13 +75,16 @@ bamf_application_supported_mime_types_changed (BamfApplication *application,
   if (!new_mimes)
     {
       gchar *empty[] = {NULL};
-      mimes = empty;
+      mimes = g_strdupv (empty);
     }
 
   g_signal_emit_by_name (application->priv->dbus_iface, "supported-mime-types-changed", mimes);
 
   if (!new_mimes)
+  {
+    g_strfreev (mimes);
     mimes = NULL;
+  }
 
   if (application->priv->mimes)
     g_strfreev (application->priv->mimes);
