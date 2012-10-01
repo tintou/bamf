@@ -154,8 +154,8 @@ test_get_mime_types_none (void)
   g_assert_cmpstr (bamf_application_get_desktop_file (application), ==, mime_types_desktop);
 
   gchar** mimes = bamf_application_get_supported_mime_types (application);
-
   g_assert (!mimes);
+
   g_object_unref (application);
 }
 
