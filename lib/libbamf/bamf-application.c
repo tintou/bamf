@@ -69,7 +69,6 @@ struct _BamfApplicationPrivate
   gchar           *desktop_file;
   GList           *cached_xids;
   gchar           **cached_mimes;
-  gboolean        mimes_initialized;
   int             show_stubs;
 };
 
@@ -79,7 +78,7 @@ bamf_application_get_supported_mime_types (BamfApplication *application)
   GError *error = NULL;
   gchar **mimes = NULL;
 
-  if (application->priv->mimes_initialized)
+  if (application->priv->cached_mimes)
     return g_strdupv (application->priv->cached_mimes);
 
   if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
@@ -97,7 +96,7 @@ bamf_application_get_supported_mime_types (BamfApplication *application)
 
       return NULL;
     }
-  application->priv->mimes_initialized = TRUE;
+
   application->priv->cached_mimes = g_strdupv (mimes);
 
   return mimes;
@@ -357,7 +356,6 @@ bamf_application_on_supported_mime_types_changed (DBusGProxy *proxy, const gchar
     g_strfreev (self->priv->cached_mimes);
 
   self->priv->cached_mimes = g_strdupv ((gchar**)mimes);
-  self->priv->mimes_initialized = TRUE;
 }
 
 static void

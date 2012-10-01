@@ -1,0 +1,49 @@
+<!-- ##### SECTION Title ##### -->
+BamfFactory
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### STRUCT BamfFactory ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### STRUCT BamfFactoryClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+
+<!-- ##### ENUM BamfFactoryViewType ##### -->
+<para>
+
+</para>
+
+@BAMF_FACTORY_VIEW: 
+@BAMF_FACTORY_WINDOW: 
+@BAMF_FACTORY_APPLICATION: 
+@BAMF_FACTORY_INDICATOR: 
+@BAMF_FACTORY_TAB: 
+@BAMF_FACTORY_NONE: 
+
