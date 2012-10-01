@@ -1,0 +1,154 @@
+<!-- ##### SECTION Title ##### -->
+BamfWindow
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### STRUCT BamfWindow ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SIGNAL BamfWindow::maximized-changed ##### -->
+<para>
+
+</para>
+
+@bamfwindow: the object which received the signal.
+@arg1: 
+@arg2: 
+
+<!-- ##### SIGNAL BamfWindow::monitor-changed ##### -->
+<para>
+
+</para>
+
+@bamfwindow: the object which received the signal.
+@arg1: 
+@arg2: 
+
+<!-- ##### STRUCT BamfWindowClass ##### -->
+<para>
+
+</para>
+
+@parent_class: 
+@monitor_changed: 
+@maximized_changed: 
+
+<!-- ##### ENUM BamfWindowMaximizationType ##### -->
+<para>
+
+</para>
+
+@BAMF_WINDOW_FLOATING: 
+@BAMF_WINDOW_HORIZONTAL_MAXIMIZED: 
+@BAMF_WINDOW_VERTICAL_MAXIMIZED: 
+@BAMF_WINDOW_MAXIMIZED: 
+
+<!-- ##### ENUM BamfWindowType ##### -->
+<para>
+
+</para>
+
+@BAMF_WINDOW_NORMAL: 
+@BAMF_WINDOW_DESKTOP: 
+@BAMF_WINDOW_DOCK: 
+@BAMF_WINDOW_DIALOG: 
+@BAMF_WINDOW_TOOLBAR: 
+@BAMF_WINDOW_MENU: 
+@BAMF_WINDOW_UTILITY: 
+@BAMF_WINDOW_SPLASHSCREEN: 
+
+<!-- ##### FUNCTION bamf_window_get_monitor ##### -->
+<para>
+
+</para>
+
+@self: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_window_get_pid ##### -->
+<para>
+
+</para>
+
+@self: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_window_get_transient ##### -->
+<para>
+
+</para>
+
+@self: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_window_get_utf8_prop ##### -->
+<para>
+
+</para>
+
+@self: 
+@prop: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_window_get_window_type ##### -->
+<para>
+
+</para>
+
+@self: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_window_get_xid ##### -->
+<para>
+
+</para>
+
+@self: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_window_last_active ##### -->
+<para>
+
+</para>
+
+@self: 
+@Returns: 
+
+
+<!-- ##### FUNCTION bamf_window_maximized ##### -->
+<para>
+
+</para>
+
+@self: 
+@Returns: 
+
+

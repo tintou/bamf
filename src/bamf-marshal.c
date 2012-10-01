@@ -50,7 +50,7 @@
 #endif /* !G_ENABLE_DEBUG */
 
 
-/* VOID:STRING,STRING,STRING (../../src/bamf-marshal.list:21) */
+/* VOID:STRING,STRING,STRING (./bamf-marshal.list:21) */
 void
 bamf_marshal_VOID__STRING_STRING_STRING (GClosure     *closure,
                                          GValue       *return_value G_GNUC_UNUSED,

@@ -6,7 +6,7 @@
 
 G_BEGIN_DECLS
 
-/* VOID:STRING,STRING (../../../lib/libbamf/bamf-marshal.list:20) */
+/* VOID:STRING,STRING (./bamf-marshal.list:20) */
 extern void _bamf_marshal_VOID__STRING_STRING (GClosure     *closure,
                                                GValue       *return_value,
                                                guint         n_param_values,
@@ -14,7 +14,7 @@ extern void _bamf_marshal_VOID__STRING_STRING (GClosure     *closure,
                                                gpointer      invocation_hint,
                                                gpointer      marshal_data);
 
-/* VOID:STRING,STRING,STRING (../../../lib/libbamf/bamf-marshal.list:21) */
+/* VOID:STRING,STRING,STRING (./bamf-marshal.list:21) */
 extern void _bamf_marshal_VOID__STRING_STRING_STRING (GClosure     *closure,
                                                       GValue       *return_value,
                                                       guint         n_param_values,
@@ -22,7 +22,7 @@ extern void _bamf_marshal_VOID__STRING_STRING_STRING (GClosure     *closure,
                                                       gpointer      invocation_hint,
                                                       gpointer      marshal_data);
 
-/* VOID:OBJECT,OBJECT (../../../lib/libbamf/bamf-marshal.list:22) */
+/* VOID:OBJECT,OBJECT (./bamf-marshal.list:22) */
 extern void _bamf_marshal_VOID__OBJECT_OBJECT (GClosure     *closure,
                                                GValue       *return_value,
                                                guint         n_param_values,
@@ -30,7 +30,7 @@ extern void _bamf_marshal_VOID__OBJECT_OBJECT (GClosure     *closure,
                                                gpointer      invocation_hint,
                                                gpointer      marshal_data);
 
-/* VOID:INT,INT (../../../lib/libbamf/bamf-marshal.list:23) */
+/* VOID:INT,INT (./bamf-marshal.list:23) */
 extern void _bamf_marshal_VOID__INT_INT (GClosure     *closure,
                                          GValue       *return_value,
                                          guint         n_param_values,
@@ -38,7 +38,7 @@ extern void _bamf_marshal_VOID__INT_INT (GClosure     *closure,
                                          gpointer      invocation_hint,
                                          gpointer      marshal_data);
 
-/* VOID:STRING,BOXED,POINTER (../../../lib/libbamf/bamf-marshal.list:24) */
+/* VOID:STRING,BOXED,POINTER (./bamf-marshal.list:24) */
 extern void _bamf_marshal_VOID__STRING_BOXED_POINTER (GClosure     *closure,
                                                       GValue       *return_value,
                                                       guint         n_param_values,
