@@ -1,3 +1,13 @@
+bamf (0.3.2-0ubuntu1) UNRELEASED; urgency=low
+
+  * New upstream release.
+    - bamfdaemon crashes in bamf_application_get_supported_mime_types
+      (LP: #1058260)
+    - Webapps close prematurely (LP: #1051042)
+    - Broken UI and no window management (LP: #1053288)
+
+ -- Łukasz 'sil2100' Zemczak <lukasz.zemczak@canonical.com>  Mon, 01 Oct 2012 16:05:32 +0200
+
 bamf (0.3.0-0ubuntu2) quantal-proposed; urgency=low
 
   * rebuild against libunity-webapps 2.3.3
