@@ -784,11 +784,11 @@ on_dbus_handle_focusable_child (BamfDBusItemApplication *interface,
 {
   GVariant *out_variant;
   BamfView *focusable_child;
-  
+
   out_variant = NULL;
-  
+
   focusable_child = bamf_application_get_focusable_child (self);
-  
+
   if (focusable_child == NULL)
     {
       out_variant = g_variant_new("(s)", "");
@@ -796,9 +796,9 @@ on_dbus_handle_focusable_child (BamfDBusItemApplication *interface,
   else
     {
       const gchar *path;
-      
+
       path = bamf_view_get_path (BAMF_VIEW (focusable_child));
-      
+
       out_variant = g_variant_new("(s)", path);
     }
 
@@ -949,7 +949,7 @@ bamf_application_init (BamfApplication * self)
   priv->app_type = g_strdup ("system");
   priv->show_stubs = TRUE;
   priv->wmclass = NULL;
-  
+
   /* Initializing the dbus interface */
   priv->dbus_iface = bamf_dbus_item_application_skeleton_new ();
 
