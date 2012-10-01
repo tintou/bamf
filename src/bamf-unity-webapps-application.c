@@ -187,7 +187,6 @@ bamf_unity_webapps_application_child_removed (BamfView *view, BamfView *child)
 
   bamf_view_set_running (child, FALSE);
   bamf_view_close (BAMF_VIEW (child));
-  g_object_unref (BAMF_VIEW (child));
 }
 
 void
