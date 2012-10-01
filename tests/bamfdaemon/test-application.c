@@ -32,6 +32,7 @@ static void test_allocation          (void);
 static void test_desktop_file        (void);
 static void test_desktop_no_icon     (void);
 static void test_get_mime_types      (void);
+static void test_get_mime_types_none (void);
 static void test_urgent              (void);
 static void test_active              (void);
 static void test_get_xids            (void);
@@ -56,7 +57,8 @@ test_application_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
   g_test_add_func (DOMAIN"/DesktopFile", test_desktop_file);
   g_test_add_func (DOMAIN"/DesktopFile/NoIcon", test_desktop_no_icon);
-  g_test_add_func (DOMAIN"/DesktopFile/MimeTypes", test_get_mime_types);
+  g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/Valid", test_get_mime_types);
+  g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/None", test_get_mime_types_none);
   g_test_add_func (DOMAIN"/ManagesXid", test_manages_xid);
   g_test_add_func (DOMAIN"/Xids", test_get_xids);
   g_test_add_func (DOMAIN"/Events/Active", test_active);
@@ -139,6 +141,21 @@ test_get_mime_types (void)
   g_assert_cmpstr (mimes[6], ==, "application/xml");
 
   g_strfreev (mimes);
+  g_object_unref (application);
+}
+
+static void
+test_get_mime_types_none (void)
+{
+  BamfApplication *application;
+  const char* mime_types_desktop = TESTDIR"/bamfdaemon/data/test-bamf-app.desktop";
+
+  application = bamf_application_new_from_desktop_file (mime_types_desktop);
+  g_assert_cmpstr (bamf_application_get_desktop_file (application), ==, mime_types_desktop);
+
+  gchar** mimes = bamf_application_get_supported_mime_types (application);
+
+  g_assert (!mimes);
   g_object_unref (application);
 }
 
