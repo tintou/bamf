@@ -826,28 +826,24 @@ on_dbus_handle_supported_mime_types (BamfDBusItemApplication *interface,
                                      GDBusMethodInvocation *invocation,
                                      BamfApplication *self)
 {
-  GVariantBuilder b;
+  GVariant *list;
   GVariant *value;
-  gchar **it;
-
-  g_variant_builder_init (&b, G_VARIANT_TYPE ("(as)"));
-  g_variant_builder_open (&b, G_VARIANT_TYPE ("as"));
 
   gchar **mimes = bamf_application_get_supported_mime_types (self);
 
   if (mimes)
     {
-      for (it = mimes; *it; it++)
-        {
-          g_variant_builder_add (&b, "s", *it);
-        }
+      list = g_variant_new_strv ((const gchar**) mimes, -1);
+      g_strfreev (mimes);
+    }
+  else
+    {
+      const gchar **empty = { NULL };
+      list = g_variant_new_strv (empty, 0);
     }
 
-  g_variant_builder_close (&b);
-  value = g_variant_builder_end (&b);
-
+  value = g_variant_new ("(@as)", list);
   g_dbus_method_invocation_return_value (invocation, value);
-  g_strfreev (mimes);
 
   return TRUE;
 }
