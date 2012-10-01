@@ -110,16 +110,15 @@ bamf_application_default_get_supported_mime_types (BamfApplication *application)
 
   if (error)
     {
-      g_key_file_free(key_file);
+      g_key_file_free (key_file);
       g_error_free (error);
       return NULL;
     }
 
   char** mimes = g_key_file_get_string_list (key_file, "Desktop Entry", "MimeType", NULL, NULL);
+  g_signal_emit (application, application_signals[SUPPORTED_MIMES_CHANGED], 0, mimes);
 
   g_key_file_free (key_file);
-
-  g_signal_emit (application, application_signals[SUPPORTED_MIMES_CHANGED], 0, mimes);
 
   return mimes;
 }
