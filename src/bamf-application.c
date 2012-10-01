@@ -838,8 +838,7 @@ on_dbus_handle_supported_mime_types (BamfDBusItemApplication *interface,
     }
   else
     {
-      const gchar **empty = { NULL };
-      list = g_variant_new_strv (empty, 0);
+      list = g_variant_new_strv (NULL, 0);
     }
 
   value = g_variant_new ("(@as)", list);
