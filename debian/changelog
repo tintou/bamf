@@ -1,4 +1,4 @@
-bamf (0.3.2-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.3.2-0ubuntu1) quantal; urgency=low
 
   * New upstream release.
     - bamfdaemon crashes in bamf_application_get_supported_mime_types
