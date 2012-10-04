@@ -1,10 +1,14 @@
 bamf (0.3.2-0ubuntu1) quantal-proposed; urgency=low
 
+  [ Łukasz 'sil2100' Zemczak ]
   * New upstream release.
     - bamfdaemon crashes in bamf_application_get_supported_mime_types
       (LP: #1058260)
     - Webapps close prematurely (LP: #1051042)
     - Broken UI and no window management (LP: #1053288)
+
+  [ Timo Jyrinki ]
+  * Cherry-pick LibreOffice fix (LP: #1026426)
 
  -- Łukasz 'sil2100' Zemczak <lukasz.zemczak@canonical.com>  Mon, 01 Oct 2012 16:05:32 +0200
 
