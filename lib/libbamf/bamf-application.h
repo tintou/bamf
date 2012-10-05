@@ -79,6 +79,8 @@ const gchar     * bamf_application_get_application_type (BamfApplication *applic
 
 const gchar     * bamf_application_get_desktop_file     (BamfApplication *application);
 
+const gchar     * bamf_application_get_desktop_id       (BamfApplication *application);
+
 gchar ** bamf_application_get_supported_mime_types (BamfApplication *application);
 
 GList           * bamf_application_get_windows          (BamfApplication *application);

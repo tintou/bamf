@@ -67,6 +67,7 @@ struct _BamfApplicationPrivate
   DBusGProxy      *proxy;
   gchar           *application_type;
   gchar           *desktop_file;
+  gchar           *desktop_id;
   GList           *cached_xids;
   gchar           **cached_mimes;
   int             show_stubs;
@@ -148,6 +149,72 @@ bamf_application_get_desktop_file (BamfApplication *application)
 
   priv->desktop_file = file;
   return file;
+}
+
+const gchar *
+bamf_application_get_desktop_id (BamfApplication *application)
+{
+  guint i;
+  const char *desktop_file;
+  const char * const *system_dirs;
+  const char *user_dir;
+  char *path;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
+  BamfApplicationPrivate *priv = application->priv;
+
+  if (priv->desktop_id)
+    return priv->desktop_id;
+
+  desktop_file = bamf_application_get_desktop_file (application);
+
+  if (!desktop_file)
+    return NULL;
+
+  system_dirs = g_get_system_data_dirs ();
+  user_dir = g_get_user_data_dir ();
+
+  path = g_build_filename (user_dir, "applications", NULL);
+
+  if (!g_str_has_prefix (desktop_file, path))
+    {
+      g_free (path);
+      path = NULL;
+
+      for (i = 0; system_dirs && system_dirs[i]; ++i)
+        {
+          if (system_dirs[i][0] != '\0')
+            {
+              path = g_build_filename (system_dirs[i], "applications", G_DIR_SEPARATOR_S, NULL);
+
+              if (g_str_has_prefix (desktop_file, path))
+                break;
+
+              g_free (path);
+              path = NULL;
+            }
+        }
+    }
+
+  if (path)
+    {
+      priv->desktop_id = g_strdup (desktop_file + strlen(path));
+
+      char *c;
+      for (c = priv->desktop_id; c && *c != '\0'; ++c)
+        {
+          if (*c == G_DIR_SEPARATOR)
+            *c = '-';
+        }
+
+      g_free (path);
+    }
+  else
+    {
+      priv->desktop_id = g_strdup (desktop_file);
+    }
+
+  return priv->desktop_id;
 }
 
 gboolean
@@ -494,12 +561,18 @@ bamf_application_dispose (GObject *object)
       priv->desktop_file = NULL;
     }
 
+  if (priv->desktop_id)
+    {
+      g_free (priv->desktop_id);
+      priv->desktop_id = NULL;
+    }
+
   if (priv->cached_xids)
     {
       g_list_free (priv->cached_xids);
       priv->cached_xids = NULL;
     }
-  
+
   bamf_application_unset_proxy (self);
 
   if (G_OBJECT_CLASS (bamf_application_parent_class)->dispose)
