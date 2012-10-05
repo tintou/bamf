@@ -43,6 +43,7 @@
 #include "bamf-indicator.h"
 #include "bamf-tab.h"
 
+#include <gio/gdesktopappinfo.h>
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-lowlevel.h>
@@ -267,7 +268,7 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
   if (BAMF_IS_APPLICATION (view))
     {
       /* handle case where a favorite exists and this matches it */
-      const char *local_desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
+      const char *local_desktop_id = bamf_application_get_desktop_id (BAMF_APPLICATION (view));
       GList *local_children = bamf_view_get_children (view);
 
       for (l = factory->priv->local_views; l; l = l->next)
@@ -278,10 +279,10 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
           BamfView *list_view = BAMF_VIEW (l->data);
           BamfApplication *list_app = BAMF_APPLICATION (l->data);
 
-          const char *list_desktop_file = bamf_application_get_desktop_file (list_app);
+          const char *list_desktop_id = bamf_application_get_desktop_id (list_app);
 
           /* We try to match applications by desktop files */
-          if (local_desktop_file && g_strcmp0 (local_desktop_file, list_desktop_file) == 0)
+          if (local_desktop_id && g_strcmp0 (local_desktop_id, list_desktop_id) == 0)
             {
               matched_view = list_view;
               break;
@@ -289,7 +290,7 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
 
           /* If the primary search doesn't give out any result, we fallback
            * to children window comparison */
-          if (!list_desktop_file && !matched_view)
+          if (!list_desktop_id && !matched_view)
             {
               GList *list_children, *ll;
               list_children = _bamf_application_get_cached_xids (list_app);
