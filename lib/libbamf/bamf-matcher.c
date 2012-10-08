@@ -97,7 +97,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
                   0, NULL, NULL,
                   g_cclosure_marshal_VOID__OBJECT,
                   G_TYPE_NONE, 1, 
-                  G_TYPE_OBJECT);
+                  BAMF_TYPE_VIEW);
 
   matcher_signals [VIEW_CLOSED] = 
     g_signal_new ("view-closed",
@@ -106,7 +106,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
                   0, NULL, NULL,
                   g_cclosure_marshal_VOID__OBJECT,
                   G_TYPE_NONE, 1, 
-                  G_TYPE_OBJECT);
+                  BAMF_TYPE_VIEW);
 
 
   matcher_signals [ACTIVE_APPLICATION_CHANGED] = 
@@ -116,7 +116,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
                   0, NULL, NULL,
                   _bamf_marshal_VOID__OBJECT_OBJECT,
                   G_TYPE_NONE, 2, 
-                  G_TYPE_OBJECT, G_TYPE_OBJECT);
+                  BAMF_TYPE_VIEW, BAMF_TYPE_VIEW);
 
   matcher_signals [ACTIVE_WINDOW_CHANGED] = 
     g_signal_new ("active-window-changed",
@@ -125,7 +125,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
                   0, NULL, NULL,
                   _bamf_marshal_VOID__OBJECT_OBJECT,
                   G_TYPE_NONE, 2, 
-                  G_TYPE_OBJECT, G_TYPE_OBJECT);
+                  BAMF_TYPE_VIEW, BAMF_TYPE_VIEW);
 
   matcher_signals [STACKING_ORDER_CHANGED] = 
     g_signal_new ("stacking-order-changed",
@@ -729,7 +729,7 @@ bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
 /**
  * bamf_matcher_register_favorites:
  * @matcher: a #BamfMatcher
- * @favorites: an array of strings, each containing an absolute path to a .desktop file
+ * @favorites: (array): an array of strings, each containing an absolute path to a .desktop file
  *
  * Used to effect how bamf performs matching. Desktop files passed to this method will
  * be prefered by bamf to system desktop files.
