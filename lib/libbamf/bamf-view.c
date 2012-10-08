@@ -267,19 +267,35 @@ bamf_view_is_active (BamfView *view)
 }
 
 /**
- * bamf_view_user_visible:
+ * bamf_view_is_user_visible:
  * @view: a #BamfView
  *
  * Returns: a boolean useful for determining if a particular view is "user visible". User visible
  * is a concept relating to whether or not a window should be shown in a launcher tasklist.
+ *
+ * Since: 0.3.4
  */
 gboolean
-bamf_view_user_visible (BamfView *self)
+bamf_view_is_user_visible (BamfView *self)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (self), FALSE);
   
   return bamf_view_get_boolean (self, "UserVisible", BAMF_VIEW_VISIBLE_FLAG);
+}
 
+/**
+ * bamf_view_user_visible: (skip)
+ * @view: a #BamfView
+ *
+ * Returns: a boolean useful for determining if a particular view is "user visible". User visible
+ * is a concept relating to whether or not a window should be shown in a launcher tasklist.
+ *
+ * Deprecated: 0.3.4
+ */
+gboolean
+bamf_view_user_visible (BamfView *self)
+{
+  return bamf_view_is_user_visible (self);
 }
 
 /**

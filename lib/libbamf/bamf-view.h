@@ -116,10 +116,13 @@ gboolean   bamf_view_is_running    (BamfView *view);
 
 gboolean   bamf_view_is_urgent     (BamfView *view);
 
+gboolean   bamf_view_is_user_visible  (BamfView *view);
+
 gchar    * bamf_view_get_name      (BamfView *view);
 
 gchar    * bamf_view_get_icon      (BamfView *view);
 
+GLIB_DEPRECATED
 gboolean   bamf_view_user_visible  (BamfView *view);
 
 const gchar    * bamf_view_get_view_type (BamfView *view);
