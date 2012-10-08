@@ -14,9 +14,6 @@ bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-application.c \
 		$(top_srcdir)/src/bamf-window.c \
 		$(top_srcdir)/src/bamf-tab.c \
-		$(top_srcdir)/src/bamf-unity-webapps-tab.c \
-		$(top_srcdir)/src/bamf-unity-webapps-observer.c \
-		$(top_srcdir)/src/bamf-unity-webapps-application.c \
 		$(top_srcdir)/src/bamf-indicator.c \
 		$(top_srcdir)/src/bamf-indicator-source.c \
 		$(top_srcdir)/src/bamf-xutils.c \
@@ -50,6 +47,12 @@ bamf_test_extra_headers = \
 		$(top_builddir)/src/bamf-gdbus-indicator-source-generated.h \
 		$(NULL)
 
+bamf_test_webapps_sources = \
+		$(top_srcdir)/src/bamf-unity-webapps-tab.c \
+		$(top_srcdir)/src/bamf-unity-webapps-observer.c \
+		$(top_srcdir)/src/bamf-unity-webapps-application.c \
+		$(NULL)
+
 test_bamf_SOURCES = \
   $(bamf_test_extra_sources) \
   $(bamf_test_extra_headers) \
@@ -58,6 +61,12 @@ test_bamf_SOURCES = \
   test-application.c \
   test-window.c \
   test-matcher.c
+
+if HAVE_WEBAPPS
+test_bamf_SOURCES += \
+		$(bamf_test_webapps_sources) \
+		$(NULL)
+endif
 
 test_bamf_CPPFLAGS = \
   -I$(top_srcdir) \
@@ -85,7 +94,10 @@ test_bamf_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
 		$(NULL)
 
-EXTRA_DIST = data
+EXTRA_DIST = \
+		data \
+		$(bamf_test_webapps_sources) \
+		$(NULL)
 
 # Run tests as part of make check
 if ENABLE_HEADLESS_TESTS
