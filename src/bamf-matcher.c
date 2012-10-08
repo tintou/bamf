@@ -370,6 +370,11 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
       binary = "libreoffice";
       parameter = "draw";
     }
+  else if (g_str_has_suffix (name, "LibreOffice Base"))
+    {
+      binary = "libreoffice";
+      parameter = "base";
+    }
   else if (g_strcmp0 (class, "libreoffice-startcenter") == 0)
     {
       binary = "libreoffice";
@@ -402,6 +407,11 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
     {
       binary = "ooffice";
       parameter = "draw";
+    }
+  else if (g_str_has_suffix (name, "OpenOffice.org Base"))
+    {
+      binary = "ooffice";
+      parameter = "base";
     }
   else if (g_strcmp0 (name, "OpenOffice.org") == 0 && type == BAMF_WINDOW_NORMAL)
     {
