@@ -53,9 +53,6 @@ bamfdaemon_sources = \
 		bamf-application.c \
 		bamf-window.c \
 		bamf-tab.c \
-	        bamf-unity-webapps-tab.c \
-		bamf-unity-webapps-observer.c \
-		bamf-unity-webapps-application.c \
 		bamf-indicator-source.c \
 		bamf-indicator.c \
 		bamf-xutils.c \
@@ -76,18 +73,34 @@ bamfdaemon_headers = \
 		bamf-window.h \
 		bamf-application.h \
 		bamf-tab.h \
-		bamf-unity-webapps-tab.h \
-		bamf-unity-webapps-observer.h \
-		bamf-unity-webapps-application.h \
 		bamf-indicator-source.h \
 		bamf-indicator.h \
 		bamf-xutils.h \
+		$(NULL)
+
+bamfdaemon_webapps_sources = \
+		bamf-unity-webapps-tab.c \
+		bamf-unity-webapps-observer.c \
+		bamf-unity-webapps-application.c \
+		$(NULL)
+
+bamfdaemon_webapps_headers = \
+		bamf-unity-webapps-tab.h \
+		bamf-unity-webapps-observer.h \
+		bamf-unity-webapps-application.h \
 		$(NULL)
 
 bamfdaemon_SOURCES = \
 		$(bamfdaemon_sources) \
 		$(bamfdaemon_headers) \
 		$(NULL)
+
+if HAVE_WEBAPPS
+bamfdaemon_SOURCES += \
+		$(bamfdaemon_webapps_sources) \
+		$(bamfdaemon_webapps_headers) \
+		$(NULL)
+endif
 
 nodist_bamfdaemon_SOURCES = \
 		$(bamfdaemon_built_sources) \
@@ -159,6 +172,8 @@ BUILT_SOURCES += \
 
 EXTRA_DIST += \
 		$(bamfdaemon_xml_gdbus_files) \
+		$(bamfdaemon_webapps_sources) \
+		$(bamfdaemon_webapps_headers) \
 		$(NULL)
 
 DISTCLEANFILES += \
