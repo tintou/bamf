@@ -118,6 +118,7 @@ introspection_sources = $(libbamf_la_SOURCES)
 Bamf-0.2.gir: libbamf.la
 Bamf_0_2_gir_INCLUDES = GObject-2.0 GLib-2.0
 Bamf_0_2_gir_CFLAGS = \
+	--warn-all \
 	--c-include='libbamf/libbamf.h' \
 	$(DBUS_CFLAGS) \
 	-I$(top_srcdir)/lib \

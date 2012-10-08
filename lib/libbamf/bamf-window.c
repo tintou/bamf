@@ -79,7 +79,7 @@ time_t bamf_window_last_active (BamfWindow *self)
  * bamf_window_get_transient:
  * @self: a #BamfWindow
  *
- * Returns: (transfer none) (nullable): A transient for this #BamfWindow.
+ * Returns: (transfer none) (allow-none): A transient for this #BamfWindow.
  */
 
 BamfWindow * bamf_window_get_transient (BamfWindow *self)
