@@ -429,15 +429,35 @@ bamf_legacy_window_maximized (BamfLegacyWindow *self)
 }
 
 char *
-bamf_legacy_window_get_utf8_xprop (BamfLegacyWindow *self, const char* prop)
+bamf_legacy_window_get_hint (BamfLegacyWindow *self, const char* name)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
+  g_return_val_if_fail (name, NULL);
 
-  if (!self->priv->legacy_window)
-    return NULL;
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_hint)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_hint (self, name);
+
+  g_return_val_if_fail (WNCK_IS_WINDOW (self->priv->legacy_window), NULL);
 
   guint xid = bamf_legacy_window_get_xid (self);
-  return bamf_xutils_get_window_hint (xid, prop, XInternAtom(gdk_x11_get_default_xdisplay (), "UTF8_STRING", False));
+
+  return bamf_xutils_get_string_window_hint (xid, name);
+}
+
+void
+bamf_legacy_window_set_hint (BamfLegacyWindow *self, const char* name, const char* value)
+{
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
+  g_return_if_fail (name);
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->set_hint)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->set_hint (self, name, value);
+
+  g_return_if_fail (WNCK_IS_WINDOW (self->priv->legacy_window));
+
+  guint xid = bamf_legacy_window_get_xid (self);
+
+  bamf_xutils_set_string_window_hint (xid, name, value);
 }
 
 static void

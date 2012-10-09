@@ -232,10 +232,10 @@ bamf_window_get_view_type (BamfView *view)
 }
 
 char *
-bamf_window_get_xprop (BamfWindow *self, const char* prop)
+bamf_window_get_string_hint (BamfWindow *self, const char* prop)
 {
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
-  return bamf_legacy_window_get_utf8_xprop(self->priv->legacy_window, prop);
+  return bamf_legacy_window_get_hint (self->priv->legacy_window, prop);
 }
 
 BamfWindowMaximizationType
@@ -334,11 +334,11 @@ on_dbus_handle_xprop (BamfDBusItemWindow *interface,
                       const gchar *prop,
                       BamfWindow *self)
 {
-  char *bus_name = bamf_window_get_xprop (self, prop);
+  char *hint = bamf_window_get_string_hint (self, prop);
   g_dbus_method_invocation_return_value (invocation,
-                                         g_variant_new ("(s)", bus_name ? bus_name : ""));
+                                         g_variant_new ("(s)", hint ? hint : ""));
 
-  g_free (bus_name);
+  g_free (hint);
 
   return TRUE;
 }
