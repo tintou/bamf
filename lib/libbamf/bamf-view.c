@@ -722,7 +722,7 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
         break;
       
       case PROP_USER_VISIBLE:
-        g_value_set_boolean (value, bamf_view_user_visible (self));
+        g_value_set_boolean (value, bamf_view_is_user_visible (self));
         break;
       
       default:
@@ -843,7 +843,7 @@ _bamf_view_reset_flags (BamfView *view)
   priv = view->priv;
   priv->checked_flags = 0x0;
 
-  if (bamf_view_user_visible (view))
+  if (bamf_view_is_user_visible (view))
     {
       g_signal_emit (G_OBJECT(view), view_signals[VISIBLE_CHANGED], 0, TRUE);
       g_object_notify (G_OBJECT (view), "user-visible");
