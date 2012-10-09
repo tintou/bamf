@@ -154,7 +154,7 @@ bamf_legacy_window_test_get_class_name (BamfLegacyWindow *legacy_window)
 
   self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
 
-  return  self->wm_class_name;
+  return self->wm_class_name;
 }
 
 static const char *
@@ -164,7 +164,7 @@ bamf_legacy_window_test_get_class_instance_name (BamfLegacyWindow *legacy_window
 
   self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
 
-  return  self->wm_class_instance;
+  return self->wm_class_instance;
 }
 
 char *
@@ -174,7 +174,7 @@ bamf_legacy_window_test_get_exec_string (BamfLegacyWindow *legacy_window)
 
   self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
 
-  return self->exec;
+  return g_strdup (self->exec);
 }
 
 char *
@@ -185,7 +185,7 @@ bamf_legacy_window_test_get_app_id (BamfLegacyWindow *legacy_window)
 
   self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
 
-  return self->application_id;
+  return g_strdup (self->application_id);
 }
 
 char *
@@ -196,7 +196,7 @@ bamf_legacy_window_test_get_unique_bus_name (BamfLegacyWindow *legacy_window)
 
   self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
 
-  return self->unique_bus_name;
+  return g_strdup (self->unique_bus_name);
 }
 
 char *
@@ -207,7 +207,7 @@ bamf_legacy_window_test_get_menu_object_path (BamfLegacyWindow *legacy_window)
 
   self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
 
-  return self->dbus_menu_object_path;
+  return g_strdup (self->dbus_menu_object_path);
 }
 
 void
@@ -328,10 +328,39 @@ bamf_legacy_window_test_get_window_type (BamfLegacyWindow *window)
   return self->window_type;
 }
 
-void
-bamf_legacy_window_test_dispose (GObject *object)
+char *
+bamf_legacy_window_test_get_hint (BamfLegacyWindow *window, const char *name)
 {
-  G_OBJECT_CLASS (bamf_legacy_window_test_parent_class)->dispose (object);
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (window), NULL);
+  BamfLegacyWindowTest *self = BAMF_LEGACY_WINDOW_TEST (window);
+
+  return g_strdup (g_hash_table_lookup (self->hints, name));
+}
+
+void
+bamf_legacy_window_test_set_hint (BamfLegacyWindow *window, const char *name, const char *value)
+{
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (window));
+  BamfLegacyWindowTest *self = BAMF_LEGACY_WINDOW_TEST (window);
+
+  return g_hash_table_insert (self->hints, g_strdup (name), g_strdup (value));
+}
+
+static void
+bamf_legacy_window_test_finalize (GObject *object)
+{
+  BamfLegacyWindowTest *self = BAMF_LEGACY_WINDOW_TEST (object);
+
+  g_free (self->name);
+  g_free (self->wm_class_name);
+  g_free (self->wm_class_instance);
+  g_free (self->exec);
+  g_free (self->application_id);
+  g_free (self->unique_bus_name);
+  g_free (self->dbus_menu_object_path);
+  g_hash_table_unref (self->hints);
+
+  G_OBJECT_CLASS (bamf_legacy_window_test_parent_class)->finalize (object);
 }
 
 void
@@ -340,7 +369,7 @@ bamf_legacy_window_test_class_init (BamfLegacyWindowTestClass *klass)
   BamfLegacyWindowClass *win_class = BAMF_LEGACY_WINDOW_CLASS (klass);
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
 
-  obj_class->dispose          = bamf_legacy_window_test_dispose;
+  obj_class->finalize         = bamf_legacy_window_test_finalize;
   win_class->get_name         = bamf_legacy_window_test_get_name;
   win_class->get_class_name   = bamf_legacy_window_test_get_class_name;
   win_class->get_class_instance_name = bamf_legacy_window_test_get_class_instance_name;
@@ -358,6 +387,8 @@ bamf_legacy_window_test_class_init (BamfLegacyWindowTestClass *klass)
   win_class->get_window_type  = bamf_legacy_window_test_get_window_type;
   win_class->maximized        = bamf_legacy_window_test_maximized;
   win_class->is_closed        = bamf_legacy_window_test_is_closed;
+  win_class->get_hint         = bamf_legacy_window_test_get_hint;
+  win_class->set_hint         = bamf_legacy_window_test_set_hint;
   win_class->reopen           = bamf_legacy_window_test_reopen;
 }
 
@@ -368,6 +399,7 @@ bamf_legacy_window_test_init (BamfLegacyWindowTest *self)
   self->pid = g_random_int_range (1, 100000);
   self->maximized = BAMF_WINDOW_FLOATING;
   self->is_closed = FALSE;
+  self->hints = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 }
 
 
@@ -394,6 +426,7 @@ bamf_legacy_window_copy (BamfLegacyWindowTest *self)
   copy->geometry = self->geometry;
   copy->maximized = self->maximized;
   copy->window_type = self->window_type;
+  copy->hints = g_hash_table_ref (self->hints);
 
   return copy;
 }

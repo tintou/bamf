@@ -145,11 +145,11 @@ char             * bamf_legacy_window_get_exec_string      (BamfLegacyWindow *se
 BamfLegacyWindow * bamf_legacy_window_get_transient        (BamfLegacyWindow *self);
 
 char             * bamf_legacy_window_get_hint             (BamfLegacyWindow *self,
-                                                            const char* name);
+                                                            const char *name);
 
 void               bamf_legacy_window_set_hint             (BamfLegacyWindow *self,
-                                                            const char* name,
-                                                            const char* value);
+                                                            const char *name,
+                                                            const char *value);
 
 gint               bamf_legacy_window_get_stacking_position (BamfLegacyWindow *self);
 
