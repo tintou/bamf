@@ -25,6 +25,7 @@
 
 static void test_allocation    (void);
 static void test_xid           (void);
+static void test_hints         (void);
 static void test_active        (void);
 static void test_urgent        (void);
 static void test_user_visible  (void);
@@ -43,6 +44,7 @@ test_window_create_suite (void)
 
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
   g_test_add_func (DOMAIN"/Xid", test_xid);
+  g_test_add_func (DOMAIN"/Hints", test_hints);
   g_test_add_func (DOMAIN"/Events/Active", test_active);
   g_test_add_func (DOMAIN"/Events/Urgent", test_urgent);
   g_test_add_func (DOMAIN"/Events/UserVisible", test_user_visible);
@@ -67,6 +69,24 @@ test_allocation (void)
   
   g_assert (!BAMF_IS_WINDOW (window));
   
+  g_object_unref (test);
+}
+
+void
+test_hints (void)
+{
+  BamfWindow *window;
+  BamfLegacyWindowTest *test;
+
+  test = bamf_legacy_window_test_new (20,"Window X", "class", "exec");
+  window = bamf_window_new (BAMF_LEGACY_WINDOW (test));
+
+  bamf_legacy_window_set_hint (BAMF_LEGACY_WINDOW (test), "HINT_NAME", "HINT_VALUE");
+
+  g_assert_cmpstr (bamf_window_get_string_hint (window, "HINT_NAME"), ==, "HINT_VALUE");
+  g_assert_cmpstr (bamf_window_get_string_hint (window, "INVALID_HINT_NAME"), ==, NULL);
+
+  g_object_unref (window);
   g_object_unref (test);
 }
 
