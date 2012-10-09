@@ -270,7 +270,7 @@ bamf_view_is_active (BamfView *view)
  * bamf_view_user_visible:
  * @view: a #BamfView
  *
- * Returns a boolean useful for determining if a particular view is "user visible". User visible
+ * Returns: a boolean useful for determining if a particular view is "user visible". User visible
  * is a concept relating to whether or not a window should be shown in a launcher tasklist.
  */
 gboolean

@@ -113,11 +113,15 @@ INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
 
 if HAVE_INTROSPECTION
 
-introspection_sources = $(libbamf_la_SOURCES)
+introspection_sources = \
+	$(sources_h) \
+	$(libbamf_sources) \
+	$(NULL)
 
 Bamf-0.2.gir: libbamf.la
 Bamf_0_2_gir_INCLUDES = GObject-2.0 GLib-2.0
 Bamf_0_2_gir_CFLAGS = \
+	--warn-all \
 	--c-include='libbamf/libbamf.h' \
 	$(DBUS_CFLAGS) \
 	-I$(top_srcdir)/lib \
