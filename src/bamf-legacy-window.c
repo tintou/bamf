@@ -429,7 +429,7 @@ bamf_legacy_window_maximized (BamfLegacyWindow *self)
 }
 
 char *
-bamf_legacy_window_get_hint (BamfLegacyWindow *self, const char* name)
+bamf_legacy_window_get_hint (BamfLegacyWindow *self, const char *name)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
   g_return_val_if_fail (name, NULL);
@@ -445,7 +445,7 @@ bamf_legacy_window_get_hint (BamfLegacyWindow *self, const char* name)
 }
 
 void
-bamf_legacy_window_set_hint (BamfLegacyWindow *self, const char* name, const char* value)
+bamf_legacy_window_set_hint (BamfLegacyWindow *self, const char *name, const char *value)
 {
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
   g_return_if_fail (name);

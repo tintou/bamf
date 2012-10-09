@@ -68,6 +68,7 @@ struct _BamfLegacyWindowTest
   GdkRectangle geometry;
   BamfWindowMaximizationType maximized;
   BamfWindowType window_type;
+  GHashTable * hints;
 };
 
 struct _BamfLegacyWindowTestClass
