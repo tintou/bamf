@@ -447,6 +447,11 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
             binary = "libreoffice";
             parameter = "draw";
           }
+        else if (g_strcmp0 (class, "libreoffice-base") == 0)
+          {
+            binary = "libreoffice";
+            parameter = "base";
+          }
       }
 
       if (!binary)
