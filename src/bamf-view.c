@@ -836,16 +836,12 @@ bamf_view_class_init (BamfViewClass * klass)
   view_signals [CLOSED_INTERNAL] =
     g_signal_new ("closed-internal",
                   G_OBJECT_CLASS_TYPE (klass),
-                  0,
-                  0, NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
+                  0, 0, NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
   view_signals [EXPORTED] =
     g_signal_new ("exported",
                   G_OBJECT_CLASS_TYPE (klass),
-                  0,
-                  0, NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
+                  0, 0, NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 }

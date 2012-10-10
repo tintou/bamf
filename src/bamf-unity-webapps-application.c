@@ -331,16 +331,13 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   pspec = g_param_spec_object("context", "Context", "The Unity Webapps Context assosciated with the Application",
                               UNITY_WEBAPPS_TYPE_CONTEXT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
   g_object_class_install_property (object_class, PROP_CONTEXT, pspec);
-  
+
   webapps_application_signals[TAB_APPEARED] = g_signal_new("tab-appeared",
-                                    G_OBJECT_CLASS_TYPE (klass),
-                                    0,
-                                    0, NULL, NULL,
-                                    g_cclosure_marshal_VOID__OBJECT,
+                                                           G_OBJECT_CLASS_TYPE (klass),
+                                                           0, 0, NULL, NULL, NULL,
                                                            G_TYPE_NONE, 1,
-                                    BAMF_TYPE_VIEW);
-  
-  
+                                                           BAMF_TYPE_VIEW);
+
   g_type_class_add_private (klass, sizeof (BamfUnityWebappsApplicationPrivate));
 }
 

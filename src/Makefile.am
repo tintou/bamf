@@ -1,11 +1,3 @@
-# Defined as these will be needed by Makefile.am.marshal
-CLEANFILES =
-DISTCLEANFILES =
-BUILT_SOURCES =
-EXTRA_DIST =
-
-include $(top_srcdir)/Makefile.am.marshal
-
 bamfdaemondir = $(libexecdir)
 
 bamfdaemon_PROGRAMS = \
@@ -31,8 +23,6 @@ bamfdaemon_xml_gdbus_files = \
 		$(NULL)
 
 bamfdaemon_built_sources = \
-		bamf-marshal.c \
-		bamf-marshal.h \
 		$(bamfdaemon_gdbus_files) \
 		$(NULL)
 
@@ -101,7 +91,7 @@ bamfdaemon_SOURCES += \
 		$(NULL)
 endif
 
-EXTRA_DIST += \
+EXTRA_DIST = \
 		$(bamfdaemon_webapps_sources) \
 		$(bamfdaemon_webapps_headers) \
 		$(NULL)
@@ -114,7 +104,7 @@ BUILT_SOURCES = \
 		$(bamfdaemon_built_sources) \
 		$(NULL)
 
-CLEANFILES += \
+CLEANFILES = \
 		$(bamfdaemon_built_sources) \
 		$(NULL)
 

@@ -387,8 +387,7 @@ bamf_indicator_source_class_init (BamfIndicatorSourceClass *klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfIndicatorSourceClass, indicator_opened),
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__OBJECT,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   BAMF_TYPE_INDICATOR);
 
@@ -397,8 +396,7 @@ bamf_indicator_source_class_init (BamfIndicatorSourceClass *klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfIndicatorSourceClass, indicator_closed),
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__OBJECT,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   BAMF_TYPE_INDICATOR);
 }

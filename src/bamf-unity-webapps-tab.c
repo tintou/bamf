@@ -392,8 +392,7 @@ bamf_unity_webapps_tab_class_init (BamfUnityWebappsTabClass * klass)
                                G_OBJECT_CLASS_TYPE (klass),
                                G_SIGNAL_RUN_FIRST,
                                G_CALLBACK (bamf_unity_webapps_tab_vanished),
-                               NULL, NULL,
-                               g_cclosure_marshal_VOID__VOID,
+                               NULL, NULL, NULL,
                                G_TYPE_NONE, 0);
   
   g_type_class_add_private (klass, sizeof (BamfUnityWebappsTabPrivate));

@@ -566,8 +566,7 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyWindowClass, name_changed),
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
   legacy_window_signals [STATE_CHANGED] =
@@ -575,8 +574,7 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyWindowClass, state_changed),
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
   legacy_window_signals [GEOMETRY_CHANGED] =
@@ -584,8 +582,7 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyWindowClass, geometry_changed),
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
   legacy_window_signals [CLOSED] =
@@ -593,8 +590,7 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyWindowClass, closed),
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 }
 

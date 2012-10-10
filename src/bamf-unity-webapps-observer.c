@@ -238,21 +238,18 @@ static void
 bamf_unity_webapps_observer_class_init (BamfUnityWebappsObserverClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  
+
   object_class->finalize = bamf_unity_webapps_observer_finalize;
   object_class->constructed = bamf_unity_webapps_observer_constructed;
-  
+
   g_type_class_add_private (object_class, sizeof(BamfUnityWebappsObserverPrivate));
-  
-  webapps_observer_signals [APPLICATION_APPEARED] = 
+
+  webapps_observer_signals [APPLICATION_APPEARED] =
     g_signal_new ("application-appeared",
                   G_OBJECT_CLASS_TYPE (klass),
-                  0,
-                  0, NULL, NULL,
-                  g_cclosure_marshal_VOID__OBJECT,
+                  0, 0, NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   BAMF_TYPE_APPLICATION);
-  
 }
 
 
