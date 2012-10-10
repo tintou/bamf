@@ -127,14 +127,30 @@ bamf_legacy_window_test_is_skip_tasklist (BamfLegacyWindow *legacy_window)
 }
 
 void
-bamf_legacy_window_test_set_name (BamfLegacyWindowTest *self, char *val)
+bamf_legacy_window_test_set_name (BamfLegacyWindowTest *self, const char *val)
 {
   if (g_strcmp0 (self->name, val) == 0)
     return;
 
-  self->name = val;
+  self->name = g_strdup (val);
 
   g_signal_emit_by_name (self, "name-changed");
+}
+
+void
+bamf_legacy_window_test_set_wmclass (BamfLegacyWindowTest *self, const char *class_name, const char *instance_name)
+{
+  if (g_strcmp0 (self->wm_class_name, class_name) != 0)
+    {
+      g_free (self->wm_class_name);
+      self->wm_class_name = g_strdup (class_name);
+    }
+
+  if (g_strcmp0 (self->wm_class_instance, instance_name) != 0)
+    {
+      g_free (self->wm_class_instance);
+      self->wm_class_instance = g_strdup (instance_name);
+    }
 }
 
 static const char *
@@ -432,7 +448,7 @@ bamf_legacy_window_copy (BamfLegacyWindowTest *self)
 }
 
 BamfLegacyWindowTest *
-bamf_legacy_window_test_new (guint32 xid, gchar *name, gchar *wmclass_name, gchar *exec)
+bamf_legacy_window_test_new (guint32 xid, const gchar *name, const gchar *wmclass_name, const gchar *exec)
 {
   BamfLegacyWindowTest *self;
 
