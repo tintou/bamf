@@ -26,7 +26,6 @@
 #include "bamf-window.h"
 #include "bamf-legacy-screen.h"
 #include "bamf-indicator-source.h"
-#include "bamf-xutils.h"
 
 #ifdef HAVE_WEBAPPS
 #include "bamf-unity-webapps-application.h"
@@ -370,6 +369,11 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
       binary = "libreoffice";
       parameter = "draw";
     }
+  else if (g_str_has_suffix (name, "LibreOffice Base"))
+    {
+      binary = "libreoffice";
+      parameter = "base";
+    }
   else if (g_strcmp0 (class, "libreoffice-startcenter") == 0)
     {
       binary = "libreoffice";
@@ -402,6 +406,11 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
     {
       binary = "ooffice";
       parameter = "draw";
+    }
+  else if (g_str_has_suffix (name, "OpenOffice.org Base"))
+    {
+      binary = "ooffice";
+      parameter = "base";
     }
   else if (g_strcmp0 (name, "OpenOffice.org") == 0 && type == BAMF_WINDOW_NORMAL)
     {
@@ -436,6 +445,11 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
           {
             binary = "libreoffice";
             parameter = "draw";
+          }
+        else if (g_strcmp0 (class, "libreoffice-base") == 0)
+          {
+            binary = "libreoffice";
+            parameter = "base";
           }
       }
 
@@ -1398,24 +1412,6 @@ is_open_office_window (BamfMatcher * self, BamfLegacyWindow * window)
 }
 
 static char *
-get_window_hint (BamfLegacyWindow *window, const char *atom_name)
-{
-  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
-
-  Window xid = bamf_legacy_window_get_xid (window);
-  return bamf_xutils_get_window_hint (xid, atom_name, XA_STRING);
-}
-
-static void
-set_window_hint (BamfLegacyWindow * window, const char *atom_name, const char *data)
-{
-  g_return_if_fail (BAMF_LEGACY_WINDOW (window));
-
-  Window xid = bamf_legacy_window_get_xid (window);
-  bamf_xutils_set_window_hint (xid, atom_name, XA_STRING, data);
-}
-
-static char *
 process_exec_string (gint pid)
 {
   gchar *result = NULL;
@@ -1655,7 +1651,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
   priv = self->priv;
   window = bamf_window_get_window (bamf_window);
-  desktop_file = get_window_hint (window, _NET_WM_DESKTOP_FILE);
+  desktop_file = bamf_legacy_window_get_hint (window, _NET_WM_DESKTOP_FILE);
   class_name = bamf_legacy_window_get_class_name (window);
   instance_name = bamf_legacy_window_get_class_instance_name (window);
 
@@ -1972,7 +1968,7 @@ ensure_window_hint_set (BamfMatcher *self,
       return;
     }
 
-  desktop_file_hint = get_window_hint (window, _NET_WM_DESKTOP_FILE);
+  desktop_file_hint = bamf_legacy_window_get_hint (window, _NET_WM_DESKTOP_FILE);
 
   if (desktop_file_hint)
     {
@@ -2009,7 +2005,7 @@ ensure_window_hint_set (BamfMatcher *self,
   g_array_free (pids, TRUE);
 
   if (desktop_file_hint)
-    set_window_hint (window, _NET_WM_DESKTOP_FILE, desktop_file_hint);
+    bamf_legacy_window_set_hint (window, _NET_WM_DESKTOP_FILE, desktop_file_hint);
 }
 
 static void
@@ -2054,7 +2050,7 @@ on_open_office_window_name_changed (BamfLegacyWindow *window, BamfMatcher* self)
   char *old_hint;
   const char *new_hint;
 
-  old_hint = get_window_hint (window, _NET_WM_DESKTOP_FILE);
+  old_hint = bamf_legacy_window_get_hint (window, _NET_WM_DESKTOP_FILE);
   new_hint = get_open_office_window_hint (self, window);
 
   if (new_hint && g_strcmp0 (new_hint, old_hint) != 0)
@@ -2083,7 +2079,7 @@ get_gnome_control_center_window_hint (BamfMatcher * self, BamfLegacyWindow * win
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
 
-  role = get_window_hint (window, WM_WINDOW_ROLE);
+  role = bamf_legacy_window_get_hint (window, WM_WINDOW_ROLE);
   exec = g_strconcat ("gnome-control-center", (role ? " " : NULL), role, NULL);
 
   desktopFileTable = self->priv->desktop_file_table;
@@ -2109,7 +2105,7 @@ on_gnome_control_center_window_name_changed (BamfLegacyWindow *window, BamfMatch
   char *old_hint;
   const char *new_hint;
 
-  old_hint = get_window_hint (window, _NET_WM_DESKTOP_FILE);
+  old_hint = bamf_legacy_window_get_hint (window, _NET_WM_DESKTOP_FILE);
   new_hint = get_gnome_control_center_window_hint (self, window);
 
   if (new_hint && g_strcmp0 (new_hint, old_hint) != 0)
@@ -2150,12 +2146,12 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
           return;
         }
 
-      char *old_hint = get_window_hint (window, _NET_WM_DESKTOP_FILE);
+      char *old_hint = bamf_legacy_window_get_hint (window, _NET_WM_DESKTOP_FILE);
       const char *new_hint = get_open_office_window_hint (self, window);
 
       if (new_hint && g_strcmp0 (old_hint, new_hint) != 0)
         {
-          set_window_hint (window, _NET_WM_DESKTOP_FILE, new_hint);
+          bamf_legacy_window_set_hint (window, _NET_WM_DESKTOP_FILE, new_hint);
         }
 
       g_object_ref (window);
@@ -2166,12 +2162,12 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
     }
   else if (g_strcmp0 (bamf_legacy_window_get_class_name (window), "Gnome-control-center") == 0)
     {
-      char *old_hint = get_window_hint (window, _NET_WM_DESKTOP_FILE);
+      char *old_hint = bamf_legacy_window_get_hint (window, _NET_WM_DESKTOP_FILE);
       const char *new_hint = get_gnome_control_center_window_hint (self, window);
 
       if (new_hint && g_strcmp0 (old_hint, new_hint) != 0)
         {
-          set_window_hint (window, _NET_WM_DESKTOP_FILE, new_hint);
+          bamf_legacy_window_set_hint (window, _NET_WM_DESKTOP_FILE, new_hint);
         }
 
       g_object_ref (window);
