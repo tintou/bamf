@@ -31,6 +31,7 @@ static void test_load_desktop_file (void);
 static void test_open_windows (void);
 static void test_match_desktopless_application (void);
 static void test_match_desktop_application (void);
+static void test_match_libreoffice_windows (void);
 static void test_new_desktop_matches_unmatched_windows (void);
 
 static GDBusConnection *gdbus_connection = NULL;
@@ -47,9 +48,10 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
   g_test_add_func (DOMAIN"/LoadDesktopFile", test_load_desktop_file);
   g_test_add_func (DOMAIN"/OpenWindows", test_open_windows);
-  g_test_add_func (DOMAIN"/MatchDesktopLessApplication", test_match_desktopless_application);
-  g_test_add_func (DOMAIN"/MatchDesktopApplication", test_match_desktop_application);
-  g_test_add_func (DOMAIN"/NewMatchesUnmatchedWindows", test_new_desktop_matches_unmatched_windows);
+  g_test_add_func (DOMAIN"/Matching/Application/DesktopLess", test_match_desktopless_application);
+  g_test_add_func (DOMAIN"/Matching/Application/Desktop", test_match_desktop_application);
+  g_test_add_func (DOMAIN"/Matching/Application/LibreOffice", test_match_libreoffice_windows);
+  g_test_add_func (DOMAIN"/Matching/Windows/UnmatchedOnNewDesktop", test_new_desktop_matches_unmatched_windows);
 }
 
 static void
@@ -64,6 +66,34 @@ export_matcher_on_bus (BamfMatcher *matcher)
 
   g_assert (!error);
   g_clear_error (&error);
+}
+
+static void
+cleanup_matcher_tables (BamfMatcher *matcher)
+{
+  g_return_if_fail (BAMF_IS_MATCHER (matcher));
+
+  g_hash_table_destroy (matcher->priv->desktop_file_table);
+  g_hash_table_destroy (matcher->priv->desktop_id_table);
+  g_hash_table_destroy (matcher->priv->desktop_class_table);
+
+  matcher->priv->desktop_file_table =
+    g_hash_table_new_full ((GHashFunc) g_str_hash,
+                           (GEqualFunc) g_str_equal,
+                           (GDestroyNotify) g_free,
+                           NULL);
+
+  matcher->priv->desktop_id_table =
+    g_hash_table_new_full ((GHashFunc) g_str_hash,
+                           (GEqualFunc) g_str_equal,
+                           (GDestroyNotify) g_free,
+                           NULL);
+
+  matcher->priv->desktop_class_table =
+    g_hash_table_new_full ((GHashFunc) g_str_hash,
+                           (GEqualFunc) g_str_equal,
+                           (GDestroyNotify) g_free,
+                           (GDestroyNotify) g_free);
 }
 
 static BamfWindow *
@@ -92,6 +122,8 @@ find_window_in_app (BamfApplication *app, BamfLegacyWindow *legacy)
 {
   GList *l;
   BamfWindow *found_window = NULL;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (app), NULL);
 
   for (l = bamf_view_get_children (BAMF_VIEW (app)); l; l = l->next)
     {
@@ -125,6 +157,7 @@ test_load_desktop_file (void)
   BamfMatcher *matcher = bamf_matcher_get_default ();
   BamfMatcherPrivate *priv = matcher->priv;
 
+  cleanup_matcher_tables (matcher);
   bamf_matcher_load_desktop_file (matcher, TEST_BAMF_APP_DESKTOP);
 
   GList *l = g_hash_table_lookup (priv->desktop_file_table, "testbamfapp");
@@ -150,6 +183,7 @@ test_open_windows (void)
   screen = bamf_legacy_screen_get_default();
   matcher = bamf_matcher_get_default ();
 
+  cleanup_matcher_tables (matcher);
   export_matcher_on_bus (matcher);
 
   for (xid = G_MAXUINT; xid > G_MAXUINT-window_count; xid--)
@@ -194,9 +228,10 @@ test_match_desktopless_application (void)
 
   screen = bamf_legacy_screen_get_default();
   matcher = bamf_matcher_get_default ();
-  char *exec = "test-bamf-app";
-  char *class = "test-bamf-app";
+  const char *exec = "test-bamf-app";
+  const char *class = "test-bamf-app";
 
+  cleanup_matcher_tables (matcher);
   export_matcher_on_bus (matcher);
 
   for (xid = G_MAXUINT; xid > G_MAXUINT-window_count; xid--)
@@ -241,9 +276,10 @@ test_match_desktop_application (void)
 
   screen = bamf_legacy_screen_get_default();
   matcher = bamf_matcher_get_default ();
-  char *exec = "testbamfapp";
-  char *class = "test_bamf_app";
+  const char *exec = "testbamfapp";
+  const char *class = "test_bamf_app";
 
+  cleanup_matcher_tables (matcher);
   export_matcher_on_bus (matcher);
   bamf_matcher_load_desktop_file (matcher, TEST_BAMF_APP_DESKTOP);
 
@@ -290,9 +326,10 @@ test_new_desktop_matches_unmatched_windows (void)
 
   screen = bamf_legacy_screen_get_default();
   matcher = bamf_matcher_get_default ();
-  char *exec = "testbamfapp";
-  char *class = "test_bamf_app";
+  const char *exec = "testbamfapp";
+  const char *class = "test_bamf_app";
 
+  cleanup_matcher_tables (matcher);
   export_matcher_on_bus (matcher);
   g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, TEST_BAMF_APP_DESKTOP));
 
@@ -318,6 +355,126 @@ test_new_desktop_matches_unmatched_windows (void)
     {
       g_assert (bamf_matcher_get_application_by_xid (matcher, xid) == app);
     }
+
+  g_object_unref (matcher);
+  g_object_unref (screen);
+}
+
+static void
+test_match_libreoffice_windows (void)
+{
+  BamfMatcher *matcher;
+  BamfWindow *window;
+  BamfLegacyScreen *screen;
+  BamfLegacyWindowTest *test_win;
+  BamfApplication *app;
+  char *hint;
+
+  screen = bamf_legacy_screen_get_default ();
+  matcher = bamf_matcher_get_default ();
+  guint xid = g_random_int ();
+  const char *exec = "soffice.bin";
+  const char *class_instance = "VCLSalFrame.DocumentWindow";
+
+  cleanup_matcher_tables (matcher);
+  export_matcher_on_bus (matcher);
+
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-startcenter.desktop");
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-base.desktop");
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-calc.desktop");
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-draw.desktop");
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-impress.desktop");
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-math.desktop");
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-writer.desktop");
+
+  test_win = bamf_legacy_window_test_new (xid, "LibreOffice", "libreoffice-startcenter", exec);
+  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-startcenter", class_instance);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-startcenter.desktop");
+  g_free (hint);
+  app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-startcenter.desktop");
+  g_assert (find_window_in_app (app, BAMF_LEGACY_WINDOW (test_win)));
+
+  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-base", class_instance);
+  bamf_legacy_window_test_set_name (test_win, "FooDoc.odb - LibreOffice Base");
+  g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-startcenter.desktop"));
+  app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-base.desktop");
+  g_assert (app);
+  window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
+  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-base.desktop");
+  g_free (hint);
+
+  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-calc", class_instance);
+  bamf_legacy_window_test_set_name (test_win, "FooDoc.ods - LibreOffice Calc");
+  g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-base.desktop"));
+  app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-calc.desktop");
+  g_assert (app);
+  window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
+  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-calc.desktop");
+  g_free (hint);
+
+  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-draw", class_instance);
+  bamf_legacy_window_test_set_name (test_win, "FooDoc.odg - LibreOffice Draw");
+  g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-calc.desktop"));
+  app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-draw.desktop");
+  g_assert (app);
+  window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
+  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-draw.desktop");
+  g_free (hint);
+
+  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-impress", class_instance);
+  bamf_legacy_window_test_set_name (test_win, "FooDoc.odp - LibreOffice Impress");
+  g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-draw.desktop"));
+  app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-impress.desktop");
+  g_assert (app);
+  window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
+  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-impress.desktop");
+  g_free (hint);
+
+  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-math", class_instance);
+  bamf_legacy_window_test_set_name (test_win, "FooDoc.odf - LibreOffice Math");
+  g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-impress.desktop"));
+  app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-math.desktop");
+  g_assert (app);
+  window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
+  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-math.desktop");
+  g_free (hint);
+
+  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-writer", class_instance);
+  bamf_legacy_window_test_set_name (test_win, "FooDoc.odt - LibreOffice Writer");
+  g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-math.desktop"));
+  app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-writer.desktop");
+  g_assert (app);
+  window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
+  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-writer.desktop");
+  g_free (hint);
+
+  xid = g_random_int ();
+  test_win = bamf_legacy_window_test_new (xid, "BarDoc.odt - LibreOffice Writer", "libreoffice-writer", exec);
+  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-writer", class_instance);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  g_assert_cmpuint (g_list_length (bamf_view_get_children (BAMF_VIEW (app))), ==, 2);
+
+  xid = g_random_int ();
+  test_win = bamf_legacy_window_test_new (xid, "BarDoc.ods - LibreOffice Calc", "libreoffice-calc", exec);
+  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-calc", class_instance);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+  g_assert (bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-calc.desktop"));
 
   g_object_unref (matcher);
   g_object_unref (screen);
