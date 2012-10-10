@@ -6,11 +6,6 @@ EXTRA_DIST =
 
 include $(top_srcdir)/Makefile.am.marshal
 
-INCLUDE = \
-		-I.		\
-		-I$(srcdir)	\
-		$(NULL)
-
 bamfdaemondir = $(libexecdir)
 
 bamfdaemon_PROGRAMS = \
@@ -95,6 +90,10 @@ bamfdaemon_SOURCES = \
 		$(bamfdaemon_headers) \
 		$(NULL)
 
+nodist_bamfdaemon_SOURCES = \
+		$(bamfdaemon_built_sources) \
+		$(NULL)
+
 if HAVE_WEBAPPS
 bamfdaemon_SOURCES += \
 		$(bamfdaemon_webapps_sources) \
@@ -102,12 +101,22 @@ bamfdaemon_SOURCES += \
 		$(NULL)
 endif
 
-nodist_bamfdaemon_SOURCES = \
-		$(bamfdaemon_built_sources) \
+EXTRA_DIST += \
+		$(bamfdaemon_webapps_sources) \
+		$(bamfdaemon_webapps_headers) \
 		$(NULL)
 
 glib_marshal_list = bamf-marshal.list
 glib_marshal_prefix = bamf_marshal
+
+# resetting BUILT_SOURCES here is intended
+BUILT_SOURCES = \
+		$(bamfdaemon_built_sources) \
+		$(NULL)
+
+CLEANFILES += \
+		$(bamfdaemon_built_sources) \
+		$(NULL)
 
 bamfdaemon_LDADD = \
 		$(X_LIBS) \
@@ -122,7 +131,8 @@ bamfdaemon_CFLAGS = \
 		-Wall -std=c99 \
 		-DDATADIR=\""$(datadir)"\" \
 		-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
-		-I$(top_srcdir)/src \
+		-I$(srcdir) \
+		-I$(builddir) \
 		$(GLIB_CFLAGS) \
 		$(GTK_CFLAGS) \
 		$(WNCK_CFLAGS) \
@@ -163,23 +173,7 @@ bamf-gdbus-indicator-source-generated.c bamf-gdbus-indicator-source-generated.h:
 		--interface-prefix com.canonical.StatusNotifierApprover \
 		$<
 
-dist-hook:
-	find $(top_distdir)/src -name bamf-gdbus-\*-generated.\* -exec rm -v {} \;
-
-BUILT_SOURCES += \
-		$(bamfdaemon_gdbus_files) \
-		$(NULL)
-
 EXTRA_DIST += \
 		$(bamfdaemon_xml_gdbus_files) \
-		$(bamfdaemon_webapps_sources) \
-		$(bamfdaemon_webapps_headers) \
 		$(NULL)
 
-DISTCLEANFILES += \
-		$(bamfdaemon_built_sources) \
-		$(NULL)
-
-CLEANFILES += \
-		$(bamfdaemon_built_sources) \
-		$(NULL)
