@@ -443,7 +443,8 @@ be prefered by bamf to system desktop files.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>favorites</code></em> :</span></p></td>
-<td>an array of strings, each containing an absolute path to a .desktop file</td>
+<td>an array of strings, each containing an absolute path to a .desktop file. <span class="annotation">[<acronym title="Parameter points to an array of items."><span class="acronym">array</span></acronym>]</span>
+</td>
 </tr>
 </tbody>
 </table></div>
@@ -454,8 +455,8 @@ be prefered by bamf to system desktop files.
 <div class="refsect2">
 <a name="BamfMatcher-active-application-changed"></a><h3>The <code class="literal">"active-application-changed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *bamfmatcher,
-                                                        <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject"><span class="type">GObject</span></a>     *arg1,
-                                                        <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject"><span class="type">GObject</span></a>     *arg2,
+                                                        <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>    *arg1,
+                                                        <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>    *arg2,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>     user_data)</pre>
 <p>
 </p>
@@ -477,8 +478,8 @@ be prefered by bamf to system desktop files.
 <div class="refsect2">
 <a name="BamfMatcher-active-window-changed"></a><h3>The <code class="literal">"active-window-changed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *bamfmatcher,
-                                                        <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject"><span class="type">GObject</span></a>     *arg1,
-                                                        <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject"><span class="type">GObject</span></a>     *arg2,
+                                                        <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>    *arg1,
+                                                        <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>    *arg2,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>     user_data)</pre>
 <p>
 </p>
@@ -521,7 +522,7 @@ be prefered by bamf to system desktop files.
 <div class="refsect2">
 <a name="BamfMatcher-view-closed"></a><h3>The <code class="literal">"view-closed"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *bamfmatcher,
-                                                        <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject"><span class="type">GObject</span></a>     *arg1,
+                                                        <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>    *arg1,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>     user_data)</pre>
 <p>
 </p>
@@ -543,7 +544,7 @@ be prefered by bamf to system desktop files.
 <div class="refsect2">
 <a name="BamfMatcher-view-opened"></a><h3>The <code class="literal">"view-opened"</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                user_function                      (<a class="link" href="BamfMatcher.html" title="BamfMatcher"><span class="type">BamfMatcher</span></a> *bamfmatcher,
-                                                        <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject"><span class="type">GObject</span></a>     *arg1,
+                                                        <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>    *arg1,
                                                         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>     user_data)</pre>
 <p>
 </p>

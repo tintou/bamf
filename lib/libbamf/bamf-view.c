@@ -270,7 +270,7 @@ bamf_view_is_active (BamfView *view)
  * bamf_view_user_visible:
  * @view: a #BamfView
  *
- * Returns a boolean useful for determining if a particular view is "user visible". User visible
+ * Returns: a boolean useful for determining if a particular view is "user visible". User visible
  * is a concept relating to whether or not a window should be shown in a launcher tasklist.
  */
 gboolean
@@ -1062,7 +1062,7 @@ bamf_view_class_init (BamfViewClass *klass)
     g_signal_new ("child-moved",
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
-                  0,
+                  G_STRUCT_OFFSET (BamfViewClass, child_moved),
                   NULL, NULL,
                   g_cclosure_marshal_VOID__OBJECT,
                   G_TYPE_NONE, 1,
@@ -1102,7 +1102,8 @@ bamf_view_class_init (BamfViewClass *klass)
         g_signal_new ("name-changed",
                       G_OBJECT_CLASS_TYPE (klass),
                       0,
-                      0, NULL, NULL,
+                      G_STRUCT_OFFSET (BamfViewClass, name_changed),
+                      NULL, NULL,
                       _bamf_marshal_VOID__STRING_STRING,
                       G_TYPE_NONE, 2,
                       G_TYPE_STRING,
