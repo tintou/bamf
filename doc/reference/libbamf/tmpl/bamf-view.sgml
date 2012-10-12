@@ -162,6 +162,7 @@ BamfView
 @urgent_changed: 
 @user_visible_changed: 
 @name_changed: 
+@child_moved: 
 
 <!-- ##### FUNCTION bamf_view_get_children ##### -->
 <para>

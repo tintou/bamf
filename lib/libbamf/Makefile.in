@@ -69,13 +69,12 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-DIST_COMMON = $(am__dist_gir_DATA_DIST) $(library_include_HEADERS) \
-	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/libbamf.pc.in $(srcdir)/libbamf3.pc.in \
-	$(top_srcdir)/Makefile.am.marshal
+DIST_COMMON = $(libbamf_include_HEADERS) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in $(srcdir)/libbamf.pc.in \
+	$(srcdir)/libbamf3.pc.in $(top_srcdir)/Makefile.am.marshal
 @HAVE_INTROSPECTION_TRUE@am__append_1 = Bamf-0.2.gir
-@HAVE_INTROSPECTION_TRUE@am__append_2 = $(dist_gir_DATA) $(typelib_DATA)
-@HAVE_INTROSPECTION_TRUE@am__append_3 = $(vapi_DATA)
+@HAVE_INTROSPECTION_TRUE@am__append_2 = $(gir_DATA) $(typelib_DATA) \
+@HAVE_INTROSPECTION_TRUE@	$(vapi_DATA)
 subdir = lib/libbamf
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gtk-doc.m4 \
@@ -117,7 +116,7 @@ am__uninstall_files_from_dir = { \
   }
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(girdir)" \
 	"$(DESTDIR)$(libbamf_pcdir)" "$(DESTDIR)$(typelibdir)" \
-	"$(DESTDIR)$(vapidir)" "$(DESTDIR)$(library_includedir)"
+	"$(DESTDIR)$(vapidir)" "$(DESTDIR)$(libbamf_includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libbamf_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
@@ -128,13 +127,11 @@ am__objects_2 = libbamf_la-bamf-application.lo \
 	libbamf_la-bamf-view.lo libbamf_la-bamf-window.lo \
 	libbamf_la-bamf-factory.lo libbamf_la-bamf-tab-source.lo \
 	libbamf_la-bamf-tab.lo libbamf_la-bamf-indicator.lo
-am__objects_3 = $(am__objects_1)
-am__objects_4 = libbamf_la-bamf-marshal.lo
-am__objects_5 = $(am__objects_4)
-am__objects_6 = $(am__objects_3) $(am__objects_5)
-am_libbamf_la_OBJECTS = $(am__objects_1) $(am__objects_2) \
-	$(am__objects_6)
-libbamf_la_OBJECTS = $(am_libbamf_la_OBJECTS)
+am_libbamf_la_OBJECTS = $(am__objects_1) $(am__objects_2)
+am__objects_3 = libbamf_la-bamf-marshal.lo
+nodist_libbamf_la_OBJECTS = $(am__objects_3)
+libbamf_la_OBJECTS = $(am_libbamf_la_OBJECTS) \
+	$(nodist_libbamf_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -145,17 +142,17 @@ libbamf_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
 libbamf3_la_DEPENDENCIES = $(am__DEPENDENCIES_2)
-am__objects_7 = libbamf3_la-bamf-application.lo \
+am__objects_4 = libbamf3_la-bamf-application.lo \
 	libbamf3_la-bamf-control.lo libbamf3_la-bamf-matcher.lo \
 	libbamf3_la-bamf-view.lo libbamf3_la-bamf-window.lo \
 	libbamf3_la-bamf-factory.lo libbamf3_la-bamf-tab-source.lo \
 	libbamf3_la-bamf-tab.lo libbamf3_la-bamf-indicator.lo
-am__objects_8 = libbamf3_la-bamf-marshal.lo
-am__objects_9 = $(am__objects_8)
-am__objects_10 = $(am__objects_3) $(am__objects_9)
-am__objects_11 = $(am__objects_1) $(am__objects_7) $(am__objects_10)
-am_libbamf3_la_OBJECTS = $(am__objects_11)
-libbamf3_la_OBJECTS = $(am_libbamf3_la_OBJECTS)
+am__objects_5 = $(am__objects_1) $(am__objects_4)
+am_libbamf3_la_OBJECTS = $(am__objects_5)
+am__objects_6 = libbamf3_la-bamf-marshal.lo
+nodist_libbamf3_la_OBJECTS = $(am__objects_6)
+libbamf3_la_OBJECTS = $(am_libbamf3_la_OBJECTS) \
+	$(nodist_libbamf3_la_OBJECTS)
 libbamf3_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(libbamf3_la_LDFLAGS) $(LDFLAGS) -o $@
@@ -186,17 +183,16 @@ am__v_CCLD_0 = @echo "  CCLD  " $@;
 AM_V_GEN = $(am__v_GEN_@AM_V@)
 am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
 am__v_GEN_0 = @echo "  GEN   " $@;
-SOURCES = $(libbamf_la_SOURCES) $(libbamf3_la_SOURCES)
+SOURCES = $(libbamf_la_SOURCES) $(nodist_libbamf_la_SOURCES) \
+	$(libbamf3_la_SOURCES) $(nodist_libbamf3_la_SOURCES)
 DIST_SOURCES = $(libbamf_la_SOURCES) $(libbamf3_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__dist_gir_DATA_DIST = Bamf-0.2.gir
-DATA = $(dist_gir_DATA) $(libbamf_pc_DATA) $(typelib_DATA) \
-	$(vapi_DATA)
-HEADERS = $(library_include_HEADERS)
+DATA = $(gir_DATA) $(libbamf_pc_DATA) $(typelib_DATA) $(vapi_DATA)
+HEADERS = $(libbamf_include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -364,14 +360,24 @@ top_srcdir = @top_srcdir@
 @USE_GTK3_TRUE@VER = 3
 @USE_GTK3_FALSE@lib_LTLIBRARIES = libbamf.la
 @USE_GTK3_TRUE@lib_LTLIBRARIES = libbamf3.la
-CLEANFILES = stamp-marshal $(am__append_2)
-DISTCLEANFILES = $(marshal_h) $(marshal_c) bamf-tab-source-glue.h \
-	$(NULL) $(am__append_3)
-BUILT_SOURCES = $(marshal_h) $(marshal_c) bamf-tab-source-glue.h \
+CLEANFILES = stamp-marshal $(libbamf_built_sources) $(NULL) \
+	$(am__append_2)
+DISTCLEANFILES = $(marshal_h) $(marshal_c)
+
+# resetting BUILT_SOURCES here is intended
+BUILT_SOURCES = \
+	$(libbamf_built_sources) \
 	$(NULL)
-EXTRA_DIST = $(glib_marshal_list) bamf-tab-source-glue.xml $(NULL)
+
+EXTRA_DIST = $(glib_marshal_list) bamf-tab-source-glue.xml
 marshal_h = $(glib_marshal_list:.list=.h)
 marshal_c = $(glib_marshal_list:.list=.c)
+libbamf_built_sources = \
+  bamf-marshal.c \
+  bamf-marshal.h \
+  bamf-tab-source-glue.h \
+  $(NULL)
+
 libbamf_sources = \
   bamf-application.c \
   bamf-control.c \
@@ -384,7 +390,7 @@ libbamf_sources = \
   bamf-indicator.c \
   $(NULL)
 
-sources_h = \
+libbamf_headers = \
   bamf-application.h \
   bamf-indicator.h \
   bamf-control.h \
@@ -400,10 +406,12 @@ libbamf_la_SOURCES = \
   bamf-factory.h \
   bamf-application-private.h \
   bamf-view-private.h \
-  $(sources_h) \
+  $(libbamf_headers) \
   $(libbamf_sources) \
-  $(BUILT_SOURCES) \
   $(NULL)
+
+nodist_libbamf_la_SOURCES = \
+  $(libbamf_built_sources)
 
 libbamf_la_LIBADD = \
   $(LIBWSBIND_LIBS) \
@@ -416,6 +424,7 @@ libbamf_la_CPPFLAGS = \
   -fPIC \
   -DDATADIR=\""$(datadir)"\" \
   -I$(top_srcdir)/lib \
+  -I$(top_builddir)/lib \
   -I$(top_srcdir)/lib/libbamf \
   -I$(top_builddir)/lib/libbamf \
   $(LIBWSBIND_CFLAGS) \
@@ -429,18 +438,19 @@ libbamf_la_LDFLAGS = \
   $(NULL)
 
 libbamf3_la_SOURCES = $(libbamf_la_SOURCES)
+nodist_libbamf3_la_SOURCES = $(libbamf_built_sources)
 libbamf3_la_LIBADD = $(libbamf_la_LIBADD)
 libbamf3_la_CPPFLAGS = $(libbamf_la_CPPFLAGS)
 libbamf3_la_LDFLAGS = $(libbamf_la_LDFLAGS)
 glib_marshal_list = bamf-marshal.list
 glib_marshal_prefix = _bamf_marshal
-library_includedir = $(includedir)/libbamf$(VER)/libbamf
-library_include_HEADERS = \
-  $(sources_h)
+libbamf_includedir = $(includedir)/libbamf$(VER)/libbamf
+libbamf_include_HEADERS = \
+	$(libbamf_headers)
 
 libbamf_pcdir = $(libdir)/pkgconfig
 libbamf_pc_DATA = \
-  libbamf$(VER).pc
+	libbamf$(VER).pc
 
 
 #########################
@@ -449,9 +459,14 @@ libbamf_pc_DATA = \
 INTROSPECTION_GIRS = $(am__append_1)
 INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)
 INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
-@HAVE_INTROSPECTION_TRUE@introspection_sources = $(libbamf_la_SOURCES)
+@HAVE_INTROSPECTION_TRUE@introspection_sources = \
+@HAVE_INTROSPECTION_TRUE@	$(libbamf_headers) \
+@HAVE_INTROSPECTION_TRUE@	$(libbamf_sources) \
+@HAVE_INTROSPECTION_TRUE@	$(NULL)
+
 @HAVE_INTROSPECTION_TRUE@Bamf_0_2_gir_INCLUDES = GObject-2.0 GLib-2.0
 @HAVE_INTROSPECTION_TRUE@Bamf_0_2_gir_CFLAGS = \
+@HAVE_INTROSPECTION_TRUE@	--warn-all \
 @HAVE_INTROSPECTION_TRUE@	--c-include='libbamf/libbamf.h' \
 @HAVE_INTROSPECTION_TRUE@	$(DBUS_CFLAGS) \
 @HAVE_INTROSPECTION_TRUE@	-I$(top_srcdir)/lib \
@@ -462,7 +477,7 @@ INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
 @HAVE_INTROSPECTION_TRUE@Bamf_0_2_gir_FILES = $(introspection_sources)
 @HAVE_INTROSPECTION_TRUE@Bamf_0_2_gir_EXPORT_PACKAGES = libbamf$(VER)
 @HAVE_INTROSPECTION_TRUE@girdir = $(datadir)/gir-1.0
-@HAVE_INTROSPECTION_TRUE@dist_gir_DATA = $(INTROSPECTION_GIRS)
+@HAVE_INTROSPECTION_TRUE@gir_DATA = $(INTROSPECTION_GIRS)
 @HAVE_INTROSPECTION_TRUE@typelibdir = $(libdir)/girepository-1.0
 @HAVE_INTROSPECTION_TRUE@typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
@@ -741,9 +756,9 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-dist_girDATA: $(dist_gir_DATA)
+install-girDATA: $(gir_DATA)
 	@$(NORMAL_INSTALL)
-	@list='$(dist_gir_DATA)'; test -n "$(girdir)" || list=; \
+	@list='$(gir_DATA)'; test -n "$(girdir)" || list=; \
 	if test -n "$$list"; then \
 	  echo " $(MKDIR_P) '$(DESTDIR)$(girdir)'"; \
 	  $(MKDIR_P) "$(DESTDIR)$(girdir)" || exit 1; \
@@ -757,9 +772,9 @@ install-dist_girDATA: $(dist_gir_DATA)
 	  $(INSTALL_DATA) $$files "$(DESTDIR)$(girdir)" || exit $$?; \
 	done
 
-uninstall-dist_girDATA:
+uninstall-girDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(dist_gir_DATA)'; test -n "$(girdir)" || list=; \
+	@list='$(gir_DATA)'; test -n "$(girdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(girdir)'; $(am__uninstall_files_from_dir)
 install-libbamf_pcDATA: $(libbamf_pc_DATA)
@@ -825,27 +840,27 @@ uninstall-vapiDATA:
 	@list='$(vapi_DATA)'; test -n "$(vapidir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(vapidir)'; $(am__uninstall_files_from_dir)
-install-library_includeHEADERS: $(library_include_HEADERS)
+install-libbamf_includeHEADERS: $(libbamf_include_HEADERS)
 	@$(NORMAL_INSTALL)
-	@list='$(library_include_HEADERS)'; test -n "$(library_includedir)" || list=; \
+	@list='$(libbamf_include_HEADERS)'; test -n "$(libbamf_includedir)" || list=; \
 	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(library_includedir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(library_includedir)" || exit 1; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(libbamf_includedir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(libbamf_includedir)" || exit 1; \
 	fi; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  echo "$$d$$p"; \
 	done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(library_includedir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(library_includedir)" || exit $$?; \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libbamf_includedir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libbamf_includedir)" || exit $$?; \
 	done
 
-uninstall-library_includeHEADERS:
+uninstall-libbamf_includeHEADERS:
 	@$(NORMAL_UNINSTALL)
-	@list='$(library_include_HEADERS)'; test -n "$(library_includedir)" || list=; \
+	@list='$(libbamf_include_HEADERS)'; test -n "$(libbamf_includedir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(library_includedir)'; $(am__uninstall_files_from_dir)
+	dir='$(DESTDIR)$(libbamf_includedir)'; $(am__uninstall_files_from_dir)
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -934,7 +949,7 @@ check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(LTLIBRARIES) $(DATA) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(girdir)" "$(DESTDIR)$(libbamf_pcdir)" "$(DESTDIR)$(typelibdir)" "$(DESTDIR)$(vapidir)" "$(DESTDIR)$(library_includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(girdir)" "$(DESTDIR)$(libbamf_pcdir)" "$(DESTDIR)$(typelibdir)" "$(DESTDIR)$(vapidir)" "$(DESTDIR)$(libbamf_includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -994,9 +1009,8 @@ info: info-am
 
 info-am:
 
-install-data-am: install-dist_girDATA install-libbamf_pcDATA \
-	install-library_includeHEADERS install-typelibDATA \
-	install-vapiDATA
+install-data-am: install-girDATA install-libbamf_includeHEADERS \
+	install-libbamf_pcDATA install-typelibDATA install-vapiDATA
 
 install-dvi: install-dvi-am
 
@@ -1042,8 +1056,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-dist_girDATA uninstall-libLTLIBRARIES \
-	uninstall-libbamf_pcDATA uninstall-library_includeHEADERS \
+uninstall-am: uninstall-girDATA uninstall-libLTLIBRARIES \
+	uninstall-libbamf_includeHEADERS uninstall-libbamf_pcDATA \
 	uninstall-typelibDATA uninstall-vapiDATA
 
 .MAKE: all check install install-am install-strip
@@ -1052,20 +1066,19 @@ uninstall-am: uninstall-dist_girDATA uninstall-libLTLIBRARIES \
 	clean-libLTLIBRARIES clean-libtool ctags distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am \
-	install-dist_girDATA install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-libLTLIBRARIES install-libbamf_pcDATA \
-	install-library_includeHEADERS install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	install-typelibDATA install-vapiDATA installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-dist_girDATA \
-	uninstall-libLTLIBRARIES uninstall-libbamf_pcDATA \
-	uninstall-library_includeHEADERS uninstall-typelibDATA \
-	uninstall-vapiDATA
+	install install-am install-data install-data-am install-dvi \
+	install-dvi-am install-exec install-exec-am install-girDATA \
+	install-html install-html-am install-info install-info-am \
+	install-libLTLIBRARIES install-libbamf_includeHEADERS \
+	install-libbamf_pcDATA install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip install-typelibDATA \
+	install-vapiDATA installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags uninstall uninstall-am \
+	uninstall-girDATA uninstall-libLTLIBRARIES \
+	uninstall-libbamf_includeHEADERS uninstall-libbamf_pcDATA \
+	uninstall-typelibDATA uninstall-vapiDATA
 
 
 stamp-marshal: $(glib_marshal_list)
@@ -1090,6 +1103,7 @@ $(marshal_c): $(marshal_h)
 	&& rm -f xgen-mc
 
 -include $(INTROSPECTION_MAKEFILE)
+  $(NULL)
 
 bamf-tab-source-glue.h: bamf-tab-source-glue.xml
 	$(AM_V_GEN)$(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_tab_source --mode=glib-server --output=$@ $<

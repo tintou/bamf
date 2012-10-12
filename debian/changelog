@@ -1,3 +1,18 @@
+bamf (0.3.4-0ubuntu1) UNRELEASED; urgency=low
+
+  * New upstream release.
+    - BamfFactory: don't use the secondary matching method for views with
+      valid .desktop file (LP: #1026426) (already cherry-picked to Ubuntu)
+    - Autoconf: Make libunity-webapps an optional dependency
+    - Libbamf: Some signal, type and annotation fixes
+    - libbamf: gir-annotion fixes and make gi-scanner verbose
+    - Autoconf: Exclude generated sources from tarball and fix "make 
+      distcheck".
+    - BamfMatcher: add support for libreoffice Base, and libreoffice matching 
+      tests (LP: #1063862)
+
+ -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Fri, 12 Oct 2012 13:29:53 +0300
+
 bamf (0.3.2-0ubuntu1) quantal-proposed; urgency=low
 
   [ Łukasz 'sil2100' Zemczak ]

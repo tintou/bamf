@@ -112,6 +112,11 @@ bamf_control_init (BamfControl *self)
     }
 }
 
+/**
+ * bamf_control_get_default:
+ *
+ * Returns: (transfer none): The default #BamfControl reference.
+ */
 BamfControl *
 bamf_control_get_default (void)
 {
