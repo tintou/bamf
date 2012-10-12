@@ -21,7 +21,6 @@
 #include "bamf-unity-webapps-tab.h"
 #include "bamf-matcher.h"
 
-#include "bamf-xutils.h"
 #include "bamf-legacy-window.h"
 #include "bamf-legacy-screen.h"
 
