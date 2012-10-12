@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT(bamf, 0.3.2, dx-team@canonical.com)
+AC_INIT(bamf, 0.3.4, dx-team@canonical.com)
 AC_PREREQ(2.62)
 
 AC_CONFIG_SRCDIR(src/main.c)
@@ -123,8 +123,16 @@ GTK_DOC_CHECK(1.0)
 ###########################
 # libunity_webapps
 ###########################
-PKG_CHECK_MODULES(LIBUNITY_WEBAPPS, libunity_webapps-0.2)
-
+AC_ARG_ENABLE([webapps],
+              AS_HELP_STRING([--enable-webapps],
+                             [Enable libunity-webapps support]),
+              [enable_webapps=$enableval],
+              [enable_webapps=yes])
+if test "x$enable_webapps" = "xyes"; then
+  PKG_CHECK_MODULES(LIBUNITY_WEBAPPS, libunity_webapps-0.2)
+  AC_DEFINE_UNQUOTED(HAVE_WEBAPPS, , [Use libunity-webapps])
+fi
+AM_CONDITIONAL([HAVE_WEBAPPS], [test "x$enable_webapps" = "xyes"])
 AC_SUBST(LIBUNITY_WEBAPPS_CFLAGS)
 AC_SUBST(LIBUNITY_WEBAPPS_LIBS)
 
@@ -185,6 +193,7 @@ ${PACKAGE}-${VERSION}
     Install Prefix:     ${prefix}
     Introspection:      ${enable_introspection}
     GTK+ Version:       ${with_gtk}
+    Unity Webapps:      ${enable_webapps}
     Headless tests:     ${enable_headless_tests}
 
 EOF
