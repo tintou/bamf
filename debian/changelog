@@ -1,3 +1,11 @@
+bamf (0.2.118-0ubuntu0.3) precise-proposed; urgency=low
+
+  * lib/libbamf/bamf-factory.c:
+    - LibreOffice Unity integration (launcher and switcher) is broken.
+      (LP: #1026426)
+
+ -- Omer Akram <om26er@ubuntu.com>  Fri, 12 Oct 2012 17:20:49 +0500
+
 bamf (0.2.118-0ubuntu0.2) precise-proposed; urgency=low
 
   * Cherry-pick from upstream:

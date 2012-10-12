@@ -280,7 +280,7 @@ bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
 
           /* If the primary search doesn't give out any result, we fallback
            * to children window comparison */
-          if (!matched_view)
+          if (!list_desktop_file && !matched_view)
             {
               GList *list_children, *ll;
               list_children = bamf_application_get_cached_xids (list_app);
