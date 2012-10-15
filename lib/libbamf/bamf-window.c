@@ -51,6 +51,7 @@ struct _BamfWindowPrivate
 {
   DBusGConnection *connection;
   DBusGProxy      *proxy;
+  GSList          *monitored_props;
   guint32          xid;
   guint32          pid;
   time_t           last_active;
@@ -62,6 +63,7 @@ enum
 {
   MONITOR_CHANGED,
   MAXIMIZED_CHANGED,
+  PROPERTY_CHANGED,
 
   LAST_SIGNAL,
 };
@@ -235,6 +237,12 @@ bamf_window_on_maximized_changed (DBusGProxy *proxy, gint old, gint new, BamfWin
 }
 
 static void
+bamf_window_on_property_changed (DBusGProxy *proxy, const gchar *name, const gchar *value, BamfWindow *self)
+{
+  g_signal_emit (G_OBJECT (self), window_signals[PROPERTY_CHANGED], 0, name, value);
+}
+
+static void
 bamf_window_unset_proxy (BamfWindow *self)
 {
   BamfWindowPrivate *priv;
@@ -253,6 +261,11 @@ bamf_window_unset_proxy (BamfWindow *self)
   dbus_g_proxy_disconnect_signal (self->priv->proxy,
                                   "MonitorChanged",
                                   (GCallback) bamf_window_on_monitor_changed,
+                                  self);
+
+  dbus_g_proxy_disconnect_signal (priv->proxy,
+                                  "XpropChanged",
+                                  (GCallback) bamf_window_on_property_changed,
                                   self);
 
   g_object_unref (priv->proxy);
@@ -308,6 +321,17 @@ bamf_window_set_path (BamfView *view, const char *path)
   dbus_g_proxy_connect_signal (priv->proxy,
                                "MaximizedChanged",
                                (GCallback) bamf_window_on_maximized_changed,
+                               self, NULL);
+
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "XpropChanged",
+                           G_TYPE_STRING,
+                           G_TYPE_STRING,
+                           G_TYPE_INVALID);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "XpropChanged",
+                               (GCallback) bamf_window_on_property_changed,
                                self, NULL);
 }
 
@@ -409,6 +433,56 @@ bamf_window_maximized (BamfWindow *self)
   return maximized;
 }
 
+void
+bamf_window_props_change_connect (BamfWindow *self, const char ** properties)
+{
+  BamfWindowPrivate *priv;
+  GError *error = NULL;
+
+  g_return_if_fail (BAMF_IS_WINDOW (self));
+  priv = self->priv;
+
+  if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
+    return;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "XpropsChangesConnect",
+                          &error,
+                          G_TYPE_STRV,
+                          properties,
+                          G_TYPE_INVALID,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to connect to Xprops changes: %s", error->message);
+      g_error_free (error);
+    }
+}
+
+void
+bamf_window_props_change_disconnect (BamfWindow *self, const char ** properties)
+{
+  BamfWindowPrivate *priv;
+  GError *error = NULL;
+
+  g_return_if_fail (BAMF_IS_WINDOW (self));
+  priv = self->priv;
+
+  if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
+    return;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "XpropsChangesDisconnect",
+                          &error,
+                          G_TYPE_STRV,
+                          properties,
+                          G_TYPE_INVALID,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to disconnect to Xprops changes: %s", error->message);
+      g_error_free (error);
+    }
+}
+
 static void
 bamf_window_dispose (GObject *object)
 {
@@ -452,6 +526,16 @@ bamf_window_class_init (BamfWindowClass *klass)
                   _bamf_marshal_VOID__INT_INT,
                   G_TYPE_NONE, 2,
                   G_TYPE_INT, G_TYPE_INT);
+
+  window_signals[PROPERTY_CHANGED] =
+    g_signal_new ("property-changed",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfWindowClass, property_changed),
+                  NULL, NULL,
+                  _bamf_marshal_VOID__STRING_STRING,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_STRING, G_TYPE_STRING);
 }
 
 static void

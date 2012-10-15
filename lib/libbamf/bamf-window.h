@@ -88,12 +88,12 @@ struct _BamfWindowClass
   /*< signals >*/
   void (*monitor_changed)   (BamfWindow *window, gint old_value, gint new_value);
   void (*maximized_changed) (BamfWindow *window, gint old_value, gint new_value);
+  void (*property_changed)  (BamfWindow *window, const char *property, const char *value);
 
   /*< private >*/
   void (*_window_padding1) (void);
   void (*_window_padding2) (void);
   void (*_window_padding3) (void);
-  void (*_window_padding4) (void);
 };
 
 GType             bamf_window_get_type                  (void) G_GNUC_CONST;
@@ -108,7 +108,15 @@ guint32           bamf_window_get_pid                   (BamfWindow *self);
 
 gint              bamf_window_get_monitor               (BamfWindow *self);
 
-gchar           * bamf_window_get_utf8_prop             (BamfWindow *self, const char* prop);
+gchar           * bamf_window_get_utf8_prop             (BamfWindow *self,
+                                                         const char* prop);
+
+void              bamf_window_props_change_connect      (BamfWindow *self,
+                                                         const char ** properties);
+
+void              bamf_window_props_change_disconnect   (BamfWindow *self,
+                                                         const char ** properties);
+
 BamfWindowMaximizationType bamf_window_maximized        (BamfWindow *self);
 
 time_t            bamf_window_last_active               (BamfWindow *self);
