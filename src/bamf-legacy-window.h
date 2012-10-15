@@ -40,6 +40,7 @@
 #define BAMF_LEGACY_WINDOW_SIGNAL_NAME_CHANGED     "name-changed"
 #define BAMF_LEGACY_WINDOW_SIGNAL_STATE_CHANGED    "state-changed"
 #define BAMF_LEGACY_WINDOW_SIGNAL_GEOMETRY_CHANGED "geometry-changed"
+#define BAMF_LEGACY_WINDOW_SIGNAL_HINT_CHANGED     "hint-changed"
 #define BAMF_LEGACY_WINDOW_SIGNAL_CLOSED           "closed"
 
 typedef struct _BamfLegacyWindow BamfLegacyWindow;
@@ -99,6 +100,7 @@ struct _BamfLegacyWindowClass
   void     (*name_changed)     (BamfLegacyWindow *legacy_window);
   void     (*state_changed)    (BamfLegacyWindow *legacy_window);
   void     (*geometry_changed) (BamfLegacyWindow *legacy_window);
+  void     (*hint_changed)     (BamfLegacyWindow *legacy_window, const gchar *hint);
   void     (*closed)           (BamfLegacyWindow *legacy_window);
 };
 
@@ -150,6 +152,12 @@ char             * bamf_legacy_window_get_hint             (BamfLegacyWindow *se
 void               bamf_legacy_window_set_hint             (BamfLegacyWindow *self,
                                                             const char *name,
                                                             const char *value);
+
+void               bamf_legacy_window_listen_hint_changes  (BamfLegacyWindow *self,
+                                                            const char *hint);
+
+void               bamf_legacy_window_ignore_hint_changes  (BamfLegacyWindow *self,
+                                                            const char *hint);
 
 gint               bamf_legacy_window_get_stacking_position (BamfLegacyWindow *self);
 

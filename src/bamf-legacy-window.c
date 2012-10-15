@@ -37,6 +37,7 @@ enum
   NAME_CHANGED,
   STATE_CHANGED,
   GEOMETRY_CHANGED,
+  HINT_CHANGED,
   CLOSED,
 
   LAST_SIGNAL,
@@ -47,6 +48,7 @@ static guint legacy_window_signals[LAST_SIGNAL] = { 0 };
 struct _BamfLegacyWindowPrivate
 {
   WnckWindow * legacy_window;
+  GSList     * monitored_hints;
   char       * mini_icon_path;
 #ifndef USE_GTK3
   char       * group_name;
@@ -460,6 +462,84 @@ bamf_legacy_window_set_hint (BamfLegacyWindow *self, const char *name, const cha
   bamf_xutils_set_string_window_hint (xid, name, value);
 }
 
+static GdkFilterReturn
+event_filter (GdkXEvent *gdkxevent, GdkEvent *event, gpointer data)
+{
+  BamfLegacyWindow *self = BAMF_LEGACY_WINDOW (data);
+  XEvent *xevent = gdkxevent;
+
+  if (xevent->type == PropertyNotify)
+    {
+      GdkAtom atom = gdk_x11_xatom_to_atom (xevent->xproperty.atom);
+      if (g_slist_find (self->priv->monitored_hints, GDK_ATOM_TO_POINTER (atom)))
+        {
+          gchar *atom_name = gdk_atom_name (atom);
+          g_signal_emit (self, legacy_window_signals[HINT_CHANGED], 0, atom_name);
+          g_free (atom_name);
+        }
+    }
+
+  return GDK_FILTER_CONTINUE;
+}
+
+void
+bamf_legacy_window_listen_hint_changes (BamfLegacyWindow *self, const char *hint)
+{
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
+  g_return_if_fail (hint);
+
+  Atom xatom = gdk_x11_get_xatom_by_name (hint);
+  GdkAtom atom = gdk_x11_xatom_to_atom (xatom);
+  gpointer atom_ptr = GDK_ATOM_TO_POINTER (atom);
+
+  if (g_slist_find (self->priv->monitored_hints, atom_ptr))
+    return;
+
+  if (!self->priv->monitored_hints)
+    {
+      Window xid = bamf_legacy_window_get_xid (self);
+
+    if (xid != 0)
+      {
+        GdkDisplay *dpy = gdk_display_get_default ();
+        GdkWindow *filter_window = gdk_x11_window_foreign_new_for_display (dpy, xid);
+
+        if (filter_window)
+          gdk_window_add_filter (filter_window, event_filter, self);
+      }
+    }
+
+  self->priv->monitored_hints = g_slist_prepend (self->priv->monitored_hints, atom_ptr);
+}
+
+void
+bamf_legacy_window_ignore_hint_changes (BamfLegacyWindow *self, const char *hint)
+{
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
+  g_return_if_fail (hint);
+
+  GSList *item;
+  Atom xatom = gdk_x11_get_xatom_by_name (hint);
+  GdkAtom atom = gdk_x11_xatom_to_atom (xatom);
+  gpointer atom_ptr = GDK_ATOM_TO_POINTER (atom);
+  item = g_slist_find (self->priv->monitored_hints, atom_ptr);
+
+  if (!item)
+    return;
+
+  self->priv->monitored_hints = g_slist_remove (self->priv->monitored_hints, atom_ptr);
+
+  if (!self->priv->monitored_hints)
+    {
+      Window xid = bamf_legacy_window_get_xid (self);
+      GdkDisplay *dpy = gdk_display_get_default ();
+      GdkWindow *filter_window = gdk_x11_window_lookup_for_display (dpy, xid);
+
+      if (filter_window)
+        gdk_window_remove_filter (filter_window, event_filter, self);
+    }
+}
+
 static void
 handle_window_closed (WnckScreen *screen,
                       WnckWindow *window,
@@ -543,6 +623,12 @@ bamf_legacy_window_dispose (GObject *object)
     }
 #endif
 
+  if (self->priv->monitored_hints)
+    {
+      g_slist_free (self->priv->monitored_hints);
+      self->priv->monitored_hints = NULL;
+    }
+
   if (self->priv->legacy_window)
     {
       g_signal_handler_disconnect (self->priv->legacy_window,
@@ -553,6 +639,15 @@ bamf_legacy_window_dispose (GObject *object)
 
       g_signal_handler_disconnect (self->priv->legacy_window,
                                    self->priv->geometry_changed_id);
+
+      Window xid = bamf_legacy_window_get_xid (self);
+      GdkDisplay *dpy = gdk_display_get_default ();
+      GdkWindow *filter_window = gdk_x11_window_lookup_for_display (dpy, xid);
+
+      if (filter_window)
+        gdk_window_remove_filter (filter_window, event_filter, self);
+
+      self->priv->legacy_window = NULL;
     }
 
   G_OBJECT_CLASS (bamf_legacy_window_parent_class)->dispose (object);
@@ -607,6 +702,15 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
                   NULL, NULL,
                   g_cclosure_marshal_VOID__VOID,
                   G_TYPE_NONE, 0);
+
+  legacy_window_signals [HINT_CHANGED] =
+    g_signal_new (BAMF_LEGACY_WINDOW_SIGNAL_HINT_CHANGED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfLegacyWindowClass, hint_changed),
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__STRING,
+                  G_TYPE_NONE, 1, G_TYPE_STRING);
 
   legacy_window_signals [CLOSED] =
     g_signal_new (BAMF_LEGACY_WINDOW_SIGNAL_CLOSED,
