@@ -48,6 +48,7 @@ struct _BamfWindowPrivate
   gulong name_changed_id;
   gulong state_changed_id;
   gulong geometry_changed_id;
+  gulong hints_changed_id;
   time_t last_active;
   time_t opened;
 };
@@ -225,6 +226,14 @@ handle_geometry_changed (BamfLegacyWindow *window, BamfWindow *self)
   bamf_window_ensure_monitor (self);
 }
 
+static void
+handle_hint_changed (BamfLegacyWindow *window, const char *hint_name, BamfWindow *self)
+{
+  gchar *value = bamf_window_get_string_hint (self, hint_name);
+  g_signal_emit_by_name (self->priv->dbus_iface, "xprop-changed", hint_name, value ? value : "");
+  g_free (value);
+}
+
 static const char *
 bamf_window_get_view_type (BamfView *view)
 {
@@ -253,7 +262,7 @@ bamf_window_get_monitor (BamfWindow *self)
 
   GdkScreen *gdk_screen =  gdk_screen_get_default ();
   bamf_legacy_window_get_geometry (self->priv->legacy_window, &x, &y, &width, &height);
-  
+
   return gdk_screen_get_monitor_at_point (gdk_screen, x + width/2, y + height/2);
 }
 
@@ -262,7 +271,7 @@ bamf_window_get_stable_bus_name (BamfView *view)
 {
   BamfWindow *self;
 
-  g_return_val_if_fail (BAMF_IS_WINDOW (view), NULL);  
+  g_return_val_if_fail (BAMF_IS_WINDOW (view), NULL);
   self = BAMF_WINDOW (view);
 
   return g_strdup_printf ("window%u", bamf_legacy_window_get_xid (self->priv->legacy_window));
@@ -339,6 +348,48 @@ on_dbus_handle_xprop (BamfDBusItemWindow *interface,
                                          g_variant_new ("(s)", hint ? hint : ""));
 
   g_free (hint);
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_xprops_changes_connect (BamfDBusItemWindow *interface,
+                                       GDBusMethodInvocation *invocation,
+                                       const gchar **properties,
+                                       BamfWindow *self)
+{
+  const gchar **property;
+
+  if (properties)
+    {
+      for (property = properties; *property; ++property)
+        {
+          bamf_legacy_window_listen_hint_changes (self->priv->legacy_window, *property);
+        }
+    }
+
+  g_dbus_method_invocation_return_value (invocation, NULL);
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_xprops_changes_disconnect (BamfDBusItemWindow *interface,
+                                          GDBusMethodInvocation *invocation,
+                                          const gchar **properties,
+                                          BamfWindow *self)
+{
+  const gchar **property;
+
+  if (properties)
+    {
+      for (property = properties; *property; ++property)
+        {
+          bamf_legacy_window_ignore_hint_changes (self->priv->legacy_window, *property);
+        }
+    }
+
+  g_dbus_method_invocation_return_value (invocation, NULL);
 
   return TRUE;
 }
@@ -446,6 +497,9 @@ bamf_window_constructed (GObject *object)
   self->priv->geometry_changed_id = g_signal_connect (G_OBJECT (window), "geometry-changed",
                                                       (GCallback) handle_geometry_changed, self);
 
+  self->priv->hints_changed_id = g_signal_connect (G_OBJECT (window), "hint-changed",
+                                                   (GCallback) handle_hint_changed, self);
+
   self->priv->closed_id = g_signal_connect (G_OBJECT (window), "closed",
                                             (GCallback) handle_window_closed, self);
 
@@ -481,9 +535,13 @@ bamf_window_dispose (GObject *object)
       g_signal_handler_disconnect (self->priv->legacy_window,
                                    self->priv->closed_id);
 
+      g_signal_handler_disconnect (self->priv->legacy_window,
+                                   self->priv->hints_changed_id);
+
       g_object_unref (self->priv->legacy_window);
       self->priv->legacy_window = NULL;
     }
+
   G_OBJECT_CLASS (bamf_window_parent_class)->dispose (object);
 }
 
@@ -526,6 +584,12 @@ bamf_window_init (BamfWindow * self)
 
   g_signal_connect (self->priv->dbus_iface, "handle-xprop",
                     G_CALLBACK (on_dbus_handle_xprop), self);
+
+  g_signal_connect (self->priv->dbus_iface, "handle-xprops-changes-connect",
+                    G_CALLBACK (on_dbus_handle_xprops_changes_connect), self);
+
+  g_signal_connect (self->priv->dbus_iface, "handle-xprops-changes-disconnect",
+                    G_CALLBACK (on_dbus_handle_xprops_changes_disconnect), self);
 
   g_signal_connect (self->priv->dbus_iface, "handle-monitor",
                     G_CALLBACK (on_dbus_handle_monitor), self);
