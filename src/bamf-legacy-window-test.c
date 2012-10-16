@@ -160,7 +160,15 @@ bamf_legacy_window_test_get_name (BamfLegacyWindow *legacy_window)
 
   self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
 
-  return  self->name;
+  return self->name;
+}
+
+static BamfLegacyWindow *
+bamf_legacy_window_test_get_transient (BamfLegacyWindow *legacy_window)
+{
+  BamfLegacyWindowTest *self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
+
+  return self->transient_window;
 }
 
 static const char *
@@ -386,6 +394,7 @@ bamf_legacy_window_test_class_init (BamfLegacyWindowTestClass *klass)
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
 
   obj_class->finalize         = bamf_legacy_window_test_finalize;
+  win_class->get_transient    = bamf_legacy_window_test_get_transient;
   win_class->get_name         = bamf_legacy_window_test_get_name;
   win_class->get_class_name   = bamf_legacy_window_test_get_class_name;
   win_class->get_class_instance_name = bamf_legacy_window_test_get_class_instance_name;
@@ -434,6 +443,7 @@ bamf_legacy_window_copy (BamfLegacyWindowTest *self)
   copy->application_id = g_strdup (self->application_id);
   copy->unique_bus_name = g_strdup (self->unique_bus_name);
   copy->dbus_menu_object_path = g_strdup (self->dbus_menu_object_path);
+  copy->transient_window = self->transient_window;
   copy->needs_attention = self->needs_attention;
   copy->is_desktop = self->is_desktop;
   copy->is_skip = self->is_skip;
