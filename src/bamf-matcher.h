@@ -97,7 +97,7 @@ const char  * bamf_matcher_dbus_path_for_application     (BamfMatcher *matcher,
 
 void          bamf_matcher_register_favorites            (BamfMatcher *matcher,
                                                           const char **favorites);
-                                                          
+
 GList       * bamf_matcher_get_favorites                 (BamfMatcher *matcher);
 
 GVariant    * bamf_matcher_running_application_paths     (BamfMatcher *matcher);
