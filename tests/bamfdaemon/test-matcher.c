@@ -33,6 +33,7 @@ static void test_match_desktopless_application (void);
 static void test_match_desktop_application (void);
 static void test_match_libreoffice_windows (void);
 static void test_new_desktop_matches_unmatched_windows (void);
+static void test_match_transient_windows (void);
 
 static GDBusConnection *gdbus_connection = NULL;
 
@@ -52,6 +53,7 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Matching/Application/Desktop", test_match_desktop_application);
   g_test_add_func (DOMAIN"/Matching/Application/LibreOffice", test_match_libreoffice_windows);
   g_test_add_func (DOMAIN"/Matching/Windows/UnmatchedOnNewDesktop", test_new_desktop_matches_unmatched_windows);
+  g_test_add_func (DOMAIN"/Matching/Windows/Transient", test_match_transient_windows);
 }
 
 static void
@@ -480,3 +482,49 @@ test_match_libreoffice_windows (void)
   g_object_unref (screen);
 }
 
+static void
+test_match_transient_windows (void)
+{
+  BamfMatcher *matcher;
+  BamfLegacyScreen *screen;
+  BamfLegacyWindowTest *main_window;
+  BamfLegacyWindowTest *child_window;
+  BamfApplication *main_app, *child_app;
+  GList *app_children;
+  guint32 xid;
+
+  screen = bamf_legacy_screen_get_default();
+  matcher = bamf_matcher_get_default ();
+  const char *exec = "test-bamf-app";
+  const char *class = "test-bamf-app";
+
+  cleanup_matcher_tables (matcher);
+  export_matcher_on_bus (matcher);
+
+  xid = g_random_int ();
+  main_window = bamf_legacy_window_test_new (xid, "Main Window", class, exec);
+  _bamf_legacy_screen_open_test_window (screen, main_window);
+
+  main_app = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert (main_app);
+
+  app_children = bamf_view_get_children (BAMF_VIEW (main_app));
+  g_assert_cmpuint (g_list_length (app_children), ==, 1);
+  g_assert (find_window_in_app (main_app, BAMF_LEGACY_WINDOW (main_window)));
+
+  xid = g_random_int ();
+  child_window = bamf_legacy_window_test_new (xid, "Child Window", NULL, NULL);
+  child_window->window_type = BAMF_WINDOW_DIALOG;
+  child_window->transient_window = BAMF_LEGACY_WINDOW (main_window);
+  _bamf_legacy_screen_open_test_window (screen, child_window);
+
+  child_app = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert (child_app == main_app);
+
+  app_children = bamf_view_get_children (BAMF_VIEW (main_app));
+  g_assert_cmpuint (g_list_length (app_children), ==, 2);
+  g_assert (find_window_in_app (main_app, BAMF_LEGACY_WINDOW (child_window)));
+
+  g_object_unref (matcher);
+  g_object_unref (screen);
+}
