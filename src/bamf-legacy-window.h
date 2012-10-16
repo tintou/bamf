@@ -70,6 +70,7 @@ struct _BamfLegacyWindowClass
 {
   GObjectClass parent;
 
+  BamfLegacyWindow * (*get_transient)     (BamfLegacyWindow *legacy_window);
   const char * (*get_name)                (BamfLegacyWindow *legacy_window);
   const char * (*get_class_name)          (BamfLegacyWindow *legacy_window);
   const char * (*get_class_instance_name) (BamfLegacyWindow *legacy_window);

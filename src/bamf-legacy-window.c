@@ -294,28 +294,30 @@ bamf_legacy_window_get_transient (BamfLegacyWindow *self)
   BamfLegacyWindow *other;
   GList *windows, *l;
   WnckWindow *transient_legacy;
-  
+
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
-  
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_transient)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_transient (self);
+
+  g_return_val_if_fail (self->priv->legacy_window, NULL);
+
   transient_legacy = wnck_window_get_transient (self->priv->legacy_window);
-  if (transient_legacy == NULL)
-    return NULL;
-  
   screen = bamf_legacy_screen_get_default ();
   g_return_val_if_fail (BAMF_IS_LEGACY_SCREEN (screen), NULL);
-  
+
   windows = bamf_legacy_screen_get_windows (screen);
   for (l = windows; l; l = l->next)
     {
       other = l->data;
-      
+
       if (!BAMF_IS_LEGACY_WINDOW (other))
         continue;
-      
+
       if (other->priv->legacy_window == transient_legacy)
         return other;
     }
-  
+
   return NULL;
 }
 
