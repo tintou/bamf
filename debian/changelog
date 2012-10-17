@@ -3,7 +3,7 @@ bamf (0.3.4-0ubuntu1) UNRELEASED; urgency=low
   * New upstream release.
     - BamfFactory: don't use the secondary matching method for views with
       valid .desktop file (LP: #1026426) (already cherry-picked to Ubuntu)
-    - Autoconf: Make libunity-webapps an optional dependency
+    - Autoconf: Make libunity-webapps an optional dependency (on by default)
     - Libbamf: Some signal, type and annotation fixes
     - libbamf: gir-annotion fixes and make gi-scanner verbose
     - Autoconf: Exclude generated sources from tarball and fix "make 
