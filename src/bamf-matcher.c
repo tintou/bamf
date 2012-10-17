@@ -1050,10 +1050,10 @@ get_directory_tree_list (GList *dirs)
   return dirs;
 }
 
-static GList * get_desktop_file_env_directories (GList *, const gchar *) G_GNUC_WARN_UNUSED_RESULT;
+static GList * list_prepend_desktop_file_env_directories (GList *, const gchar *) G_GNUC_WARN_UNUSED_RESULT;
 
 static GList *
-get_desktop_file_env_directories (GList *dirs, const gchar *varname)
+list_prepend_desktop_file_env_directories (GList *dirs, const gchar *varname)
 {
   g_return_val_if_fail (varname, dirs);
 
@@ -1067,7 +1067,7 @@ get_desktop_file_env_directories (GList *dirs, const gchar *varname)
   if (env)
     {
       data_dirs = g_strsplit (env, ":", 0);
-  
+
       for (data = data_dirs; *data; data++)
         {
           path = g_build_filename (*data, "applications", NULL);
@@ -1095,15 +1095,15 @@ get_desktop_file_directories (BamfMatcher *self)
   GList *dirs = NULL;
   char *path;
 
-  dirs = get_desktop_file_env_directories(dirs, "XDG_DATA_DIRS");
+  dirs = list_prepend_desktop_file_env_directories (dirs, "XDG_DATA_DIRS");
 
   if (!g_list_find_custom (dirs, "/usr/share/applications", (GCompareFunc) g_strcmp0))
     dirs = g_list_prepend (dirs, g_strdup ("/usr/share/applications"));
-  
+
   if (!g_list_find_custom (dirs, "/usr/local/share/applications", (GCompareFunc) g_strcmp0))
     dirs = g_list_prepend (dirs, g_strdup ("/usr/local/share/applications"));
-  
-  dirs = get_desktop_file_env_directories(dirs, "XDG_DATA_HOME");
+
+  dirs = list_prepend_desktop_file_env_directories (dirs, "XDG_DATA_HOME");
 
   //If this doesn't exist, we need to track .local or the home itself!
   path = g_build_filename (g_get_home_dir (), ".local/share/applications", NULL);
@@ -1242,7 +1242,7 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
     {
       if (g_str_has_suffix (path, ".desktop"))
         {
-          /* Remove all the .desktop file referencies from the hash tables.
+          /* Remove all the .desktop file references from the hash tables.
            * Free the string itself only on the 2nd pass (tables share the same
            * string instance)
            */
@@ -1254,7 +1254,7 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
         }
       else if (g_strcmp0 (monitored_dir, path) == 0)
         {
-          /* Remove all the referencies to the .desktop files placed in subfolders
+          /* Remove all the references to the .desktop files placed in subfolders
            * of the current path. Free the strings itself only on the 2nd pass
            * (as before, the tables share the same string instance)
            */
@@ -1291,7 +1291,7 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
                                        self->priv->desktop_file_table,
                                        self->priv->desktop_id_table,
                                        self->priv->desktop_class_table);
-      
+
               g_list_free_full (dirs, g_free);
             }
         }
@@ -1387,13 +1387,13 @@ create_desktop_file_table (BamfMatcher * self,
     g_hash_table_new_full ((GHashFunc) g_str_hash,
                            (GEqualFunc) g_str_equal,
                            (GDestroyNotify) g_free,
-                           (GDestroyNotify) g_free);  
+                           (GDestroyNotify) g_free);
 
   directories = get_desktop_file_directories (self);
 
   fill_desktop_file_table (self, directories, *desktop_file_table,
                            *desktop_id_table, *desktop_class_table);
-  
+
   g_list_free_full (directories, g_free);
 }
 
@@ -1795,8 +1795,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
 static BamfApplication *
 bamf_matcher_get_application_for_window (BamfMatcher *self,
-                                         BamfWindow *bamf_window,
-                                         gboolean *new_application)
+                                         BamfWindow *bamf_window)
 {
   GList *possible_apps, *l;
   BamfLegacyWindow *window;
@@ -1810,6 +1809,21 @@ bamf_matcher_get_application_for_window (BamfMatcher *self,
   g_return_val_if_fail (BAMF_IS_WINDOW (bamf_window), NULL);
 
   window = bamf_window_get_window (bamf_window);
+
+  if (bamf_legacy_window_get_window_type (window) != BAMF_WINDOW_NORMAL)
+    {
+      BamfLegacyWindow *transient = bamf_legacy_window_get_transient (window);
+
+      if (transient)
+        {
+          Window xid = bamf_legacy_window_get_xid (transient);
+          app = bamf_matcher_get_application_by_xid (self, xid);
+
+          if (BAMF_IS_APPLICATION (app))
+            return app;
+        }
+    }
+
   win_class_name = bamf_legacy_window_get_class_name (window);
 
   possible_apps = bamf_matcher_possible_applications_for_window (self, bamf_window, &target_class);
@@ -1929,14 +1943,6 @@ bamf_matcher_get_application_for_window (BamfMatcher *self,
         }
 
       bamf_application_set_wmclass (best, app_class);
-
-      if (new_application)
-        *new_application = TRUE;
-    }
-  else
-    {
-      if (new_application)
-        *new_application = FALSE;
     }
 
   g_list_free_full (possible_apps, g_free);
@@ -2011,8 +2017,8 @@ ensure_window_hint_set (BamfMatcher *self,
 static void
 handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
 {
-  BamfWindow *bamfwindow;
-  BamfApplication *bamfapplication;
+  BamfWindow *bamf_win;
+  BamfApplication *bamf_app;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
@@ -2027,18 +2033,17 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
    * always the best is to simply go window by window creating new applications as needed.
    */
 
-  bamfwindow = bamf_window_new (window);
-  bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamfwindow));
+  bamf_win = bamf_window_new (window);
+  bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamf_win));
 
-  gboolean new_app = FALSE;
-  bamfapplication = bamf_matcher_get_application_for_window (self, bamfwindow, &new_app);
+  bamf_app = bamf_matcher_get_application_for_window (self, bamf_win);
 
-  if (new_app)
+  if (!bamf_view_get_path (BAMF_VIEW (bamf_app)))
     {
-      bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamfapplication));
+      bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamf_app));
     }
 
-  bamf_view_add_child (BAMF_VIEW (bamfapplication), BAMF_VIEW (bamfwindow));
+  bamf_view_add_child (BAMF_VIEW (bamf_app), BAMF_VIEW (bamf_win));
 }
 
 static void
@@ -2129,7 +2134,9 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
 
-  if (bamf_legacy_window_get_window_type (window) == BAMF_WINDOW_DESKTOP)
+  BamfWindowType win_type = bamf_legacy_window_get_window_type (window);
+
+  if (win_type == BAMF_WINDOW_DESKTOP)
     {
       BamfWindow *bamfwindow = bamf_window_new (window);
       bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamfwindow));
@@ -2139,7 +2146,7 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
 
   if (is_open_office_window (self, window))
     {
-      BamfWindowType win_type = bamf_legacy_window_get_window_type (window);
+      win_type = bamf_legacy_window_get_window_type (window);
 
       if (win_type == BAMF_WINDOW_SPLASHSCREEN || win_type == BAMF_WINDOW_TOOLBAR)
         {

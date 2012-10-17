@@ -60,6 +60,7 @@ struct _BamfLegacyWindowTest
   char * application_id;
   char * unique_bus_name;
   char * dbus_menu_object_path;
+  BamfLegacyWindow * transient_window;
   gboolean needs_attention;
   gboolean is_desktop;
   gboolean is_skip;

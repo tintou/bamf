@@ -496,10 +496,13 @@ bamf_view_is_on_bus (BamfView *view)
   GDBusInterfaceSkeleton *dbus_iface;
   const gchar *exported_path;
 
+  if (!view->priv->path)
+    return FALSE;
+
   dbus_iface = G_DBUS_INTERFACE_SKELETON (view->priv->dbus_iface);
   exported_path = g_dbus_interface_skeleton_get_object_path (dbus_iface);
 
-  return (view->priv->path != NULL && exported_path != NULL);
+  return (exported_path != NULL);
 }
 
 static void
