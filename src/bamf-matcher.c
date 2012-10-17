@@ -1811,18 +1811,18 @@ bamf_matcher_get_application_for_window (BamfMatcher *self,
   window = bamf_window_get_window (bamf_window);
 
   if (bamf_legacy_window_get_window_type (window) != BAMF_WINDOW_NORMAL)
-  {
-    BamfLegacyWindow *transient = bamf_legacy_window_get_transient (window);
-
-    if (transient)
     {
-      Window xid = bamf_legacy_window_get_xid (transient);
-      app = bamf_matcher_get_application_by_xid (self, xid);
+      BamfLegacyWindow *transient = bamf_legacy_window_get_transient (window);
 
-      if (BAMF_IS_APPLICATION (app))
-        return app;
+      if (transient)
+        {
+          Window xid = bamf_legacy_window_get_xid (transient);
+          app = bamf_matcher_get_application_by_xid (self, xid);
+
+          if (BAMF_IS_APPLICATION (app))
+            return app;
+        }
     }
-  }
 
   win_class_name = bamf_legacy_window_get_class_name (window);
 
