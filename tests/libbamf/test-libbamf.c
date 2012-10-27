@@ -30,7 +30,9 @@ void test_matcher_create_suite (void);
 gint
 main (gint argc, gchar *argv[])
 {
+#if !GLIB_CHECK_VERSION(2, 35, 0)
   g_type_init ();
+#endif
   g_test_init (&argc, &argv, NULL);
 
   gtk_init (&argc, &argv);
