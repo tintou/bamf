@@ -72,12 +72,6 @@ struct _BamfApplicationPrivate
   int             show_stubs;
 };
 
-/**
- * bamf_application_get_supported_mime_types:
- * @application: a #BamfApplication
- *
- * Returns: (transfer full) (array zero-terminated=1): A string array containing the supported mime-types.
- */
 gchar **
 bamf_application_get_supported_mime_types (BamfApplication *application)
 {
@@ -408,12 +402,6 @@ bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplicati
     }
 }
 
-/**
- * bamf_application_get_focusable_child:
- * @application: a #BamfApplication
- *
- * Returns: (transfer none): The focusable child for this application.
- */
 BamfView *
 bamf_application_get_focusable_child (BamfApplication *application)
 {
