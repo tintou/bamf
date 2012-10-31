@@ -95,13 +95,13 @@ struct _BamfViewClass
   void (*urgent_changed)              (BamfView *view, gboolean urgent);
   void (*user_visible_changed)        (BamfView *view, gboolean user_visible);
   void (*name_changed)                (BamfView *view, gchar* old_name, gchar* new_name);
-  void (*child_moved)                 (BamfView *view, BamfView *child);
 
   /*< private >*/
   void (*_view_padding1) (void);
   void (*_view_padding2) (void);
   void (*_view_padding3) (void);
   void (*_view_padding4) (void);
+  void (*_view_padding5) (void);
 };
 
 GType      bamf_view_get_type             (void) G_GNUC_CONST;
