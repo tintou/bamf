@@ -1,0 +1,15 @@
+#! /bin/sh
+set -e
+
+if [ "$1" = "configure" ] || [ "$1" = "triggered" ]; then
+    if [ -d /usr/share/applications ]; then
+        # rebuild index
+        I=/usr/share/applications/bamf.index
+	echo "Rebuilding $I..."
+        rm -f $I
+        perl -e 'use File::Find; my $dir_name; sub strip_exec { my $f = $_; return unless $f =~ /\.desktop$/; return unless ("$File::Find::dir" eq "$dir_name"); my @lines; open F, $f; @lines = <F>; close F; my $in_desktop_entry = 0; foreach (@lines) { if (/^\[\s*(.+)\s*\]/) { $in_desktop_entry = ($1 eq "Desktop Entry"); } if (/^Exec=(.+)$/ && $in_desktop_entry) { print "$f\t$1\n"; } } }; $dir_name = $ARGV[-1]; $dir_name = $1 if($dir_name=~/(.*)\/$/); find(\&strip_exec, $dir_name);' /usr/share/applications > $I.new || rm -f $I.new
+        [ -e $I.new ] && mv $I.new $I || true
+    fi
+fi
+
+#DEBHELPER#
