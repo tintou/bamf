@@ -6,11 +6,6 @@ EXTRA_DIST =
 
 include $(top_srcdir)/Makefile.am.marshal
 
-INCLUDE = \
-		-I.		\
-		-I$(srcdir)	\
-		$(NULL)
-
 bamfdaemondir = $(libexecdir)
 
 bamfdaemon_PROGRAMS = \
@@ -53,9 +48,6 @@ bamfdaemon_sources = \
 		bamf-application.c \
 		bamf-window.c \
 		bamf-tab.c \
-	        bamf-unity-webapps-tab.c \
-		bamf-unity-webapps-observer.c \
-		bamf-unity-webapps-application.c \
 		bamf-indicator-source.c \
 		bamf-indicator.c \
 		bamf-xutils.c \
@@ -76,12 +68,21 @@ bamfdaemon_headers = \
 		bamf-window.h \
 		bamf-application.h \
 		bamf-tab.h \
-		bamf-unity-webapps-tab.h \
-		bamf-unity-webapps-observer.h \
-		bamf-unity-webapps-application.h \
 		bamf-indicator-source.h \
 		bamf-indicator.h \
 		bamf-xutils.h \
+		$(NULL)
+
+bamfdaemon_webapps_sources = \
+		bamf-unity-webapps-tab.c \
+		bamf-unity-webapps-observer.c \
+		bamf-unity-webapps-application.c \
+		$(NULL)
+
+bamfdaemon_webapps_headers = \
+		bamf-unity-webapps-tab.h \
+		bamf-unity-webapps-observer.h \
+		bamf-unity-webapps-application.h \
 		$(NULL)
 
 bamfdaemon_SOURCES = \
@@ -93,8 +94,29 @@ nodist_bamfdaemon_SOURCES = \
 		$(bamfdaemon_built_sources) \
 		$(NULL)
 
+if HAVE_WEBAPPS
+bamfdaemon_SOURCES += \
+		$(bamfdaemon_webapps_sources) \
+		$(bamfdaemon_webapps_headers) \
+		$(NULL)
+endif
+
+EXTRA_DIST += \
+		$(bamfdaemon_webapps_sources) \
+		$(bamfdaemon_webapps_headers) \
+		$(NULL)
+
 glib_marshal_list = bamf-marshal.list
 glib_marshal_prefix = bamf_marshal
+
+# resetting BUILT_SOURCES here is intended
+BUILT_SOURCES = \
+		$(bamfdaemon_built_sources) \
+		$(NULL)
+
+CLEANFILES += \
+		$(bamfdaemon_built_sources) \
+		$(NULL)
 
 bamfdaemon_LDADD = \
 		$(X_LIBS) \
@@ -109,7 +131,8 @@ bamfdaemon_CFLAGS = \
 		-Wall -std=c99 \
 		-DDATADIR=\""$(datadir)"\" \
 		-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
-		-I$(top_srcdir)/src \
+		-I$(srcdir) \
+		-I$(builddir) \
 		$(GLIB_CFLAGS) \
 		$(GTK_CFLAGS) \
 		$(WNCK_CFLAGS) \
@@ -150,21 +173,7 @@ bamf-gdbus-indicator-source-generated.c bamf-gdbus-indicator-source-generated.h:
 		--interface-prefix com.canonical.StatusNotifierApprover \
 		$<
 
-dist-hook:
-	find $(top_distdir)/src -name bamf-gdbus-\*-generated.\* -exec rm -v {} \;
-
-BUILT_SOURCES += \
-		$(bamfdaemon_gdbus_files) \
-		$(NULL)
-
 EXTRA_DIST += \
 		$(bamfdaemon_xml_gdbus_files) \
 		$(NULL)
 
-DISTCLEANFILES += \
-		$(bamfdaemon_built_sources) \
-		$(NULL)
-
-CLEANFILES += \
-		$(bamfdaemon_built_sources) \
-		$(NULL)

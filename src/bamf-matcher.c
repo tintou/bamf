@@ -27,7 +27,9 @@
 #include "bamf-legacy-screen.h"
 #include "bamf-indicator-source.h"
 
+#ifdef HAVE_WEBAPPS
 #include "bamf-unity-webapps-application.h"
+#endif
 #include <strings.h>
 
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, BAMF_DBUS_TYPE_MATCHER_SKELETON);
@@ -2891,6 +2893,7 @@ on_dbus_handle_window_stack_for_monitor (BamfDBusMatcher *interface,
   return TRUE;
 }
 
+#ifdef HAVE_WEBAPPS
 static void
 on_webapp_child_added (BamfView *application,
                        BamfView *child,
@@ -2917,6 +2920,7 @@ on_webapp_appeared (BamfUnityWebappsObserver *observer,
                     self);
   bamf_unity_webapps_application_add_existing_interests (BAMF_UNITY_WEBAPPS_APPLICATION (application));
 }
+#endif
 
 static void
 bamf_matcher_init (BamfMatcher * self)
@@ -3010,12 +3014,14 @@ bamf_matcher_init (BamfMatcher * self)
   g_signal_connect (self, "handle-window-stack-for-monitor",
                     G_CALLBACK (on_dbus_handle_window_stack_for_monitor), self);
   
+#ifdef HAVE_WEBAPPS
   priv->webapps_observer = bamf_unity_webapps_observer_new ();
   
   g_signal_connect (priv->webapps_observer,
                     "application-appeared",
                     G_CALLBACK (on_webapp_appeared),
                     self);
+#endif
 }
 
 static void

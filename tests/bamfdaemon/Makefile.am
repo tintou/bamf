@@ -3,6 +3,19 @@ noinst_PROGRAMS = \
 
 XVFB_RUN=$(srcdir)/run-xvfb.sh
 
+bamf_test_extra_built_sources = \
+		$(top_builddir)/src/bamf-marshal.c \
+		$(top_builddir)/src/bamf-marshal.h \
+		$(top_builddir)/src/bamf-gdbus-generated.c \
+		$(top_builddir)/src/bamf-gdbus-generated.h \
+		$(top_builddir)/src/bamf-gdbus-view-generated.c \
+		$(top_builddir)/src/bamf-gdbus-view-generated.h \
+		$(top_builddir)/src/bamf-gdbus-browser-generated.c \
+		$(top_builddir)/src/bamf-gdbus-browser-generated.h \
+		$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c \
+		$(top_builddir)/src/bamf-gdbus-indicator-source-generated.h \
+		$(NULL)
+
 bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-daemon.c \
 		$(top_srcdir)/src/bamf-legacy-window.c \
@@ -14,17 +27,9 @@ bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-application.c \
 		$(top_srcdir)/src/bamf-window.c \
 		$(top_srcdir)/src/bamf-tab.c \
-		$(top_srcdir)/src/bamf-unity-webapps-tab.c \
-		$(top_srcdir)/src/bamf-unity-webapps-observer.c \
-		$(top_srcdir)/src/bamf-unity-webapps-application.c \
 		$(top_srcdir)/src/bamf-indicator.c \
 		$(top_srcdir)/src/bamf-indicator-source.c \
 		$(top_srcdir)/src/bamf-xutils.c \
-		$(top_builddir)/src/bamf-marshal.c \
-		$(top_builddir)/src/bamf-gdbus-generated.c \
-		$(top_builddir)/src/bamf-gdbus-view-generated.c \
-		$(top_builddir)/src/bamf-gdbus-browser-generated.c \
-		$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c \
 		$(NULL)
 
 bamf_test_extra_headers = \
@@ -43,11 +48,12 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/bamf-indicator-source.h \
 		$(top_srcdir)/src/bamf-indicator.h \
 		$(top_srcdir)/src/bamf-xutils.h \
-		$(top_builddir)/src/bamf-marshal.h \
-		$(top_builddir)/src/bamf-gdbus-generated.h \
-		$(top_builddir)/src/bamf-gdbus-view-generated.h \
-		$(top_builddir)/src/bamf-gdbus-browser-generated.h \
-		$(top_builddir)/src/bamf-gdbus-indicator-source-generated.h \
+		$(NULL)
+
+bamf_test_webapps_sources = \
+		$(top_srcdir)/src/bamf-unity-webapps-tab.c \
+		$(top_srcdir)/src/bamf-unity-webapps-observer.c \
+		$(top_srcdir)/src/bamf-unity-webapps-application.c \
 		$(NULL)
 
 test_bamf_SOURCES = \
@@ -58,6 +64,21 @@ test_bamf_SOURCES = \
   test-application.c \
   test-window.c \
   test-matcher.c
+
+nodist_test_bamf_SOURCES = \
+  $(bamf_test_extra_built_sources)
+
+BUILT_SOURCES = \
+  $(bamf_test_extra_built_sources)
+
+CLEANFILES = \
+  $(bamf_test_extra_built_sources)
+
+if HAVE_WEBAPPS
+test_bamf_SOURCES += \
+		$(bamf_test_webapps_sources) \
+		$(NULL)
+endif
 
 test_bamf_CPPFLAGS = \
   -I$(top_srcdir) \
@@ -85,7 +106,10 @@ test_bamf_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
 		$(NULL)
 
-EXTRA_DIST = data
+EXTRA_DIST = \
+		data \
+		$(bamf_test_webapps_sources) \
+		$(NULL)
 
 # Run tests as part of make check
 if ENABLE_HEADLESS_TESTS
