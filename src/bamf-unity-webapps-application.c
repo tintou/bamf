@@ -219,7 +219,11 @@ bamf_unity_webapps_application_context_set (BamfUnityWebappsApplication *self)
 {
   bamf_application_set_desktop_file_from_id (BAMF_APPLICATION (self),
                                              unity_webapps_context_get_desktop_name (self->priv->context));
-  
+
+  printf ("bamf_unity_webapps_application_context_set setting wmclass for %s\n", unity_webapps_context_get_name (self->priv->context));
+  bamf_application_set_wmclass (BAMF_APPLICATION (self),
+                                unity_webapps_context_get_domain (self->priv->context));
+
   unity_webapps_context_on_interest_appeared (self->priv->context, bamf_unity_webapps_application_interest_appeared, self);
   unity_webapps_context_on_interest_vanished (self->priv->context, bamf_unity_webapps_application_interest_vanished, self);
 }
