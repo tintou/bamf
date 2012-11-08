@@ -6,7 +6,7 @@ EXTRA_DIST =
 
 include $(top_srcdir)/Makefile.am.marshal
 
-bamfdaemondir = $(libexecdir)
+bamfdaemondir = $(pkglibexecdir)
 
 bamfdaemon_PROGRAMS = \
 		bamfdaemon \
