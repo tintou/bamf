@@ -57,7 +57,7 @@ PKG_PROG_PKG_CONFIG
 #
 # glib
 #
-PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.28.0 gio-2.0 >= 2.30.0 gio-unix-2.0)
+PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.32.0 gio-2.0 >= 2.30.0 gio-unix-2.0)
 
 #
 # gdbus-codegen

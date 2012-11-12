@@ -267,19 +267,35 @@ bamf_view_is_active (BamfView *view)
 }
 
 /**
- * bamf_view_user_visible:
+ * bamf_view_is_user_visible:
  * @view: a #BamfView
  *
  * Returns: a boolean useful for determining if a particular view is "user visible". User visible
  * is a concept relating to whether or not a window should be shown in a launcher tasklist.
+ *
+ * Since: 0.4.0
  */
 gboolean
-bamf_view_user_visible (BamfView *self)
+bamf_view_is_user_visible (BamfView *self)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (self), FALSE);
   
   return bamf_view_get_boolean (self, "UserVisible", BAMF_VIEW_VISIBLE_FLAG);
+}
 
+/**
+ * bamf_view_user_visible: (skip)
+ * @view: a #BamfView
+ *
+ * Returns: a boolean useful for determining if a particular view is "user visible". User visible
+ * is a concept relating to whether or not a window should be shown in a launcher tasklist.
+ *
+ * Deprecated: 0.4.0
+ */
+gboolean
+bamf_view_user_visible (BamfView *self)
+{
+  return bamf_view_is_user_visible (self);
 }
 
 /**
@@ -706,7 +722,7 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
         break;
       
       case PROP_USER_VISIBLE:
-        g_value_set_boolean (value, bamf_view_user_visible (self));
+        g_value_set_boolean (value, bamf_view_is_user_visible (self));
         break;
       
       default:
@@ -827,7 +843,7 @@ _bamf_view_reset_flags (BamfView *view)
   priv = view->priv;
   priv->checked_flags = 0x0;
 
-  if (bamf_view_user_visible (view))
+  if (bamf_view_is_user_visible (view))
     {
       g_signal_emit (G_OBJECT(view), view_signals[VISIBLE_CHANGED], 0, TRUE);
       g_object_notify (G_OBJECT (view), "user-visible");
