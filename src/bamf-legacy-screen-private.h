@@ -13,22 +13,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Authored by: Jason Smith <jason.smith@canonical.com>
- *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
+ * Authored by: Marco Trevisan (Treviño) <marco.trevisan@canonical.com>
+ *
  */
 
+#ifndef __BAMF_LEGACY_SCREEN_PRIVATE_H__
+#define __BAMF_LEGACY_SCREEN_PRIVATE_H__
 
-#ifndef __BAMF_XUTILS_H__
-#define __BAMF_XUTILS_H__
+#include "bamf-legacy-screen.h"
+#include "bamf-legacy-window-test.h"
 
-#include <glib.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <gdk/gdkx.h>
-
-void  bamf_xutils_set_string_window_hint (Window xid, const char *atom_name, const char *value);
-char* bamf_xutils_get_string_window_hint (Window xid, const char *atom_name);
-
-void  bamf_xutils_get_window_class_hints (Window xid, char **class_instance_name, char **class_name);
+void _bamf_legacy_screen_open_test_window (BamfLegacyScreen *self, BamfLegacyWindowTest *window);
+void _bamf_legacy_screen_close_test_window (BamfLegacyScreen *self, BamfLegacyWindowTest *window);
 
 #endif
