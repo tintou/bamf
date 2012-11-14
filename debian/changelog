@@ -1,5 +1,6 @@
 bamf (0.3.5-0ubuntu1) UNRELEASED; urgency=low
 
+  [ Michael Terry ]
   * New upstream release
   * debian/control:
     - Update Bzr-Vcs
@@ -8,6 +9,9 @@ bamf (0.3.5-0ubuntu1) UNRELEASED; urgency=low
   * debian/rules:
     - Call dh_autoreconf
     - Switch to dh9, thereby enabling tests
+
+  [ Didier Roche ]
+  * Automatic snapshot from revision 494 (bootstrap)
 
  -- Michael Terry <mterry@ubuntu.com>  Mon, 05 Nov 2012 14:39:47 -0500
 
