@@ -1,5 +1,3 @@
-VER=3
-
 noinst_PROGRAMS = \
   test-libbamf
 
@@ -23,7 +21,7 @@ test_libbamf_CPPFLAGS = \
   $(GLIB_CFLAGS)
 
 test_libbamf_LDADD = \
-  $(top_builddir)/lib/libbamf/libbamf$(VER).la \
+  $(top_builddir)/lib/libbamf/libbamf$(LIBBAMF_VER).la \
   $(LIBWSBIND_LIBS) \
   $(WNCK_LIBS) \
   $(GLIB_LIBS) \

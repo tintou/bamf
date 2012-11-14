@@ -1,7 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-VER=3
-
 # automake requirements
 AUTOMAKE_OPTIONS = 1.7
 
@@ -53,7 +51,7 @@ GTKDOC_LIBS = \
   $(LIBWSBIND_LIBS) \
   $(GLIB_LIBS) \
   $(DBUS_LIBS) \
-  $(top_builddir)/lib/libbamf/libbamf$(VER).la
+  $(top_builddir)/lib/libbamf/libbamf$(LIBBAMF_VER).la
 
 # This includes the standard gtk-doc make rules, copied by gtkdocize.
 include $(top_srcdir)/gtk-doc.make

@@ -4,6 +4,7 @@
 AC_PREREQ([2.63])
 AC_INIT(bamf, 0.4.0, dx-team@canonical.com)
 AC_PREREQ(2.62)
+AC_SUBST(LIBBAMF_VER, 3)
 
 AC_CONFIG_SRCDIR(src/main.c)
 AC_CONFIG_HEADERS(config.h)
