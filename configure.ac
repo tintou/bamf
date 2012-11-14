@@ -39,17 +39,6 @@ SHAMROCK_EXPAND_BINDIR
 SHAMROCK_EXPAND_DATADIR
 
 #
-# gtk version
-#
-AC_ARG_WITH([gtk],
-  [AS_HELP_STRING([--with-gtk],
-    [Which version of gtk to use @<:@default=3@:>@])],
-  [],
-  [with_gtk=3])
-
-AM_CONDITIONAL(USE_GTK3, [test "x$with_gtk" = x3])
-
-#
 # pkg-config
 #
 PKG_PROG_PKG_CONFIG
@@ -77,23 +66,13 @@ AC_SUBST(DBUS_GLIB_BIN)
 #
 # libwnck
 #
-if test "x$with_gtk" = "x2"; then
-  PKG_CHECK_MODULES(WNCK, libwnck-1.0)
-else
-  PKG_CHECK_MODULES(WNCK, libwnck-3.0)
-  AC_DEFINE_UNQUOTED(USE_GTK3, , [Use GTK3])
-fi
+PKG_CHECK_MODULES(WNCK, libwnck-3.0)
 
 #
 # libgtop
 #
 PKG_CHECK_MODULES(GTOP, libgtop-2.0)
-
-if test "x$with_gtk" = "x2"; then
-  PKG_CHECK_MODULES(LIBWSBIND, glib-2.0 gdk-2.0 gdk-x11-2.0 gtk+-2.0)
-else
-  PKG_CHECK_MODULES(LIBWSBIND, glib-2.0 gdk-3.0 gdk-x11-3.0 gtk+-3.0)
-fi
+PKG_CHECK_MODULES(LIBWSBIND, glib-2.0 gdk-3.0 gdk-x11-3.0 gtk+-3.0)
 AC_SUBST(LIBWSBIND_CFLAGS)
 AC_SUBST(LIBWSBIND_LIBS)
 
@@ -153,11 +132,7 @@ fi
 #
 # Gnome/GTK checks
 #
-if test "x$with_gtk" = "x2"; then
-  AM_PATH_GTK_2_0
-else
-  AM_PATH_GTK_3_0
-fi
+AM_PATH_GTK_3_0
 
 dnl CFLAGS
 CFLAGS="$CFLAGS -Wall -Werror -lm"
@@ -192,7 +167,6 @@ ${PACKAGE}-${VERSION}
   Build Environment
     Install Prefix:     ${prefix}
     Introspection:      ${enable_introspection}
-    GTK+ Version:       ${with_gtk}
     Unity Webapps:      ${enable_webapps}
     Headless tests:     ${enable_headless_tests}
 

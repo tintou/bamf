@@ -1,10 +1,6 @@
-if USE_GTK3
 VER=3
-else
-VER=
-endif
 
-NULL = 
+NULL =
 
 noinst_PROGRAMS = \
   alt-tabber \

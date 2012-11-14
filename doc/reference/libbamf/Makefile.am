@@ -1,10 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-if USE_GTK3
 VER=3
-else
-VER=
-endif
 
 # automake requirements
 AUTOMAKE_OPTIONS = 1.7
