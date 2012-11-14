@@ -180,7 +180,7 @@ bamf_control_register_application_for_pid (BamfControl  *control,
                           "RegisterApplicationForPid",
                           &error,
                           G_TYPE_STRING, application,
-                          G_TYPE_UINT, pid,
+                          G_TYPE_INT, pid,
                           G_TYPE_INVALID,
                           G_TYPE_INVALID))
     {

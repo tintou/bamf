@@ -44,69 +44,28 @@ get_xdisplay (gboolean *opened)
   return xdisplay;
 }
 
-char *
-bamf_xutils_get_window_hint (Window xid, const char *atom_name, Atom type)
+static void
+bamf_xutils_get_string_window_hint_and_type (Window xid, const char *atom_name,
+                                             gchar** return_hint, Atom* return_type)
 {
   Display *XDisplay;
-  Atom atom;
-  char *hint = NULL;
-  Atom result_type;
   gint format;
   gulong numItems;
   gulong bytesAfter;
+  Atom type;
   unsigned char *buffer;
-  gboolean close_display = FALSE;
+  gboolean close_display;
 
-  g_return_val_if_fail ((xid != 0), NULL);
-  g_return_val_if_fail (atom_name, NULL);
+  if (return_hint)
+    *return_hint = NULL;
 
-  XDisplay = get_xdisplay (&close_display);
-
-  if (!XDisplay)
-  {
-    g_warning ("%s: Unable to get a valid XDisplay", G_STRFUNC);
-    return NULL;
-  }
-
-  atom = XInternAtom (XDisplay, atom_name, FALSE);
-
-  int result = XGetWindowProperty (XDisplay,
-                                   xid,
-                                   atom,
-                                   0,
-                                   G_MAXINT,
-                                   FALSE,
-                                   type,
-                                   &result_type,
-                                   &format,
-                                   &numItems,
-                                   &bytesAfter,
-                                   &buffer);
-
-  if (close_display)
-    XCloseDisplay (XDisplay);
-
-  if (result == Success && numItems > 0)
-    {
-      if (buffer && buffer[0] != '\0')
-        hint = g_strdup ((char*) buffer);
-
-      XFree (buffer);
-    }
-
-  return hint;
-}
-
-void
-bamf_xutils_set_window_hint (Window xid, const char *atom_name, Atom type, const char *data)
-{
-  Display *XDisplay;
-  gboolean close_display = FALSE;
+  if (return_type)
+    *return_type = AnyPropertyType;
 
   g_return_if_fail (xid != 0);
-  g_return_if_fail (atom_name);
-  g_return_if_fail (data);
-  
+  g_return_if_fail (return_hint || return_type);
+
+  close_display = FALSE;
   XDisplay = get_xdisplay (&close_display);
 
   if (!XDisplay)
@@ -115,16 +74,72 @@ bamf_xutils_set_window_hint (Window xid, const char *atom_name, Atom type, const
     return;
   }
 
-  XChangeProperty (XDisplay,
-                   xid,
-                   XInternAtom (XDisplay,
-                   atom_name,
-                   FALSE),
-                   type,
-                   8,
-                   PropModeReplace,
-                   (unsigned char *) data,
-                   strlen (data));
+  int result = XGetWindowProperty (XDisplay,  xid,
+                                   gdk_x11_get_xatom_by_name (atom_name),
+                                   0,  G_MAXINT, False, AnyPropertyType,
+                                   &type, &format, &numItems,
+                                   &bytesAfter, &buffer);
+
+  if (close_display)
+    XCloseDisplay (XDisplay);
+
+  if (result == Success && numItems > 0)
+    {
+      if (return_type)
+        *return_type = type;
+
+      if (return_hint && buffer && buffer[0] != '\0')
+        {
+          if (type == XA_STRING || type == gdk_x11_get_xatom_by_name("UTF8_STRING"))
+            *return_hint = g_strdup ((char*) buffer);
+        }
+
+      XFree (buffer);
+    }
+}
+
+char *
+bamf_xutils_get_string_window_hint (Window xid, const char *atom_name)
+{
+  gchar *hint = NULL;
+  bamf_xutils_get_string_window_hint_and_type (xid, atom_name, &hint, NULL);
+
+  return hint;
+}
+
+void
+bamf_xutils_set_string_window_hint (Window xid, const char *atom_name, const char *value)
+{
+  Display *XDisplay;
+  Atom type;
+  gboolean close_display = FALSE;
+
+  g_return_if_fail (xid != 0);
+  g_return_if_fail (atom_name);
+  g_return_if_fail (value);
+
+  XDisplay = get_xdisplay (&close_display);
+
+  if (!XDisplay)
+  {
+    g_warning ("%s: Unable to get a valid XDisplay", G_STRFUNC);
+    return;
+  }
+
+  bamf_xutils_get_string_window_hint_and_type (xid, atom_name, NULL, &type);
+
+  if (type == AnyPropertyType)
+    {
+      type = XA_STRING;
+    }
+  else if (type != XA_STRING && type != gdk_x11_get_xatom_by_name("UTF8_STRING"))
+    {
+      g_error ("Impossible to set the atom %s on Window %lu", atom_name, xid);
+      return;
+    }
+
+  XChangeProperty (XDisplay, xid, gdk_x11_get_xatom_by_name (atom_name),
+                   type, 8, PropModeReplace, (unsigned char *) value, strlen (value));
 
   if (close_display)
     XCloseDisplay (XDisplay);
