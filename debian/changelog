@@ -13,6 +13,9 @@ bamf (0.4.0-0ubuntu1) UNRELEASED; urgency=low
   [ Marco Trevisan (Treviño) ]
   * Bumping version to 0.4.0
 
+  [ Didier Roche ]
+  * Automatic snapshot from revision 494 (bootstrap)
+
  -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 14 Nov 2012 16:15:56 +0100
 
 bamf (0.3.4-0ubuntu1) quantal-proposed; urgency=low
