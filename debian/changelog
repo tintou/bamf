@@ -1,6 +1,7 @@
 bamf (0.4.0-0ubuntu1) UNRELEASED; urgency=low
 
   [ Michael Terry ]
+  * New upstream release
   * debian/control:
     - Update Bzr-Vcs
     - Build-Depend on dh-autoreconf
