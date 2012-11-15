@@ -613,9 +613,12 @@ bamf_matcher_get_applications (BamfMatcher *matcher)
       view = _bamf_factory_view_for_path_type (factory, array[i], BAMF_FACTORY_APPLICATION);
 
       if (BAMF_IS_APPLICATION (view))
-        result = g_list_prepend (result, view);
+        {
+          if (!g_list_find (result, view))
+            result = g_list_prepend (result, view);
+        }
     }
-  
+
   g_strfreev (array);
   return result;
 }
