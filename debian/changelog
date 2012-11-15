@@ -4,9 +4,6 @@ bamf (0.2.124-0ubuntu1) UNRELEASED; urgency=low
     - Includes all previous cherry-picks
     - remerge libbamf, Makefile: don't export private symbols (factory 
       and matcher)
-    - BamfMatcher: force a view as closed or not-closed on proper 
-      signals. This avoids that a view that is opened is actually 
-      marked as closed when really it's running. (LP: #925421)
     - Daemon, BamfApplication: Use the default icon if there is not 
       one defined in the desktop file. (LP: #886778)
     - BamfMatcher: don't reopen windows when iterating on view's 
