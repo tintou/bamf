@@ -175,4 +175,7 @@ bamf_xutils_get_window_class_hints (Window xid, char **class_instance_name, char
 
   XFree (class_hint.res_class);
   XFree (class_hint.res_name);
+
+  if (close_display)
+    XCloseDisplay (xdisplay);
 }
