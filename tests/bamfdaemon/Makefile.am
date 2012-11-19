@@ -1,8 +1,6 @@
 noinst_PROGRAMS = \
   test-bamf
 
-XVFB_RUN=$(srcdir)/run-xvfb.sh
-
 bamf_test_extra_built_sources = \
 		$(top_builddir)/src/bamf-marshal.c \
 		$(top_builddir)/src/bamf-marshal.h \
@@ -85,7 +83,7 @@ test_bamf_CPPFLAGS = \
   -I$(top_srcdir)/src \
   -I$(top_builddir)/src \
   -DWNCK_I_KNOW_THIS_IS_UNSTABLE \
-  -DTESTDIR=\""$(top_srcdir)/tests"\" \
+  -DTESTDIR=\""$(abs_top_srcdir)/tests"\" \
   $(GCC_FLAGS) \
   $(GTK_CFLAGS) \
   $(GLIB_CFLAGS) \
@@ -111,49 +109,5 @@ EXTRA_DIST = \
 		$(bamf_test_webapps_sources) \
 		$(NULL)
 
-# Run tests as part of make check
-if ENABLE_HEADLESS_TESTS
-check-local: test-headless
-else
-check-local: test
-endif
-
-test:
-	@gtester --verbose -k -o=test-bamf-results.xml ./test-bamf
-
-.PHONY: check-report full-report
-check-report:
-	@gtester --verbose -k -o=test-bamf-results.xml -k ./test-bamf \
-		&& ( gtester-report test-bamf-results.xml \
-				| sed 's/GTester Unit Test Report</>GTester Unit Test Report (normal)</' \
-				> test-bamf-results.html ) \
-		&& gnome-open ./test-bamf-results.html
-
-full-report:
-		@gtester --verbose-k -o=test-bamf-results.xml -k -m=slow ./test-bamf \
-	  && ( gtester-report test-bamf-results.xml \
-	      | sed 's/>GTester Unit Test Report</>GTester Unit Test Report (normal)</' \
-	      > test-bamf-results.html )
-
-clean-generic:
-	rm -f test-bamf-results.xml test-bamf-results.html
-
-# START HEADLESS TESTS
-if ENABLE_HEADLESS_TESTS
-LOG_PATH = headless-logs
-test-headless:
-	set -e; \
-	rm -rf $(LOG_PATH); \
-	mkdir $(LOG_PATH); \
-	export LOG_PATH=$(LOG_PATH); \
-	export XVFB_PATH=$(XVFB); \
-	export DISPLAY=""; \
-	source $(XVFB_RUN); \
-	\
-	$(DBUS_LAUNCH) > $(LOG_PATH)/sessionbus.sh; \
-	source $(LOG_PATH)/sessionbus.sh; \
-	sleep 3; \
-	\
-	make test;
-endif
-# END HEADLESS TESTS
+TEST_BINARY = test-bamf
+include $(top_srcdir)/tests/Makefile.am.gtests

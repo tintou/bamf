@@ -11,30 +11,12 @@ override_dh_autoreconf:
 	NOCONFIGURE=1 dh_autoreconf ./autogen.sh
 
 override_dh_auto_configure:
-	dh_auto_configure -Bbuild/gtk2 -- --enable-introspection=no \
-	                                  --enable-headless-tests \
-	                                  --disable-webapps \
-	                                  --with-gtk=2
-	dh_auto_configure -Bbuild/gtk3 -- --enable-introspection=no \
-	                                  --enable-gtk-doc \
-	                                  --enable-headless-tests \
-	                                  --with-gtk=3
-
-override_dh_auto_build:
-	dh_auto_build -Bbuild/gtk2
-	dh_auto_build -Bbuild/gtk3
-
-override_dh_auto_clean:
-	dh_auto_clean -Bbuild/gtk2
-	dh_auto_clean -Bbuild/gtk3
-
-override_dh_auto_test:
-	dh_auto_test -Bbuild/gtk2
-	dh_auto_test -Bbuild/gtk3
+	dh_auto_configure -- --enable-introspection=no \
+	                     --enable-gtk-doc \
+	                     --enable-headless-tests
 
 override_dh_auto_install:
-	dh_auto_install -Bbuild/gtk2
-	dh_auto_install -Bbuild/gtk3
+	dh_auto_install
 	find debian/tmp/usr/lib -name \*.la -exec rm {} \;
 	find debian/tmp/usr/lib -name \*.a -exec rm {} \;
 

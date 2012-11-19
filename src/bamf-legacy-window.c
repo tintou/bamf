@@ -48,10 +48,6 @@ struct _BamfLegacyWindowPrivate
 {
   WnckWindow * legacy_window;
   char       * mini_icon_path;
-#ifndef USE_GTK3
-  char       * group_name;
-  char       * instance_name;
-#endif
   gulong       closed_id;
   gulong       name_changed_id;
   gulong       state_changed_id;
@@ -128,18 +124,7 @@ bamf_legacy_window_get_class_instance_name (BamfLegacyWindow *self)
   if (!window)
     return NULL;
 
-#ifdef USE_GTK3
   return wnck_window_get_class_instance_name (window);
-
-#else
-  if (!self->priv->instance_name)
-    {
-      Window xid = wnck_window_get_xid (window);
-      bamf_xutils_get_window_class_hints (xid, &self->priv->instance_name, NULL);
-    }
-
-  return self->priv->instance_name;
-#endif
 }
 
 const char *
@@ -157,18 +142,7 @@ bamf_legacy_window_get_class_name (BamfLegacyWindow *self)
   if (!window)
     return NULL;
 
-#ifdef USE_GTK3
   return wnck_window_get_class_group_name (window);
-
-#else
-  if (!self->priv->group_name)
-    {
-      Window xid = wnck_window_get_xid (window);
-      bamf_xutils_get_window_class_hints (xid, NULL, &self->priv->group_name);
-    }
-
-  return self->priv->group_name;
-#endif
 }
 
 const char *
@@ -530,20 +504,6 @@ bamf_legacy_window_dispose (GObject *object)
       g_free (self->priv->mini_icon_path);
       self->priv->mini_icon_path = NULL;
     }
-
-#ifndef USE_GTK3
-  if (self->priv->group_name)
-    {
-      g_free (self->priv->group_name);
-      self->priv->group_name = NULL;
-    }
-
-  if (self->priv->instance_name)
-    {
-      g_free (self->priv->instance_name);
-      self->priv->instance_name = NULL;
-    }
-#endif
 
   if (self->priv->legacy_window)
     {

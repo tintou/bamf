@@ -1,15 +1,7 @@
-if USE_GTK3
-VER=3
-lib_LTLIBRARIES = libbamf3.la
-else
-VER=
-lib_LTLIBRARIES = libbamf.la
-endif
-
 CLEANFILES =
 DISTCLEANFILES =
 BUILT_SOURCES =
-EXTRA_DIST = 
+EXTRA_DIST =
 
 include $(top_srcdir)/Makefile.am.marshal
 -include $(INTROSPECTION_MAKEFILE)
@@ -44,7 +36,9 @@ libbamf_headers = \
   libbamf.h \
   $(NULL)
 
-libbamf_la_SOURCES = \
+lib_LTLIBRARIES = libbamf3.la
+
+libbamf3_la_SOURCES = \
   bamf-factory.h \
   bamf-application-private.h \
   bamf-view-private.h \
@@ -52,17 +46,17 @@ libbamf_la_SOURCES = \
   $(libbamf_sources) \
   $(NULL)
 
-nodist_libbamf_la_SOURCES = \
+nodist_libbamf3_la_SOURCES = \
   $(libbamf_built_sources)
   $(NULL)
 
-libbamf_la_LIBADD = \
+libbamf3_la_LIBADD = \
   $(LIBWSBIND_LIBS) \
   $(GLIB_LIBS) \
   $(DBUS_LIBS) \
   $(NULL)
 
-libbamf_la_CPPFLAGS = \
+libbamf3_la_CPPFLAGS = \
   -Wall -std=c99 \
   -fPIC \
   -DDATADIR=\""$(datadir)"\" \
@@ -75,16 +69,10 @@ libbamf_la_CPPFLAGS = \
   $(DBUS_CFLAGS) \
   $(NULL)
 
-libbamf_la_LDFLAGS = \
+libbamf3_la_LDFLAGS = \
   -shared \
   -export-symbols-regex "^bamf_" \
   $(NULL)
-
-libbamf3_la_SOURCES = $(libbamf_la_SOURCES)
-nodist_libbamf3_la_SOURCES = $(libbamf_built_sources)
-libbamf3_la_LIBADD = $(libbamf_la_LIBADD)
-libbamf3_la_CPPFLAGS = $(libbamf_la_CPPFLAGS)
-libbamf3_la_LDFLAGS = $(libbamf_la_LDFLAGS)
 
 glib_marshal_list = bamf-marshal.list
 glib_marshal_prefix = _bamf_marshal
@@ -103,13 +91,13 @@ bamf-tab-source-glue.h: bamf-tab-source-glue.xml
 
 EXTRA_DIST += bamf-tab-source-glue.xml
 
-libbamf_includedir=$(includedir)/libbamf$(VER)/libbamf
+libbamf_includedir=$(includedir)/libbamf$(LIBBAMF_VER)/libbamf
 libbamf_include_HEADERS = \
 	$(libbamf_headers)
 
 libbamf_pcdir = $(libdir)/pkgconfig
 libbamf_pc_DATA = \
-	libbamf$(VER).pc
+	libbamf$(LIBBAMF_VER).pc
 
 
 #########################
@@ -127,7 +115,7 @@ introspection_sources = \
 	$(libbamf_sources) \
 	$(NULL)
 
-Bamf-0.2.gir: libbamf.la
+Bamf-0.2.gir: libbamf$(LIBBAMF_VER).la
 Bamf_0_2_gir_INCLUDES = GObject-2.0 GLib-2.0
 Bamf_0_2_gir_CFLAGS = \
 	--warn-all \
@@ -136,9 +124,9 @@ Bamf_0_2_gir_CFLAGS = \
 	-I$(top_srcdir)/lib \
 	-I$(top_builddir)/lib \
 	$(NULL)
-Bamf_0_2_gir_LIBS = libbamf.la
+Bamf_0_2_gir_LIBS = libbamf$(LIBBAMF_VER).la
 Bamf_0_2_gir_FILES = $(introspection_sources)
-Bamf_0_2_gir_EXPORT_PACKAGES = libbamf$(VER)
+Bamf_0_2_gir_EXPORT_PACKAGES = libbamf$(LIBBAMF_VER)
 
 INTROSPECTION_GIRS += Bamf-0.2.gir
 
@@ -159,7 +147,7 @@ endif
 if HAVE_INTROSPECTION
 
 vapidir = $(datadir)/vala/vapi
-vapi_DATA = libbamf$(VER).vapi
+vapi_DATA = libbamf$(LIBBAMF_VER).vapi
 
 $(vapi_DATA): $(INTROSPECTION_GIRS)
 	$(AM_V_GEN)$(VALA_API_GEN) --library=$(@:.vapi=) $<
