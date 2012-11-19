@@ -13,6 +13,7 @@ bamf (0.4.0-0ubuntu1) UNRELEASED; urgency=low
   [ Marco Trevisan (Treviño) ]
   * Bumping version to 0.4.0
   * Removed the gtk2 dependencies and packages
+  * Dependency on libglib2.0-dev updated to match the configure.ac value
 
   [ Didier Roche ]
   * Automatic snapshot from revision 494 (bootstrap)
