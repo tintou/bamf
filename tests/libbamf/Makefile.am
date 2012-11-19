@@ -29,4 +29,4 @@ test_libbamf_LDADD = \
   $(DBUS_LIBS)
 
 TEST_BINARY = test-libbamf
-include $(top_srcdir)/tests/Makefile.am.tests
+include $(top_srcdir)/tests/Makefile.am.gtests

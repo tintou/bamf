@@ -1,5 +1,7 @@
 # Utility targets for testing. The variable $(TEST_BINARY) defines the binary
 # to be ran to perform the gtests.
+#
+# Author: Marco Trevisan <marco@ubuntu.com>
 
 # Run tests as part of make check
 if ENABLE_HEADLESS_TESTS

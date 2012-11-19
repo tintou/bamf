@@ -110,4 +110,4 @@ EXTRA_DIST = \
 		$(NULL)
 
 TEST_BINARY = test-bamf
-include $(top_srcdir)/tests/Makefile.am.tests
+include $(top_srcdir)/tests/Makefile.am.gtests
