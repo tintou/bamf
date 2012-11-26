@@ -2,11 +2,8 @@ bamf (0.2.124-0ubuntu1) UNRELEASED; urgency=low
 
   * New upstream release.
     - Includes all previous cherry-picks
-    - remerge libbamf, Makefile: don't export private symbols (factory 
-      and matcher)
-    - While technically the exporting update breaks compatibility by 
-      dropping some public functions the corresponding code never worked and
-      it has been verified those were not used by any rdepends.
+    - removed symbols that were wrongly exported upstream before (private 
+      symbols)
     - Daemon, BamfApplication: Use the default icon if there is not 
       one defined in the desktop file. (LP: #886778)
     - BamfMatcher: don't reopen windows when iterating on view's 
