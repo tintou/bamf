@@ -70,7 +70,7 @@ bamf_indicator_get_dbus_menu_path (BamfIndicator *self)
   if (priv->dbus_menu)
     return priv->dbus_menu;
   
-  if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
     return NULL;
   
   proxy = dbus_g_proxy_new_for_name (priv->connection,
@@ -113,7 +113,7 @@ bamf_indicator_get_remote_path (BamfIndicator *self)
   if (priv->path)
     return priv->path;
   
-  if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
     return NULL;
   
   if (!dbus_g_proxy_call (priv->proxy,
@@ -147,7 +147,7 @@ bamf_indicator_get_remote_address (BamfIndicator *self)
   if (priv->address)
     return priv->address;
   
-  if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
     return NULL;
   
   if (!dbus_g_proxy_call (priv->proxy,
@@ -267,7 +267,7 @@ bamf_indicator_new (const char * path)
   BamfIndicator *self;
   self = g_object_new (BAMF_TYPE_INDICATOR, NULL);
 
-  _bamf_view_set_path (BAMF_VIEW (self), path);
+  bamf_view_set_path (BAMF_VIEW (self), path);
 
   return self;
 }
