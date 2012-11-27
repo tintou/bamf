@@ -165,7 +165,7 @@ bamf_view_get_children (BamfView *view)
   if (BAMF_VIEW_GET_CLASS (view)->get_children)
     return BAMF_VIEW_GET_CLASS (view)->get_children (view);
 
-  if (!_bamf_view_remote_ready (view))
+  if (!bamf_view_remote_ready (view))
     return NULL;
 
   priv = view->priv;
@@ -192,7 +192,7 @@ bamf_view_get_children (BamfView *view)
 
   for (i = len-1; i >= 0; i--)
     {
-      view = _bamf_factory_view_for_path (_bamf_factory_get_default (), children[i]);
+      view = bamf_factory_view_for_path (bamf_factory_get_default (), children[i]);
       results = g_list_prepend (results, g_object_ref (view));
     }
 
@@ -213,7 +213,7 @@ bamf_view_get_boolean (BamfView *self, const char *method_name, guint flag)
   if (bamf_view_flag_is_set (self, flag))
     return bamf_view_get_flag (self, flag);
 
-  if (!_bamf_view_remote_ready (self))
+  if (!bamf_view_remote_ready (self))
     return FALSE;
 
   if (!dbus_g_proxy_call (priv->proxy,
@@ -316,7 +316,7 @@ bamf_view_is_urgent (BamfView *self)
 }
 
 void
-_bamf_view_set_name (BamfView *view, const char *name)
+bamf_view_set_name (BamfView *view, const char *name)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
   
@@ -336,7 +336,7 @@ _bamf_view_set_name (BamfView *view, const char *name)
 }
 
 void
-_bamf_view_set_icon (BamfView *view, const char *icon)
+bamf_view_set_icon (BamfView *view, const char *icon)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
 
@@ -395,7 +395,7 @@ bamf_view_get_icon (BamfView *self)
   if (BAMF_VIEW_GET_CLASS (self)->get_icon)
     return BAMF_VIEW_GET_CLASS (self)->get_icon (self);
 
-  if (!_bamf_view_remote_ready (self))
+  if (!bamf_view_remote_ready (self))
     return g_strdup (priv->local_icon);
 
   if (!dbus_g_proxy_call (priv->proxy,
@@ -439,7 +439,7 @@ bamf_view_get_name (BamfView *self)
   if (BAMF_VIEW_GET_CLASS (self)->get_name)
     return BAMF_VIEW_GET_CLASS (self)->get_name (self);
 
-  if (!_bamf_view_remote_ready (self))
+  if (!bamf_view_remote_ready (self))
     return g_strdup (priv->local_name);
     
   if (!dbus_g_proxy_call (priv->proxy,
@@ -465,7 +465,7 @@ bamf_view_get_name (BamfView *self)
 }
 
 gboolean 
-_bamf_view_remote_ready (BamfView *view)
+bamf_view_remote_ready (BamfView *view)
 {
   if (BAMF_IS_VIEW (view) && view->priv->proxy)
     return !view->priv->is_closed;
@@ -531,7 +531,7 @@ bamf_view_on_child_added (DBusGProxy *proxy, char *path, BamfView *self)
   BamfView *view;
   BamfViewPrivate *priv;
 
-  view = _bamf_factory_view_for_path (_bamf_factory_get_default (), path);
+  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
   priv = self->priv;
 
   if (priv->cached_children)
@@ -548,7 +548,7 @@ bamf_view_on_child_removed (DBusGProxy *proxy, char *path, BamfView *self)
 {
   BamfView *view;
   BamfViewPrivate *priv;
-  view = _bamf_factory_view_for_path (_bamf_factory_get_default (), path);
+  view = bamf_factory_view_for_path (bamf_factory_get_default (), path);
   priv = self->priv;
 
   if (priv->cached_children)
@@ -792,7 +792,7 @@ bamf_view_dispose (GObject *object)
 }
 
 const char *
-_bamf_view_get_path (BamfView *view)
+bamf_view_get_path (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
 
@@ -800,7 +800,7 @@ _bamf_view_get_path (BamfView *view)
 }
 
 void
-_bamf_view_reset_flags (BamfView *view)
+bamf_view_reset_flags (BamfView *view)
 {
   BamfViewPrivate *priv;
   g_return_if_fail (BAMF_IS_VIEW (view));
@@ -834,7 +834,7 @@ _bamf_view_reset_flags (BamfView *view)
 }
 
 void
-_bamf_view_set_path (BamfView *view, const char *path)
+bamf_view_set_path (BamfView *view, const char *path)
 {
   BamfViewPrivate *priv;
 
@@ -958,7 +958,7 @@ _bamf_view_set_path (BamfView *view, const char *path)
 
   if (bamf_view_is_sticky (view))
     {
-      _bamf_view_reset_flags (view);
+      bamf_view_reset_flags (view);
     }
 
   if (BAMF_VIEW_GET_CLASS (view)->set_path)
@@ -1074,7 +1074,7 @@ bamf_view_class_init (BamfViewClass *klass)
                       G_OBJECT_CLASS_TYPE (klass),
                       0,
                       0, NULL, NULL,
-                      _bamf_marshal_VOID__STRING_STRING,
+                      bamf_marshal_VOID__STRING_STRING,
   	              G_TYPE_NONE, 2,
   	              G_TYPE_STRING,
                       G_TYPE_STRING);
