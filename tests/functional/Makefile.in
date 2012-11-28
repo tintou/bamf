@@ -56,17 +56,13 @@ am__DEPENDENCIES_1 =
 alt_tabber_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) \
 	$(top_builddir)/lib/libbamf/libbamf$(VER).la
-AM_V_lt = $(am__v_lt_@AM_V@)
-am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
-am__v_lt_0 = --silent
 am_desktop_file_launcher_OBJECTS =  \
 	desktop_file_launcher-desktop-file-launcher.$(OBJEXT)
 desktop_file_launcher_OBJECTS = $(am_desktop_file_launcher_OBJECTS)
 desktop_file_launcher_LDADD = $(LDADD)
-desktop_file_launcher_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(AM_CFLAGS) $(CFLAGS) $(desktop_file_launcher_LDFLAGS) \
-	$(LDFLAGS) -o $@
+desktop_file_launcher_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(desktop_file_launcher_LDFLAGS) $(LDFLAGS) -o $@
 am_interaction_tester_OBJECTS =  \
 	interaction_tester-interaction-tester.$(OBJEXT)
 interaction_tester_OBJECTS = $(am_interaction_tester_OBJECTS)
@@ -85,26 +81,13 @@ am__depfiles_maybe = depfiles
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) \
-	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
-	$(AM_CFLAGS) $(CFLAGS)
-AM_V_CC = $(am__v_CC_@AM_V@)
-am__v_CC_ = $(am__v_CC_@AM_DEFAULT_V@)
-am__v_CC_0 = @echo "  CC    " $@;
-AM_V_at = $(am__v_at_@AM_V@)
-am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
-am__v_at_0 = @
+LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
-LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-AM_V_CCLD = $(am__v_CCLD_@AM_V@)
-am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
-am__v_CCLD_0 = @echo "  CCLD  " $@;
-AM_V_GEN = $(am__v_GEN_@AM_V@)
-am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
-am__v_GEN_0 = @echo "  GEN   " $@;
+LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 SOURCES = $(alt_tabber_SOURCES) $(desktop_file_launcher_SOURCES) \
 	$(interaction_tester_SOURCES) $(tab_source_test_SOURCES)
 DIST_SOURCES = $(alt_tabber_SOURCES) $(desktop_file_launcher_SOURCES) \
@@ -116,7 +99,6 @@ ACLOCAL = @ACLOCAL@
 ACLOCAL_AMFLAFS = @ACLOCAL_AMFLAFS@
 ACLOCAL_AMFLAGS = @ACLOCAL_AMFLAGS@
 AMTAR = @AMTAR@
-AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AR = @AR@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
@@ -386,16 +368,16 @@ clean-noinstPROGRAMS:
 	rm -f $$list
 alt-tabber$(EXEEXT): $(alt_tabber_OBJECTS) $(alt_tabber_DEPENDENCIES) $(EXTRA_alt_tabber_DEPENDENCIES) 
 	@rm -f alt-tabber$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(alt_tabber_OBJECTS) $(alt_tabber_LDADD) $(LIBS)
+	$(LINK) $(alt_tabber_OBJECTS) $(alt_tabber_LDADD) $(LIBS)
 desktop-file-launcher$(EXEEXT): $(desktop_file_launcher_OBJECTS) $(desktop_file_launcher_DEPENDENCIES) $(EXTRA_desktop_file_launcher_DEPENDENCIES) 
 	@rm -f desktop-file-launcher$(EXEEXT)
-	$(AM_V_CCLD)$(desktop_file_launcher_LINK) $(desktop_file_launcher_OBJECTS) $(desktop_file_launcher_LDADD) $(LIBS)
+	$(desktop_file_launcher_LINK) $(desktop_file_launcher_OBJECTS) $(desktop_file_launcher_LDADD) $(LIBS)
 interaction-tester$(EXEEXT): $(interaction_tester_OBJECTS) $(interaction_tester_DEPENDENCIES) $(EXTRA_interaction_tester_DEPENDENCIES) 
 	@rm -f interaction-tester$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(interaction_tester_OBJECTS) $(interaction_tester_LDADD) $(LIBS)
+	$(LINK) $(interaction_tester_OBJECTS) $(interaction_tester_LDADD) $(LIBS)
 tab-source-test$(EXEEXT): $(tab_source_test_OBJECTS) $(tab_source_test_DEPENDENCIES) $(EXTRA_tab_source_test_DEPENDENCIES) 
 	@rm -f tab-source-test$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(tab_source_test_OBJECTS) $(tab_source_test_LDADD) $(LIBS)
+	$(LINK) $(tab_source_test_OBJECTS) $(tab_source_test_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -409,81 +391,81 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tab_source_test-tab-source-test.Po@am__quote@
 
 .c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c $<
+@am__fastdepCC_FALSE@	$(COMPILE) -c $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c `$(CYGPATH_W) '$<'`
+@am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
 
 .c.lo:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+@am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
 
 alt_tabber-alt-tabber.o: alt-tabber.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alt_tabber_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT alt_tabber-alt-tabber.o -MD -MP -MF $(DEPDIR)/alt_tabber-alt-tabber.Tpo -c -o alt_tabber-alt-tabber.o `test -f 'alt-tabber.c' || echo '$(srcdir)/'`alt-tabber.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/alt_tabber-alt-tabber.Tpo $(DEPDIR)/alt_tabber-alt-tabber.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='alt-tabber.c' object='alt_tabber-alt-tabber.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alt_tabber_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT alt_tabber-alt-tabber.o -MD -MP -MF $(DEPDIR)/alt_tabber-alt-tabber.Tpo -c -o alt_tabber-alt-tabber.o `test -f 'alt-tabber.c' || echo '$(srcdir)/'`alt-tabber.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/alt_tabber-alt-tabber.Tpo $(DEPDIR)/alt_tabber-alt-tabber.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='alt-tabber.c' object='alt_tabber-alt-tabber.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alt_tabber_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o alt_tabber-alt-tabber.o `test -f 'alt-tabber.c' || echo '$(srcdir)/'`alt-tabber.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alt_tabber_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o alt_tabber-alt-tabber.o `test -f 'alt-tabber.c' || echo '$(srcdir)/'`alt-tabber.c
 
 alt_tabber-alt-tabber.obj: alt-tabber.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alt_tabber_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT alt_tabber-alt-tabber.obj -MD -MP -MF $(DEPDIR)/alt_tabber-alt-tabber.Tpo -c -o alt_tabber-alt-tabber.obj `if test -f 'alt-tabber.c'; then $(CYGPATH_W) 'alt-tabber.c'; else $(CYGPATH_W) '$(srcdir)/alt-tabber.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/alt_tabber-alt-tabber.Tpo $(DEPDIR)/alt_tabber-alt-tabber.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='alt-tabber.c' object='alt_tabber-alt-tabber.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alt_tabber_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT alt_tabber-alt-tabber.obj -MD -MP -MF $(DEPDIR)/alt_tabber-alt-tabber.Tpo -c -o alt_tabber-alt-tabber.obj `if test -f 'alt-tabber.c'; then $(CYGPATH_W) 'alt-tabber.c'; else $(CYGPATH_W) '$(srcdir)/alt-tabber.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/alt_tabber-alt-tabber.Tpo $(DEPDIR)/alt_tabber-alt-tabber.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='alt-tabber.c' object='alt_tabber-alt-tabber.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alt_tabber_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o alt_tabber-alt-tabber.obj `if test -f 'alt-tabber.c'; then $(CYGPATH_W) 'alt-tabber.c'; else $(CYGPATH_W) '$(srcdir)/alt-tabber.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(alt_tabber_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o alt_tabber-alt-tabber.obj `if test -f 'alt-tabber.c'; then $(CYGPATH_W) 'alt-tabber.c'; else $(CYGPATH_W) '$(srcdir)/alt-tabber.c'; fi`
 
 desktop_file_launcher-desktop-file-launcher.o: desktop-file-launcher.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(desktop_file_launcher_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT desktop_file_launcher-desktop-file-launcher.o -MD -MP -MF $(DEPDIR)/desktop_file_launcher-desktop-file-launcher.Tpo -c -o desktop_file_launcher-desktop-file-launcher.o `test -f 'desktop-file-launcher.c' || echo '$(srcdir)/'`desktop-file-launcher.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/desktop_file_launcher-desktop-file-launcher.Tpo $(DEPDIR)/desktop_file_launcher-desktop-file-launcher.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='desktop-file-launcher.c' object='desktop_file_launcher-desktop-file-launcher.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(desktop_file_launcher_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT desktop_file_launcher-desktop-file-launcher.o -MD -MP -MF $(DEPDIR)/desktop_file_launcher-desktop-file-launcher.Tpo -c -o desktop_file_launcher-desktop-file-launcher.o `test -f 'desktop-file-launcher.c' || echo '$(srcdir)/'`desktop-file-launcher.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/desktop_file_launcher-desktop-file-launcher.Tpo $(DEPDIR)/desktop_file_launcher-desktop-file-launcher.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='desktop-file-launcher.c' object='desktop_file_launcher-desktop-file-launcher.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(desktop_file_launcher_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o desktop_file_launcher-desktop-file-launcher.o `test -f 'desktop-file-launcher.c' || echo '$(srcdir)/'`desktop-file-launcher.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(desktop_file_launcher_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o desktop_file_launcher-desktop-file-launcher.o `test -f 'desktop-file-launcher.c' || echo '$(srcdir)/'`desktop-file-launcher.c
 
 desktop_file_launcher-desktop-file-launcher.obj: desktop-file-launcher.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(desktop_file_launcher_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT desktop_file_launcher-desktop-file-launcher.obj -MD -MP -MF $(DEPDIR)/desktop_file_launcher-desktop-file-launcher.Tpo -c -o desktop_file_launcher-desktop-file-launcher.obj `if test -f 'desktop-file-launcher.c'; then $(CYGPATH_W) 'desktop-file-launcher.c'; else $(CYGPATH_W) '$(srcdir)/desktop-file-launcher.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/desktop_file_launcher-desktop-file-launcher.Tpo $(DEPDIR)/desktop_file_launcher-desktop-file-launcher.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='desktop-file-launcher.c' object='desktop_file_launcher-desktop-file-launcher.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(desktop_file_launcher_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT desktop_file_launcher-desktop-file-launcher.obj -MD -MP -MF $(DEPDIR)/desktop_file_launcher-desktop-file-launcher.Tpo -c -o desktop_file_launcher-desktop-file-launcher.obj `if test -f 'desktop-file-launcher.c'; then $(CYGPATH_W) 'desktop-file-launcher.c'; else $(CYGPATH_W) '$(srcdir)/desktop-file-launcher.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/desktop_file_launcher-desktop-file-launcher.Tpo $(DEPDIR)/desktop_file_launcher-desktop-file-launcher.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='desktop-file-launcher.c' object='desktop_file_launcher-desktop-file-launcher.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(desktop_file_launcher_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o desktop_file_launcher-desktop-file-launcher.obj `if test -f 'desktop-file-launcher.c'; then $(CYGPATH_W) 'desktop-file-launcher.c'; else $(CYGPATH_W) '$(srcdir)/desktop-file-launcher.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(desktop_file_launcher_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o desktop_file_launcher-desktop-file-launcher.obj `if test -f 'desktop-file-launcher.c'; then $(CYGPATH_W) 'desktop-file-launcher.c'; else $(CYGPATH_W) '$(srcdir)/desktop-file-launcher.c'; fi`
 
 interaction_tester-interaction-tester.o: interaction-tester.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(interaction_tester_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT interaction_tester-interaction-tester.o -MD -MP -MF $(DEPDIR)/interaction_tester-interaction-tester.Tpo -c -o interaction_tester-interaction-tester.o `test -f 'interaction-tester.c' || echo '$(srcdir)/'`interaction-tester.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/interaction_tester-interaction-tester.Tpo $(DEPDIR)/interaction_tester-interaction-tester.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='interaction-tester.c' object='interaction_tester-interaction-tester.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(interaction_tester_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT interaction_tester-interaction-tester.o -MD -MP -MF $(DEPDIR)/interaction_tester-interaction-tester.Tpo -c -o interaction_tester-interaction-tester.o `test -f 'interaction-tester.c' || echo '$(srcdir)/'`interaction-tester.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/interaction_tester-interaction-tester.Tpo $(DEPDIR)/interaction_tester-interaction-tester.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='interaction-tester.c' object='interaction_tester-interaction-tester.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(interaction_tester_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o interaction_tester-interaction-tester.o `test -f 'interaction-tester.c' || echo '$(srcdir)/'`interaction-tester.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(interaction_tester_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o interaction_tester-interaction-tester.o `test -f 'interaction-tester.c' || echo '$(srcdir)/'`interaction-tester.c
 
 interaction_tester-interaction-tester.obj: interaction-tester.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(interaction_tester_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT interaction_tester-interaction-tester.obj -MD -MP -MF $(DEPDIR)/interaction_tester-interaction-tester.Tpo -c -o interaction_tester-interaction-tester.obj `if test -f 'interaction-tester.c'; then $(CYGPATH_W) 'interaction-tester.c'; else $(CYGPATH_W) '$(srcdir)/interaction-tester.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/interaction_tester-interaction-tester.Tpo $(DEPDIR)/interaction_tester-interaction-tester.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='interaction-tester.c' object='interaction_tester-interaction-tester.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(interaction_tester_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT interaction_tester-interaction-tester.obj -MD -MP -MF $(DEPDIR)/interaction_tester-interaction-tester.Tpo -c -o interaction_tester-interaction-tester.obj `if test -f 'interaction-tester.c'; then $(CYGPATH_W) 'interaction-tester.c'; else $(CYGPATH_W) '$(srcdir)/interaction-tester.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/interaction_tester-interaction-tester.Tpo $(DEPDIR)/interaction_tester-interaction-tester.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='interaction-tester.c' object='interaction_tester-interaction-tester.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(interaction_tester_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o interaction_tester-interaction-tester.obj `if test -f 'interaction-tester.c'; then $(CYGPATH_W) 'interaction-tester.c'; else $(CYGPATH_W) '$(srcdir)/interaction-tester.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(interaction_tester_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o interaction_tester-interaction-tester.obj `if test -f 'interaction-tester.c'; then $(CYGPATH_W) 'interaction-tester.c'; else $(CYGPATH_W) '$(srcdir)/interaction-tester.c'; fi`
 
 tab_source_test-tab-source-test.o: tab-source-test.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tab_source_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tab_source_test-tab-source-test.o -MD -MP -MF $(DEPDIR)/tab_source_test-tab-source-test.Tpo -c -o tab_source_test-tab-source-test.o `test -f 'tab-source-test.c' || echo '$(srcdir)/'`tab-source-test.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tab_source_test-tab-source-test.Tpo $(DEPDIR)/tab_source_test-tab-source-test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tab-source-test.c' object='tab_source_test-tab-source-test.o' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tab_source_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tab_source_test-tab-source-test.o -MD -MP -MF $(DEPDIR)/tab_source_test-tab-source-test.Tpo -c -o tab_source_test-tab-source-test.o `test -f 'tab-source-test.c' || echo '$(srcdir)/'`tab-source-test.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tab_source_test-tab-source-test.Tpo $(DEPDIR)/tab_source_test-tab-source-test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tab-source-test.c' object='tab_source_test-tab-source-test.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tab_source_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tab_source_test-tab-source-test.o `test -f 'tab-source-test.c' || echo '$(srcdir)/'`tab-source-test.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tab_source_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tab_source_test-tab-source-test.o `test -f 'tab-source-test.c' || echo '$(srcdir)/'`tab-source-test.c
 
 tab_source_test-tab-source-test.obj: tab-source-test.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tab_source_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tab_source_test-tab-source-test.obj -MD -MP -MF $(DEPDIR)/tab_source_test-tab-source-test.Tpo -c -o tab_source_test-tab-source-test.obj `if test -f 'tab-source-test.c'; then $(CYGPATH_W) 'tab-source-test.c'; else $(CYGPATH_W) '$(srcdir)/tab-source-test.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/tab_source_test-tab-source-test.Tpo $(DEPDIR)/tab_source_test-tab-source-test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tab-source-test.c' object='tab_source_test-tab-source-test.obj' libtool=no @AMDEPBACKSLASH@
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tab_source_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tab_source_test-tab-source-test.obj -MD -MP -MF $(DEPDIR)/tab_source_test-tab-source-test.Tpo -c -o tab_source_test-tab-source-test.obj `if test -f 'tab-source-test.c'; then $(CYGPATH_W) 'tab-source-test.c'; else $(CYGPATH_W) '$(srcdir)/tab-source-test.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tab_source_test-tab-source-test.Tpo $(DEPDIR)/tab_source_test-tab-source-test.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tab-source-test.c' object='tab_source_test-tab-source-test.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tab_source_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tab_source_test-tab-source-test.obj `if test -f 'tab-source-test.c'; then $(CYGPATH_W) 'tab-source-test.c'; else $(CYGPATH_W) '$(srcdir)/tab-source-test.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tab_source_test_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tab_source_test-tab-source-test.obj `if test -f 'tab-source-test.c'; then $(CYGPATH_W) 'tab-source-test.c'; else $(CYGPATH_W) '$(srcdir)/tab-source-test.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

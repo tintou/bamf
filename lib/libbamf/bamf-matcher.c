@@ -114,7 +114,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   0,
                   0, NULL, NULL,
-                  _bamf_marshal_VOID__OBJECT_OBJECT,
+                  bamf_marshal_VOID__OBJECT_OBJECT,
                   G_TYPE_NONE, 2, 
                   G_TYPE_OBJECT, G_TYPE_OBJECT);
 
@@ -123,7 +123,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   0,
                   0, NULL, NULL,
-                  _bamf_marshal_VOID__OBJECT_OBJECT,
+                  bamf_marshal_VOID__OBJECT_OBJECT,
                   G_TYPE_NONE, 2, 
                   G_TYPE_OBJECT, G_TYPE_OBJECT);
 
@@ -144,9 +144,9 @@ bamf_matcher_on_view_opened (DBusGProxy *proxy,
                              BamfMatcher *matcher)
 {
   BamfView *view;
-  BamfFactory *factory = _bamf_factory_get_default ();
+  BamfFactory *factory = bamf_factory_get_default ();
 
-  view = _bamf_factory_view_for_path_type_str (factory, path, type);
+  view = bamf_factory_view_for_path_type_str (factory, path, type);
 
   if (!BAMF_IS_VIEW (view))
     return;
@@ -163,9 +163,9 @@ bamf_matcher_on_view_closed (DBusGProxy *proxy,
                              BamfMatcher *matcher)
 {
   BamfView *view;
-  BamfFactory *factory = _bamf_factory_get_default ();
+  BamfFactory *factory = bamf_factory_get_default ();
 
-  view = _bamf_factory_view_for_path_type_str (factory, path, type);
+  view = bamf_factory_view_for_path_type_str (factory, path, type);
 
   if (!BAMF_IS_VIEW (view))
     return;
@@ -184,9 +184,9 @@ bamf_matcher_on_active_application_changed (DBusGProxy *proxy,
   BamfView *old_view;
   BamfView *new_view;
 
-  BamfFactory *factory = _bamf_factory_get_default ();
-  old_view = _bamf_factory_view_for_path_type (factory, old_path, BAMF_FACTORY_APPLICATION);
-  new_view = _bamf_factory_view_for_path_type (factory, new_path, BAMF_FACTORY_APPLICATION);
+  BamfFactory *factory = bamf_factory_get_default ();
+  old_view = bamf_factory_view_for_path_type (factory, old_path, BAMF_FACTORY_APPLICATION);
+  new_view = bamf_factory_view_for_path_type (factory, new_path, BAMF_FACTORY_APPLICATION);
 
   g_signal_emit (matcher, matcher_signals[ACTIVE_APPLICATION_CHANGED], 0, old_view, new_view);
 }
@@ -200,9 +200,9 @@ bamf_matcher_on_active_window_changed (DBusGProxy *proxy,
   BamfView *old_view;
   BamfView *new_view;
 
-  BamfFactory *factory = _bamf_factory_get_default ();
-  old_view = _bamf_factory_view_for_path_type (factory, old_path, BAMF_FACTORY_WINDOW);
-  new_view = _bamf_factory_view_for_path_type (factory, new_path, BAMF_FACTORY_WINDOW);
+  BamfFactory *factory = bamf_factory_get_default ();
+  old_view = bamf_factory_view_for_path_type (factory, old_path, BAMF_FACTORY_WINDOW);
+  new_view = bamf_factory_view_for_path_type (factory, new_path, BAMF_FACTORY_WINDOW);
 
   g_signal_emit (matcher, matcher_signals[ACTIVE_WINDOW_CHANGED], 0, old_view, new_view);
 }
@@ -240,7 +240,7 @@ bamf_matcher_init (BamfMatcher *self)
       g_error ("Unable to get org.ayatana.bamf.matcher matcher");
     }
 
-  dbus_g_object_register_marshaller ((GClosureMarshal) _bamf_marshal_VOID__STRING_STRING,
+  dbus_g_object_register_marshaller ((GClosureMarshal) bamf_marshal_VOID__STRING_STRING,
                                      G_TYPE_NONE, 
                                      G_TYPE_STRING, G_TYPE_STRING,
                                      G_TYPE_INVALID);
@@ -346,14 +346,6 @@ bamf_matcher_dispose (GObject *object)
 /*
  * Public Methods
  */
-
-/**
- * bamf_matcher_get_default:
- *
- * Returns the default matcher. This matcher is owned by bamf and shared between other callers.
- *
- * Returns: (transfer full): A new #BamfMatcher
- */
 BamfMatcher *
 bamf_matcher_get_default (void)
 {
@@ -363,14 +355,6 @@ bamf_matcher_get_default (void)
   return (default_matcher = g_object_new (BAMF_TYPE_MATCHER, NULL));
 }
 
-/**
- * bamf_matcher_get_active_application:
- * @matcher: a #BamfMatcher
- *
- * Used to fetch the active #BamfApplication.
- *
- * Returns: (transfer none): The active #BamfApplication.
- */
 BamfApplication *
 bamf_matcher_get_active_application (BamfMatcher *matcher)
 {
@@ -403,8 +387,8 @@ bamf_matcher_get_active_application (BamfMatcher *matcher)
   if (!app)
     return NULL;
 
-  BamfFactory *factory = _bamf_factory_get_default ();
-  view = _bamf_factory_view_for_path_type (factory, app, BAMF_FACTORY_APPLICATION);
+  BamfFactory *factory = bamf_factory_get_default ();
+  view = bamf_factory_view_for_path_type (factory, app, BAMF_FACTORY_APPLICATION);
   g_free (app);
 
   if (!BAMF_IS_APPLICATION (view))
@@ -413,14 +397,6 @@ bamf_matcher_get_active_application (BamfMatcher *matcher)
   return BAMF_APPLICATION (view);
 }
 
-/**
- * bamf_matcher_get_active_window:
- * @matcher: a #BamfMatcher
- *
- * Used to fetch the active #BamfWindow.
- *
- * Returns: (transfer none): The active #BamfWindow.
- */
 BamfWindow *
 bamf_matcher_get_active_window (BamfMatcher *matcher)
 {
@@ -453,8 +429,8 @@ bamf_matcher_get_active_window (BamfMatcher *matcher)
   if (!win)
     return NULL;
 
-  BamfFactory *factory = _bamf_factory_get_default ();
-  view = _bamf_factory_view_for_path_type (factory, win, BAMF_FACTORY_WINDOW);
+  BamfFactory *factory = bamf_factory_get_default ();
+  view = bamf_factory_view_for_path_type (factory, win, BAMF_FACTORY_WINDOW);
   g_free (win);
 
   if (!BAMF_IS_WINDOW (view))
@@ -463,36 +439,16 @@ bamf_matcher_get_active_window (BamfMatcher *matcher)
   return BAMF_WINDOW (view);
 }
 
-/**
- * bamf_matcher_get_application_for_window:
- * @matcher: a #BamfMatcher
- * @window: The window to look for
- *
- * Used to fetch the #BamfApplication containing the passed window.
- *
- * Returns: (transfer none): The #BamfApplication representing the xid passed, or NULL if none exists.
- */
+/* Looks up the window's XID and calls the application_for_xid
+   function just below here. */
 BamfApplication * 
 bamf_matcher_get_application_for_window  (BamfMatcher *matcher,
                                           BamfWindow *window)
 {
-  /* Looks up the window's XID and calls the application_for_xid
-     function just below here. */
-
 	g_return_val_if_fail(BAMF_IS_WINDOW(window), NULL);
-	return bamf_matcher_get_application_for_xid (matcher,
-	                                             bamf_window_get_xid(window));
+	return bamf_matcher_get_application_for_xid (matcher, bamf_window_get_xid(window));
 }
 
-/**
- * bamf_matcher_get_application_for_xid:
- * @matcher: a #BamfMatcher
- * @xid: The XID to search for
- *
- * Used to fetch the #BamfApplication containing the passed xid.
- *
- * Returns: (transfer none): The #BamfApplication representing the xid passed, or NULL if none exists.
- */
 BamfApplication *
 bamf_matcher_get_application_for_xid (BamfMatcher  *matcher,
                                       guint32       xid)
@@ -527,8 +483,8 @@ bamf_matcher_get_application_for_xid (BamfMatcher  *matcher,
   if (!app)
     return NULL;
 
-  BamfFactory *factory = _bamf_factory_get_default ();
-  view = _bamf_factory_view_for_path_type (factory, app, BAMF_FACTORY_APPLICATION);
+  BamfFactory *factory = bamf_factory_get_default ();
+  view = bamf_factory_view_for_path_type (factory, app, BAMF_FACTORY_APPLICATION);
   
   g_free (app);
 
@@ -566,17 +522,6 @@ bamf_matcher_application_is_running (BamfMatcher *matcher,
   return running;
 }
 
-/**
- * bamf_matcher_get_applications:
- * @matcher: a #BamfMatcher
- *
- * Used to fetch all #BamfApplication's running or not. Application authors who wish to only 
- * see running applications should use bamf_matcher_get_running_applications instead. The reason
- * this method is needed is bamf will occasionally track applications which are not currently
- * running for nefarious purposes.
- *
- * Returns: (element-type Bamf.Application) (transfer container): A list of #BamfApplication's.
- */
 GList *
 bamf_matcher_get_applications (BamfMatcher *matcher)
 {
@@ -606,11 +551,11 @@ bamf_matcher_get_applications (BamfMatcher *matcher)
   if (!array)
     return NULL;
 
-  BamfFactory *factory = _bamf_factory_get_default ();
+  BamfFactory *factory = bamf_factory_get_default ();
   len = g_strv_length (array);
   for (i = len-1; i >= 0; i--)
     {
-      view = _bamf_factory_view_for_path_type (factory, array[i], BAMF_FACTORY_APPLICATION);
+      view = bamf_factory_view_for_path_type (factory, array[i], BAMF_FACTORY_APPLICATION);
 
       if (BAMF_IS_APPLICATION (view))
         result = g_list_prepend (result, view);
@@ -620,14 +565,6 @@ bamf_matcher_get_applications (BamfMatcher *matcher)
   return result;
 }
 
-/**
- * bamf_matcher_get_windows:
- * @matcher: a #BamfMatcher
- *
- * Used to fetch all windows that BAMF knows about.
- *
- * Returns: (element-type Bamf.View) (transfer container): A list of windows.
- */
 GList *
 bamf_matcher_get_windows (BamfMatcher *matcher)
 {
@@ -657,11 +594,11 @@ bamf_matcher_get_windows (BamfMatcher *matcher)
   if (!array)
     return NULL;
 
-  BamfFactory *factory = _bamf_factory_get_default ();
+  BamfFactory *factory = bamf_factory_get_default ();
   len = g_strv_length (array);
   for (i = len-1; i >= 0; i--)
     {
-      view = _bamf_factory_view_for_path_type (factory, array[i], BAMF_FACTORY_WINDOW);
+      view = bamf_factory_view_for_path_type (factory, array[i], BAMF_FACTORY_WINDOW);
 
       if (BAMF_IS_WINDOW (view))
         result = g_list_prepend (result, view);
@@ -671,16 +608,6 @@ bamf_matcher_get_windows (BamfMatcher *matcher)
   return result;
 }
 
-/**
- * bamf_matcher_get_window_stack_for_monitor:
- * @matcher: a #BamfMatcher
- * @monitor: the monitor you want the stack from, negative value to get all
- *
- * Used to fetch all windows that BAMF knows about in the requested screen,
- * in stacking bottom-to-top order.
- *
- * Returns: (element-type Bamf.View) (transfer container): A list of #BamfWindow.
- */
 GList *
 bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
 {
@@ -712,11 +639,11 @@ bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
   if (!array)
     return NULL;
 
-  BamfFactory *factory = _bamf_factory_get_default ();
+  BamfFactory *factory = bamf_factory_get_default ();
   len = g_strv_length (array);
   for (i = len-1; i >= 0; i--)
     {
-      view = _bamf_factory_view_for_path_type (factory, array[i], BAMF_FACTORY_WINDOW);
+      view = bamf_factory_view_for_path_type (factory, array[i], BAMF_FACTORY_WINDOW);
 
       if (BAMF_IS_WINDOW (view))
         result = g_list_prepend (result, view);
@@ -726,14 +653,6 @@ bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
   return result;
 }
 
-/**
- * bamf_matcher_register_favorites:
- * @matcher: a #BamfMatcher
- * @favorites: an array of strings, each containing an absolute path to a .desktop file
- *
- * Used to effect how bamf performs matching. Desktop files passed to this method will
- * be prefered by bamf to system desktop files.
- */
 void
 bamf_matcher_register_favorites (BamfMatcher *matcher,
                                  const gchar **favorites)
@@ -751,14 +670,6 @@ bamf_matcher_register_favorites (BamfMatcher *matcher,
                               G_TYPE_INVALID);
 }
 
-/**
- * bamf_matcher_get_running_applications:
- * @matcher: a #BamfMatcher
- *
- * Used to fetch all #BamfApplication's which are running.
- *
- * Returns: (element-type Bamf.Application) (transfer container): A list of #BamfApplication's.
- */
 GList *
 bamf_matcher_get_running_applications (BamfMatcher *matcher)
 {
@@ -788,11 +699,11 @@ bamf_matcher_get_running_applications (BamfMatcher *matcher)
   if (!array)
     return NULL;
 
-  BamfFactory *factory = _bamf_factory_get_default ();
+  BamfFactory *factory = bamf_factory_get_default ();
   len = g_strv_length (array);
   for (i = len-1; i >= 0; i--)
     {
-      view = _bamf_factory_view_for_path_type (factory, array[i], BAMF_FACTORY_APPLICATION);
+      view = bamf_factory_view_for_path_type (factory, array[i], BAMF_FACTORY_APPLICATION);
 
       if (BAMF_IS_APPLICATION (view))
         result = g_list_prepend (result, view);
@@ -802,14 +713,6 @@ bamf_matcher_get_running_applications (BamfMatcher *matcher)
   return result;
 }
 
-/**
- * bamf_matcher_get_tabs:
- * @matcher: a #BamfMatcher
- *
- * Used to fetch all #BamfView's representing tabs. Currently unused.
- *
- * Returns: (element-type Bamf.View) (transfer container): A list of #BamfViews's.
- */
 GList *
 bamf_matcher_get_tabs (BamfMatcher *matcher)
 {
@@ -817,15 +720,6 @@ bamf_matcher_get_tabs (BamfMatcher *matcher)
   return NULL;
 }
 
-/**
- * bamf_matcher_get_xids_for_application:
- * @matcher: a #BamfMatcher
- *
- * Used to fetch all xid's associated with an application. Useful for performing window
- * 
- *
- * Returns: (element-type guint32) (transfer full): A list of xids.
- */
 GArray *
 bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
                                        const gchar *application)
@@ -834,14 +728,6 @@ bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
   return NULL;
 }
 
-/**
- * bamf_matcher_get_application_for_desktop_file:
- * @matcher: a #BamfMatcher
- * @desktop_file_path: Path to the desktop file
- * @create_if_not_found: Create a #BamfApplication if one isn't found
- *
- * Returns: (transfer none): A #BamfApplication for given desktop file.
- */
 BamfApplication * 
 bamf_matcher_get_application_for_desktop_file (BamfMatcher *matcher,
                                                const gchar *desktop_file_path,
@@ -850,7 +736,7 @@ bamf_matcher_get_application_for_desktop_file (BamfMatcher *matcher,
   BamfApplication *app;
   const gchar ** favs;
   
-  app = _bamf_factory_app_for_file (_bamf_factory_get_default (), desktop_file_path, create_if_not_found);
+  app = bamf_factory_app_for_file (bamf_factory_get_default (), desktop_file_path, create_if_not_found);
   if (app)
     {
       favs = g_malloc0 (sizeof (gchar *) * 2),

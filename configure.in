@@ -2,14 +2,13 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT(bamf, 0.2.124, dx-team@canonical.com)
+AC_INIT(bamf, 0.2.124.1, dx-team@canonical.com)
 AC_PREREQ(2.62)
 
 AC_CONFIG_SRCDIR(src/main.c)
 AC_CONFIG_HEADERS(config.h)
 
 AM_INIT_AUTOMAKE([foreign tar-pax])
-AM_SILENT_RULES([yes])
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -106,7 +105,7 @@ PKG_CHECK_MODULES(X, x11)
 # GObject Introspection
 ###########################
 
-GOBJECT_INTROSPECTION_CHECK([0.10.2])
+GOBJECT_INTROSPECTION_CHECK([0.6.7])
 
 ###########################
 # Vala API Generation
@@ -175,7 +174,6 @@ ${PACKAGE}-${VERSION}
 
   Build Environment
     Install Prefix:     ${prefix}
-    Introspection:      ${enable_introspection}
     GTK+ Version:       ${with_gtk}
     Headless tests:     ${enable_headless_tests}
 
