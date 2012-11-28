@@ -335,7 +335,6 @@ test_bamf_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
 		$(NULL)
 
-EXTRA_DIST = data
 
 # START HEADLESS TESTS
 @ENABLE_HEADLESS_TESTS_TRUE@LOG_PATH = headless-logs

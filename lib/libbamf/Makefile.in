@@ -105,13 +105,9 @@ am__objects_2 = libbamf_la-bamf-application.lo \
 	libbamf_la-bamf-control.lo libbamf_la-bamf-matcher.lo \
 	libbamf_la-bamf-view.lo libbamf_la-bamf-window.lo \
 	libbamf_la-bamf-factory.lo libbamf_la-bamf-tab-source.lo \
-	libbamf_la-bamf-tab.lo libbamf_la-bamf-indicator.lo
-am__objects_3 = $(am__objects_1)
-am__objects_4 = libbamf_la-bamf-marshal.lo
-am__objects_5 = $(am__objects_4)
-am__objects_6 = $(am__objects_3) $(am__objects_5)
-am_libbamf_la_OBJECTS = $(am__objects_1) $(am__objects_2) \
-	$(am__objects_6)
+	libbamf_la-bamf-tab.lo libbamf_la-bamf-indicator.lo \
+	libbamf_la-bamf-marshal.lo
+am_libbamf_la_OBJECTS = $(am__objects_1) $(am__objects_2)
 libbamf_la_OBJECTS = $(am_libbamf_la_OBJECTS)
 libbamf_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -120,16 +116,14 @@ libbamf_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
 libbamf3_la_DEPENDENCIES = $(am__DEPENDENCIES_2)
-am__objects_7 = libbamf3_la-bamf-application.lo \
+am__objects_3 = libbamf3_la-bamf-application.lo \
 	libbamf3_la-bamf-control.lo libbamf3_la-bamf-matcher.lo \
 	libbamf3_la-bamf-view.lo libbamf3_la-bamf-window.lo \
 	libbamf3_la-bamf-factory.lo libbamf3_la-bamf-tab-source.lo \
-	libbamf3_la-bamf-tab.lo libbamf3_la-bamf-indicator.lo
-am__objects_8 = libbamf3_la-bamf-marshal.lo
-am__objects_9 = $(am__objects_8)
-am__objects_10 = $(am__objects_3) $(am__objects_9)
-am__objects_11 = $(am__objects_1) $(am__objects_7) $(am__objects_10)
-am_libbamf3_la_OBJECTS = $(am__objects_11)
+	libbamf3_la-bamf-tab.lo libbamf3_la-bamf-indicator.lo \
+	libbamf3_la-bamf-marshal.lo
+am__objects_4 = $(am__objects_1) $(am__objects_3)
+am_libbamf3_la_OBJECTS = $(am__objects_4)
 libbamf3_la_OBJECTS = $(am_libbamf3_la_OBJECTS)
 libbamf3_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -334,6 +328,7 @@ libbamf_sources = \
   bamf-tab-source.c \
   bamf-tab.c \
   bamf-indicator.c \
+  bamf-marshal.c \
   $(NULL)
 
 sources_h = \
@@ -354,7 +349,8 @@ libbamf_la_SOURCES = \
   bamf-view-private.h \
   $(sources_h) \
   $(libbamf_sources) \
-  $(BUILT_SOURCES) \
+  bamf-tab-source-glue.h \
+  bamf-marshal.h \
   $(NULL)
 
 libbamf_la_LIBADD = \
@@ -956,7 +952,7 @@ bamf-tab-source-glue.h: bamf-tab-source-glue.xml
 #	GObject-2.0
 #Bamf_0_2_gir_CFLAGS = --c-include='libbamf/libbamf.h' $(LIBBAMF_CFLAGS) -I$(top_srcdir)/lib -I$(top_builddir)/lib
 #Bamf_0_2_gir_LIBS = libbamf.la 
-#Bamf_0_2_gir_FILES = $(introspection_sources)
+#Bamf_0_2_gir_FILES = $(addprefix $(srcdir)/, $(introspection_sources))
 #
 #INTROSPECTION_GIRS += Bamf-0.2.gir
 #
