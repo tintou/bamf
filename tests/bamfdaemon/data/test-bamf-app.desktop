@@ -1,7 +1,0 @@
-[Desktop Entry]
-Name=TestBamfApp
-Type=Application
-Exec=testbamfapp
-Icon=bamf
-StartupWMClass=test_bamf_app
-

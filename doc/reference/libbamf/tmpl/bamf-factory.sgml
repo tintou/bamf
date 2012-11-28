@@ -9,12 +9,10 @@ BamfFactory
 
 </para>
 
-
 <!-- ##### SECTION See_Also ##### -->
 <para>
 
 </para>
-
 
 <!-- ##### SECTION Stability_Level ##### -->
 
@@ -45,56 +43,4 @@ BamfFactory
 @BAMF_FACTORY_APPLICATION: 
 @BAMF_FACTORY_INDICATOR: 
 @BAMF_FACTORY_NONE: 
-
-<!-- ##### FUNCTION bamf_factory_app_for_file ##### -->
-<para>
-
-</para>
-
-@factory: 
-@path: 
-@create: 
-@Returns: 
-
-
-<!-- ##### FUNCTION bamf_factory_get_default ##### -->
-<para>
-
-</para>
-
-@void: 
-@Returns: 
-
-
-<!-- ##### FUNCTION bamf_factory_view_for_path ##### -->
-<para>
-
-</para>
-
-@factory: 
-@path: 
-@Returns: 
-
-
-<!-- ##### FUNCTION bamf_factory_view_for_path_type ##### -->
-<para>
-
-</para>
-
-@factory: 
-@path: 
-@type: 
-@Returns: 
-
-
-<!-- ##### FUNCTION bamf_factory_view_for_path_type_str ##### -->
-<para>
-
-</para>
-
-@factory: 
-@path: 
-@type: 
-@Returns: 
-
 
