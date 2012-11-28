@@ -42,6 +42,18 @@
 <pre class="synopsis">struct              <a class="link" href="BamfFactory.html#BamfFactory-struct" title="struct BamfFactory">BamfFactory</a>;
 struct              <a class="link" href="BamfFactory.html#BamfFactoryClass" title="struct BamfFactoryClass">BamfFactoryClass</a>;
 enum                <a class="link" href="BamfFactory.html#BamfFactoryViewType" title="enum BamfFactoryViewType">BamfFactoryViewType</a>;
+<a class="link" href="BamfApplication.html" title="BamfApplication"><span class="returnvalue">BamfApplication</span></a> *   <a class="link" href="BamfFactory.html#bamf-factory-app-for-file" title="bamf_factory_app_for_file ()">bamf_factory_app_for_file</a>           (<em class="parameter"><code><a class="link" href="BamfFactory.html" title="BamfFactory"><span class="type">BamfFactory</span></a> *factory</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *path</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> create</code></em>);
+<a class="link" href="BamfFactory.html" title="BamfFactory"><span class="returnvalue">BamfFactory</span></a> *       <a class="link" href="BamfFactory.html#bamf-factory-get-default" title="bamf_factory_get_default ()">bamf_factory_get_default</a>            (<em class="parameter"><code><span class="type">void</span></code></em>);
+<a class="link" href="BamfView.html" title="BamfView"><span class="returnvalue">BamfView</span></a> *          <a class="link" href="BamfFactory.html#bamf-factory-view-for-path" title="bamf_factory_view_for_path ()">bamf_factory_view_for_path</a>          (<em class="parameter"><code><a class="link" href="BamfFactory.html" title="BamfFactory"><span class="type">BamfFactory</span></a> *factory</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *path</code></em>);
+<a class="link" href="BamfView.html" title="BamfView"><span class="returnvalue">BamfView</span></a> *          <a class="link" href="BamfFactory.html#bamf-factory-view-for-path-type" title="bamf_factory_view_for_path_type ()">bamf_factory_view_for_path_type</a>     (<em class="parameter"><code><a class="link" href="BamfFactory.html" title="BamfFactory"><span class="type">BamfFactory</span></a> *factory</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *path</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="BamfFactory.html#BamfFactoryViewType" title="enum BamfFactoryViewType"><span class="type">BamfFactoryViewType</span></a> type</code></em>);
+<a class="link" href="BamfView.html" title="BamfView"><span class="returnvalue">BamfView</span></a> *          <a class="link" href="BamfFactory.html#bamf-factory-view-for-path-type-str" title="bamf_factory_view_for_path_type_str ()">bamf_factory_view_for_path_type_str</a> (<em class="parameter"><code><a class="link" href="BamfFactory.html" title="BamfFactory"><span class="type">BamfFactory</span></a> *factory</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *path</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *type</code></em>);
 </pre>
 </div>
 <div class="refsect1">
@@ -86,6 +98,48 @@ enum                <a class="link" href="BamfFactory.html#BamfFactoryViewType" 
   BAMF_FACTORY_NONE
 } BamfFactoryViewType;
 </pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="bamf-factory-app-for-file"></a><h3>bamf_factory_app_for_file ()</h3>
+<pre class="programlisting"><a class="link" href="BamfApplication.html" title="BamfApplication"><span class="returnvalue">BamfApplication</span></a> *   bamf_factory_app_for_file           (<em class="parameter"><code><a class="link" href="BamfFactory.html" title="BamfFactory"><span class="type">BamfFactory</span></a> *factory</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *path</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> create</code></em>);</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="bamf-factory-get-default"></a><h3>bamf_factory_get_default ()</h3>
+<pre class="programlisting"><a class="link" href="BamfFactory.html" title="BamfFactory"><span class="returnvalue">BamfFactory</span></a> *       bamf_factory_get_default            (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="bamf-factory-view-for-path"></a><h3>bamf_factory_view_for_path ()</h3>
+<pre class="programlisting"><a class="link" href="BamfView.html" title="BamfView"><span class="returnvalue">BamfView</span></a> *          bamf_factory_view_for_path          (<em class="parameter"><code><a class="link" href="BamfFactory.html" title="BamfFactory"><span class="type">BamfFactory</span></a> *factory</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *path</code></em>);</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="bamf-factory-view-for-path-type"></a><h3>bamf_factory_view_for_path_type ()</h3>
+<pre class="programlisting"><a class="link" href="BamfView.html" title="BamfView"><span class="returnvalue">BamfView</span></a> *          bamf_factory_view_for_path_type     (<em class="parameter"><code><a class="link" href="BamfFactory.html" title="BamfFactory"><span class="type">BamfFactory</span></a> *factory</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *path</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="BamfFactory.html#BamfFactoryViewType" title="enum BamfFactoryViewType"><span class="type">BamfFactoryViewType</span></a> type</code></em>);</pre>
+<p>
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="bamf-factory-view-for-path-type-str"></a><h3>bamf_factory_view_for_path_type_str ()</h3>
+<pre class="programlisting"><a class="link" href="BamfView.html" title="BamfView"><span class="returnvalue">BamfView</span></a> *          bamf_factory_view_for_path_type_str (<em class="parameter"><code><a class="link" href="BamfFactory.html" title="BamfFactory"><span class="type">BamfFactory</span></a> *factory</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *path</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *type</code></em>);</pre>
 <p>
 </p>
 </div>

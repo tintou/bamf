@@ -227,16 +227,20 @@ Gets the name of a view. This name is a short name best used to represent the vi
 The view type of a window is a short string used to represent all views of the same class. These
 descriptions should not be used to do casting as they are not considered stable.
 </p>
-<p>
-Virtual: view_type
-</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
-<tbody><tr>
+<tbody>
+<tr>
 <td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
 <td>a <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>
 </td>
-</tr></tbody>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>A gchar*. <span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span>
+</td>
+</tr>
+</tbody>
 </table></div>
 </div>
 <hr>
@@ -260,23 +264,14 @@ Determines if the view is currently active and focused by the user. Useful for a
 <a name="bamf-view-is-closed"></a><h3>bamf_view_is_closed ()</h3>
 <pre class="programlisting"><span class="returnvalue">gboolean</span>            bamf_view_is_closed                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
-Determines if the view is closed or not.
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody><tr>
-<td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
-<td>a <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>
-</td>
-</tr></tbody>
-</table></div>
 </div>
 <hr>
 <div class="refsect2">
 <a name="bamf-view-is-running"></a><h3>bamf_view_is_running ()</h3>
 <pre class="programlisting"><span class="returnvalue">gboolean</span>            bamf_view_is_running                (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
-Determines if the view is currently running. Useful for a running window indicator.
+Determines if the view is currently requiring attention. Useful for a running window indicator.
 </p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -299,16 +294,7 @@ Determines if the view is currently running. Useful for a running window indicat
 <a name="bamf-view-is-urgent"></a><h3>bamf_view_is_urgent ()</h3>
 <pre class="programlisting"><span class="returnvalue">gboolean</span>            bamf_view_is_urgent                 (<em class="parameter"><code><a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a> *view</code></em>);</pre>
 <p>
-Determines if the view is currently requiring attention. Useful for a running window indicator.
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody><tr>
-<td><p><span class="term"><em class="parameter"><code>view</code></em> :</span></p></td>
-<td>a <a class="link" href="BamfView.html" title="BamfView"><span class="type">BamfView</span></a>
-</td>
-</tr></tbody>
-</table></div>
 </div>
 <hr>
 <div class="refsect2">

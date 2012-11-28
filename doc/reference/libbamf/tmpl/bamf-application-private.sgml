@@ -22,3 +22,12 @@ bamf-application-private
 <!-- ##### SECTION Image ##### -->
 
 
+<!-- ##### FUNCTION bamf_application_get_cached_xids ##### -->
+<para>
+
+</para>
+
+@app: 
+@Returns: 
+
+
