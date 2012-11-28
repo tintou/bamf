@@ -1,5 +1,7 @@
 libbamf3.so.0 libbamf3-0 #MINVER#
+ _bamf_view_set_closed@Base 0.2.120
  bamf_application_get_application_type@Base 0.2.20
+ bamf_application_get_cached_xids@Base 0.2.118
  bamf_application_get_desktop_file@Base 0.2.20
  bamf_application_get_show_menu_stubs@Base 0.2.48
  bamf_application_get_type@Base 0.2.20
@@ -17,6 +19,8 @@ libbamf3.so.0 libbamf3-0 #MINVER#
  bamf_factory_get_default@Base 0.2.20
  bamf_factory_get_type@Base 0.2.20
  bamf_factory_view_for_path@Base 0.2.20
+ bamf_factory_view_for_path_type@Base 0.2.118
+ bamf_factory_view_for_path_type_str@Base 0.2.118
  bamf_indicator_get_dbus_menu_path@Base 0.2.36
  bamf_indicator_get_remote_address@Base 0.2.36
  bamf_indicator_get_remote_path@Base 0.2.36
@@ -68,6 +72,7 @@ libbamf3.so.0 libbamf3-0 #MINVER#
  bamf_view_is_sticky@Base 0.2.60
  bamf_view_is_urgent@Base 0.2.20
  bamf_view_remote_ready@Base 0.2.60
+ bamf_view_reset_flags@Base 0.2.118
  bamf_view_set_icon@Base 0.2.60
  bamf_view_set_name@Base 0.2.60
  bamf_view_set_path@Base 0.2.60
