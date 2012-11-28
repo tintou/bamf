@@ -276,7 +276,7 @@ SUBDIRS = \
   doc
 
 EXTRA_DIST = COPYING.LGPL autogen.sh build.rules.mk
-DISTCHECK_CONFIGURE_FLAGS = --enable-introspection=no --enable-gtk-doc=yes
+DISTCHECK_CONFIGURE_FLAGS = --enable-introspection=no --enable-gtk-doc
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
