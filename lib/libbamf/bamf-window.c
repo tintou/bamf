@@ -75,13 +75,6 @@ time_t bamf_window_last_active (BamfWindow *self)
   return self->priv->last_active;
 }
 
-/**
- * bamf_window_get_transient:
- * @self: a #BamfWindow
- *
- * Returns: (transfer none) (nullable): A transient for this #BamfWindow.
- */
-
 BamfWindow * bamf_window_get_transient (BamfWindow *self)
 {
   BamfWindowPrivate *priv;
@@ -92,7 +85,7 @@ BamfWindow * bamf_window_get_transient (BamfWindow *self)
   g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
   priv = self->priv;
 
-  if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
     return NULL;
 
   if (!dbus_g_proxy_call (priv->proxy,
@@ -110,8 +103,8 @@ BamfWindow * bamf_window_get_transient (BamfWindow *self)
   if (!path)
     return NULL;
 
-  BamfFactory *factory = _bamf_factory_get_default ();
-  transient = _bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_WINDOW);
+  BamfFactory *factory = bamf_factory_get_default ();
+  transient = bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_WINDOW);
   g_free (path);  
 
   if (!BAMF_IS_WINDOW (transient))
@@ -129,7 +122,7 @@ BamfWindowType bamf_window_get_window_type (BamfWindow *self)
   g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
   priv = self->priv;
 
-  if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
     return 0;
 
   if (!dbus_g_proxy_call (priv->proxy,
@@ -159,7 +152,7 @@ guint32 bamf_window_get_pid (BamfWindow *self)
   if (priv->pid != 0)
     return priv->pid;
 
-  if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
     return 0;
 
   if (!dbus_g_proxy_call (priv->proxy,
@@ -189,7 +182,7 @@ guint32 bamf_window_get_xid (BamfWindow *self)
   if (priv->xid != 0)
     return priv->xid;
 
-  if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
     return 0;
 
   if (!dbus_g_proxy_call (priv->proxy,
@@ -283,7 +276,7 @@ bamf_window_set_path (BamfView *view, const char *path)
   priv->monitor = bamf_window_get_monitor (self);
   priv->maximized = bamf_window_maximized (self);
 
-  dbus_g_object_register_marshaller ((GClosureMarshal) _bamf_marshal_VOID__INT_INT,
+  dbus_g_object_register_marshaller ((GClosureMarshal) bamf_marshal_VOID__INT_INT,
                                      G_TYPE_NONE, 
                                      G_TYPE_INT, G_TYPE_INT,
                                      G_TYPE_INVALID);
@@ -321,7 +314,7 @@ bamf_window_get_utf8_prop (BamfWindow *self, const char* xprop)
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
   priv = self->priv;
 
-  if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
+  if (!bamf_view_remote_ready (BAMF_VIEW (self)))
     return NULL;
 
   if (!dbus_g_proxy_call (priv->proxy,
@@ -357,7 +350,7 @@ bamf_window_get_monitor (BamfWindow *self)
   g_return_val_if_fail (BAMF_IS_WINDOW (self), -1);
   priv = self->priv;
 
-  if (priv->monitor != -2 || !_bamf_view_remote_ready (BAMF_VIEW (self)))
+  if (priv->monitor != -2 || !bamf_view_remote_ready (BAMF_VIEW (self)))
     {
       return priv->monitor;
     }
@@ -388,7 +381,7 @@ bamf_window_maximized (BamfWindow *self)
   g_return_val_if_fail (BAMF_IS_WINDOW (self), -1);
   priv = self->priv;
 
-  if (priv->maximized != -1 || !_bamf_view_remote_ready (BAMF_VIEW (self)))
+  if (priv->maximized != -1 || !bamf_view_remote_ready (BAMF_VIEW (self)))
     {
       return priv->maximized;
     }
@@ -439,7 +432,7 @@ bamf_window_class_init (BamfWindowClass *klass)
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfWindowClass, monitor_changed),
                   NULL, NULL,
-                  _bamf_marshal_VOID__INT_INT,
+                  bamf_marshal_VOID__INT_INT,
                   G_TYPE_NONE, 2,
                   G_TYPE_INT, G_TYPE_INT);
 
@@ -449,7 +442,7 @@ bamf_window_class_init (BamfWindowClass *klass)
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfWindowClass, maximized_changed),
                   NULL, NULL,
-                  _bamf_marshal_VOID__INT_INT,
+                  bamf_marshal_VOID__INT_INT,
                   G_TYPE_NONE, 2,
                   G_TYPE_INT, G_TYPE_INT);
 }
@@ -484,7 +477,7 @@ bamf_window_new (const char * path)
   BamfWindow *self;
   self = g_object_new (BAMF_TYPE_WINDOW, NULL);
 
-  _bamf_view_set_path (BAMF_VIEW (self), path);
+  bamf_view_set_path (BAMF_VIEW (self), path);
 
   return self;
 }
