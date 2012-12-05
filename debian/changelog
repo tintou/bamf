@@ -1,4 +1,4 @@
-bamf (0.4.0-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.4.0daily12.12.05-0ubuntu1) raring; urgency=low
 
   [ Michael Terry ]
   * New upstream release
@@ -21,7 +21,10 @@ bamf (0.4.0-0ubuntu1) UNRELEASED; urgency=low
   [ Didier Roche ]
   * Automatic snapshot from revision 494 (bootstrap)
 
- -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 14 Nov 2012 16:15:56 +0100
+  [ Automatic PS uploader ]
+  * Automatic snapshot from revision 502
+
+ -- Automatic PS uploader <ps-jenkins@lists.canonical.com>  Wed, 05 Dec 2012 09:26:30 +0000
 
 bamf (0.3.4-0ubuntu1) quantal-proposed; urgency=low
 
