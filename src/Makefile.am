@@ -138,10 +138,12 @@ bamfdaemon_CFLAGS = \
 		$(WNCK_CFLAGS) \
 		$(GTOP_CFLAGS) \
 		$(LIBUNITY_WEBAPPS_CFLAGS) \
+		$(COVERAGE_CFLAGS) \
 		$(NULL)
 
 bamfdaemon_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
+		$(COVERAGE_LDFLAGS) \
 		$(NULL)
 
 bamf-gdbus-generated.c bamf-gdbus-generated.h: org.ayatana.bamf.xml
