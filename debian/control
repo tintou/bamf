@@ -86,7 +86,6 @@ Architecture: any
 Priority: extra
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         libbamf0 (= ${binary:Version}),
          libbamf3-0 (= ${binary:Version}),
 Description: Window matching library - debugging symbols
  bamf matches application windows to desktop files
