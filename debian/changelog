@@ -1,4 +1,4 @@
-bamf (0.2.124.2-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.2.124.2-0ubuntu1) precise-proposed; urgency=low
 
   * New upstream release.
     - Includes all previous cherry-picks
