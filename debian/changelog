@@ -8,8 +8,6 @@ bamf (0.2.124.2-0ubuntu1) UNRELEASED; urgency=low
       list, add tests. (LP: #1082298)
     - BamfMatcher: add support for libreoffice Base, and libreoffice 
       matching tests (LP: #1063862)
-  * debian/*.symbols
-    - Update for new symbols that are already in the earlier releases
 
  -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Wed, 28 Nov 2012 15:42:28 +0200
 
