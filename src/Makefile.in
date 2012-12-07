@@ -336,9 +336,11 @@ bamfdaemon_headers = \
 		bamf-legacy-window.h \
 		bamf-legacy-window-test.h \
 		bamf-legacy-screen.h \
+		bamf-legacy-screen-private.h \
 		bamf-view.h \
 		bamf-control.h \
 		bamf-matcher.h \
+		bamf-matcher-private.h \
 		bamf-window.h \
 		bamf-application.h \
 		bamf-tab.h \

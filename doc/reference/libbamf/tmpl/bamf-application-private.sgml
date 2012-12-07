@@ -9,25 +9,14 @@ bamf-application-private
 
 </para>
 
-
 <!-- ##### SECTION See_Also ##### -->
 <para>
 
 </para>
 
-
 <!-- ##### SECTION Stability_Level ##### -->
 
 
 <!-- ##### SECTION Image ##### -->
-
-
-<!-- ##### FUNCTION bamf_application_get_cached_xids ##### -->
-<para>
-
-</para>
-
-@app: 
-@Returns: 
 
 

@@ -77,6 +77,8 @@ struct _BamfLegacyWindowClass
   char       * (*get_app_id)              (BamfLegacyWindow *legacy_window);
   char       * (*get_unique_bus_name)     (BamfLegacyWindow *legacy_window);
   char       * (*get_menu_object_path)    (BamfLegacyWindow *legacy_window);
+  char       * (*get_hint)                (BamfLegacyWindow *legacy_window,
+                                           const gchar *name);
   gint         (*get_pid)                 (BamfLegacyWindow *legacy_window);
   guint32      (*get_xid)                 (BamfLegacyWindow *legacy_window);
   gboolean     (*needs_attention)         (BamfLegacyWindow *legacy_window);
@@ -84,11 +86,14 @@ struct _BamfLegacyWindowClass
   gboolean     (*is_skip_tasklist)        (BamfLegacyWindow *legacy_window);
   gboolean     (*is_desktop)              (BamfLegacyWindow *legacy_window);
   gboolean     (*is_dialog)               (BamfLegacyWindow *legacy_window);
+  gboolean     (*is_closed)               (BamfLegacyWindow *legacy_window);
   BamfWindowMaximizationType (*maximized) (BamfLegacyWindow *legacy_window);
-
-  void         (*get_geometry)         (BamfLegacyWindow *self,
-                                        gint *x, gint *y,
-                                        gint *width, gint *height);
+  BamfWindowType (*get_window_type)       (BamfLegacyWindow *legacy_window);
+  void         (*get_geometry)            (BamfLegacyWindow *legacy_window,
+                                           gint *x, gint *y, gint *w, gint *h);
+  void         (*set_hint)                (BamfLegacyWindow *legacy_window,
+                                           const gchar *name, const gchar *value);
+  void         (*reopen)                  (BamfLegacyWindow *legacy_window);
 
   /*< signals >*/
   void     (*name_changed)     (BamfLegacyWindow *legacy_window);
@@ -139,7 +144,12 @@ char             * bamf_legacy_window_get_exec_string      (BamfLegacyWindow *se
 
 BamfLegacyWindow * bamf_legacy_window_get_transient        (BamfLegacyWindow *self);
 
-char             * bamf_legacy_window_get_utf8_xprop       (BamfLegacyWindow *self, const char* prop);
+char             * bamf_legacy_window_get_hint             (BamfLegacyWindow *self,
+                                                            const char *name);
+
+void               bamf_legacy_window_set_hint             (BamfLegacyWindow *self,
+                                                            const char *name,
+                                                            const char *value);
 
 gint               bamf_legacy_window_get_stacking_position (BamfLegacyWindow *self);
 

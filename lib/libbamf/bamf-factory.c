@@ -205,9 +205,9 @@ bamf_factory_view_for_path_type_str (BamfFactory * factory, const char * path,
   return bamf_factory_view_for_path_type (factory, path, factory_type);
 }
 
-BamfView * 
-bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
-                                                        BamfFactoryViewType type)
+BamfView *
+bamf_factory_view_for_path_type (BamfFactory * factory, const char * path, 
+                                 BamfFactoryViewType type)
 {
   GHashTable *views;
   BamfView *view;

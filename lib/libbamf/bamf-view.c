@@ -586,7 +586,6 @@ bamf_view_on_closed (DBusGProxy *proxy, BamfView *self)
   _bamf_view_set_closed (self, TRUE);
 
   g_object_ref (self);
-
   g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
   g_object_unref (self);
 }
@@ -731,7 +730,7 @@ bamf_view_dispose (GObject *object)
   G_OBJECT_CLASS (bamf_view_parent_class)->dispose (object);
 }
 
-const char * 
+const char *
 bamf_view_get_path (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
