@@ -237,7 +237,7 @@ bamf_application_get_application_type (BamfApplication *application)
  *
  * Used to fetch all #BamfWindow's xids associated with the passed #BamfApplication.
  *
- * Returns: (element-type guint) (transfer full): An array of xids.
+ * Returns: (element-type guint32) (transfer full): An array of xids.
  */
 GArray *
 bamf_application_get_xids (BamfApplication *application)
