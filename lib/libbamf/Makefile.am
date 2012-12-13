@@ -73,7 +73,7 @@ libbamf3_la_CPPFLAGS = \
 libbamf3_la_LDFLAGS = \
   -shared \
   -export-symbols-regex "^bamf_" \
-  $(COVERAGE_CFLAGS) \
+  $(COVERAGE_LDFLAGS) \
   $(NULL)
 
 glib_marshal_list = bamf-marshal.list
