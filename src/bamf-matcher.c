@@ -641,11 +641,11 @@ good_prefix_strings (void)
 }
 
 static GArray *
-pid_parent_tree (BamfMatcher *self, gint pid)
+pid_parent_tree (BamfMatcher *self, guint pid)
 {
   BamfMatcherPrivate *priv;
   GArray *tree;
-  gint known_pid;
+  guint known_pid;
   gint i;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
@@ -1479,8 +1479,7 @@ process_name (gint pid)
 }
 
 static GList *
-bamf_matcher_possible_applications_for_pid (BamfMatcher *self,
-                                           gint pid)
+bamf_matcher_possible_applications_for_pid (BamfMatcher *self, guint pid)
 {
   BamfMatcherPrivate *priv;
   GList *result = NULL, *table_list, *l;
@@ -1718,9 +1717,9 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
           desktop_files = g_list_reverse (desktop_files);
         }
 
-      gint pid = bamf_legacy_window_get_pid (window);
+      guint pid = bamf_legacy_window_get_pid (window);
       GList *pid_list = bamf_matcher_possible_applications_for_pid (self, pid);
-      
+
       /* Append these files to the end to give preference to class_name style picking.
          This style of matching is prefered and used by GNOME Shell however does not work
          very well in practice, thus requiring the fallback here */
@@ -1959,8 +1958,9 @@ ensure_window_hint_set (BamfMatcher *self,
   GArray *pids;
   GHashTable *registered_pids;
   char *desktop_file_hint = NULL;
-  gint i, pid;
   gpointer key;
+  guint pid;
+  gint i;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
@@ -2023,7 +2023,7 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
 
-  gint pid = bamf_legacy_window_get_pid (window);
+  guint pid = bamf_legacy_window_get_pid (window);
   if (pid > 1)
     g_array_append_val (self->priv->known_pids, pid);
 
@@ -2940,7 +2940,7 @@ bamf_matcher_init (BamfMatcher * self)
 
   priv = self->priv = BAMF_MATCHER_GET_PRIVATE (self);
 
-  priv->known_pids = g_array_new (FALSE, TRUE, sizeof (gint));
+  priv->known_pids = g_array_new (FALSE, TRUE, sizeof (guint));
   priv->bad_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex *));
   priv->good_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex *));
   priv->registered_pids = g_hash_table_new_full (g_direct_hash, g_direct_equal,

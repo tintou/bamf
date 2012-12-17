@@ -52,7 +52,7 @@ struct _BamfLegacyWindowTest
 {
   BamfLegacyWindow parent;
   guint32 xid;
-  gint    pid;
+  guint   pid;
   char * name;
   char * wm_class_name;
   char * wm_class_instance;
@@ -87,7 +87,7 @@ struct _BamfLegacyWindowTestClass
 
 GType       bamf_legacy_window_test_get_type (void) G_GNUC_CONST;
 
-gint
+guint
 bamf_legacy_window_test_get_pid (BamfLegacyWindow *legacy_window);
 
 guint32

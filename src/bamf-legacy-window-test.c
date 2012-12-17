@@ -22,7 +22,7 @@
 
 G_DEFINE_TYPE (BamfLegacyWindowTest, bamf_legacy_window_test, BAMF_TYPE_LEGACY_WINDOW);
 
-gint
+guint
 bamf_legacy_window_test_get_pid (BamfLegacyWindow *legacy_window)
 {
   BamfLegacyWindowTest *self;
