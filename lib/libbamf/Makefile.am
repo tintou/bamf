@@ -67,11 +67,13 @@ libbamf3_la_CPPFLAGS = \
   $(LIBWSBIND_CFLAGS) \
   $(GLIB_CFLAGS) \
   $(DBUS_CFLAGS) \
+  $(COVERAGE_CFLAGS) \
   $(NULL)
 
 libbamf3_la_LDFLAGS = \
   -shared \
   -export-symbols-regex "^bamf_" \
+  $(COVERAGE_LDFLAGS) \
   $(NULL)
 
 glib_marshal_list = bamf-marshal.list
