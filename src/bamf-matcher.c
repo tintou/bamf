@@ -605,7 +605,7 @@ bad_prefix_strings (void)
   str = "^sudo$";
   g_array_append_val (arr, str);
 
-  str = "^java$";
+  str = "^java(ws)?$";
   g_array_append_val (arr, str);
 
   str = "^mono$";
