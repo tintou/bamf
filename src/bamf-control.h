@@ -64,9 +64,6 @@ void          bamf_control_register_tab_provider        (BamfControl *control,
 void          bamf_control_insert_desktop_file          (BamfControl *control,
                                                          const char *path);
 
-void          bamf_control_set_approver_behavior        (BamfControl *control,
-                                                         gint32 behavior);
-
 void          bamf_control_quit                         (BamfControl *control);
 
 BamfControl * bamf_control_get_default                  (void);

@@ -21,7 +21,6 @@
 #include "bamf-application.h"
 #include "bamf-window.h"
 #include "bamf-matcher.h"
-#include "bamf-indicator.h"
 #include "bamf-legacy-window.h"
 #include "bamf-legacy-screen.h"
 #include "bamf-tab.h"
@@ -544,9 +543,6 @@ bamf_application_ensure_flags (BamfApplication *self)
         continue;
 
       running = TRUE;
-
-      if (BAMF_IS_INDICATOR (view))
-        visible = TRUE;
 
       if (!BAMF_IS_WINDOW (view) && !BAMF_IS_TAB (view))
         continue;

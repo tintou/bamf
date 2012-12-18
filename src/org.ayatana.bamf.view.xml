@@ -128,15 +128,6 @@
     </signal>
   </interface>
 
-  <interface name="org.ayatana.bamf.indicator">
-    <method name="Path">
-      <arg type="s" name="path" direction="out"/>
-    </method>
-    <method name="Address">
-      <arg type="s" name="address" direction="out"/>
-    </method>
-  </interface>
-
   <interface name="org.ayatana.bamf.tab">
     <method name="Raise">
     </method>
