@@ -31,19 +31,18 @@ struct _BamfMatcherPrivate
 {
   GArray          * bad_prefixes;
   GArray          * good_prefixes;
-  GArray          * known_pids;
   GHashTable      * desktop_id_table;
   GHashTable      * desktop_file_table;
   GHashTable      * desktop_class_table;
   GHashTable      * registered_pids;
   GHashTable      * opened_closed_paths_table;
+  GList           * known_pids;
   GList           * views;
   GList           * monitors;
   GList           * favorites;
   BamfView        * active_app;
   BamfView        * active_win;
   guint             dispatch_changes_id;
-  
   BamfUnityWebappsObserver *webapps_observer;
 };
 
