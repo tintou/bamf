@@ -1,6 +1,11 @@
 bamf (0.4.0daily12.12.05-0ubuntu2) raring; urgency=low
 
+  [ Didier Roche ]
   * Remove wrong build-dep from -dbg on libbamf0
+
+  [ Marco Trevisan (Treviño) ]
+  * Remove the unneeded libbamf0.symbols and libbamf0.install
+  * Update libbamf3.symbols removing the indicator functions
 
  -- Didier Roche <didrocks@ubuntu.com>  Wed, 05 Dec 2012 17:34:41 +0100
 

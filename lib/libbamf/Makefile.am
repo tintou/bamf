@@ -21,12 +21,10 @@ libbamf_sources = \
   bamf-factory.c \
   bamf-tab-source.c \
   bamf-tab.c \
-  bamf-indicator.c \
   $(NULL)
 
 libbamf_headers = \
   bamf-application.h \
-  bamf-indicator.h \
   bamf-control.h \
   bamf-matcher.h \
   bamf-view.h \

@@ -21,7 +21,6 @@
 
 #include "bamf-matcher.h"
 #include "bamf-control.h"
-#include "bamf-indicator-source.h"
 #include "bamf-daemon.h"
 #include "bamf-unity-webapps-observer.h"
 
@@ -86,18 +85,6 @@ on_dbus_handle_quit (BamfDBusControl *interface,
 }
 
 static gboolean
-on_dbus_handle_set_approver_behavior (BamfDBusControl *interface,
-                                      GDBusMethodInvocation *invocation,
-                                      gint behavior,
-                                      BamfControl *self)
-{
-  bamf_control_set_approver_behavior (self, behavior);
-  g_dbus_method_invocation_return_value (invocation, NULL);
-
-  return TRUE;
-}
-
-static gboolean
 on_dbus_handle_om_nom_nom_desktop_file (BamfDBusControl *interface,
                                         GDBusMethodInvocation *invocation,
                                         const gchar *desktop_file,
@@ -132,9 +119,6 @@ bamf_control_init (BamfControl * self)
   g_signal_connect (self, "handle-quit",
                     G_CALLBACK (on_dbus_handle_quit), self);
 
-  g_signal_connect (self, "handle-set-approver-behavior",
-                    G_CALLBACK (on_dbus_handle_set_approver_behavior), self);
-
   g_signal_connect (self, "handle-om-nom-nom-desktop-file",
                     G_CALLBACK (on_dbus_handle_om_nom_nom_desktop_file), self);
 
@@ -159,14 +143,6 @@ bamf_control_class_init (BamfControlClass * klass)
   obj_class->finalize = bamf_control_finalize;
 
   g_type_class_add_private (klass, sizeof (BamfControlPrivate));
-}
-
-void
-bamf_control_set_approver_behavior (BamfControl *control,
-                                    gint32 behavior)
-{
-  BamfIndicatorSource *indicator_source = bamf_indicator_source_get_default ();
-  bamf_indicator_source_set_behavior (indicator_source, behavior);
 }
 
 void

@@ -25,7 +25,6 @@
 #include "bamf-application.h"
 #include "bamf-window.h"
 #include "bamf-legacy-screen.h"
-#include "bamf-indicator-source.h"
 
 #ifdef HAVE_WEBAPPS
 #include "bamf-unity-webapps-application.h"
@@ -2194,67 +2193,6 @@ handle_stacking_changed (BamfLegacyScreen * screen, BamfMatcher *self)
   g_signal_emit_by_name (self, "stacking-order-changed");
 }
 
-static void
-bamf_matcher_setup_indicator_state (BamfMatcher *self, BamfIndicator *indicator)
-{
-  GList *possible_apps, *l;
-  const char *desktop_file;
-  BamfApplication *app = NULL, *best = NULL;
-
-  g_return_if_fail (BAMF_IS_MATCHER (self));
-  g_return_if_fail (BAMF_IS_INDICATOR (indicator));
-
-  possible_apps = bamf_matcher_possible_applications_for_pid (self, bamf_indicator_get_pid (indicator));
-
-  /* Loop over every application, inside that application see if its .desktop file
-   * matches with any of our possible hits. If so we match it. If we have no possible hits
-   * fall back to secondary matching. 
-   */
-  if (possible_apps)
-    {
-      for (l = possible_apps; l; l = l->next)
-        {
-          desktop_file = l->data;
-          app = bamf_matcher_get_application_by_desktop_file (self, desktop_file);
-
-          if (BAMF_IS_APPLICATION (app))
-            {
-              best = app;
-              break;
-            }
-        }
-    }
-
-  if (!best)
-    {
-      desktop_file = NULL;
-
-      if (possible_apps)
-        desktop_file = possible_apps->data;
-
-      if (desktop_file)
-        {
-          best = bamf_application_new_from_desktop_file (desktop_file);
-          bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (best));
-        }
-    }
-
-  g_list_free_full (possible_apps, g_free);
-
-  if (best)
-    bamf_view_add_child (BAMF_VIEW (best), BAMF_VIEW (indicator));
-}
-
-static void
-handle_indicator_opened (BamfIndicatorSource *approver, BamfIndicator *indicator, BamfMatcher *self)
-{
-  g_return_if_fail (BAMF_IS_MATCHER (self));
-  g_return_if_fail (BAMF_IS_INDICATOR (indicator));
-
-  bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (indicator));
-  bamf_matcher_setup_indicator_state (self, indicator);
-}
-
 void
 bamf_matcher_load_desktop_file (BamfMatcher * self,
                                 const char * desktop_file)
@@ -2934,7 +2872,6 @@ bamf_matcher_init (BamfMatcher * self)
 {
   BamfMatcherPrivate *priv;
   BamfLegacyScreen *screen;
-  BamfIndicatorSource *approver;
   GArray *prefixstrings;
   int i;
 
@@ -2974,10 +2911,6 @@ bamf_matcher_init (BamfMatcher * self)
 
   g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_STACKING_CHANGED,
                     (GCallback) handle_stacking_changed, self);
-
-  approver = bamf_indicator_source_get_default ();
-  g_signal_connect (G_OBJECT (approver), "indicator-opened",
-                    (GCallback) handle_indicator_opened, self);
 
   XSetErrorHandler (x_error_handler);
 

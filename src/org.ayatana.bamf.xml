@@ -4,9 +4,6 @@
   <interface name="org.ayatana.bamf.control">
     <method name="Quit">
     </method>
-    <method name="SetApproverBehavior">
-      <arg name="behavior" type="i" direction="in"/>
-    </method>
     <method name="OmNomNomDesktopFile">
       <arg name="tab_path" type="s" direction="in"/>
     </method>

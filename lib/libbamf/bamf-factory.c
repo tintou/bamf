@@ -40,7 +40,6 @@
 #include "bamf-window.h"
 #include "bamf-application.h"
 #include "bamf-application-private.h"
-#include "bamf-indicator.h"
 #include "bamf-tab.h"
 
 #include <dbus/dbus.h>
@@ -67,8 +66,6 @@ BamfApplication * bamf_application_new_favorite     (const char *favorite_path);
 BamfApplication * bamf_application_new              (const char *path);
 
 BamfWindow      * bamf_window_new                   (const char *path);
-
-BamfIndicator   * bamf_indicator_new                (const char *path);
 
 static void
 bamf_factory_class_init (BamfFactoryClass *klass)
@@ -177,10 +174,6 @@ BamfFactoryViewType compute_factory_type_by_str (const char *type)
         {
           factory_type = BAMF_FACTORY_APPLICATION;
         }
-      else if (g_strcmp0 (type, "indicator") == 0)
-        {
-          factory_type = BAMF_FACTORY_INDICATOR;
-        }
       else if (g_strcmp0 (type, "view") == 0)
         {
           factory_type = BAMF_FACTORY_VIEW;
@@ -249,9 +242,6 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
       break;
     case BAMF_FACTORY_APPLICATION:
       view = BAMF_VIEW (bamf_application_new (path));
-      break;
-    case BAMF_FACTORY_INDICATOR:
-      view = BAMF_VIEW (bamf_indicator_new (path));
       break;
     case BAMF_FACTORY_TAB:
       view = BAMF_VIEW (bamf_tab_new (path));

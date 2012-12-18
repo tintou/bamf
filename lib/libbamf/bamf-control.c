@@ -127,28 +127,6 @@ bamf_control_get_default (void)
 }
 
 void
-bamf_control_set_approver_behavior (BamfControl *control,
-                                    gint32       behavior)
-{
-  BamfControlPrivate *priv;
-  GError *error = NULL;
-
-  g_return_if_fail (BAMF_IS_CONTROL (control));
-  priv = control->priv;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "SetApproverBehavior",
-                          &error,
-                          G_TYPE_INT, behavior,
-                          G_TYPE_INVALID,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to register application: %s", error->message);
-      g_error_free (error);
-    }
-}
-
-void
 bamf_control_insert_desktop_file (BamfControl *control,
                                    const gchar *desktop_file)
 {

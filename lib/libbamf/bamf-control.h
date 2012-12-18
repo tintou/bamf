@@ -52,13 +52,6 @@ typedef struct _BamfControl        BamfControl;
 typedef struct _BamfControlClass   BamfControlClass;
 typedef struct _BamfControlPrivate BamfControlPrivate;
 
-enum
-{
-  BAMF_CONTROL_APPROVE_NONE,
-  BAMF_CONTROL_APPROVE_MATCHED,
-  BAMF_CONTROL_APPROVE_ALL
-};
-
 struct _BamfControl
 {
   GObject parent;
@@ -92,9 +85,6 @@ void          bamf_control_register_application_for_pid (BamfControl *control,
 
 void          bamf_control_register_tab_provider        (BamfControl *control,
                                                          const char  *path);
-                                                     
-void          bamf_control_set_approver_behavior        (BamfControl *control,
-                                                         gint32       behavior);
 
 G_END_DECLS
 #endif
