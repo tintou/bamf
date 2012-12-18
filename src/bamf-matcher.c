@@ -1411,39 +1411,7 @@ is_open_office_window (BamfMatcher * self, BamfLegacyWindow * window)
 }
 
 static char *
-process_exec_string (gint pid)
-{
-  gchar *result = NULL;
-  gint i = 0;
-  gchar **argv = NULL;
-  GString *exec = NULL;
-  glibtop_proc_args buffer;
-
-  if (pid == 0)
-    return NULL;
-
-  argv = glibtop_get_proc_argv (&buffer, pid, 0);
-  exec = g_string_new ("");
-
-  while (argv[i] != NULL)
-    {
-      g_string_append (exec, argv[i]);
-      if (argv[i + 1] != NULL)
-        g_string_append (exec, " ");
-      g_free (argv[i]);
-      i++;
-    }
-
-  g_free (argv);
-
-  result = g_strdup (exec->str);
-  g_string_free (exec, TRUE);
-  return result;
-}
-
-
-static char *
-process_name (gint pid)
+get_process_name (gint pid)
 {
   char *stat_path;
   char *contents;
@@ -1478,19 +1446,18 @@ process_name (gint pid)
 }
 
 static GList *
-bamf_matcher_possible_applications_for_pid (BamfMatcher *self, guint pid)
+bamf_matcher_possible_applications_for_window_process (BamfMatcher *self, BamfLegacyWindow *window)
 {
   BamfMatcherPrivate *priv;
   GList *result = NULL, *table_list, *l;
-  char *proc_name;
   char *exec_string;
   char *trimmed;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
 
   priv = self->priv;
-
-  exec_string  = process_exec_string (pid);
+  exec_string = bamf_legacy_window_get_exec_string (window);
 
   if (exec_string)
     {
@@ -1509,7 +1476,6 @@ bamf_matcher_possible_applications_for_pid (BamfMatcher *self, guint pid)
             }
           g_free (trimmed);
         }
-
       g_free (exec_string);
     }
 
@@ -1519,7 +1485,9 @@ bamf_matcher_possible_applications_for_pid (BamfMatcher *self, guint pid)
       return result;
     }
 
-  proc_name = process_name (pid);
+  guint pid = bamf_legacy_window_get_pid (window);
+  gchar *proc_name = get_process_name (pid);
+
   if (proc_name)
     {
       table_list = g_hash_table_lookup (priv->desktop_file_table, proc_name);
@@ -1716,8 +1684,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
           desktop_files = g_list_reverse (desktop_files);
         }
 
-      guint pid = bamf_legacy_window_get_pid (window);
-      GList *pid_list = bamf_matcher_possible_applications_for_pid (self, pid);
+      GList *pid_list = bamf_matcher_possible_applications_for_window_process (self, window);
 
       /* Append these files to the end to give preference to class_name style picking.
          This style of matching is prefered and used by GNOME Shell however does not work
