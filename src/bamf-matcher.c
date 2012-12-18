@@ -2919,10 +2919,8 @@ bamf_matcher_init (BamfMatcher * self)
 #ifdef HAVE_WEBAPPS
   priv->webapps_observer = bamf_unity_webapps_observer_new ();
 
-  g_signal_connect (priv->webapps_observer,
-                    "application-appeared",
-                    G_CALLBACK (on_webapp_appeared),
-                    self);
+  g_signal_connect (priv->webapps_observer, "application-appeared",
+                    G_CALLBACK (on_webapp_appeared), self);
 #endif
 }
 
@@ -2937,11 +2935,13 @@ bamf_matcher_dispose (GObject *object)
       bamf_matcher_unregister_view (self, priv->views->data);
     }
 
+#ifdef HAVE_WEBAPPS
   if (priv->webapps_observer)
     {
       g_object_unref (G_OBJECT (priv->webapps_observer));
       priv->webapps_observer = NULL;
     }
+#endif
 
   G_OBJECT_CLASS (bamf_matcher_parent_class)->dispose (object);
 }

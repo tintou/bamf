@@ -34,6 +34,7 @@ static void test_match_desktop_application (void);
 static void test_match_libreoffice_windows (void);
 static void test_new_desktop_matches_unmatched_windows (void);
 static void test_match_transient_windows (void);
+static void test_match_javaws_windows (void);
 
 static GDBusConnection *gdbus_connection = NULL;
 
@@ -54,6 +55,7 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Matching/Application/LibreOffice", test_match_libreoffice_windows);
   g_test_add_func (DOMAIN"/Matching/Windows/UnmatchedOnNewDesktop", test_new_desktop_matches_unmatched_windows);
   g_test_add_func (DOMAIN"/Matching/Windows/Transient", test_match_transient_windows);
+  g_test_add_func (DOMAIN"/Matching/Windows/JavaWebStart", test_match_javaws_windows);
 }
 
 static void
@@ -527,4 +529,37 @@ test_match_transient_windows (void)
 
   g_object_unref (matcher);
   g_object_unref (screen);
+}
+
+static void
+test_match_javaws_windows (void)
+{
+  BamfMatcher *matcher;
+  BamfWindow *window;
+  BamfLegacyScreen *screen;
+  BamfLegacyWindowTest *test_win;
+  BamfApplication *app;
+  char *hint;
+
+  screen = bamf_legacy_screen_get_default ();
+  matcher = bamf_matcher_get_default ();
+  guint xid = g_random_int ();
+  const char *exec = "javaws";
+  const char *class_instance = "sun-awt-X11-XFramePeer";
+  const char *class_name = "net-sourceforge-jnlp-runtime-Boot";
+
+  cleanup_matcher_tables (matcher);
+  export_matcher_on_bus (matcher);
+
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-startcenter.desktop");
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-base.desktop");
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-calc.desktop");
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-draw.desktop");
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-impress.desktop");
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-math.desktop");
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-writer.desktop");
+
+  test_win = bamf_legacy_window_test_new (xid, "LibreOffice", "libreoffice-startcenter", exec);
+  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-startcenter", class_instance);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
 }
