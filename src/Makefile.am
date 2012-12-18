@@ -19,8 +19,6 @@ bamfdaemon_gdbus_files = \
 		bamf-gdbus-view-generated.h \
 		bamf-gdbus-browser-generated.c \
 		bamf-gdbus-browser-generated.h \
-		bamf-gdbus-indicator-source-generated.c \
-		bamf-gdbus-indicator-source-generated.h \
 		$(NULL)
 
 bamfdaemon_xml_gdbus_files = \
@@ -48,8 +46,6 @@ bamfdaemon_sources = \
 		bamf-application.c \
 		bamf-window.c \
 		bamf-tab.c \
-		bamf-indicator-source.c \
-		bamf-indicator.c \
 		bamf-xutils.c \
 		$(NULL)
 
@@ -68,8 +64,6 @@ bamfdaemon_headers = \
 		bamf-window.h \
 		bamf-application.h \
 		bamf-tab.h \
-		bamf-indicator-source.h \
-		bamf-indicator.h \
 		bamf-xutils.h \
 		$(NULL)
 
@@ -138,10 +132,12 @@ bamfdaemon_CFLAGS = \
 		$(WNCK_CFLAGS) \
 		$(GTOP_CFLAGS) \
 		$(LIBUNITY_WEBAPPS_CFLAGS) \
+		$(COVERAGE_CFLAGS) \
 		$(NULL)
 
 bamfdaemon_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
+		$(COVERAGE_LDFLAGS) \
 		$(NULL)
 
 bamf-gdbus-generated.c bamf-gdbus-generated.h: org.ayatana.bamf.xml
@@ -164,13 +160,6 @@ bamf-gdbus-browser-generated.c bamf-gdbus-browser-generated.h: org.ayatana.bamf.
 		--generate-c-code bamf-gdbus-browser-generated \
 		--c-namespace BamfDBusBrowser \
 		--interface-prefix org.ayatana.bamf.browser \
-		$<
-
-bamf-gdbus-indicator-source-generated.c bamf-gdbus-indicator-source-generated.h: com.canonical.StatusNotifierApprover.xml
-		$(AM_V_GEN) $(GDBUS_CODEGEN) \
-		--generate-c-code bamf-gdbus-indicator-source-generated \
-		--c-namespace StatusNotifierApprover \
-		--interface-prefix com.canonical.StatusNotifierApprover \
 		$<
 
 EXTRA_DIST += \

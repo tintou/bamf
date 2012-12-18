@@ -57,7 +57,7 @@ void populate_tree_store (GtkTreeStore *store)
   for (l = apps; l; l = l->next) 
   {
     app = BAMF_APPLICATION (l->data);
-    
+
     if (!bamf_view_is_user_visible (BAMF_VIEW (app)))
       continue;
 
@@ -66,41 +66,35 @@ void populate_tree_store (GtkTreeStore *store)
     gtk_tree_store_set (store, &position, 0, filename, -1);
 
     children = bamf_view_get_children (BAMF_VIEW (app));
-    
+
     g_print("%i    %s\n", g_list_length (children), filename);
 
     for (c = children; c; c = c->next) 
-    {
-      if (BAMF_IS_WINDOW (c->data))
-        {
-          window = BAMF_WINDOW (c->data);
+      {
+        if (BAMF_IS_WINDOW (c->data))
+          {
+            window = BAMF_WINDOW (c->data);
 
-          if (!bamf_view_is_user_visible (BAMF_VIEW (window)))
-            continue;
+            if (!bamf_view_is_user_visible (BAMF_VIEW (window)))
+              continue;
 
-          const gchar *name = bamf_view_get_name (BAMF_VIEW (window));
-          gtk_tree_store_append (store, &child, &position);
-          gtk_tree_store_set (store, &child, 0, name, -1);
+            const gchar *name = bamf_view_get_name (BAMF_VIEW (window));
+            gtk_tree_store_append (store, &child, &position);
+            gtk_tree_store_set (store, &child, 0, name, -1);
 
-          // the following is just to make the tree-store correctly update with
-	  // any changes happening to titles during tab-changes, the g_new0()
-	  // has no corresponding g_free() thus is leaking memory, don't do that
-	  // in production-level code, this is just a small test
-	  entry = g_new0 (Entry, 1); // this is leaking memory
-          entry->store = store;
-	  entry->child = child;
-          g_signal_connect (G_OBJECT (window),
-                            "name-changed",
-                            (GCallback) on_name_changed,
-                            entry);
-        }
-      else if (BAMF_IS_INDICATOR (c->data))
-        {
-          const gchar *path = bamf_indicator_get_dbus_menu_path (BAMF_INDICATOR (c->data));
-          gtk_tree_store_append (store, &child, &position);
-          gtk_tree_store_set (store, &child, 0, path, -1);
-        }
-    }
+            // the following is just to make the tree-store correctly update with
+            // any changes happening to titles during tab-changes, the g_new0()
+            // has no corresponding g_free() thus is leaking memory, don't do that
+            // in production-level code, this is just a small test
+            entry = g_new0 (Entry, 1); // this is leaking memory
+            entry->store = store;
+            entry->child = child;
+            g_signal_connect (G_OBJECT (window),
+                              "name-changed",
+                              (GCallback) on_name_changed,
+                              entry);
+          }
+      }
   }
 }
 
@@ -154,7 +148,7 @@ int main (int argc, char **argv)
   matcher = bamf_matcher_get_default ();
 
   g_signal_connect (G_OBJECT (matcher), "view-opened",
-	            (GCallback) handle_view_opened, NULL);
+              (GCallback) handle_view_opened, NULL);
 
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 

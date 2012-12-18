@@ -129,6 +129,16 @@ if test "x$enable_headless_tests" = "xyes"; then
   AC_PATH_PROG([DBUS_LAUNCH],[dbus-launch])
 fi
 
+###########################
+# gcov coverage reporting
+###########################
+AC_TDD_GCOV
+AM_CONDITIONAL([HAVE_GCOV], [test "x$ac_cv_check_gcov" = xyes])
+AM_CONDITIONAL([HAVE_LCOV], [test "x$ac_cv_check_lcov" = xyes])
+AM_CONDITIONAL([HAVE_GCOVR], [test "x$ac_cv_check_gcovr" = xyes])
+AC_SUBST(COVERAGE_CFLAGS)
+AC_SUBST(COVERAGE_LDFLAGS)
+
 #
 # Gnome/GTK checks
 #
@@ -169,5 +179,6 @@ ${PACKAGE}-${VERSION}
     Introspection:      ${enable_introspection}
     Unity Webapps:      ${enable_webapps}
     Headless tests:     ${enable_headless_tests}
+    Coverage Reporting: ${use_gcov}
 
 EOF

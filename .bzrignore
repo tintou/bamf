@@ -79,17 +79,8 @@ lib/libbamf/bamf-tab-source-glue.h
 lib/libbamf/stamp-marshal
 m4/gtk-doc.m4
 module/libgiobamf.la
-src/bamf-application-glue.h
-src/bamf-control-glue.h
-src/bamf-indicator-glue.h
-src/bamf-indicator-source-glue.h
-src/bamf-indicator-source-glue.h
 src/bamf-marshal.h
 src/bamf-marshal.c
-src/bamf-matcher-glue.h
-src/bamf-tab-glue.h
-src/bamf-view-glue.h
-src/bamf-window-glue.h
 src/bamfdaemon
 src/stamp-marshal
 tests/bamfdaemon/test-bamf

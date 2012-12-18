@@ -1,5 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 
+include $(top_srcdir)/Makefile.am.coverage
+
 SUBDIRS = \
   lib/libbamf \
   src \

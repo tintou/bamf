@@ -252,7 +252,7 @@ bamf_view_is_closed (BamfView *view)
  * bamf_view_is_active:
  * @view: a #BamfView
  *
- * Determines if the view is currently active and focused by the user. Useful for an active window indicator. 
+ * Determines if the view is currently active and focused by the user. Useful for an active window indicator.
  */
 gboolean
 bamf_view_is_active (BamfView *view)
@@ -302,7 +302,7 @@ bamf_view_user_visible (BamfView *self)
  * bamf_view_is_running:
  * @view: a #BamfView
  *
- * Determines if the view is currently running. Useful for a running window indicator. 
+ * Determines if the view is currently running. Useful for a running window indicator.
  */
 gboolean
 bamf_view_is_running (BamfView *self)
@@ -319,7 +319,7 @@ bamf_view_is_running (BamfView *self)
  * bamf_view_is_urgent:
  * @view: a #BamfView
  *
- * Determines if the view is currently requiring attention. Useful for a running window indicator. 
+ * Determines if the view is currently requiring attention. Useful for a running window indicator.
  */
 gboolean
 bamf_view_is_urgent (BamfView *self)
