@@ -7,6 +7,7 @@ autom4te.cache/
 compile
 config.guess
 config.h
+config.h.in
 config.log
 config.status
 config.sub
@@ -24,11 +25,6 @@ examples/Makefile
 examples/Makefile.in
 examples/alt-tabber
 examples/desktop-file-launcher
-lib/libwncksync/Makefile
-lib/libwncksync/Makefile.in
-lib/libwncksync/libwncksync.la
-lib/libwncksync/libwncksync.pc
-lib/libwncksync/libwncksync_la-libwncksync.lo
 module/Makefile
 module/Makefile.in
 module/libgiodbus.la
@@ -36,14 +32,8 @@ module/libgiodbus_la-dbus-module.lo
 module/libgiodbus_la-gapplaunchhandlerdbus.lo
 src/Makefile
 src/Makefile.in
-src/wncksyncdaemon
-lib/libbamf/libbamf.la
-lib/libbamf/libbamf.pc
-lib/libbamf/libbamf_la-bamf-application.lo
-lib/libbamf/libbamf_la-bamf-matcher.lo
-lib/libbamf/libbamf_la-bamf-proxy.lo
-lib/libbamf/libbamf_la-bamf-view.lo
-src/bamfdbus-glue.h
+src/*-generated.c
+src/*-generated.h
 *.lo
 gtk-doc.make
 bamf-0.2.34.tar.gz
@@ -77,6 +67,9 @@ lib/libbamf/bamf-marshal.c
 lib/libbamf/bamf-marshal.h
 lib/libbamf/bamf-tab-source-glue.h
 lib/libbamf/stamp-marshal
+lib/libbamf/libbamf3.la
+lib/libbamf/libbamf3.pc
+lib/libbamf/libbamf3.vapi
 m4/gtk-doc.m4
 module/libgiobamf.la
 src/bamf-marshal.h
