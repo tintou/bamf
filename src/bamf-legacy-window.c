@@ -234,7 +234,7 @@ bamf_legacy_window_save_mini_icon (BamfLegacyWindow *self)
   return self->priv->mini_icon_path;
 }
 
-gint
+guint
 bamf_legacy_window_get_pid (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), 0);
@@ -244,7 +244,9 @@ bamf_legacy_window_get_pid (BamfLegacyWindow *self)
 
   if (!self->priv->legacy_window)
     return 0;
-  return wnck_window_get_pid (self->priv->legacy_window);
+
+  int pid = wnck_window_get_pid (self->priv->legacy_window);
+  return G_LIKELY (pid >= 0) ? pid : 0;
 }
 
 guint32

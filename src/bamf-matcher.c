@@ -192,7 +192,7 @@ emit_paths_changed (gpointer user_data)
   g_hash_table_iter_init (&iter, priv->opened_closed_paths_table);
   while (g_hash_table_iter_next (&iter, &key, &value))
     {
-      change_type = (ViewChangeType) GPOINTER_TO_INT (value);
+      change_type = (ViewChangeType) GPOINTER_TO_UINT (value);
       if (change_type == VIEW_ADDED)
         opened_apps[i++] = (gchar*) key;
       else
@@ -242,7 +242,7 @@ static void bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *de
     }
 
   g_hash_table_insert (priv->opened_closed_paths_table,
-                       g_strdup (desktop_file), GINT_TO_POINTER (change_type));
+                       g_strdup (desktop_file), GUINT_TO_POINTER (change_type));
 
   if (priv->dispatch_changes_id == 0)
     {
@@ -579,10 +579,10 @@ trim_exec_string (BamfMatcher * self, char * execString)
   else
     {
       tmp = result;
-      
+
       regex = g_regex_new ("((\\.|-)bin|\\.py)$", 0, 0, NULL);
       result = g_regex_replace_literal (regex, result, -1, 0, "", 0, NULL);
-      
+
       g_free (tmp);
       g_regex_unref (regex);
     }
@@ -604,7 +604,7 @@ bad_prefix_strings (void)
   str = "^sudo$";
   g_array_append_val (arr, str);
 
-  str = "^java$";
+  str = "^java(ws)?$";
   g_array_append_val (arr, str);
 
   str = "^mono$";
@@ -639,21 +639,17 @@ good_prefix_strings (void)
   return arr;
 }
 
-static GArray *
-pid_parent_tree (BamfMatcher *self, gint pid)
+static GList *
+pid_parent_tree (BamfMatcher *self, guint pid)
 {
   BamfMatcherPrivate *priv;
-  GArray *tree;
-  gint known_pid;
-  gint i;
+  GList *tree, *l;
+  guint known_pid;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
 
   priv = self->priv;
-
-  tree = g_array_new (FALSE, TRUE, sizeof (gint));
-
-  g_array_append_val (tree, pid);
+  tree = g_list_append (NULL, GUINT_TO_POINTER (pid));
 
   glibtop_proc_uid buf;
   glibtop_get_proc_uid (&buf, pid);
@@ -662,22 +658,24 @@ pid_parent_tree (BamfMatcher *self, gint pid)
 
   while (pid > 1)
     {
-      for (i = 0; i < priv->known_pids->len; i++)
+      for (l = priv->known_pids; l; l = l->next)
         {
           /* ensure we dont match onto a terminal by mistake */
-          known_pid = g_array_index (priv->known_pids, gint, i);
+          known_pid = GPOINTER_TO_UINT (l->data);
+
           if (known_pid == pid)
             return tree;
         }
 
-      g_array_append_val (tree, pid);
+      tree = g_list_prepend (tree, GUINT_TO_POINTER (pid));
 
       glibtop_proc_uid buf;
       glibtop_get_proc_uid (&buf, pid);
 
       pid = buf.ppid;
     }
-  return tree;
+
+  return g_list_reverse (tree);
 }
 
 static gboolean
@@ -727,7 +725,7 @@ insert_data_into_tables (BamfMatcher *self,
 {
   GList *file_list, *id_list;
   char *datadup;
-  
+
   g_return_if_fail (exec);
   g_return_if_fail (desktop_id);
 
@@ -786,7 +784,7 @@ insert_data_into_tables (BamfMatcher *self,
       file_list = g_list_append (file_list, datadup);
     }
 
-  id_list = g_list_append (id_list, datadup);   
+  id_list = g_list_append (id_list, datadup);
 
   g_hash_table_insert (desktop_file_table, g_strdup (exec),       file_list);
   g_hash_table_insert (desktop_id_table,   g_strdup (desktop_id), id_list);
@@ -975,7 +973,7 @@ load_index_file_to_table (BamfMatcher * self,
 
       desktop_id = g_string_new (parts[0]);
       g_string_truncate (desktop_id, desktop_id->len - 8);
-      
+
       insert_data_into_tables (self, filename, exec, desktop_id->str, desktop_file_table, desktop_id_table);
       insert_desktop_file_class_into_table (self, filename, desktop_class_table);
 
@@ -1006,21 +1004,21 @@ get_directory_tree_list (GList *dirs)
   for (l = dirs; l; l = l->next)
     {
       path = l->data;
-      
+
       file = g_file_new_for_path (path);
-      
+
       if (!g_file_query_exists (file, NULL))
         {
           g_object_unref (file);
           continue;
         }
-      
+
       enumerator = g_file_enumerate_children (file,
                                               "standard::*",
                                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                                               NULL,
                                               NULL);
-      
+
       if (!enumerator)
         continue;
 
@@ -1333,7 +1331,7 @@ fill_desktop_file_table (BamfMatcher * self,
   GList *l;
   char *directory;
   char *bamf_file;
-  
+
   for (l = directories; l; l = l->next)
     {
       directory = l->data;
@@ -1411,55 +1409,23 @@ is_open_office_window (BamfMatcher * self, BamfLegacyWindow * window)
 }
 
 static char *
-process_exec_string (gint pid)
-{
-  gchar *result = NULL;
-  gint i = 0;
-  gchar **argv = NULL;
-  GString *exec = NULL;
-  glibtop_proc_args buffer;
-
-  if (pid == 0)
-    return NULL;
-
-  argv = glibtop_get_proc_argv (&buffer, pid, 0);
-  exec = g_string_new ("");
-
-  while (argv[i] != NULL)
-    {
-      g_string_append (exec, argv[i]);
-      if (argv[i + 1] != NULL)
-        g_string_append (exec, " ");
-      g_free (argv[i]);
-      i++;
-    }
-
-  g_free (argv);
-
-  result = g_strdup (exec->str);
-  g_string_free (exec, TRUE);
-  return result;
-}
-
-
-static char *
-process_name (gint pid)
+get_process_name (gint pid)
 {
   char *stat_path;
   char *contents;
   char **lines;
   char **sections;
   char *result = NULL;
-  
+
   if (pid <= 0)
     return NULL;
-  
+
   stat_path = g_strdup_printf ("/proc/%i/status", pid);
-  
+
   if (g_file_get_contents (stat_path, &contents, NULL, NULL))
-    { 
+    {
       lines = g_strsplit (contents, "\n", 2);
-      
+
       if (lines && g_strv_length (lines) > 0)
         {
           sections = g_strsplit (lines[0], "\t", 0);
@@ -1471,38 +1437,36 @@ process_name (gint pid)
           g_strfreev (lines);
         }
       g_free (contents);
-    }  
+    }
   g_free (stat_path);
-  
+
   return result;
 }
 
 static GList *
-bamf_matcher_possible_applications_for_pid (BamfMatcher *self,
-                                           gint pid)
+bamf_matcher_possible_applications_for_window_process (BamfMatcher *self, BamfLegacyWindow *window)
 {
   BamfMatcherPrivate *priv;
   GList *result = NULL, *table_list, *l;
-  char *proc_name;
   char *exec_string;
   char *trimmed;
-  
+
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
-  
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
+
   priv = self->priv;
-  
-  exec_string  = process_exec_string (pid);
-  
+  exec_string = bamf_legacy_window_get_exec_string (window);
+
   if (exec_string)
     {
       trimmed = trim_exec_string (self, exec_string);
-      
+
       if (trimmed)
         {
           if (trimmed[0] != '\0')
             {
               table_list = g_hash_table_lookup (priv->desktop_file_table, trimmed);
-              
+
               for (l = table_list; l; l = l->next)
                 {
                   result = g_list_prepend (result, g_strdup (l->data));
@@ -1510,7 +1474,6 @@ bamf_matcher_possible_applications_for_pid (BamfMatcher *self,
             }
           g_free (trimmed);
         }
-      
       g_free (exec_string);
     }
 
@@ -1519,19 +1482,21 @@ bamf_matcher_possible_applications_for_pid (BamfMatcher *self,
       result = g_list_reverse (result);
       return result;
     }
-    
-  proc_name = process_name (pid);
+
+  guint pid = bamf_legacy_window_get_pid (window);
+  gchar *proc_name = get_process_name (pid);
+
   if (proc_name)
     {
       table_list = g_hash_table_lookup (priv->desktop_file_table, proc_name);
-              
+
       for (l = table_list; l; l = l->next)
         {
-          result = g_list_prepend (result, g_strdup (l->data)); 
+          result = g_list_prepend (result, g_strdup (l->data));
         }
       g_free (proc_name);
     }
-  
+
   result = g_list_reverse (result);
   return result;
 }
@@ -1717,9 +1682,8 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
           desktop_files = g_list_reverse (desktop_files);
         }
 
-      gint pid = bamf_legacy_window_get_pid (window);
-      GList *pid_list = bamf_matcher_possible_applications_for_pid (self, pid);
-      
+      GList *pid_list = bamf_matcher_possible_applications_for_window_process (self, window);
+
       /* Append these files to the end to give preference to class_name style picking.
          This style of matching is prefered and used by GNOME Shell however does not work
          very well in practice, thus requiring the fallback here */
@@ -1955,11 +1919,11 @@ static void
 ensure_window_hint_set (BamfMatcher *self,
                         BamfLegacyWindow *window)
 {
-  GArray *pids;
+  GList *pids, *l;
   GHashTable *registered_pids;
   char *desktop_file_hint = NULL;
-  gint i, pid;
   gpointer key;
+  guint pid;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
@@ -1983,7 +1947,7 @@ ensure_window_hint_set (BamfMatcher *self,
 
       if (pid > 0)
         {
-          key = GINT_TO_POINTER (pid);
+          key = GUINT_TO_POINTER (pid);
 
           if (!g_hash_table_lookup (registered_pids, key))
             {
@@ -1997,17 +1961,16 @@ ensure_window_hint_set (BamfMatcher *self,
 
   pids = pid_parent_tree (self, bamf_legacy_window_get_pid (window));
 
-  for (i = 0; i < pids->len; i++)
+  for (l = pids; l; l = l->next)
     {
-      pid = g_array_index (pids, gint, i);
-      key = GINT_TO_POINTER (pid);
-
+      key = l->data;
       desktop_file_hint = g_hash_table_lookup (registered_pids, key);
+
       if (desktop_file_hint != NULL && desktop_file_hint[0] != '\0')
         break;
     }
 
-  g_array_free (pids, TRUE);
+  g_list_free (pids);
 
   if (desktop_file_hint)
     bamf_legacy_window_set_hint (window, _NET_WM_DESKTOP_FILE, desktop_file_hint);
@@ -2022,9 +1985,9 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
 
-  gint pid = bamf_legacy_window_get_pid (window);
-  if (pid > 1)
-    g_array_append_val (self->priv->known_pids, pid);
+  guint pid = bamf_legacy_window_get_pid (window);
+  if (pid > 1 && !g_list_find (self->priv->known_pids, GUINT_TO_POINTER (pid)))
+    self->priv->known_pids = g_list_prepend (self->priv->known_pids, GUINT_TO_POINTER (pid));
 
   ensure_window_hint_set (self, window);
 
@@ -2264,7 +2227,7 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (desktopFile);
 
-  key = GINT_TO_POINTER (pid);
+  key = GUINT_TO_POINTER (pid);
   g_hash_table_insert (self->priv->registered_pids, key, g_strdup (desktopFile));
 
   /* fixme, this is a bit heavy */
@@ -2527,7 +2490,7 @@ GList *
 bamf_matcher_get_favorites (BamfMatcher *matcher)
 {
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
-  
+
   return matcher->priv->favorites;
 }
 
@@ -2542,7 +2505,7 @@ bamf_matcher_register_favorites (BamfMatcher *matcher,
   g_return_if_fail (BAMF_IS_MATCHER (matcher));
   g_return_if_fail (favorites);
   priv = matcher->priv;
-  
+
   for (favs = favorites; *favs; favs++)
     {
       fav = *favs;
@@ -2604,7 +2567,7 @@ bamf_matcher_running_applications_desktop_files (BamfMatcher *matcher)
   g_variant_builder_open (&b, G_VARIANT_TYPE ("as"));
 
   paths = g_sequence_new (NULL);
-  
+
   priv = matcher->priv;
 
   for (l = priv->views; l; l = l->next)
@@ -2616,11 +2579,11 @@ bamf_matcher_running_applications_desktop_files (BamfMatcher *matcher)
 
       desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
       if (!desktop_file) continue;
-      
+
       if (g_sequence_lookup (paths, (gpointer) desktop_file,
                              (GCompareDataFunc) g_strcmp0, NULL) == NULL)
         {
-          g_sequence_insert_sorted (paths, (gpointer) desktop_file, 
+          g_sequence_insert_sorted (paths, (gpointer) desktop_file,
                                     (GCompareDataFunc) g_strcmp0, NULL);
         }
     }
@@ -2845,7 +2808,7 @@ on_webapp_child_added (BamfView *application,
                        gpointer user_data)
 {
   BamfMatcher *self;
-  
+
   self = (BamfMatcher *)user_data;
   bamf_matcher_register_view_stealing_ref (self, child);
 }
@@ -2856,11 +2819,11 @@ on_webapp_appeared (BamfUnityWebappsObserver *observer,
                     gpointer user_data)
 {
   BamfMatcher *self;
-  
+
   self = (BamfMatcher *)user_data;
-  
+
   bamf_matcher_register_view_stealing_ref (self, (BamfView *)application);
-  
+
   g_signal_connect (application, "tab-appeared", G_CALLBACK (on_webapp_child_added),
                     self);
   bamf_unity_webapps_application_add_existing_interests (BAMF_UNITY_WEBAPPS_APPLICATION (application));
@@ -2877,7 +2840,6 @@ bamf_matcher_init (BamfMatcher * self)
 
   priv = self->priv = BAMF_MATCHER_GET_PRIVATE (self);
 
-  priv->known_pids = g_array_new (FALSE, TRUE, sizeof (gint));
   priv->bad_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex *));
   priv->good_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex *));
   priv->registered_pids = g_hash_table_new_full (g_direct_hash, g_direct_equal,
@@ -2932,7 +2894,7 @@ bamf_matcher_init (BamfMatcher * self)
 
   g_signal_connect (self, "handle-running-applications-desktop-files",
                     G_CALLBACK (on_dbus_handle_running_applications_desktop_files), self);
-  
+
   g_signal_connect (self, "handle-active-window",
                     G_CALLBACK (on_dbus_handle_active_window), self);
 
@@ -2953,10 +2915,10 @@ bamf_matcher_init (BamfMatcher * self)
 
   g_signal_connect (self, "handle-window-stack-for-monitor",
                     G_CALLBACK (on_dbus_handle_window_stack_for_monitor), self);
-  
+
 #ifdef HAVE_WEBAPPS
   priv->webapps_observer = bamf_unity_webapps_observer_new ();
-  
+
   g_signal_connect (priv->webapps_observer,
                     "application-appeared",
                     G_CALLBACK (on_webapp_appeared),
@@ -2974,7 +2936,7 @@ bamf_matcher_dispose (GObject *object)
     {
       bamf_matcher_unregister_view (self, priv->views->data);
     }
-  
+
   if (priv->webapps_observer)
     {
       g_object_unref (G_OBJECT (priv->webapps_observer));
@@ -3007,7 +2969,6 @@ bamf_matcher_finalize (GObject *object)
 
   g_array_free (priv->bad_prefixes, TRUE);
   g_array_free (priv->good_prefixes, TRUE);
-  g_array_free (priv->known_pids, TRUE);
   g_hash_table_destroy (priv->desktop_id_table);
   g_hash_table_destroy (priv->desktop_file_table);
   g_hash_table_destroy (priv->desktop_class_table);
@@ -3024,6 +2985,7 @@ bamf_matcher_finalize (GObject *object)
       priv->dispatch_changes_id = 0;
     }
 
+  g_list_free (priv->known_pids);
   g_list_free_full (priv->views, g_object_unref);
 
   g_signal_handlers_disconnect_by_func (screen, handle_window_opened, self);
@@ -3031,14 +2993,12 @@ bamf_matcher_finalize (GObject *object)
 
   for (l = priv->monitors; l; l = l->next)
     {
-      g_signal_handlers_disconnect_by_func (G_OBJECT (l->data), 
+      g_signal_handlers_disconnect_by_func (G_OBJECT (l->data),
                                             (GCallback) on_monitor_changed, self);
     }
   g_list_free_full (priv->monitors, g_object_unref);
-  priv->monitors = NULL;
 
   g_list_free_full (priv->favorites, g_free);
-  priv->favorites = NULL;
 
   priv->active_app = NULL;
   priv->active_win = NULL;

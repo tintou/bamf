@@ -80,7 +80,7 @@ struct _BamfLegacyWindowClass
   char       * (*get_menu_object_path)    (BamfLegacyWindow *legacy_window);
   char       * (*get_hint)                (BamfLegacyWindow *legacy_window,
                                            const gchar *name);
-  gint         (*get_pid)                 (BamfLegacyWindow *legacy_window);
+  guint        (*get_pid)                 (BamfLegacyWindow *legacy_window);
   guint32      (*get_xid)                 (BamfLegacyWindow *legacy_window);
   gboolean     (*needs_attention)         (BamfLegacyWindow *legacy_window);
   gboolean     (*is_active)               (BamfLegacyWindow *legacy_window);
@@ -115,7 +115,7 @@ GType              bamf_legacy_window_get_type             (void) G_GNUC_CONST;
 
 guint32            bamf_legacy_window_get_xid              (BamfLegacyWindow *self);
 
-gint               bamf_legacy_window_get_pid              (BamfLegacyWindow *self);
+guint              bamf_legacy_window_get_pid              (BamfLegacyWindow *self);
 
 void               bamf_legacy_window_get_geometry         (BamfLegacyWindow *self,
                                                             gint *x, gint *y,

@@ -71,6 +71,9 @@ static guint window_signals[LAST_SIGNAL] = { 0 };
 time_t bamf_window_last_active (BamfWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_WINDOW (self), (time_t) 0);
+
+  if (BAMF_WINDOW_GET_CLASS (self)->last_active)
+    return BAMF_WINDOW_GET_CLASS (self)->last_active (self);
   
   return self->priv->last_active;
 }
@@ -90,6 +93,10 @@ BamfWindow * bamf_window_get_transient (BamfWindow *self)
   GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
+  
+  if (BAMF_WINDOW_GET_CLASS (self)->get_transient)
+    return BAMF_WINDOW_GET_CLASS (self)->get_transient (self);
+
   priv = self->priv;
 
   if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
@@ -127,6 +134,10 @@ BamfWindowType bamf_window_get_window_type (BamfWindow *self)
   GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
+
+  if (BAMF_WINDOW_GET_CLASS (self)->get_window_type)
+    return BAMF_WINDOW_GET_CLASS (self)->get_window_type (self);
+
   priv = self->priv;
 
   if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
@@ -154,6 +165,10 @@ guint32 bamf_window_get_pid (BamfWindow *self)
   GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
+
+  if (BAMF_WINDOW_GET_CLASS (self)->get_pid)
+    return BAMF_WINDOW_GET_CLASS (self)->get_pid (self);
+
   priv = self->priv;
 
   if (priv->pid != 0)
@@ -184,6 +199,10 @@ guint32 bamf_window_get_xid (BamfWindow *self)
   GError *error = NULL;
   
   g_return_val_if_fail (BAMF_IS_WINDOW (self), FALSE);
+
+  if (BAMF_WINDOW_GET_CLASS (self)->get_xid)
+    return BAMF_WINDOW_GET_CLASS (self)->get_xid (self);
+
   priv = self->priv;
   
   if (priv->xid != 0)
@@ -319,6 +338,10 @@ bamf_window_get_utf8_prop (BamfWindow *self, const char* xprop)
   GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
+
+  if (BAMF_WINDOW_GET_CLASS (self)->get_utf8_prop)
+    return BAMF_WINDOW_GET_CLASS (self)->get_utf8_prop (self, xprop);
+
   priv = self->priv;
 
   if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
@@ -355,6 +378,10 @@ bamf_window_get_monitor (BamfWindow *self)
   GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_WINDOW (self), -1);
+
+  if (BAMF_WINDOW_GET_CLASS (self)->get_monitor)
+    return BAMF_WINDOW_GET_CLASS (self)->get_monitor (self);
+
   priv = self->priv;
 
   if (priv->monitor != -2 || !_bamf_view_remote_ready (BAMF_VIEW (self)))
@@ -386,6 +413,10 @@ bamf_window_maximized (BamfWindow *self)
   GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_WINDOW (self), -1);
+
+  if (BAMF_WINDOW_GET_CLASS (self)->maximized)
+    return BAMF_WINDOW_GET_CLASS (self)->maximized (self);
+
   priv = self->priv;
 
   if (priv->maximized != -1 || !_bamf_view_remote_ready (BAMF_VIEW (self)))

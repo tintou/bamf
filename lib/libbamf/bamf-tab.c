@@ -504,6 +504,9 @@ const gchar *
 bamf_tab_get_location (BamfTab *self)
 {
   g_return_val_if_fail (BAMF_IS_TAB (self), NULL);
+
+  if (BAMF_TAB_GET_CLASS (self)->get_location)
+    return BAMF_TAB_GET_CLASS (self)->get_location (self);
   
   return self->priv->location;
 }
@@ -512,6 +515,9 @@ const gchar *
 bamf_tab_get_desktop_name (BamfTab *self)
 {
   g_return_val_if_fail (BAMF_IS_TAB (self), NULL);
+
+  if (BAMF_TAB_GET_CLASS (self)->get_desktop_name)
+    return BAMF_TAB_GET_CLASS (self)->get_desktop_name (self);
   
   return self->priv->desktop_name;
 }
@@ -520,6 +526,9 @@ guint64
 bamf_tab_get_xid (BamfTab *self)
 {
   g_return_val_if_fail (BAMF_IS_TAB (self), 0);
+
+  if (BAMF_TAB_GET_CLASS (self)->get_xid)
+    return BAMF_TAB_GET_CLASS (self)->get_xid (self);
   
   return self->priv->xid;
 }
@@ -528,6 +537,9 @@ gboolean
 bamf_tab_get_is_foreground_tab (BamfTab *self)
 {
   g_return_val_if_fail (BAMF_IS_TAB (self), 0);
+
+  if (BAMF_TAB_GET_CLASS (self)->get_is_foreground_tab)
+    return BAMF_TAB_GET_CLASS (self)->get_is_foreground_tab (self);
   
   return self->priv->is_foreground;
 }

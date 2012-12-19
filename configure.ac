@@ -148,7 +148,7 @@ AC_SUBST(BAMFDAEMON_CFLAGS)
 AC_SUBST(BAMFDAEMON_LIBS)
 
 origgiomodulesdir=`pkg-config --variable=giomoduledir gio-2.0`
-# Make giomodulesdir honour 'prefix', so that distcheck works. 
+# Make giomodulesdir honour 'prefix', so that distcheck works.
 giomodulesdir=`echo "$origgiomodulesdir" | sed 's|/usr|${prefix}|'`
 AC_SUBST(giomodulesdir)
 
