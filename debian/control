@@ -5,18 +5,17 @@ Maintainer: Didier Roche <didrocks@ubuntu.com>
 Uploaders: Andrea Veri <and@debian.org>
 Build-Depends: dbus-x11,
                debhelper (>= 9),
+               gir1.2-glib-2.0,
                dh-autoreconf,
+               gobject-introspection (>= 0.6.5-3),
+               gtk-doc-tools,
+               libdbus-glib-1-dev,
                libglib2.0-dev (>= 2.32.0),
-               libwnck-3-dev,
                libgtop2-dev,
                libgtk-3-dev (>= 3.0.0),
-               libdbus-glib-1-dev,
-               gtk-doc-tools,
-               gobject-introspection (>= 0.6.5-3),
-               libgirepository1.0-dev,
-               gir1.2-glib-2.0,
-               gir1.2-gtk-3.0 (>= 3.0.0),
                libunity-webapps-dev (>= 2.3.3),
+               libwnck-3-dev,
+               libgirepository1.0-dev,
                xvfb,
 Standards-Version: 3.9.3
 Homepage: https://launchpad.net/bamf
@@ -91,13 +90,12 @@ Description: Window matching library - debugging symbols
  .
  This package contains debugging symbols for the daemon and library.
 
-Package: gir1.2-bamf-0.2
+Package: gir1.2-bamf-3
 Section: libs
 Architecture: any
 Depends: ${gir:Depends},
          ${shlibs:Depends},
          ${misc:Depends},
-         libbamf3-1 (= ${binary:Version}),
 Description: GObject introspection data for the Bamf library
  This package contains introspection data for the Bamf library.
  .
