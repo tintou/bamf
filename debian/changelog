@@ -9,7 +9,7 @@ bamf (0.4.0daily12.12.05-0ubuntu2) raring; urgency=low
   * Remove the unneeded library dependencies on libwnck
   * Bump the SONAME
   * Update the package version to libbamf3-1
-  * Enable the gir1.2-bamf-0.2 package building
+  * Enable the gir1.2-bamf-3 package building
 
  -- Didier Roche <didrocks@ubuntu.com>  Wed, 05 Dec 2012 17:34:41 +0100
 
