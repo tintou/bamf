@@ -131,10 +131,10 @@ Bamf_0_2_gir_EXPORT_PACKAGES = libbamf$(LIBBAMF_VER)
 
 INTROSPECTION_GIRS += Bamf-0.2.gir
 
-girdir = $(datadir)/gir-1.0
+girdir = $(GIR_DATADIR)
 gir_DATA = $(INTROSPECTION_GIRS)
 
-typelibdir = $(libdir)/girepository-1.0
+typelibdir = $(GIR_TYPELIBDIR)
 typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
 CLEANFILES += $(gir_DATA) $(typelib_DATA)

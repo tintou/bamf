@@ -87,6 +87,11 @@ PKG_CHECK_MODULES(X, x11)
 
 GOBJECT_INTROSPECTION_CHECK([0.10.2])
 
+GIR_TYPELIBDIR=`$PKG_CONFIG --variable=typelibdir gobject-introspection-1.0`
+AC_SUBST(GIR_TYPELIBDIR)
+GIR_DATADIR=`$PKG_CONFIG --variable=girdir gobject-introspection-1.0`
+AC_SUBST(GIR_DATADIR)
+
 ###########################
 # Vala API Generation
 ###########################
