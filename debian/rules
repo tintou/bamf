@@ -11,7 +11,7 @@ override_dh_autoreconf:
 	NOCONFIGURE=1 dh_autoreconf ./autogen.sh
 
 override_dh_auto_configure:
-	dh_auto_configure -- --enable-introspection=no \
+	dh_auto_configure -- --enable-introspection=yes \
 	                     --enable-gtk-doc \
 	                     --enable-headless-tests
 
@@ -22,6 +22,10 @@ override_dh_auto_install:
 
 override_dh_install:
 	dh_install --fail-missing
+
+override_dh_gencontrol:
+	dh_girepository
+	dh_gencontrol
 
 override_dh_strip:
 	dh_strip --dbg-package=bamf-dbg
