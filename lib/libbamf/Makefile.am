@@ -71,7 +71,7 @@ libbamf3_la_CPPFLAGS = \
 libbamf3_la_LDFLAGS = \
   -shared \
   -export-symbols-regex "^bamf_" \
-  -version-info 4:0:0 \
+  -version-info 1:0:0 \
   $(COVERAGE_LDFLAGS) \
   $(NULL)
 
