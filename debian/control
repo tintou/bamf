@@ -57,7 +57,7 @@ Section: libdevel
 Architecture: any
 Depends: ${misc:Depends},
          libbamf3-1 (= ${binary:Version}),
-         libglib2.0-dev (>= 2.30.0)
+         libglib2.0-dev (>= 2.30.0),
 Suggests: libbamf-doc
 Description: Window matching library - development files
  bamf matches application windows to desktop files
