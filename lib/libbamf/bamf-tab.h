@@ -50,6 +50,11 @@ struct _BamfTab {
 
 struct _BamfTabClass {
   BamfViewClass parent_class;
+
+  const gchar * (*get_desktop_name)         (BamfTab *self);
+  const gchar * (*get_location)             (BamfTab *self);
+  guint64       (*get_xid)                  (BamfTab *self);
+  gboolean      (*get_is_foreground_tab)    (BamfTab *self);
 };
 
 typedef void (*BamfTabPreviewReadyCallback) (BamfTab *self, const gchar *preview_data, gpointer user_data);
