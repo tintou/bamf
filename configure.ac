@@ -72,9 +72,6 @@ PKG_CHECK_MODULES(WNCK, libwnck-3.0)
 # libgtop
 #
 PKG_CHECK_MODULES(GTOP, libgtop-2.0)
-PKG_CHECK_MODULES(LIBWSBIND, glib-2.0 gdk-3.0 gdk-x11-3.0 gtk+-3.0)
-AC_SUBST(LIBWSBIND_CFLAGS)
-AC_SUBST(LIBWSBIND_LIBS)
 
 #
 # x11
@@ -86,11 +83,6 @@ PKG_CHECK_MODULES(X, x11)
 ###########################
 
 GOBJECT_INTROSPECTION_CHECK([0.10.2])
-
-GIR_TYPELIBDIR=`$PKG_CONFIG --variable=typelibdir gobject-introspection-1.0`
-AC_SUBST(GIR_TYPELIBDIR)
-GIR_DATADIR=`$PKG_CONFIG --variable=girdir gobject-introspection-1.0`
-AC_SUBST(GIR_DATADIR)
 
 ###########################
 # Vala API Generation
@@ -163,7 +155,6 @@ AC_SUBST(giomodulesdir)
 AC_OUTPUT([
 Makefile
 lib/libbamf/Makefile
-lib/libbamf/libbamf.pc
 lib/libbamf/libbamf3.pc
 src/Makefile
 tests/functional/Makefile

@@ -43,12 +43,12 @@ content_files =
 # CFLAGS and LDFLAGS for compiling gtkdoc-scangobj with your library.
 INCLUDES= \
   -I$(top_srcdir)/lib/libbamf   \
-  $(LIBWSBIND_CFLAGS) \
+  $(GTK_CFLAGS) \
   $(GLIB_CFLAGS) \
   $(DBUS_CFLAGS)
 
 GTKDOC_LIBS = \
-  $(LIBWSBIND_LIBS) \
+  $(GTK_LIBS) \
   $(GLIB_LIBS) \
   $(DBUS_LIBS) \
   $(top_builddir)/lib/libbamf/libbamf$(LIBBAMF_VER).la

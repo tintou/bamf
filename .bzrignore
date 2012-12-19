@@ -24,11 +24,6 @@ examples/Makefile
 examples/Makefile.in
 examples/alt-tabber
 examples/desktop-file-launcher
-lib/libwncksync/Makefile
-lib/libwncksync/Makefile.in
-lib/libwncksync/libwncksync.la
-lib/libwncksync/libwncksync.pc
-lib/libwncksync/libwncksync_la-libwncksync.lo
 module/Makefile
 module/Makefile.in
 module/libgiodbus.la
@@ -36,9 +31,8 @@ module/libgiodbus_la-dbus-module.lo
 module/libgiodbus_la-gapplaunchhandlerdbus.lo
 src/Makefile
 src/Makefile.in
-src/wncksyncdaemon
 lib/libbamf/libbamf.la
-lib/libbamf/libbamf.pc
+lib/libbamf/libbamf3.pc
 lib/libbamf/libbamf_la-bamf-application.lo
 lib/libbamf/libbamf_la-bamf-matcher.lo
 lib/libbamf/libbamf_la-bamf-proxy.lo

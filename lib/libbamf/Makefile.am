@@ -49,7 +49,6 @@ nodist_libbamf3_la_SOURCES = \
   $(NULL)
 
 libbamf3_la_LIBADD = \
-  $(LIBWSBIND_LIBS) \
   $(GLIB_LIBS) \
   $(DBUS_LIBS) \
   $(NULL)
@@ -62,7 +61,6 @@ libbamf3_la_CPPFLAGS = \
   -I$(top_builddir)/lib \
   -I$(top_srcdir)/lib/libbamf \
   -I$(top_builddir)/lib/libbamf \
-  $(LIBWSBIND_CFLAGS) \
   $(GLIB_CFLAGS) \
   $(DBUS_CFLAGS) \
   $(COVERAGE_CFLAGS) \
@@ -131,10 +129,10 @@ Bamf_0_2_gir_EXPORT_PACKAGES = libbamf$(LIBBAMF_VER)
 
 INTROSPECTION_GIRS += Bamf-0.2.gir
 
-girdir = $(GIR_DATADIR)
+girdir = $(INTROSPECTION_GIRDIR)
 gir_DATA = $(INTROSPECTION_GIRS)
 
-typelibdir = $(GIR_TYPELIBDIR)
+typelibdir = $(INTROSPECTION_TYPELIBDIR)
 typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
 CLEANFILES += $(gir_DATA) $(typelib_DATA)
