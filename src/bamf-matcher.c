@@ -56,7 +56,7 @@ const gchar* EXEC_BAD_PREFIXES[] =
 {
   "^gksu(do)?$", "^sudo$", "^su-to-root$", "^amdxdg-su$", "^java(ws)?$",
   "^mono$", "^ruby$", "^padsp$", "^aoss$", "^python(\\d.\\d)?$", "^(ba)?sh$",
-  "^env$", "^xdg-open$"
+  "^perl$", "^env$", "^xdg-open$"
 };
 
 // Prefixes that must be considered starting point of exec strings
@@ -606,7 +606,8 @@ bamf_matcher_get_trimmed_exec (BamfMatcher * self, const char * exec_string)
       if (parts_size > 0)
         {
           tmp = g_utf8_strrchr (parts[0], -1, G_DIR_SEPARATOR);
-          if (tmp) exec_string = tmp + 1;
+          if (tmp)
+            exec_string = tmp + 1;
         }
 
       result = g_strdup (exec_string);
@@ -615,7 +616,7 @@ bamf_matcher_get_trimmed_exec (BamfMatcher * self, const char * exec_string)
     {
       tmp = result;
 
-      regex = g_regex_new ("(\\.bin|\\.py)$", 0, 0, NULL);
+      regex = g_regex_new ("(\\.bin|\\.py|\\.pl)$", 0, 0, NULL);
       result = g_regex_replace_literal (regex, result, -1, 0, "", 0, NULL);
 
       g_free (tmp);
