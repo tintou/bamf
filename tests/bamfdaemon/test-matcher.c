@@ -35,6 +35,7 @@ static void test_match_libreoffice_windows (void);
 static void test_match_gnome_control_center_panels (void);
 static void test_new_desktop_matches_unmatched_windows (void);
 static void test_match_transient_windows (void);
+static void test_trim_exec_string (void);
 
 static GDBusConnection *gdbus_connection = NULL;
 
@@ -56,6 +57,7 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Matching/Application/GnomeControlCenter", test_match_gnome_control_center_panels);
   g_test_add_func (DOMAIN"/Matching/Windows/UnmatchedOnNewDesktop", test_new_desktop_matches_unmatched_windows);
   g_test_add_func (DOMAIN"/Matching/Windows/Transient", test_match_transient_windows);
+  g_test_add_func (DOMAIN"/ExecStringTrimming", test_trim_exec_string);
 }
 
 static void
@@ -601,4 +603,62 @@ test_match_transient_windows (void)
 
   g_object_unref (matcher);
   g_object_unref (screen);
+}
+
+static void
+test_trim_exec_string (void)
+{
+  BamfMatcher *matcher;
+  char *trimmed;
+
+  matcher = bamf_matcher_get_default ();
+
+  // Bad prefixes
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "gksudo bad-prefix-bin");
+  g_assert_cmpstr (trimmed, ==, "bad-prefix-bin");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "sudo --opt val=X /usr/bin/bad-prefix-bin");
+  g_assert_cmpstr (trimmed, ==, "bad-prefix-bin");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "python2.7 /home/foo/bad-prefix-script.py");
+  g_assert_cmpstr (trimmed, ==, "bad-prefix-script");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/python3.1");
+  g_assert_cmpstr (trimmed, ==, "python3.1");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/python %u --option val=/path");
+  g_assert_cmpstr (trimmed, ==, "python");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "sh -c \"binary --option --value %U || exec binary\"");
+  g_assert_cmpstr (trimmed, ==, "binary");
+  g_free (trimmed);
+
+  // Good prefixes
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/libreoffice --writer %U");
+  g_assert_cmpstr (trimmed, ==, "libreoffice --writer");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/gnome-control-center");
+  g_assert_cmpstr (trimmed, ==, "gnome-control-center");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "gnome-control-center foo-panel");
+  g_assert_cmpstr (trimmed, ==, "gnome-control-center foo-panel");
+  g_free (trimmed);
+
+  // Other exec strings
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "env FOOVAR=\"bar\" myprog");
+  g_assert_cmpstr (trimmed, ==, "myprog");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/opt/path/bin/myprog --option %U --foo=daa");
+  g_assert_cmpstr (trimmed, ==, "myprog");
+  g_free (trimmed);
+
+  g_object_unref (matcher);
 }
