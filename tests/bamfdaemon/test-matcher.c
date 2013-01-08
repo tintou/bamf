@@ -32,9 +32,9 @@ static void test_open_windows (void);
 static void test_match_desktopless_application (void);
 static void test_match_desktop_application (void);
 static void test_match_libreoffice_windows (void);
+static void test_match_gnome_control_center_panels (void);
 static void test_new_desktop_matches_unmatched_windows (void);
 static void test_match_transient_windows (void);
-static void test_match_javaws_windows (void);
 
 static GDBusConnection *gdbus_connection = NULL;
 
@@ -53,9 +53,9 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Matching/Application/DesktopLess", test_match_desktopless_application);
   g_test_add_func (DOMAIN"/Matching/Application/Desktop", test_match_desktop_application);
   g_test_add_func (DOMAIN"/Matching/Application/LibreOffice", test_match_libreoffice_windows);
+  g_test_add_func (DOMAIN"/Matching/Application/GnomeControlCenter", test_match_gnome_control_center_panels);
   g_test_add_func (DOMAIN"/Matching/Windows/UnmatchedOnNewDesktop", test_new_desktop_matches_unmatched_windows);
   g_test_add_func (DOMAIN"/Matching/Windows/Transient", test_match_transient_windows);
-  g_test_add_func (DOMAIN"/Matching/Windows/JavaWebStart", test_match_javaws_windows);
 }
 
 static void
@@ -485,6 +485,78 @@ test_match_libreoffice_windows (void)
 }
 
 static void
+test_match_gnome_control_center_panels (void)
+{
+  BamfMatcher *matcher;
+  BamfWindow *window;
+  BamfLegacyScreen *screen;
+  BamfLegacyWindowTest *test_win;
+  BamfApplication *app;
+  char *hint;
+
+  screen = bamf_legacy_screen_get_default ();
+  matcher = bamf_matcher_get_default ();
+  guint xid = g_random_int ();
+  const char *exec = "gnome-control-center";
+  const char *class_name = "Gnome-control-center";
+  const char *class_instance = "gnome-control-center";
+
+  cleanup_matcher_tables (matcher);
+  export_matcher_on_bus (matcher);
+
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/gnome-control-center.desktop");
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/gnome-display-panel.desktop");
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/gnome-mouse-panel.desktop");
+
+  test_win = bamf_legacy_window_test_new (xid, "System Settings", NULL, exec);
+  bamf_legacy_window_test_set_wmclass (test_win, class_name, class_instance);
+  bamf_legacy_window_set_hint (BAMF_LEGACY_WINDOW (test_win), WM_WINDOW_ROLE, NULL);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  g_assert_cmpstr (hint, ==, DATA_DIR"/gnome-control-center.desktop");
+  g_free (hint);
+  app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-control-center.desktop");
+  g_assert (find_window_in_app (app, BAMF_LEGACY_WINDOW (test_win)));
+
+  bamf_legacy_window_set_hint (BAMF_LEGACY_WINDOW (test_win), WM_WINDOW_ROLE, "display");
+  bamf_legacy_window_test_set_name (test_win, "Displays");
+  g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-control-center.desktop"));
+  app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-display-panel.desktop");
+  g_assert (app);
+  window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
+  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  g_assert_cmpstr (hint, ==, DATA_DIR"/gnome-display-panel.desktop");
+  g_free (hint);
+
+  bamf_legacy_window_set_hint (BAMF_LEGACY_WINDOW (test_win), WM_WINDOW_ROLE, "mouse");
+  bamf_legacy_window_test_set_name (test_win, "Mouse and Touchpad");
+  g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-display-panel.desktop"));
+  app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-mouse-panel.desktop");
+  g_assert (app);
+  window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
+  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  g_assert_cmpstr (hint, ==, DATA_DIR"/gnome-mouse-panel.desktop");
+  g_free (hint);
+
+  bamf_legacy_window_set_hint (BAMF_LEGACY_WINDOW (test_win), WM_WINDOW_ROLE, "invalid-role");
+  bamf_legacy_window_test_set_name (test_win, "Invalid Panel");
+  g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-mouse-panel.desktop"));
+  app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-control-center.desktop");
+  g_assert (app);
+  window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
+  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  g_assert_cmpstr (hint, ==, DATA_DIR"/gnome-control-center.desktop");
+  g_free (hint);
+
+  g_object_unref (matcher);
+  g_object_unref (screen);
+}
+
+static void
 test_match_transient_windows (void)
 {
   BamfMatcher *matcher;
@@ -529,37 +601,4 @@ test_match_transient_windows (void)
 
   g_object_unref (matcher);
   g_object_unref (screen);
-}
-
-static void
-test_match_javaws_windows (void)
-{
-  BamfMatcher *matcher;
-  BamfWindow *window;
-  BamfLegacyScreen *screen;
-  BamfLegacyWindowTest *test_win;
-  BamfApplication *app;
-  char *hint;
-
-  screen = bamf_legacy_screen_get_default ();
-  matcher = bamf_matcher_get_default ();
-  guint xid = g_random_int ();
-  const char *exec = "javaws";
-  const char *class_instance = "sun-awt-X11-XFramePeer";
-  const char *class_name = "net-sourceforge-jnlp-runtime-Boot";
-
-  cleanup_matcher_tables (matcher);
-  export_matcher_on_bus (matcher);
-
-  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-startcenter.desktop");
-  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-base.desktop");
-  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-calc.desktop");
-  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-draw.desktop");
-  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-impress.desktop");
-  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-math.desktop");
-  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/libreoffice-writer.desktop");
-
-  test_win = bamf_legacy_window_test_new (xid, "LibreOffice", "libreoffice-startcenter", exec);
-  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-startcenter", class_instance);
-  _bamf_legacy_screen_open_test_window (screen, test_win);
 }
