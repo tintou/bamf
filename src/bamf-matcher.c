@@ -51,6 +51,21 @@ typedef enum
 static BamfMatcher *static_matcher;
 static guint matcher_signals[LAST_SIGNAL] = { 0 };
 
+// Prefixes to be ignored in exec strings
+const gchar* EXEC_BAD_PREFIXES[] =
+{
+  "^gksu(do)?$", "^sudo$", "^su-to-root$", "^amdxdg-su$", "^java(ws)?$",
+  "^mono$", "^ruby$", "^padsp$", "^aoss$", "^python(\\d.\\d)?$", "^(ba)?sh$",
+  "^env$", "^xdg-open$"
+};
+
+// Prefixes that must be considered starting point of exec strings
+const gchar* EXEC_GOOD_PREFIXES[] =
+{
+  "^gnome-control-center$", "^libreoffice$", "^ooffice$", "^wine$", "^steam$",
+  "^sol$"
+};
+
 static void
 on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
 {
@@ -610,79 +625,6 @@ bamf_matcher_get_trimmed_exec (BamfMatcher * self, const char * exec_string)
   g_strfreev (parts);
 
   return result;
-}
-
-static GArray *
-bad_prefix_strings (void)
-{
-  GArray *arr = g_array_new (FALSE, TRUE, sizeof (char *));
-
-  char *str = "^gksu(do)?$";
-  g_array_append_val (arr, str);
-
-  str = "^sudo$";
-  g_array_append_val (arr, str);
-
-  str = "^su-to-root$";
-  g_array_append_val (arr, str);
-
-  str = "^amdxdg-su$";
-  g_array_append_val (arr, str);
-
-  str = "^java(ws)?$";
-  g_array_append_val (arr, str);
-
-  str = "^mono$";
-  g_array_append_val (arr, str);
-
-  str = "^ruby$";
-  g_array_append_val (arr, str);
-
-  str = "^padsp$";
-  g_array_append_val (arr, str);
-
-  str = "^aoss$";
-  g_array_append_val (arr, str);
-
-  str = "^python(\\d.\\d)?$";
-  g_array_append_val (arr, str);
-
-  str = "^(ba)?sh$";
-  g_array_append_val (arr, str);
-
-  str = "^env$";
-  g_array_append_val (arr, str);
-
-  str = "^xdg-open$";
-  g_array_append_val (arr, str);
-
-  return arr;
-}
-
-static GArray *
-good_prefix_strings (void)
-{
-  GArray *arr = g_array_new (FALSE, TRUE, sizeof (char *));
-
-  char *str = "^gnome-control-center$";
-  g_array_append_val (arr, str);
-
-  str = "^libreoffice$";
-  g_array_append_val (arr, str);
-
-  str = "^ooffice$";
-  g_array_append_val (arr, str);
-
-  str = "^wine$";
-  g_array_append_val (arr, str);
-
-  str = "^steam$";
-  g_array_append_val (arr, str);
-
-  str = "^sol$";
-  g_array_append_val (arr, str);
-
-  return arr;
 }
 
 static GList *
@@ -2875,33 +2817,28 @@ bamf_matcher_init (BamfMatcher * self)
 {
   BamfMatcherPrivate *priv;
   BamfLegacyScreen *screen;
-  GArray *prefixstrings;
   int i;
 
   priv = self->priv = BAMF_MATCHER_GET_PRIVATE (self);
 
-  priv->bad_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex *));
-  priv->good_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex *));
+  priv->bad_prefixes = g_array_sized_new (FALSE, TRUE, sizeof (GRegex *),
+                                          G_N_ELEMENTS (EXEC_BAD_PREFIXES));
+  priv->good_prefixes = g_array_sized_new (FALSE, TRUE, sizeof (GRegex *),
+                                           G_N_ELEMENTS (EXEC_GOOD_PREFIXES));
   priv->registered_pids = g_hash_table_new_full (g_direct_hash, g_direct_equal,
                                                  NULL, g_free);
 
-  prefixstrings = bad_prefix_strings ();
-  for (i = 0; i < prefixstrings->len; i++)
+  for (i = 0; i < G_N_ELEMENTS (EXEC_BAD_PREFIXES); ++i)
     {
-      char *str = g_array_index (prefixstrings, char *, i);
-      GRegex *regex = g_regex_new (str, G_REGEX_OPTIMIZE, 0, NULL);
+      GRegex *regex = g_regex_new (EXEC_BAD_PREFIXES[i], G_REGEX_OPTIMIZE, 0, NULL);
       g_array_append_val (priv->bad_prefixes, regex);
     }
-  g_array_free (prefixstrings, TRUE);
 
-  prefixstrings = good_prefix_strings ();
-  for (i = 0; i < prefixstrings->len; i++)
+  for (i = 0; i < G_N_ELEMENTS (EXEC_GOOD_PREFIXES); ++i)
     {
-      char *str = g_array_index (prefixstrings, char *, i);
-      GRegex *regex = g_regex_new (str, G_REGEX_OPTIMIZE, 0, NULL);
+      GRegex *regex = g_regex_new (EXEC_GOOD_PREFIXES[i], G_REGEX_OPTIMIZE, 0, NULL);
       g_array_append_val (priv->good_prefixes, regex);
     }
-  g_array_free (prefixstrings, TRUE);
 
   create_desktop_file_table (self, &(priv->desktop_file_table),
                              &(priv->desktop_id_table),
