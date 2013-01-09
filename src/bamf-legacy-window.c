@@ -498,9 +498,9 @@ bamf_legacy_window_reopen (BamfLegacyWindow *self)
   guint xid = bamf_legacy_window_get_xid (self);
 
   /* Adding a weak ref to this object, causes to get notified after the object
-   * destruction, so once this BamfLegacyWindow has been closed and drestroyed
+   * destruction, so once this BamfLegacyWindow has been closed and destroyed
    * the handle_destroy_notify() function will be called, and that will
-   * provide to iniject another window like this one to the BamfLegacyScreen  */
+   * provide to inject another window like this one to the BamfLegacyScreen  */
   g_object_weak_ref (G_OBJECT (self), (GWeakNotify) handle_destroy_notify,
                                                     GUINT_TO_POINTER (xid));
 
