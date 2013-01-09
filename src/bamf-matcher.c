@@ -2058,6 +2058,7 @@ get_gnome_control_center_window_hint (BamfMatcher * self, BamfLegacyWindow * win
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
 
+  list = NULL;
   role = bamf_legacy_window_get_hint (window, WM_WINDOW_ROLE);
 
   if (role)
