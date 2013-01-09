@@ -1879,6 +1879,36 @@ bamf_matcher_get_application_for_window (BamfMatcher *self,
 
           if (bamf_application_contains_similar_to_window (app, bamf_window))
             {
+              char *exec_string = bamf_legacy_window_get_exec_string (window);
+              char *trimmed_exec = bamf_matcher_get_trimmed_exec (self, exec_string);
+              g_free (exec_string);
+
+              GList *ll;
+              gboolean found_exec = FALSE;
+              for (ll = bamf_view_get_children (BAMF_VIEW (app)); ll && !found_exec; ll = ll->next)
+                {
+                  if (!BAMF_IS_WINDOW (ll->data))
+                    continue;
+
+                  BamfLegacyWindow *w = bamf_window_get_window (BAMF_WINDOW (ll->data));
+                  char *wexec = bamf_legacy_window_get_exec_string (w);
+                  char *wtrimmed = bamf_matcher_get_trimmed_exec (self, wexec);
+                  g_free (wexec);
+
+                  if (g_strcmp0 (trimmed_exec, wtrimmed) == 0)
+                    {
+                      best = BAMF_APPLICATION (view);
+                      found_exec = TRUE;
+                    }
+
+                  g_free (wtrimmed);
+                }
+
+              g_free (trimmed_exec);
+
+              if (!found_exec)
+                continue;
+
               app_desktop_class = bamf_application_get_wmclass (app);
 
               if (target_class && g_strcmp0 (target_class, app_desktop_class) == 0)
