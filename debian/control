@@ -16,6 +16,7 @@ Build-Depends: dbus-x11,
                libunity-webapps-dev (>= 2.3.3),
                libwnck-3-dev,
                libgirepository1.0-dev,
+               valac,
                xvfb,
 Standards-Version: 3.9.3
 Homepage: https://launchpad.net/bamf
