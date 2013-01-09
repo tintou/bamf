@@ -32,7 +32,9 @@ static void test_open_windows (void);
 static void test_match_desktopless_application (void);
 static void test_match_desktop_application (void);
 static void test_match_libreoffice_windows (void);
+static void test_match_gnome_control_center_panels (void);
 static void test_new_desktop_matches_unmatched_windows (void);
+static void test_trim_exec_string (void);
 
 static GDBusConnection *gdbus_connection = NULL;
 
@@ -51,7 +53,9 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Matching/Application/DesktopLess", test_match_desktopless_application);
   g_test_add_func (DOMAIN"/Matching/Application/Desktop", test_match_desktop_application);
   g_test_add_func (DOMAIN"/Matching/Application/LibreOffice", test_match_libreoffice_windows);
+  g_test_add_func (DOMAIN"/Matching/Application/GnomeControlCenter", test_match_gnome_control_center_panels);
   g_test_add_func (DOMAIN"/Matching/Windows/UnmatchedOnNewDesktop", test_new_desktop_matches_unmatched_windows);
+  g_test_add_func (DOMAIN"/ExecStringTrimming", test_trim_exec_string);
 }
 
 static void
@@ -480,3 +484,132 @@ test_match_libreoffice_windows (void)
   g_object_unref (screen);
 }
 
+static void
+test_match_gnome_control_center_panels (void)
+{
+  BamfMatcher *matcher;
+  BamfWindow *window;
+  BamfLegacyScreen *screen;
+  BamfLegacyWindowTest *test_win;
+  BamfApplication *app;
+  char *hint;
+
+  screen = bamf_legacy_screen_get_default ();
+  matcher = bamf_matcher_get_default ();
+  guint xid = g_random_int ();
+  const char *exec = "gnome-control-center";
+  const char *class_name = "Gnome-control-center";
+  const char *class_instance = "gnome-control-center";
+
+  cleanup_matcher_tables (matcher);
+  export_matcher_on_bus (matcher);
+
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/gnome-control-center.desktop");
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/gnome-display-panel.desktop");
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/gnome-mouse-panel.desktop");
+
+  test_win = bamf_legacy_window_test_new (xid, "System Settings", NULL, exec);
+  bamf_legacy_window_test_set_wmclass (test_win, class_name, class_instance);
+  bamf_legacy_window_set_hint (BAMF_LEGACY_WINDOW (test_win), WM_WINDOW_ROLE, NULL);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  g_assert_cmpstr (hint, ==, DATA_DIR"/gnome-control-center.desktop");
+  g_free (hint);
+  app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-control-center.desktop");
+  g_assert (find_window_in_app (app, BAMF_LEGACY_WINDOW (test_win)));
+
+  bamf_legacy_window_set_hint (BAMF_LEGACY_WINDOW (test_win), WM_WINDOW_ROLE, "display");
+  bamf_legacy_window_test_set_name (test_win, "Displays");
+  g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-control-center.desktop"));
+  app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-display-panel.desktop");
+  g_assert (app);
+  window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
+  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  g_assert_cmpstr (hint, ==, DATA_DIR"/gnome-display-panel.desktop");
+  g_free (hint);
+
+  bamf_legacy_window_set_hint (BAMF_LEGACY_WINDOW (test_win), WM_WINDOW_ROLE, "mouse");
+  bamf_legacy_window_test_set_name (test_win, "Mouse and Touchpad");
+  g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-display-panel.desktop"));
+  app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-mouse-panel.desktop");
+  g_assert (app);
+  window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
+  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  g_assert_cmpstr (hint, ==, DATA_DIR"/gnome-mouse-panel.desktop");
+  g_free (hint);
+
+  bamf_legacy_window_set_hint (BAMF_LEGACY_WINDOW (test_win), WM_WINDOW_ROLE, "invalid-role");
+  bamf_legacy_window_test_set_name (test_win, "Invalid Panel");
+  g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-mouse-panel.desktop"));
+  app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-control-center.desktop");
+  g_assert (app);
+  window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
+  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  g_assert_cmpstr (hint, ==, DATA_DIR"/gnome-control-center.desktop");
+  g_free (hint);
+
+  g_object_unref (matcher);
+  g_object_unref (screen);
+}
+
+static void
+test_trim_exec_string (void)
+{
+  BamfMatcher *matcher;
+  char *trimmed;
+
+  matcher = bamf_matcher_get_default ();
+
+  // Bad prefixes
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "gksudo bad-prefix-bin");
+  g_assert_cmpstr (trimmed, ==, "bad-prefix-bin");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "sudo --opt val=X /usr/bin/bad-prefix-bin");
+  g_assert_cmpstr (trimmed, ==, "bad-prefix-bin");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "python2.7 /home/foo/bad-prefix-script.py");
+  g_assert_cmpstr (trimmed, ==, "bad-prefix-script");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/python3.1");
+  g_assert_cmpstr (trimmed, ==, "python3.1");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/python %u --option val=/path");
+  g_assert_cmpstr (trimmed, ==, "python");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "sh -c \"binary --option --value %U || exec binary\"");
+  g_assert_cmpstr (trimmed, ==, "binary");
+  g_free (trimmed);
+
+  // Good prefixes
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/libreoffice --writer %U");
+  g_assert_cmpstr (trimmed, ==, "libreoffice --writer");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/gnome-control-center");
+  g_assert_cmpstr (trimmed, ==, "gnome-control-center");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "gnome-control-center foo-panel");
+  g_assert_cmpstr (trimmed, ==, "gnome-control-center foo-panel");
+  g_free (trimmed);
+
+  // Other exec strings
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "env FOOVAR=\"bar\" myprog");
+  g_assert_cmpstr (trimmed, ==, "myprog");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/opt/path/bin/myprog --option %U --foo=daa");
+  g_assert_cmpstr (trimmed, ==, "myprog");
+  g_free (trimmed);
+
+  g_object_unref (matcher);
+}
