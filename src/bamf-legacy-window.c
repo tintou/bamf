@@ -48,10 +48,6 @@ struct _BamfLegacyWindowPrivate
 {
   WnckWindow * legacy_window;
   char       * mini_icon_path;
-  gulong       closed_id;
-  gulong       name_changed_id;
-  gulong       state_changed_id;
-  gulong       geometry_changed_id;
   gboolean     is_closed;
 };
 
@@ -203,9 +199,9 @@ bamf_legacy_window_save_mini_icon (BamfLegacyWindow *self)
   WnckWindow *window;
   GdkPixbuf *pbuf;
   char *tmp;
-  
+
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
-  
+
   if (self->priv->mini_icon_path)
     {
       if (g_file_test (self->priv->mini_icon_path, G_FILE_TEST_EXISTS))
@@ -213,23 +209,23 @@ bamf_legacy_window_save_mini_icon (BamfLegacyWindow *self)
       else
         g_free (self->priv->mini_icon_path);
     }
-  
+
   window = self->priv->legacy_window;
-  
+
   if (!window)
     return NULL;
-  
+
   if (wnck_window_get_icon_is_fallback (window))
     return NULL;
-  
+
   tmp = tmpnam (NULL);
   if (!tmp)
     return NULL;
-  
+
   pbuf = wnck_window_get_icon (window);
   if (!gdk_pixbuf_save (pbuf, tmp, "png", NULL, NULL))
     return NULL;
-  
+
   self->priv->mini_icon_path = g_strdup (tmp);
   return self->priv->mini_icon_path;
 }
@@ -301,12 +297,12 @@ gint
 bamf_legacy_window_get_stacking_position (BamfLegacyWindow *self)
 {
   BamfLegacyScreen *screen;
-  
+
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), -1);
 
   screen = bamf_legacy_screen_get_default ();
   g_return_val_if_fail (BAMF_IS_LEGACY_SCREEN (screen), -1);
-  
+
   return g_list_index (bamf_legacy_screen_get_windows (screen), self);
 }
 
@@ -494,8 +490,6 @@ bamf_legacy_window_dispose (GObject *object)
 
   self = BAMF_LEGACY_WINDOW (object);
 
-  g_signal_handler_disconnect (wnck_screen_get_default (),
-                               self->priv->closed_id);
 
   if (self->priv->mini_icon_path)
     {
@@ -507,16 +501,11 @@ bamf_legacy_window_dispose (GObject *object)
       self->priv->mini_icon_path = NULL;
     }
 
+  g_signal_handlers_disconnect_by_data (wnck_screen_get_default (), self);
+
   if (self->priv->legacy_window)
     {
-      g_signal_handler_disconnect (self->priv->legacy_window,
-                                   self->priv->name_changed_id);
-
-      g_signal_handler_disconnect (self->priv->legacy_window,
-                                   self->priv->state_changed_id);
-
-      g_signal_handler_disconnect (self->priv->legacy_window,
-                                   self->priv->geometry_changed_id);
+      g_signal_handlers_disconnect_by_data (self->priv->legacy_window, self);
     }
 
   G_OBJECT_CLASS (bamf_legacy_window_parent_class)->dispose (object);
@@ -525,15 +514,10 @@ bamf_legacy_window_dispose (GObject *object)
 static void
 bamf_legacy_window_init (BamfLegacyWindow * self)
 {
-  WnckScreen *screen;
+  self->priv = BAMF_LEGACY_WINDOW_GET_PRIVATE (self);
 
-  BamfLegacyWindowPrivate *priv;
-  priv = self->priv = BAMF_LEGACY_WINDOW_GET_PRIVATE (self);
-
-  screen = wnck_screen_get_default ();
-
-  priv->closed_id = g_signal_connect (G_OBJECT (screen), "window-closed",
-                                      (GCallback) handle_window_closed, self);
+  g_signal_connect (wnck_screen_get_default (), "window-closed",
+                    (GCallback) handle_window_closed, self);
 }
 
 static void
@@ -590,14 +574,14 @@ bamf_legacy_window_new (WnckWindow *legacy_window)
 
   self->priv->legacy_window = legacy_window;
 
-  self->priv->name_changed_id = g_signal_connect (G_OBJECT (legacy_window), "name-changed",
-                                                  (GCallback) handle_name_changed, self);
+  g_signal_connect (G_OBJECT (legacy_window), "name-changed",
+                    (GCallback) handle_name_changed, self);
 
-  self->priv->state_changed_id = g_signal_connect (G_OBJECT (legacy_window), "state-changed",
-                                                   (GCallback) handle_state_changed, self);
+  g_signal_connect (G_OBJECT (legacy_window), "state-changed",
+                    (GCallback) handle_state_changed, self);
 
-  self->priv->geometry_changed_id = g_signal_connect (G_OBJECT (legacy_window), "geometry-changed",
-                                                      (GCallback) handle_geometry_changed, self);
+  g_signal_connect (G_OBJECT (legacy_window), "geometry-changed",
+                    (GCallback) handle_geometry_changed, self);
 
   return self;
 }
