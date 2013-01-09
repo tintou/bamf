@@ -56,7 +56,8 @@ const gchar* EXEC_BAD_PREFIXES[] =
 {
   "^gksu(do)?$", "^sudo$", "^su-to-root$", "^amdxdg-su$", "^java(ws)?$",
   "^mono$", "^ruby$", "^padsp$", "^aoss$", "^python(\\d.\\d)?$", "^(ba)?sh$",
-  "^perl$", "^env$", "^xdg-open$"
+  "^perl$", "^env$", "^xdg-open$",
+  /* javaws strings: */ "^net\\.sourceforge\\.jnlp\\.runtime\\.Boot$", "^rt.jar$"
 };
 
 // Prefixes that must be considered starting point of exec strings
