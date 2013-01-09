@@ -33,6 +33,7 @@ static void test_match_desktopless_application (void);
 static void test_match_desktop_application (void);
 static void test_match_libreoffice_windows (void);
 static void test_match_gnome_control_center_panels (void);
+static void test_match_javaws_windows (void);
 static void test_new_desktop_matches_unmatched_windows (void);
 static void test_match_transient_windows (void);
 static void test_trim_exec_string (void);
@@ -55,6 +56,7 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Matching/Application/Desktop", test_match_desktop_application);
   g_test_add_func (DOMAIN"/Matching/Application/LibreOffice", test_match_libreoffice_windows);
   g_test_add_func (DOMAIN"/Matching/Application/GnomeControlCenter", test_match_gnome_control_center_panels);
+  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart", test_match_javaws_windows);
   g_test_add_func (DOMAIN"/Matching/Windows/UnmatchedOnNewDesktop", test_new_desktop_matches_unmatched_windows);
   g_test_add_func (DOMAIN"/Matching/Windows/Transient", test_match_transient_windows);
   g_test_add_func (DOMAIN"/ExecStringTrimming", test_trim_exec_string);
@@ -559,6 +561,73 @@ test_match_gnome_control_center_panels (void)
 }
 
 static void
+test_match_javaws_windows (void)
+{
+  BamfMatcher *matcher;
+  BamfLegacyScreen *screen;
+  BamfLegacyWindowTest *test_win;
+  BamfApplication *app1, *app2, *app3;
+  GList *app_children;
+
+  screen = bamf_legacy_screen_get_default ();
+  matcher = bamf_matcher_get_default ();
+  const char *exec_prefix = "/usr/lib/jvm/java-6-openjdk-amd64/jre/bin/java " \
+                            "-Xbootclasspath/a:/usr/share/icedtea-web/netx.jar " \
+                            "-Xms8m -Djava.security.manager " \
+                            "-Djava.security.policy=/etc/icedtea-web/javaws.policy " \
+                            "-classpath /usr/lib/jvm/java-6-openjdk-amd64/jre/lib/rt.jar " \
+                            "-Dicedtea-web.bin.name=javaws " \
+                            "-Dicedtea-web.bin.location=/usr/bin/javaws "\
+                            "net.sourceforge.jnlp.runtime.Boot";
+  const char *class_name = "sun-awt-X11-XFramePeer";
+  const char *class_instance = "net-sourceforge-jnlp-runtime-Boot";
+
+  cleanup_matcher_tables (matcher);
+  export_matcher_on_bus (matcher);
+
+  guint xid = g_random_int ();
+  char *exec = g_strconcat (exec_prefix, " Notepad.jnlp", NULL);
+  test_win = bamf_legacy_window_test_new (xid, "Notepad", NULL, exec);
+  bamf_legacy_window_test_set_wmclass (test_win, class_name, class_instance);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+  g_free (exec);
+  app1 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert (BAMF_IS_APPLICATION (app1));
+  app_children = bamf_view_get_children (BAMF_VIEW (app1));
+  g_assert_cmpuint (g_list_length (app_children), ==, 1);
+  g_assert (find_window_in_app (app1, BAMF_LEGACY_WINDOW (test_win)));
+
+  xid = g_random_int ();
+  exec = g_strconcat (exec_prefix, " Draw.jnlp", NULL);
+  test_win = bamf_legacy_window_test_new (xid, "Draw", NULL, exec);
+  bamf_legacy_window_test_set_wmclass (test_win, class_name, class_instance);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+  g_free (exec);
+  app2 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert (BAMF_IS_APPLICATION (app2));
+  g_assert (app1 != app2);
+  app_children = bamf_view_get_children (BAMF_VIEW (app2));
+  g_assert_cmpuint (g_list_length (app_children), ==, 1);
+  g_assert (find_window_in_app (app2, BAMF_LEGACY_WINDOW (test_win)));
+
+  xid = g_random_int ();
+  exec = g_strconcat (exec_prefix, " Notepad.jnlp", NULL);
+  test_win = bamf_legacy_window_test_new (xid, "Notepad Subwin", NULL, exec);
+  bamf_legacy_window_test_set_wmclass (test_win, class_name, class_instance);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+  g_free (exec);
+  app3 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert (app3 == app1);
+  g_assert (BAMF_IS_APPLICATION (app3));
+  app_children = bamf_view_get_children (BAMF_VIEW (app3));
+  g_assert_cmpuint (g_list_length (app_children), ==, 2);
+  g_assert (find_window_in_app (app3, BAMF_LEGACY_WINDOW (test_win)));
+
+  g_object_unref (matcher);
+  g_object_unref (screen);
+}
+
+static void
 test_match_transient_windows (void)
 {
   BamfMatcher *matcher;
@@ -658,6 +727,18 @@ test_trim_exec_string (void)
 
   trimmed = bamf_matcher_get_trimmed_exec (matcher, "/opt/path/bin/myprog --option %U --foo=daa");
   g_assert_cmpstr (trimmed, ==, "myprog");
+  g_free (trimmed);
+
+  const char *exec = "/usr/lib/jvm/java-6-openjdk-amd64/jre/bin/java " \
+                     "-Xbootclasspath/a:/usr/share/icedtea-web/netx.jar " \
+                     "-Xms8m -Djava.security.manager " \
+                     "-Djava.security.policy=/etc/icedtea-web/javaws.policy " \
+                     "-classpath /usr/lib/jvm/java-6-openjdk-amd64/jre/lib/rt.jar " \
+                     "-Dicedtea-web.bin.name=javaws " \
+                     "-Dicedtea-web.bin.location=/usr/bin/javaws "\
+                     "net.sourceforge.jnlp.runtime.Boot Notepad.jnlp";
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, exec);
+  g_assert_cmpstr (trimmed, ==, "notepad.jnlp");
   g_free (trimmed);
 
   g_object_unref (matcher);
