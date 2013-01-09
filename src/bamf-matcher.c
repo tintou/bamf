@@ -689,7 +689,7 @@ is_desktop_folder_item (const char *desktop_file_path, gssize max_len)
 
   desktop_folder = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
 
-  if (strncmp (desktop_folder, desktop_file_path, len) == 0)
+  if (g_strcmp0 (desktop_folder, desktop_file_path, len) == 0)
     return TRUE;
 
   return FALSE;
@@ -995,7 +995,6 @@ get_directory_tree_list (GList *dirs)
       if (!enumerator)
         continue;
 
-
       info = g_file_enumerator_next_file (enumerator, NULL, NULL);
 
       while (info)
@@ -1075,7 +1074,7 @@ get_desktop_file_directories (BamfMatcher *self)
 
   dirs = list_prepend_desktop_file_env_directories (dirs, "XDG_DATA_HOME");
 
-  //If this doesn't exist, we need to track .local or the home itself!
+  /* If XDG_DATA_HOME doesn't exist, we need to track .local or the home itself! */
   path = g_build_filename (g_get_home_dir (), ".local/share/applications", NULL);
 
   if (!g_list_find_custom (dirs, path, (GCompareFunc) g_strcmp0))
@@ -2033,7 +2032,7 @@ get_gnome_control_center_window_hint (BamfMatcher * self, BamfLegacyWindow * win
 
   if (role)
     {
-      gchar *exec = g_strdup_printf ("gnome-control-center %s", role);
+      gchar *exec = g_strconcat ("gnome-control-center ", role, NULL);
       list = g_hash_table_lookup (self->priv->desktop_file_table, exec);
       g_free (exec);
       g_free (role);
