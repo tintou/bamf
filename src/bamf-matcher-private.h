@@ -29,6 +29,9 @@
 
 struct _BamfMatcherPrivate
 {
+#ifdef HAVE_WEBAPPS
+  BamfUnityWebappsObserver *webapps_observer;
+#endif
   GArray          * bad_prefixes;
   GArray          * good_prefixes;
   GHashTable      * desktop_id_table;
@@ -43,10 +46,10 @@ struct _BamfMatcherPrivate
   BamfView        * active_app;
   BamfView        * active_win;
   guint             dispatch_changes_id;
-  BamfUnityWebappsObserver *webapps_observer;
 };
 
 BamfApplication * bamf_matcher_get_application_by_desktop_file (BamfMatcher *self, const char *desktop_file);
 BamfApplication * bamf_matcher_get_application_by_xid (BamfMatcher *self, guint xid);
+char * bamf_matcher_get_trimmed_exec (BamfMatcher *self, const char *exec);
 
 #endif
