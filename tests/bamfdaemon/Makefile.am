@@ -119,6 +119,7 @@ test-headless:
 	export LOG_PATH=$(LOG_PATH); \
 	export XVFB_PATH=$(XVFB); \
 	export DISPLAY=""; \
+	export XDG_CURRENT_DESKTOP="Unity"; \
 	source $(XVFB_RUN); \
 	\
 	$(DBUS_LAUNCH) > $(LOG_PATH)/sessionbus.sh; \
