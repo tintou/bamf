@@ -13,16 +13,12 @@ test_libbamf_CPPFLAGS = \
   -I$(top_builddir)/lib/libbamf \
   -DTESTDIR=\""$(abs_top_srcdir)/tests/libbamf"\" \
   $(GCC_FLAGS) \
-  $(GTK_CFLAGS) \
-  $(LIBWSBIND_CFLAGS) \
   $(DBUS_CFLAGS) \
   $(GLIB_CFLAGS)
 
 test_libbamf_LDADD = \
   $(top_builddir)/lib/libbamf/libbamf$(LIBBAMF_VER).la \
-  $(LIBWSBIND_LIBS) \
   $(GLIB_LIBS) \
-  $(GTK_LIBS) \
   $(DBUS_LIBS)
 
 TEST_BINARY = test-libbamf

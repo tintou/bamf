@@ -49,7 +49,6 @@ nodist_libbamf3_la_SOURCES = \
   $(NULL)
 
 libbamf3_la_LIBADD = \
-  $(LIBWSBIND_LIBS) \
   $(GLIB_LIBS) \
   $(DBUS_LIBS) \
   $(NULL)
@@ -62,7 +61,6 @@ libbamf3_la_CPPFLAGS = \
   -I$(top_builddir)/lib \
   -I$(top_srcdir)/lib/libbamf \
   -I$(top_builddir)/lib/libbamf \
-  $(LIBWSBIND_CFLAGS) \
   $(GLIB_CFLAGS) \
   $(DBUS_CFLAGS) \
   $(COVERAGE_CFLAGS) \
@@ -102,39 +100,37 @@ libbamf_pc_DATA = \
 
 
 #########################
-# GObject Introsepction 
+# GObject Introsepction
 #########################
 
-INTROSPECTION_GIRS = 
+if HAVE_INTROSPECTION
+
+INTROSPECTION_GIRS = Bamf-3.gir
 INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)
 INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
-
-if HAVE_INTROSPECTION
 
 introspection_sources = \
 	$(libbamf_headers) \
 	$(libbamf_sources) \
 	$(NULL)
 
-Bamf-0.2.gir: libbamf$(LIBBAMF_VER).la
-Bamf_0_2_gir_INCLUDES = GObject-2.0 GLib-2.0
-Bamf_0_2_gir_CFLAGS = \
+Bamf-3.gir: libbamf$(LIBBAMF_VER).la
+Bamf_3_gir_INCLUDES = GObject-2.0 GLib-2.0
+Bamf_3_gir_CFLAGS = \
 	--warn-all \
 	--c-include='libbamf/libbamf.h' \
 	$(DBUS_CFLAGS) \
 	-I$(top_srcdir)/lib \
 	-I$(top_builddir)/lib \
 	$(NULL)
-Bamf_0_2_gir_LIBS = libbamf$(LIBBAMF_VER).la
-Bamf_0_2_gir_FILES = $(introspection_sources)
-Bamf_0_2_gir_EXPORT_PACKAGES = libbamf$(LIBBAMF_VER)
+Bamf_3_gir_LIBS = libbamf$(LIBBAMF_VER).la
+Bamf_3_gir_FILES = $(introspection_sources)
+Bamf_3_gir_EXPORT_PACKAGES = libbamf$(LIBBAMF_VER)
 
-INTROSPECTION_GIRS += Bamf-0.2.gir
-
-girdir = $(datadir)/gir-1.0
+girdir = $(INTROSPECTION_GIRDIR)
 gir_DATA = $(INTROSPECTION_GIRS)
 
-typelibdir = $(libdir)/girepository-1.0
+typelibdir = $(INTROSPECTION_TYPELIBDIR)
 typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
 CLEANFILES += $(gir_DATA) $(typelib_DATA)

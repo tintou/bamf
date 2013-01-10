@@ -24,9 +24,7 @@ AC_ISC_POSIX
 AC_SUBST(ACLOCAL_AMFLAFS, "$ACLOCAL_FLAGS -I m4")
 
 AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
-if test "x$PKG_CONFIG" = "xno"; then
-        AC_MSG_ERROR([You need to install pkg-config])
-fi
+if test "x$PKG_CONFIG" = "xno"; then AC_MSG_ERROR([You need to install pkg-config]); fi
 
 # Checks for programs.
 AC_PROG_CC
@@ -47,11 +45,14 @@ PKG_PROG_PKG_CONFIG
 # glib
 #
 PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.32.0 gio-2.0 >= 2.30.0 gio-unix-2.0)
+AC_PATH_PROG([GLIB_GENMARSHAL], [glib-genmarshal])
+if test -z "$GLIB_GENMARSHAL"; then AC_MSG_ERROR([glib-genmarshal is required but was not found]); fi
 
 #
 # gdbus-codegen
 #
-AC_PATH_PROG([GDBUS_CODEGEN], [gdbus-codegen], AC_MSG_ERROR([gdbus-codegen is required but was not found]))
+AC_PATH_PROG([GDBUS_CODEGEN], [gdbus-codegen])
+if test -z "$GDBUS_CODEGEN"; then AC_MSG_ERROR([gdbus-codegen is required but was not found]); fi
 
 #
 # dbus
@@ -72,9 +73,6 @@ PKG_CHECK_MODULES(WNCK, libwnck-3.0)
 # libgtop
 #
 PKG_CHECK_MODULES(GTOP, libgtop-2.0)
-PKG_CHECK_MODULES(LIBWSBIND, glib-2.0 gdk-3.0 gdk-x11-3.0 gtk+-3.0)
-AC_SUBST(LIBWSBIND_CFLAGS)
-AC_SUBST(LIBWSBIND_LIBS)
 
 #
 # x11
@@ -91,8 +89,14 @@ GOBJECT_INTROSPECTION_CHECK([0.10.2])
 # Vala API Generation
 ###########################
 
-AC_PATH_PROG([VALA_API_GEN], [vapigen])
-AC_PATH_PROG([GLIB_GENMARSHAL], [glib-genmarshal])
+if test "$enable_introspection" = "yes"; then
+  AC_PATH_PROG([VALA_API_GEN], [vapigen])
+  if test -z "$VALA_API_GEN"; then
+    AC_MSG_ERROR([vapigen is needed to build introspection])
+    HAVE_INTROSPECTION=0
+    enable_introspection="no"
+  fi
+fi
 
 ###########################
 # GTK-DOC
@@ -127,6 +131,10 @@ AM_CONDITIONAL([ENABLE_HEADLESS_TESTS],[test "x$enable_headless_tests" != "xno"]
 if test "x$enable_headless_tests" = "xyes"; then
   AC_PATH_PROG([XVFB],[Xvfb])
   AC_PATH_PROG([DBUS_LAUNCH],[dbus-launch])
+
+  if test -z "$XVFB" -o -z "$DBUS_LAUNCH"; then
+    AC_MSG_ERROR([Xvfb and dbus-launch are needed for headless-tests])
+  fi
 fi
 
 ###########################
