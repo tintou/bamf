@@ -56,7 +56,8 @@ const gchar* EXEC_BAD_PREFIXES[] =
 {
   "^gksu(do)?$", "^sudo$", "^su-to-root$", "^amdxdg-su$", "^java(ws)?$",
   "^mono$", "^ruby$", "^padsp$", "^aoss$", "^python(\\d.\\d)?$", "^(ba)?sh$",
-  "^perl$", "^env$", "^xdg-open$"
+  "^perl$", "^env$", "^xdg-open$",
+  /* javaws strings: */ "^net\\.sourceforge\\.jnlp\\.runtime\\.Boot$", "^rt.jar$"
 };
 
 // Prefixes that must be considered starting point of exec strings
@@ -995,7 +996,6 @@ get_directory_tree_list (GList *dirs)
       if (!enumerator)
         continue;
 
-
       info = g_file_enumerator_next_file (enumerator, NULL, NULL);
 
       while (info)
@@ -1075,7 +1075,7 @@ get_desktop_file_directories (BamfMatcher *self)
 
   dirs = list_prepend_desktop_file_env_directories (dirs, "XDG_DATA_HOME");
 
-  //If this doesn't exist, we need to track .local or the home itself!
+  /* If XDG_DATA_HOME doesn't exist, we need to track .local or the home itself! */
   path = g_build_filename (g_get_home_dir (), ".local/share/applications", NULL);
 
   if (!g_list_find_custom (dirs, path, (GCompareFunc) g_strcmp0))
@@ -1860,6 +1860,36 @@ bamf_matcher_get_application_for_window (BamfMatcher *self,
 
           if (bamf_application_contains_similar_to_window (app, bamf_window))
             {
+              char *exec_string = bamf_legacy_window_get_exec_string (window);
+              char *trimmed_exec = bamf_matcher_get_trimmed_exec (self, exec_string);
+              g_free (exec_string);
+
+              GList *ll;
+              gboolean found_exec = FALSE;
+              for (ll = bamf_view_get_children (BAMF_VIEW (app)); ll && !found_exec; ll = ll->next)
+                {
+                  if (!BAMF_IS_WINDOW (ll->data))
+                    continue;
+
+                  BamfLegacyWindow *w = bamf_window_get_window (BAMF_WINDOW (ll->data));
+                  char *wexec = bamf_legacy_window_get_exec_string (w);
+                  char *wtrimmed = bamf_matcher_get_trimmed_exec (self, wexec);
+                  g_free (wexec);
+
+                  if (g_strcmp0 (trimmed_exec, wtrimmed) == 0)
+                    {
+                      best = BAMF_APPLICATION (view);
+                      found_exec = TRUE;
+                    }
+
+                  g_free (wtrimmed);
+                }
+
+              g_free (trimmed_exec);
+
+              if (!found_exec)
+                continue;
+
               app_desktop_class = bamf_application_get_wmclass (app);
 
               if (target_class && g_strcmp0 (target_class, app_desktop_class) == 0)
@@ -2033,7 +2063,7 @@ get_gnome_control_center_window_hint (BamfMatcher * self, BamfLegacyWindow * win
 
   if (role)
     {
-      gchar *exec = g_strdup_printf ("gnome-control-center %s", role);
+      gchar *exec = g_strconcat ("gnome-control-center ", role, NULL);
       list = g_hash_table_lookup (self->priv->desktop_file_table, exec);
       g_free (exec);
       g_free (role);
