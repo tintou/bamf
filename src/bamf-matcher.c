@@ -690,7 +690,7 @@ is_desktop_folder_item (const char *desktop_file_path, gssize max_len)
 
   desktop_folder = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
 
-  if (g_strcmp0 (desktop_folder, desktop_file_path, len) == 0)
+  if (strncmp (desktop_folder, desktop_file_path, len) == 0)
     return TRUE;
 
   return FALSE;
