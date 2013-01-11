@@ -1,3 +1,18 @@
+bamf (0.4.0daily13.01.11-0ubuntu1) raring; urgency=low
+
+  [ Francis Ginther ]
+  * bamf autolanding builds sometime fail with "kill: (nnnn) - No such
+    process" (LP: #1079329)
+
+  [ Marco Trevisan (Treviño) ]
+  * Unity inappropriately groups separate Java webstart app windows (LP:
+    #979752)
+
+  [ Automatic PS uploader ]
+  * Automatic snapshot from revision 516
+
+ -- Automatic PS uploader <ps-jenkins@lists.canonical.com>  Fri, 11 Jan 2013 02:01:54 +0000
+
 bamf (0.4.0daily12.12.05-0ubuntu2) raring; urgency=low
 
   [ Didier Roche ]
