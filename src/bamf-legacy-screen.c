@@ -210,7 +210,6 @@ compare_windows_by_stack_order (gconstpointer a, gconstpointer b, gpointer data)
   BamfLegacyScreen *self;
   GList *l;
   guint xid_a, xid_b;
-  guint idx_a, idx_b;
 
   g_return_val_if_fail (BAMF_IS_LEGACY_SCREEN (data), 1);
   self = BAMF_LEGACY_SCREEN (data);
@@ -218,36 +217,18 @@ compare_windows_by_stack_order (gconstpointer a, gconstpointer b, gpointer data)
   xid_a = bamf_legacy_window_get_xid (BAMF_LEGACY_WINDOW (a));
   xid_b = bamf_legacy_window_get_xid (BAMF_LEGACY_WINDOW (b));
 
-  gboolean idx_a_found = FALSE;
-  gboolean idx_b_found = FALSE;
-  idx_a = 0;
-  idx_b = 0;
-
   for (l = wnck_screen_get_windows_stacked (self->priv->legacy_screen); l; l = l->next)
   {
     gulong legacy_xid = wnck_window_get_xid (WNCK_WINDOW (l->data));
 
-    if (!idx_a_found)
-      {
-        if (xid_a != legacy_xid)
-          idx_a++;
-        else
-          idx_a_found = TRUE;
-      }
+    if (legacy_xid == xid_a)
+      return -1;
 
-    if (!idx_b_found)
-      {
-        if (xid_b != legacy_xid)
-          idx_b++;
-        else
-          idx_b_found = TRUE;
-      }
-
-    if (idx_a_found && idx_b_found)
-      break;
+    if (legacy_xid == xid_b)
+      return 1;
   }
 
-  return (idx_a < idx_b) ? -1 : 1;
+  return 0;
 }
 
 static void
@@ -300,11 +281,11 @@ bamf_legacy_screen_inject_window (BamfLegacyScreen *self, guint xid)
         }
     }
 
-  WnckWindow *legacy_window = wnck_window_get(xid);
+  WnckWindow *legacy_window = wnck_window_get (xid);
 
   if (WNCK_IS_WINDOW (legacy_window))
     {
-      handle_window_opened(NULL, legacy_window, self);
+      handle_window_opened (NULL, legacy_window, self);
     }
 }
 
