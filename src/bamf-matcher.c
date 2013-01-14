@@ -48,6 +48,22 @@ typedef enum
 static BamfMatcher *static_matcher;
 static guint matcher_signals[LAST_SIGNAL] = { 0 };
 
+// Prefixes to be ignored in exec strings
+const gchar* EXEC_BAD_PREFIXES[] =
+{
+  "^gksu(do)?$", "^sudo$", "^su-to-root$", "^amdxdg-su$", "^java(ws)?$",
+  "^mono$", "^ruby$", "^padsp$", "^aoss$", "^python(\\d.\\d)?$", "^(ba)?sh$",
+  "^perl$", "^env$", "^xdg-open$",
+  /* javaws strings: */ "^net\\.sourceforge\\.jnlp\\.runtime\\.Boot$", "^rt.jar$"
+};
+
+// Prefixes that must be considered starting point of exec strings
+const gchar* EXEC_GOOD_PREFIXES[] =
+{
+  "^gnome-control-center$", "^libreoffice$", "^ooffice$", "^wine$", "^steam$",
+  "^sol$"
+};
+
 static void
 on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
 {
@@ -211,7 +227,8 @@ emit_paths_changed (gpointer user_data)
   return FALSE;
 }
 
-static void bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *desktop_file, ViewChangeType change_type)
+static void
+bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *desktop_file, ViewChangeType change_type)
 {
   BamfMatcherPrivate *priv;
   BamfApplication *app;
@@ -248,12 +265,6 @@ static void bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *de
 }
 
 static void
-on_view_closed (BamfView *view, BamfMatcher *self)
-{
-  bamf_matcher_unregister_view (self, view);
-}
-
-static void
 bamf_matcher_register_view_stealing_ref (BamfMatcher *self, BamfView *view)
 {
   const char *path, *type;
@@ -264,8 +275,8 @@ bamf_matcher_register_view_stealing_ref (BamfMatcher *self, BamfView *view)
   path = bamf_view_export_on_bus (view, connection);
   type = bamf_view_get_view_type (view);
 
-  g_signal_connect (G_OBJECT (view), "closed-internal",
-                    (GCallback) on_view_closed, self);
+  g_signal_connect_swapped (G_OBJECT (view), "closed-internal",
+                            (GCallback) bamf_matcher_unregister_view, self);
   g_signal_connect (G_OBJECT (view), "active-changed",
                     (GCallback) on_view_active_changed, self);
 
@@ -296,7 +307,7 @@ bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
 
   g_signal_emit_by_name (self, "view-closed", path, type);
 
-  g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_closed, self);
+  g_signal_handlers_disconnect_by_func (G_OBJECT (view), bamf_matcher_unregister_view, self);
   g_signal_handlers_disconnect_by_func (G_OBJECT (view), on_view_active_changed, self);
 
   if (BAMF_IS_APPLICATION (view))
@@ -348,7 +359,7 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
   else if (g_str_has_suffix (name, "LibreOffice Calc"))
     {
       binary = "libreoffice";
-       parameter = "calc";
+      parameter = "calc";
     }
   else if (g_str_has_suffix (name, "LibreOffice Impress"))
     {
@@ -466,60 +477,72 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
   if (!binary)
     return NULL;
 
-  const char *sufix = NULL;
+  GList *l = NULL;
 
-  if (g_strcmp0 (binary, "libreoffice") == 0)
-    sufix = " %U";
-  else if (g_strcmp0 (binary, "ooffice") == 0)
-    sufix = " %F";
-
-  GList *l;
-  if (!parameter)
-    exec = g_strconcat (binary, sufix, NULL);
-  else
-    exec = g_strconcat (binary, " --", parameter, sufix, NULL);
-
-  l = g_hash_table_lookup (self->priv->desktop_file_table, exec);
-  g_free (exec);
-
-  if (!l && parameter)
+  if (parameter)
     {
-      exec = g_strconcat (binary, " -", parameter, sufix, NULL);
-
+      exec = g_strconcat (binary, " --", parameter, NULL);
       l = g_hash_table_lookup (self->priv->desktop_file_table, exec);
       g_free (exec);
+
+      if (!l)
+        {
+          exec = g_strconcat (binary, " -", parameter, NULL);
+          l = g_hash_table_lookup (self->priv->desktop_file_table, exec);
+          g_free (exec);
+
+          if (!l)
+            {
+              exec = g_strconcat (binary, "-", parameter, NULL);
+              l = g_hash_table_lookup (self->priv->desktop_id_table, exec);
+              g_free (exec);
+            }
+        }
+    }
+  else
+    {
+      l = g_hash_table_lookup (self->priv->desktop_file_table, binary);
     }
 
   return (l ? (char *) l->data : NULL);
 }
 
 /* Attempts to return the binary name for a particular execution string */
-static char *
-trim_exec_string (BamfMatcher * self, char * execString)
+char *
+bamf_matcher_get_trimmed_exec (BamfMatcher * self, const char * exec_string)
 {
-  gchar *result = NULL, *exec = NULL, *part = NULL, *tmp = NULL;
+  gchar *result = NULL, *part, *tmp;
   gchar **parts;
-  gint i, j;
-  gboolean regexFail;
-  gboolean goodPrefix = FALSE;
+  gint i, j, parts_size;
+  gboolean bad_prefix;
+  gboolean good_prefix = FALSE;
+  gboolean double_parsed = FALSE;
   GRegex *regex;
 
-  if (!execString || (execString && execString[0] == '\0'))
+  if (!exec_string || exec_string[0] == '\0')
     return NULL;
 
-  exec = g_utf8_casefold (execString, -1);
-  parts = g_strsplit (exec, " ", 0);
+  if (!g_shell_parse_argv (exec_string, &parts_size, &parts, NULL))
+    return g_strdup (exec_string);
 
-  i = 0;
-  while (parts[i] != NULL)
+  for (i = 0; i < parts_size; ++i)
     {
       part = parts[i];
+      if (*part == '%' || g_utf8_strrchr (part, -1, '='))
+        continue;
 
-      if (part[0] != '-')
+      if (*part != '-' || good_prefix)
         {
-          if (goodPrefix)
+          if (!result)
             {
-              gchar *tmp = g_strconcat (result, " ", part, NULL);
+              tmp = g_utf8_strrchr (part, -1, G_DIR_SEPARATOR);
+              if (tmp)
+                part = tmp + 1;
+            }
+
+          if (good_prefix)
+            {
+              tmp = g_strconcat (result, " ", part, NULL);
               g_free (result);
               result = tmp;
             }
@@ -530,110 +553,78 @@ trim_exec_string (BamfMatcher * self, char * execString)
                   regex = g_array_index (self->priv->good_prefixes, GRegex *, j);
                   if (g_regex_match (regex, part, 0, NULL))
                     {
-                      goodPrefix = TRUE;
-                      result = g_strdup (part);
+                      good_prefix = TRUE;
+                      result = g_ascii_strdown (part, -1);
                       break;
                     }
                 }
-            }
 
-          if (!goodPrefix)
-            {
-              tmp = g_utf8_strrchr (part, -1, G_DIR_SEPARATOR);
-              if (tmp)
-                part = tmp + 1;
+              if (good_prefix)
+                continue;
 
-              regexFail = FALSE;
+              bad_prefix = FALSE;
               for (j = 0; j < self->priv->bad_prefixes->len; j++)
                 {
                   regex = g_array_index (self->priv->bad_prefixes, GRegex *, j);
                   if (g_regex_match (regex, part, 0, NULL))
                     {
-                      regexFail = TRUE;
+                      bad_prefix = TRUE;
                       break;
                     }
                 }
 
-              if (!regexFail)
+              if (!bad_prefix)
                 {
-                  result = g_strdup (part);
+                  if (!double_parsed && g_utf8_strrchr (part, -1, ' '))
+                  {
+                    /* If the current exec_string has an empty char,
+                     * we double check it again to parse scripts:
+                     * For example strings like 'sh -c "foo || bar"' */
+                    gchar **old_parts = parts;
+
+                    if (g_shell_parse_argv (part, &parts_size, &parts, NULL))
+                      {
+                        // Make the loop to restart!
+                        g_strfreev (old_parts);
+                        i = -1;
+                        continue;
+                      }
+
+                    double_parsed = TRUE;
+                  }
+
+                  result = g_ascii_strdown (part, -1);
                   break;
                 }
             }
         }
-      else if (goodPrefix)
-        {
-          break;
-        }
-
-      i++;
     }
 
   if (!result)
     {
-      result = g_strdup (execString);
+      if (parts_size > 0)
+        {
+          tmp = g_utf8_strrchr (parts[0], -1, G_DIR_SEPARATOR);
+          if (tmp)
+            exec_string = tmp + 1;
+        }
+
+      result = g_strdup (exec_string);
     }
   else
     {
       tmp = result;
-      
-      regex = g_regex_new ("((\\.|-)bin|\\.py)$", 0, 0, NULL);
+
+      regex = g_regex_new ("(\\.bin|\\.py|\\.pl)$", 0, 0, NULL);
       result = g_regex_replace_literal (regex, result, -1, 0, "", 0, NULL);
-      
+
       g_free (tmp);
       g_regex_unref (regex);
     }
 
-  g_free (exec);
   g_strfreev (parts);
 
   return result;
-}
-
-static GArray *
-bad_prefix_strings (void)
-{
-  GArray *arr = g_array_new (FALSE, TRUE, sizeof (char *));
-
-  char *str = "^gksu(do)?$";
-  g_array_append_val (arr, str);
-
-  str = "^sudo$";
-  g_array_append_val (arr, str);
-
-  str = "^java$";
-  g_array_append_val (arr, str);
-
-  str = "^mono$";
-  g_array_append_val (arr, str);
-
-  str = "^ruby$";
-  g_array_append_val (arr, str);
-
-  str = "^padsp$";
-  g_array_append_val (arr, str);
-
-  str = "^aoss$";
-  g_array_append_val (arr, str);
-
-  str = "^python(\\d.\\d)?$";
-  g_array_append_val (arr, str);
-
-  str = "^(ba)?sh$";
-  g_array_append_val (arr, str);
-
-  return arr;
-}
-
-static GArray *
-good_prefix_strings (void)
-{
-  GArray *arr = g_array_new (FALSE, TRUE, sizeof (char *));
-
-  char *str = "^gnome-control-center$";
-  g_array_append_val (arr, str);
-
-  return arr;
 }
 
 static GArray *
@@ -675,15 +666,6 @@ pid_parent_tree (BamfMatcher *self, gint pid)
       pid = buf.ppid;
     }
   return tree;
-}
-
-static gboolean
-exec_string_should_be_processed (const char *exec)
-{
-  if (!exec)
-    return TRUE;
-
-  return !g_str_has_prefix (exec, "ooffice") && !g_str_has_prefix (exec, "libreoffice");
 }
 
 static gboolean
@@ -850,18 +832,15 @@ load_desktop_file_to_table (BamfMatcher * self,
       return;
     }
 
-  if (exec_string_should_be_processed (exec))
-    {
-      /**
-       * Set of nasty hacks which should be removed some day. We wish to keep the full exec
-       * strings so we can do nasty matching hacks later. A very very evil thing indeed. However this
-       * helps hack around applications that run in the same process cross radically different instances.
-       * A better solution needs to be thought up, however at this time it is not known.
-       **/
-      char *tmp = trim_exec_string (self, exec);
-      g_free (exec);
-      exec = tmp;
-    }
+  /**
+   * Set of nasty hacks which should be removed some day. We wish to keep the full exec
+   * strings so we can do nasty matching hacks later. A very very evil thing indeed. However this
+   * helps hack around applications that run in the same process cross radically different instances.
+   * A better solution needs to be thought up, however at this time it is not known.
+   **/
+  char *tmp = bamf_matcher_get_trimmed_exec (self, exec);
+  g_free (exec);
+  exec = tmp;
 
   path = g_path_get_basename (file);
   desktop_id = g_string_new (path);
@@ -958,15 +937,11 @@ load_index_file_to_table (BamfMatcher * self,
       GString *desktop_id;
 
       gchar **parts = g_strsplit (line, "\t", 3);
-      exec = parts[1];
 
-      if (exec_string_should_be_processed (exec))
-        {
-          char *tmp = trim_exec_string (self, exec);
-          g_free (parts[1]);
-          parts[1] = tmp;
-          exec = parts[1];
-        }
+      char *tmp = bamf_matcher_get_trimmed_exec (self, parts[1]);
+      g_free (parts[1]);
+      parts[1] = tmp;
+      exec = parts[1];
 
       filename = g_build_filename (directory, parts[0], NULL);
 
@@ -1172,7 +1147,7 @@ hash_table_remove_sub_values (GHashTable *htable, GCompareFunc compare_func,
                   free_func (l->data);
 
                 /* If the target is the first element of the list (and thanks to
--                * the previous check we're also sure that it's not the only one),
+                 * the previous check we're also sure that it's not the only one),
                  * simply switch it with its follower, not to change the first
                  * pointer and the hash table value for key
                  */
@@ -1301,15 +1276,25 @@ on_monitor_changed (GFileMonitor *monitor, GFile *file, GFile *other_file, GFile
 }
 
 static void
-bamf_add_new_monitored_directory (BamfMatcher * self, const gchar *directory)
+bamf_matcher_add_new_monitored_directory (BamfMatcher * self, const gchar *directory)
 {
   g_return_if_fail (BAMF_IS_MATCHER (self));
 
   GFile *file;
   GFileMonitor *monitor;
+  GError *error = NULL;
 
   file = g_file_new_for_path (directory);
-  monitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE, NULL, NULL);
+  monitor = g_file_monitor_directory (file, G_FILE_MONITOR_NONE, NULL, &error);
+
+  if (error)
+    {
+      g_warning ("Error monitoring %s: %s\n", directory, error->message);
+      g_error_free (error);
+      g_object_unref (file);
+      return;
+    }
+
   g_file_monitor_set_rate_limit (monitor, 1000);
   g_object_set_data_full (G_OBJECT (monitor), "root", g_strdup (directory), g_free);
   g_signal_connect (monitor, "changed", (GCallback) on_monitor_changed, self);
@@ -1338,7 +1323,7 @@ fill_desktop_file_table (BamfMatcher * self,
       if (!g_file_test (directory, G_FILE_TEST_IS_DIR))
         continue;
 
-      bamf_add_new_monitored_directory (self, directory);
+      bamf_matcher_add_new_monitored_directory (self, directory);
 
       bamf_file = g_build_filename (directory, "bamf.index", NULL);
 
@@ -1492,8 +1477,7 @@ bamf_matcher_possible_applications_for_pid (BamfMatcher *self,
   
   if (exec_string)
     {
-      trimmed = trim_exec_string (self, exec_string);
-      
+      trimmed = bamf_matcher_get_trimmed_exec (self, exec_string);
       if (trimmed)
         {
           if (trimmed[0] != '\0')
@@ -1882,6 +1866,7 @@ bamf_matcher_get_application_for_window (BamfMatcher *self,
       /* secondary matching */
       GList *a;
       BamfView *view;
+
       const gchar *app_desktop_class;
 
       for (a = self->priv->views; a; a = a->next)
@@ -1892,10 +1877,41 @@ bamf_matcher_get_application_for_window (BamfMatcher *self,
             continue;
 
           app = BAMF_APPLICATION (view);
-          app_desktop_class = bamf_application_get_wmclass (app);
 
           if (bamf_application_contains_similar_to_window (app, bamf_window))
             {
+              char *exec_string = bamf_legacy_window_get_exec_string (window);
+              char *trimmed_exec = bamf_matcher_get_trimmed_exec (self, exec_string);
+              g_free (exec_string);
+
+              GList *ll;
+              gboolean found_exec = FALSE;
+              for (ll = bamf_view_get_children (BAMF_VIEW (app)); ll && !found_exec; ll = ll->next)
+                {
+                  if (!BAMF_IS_WINDOW (ll->data))
+                    continue;
+
+                  BamfLegacyWindow *w = bamf_window_get_window (BAMF_WINDOW (ll->data));
+                  char *wexec = bamf_legacy_window_get_exec_string (w);
+                  char *wtrimmed = bamf_matcher_get_trimmed_exec (self, wexec);
+                  g_free (wexec);
+
+                  if (g_strcmp0 (trimmed_exec, wtrimmed) == 0)
+                    {
+                      best = BAMF_APPLICATION (view);
+                      found_exec = TRUE;
+                    }
+
+                  g_free (wtrimmed);
+                }
+
+              g_free (trimmed_exec);
+
+              if (!found_exec)
+                continue;
+
+              app_desktop_class = bamf_application_get_wmclass (app);
+
               if (target_class && g_strcmp0 (target_class, app_desktop_class) == 0)
                 {
                   best = app;
@@ -2068,26 +2084,26 @@ static char *
 get_gnome_control_center_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
 {
   gchar *role;
-  gchar *exec;
-  GHashTable *desktopFileTable;
   GList *list;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
 
+  list = NULL;
   role = bamf_legacy_window_get_hint (window, WM_WINDOW_ROLE);
-  exec = g_strconcat ("gnome-control-center", (role ? " " : NULL), role, NULL);
 
-  desktopFileTable = self->priv->desktop_file_table;
-  list = g_hash_table_lookup (desktopFileTable, exec);
-
-  if (!list && g_strcmp0 ("gnome-control-center", exec) != 0)
+  if (role)
     {
-      list = g_hash_table_lookup (desktopFileTable, "gnome-control-center");
+      gchar *exec = g_strconcat ("gnome-control-center ", role, NULL);
+      list = g_hash_table_lookup (self->priv->desktop_file_table, exec);
+      g_free (exec);
+      g_free (role);
     }
 
-  g_free (exec);
-  g_free (role);
+  if (!role || !list)
+    {
+      list = g_hash_table_lookup (self->priv->desktop_id_table, "gnome-control-center");
+    }
 
   return (list ? (char *) list->data : NULL);
 }
@@ -2125,7 +2141,8 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
 
-  if (bamf_legacy_window_get_window_type (window) == BAMF_WINDOW_DESKTOP)
+  BamfWindowType win_type = bamf_legacy_window_get_window_type (window);
+  if (win_type == BAMF_WINDOW_DESKTOP)
     {
       BamfWindow *bamfwindow = bamf_window_new (window);
       bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamfwindow));
@@ -2135,8 +2152,6 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
 
   if (is_open_office_window (self, window))
     {
-      BamfWindowType win_type = bamf_legacy_window_get_window_type (window);
-
       if (win_type == BAMF_WINDOW_SPLASHSCREEN || win_type == BAMF_WINDOW_TOOLBAR)
         {
           return;
@@ -2895,34 +2910,29 @@ bamf_matcher_init (BamfMatcher * self)
   BamfMatcherPrivate *priv;
   BamfLegacyScreen *screen;
   BamfIndicatorSource *approver;
-  GArray *prefixstrings;
   int i;
 
   priv = self->priv = BAMF_MATCHER_GET_PRIVATE (self);
 
   priv->known_pids = g_array_new (FALSE, TRUE, sizeof (gint));
-  priv->bad_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex *));
-  priv->good_prefixes = g_array_new (FALSE, TRUE, sizeof (GRegex *));
+  priv->bad_prefixes = g_array_sized_new (FALSE, TRUE, sizeof (GRegex *),
+                                          G_N_ELEMENTS (EXEC_BAD_PREFIXES));
+  priv->good_prefixes = g_array_sized_new (FALSE, TRUE, sizeof (GRegex *),
+                                           G_N_ELEMENTS (EXEC_GOOD_PREFIXES));
   priv->registered_pids = g_hash_table_new_full (g_direct_hash, g_direct_equal,
                                                  NULL, g_free);
 
-  prefixstrings = bad_prefix_strings ();
-  for (i = 0; i < prefixstrings->len; i++)
+  for (i = 0; i < G_N_ELEMENTS (EXEC_BAD_PREFIXES); ++i)
     {
-      char *str = g_array_index (prefixstrings, char *, i);
-      GRegex *regex = g_regex_new (str, G_REGEX_OPTIMIZE, 0, NULL);
+      GRegex *regex = g_regex_new (EXEC_BAD_PREFIXES[i], G_REGEX_OPTIMIZE, 0, NULL);
       g_array_append_val (priv->bad_prefixes, regex);
     }
-  g_array_free (prefixstrings, TRUE);
 
-  prefixstrings = good_prefix_strings ();
-  for (i = 0; i < prefixstrings->len; i++)
+  for (i = 0; i < G_N_ELEMENTS (EXEC_GOOD_PREFIXES); ++i)
     {
-      char *str = g_array_index (prefixstrings, char *, i);
-      GRegex *regex = g_regex_new (str, G_REGEX_OPTIMIZE, 0, NULL);
+      GRegex *regex = g_regex_new (EXEC_GOOD_PREFIXES[i], G_REGEX_OPTIMIZE, 0, NULL);
       g_array_append_val (priv->good_prefixes, regex);
     }
-  g_array_free (prefixstrings, TRUE);
 
   create_desktop_file_table (self, &(priv->desktop_file_table),
                              &(priv->desktop_id_table),
@@ -3046,6 +3056,7 @@ bamf_matcher_finalize (GObject *object)
       g_signal_handlers_disconnect_by_func (G_OBJECT (l->data), 
                                             (GCallback) on_monitor_changed, self);
     }
+
   g_list_free_full (priv->monitors, g_object_unref);
   priv->monitors = NULL;
 

@@ -1,3 +1,11 @@
+bamf (0.2.126-0ubuntu1~test2) precise; urgency=low
+
+  * New upstream release.
+    - BamfMatcher: Don't associate .desktopless applications with 
+      different exec string, fix JavaWS apps. (LP: #1098186)
+
+ -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Mon, 14 Jan 2013 09:15:30 +0200
+
 bamf (0.2.124.2-0ubuntu1) precise-proposed; urgency=low
 
   * New upstream release.

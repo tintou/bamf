@@ -21,7 +21,7 @@ bamf_application_get_type
 
 <SECTION>
 <FILE>bamf-application-private</FILE>
-
+bamf_application_get_cached_xids
 </SECTION>
 
 <SECTION>
@@ -51,6 +51,11 @@ bamf_control_get_type
 BamfFactory
 BamfFactoryClass
 BamfFactoryViewType
+bamf_factory_app_for_file
+bamf_factory_get_default
+bamf_factory_view_for_path
+bamf_factory_view_for_path_type
+bamf_factory_view_for_path_type_str
 <SUBSECTION Standard>
 BAMF_FACTORY
 BAMF_FACTORY_CLASS
@@ -188,7 +193,12 @@ bamf_view_get_type
 
 <SECTION>
 <FILE>bamf-view-private</FILE>
-
+bamf_view_get_path
+bamf_view_remote_ready
+bamf_view_reset_flags
+bamf_view_set_icon
+bamf_view_set_name
+bamf_view_set_path
 </SECTION>
 
 <SECTION>
