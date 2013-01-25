@@ -1,4 +1,4 @@
-bamf (0.3.6-0ubuntu1) UNRELEASED; urgency=low
+bamf (0.3.6-0ubuntu1) quantal-proposed; urgency=low
 
   * New upstream release.
     - BamfMatcher: Don't associate .desktopless applications with different
