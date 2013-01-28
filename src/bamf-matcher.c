@@ -1485,7 +1485,7 @@ bamf_matcher_possible_applications_for_window_process (BamfMatcher *self, BamfLe
 }
 
 static gboolean
-is_web_app_window (BamfMatcher *self, BamfLegacyWindow *window)
+is_web_app_window (BamfLegacyWindow *window)
 {
   const char *window_class = bamf_legacy_window_get_class_name (window);
   const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
@@ -1520,12 +1520,24 @@ is_web_app_window (BamfMatcher *self, BamfLegacyWindow *window)
 }
 
 static gboolean
+is_javaws_window (BamfLegacyWindow *window)
+{
+  const char *window_class = bamf_legacy_window_get_class_name (window);
+  // const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
+
+  if (g_strcmp0 (window_class, "net-sourceforge-jnlp-runtime-Boot") == 0)
+    return TRUE;
+
+  return FALSE;
+}
+
+static gboolean
 bamf_matcher_window_skips_hint_set (BamfMatcher *self, BamfLegacyWindow *window)
 {
   gboolean skip_hint_set = FALSE;
   g_return_val_if_fail (BAMF_IS_MATCHER (self), TRUE);
 
-  skip_hint_set = is_web_app_window (self, window);
+  skip_hint_set = is_web_app_window (window) || is_javaws_window (window);
 
   return skip_hint_set;
 }
@@ -1607,7 +1619,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
   if (!filter_by_wmclass)
   {
-    if (is_web_app_window (self, window))
+    if (is_web_app_window (window))
       {
         // This ensures that a new application is created even for unknown webapps
         filter_by_wmclass = TRUE;
