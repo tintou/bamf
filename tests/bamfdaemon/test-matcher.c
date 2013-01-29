@@ -581,8 +581,8 @@ test_match_javaws_windows (void)
                             "-Dicedtea-web.bin.name=javaws " \
                             "-Dicedtea-web.bin.location=/usr/bin/javaws "\
                             "net.sourceforge.jnlp.runtime.Boot";
-  const char *class_name = "sun-awt-X11-XFramePeer";
-  const char *class_instance = "net-sourceforge-jnlp-runtime-Boot";
+  const char *class_name = "net-sourceforge-jnlp-runtime-Boot";
+  const char *class_instance = "sun-awt-X11-XFramePeer";
 
   cleanup_matcher_tables (matcher);
   export_matcher_on_bus (matcher);
@@ -646,8 +646,8 @@ test_match_javaws_windows_hint_ignored (void)
                             "-Dicedtea-web.bin.name=javaws " \
                             "-Dicedtea-web.bin.location=/usr/bin/javaws "\
                             "net.sourceforge.jnlp.runtime.Boot ";
-  const char *class_name = "sun-awt-X11-XFramePeer";
-  const char *class_instance = "net-sourceforge-jnlp-runtime-Boot";
+  const char *class_name = "net-sourceforge-jnlp-runtime-Boot";
+  const char *class_instance = "sun-awt-X11-XFramePeer";
 
   cleanup_matcher_tables (matcher);
   export_matcher_on_bus (matcher);
