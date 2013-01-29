@@ -1523,7 +1523,6 @@ static gboolean
 is_javaws_window (BamfLegacyWindow *window)
 {
   const char *window_class = bamf_legacy_window_get_class_name (window);
-  // const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
 
   if (g_strcmp0 (window_class, "net-sourceforge-jnlp-runtime-Boot") == 0)
     return TRUE;
