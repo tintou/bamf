@@ -784,5 +784,18 @@ test_trim_exec_string (void)
   g_assert_cmpstr (trimmed, ==, "notepad.jnlp");
   g_free (trimmed);
 
+  exec = "/usr/lib/jvm/java-7-oracle/jre/bin/java " \
+         "-classpath /usr/lib/jvm/java-7-oracle/jre/lib/deploy.jar " \
+         "-Djava.security.policy=file:/usr/lib/jvm/java-7-oracle/jre/lib/security/javaws.policy" \
+         "-DtrustProxy=true -Xverify:remote" \
+         "-Djnlpx.home=/usr/lib/jvm/java-7-oracle/jre/bin" \
+         "-Djnlpx.remove=true -Dsun.awt.warmup=true" \
+         "-Xbootclasspath/a:/usr/lib/jvm/java-7-oracle/jre/lib/javaws.jar:/usr/lib/jvm/java-7-oracle/jre/lib/deploy.jar:/usr/lib/jvm/java-7-oracle/jre/lib/plugin.jar" \
+         "-Xms12m -Xmx384m -Djnlpx.jvm=/usr/lib/jvm/java-7-oracle/jre/bin/java" \
+         "com.sun.javaws.Main Notepad.jnlp";
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, exec);
+  g_assert_cmpstr (trimmed, ==, "notepad.jnlp");
+  g_free (trimmed);
+
   g_object_unref (matcher);
 }
