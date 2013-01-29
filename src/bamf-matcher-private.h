@@ -50,5 +50,6 @@ struct _BamfMatcherPrivate
 BamfApplication * bamf_matcher_get_application_by_desktop_file (BamfMatcher *self, const char *desktop_file);
 BamfApplication * bamf_matcher_get_application_by_xid (BamfMatcher *self, guint xid);
 char * bamf_matcher_get_trimmed_exec (BamfMatcher *self, const char *exec);
+gboolean bamf_matcher_is_valid_process_prefix (BamfMatcher *self, const char *exec);
 
 #endif
