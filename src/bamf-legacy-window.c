@@ -184,9 +184,11 @@ bamf_legacy_window_get_process_name (BamfLegacyWindow *self)
       if (lines && g_strv_length (lines) > 0)
         {
           sections = g_strsplit (lines[0], "\t", 0);
-          if (sections && g_strv_length (sections) > 1)
+          if (sections)
             {
-              result = g_strdup (sections[1]);
+              if (g_strv_length (sections) > 1)
+                result = g_strdup (sections[1]);
+
               g_strfreev (sections);
             }
           g_strfreev (lines);
