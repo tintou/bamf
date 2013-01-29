@@ -35,6 +35,7 @@ static void test_match_libreoffice_windows (void);
 static void test_match_gnome_control_center_panels (void);
 static void test_match_javaws_windows (void);
 static void test_match_javaws_windows_hint_ignored (void);
+static void test_match_javaws_windows_no_desktop_match (void);
 static void test_new_desktop_matches_unmatched_windows (void);
 static void test_trim_exec_string (void);
 
@@ -57,7 +58,8 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Matching/Application/LibreOffice", test_match_libreoffice_windows);
   g_test_add_func (DOMAIN"/Matching/Application/GnomeControlCenter", test_match_gnome_control_center_panels);
   g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart", test_match_javaws_windows);
-  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStartHintIngored", test_match_javaws_windows_hint_ignored);
+  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart/HintIngored", test_match_javaws_windows_hint_ignored);
+  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart/NoDesktopMatch", test_match_javaws_windows_no_desktop_match);
   g_test_add_func (DOMAIN"/Matching/Windows/UnmatchedOnNewDesktop", test_new_desktop_matches_unmatched_windows);
   g_test_add_func (DOMAIN"/ExecStringTrimming", test_trim_exec_string);
 }
@@ -633,6 +635,7 @@ test_match_javaws_windows_hint_ignored (void)
   BamfMatcher *matcher;
   BamfLegacyScreen *screen;
   BamfLegacyWindowTest *test_win;
+  BamfApplication *app;
 
   screen = bamf_legacy_screen_get_default ();
   matcher = bamf_matcher_get_default ();
@@ -663,6 +666,51 @@ test_match_javaws_windows_hint_ignored (void)
 
   char *hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
   g_assert (hint == NULL);
+
+  app = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert (BAMF_IS_APPLICATION (app));
+  g_assert (bamf_application_get_desktop_file (app) == NULL);
+
+  g_object_unref (matcher);
+  g_object_unref (screen);
+}
+
+static void
+test_match_javaws_windows_no_desktop_match (void)
+{
+  BamfMatcher *matcher;
+  BamfLegacyScreen *screen;
+  BamfLegacyWindowTest *test_win;
+  BamfApplication *app;
+
+  screen = bamf_legacy_screen_get_default ();
+  matcher = bamf_matcher_get_default ();
+  const char *exec_prefix = "/usr/lib/jvm/java-6-openjdk-amd64/jre/bin/javaws " \
+                            "-Xbootclasspath/a:/usr/share/icedtea-web/netx.jar " \
+                            "-Xms8m -Djava.security.manager " \
+                            "-Djava.security.policy=/etc/icedtea-web/javaws.policy " \
+                            "-classpath /usr/lib/jvm/java-6-openjdk-amd64/jre/lib/rt.jar " \
+                            "-Dicedtea-web.bin.name=javaws " \
+                            "-Dicedtea-web.bin.location=/usr/bin/javaws "\
+                            "net.sourceforge.jnlp.runtime.Boot ";
+  const char *class_name = "net-sourceforge-jnlp-runtime-Boot";
+  const char *class_instance = "sun-awt-X11-XFramePeer";
+
+  cleanup_matcher_tables (matcher);
+  export_matcher_on_bus (matcher);
+
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/icedtea-netx-javaws.desktop");
+
+  guint xid = g_random_int ();
+  char *exec = g_strconcat (exec_prefix, "Notepad.jnlp", NULL);
+  test_win = bamf_legacy_window_test_new (xid, "Notepad", NULL, exec);
+  bamf_legacy_window_test_set_wmclass (test_win, class_name, class_instance);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+  g_free (exec);
+
+  app = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert (BAMF_IS_APPLICATION (app));
+  g_assert (bamf_application_get_desktop_file (app) == NULL);
 
   g_object_unref (matcher);
   g_object_unref (screen);
@@ -731,6 +779,19 @@ test_trim_exec_string (void)
                      "-Dicedtea-web.bin.name=javaws " \
                      "-Dicedtea-web.bin.location=/usr/bin/javaws "\
                      "net.sourceforge.jnlp.runtime.Boot Notepad.jnlp";
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, exec);
+  g_assert_cmpstr (trimmed, ==, "notepad.jnlp");
+  g_free (trimmed);
+
+  exec = "/usr/lib/jvm/java-7-oracle/jre/bin/java " \
+         "-classpath /usr/lib/jvm/java-7-oracle/jre/lib/deploy.jar " \
+         "-Djava.security.policy=file:/usr/lib/jvm/java-7-oracle/jre/lib/security/javaws.policy " \
+         "-DtrustProxy=true -Xverify:remote " \
+         "-Djnlpx.home=/usr/lib/jvm/java-7-oracle/jre/bin " \
+         "-Djnlpx.remove=true -Dsun.awt.warmup=true " \
+         "-Xbootclasspath/a:/usr/lib/jvm/java-7-oracle/jre/lib/javaws.jar:/usr/lib/jvm/java-7-oracle/jre/lib/deploy.jar:/usr/lib/jvm/java-7-oracle/jre/lib/plugin.jar " \
+         "-Xms12m -Xmx384m -Djnlpx.jvm=/usr/lib/jvm/java-7-oracle/jre/bin/java " \
+         "com.sun.javaws.Main Notepad.jnlp";
   trimmed = bamf_matcher_get_trimmed_exec (matcher, exec);
   g_assert_cmpstr (trimmed, ==, "notepad.jnlp");
   g_free (trimmed);
