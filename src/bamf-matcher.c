@@ -1570,7 +1570,7 @@ is_javaws_window (BamfLegacyWindow *window)
 static gboolean
 bamf_matcher_window_skips_hint_set (BamfMatcher *self, BamfLegacyWindow *window)
 {
-  gboolean skip_hint_set = FALSE;
+  gboolean skip_hint_set;
   g_return_val_if_fail (BAMF_IS_MATCHER (self), TRUE);
 
   skip_hint_set = is_web_app_window (window) || is_javaws_window (window);
