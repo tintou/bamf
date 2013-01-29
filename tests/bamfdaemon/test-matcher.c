@@ -34,6 +34,7 @@ static void test_match_desktop_application (void);
 static void test_match_libreoffice_windows (void);
 static void test_match_gnome_control_center_panels (void);
 static void test_match_javaws_windows (void);
+static void test_match_javaws_windows_hint_ignored (void);
 static void test_new_desktop_matches_unmatched_windows (void);
 static void test_trim_exec_string (void);
 
@@ -56,6 +57,7 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Matching/Application/LibreOffice", test_match_libreoffice_windows);
   g_test_add_func (DOMAIN"/Matching/Application/GnomeControlCenter", test_match_gnome_control_center_panels);
   g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart", test_match_javaws_windows);
+  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStartHintIngored", test_match_javaws_windows_hint_ignored);
   g_test_add_func (DOMAIN"/Matching/Windows/UnmatchedOnNewDesktop", test_new_desktop_matches_unmatched_windows);
   g_test_add_func (DOMAIN"/ExecStringTrimming", test_trim_exec_string);
 }
@@ -569,7 +571,7 @@ test_match_javaws_windows (void)
 
   screen = bamf_legacy_screen_get_default ();
   matcher = bamf_matcher_get_default ();
-  const char *exec_prefix = "/usr/lib/jvm/java-6-openjdk-amd64/jre/bin/java " \
+  const char *exec_prefix = "/usr/lib/jvm/java-6-openjdk-amd64/jre/bin/javaws " \
                             "-Xbootclasspath/a:/usr/share/icedtea-web/netx.jar " \
                             "-Xms8m -Djava.security.manager " \
                             "-Djava.security.policy=/etc/icedtea-web/javaws.policy " \
@@ -620,6 +622,47 @@ test_match_javaws_windows (void)
   app_children = bamf_view_get_children (BAMF_VIEW (app3));
   g_assert_cmpuint (g_list_length (app_children), ==, 2);
   g_assert (find_window_in_app (app3, BAMF_LEGACY_WINDOW (test_win)));
+
+  g_object_unref (matcher);
+  g_object_unref (screen);
+}
+
+static void
+test_match_javaws_windows_hint_ignored (void)
+{
+  BamfMatcher *matcher;
+  BamfLegacyScreen *screen;
+  BamfLegacyWindowTest *test_win;
+
+  screen = bamf_legacy_screen_get_default ();
+  matcher = bamf_matcher_get_default ();
+  const char *exec_prefix = "/usr/lib/jvm/java-6-openjdk-amd64/jre/bin/javaws " \
+                            "-Xbootclasspath/a:/usr/share/icedtea-web/netx.jar " \
+                            "-Xms8m -Djava.security.manager " \
+                            "-Djava.security.policy=/etc/icedtea-web/javaws.policy " \
+                            "-classpath /usr/lib/jvm/java-6-openjdk-amd64/jre/lib/rt.jar " \
+                            "-Dicedtea-web.bin.name=javaws " \
+                            "-Dicedtea-web.bin.location=/usr/bin/javaws "\
+                            "net.sourceforge.jnlp.runtime.Boot ";
+  const char *class_name = "sun-awt-X11-XFramePeer";
+  const char *class_instance = "net-sourceforge-jnlp-runtime-Boot";
+
+  cleanup_matcher_tables (matcher);
+  export_matcher_on_bus (matcher);
+
+  guint xid = g_random_int ();
+  guint pid = g_random_int ();
+  char *exec = g_strconcat (exec_prefix, "Notepad.jnlp", NULL);
+  test_win = bamf_legacy_window_test_new (xid, "Notepad", NULL, exec);
+  bamf_legacy_window_test_set_wmclass (test_win, class_name, class_instance);
+  test_win->pid = pid;
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+  g_free (exec);
+
+  bamf_matcher_register_desktop_file_for_pid (matcher, DATA_DIR"/icedtea-netx-javaws.desktop", pid);
+
+  char *hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  g_assert (hint == NULL);
 
   g_object_unref (matcher);
   g_object_unref (screen);
