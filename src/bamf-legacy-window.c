@@ -156,6 +156,49 @@ bamf_legacy_window_get_name (BamfLegacyWindow *self)
 }
 
 char *
+bamf_legacy_window_get_process_name (BamfLegacyWindow *self)
+{
+  gchar *stat_path;
+  gchar *contents;
+  gchar **lines;
+  gchar **sections;
+  gchar *result = NULL;
+  guint pid;
+
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_process_name)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_process_name (self);
+
+  pid = bamf_legacy_window_get_pid (self);
+
+  if (pid <= 0)
+    return NULL;
+
+  stat_path = g_strdup_printf ("/proc/%i/status", pid);
+
+  if (g_file_get_contents (stat_path, &contents, NULL, NULL))
+    {
+      lines = g_strsplit (contents, "\n", 2);
+
+      if (lines && g_strv_length (lines) > 0)
+        {
+          sections = g_strsplit (lines[0], "\t", 0);
+          if (sections && g_strv_length (sections) > 1)
+            {
+              result = g_strdup (sections[1]);
+              g_strfreev (sections);
+            }
+          g_strfreev (lines);
+        }
+      g_free (contents);
+    }
+  g_free (stat_path);
+
+  return result;
+}
+
+char *
 bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
 {
   gchar *result = NULL;
@@ -192,6 +235,8 @@ bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
   g_string_free (exec, TRUE);
   return result;
 }
+
+
 
 const char *
 bamf_legacy_window_save_mini_icon (BamfLegacyWindow *self)
