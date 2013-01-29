@@ -1304,7 +1304,7 @@ bamf_matcher_add_new_monitored_directory (BamfMatcher * self, const gchar *direc
 
   if (error)
     {
-      g_warning ("Error monitoring %s: %s\n", directory, error->message);
+      g_message ("Error monitoring %s: %s\n", directory, error->message);
       g_error_free (error);
       g_object_unref (file);
       return;
