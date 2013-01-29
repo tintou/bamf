@@ -75,6 +75,7 @@ struct _BamfLegacyWindowClass
   const char * (*get_class_name)          (BamfLegacyWindow *legacy_window);
   const char * (*get_class_instance_name) (BamfLegacyWindow *legacy_window);
   char       * (*get_exec_string)         (BamfLegacyWindow *legacy_window);
+  char       * (*get_process_name)        (BamfLegacyWindow *legacy_window);
   char       * (*get_app_id)              (BamfLegacyWindow *legacy_window);
   char       * (*get_unique_bus_name)     (BamfLegacyWindow *legacy_window);
   char       * (*get_menu_object_path)    (BamfLegacyWindow *legacy_window);
@@ -143,6 +144,8 @@ const char       * bamf_legacy_window_save_mini_icon       (BamfLegacyWindow *se
 
 char             * bamf_legacy_window_get_exec_string      (BamfLegacyWindow *self);
 
+char             * bamf_legacy_window_get_process_name     (BamfLegacyWindow *self);
+
 BamfLegacyWindow * bamf_legacy_window_get_transient        (BamfLegacyWindow *self);
 
 char             * bamf_legacy_window_get_hint             (BamfLegacyWindow *self,
@@ -159,3 +162,4 @@ void               bamf_legacy_window_reopen               (BamfLegacyWindow *se
 BamfLegacyWindow * bamf_legacy_window_new                  (WnckWindow *legacy_window);
 
 #endif
+
