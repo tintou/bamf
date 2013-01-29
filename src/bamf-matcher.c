@@ -57,7 +57,8 @@ const gchar* EXEC_BAD_PREFIXES[] =
   "^gksu(do)?$", "^sudo$", "^su-to-root$", "^amdxdg-su$", "^java(ws)?$",
   "^mono$", "^ruby$", "^padsp$", "^aoss$", "^python(\\d.\\d)?$", "^(ba)?sh$",
   "^perl$", "^env$", "^xdg-open$",
-  /* javaws strings: */ "^net\\.sourceforge\\.jnlp\\.runtime\\.Boot$", "^rt.jar$"
+  /* javaws strings: */ "^net\\.sourceforge\\.jnlp\\.runtime\\.Boot$", "^rt\\.jar$",
+                        "^com\\.sun\\.javaws\\.Main$", "^deploy\\.jar$"
 };
 
 // Prefixes that must be considered starting point of exec strings
@@ -1524,8 +1525,11 @@ is_javaws_window (BamfLegacyWindow *window)
 {
   const char *window_class = bamf_legacy_window_get_class_name (window);
 
-  if (g_strcmp0 (window_class, "net-sourceforge-jnlp-runtime-Boot") == 0)
-    return TRUE;
+  if (g_strcmp0 (window_class, "net-sourceforge-jnlp-runtime-Boot") == 0 ||
+      g_strcmp0 (window_class, "com-sun-javaws-Main") == 0)
+    {
+      return TRUE;
+    }
 
   return FALSE;
 }
