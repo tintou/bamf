@@ -202,6 +202,16 @@ bamf_legacy_window_test_get_exec_string (BamfLegacyWindow *legacy_window)
 }
 
 char *
+bamf_legacy_window_test_get_process_name (BamfLegacyWindow *legacy_window)
+{
+  BamfLegacyWindowTest *self;
+
+  self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
+
+  return g_strdup (self->process_name);
+}
+
+char *
 bamf_legacy_window_test_get_app_id (BamfLegacyWindow *legacy_window)
 {
   BamfLegacyWindowTest *self;
@@ -379,6 +389,7 @@ bamf_legacy_window_test_finalize (GObject *object)
   g_free (self->wm_class_name);
   g_free (self->wm_class_instance);
   g_free (self->exec);
+  g_free (self->process_name);
   g_free (self->application_id);
   g_free (self->unique_bus_name);
   g_free (self->dbus_menu_object_path);
@@ -399,6 +410,7 @@ bamf_legacy_window_test_class_init (BamfLegacyWindowTestClass *klass)
   win_class->get_class_name   = bamf_legacy_window_test_get_class_name;
   win_class->get_class_instance_name = bamf_legacy_window_test_get_class_instance_name;
   win_class->get_exec_string  = bamf_legacy_window_test_get_exec_string;
+  win_class->get_process_name = bamf_legacy_window_test_get_process_name;
   win_class->get_xid          = bamf_legacy_window_test_get_xid;
   win_class->get_pid          = bamf_legacy_window_test_get_pid;
   win_class->needs_attention  = bamf_legacy_window_test_needs_attention;
@@ -440,6 +452,7 @@ bamf_legacy_window_copy (BamfLegacyWindowTest *self)
   copy->wm_class_name = g_strdup (self->wm_class_name);
   copy->wm_class_instance = g_strdup (self->wm_class_instance);
   copy->exec = g_strdup (self->exec);
+  copy->process_name = g_strdup (self->process_name);
   copy->application_id = g_strdup (self->application_id);
   copy->unique_bus_name = g_strdup (self->unique_bus_name);
   copy->dbus_menu_object_path = g_strdup (self->dbus_menu_object_path);
@@ -468,6 +481,14 @@ bamf_legacy_window_test_new (guint32 xid, const gchar *name, const gchar *wmclas
   self->name = g_strdup (name);
   self->wm_class_name = g_strdup (wmclass_name);
   self->exec = g_strdup (exec);
+
+  if (self->exec)
+    {
+      gchar **splitted_exec = g_strsplit (exec, " ", 2);
+      gchar *tmp = g_utf8_strrchr (splitted_exec[0], -1, G_DIR_SEPARATOR);
+      self->process_name = g_strdup (tmp ? tmp + 1 : splitted_exec[0]);
+      g_strfreev (splitted_exec);
+    }
 
   return self;
 }
