@@ -510,6 +510,30 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
   return (l ? (char *) l->data : NULL);
 }
 
+gboolean
+bamf_matcher_is_valid_process_prefix (BamfMatcher *self, const char *process_name)
+{
+  GRegex *regex;
+  gint i;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), TRUE);
+
+  if (!process_name || *process_name == '\0')
+    return FALSE;
+
+  for (i = 0; i < self->priv->bad_prefixes->len; ++i)
+    {
+      regex = g_array_index (self->priv->bad_prefixes, GRegex *, i);
+
+      if (g_regex_match (regex, process_name, 0, NULL))
+        {
+          return FALSE;
+        }
+    }
+
+  return TRUE;
+}
+
 /* Attempts to return the binary name for a particular execution string */
 char *
 bamf_matcher_get_trimmed_exec (BamfMatcher * self, const char * exec_string)
@@ -565,16 +589,7 @@ bamf_matcher_get_trimmed_exec (BamfMatcher * self, const char * exec_string)
               if (good_prefix)
                 continue;
 
-              bad_prefix = FALSE;
-              for (j = 0; j < self->priv->bad_prefixes->len; j++)
-                {
-                  regex = g_array_index (self->priv->bad_prefixes, GRegex *, j);
-                  if (g_regex_match (regex, part, 0, NULL))
-                    {
-                      bad_prefix = TRUE;
-                      break;
-                    }
-                }
+              bad_prefix = !bamf_matcher_is_valid_process_prefix (self, part);
 
               if (!bad_prefix)
                 {
@@ -1392,41 +1407,6 @@ is_open_office_window (BamfMatcher * self, BamfLegacyWindow * window)
           g_str_has_prefix (class_name, "openoffice"));
 }
 
-static char *
-get_process_name (gint pid)
-{
-  char *stat_path;
-  char *contents;
-  char **lines;
-  char **sections;
-  char *result = NULL;
-
-  if (pid <= 0)
-    return NULL;
-
-  stat_path = g_strdup_printf ("/proc/%i/status", pid);
-
-  if (g_file_get_contents (stat_path, &contents, NULL, NULL))
-    {
-      lines = g_strsplit (contents, "\n", 2);
-
-      if (lines && g_strv_length (lines) > 0)
-        {
-          sections = g_strsplit (lines[0], "\t", 0);
-          if (sections && g_strv_length (sections) > 1)
-            {
-              result = g_strdup (sections[1]);
-              g_strfreev (sections);
-            }
-          g_strfreev (lines);
-        }
-      g_free (contents);
-    }
-  g_free (stat_path);
-
-  return result;
-}
-
 static GList *
 bamf_matcher_possible_applications_for_window_process (BamfMatcher *self, BamfLegacyWindow *window)
 {
@@ -1467,10 +1447,9 @@ bamf_matcher_possible_applications_for_window_process (BamfMatcher *self, BamfLe
       return result;
     }
 
-  guint pid = bamf_legacy_window_get_pid (window);
-  gchar *proc_name = get_process_name (pid);
+  gchar *proc_name = bamf_legacy_window_get_process_name (window);
 
-  if (proc_name)
+  if (bamf_matcher_is_valid_process_prefix (self, proc_name))
     {
       table_list = g_hash_table_lookup (priv->desktop_file_table, proc_name);
 
@@ -1478,8 +1457,8 @@ bamf_matcher_possible_applications_for_window_process (BamfMatcher *self, BamfLe
         {
           result = g_list_prepend (result, g_strdup (l->data));
         }
-      g_free (proc_name);
     }
+  g_free (proc_name);
 
   result = g_list_reverse (result);
   return result;
