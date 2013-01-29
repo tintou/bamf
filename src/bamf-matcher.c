@@ -1412,6 +1412,7 @@ is_open_office_window (BamfMatcher * self, BamfLegacyWindow * window)
           g_str_has_prefix (class_name, "openoffice"));
 }
 
+static char *
 process_exec_string (gint pid)
 {
   gchar *result = NULL;
@@ -1439,6 +1440,42 @@ process_exec_string (gint pid)
 
   result = g_strdup (exec->str);
   g_string_free (exec, TRUE);
+  return result;
+}
+
+
+static char *
+process_name (gint pid)
+{
+  char *stat_path;
+  char *contents;
+  char **lines;
+  char **sections;
+  char *result = NULL;
+  
+  if (pid <= 0)
+    return NULL;
+  
+  stat_path = g_strdup_printf ("/proc/%i/status", pid);
+  
+  if (g_file_get_contents (stat_path, &contents, NULL, NULL))
+    { 
+      lines = g_strsplit (contents, "\n", 2);
+      
+      if (lines && g_strv_length (lines) > 0)
+        {
+          sections = g_strsplit (lines[0], "\t", 0);
+          if (sections && g_strv_length (sections) > 1)
+            {
+              result = g_strdup (sections[1]);
+              g_strfreev (sections);
+            }
+          g_strfreev (lines);
+        }
+      g_free (contents);
+    }  
+  g_free (stat_path);
+  
   return result;
 }
 
@@ -1484,11 +1521,12 @@ bamf_matcher_possible_applications_for_pid (BamfMatcher *self,
       return result;
     }
 
-  proc_name = bamf_legacy_window_get_process_name (window);
+  proc_name = process_name (pid);
+
   if (bamf_matcher_is_valid_process_prefix (self, proc_name))
     {
       table_list = g_hash_table_lookup (priv->desktop_file_table, proc_name);
-
+              
       for (l = table_list; l; l = l->next)
         {
           result = g_list_prepend (result, g_strdup (l->data)); 
