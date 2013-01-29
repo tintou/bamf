@@ -54,7 +54,8 @@ const gchar* EXEC_BAD_PREFIXES[] =
   "^gksu(do)?$", "^sudo$", "^su-to-root$", "^amdxdg-su$", "^java(ws)?$",
   "^mono$", "^ruby$", "^padsp$", "^aoss$", "^python(\\d.\\d)?$", "^(ba)?sh$",
   "^perl$", "^env$", "^xdg-open$",
-  /* javaws strings: */ "^net\\.sourceforge\\.jnlp\\.runtime\\.Boot$", "^rt.jar$"
+  /* javaws strings: */ "^net\\.sourceforge\\.jnlp\\.runtime\\.Boot$", "^rt\\.jar$",
+                        "^com\\.sun\\.javaws\\.Main$", "^deploy\\.jar$"
 };
 
 // Prefixes that must be considered starting point of exec strings
@@ -507,6 +508,30 @@ get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
   return (l ? (char *) l->data : NULL);
 }
 
+gboolean
+bamf_matcher_is_valid_process_prefix (BamfMatcher *self, const char *process_name)
+{
+  GRegex *regex;
+  gint i;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), TRUE);
+
+  if (!process_name || *process_name == '\0')
+    return FALSE;
+
+  for (i = 0; i < self->priv->bad_prefixes->len; ++i)
+    {
+      regex = g_array_index (self->priv->bad_prefixes, GRegex *, i);
+
+      if (g_regex_match (regex, process_name, 0, NULL))
+        {
+          return FALSE;
+        }
+    }
+
+  return TRUE;
+}
+
 /* Attempts to return the binary name for a particular execution string */
 char *
 bamf_matcher_get_trimmed_exec (BamfMatcher * self, const char * exec_string)
@@ -562,16 +587,7 @@ bamf_matcher_get_trimmed_exec (BamfMatcher * self, const char * exec_string)
               if (good_prefix)
                 continue;
 
-              bad_prefix = FALSE;
-              for (j = 0; j < self->priv->bad_prefixes->len; j++)
-                {
-                  regex = g_array_index (self->priv->bad_prefixes, GRegex *, j);
-                  if (g_regex_match (regex, part, 0, NULL))
-                    {
-                      bad_prefix = TRUE;
-                      break;
-                    }
-                }
+              bad_prefix = !bamf_matcher_is_valid_process_prefix (self, part);
 
               if (!bad_prefix)
                 {
@@ -1502,7 +1518,7 @@ bamf_matcher_possible_applications_for_pid (BamfMatcher *self,
     }
     
   proc_name = process_name (pid);
-  if (proc_name)
+  if (bamf_matcher_is_valid_process_prefix (self, proc_name))
     {
       table_list = g_hash_table_lookup (priv->desktop_file_table, proc_name);
               
@@ -1510,9 +1526,9 @@ bamf_matcher_possible_applications_for_pid (BamfMatcher *self,
         {
           result = g_list_prepend (result, g_strdup (l->data)); 
         }
-      g_free (proc_name);
     }
-  
+  g_free (proc_name);
+
   result = g_list_reverse (result);
   return result;
 }
@@ -1557,8 +1573,11 @@ is_javaws_window (BamfLegacyWindow *window)
 {
   const char *window_class = bamf_legacy_window_get_class_name (window);
 
-  if (g_strcmp0 (window_class, "net-sourceforge-jnlp-runtime-Boot") == 0)
-    return TRUE;
+  if (g_strcmp0 (window_class, "net-sourceforge-jnlp-runtime-Boot") == 0 ||
+      g_strcmp0 (window_class, "com-sun-javaws-Main") == 0)
+    {
+      return TRUE;
+    }
 
   return FALSE;
 }
