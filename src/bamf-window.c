@@ -44,10 +44,6 @@ struct _BamfWindowPrivate
   BamfLegacyWindow *legacy_window;
   BamfWindowMaximizationType maximized;
   gint monitor;
-  gulong closed_id;
-  gulong name_changed_id;
-  gulong state_changed_id;
-  gulong geometry_changed_id;
   time_t opened;
 };
 
@@ -422,17 +418,14 @@ bamf_window_constructed (GObject *object)
 
   bamf_view_set_name (BAMF_VIEW (self), bamf_legacy_window_get_name (window));
 
-  self->priv->name_changed_id = g_signal_connect (G_OBJECT (window), "name-changed",
-                                                  (GCallback) handle_name_changed, self);
-
-  self->priv->state_changed_id = g_signal_connect (G_OBJECT (window), "state-changed",
-                                                   (GCallback) handle_state_changed, self);
-
-  self->priv->geometry_changed_id = g_signal_connect (G_OBJECT (window), "geometry-changed",
-                                                      (GCallback) handle_geometry_changed, self);
-
-  self->priv->closed_id = g_signal_connect (G_OBJECT (window), "closed",
-                                            (GCallback) handle_window_closed, self);
+  g_signal_connect (G_OBJECT (window), "name-changed",
+                    (GCallback) handle_name_changed, self);
+  g_signal_connect (G_OBJECT (window), "state-changed",
+                    (GCallback) handle_state_changed, self);
+  g_signal_connect (G_OBJECT (window), "geometry-changed",
+                    (GCallback) handle_geometry_changed, self);
+  g_signal_connect (G_OBJECT (window), "closed",
+                    (GCallback) handle_window_closed, self);
 
   self->priv->maximized = -1;
   self->priv->monitor = -1;
@@ -454,18 +447,7 @@ bamf_window_dispose (GObject *object)
 
   if (self->priv->legacy_window)
     {
-      g_signal_handler_disconnect (self->priv->legacy_window,
-                                   self->priv->name_changed_id);
-
-      g_signal_handler_disconnect (self->priv->legacy_window,
-                                   self->priv->state_changed_id);
-
-      g_signal_handler_disconnect (self->priv->legacy_window,
-                                   self->priv->geometry_changed_id);
-
-      g_signal_handler_disconnect (self->priv->legacy_window,
-                                   self->priv->closed_id);
-
+      g_signal_handlers_disconnect_by_data (self->priv->legacy_window, self);
       g_object_unref (self->priv->legacy_window);
       self->priv->legacy_window = NULL;
     }
