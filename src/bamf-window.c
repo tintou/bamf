@@ -48,7 +48,6 @@ struct _BamfWindowPrivate
   gulong name_changed_id;
   gulong state_changed_id;
   gulong geometry_changed_id;
-  time_t last_active;
   time_t opened;
 };
 
@@ -135,16 +134,6 @@ bamf_window_get_xid (BamfWindow *window)
 }
 
 time_t
-bamf_window_last_active (BamfWindow *self)
-{
-  g_return_val_if_fail (BAMF_IS_WINDOW (self), (time_t) 0);
-  
-  if (bamf_view_is_active (BAMF_VIEW (self)))
-    return time (NULL);
-  return self->priv->last_active;
-}
-
-time_t
 bamf_window_opened (BamfWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_WINDOW (self), (time_t) 0);
@@ -180,10 +169,6 @@ bamf_window_ensure_flags (BamfWindow *self)
 {
   g_return_if_fail (BAMF_IS_WINDOW (self));
 
-  /* if we are going innactive, set our last active time */
-  if (bamf_view_is_active (BAMF_VIEW (self)) && !bamf_legacy_window_is_active (self->priv->legacy_window))
-    self->priv->last_active = time (NULL);
-  
   bamf_view_set_active       (BAMF_VIEW (self), bamf_legacy_window_is_active (self->priv->legacy_window));
   bamf_view_set_urgent       (BAMF_VIEW (self), bamf_legacy_window_needs_attention (self->priv->legacy_window));
   bamf_view_set_user_visible (BAMF_VIEW (self), !bamf_legacy_window_is_skip_tasklist (self->priv->legacy_window));
