@@ -1,3 +1,17 @@
+bamf (0.4.0daily13.02.01-0ubuntu1) raring; urgency=low
+
+  [ Marco Trevisan (Treviño) ]
+  * Unity inappropriately groups separate Java webstart app windows (LP:
+    #979752)
+  * Java Web Start windows launched from browser are still grouped even
+    if different (LP: #1108380)
+  * Unity groups separate Java webstart app windows (LP: #1098186)
+
+  [ Automatic PS uploader ]
+  * Automatic snapshot from revision 518
+
+ -- Automatic PS uploader <ps-jenkins@lists.canonical.com>  Fri, 01 Feb 2013 02:00:54 +0000
+
 bamf (0.4.0daily13.01.11-0ubuntu1) raring; urgency=low
 
   [ Francis Ginther ]
