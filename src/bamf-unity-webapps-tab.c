@@ -177,7 +177,7 @@ bamf_unity_webapps_tab_initialize_properties (BamfUnityWebappsTab *self)
   xid = unity_webapps_context_get_view_window (self->priv->context, self->priv->interest_id);
   is_active = unity_webapps_context_get_view_is_active (self->priv->context, self->priv->interest_id);
   
-  g_object_set (self, "location", location, "xid", xid, NULL);
+  g_object_set (self, "location", location, "xid", xid, "is-foreground-tab", is_active, NULL);
   
   self->priv->tab_active = is_active;
   bamf_unity_webapps_tab_create_bamf_window (self, xid);
