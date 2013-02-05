@@ -170,6 +170,8 @@ test_active (void)
   
   bamf_legacy_window_test_set_active (test, TRUE);  
   g_assert (bamf_view_is_active (BAMF_VIEW (window)));
+  g_assert (!signal_seen);
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
   g_assert (signal_seen);
   g_assert (signal_result);
   
@@ -177,6 +179,8 @@ test_active (void)
   
   bamf_legacy_window_test_set_active (test, FALSE);  
   g_assert (!bamf_view_is_active (BAMF_VIEW (window)));
+  g_assert (!signal_seen);
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
   g_assert (signal_seen);
   g_assert (!signal_result);
   
