@@ -56,7 +56,21 @@ struct _BamfViewPrivate
   GList * children;
   GList * parents;
   gboolean closed;
+  guint active_changed_idle;
 };
+
+static gboolean
+on_active_changed_idle (gpointer data)
+{
+  g_return_val_if_fail (BAMF_IS_VIEW (data), FALSE);
+
+  BamfView *self = BAMF_VIEW (data);
+  gboolean active = bamf_view_is_active (self);
+
+  g_signal_emit_by_name (self, "active-changed", active);
+
+  return FALSE;
+}
 
 static void
 bamf_view_active_changed (BamfView *view, gboolean active)
@@ -70,7 +84,13 @@ bamf_view_active_changed (BamfView *view, gboolean active)
     }
 
   if (emit)
-    g_signal_emit_by_name (view, "active-changed", active);
+    {
+      if (view->priv->active_changed_idle)
+        g_source_remove (view->priv->active_changed_idle);
+
+      guint idle = g_idle_add_full (G_PRIORITY_DEFAULT, on_active_changed_idle, view, NULL);
+      view->priv->active_changed_idle = idle;
+    }
 }
 
 static void
@@ -711,6 +731,12 @@ bamf_view_dispose (GObject *object)
     {
       g_list_free (priv->parents);
       priv->parents = NULL;
+    }
+
+  if (priv->active_changed_idle)
+    {
+      g_source_remove (priv->active_changed_idle);
+      priv->active_changed_idle = 0;
     }
 
   G_OBJECT_CLASS (bamf_view_parent_class)->dispose (object);
