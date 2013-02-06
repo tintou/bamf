@@ -1,3 +1,17 @@
+bamf (0.4.0daily13.02.06-0ubuntu1) raring; urgency=low
+
+  [ Alex Launi ]
+  * is-foreground-tab FALSE for single tab (LP: #1109198)
+
+  [ Marco Trevisan (Treviño) ]
+  * Alt+` is sometimes ignored when quickly switching windows (LP:
+    #1115827)
+
+  [ Automatic PS uploader ]
+  * Automatic snapshot from revision 521
+
+ -- Automatic PS uploader <ps-jenkins@lists.canonical.com>  Wed, 06 Feb 2013 02:00:52 +0000
+
 bamf (0.4.0daily13.02.01-0ubuntu1) raring; urgency=low
 
   [ Marco Trevisan (Treviño) ]
