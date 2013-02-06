@@ -268,6 +268,8 @@ test_active (void)
 
   // Ensure that when adding a skip-tasklist window, we dont set this to visible
   g_assert (bamf_view_is_active (BAMF_VIEW (application)));
+  g_assert (!signal_seen);
+  while (g_main_context_pending (NULL)) g_main_context_iteration(NULL, TRUE);
   g_assert (signal_seen);
   g_assert (signal_result);
 
@@ -279,6 +281,9 @@ test_active (void)
   g_assert (!signal_seen);
 
   bamf_legacy_window_test_set_active (test1, FALSE);
+  g_assert (!signal_seen);
+  g_assert (bamf_view_is_active (BAMF_VIEW (application)));
+  while (g_main_context_pending (NULL)) g_main_context_iteration(NULL, TRUE);
 
   g_assert (!bamf_view_is_active (BAMF_VIEW (application)));
   g_assert (signal_seen);

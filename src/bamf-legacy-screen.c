@@ -442,6 +442,9 @@ bamf_legacy_screen_get_default ()
   self = (BamfLegacyScreen *) g_object_new (BAMF_TYPE_LEGACY_SCREEN, NULL);
   static_screen = self;
 
+  if (g_strcmp0 (g_getenv ("BAMF_TEST_MODE"), "TRUE") == 0)
+    return static_screen;
+
   self->priv->legacy_screen = wnck_screen_get_default ();
 
   g_signal_connect (G_OBJECT (self->priv->legacy_screen), "window-opened",

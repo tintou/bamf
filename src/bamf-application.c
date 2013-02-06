@@ -708,9 +708,7 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
                                bamf_view_get_path (child));
     }
 
-  g_signal_handlers_disconnect_by_func (G_OBJECT (child), view_active_changed, view);
-  g_signal_handlers_disconnect_by_func (G_OBJECT (child), view_urgent_changed, view);
-  g_signal_handlers_disconnect_by_func (G_OBJECT (child), view_visible_changed, view);
+  g_signal_handlers_disconnect_by_data (G_OBJECT (child), view);
 
   bamf_application_ensure_flags (self);
 
