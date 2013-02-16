@@ -854,6 +854,12 @@ load_desktop_file_to_table (BamfMatcher * self,
   if (!exec || exec[0] == '\0')
     {
       g_object_unref (desktop_file);
+
+      if (exec)
+        {
+          g_free (exec);
+        }
+
       return;
     }
 
