@@ -3,7 +3,7 @@ bamf (0.2.126-0ubuntu1) precise; urgency=low
   * New upstream release.
     - BamfMatcher: Don't associate .desktopless applications with 
       different exec string, fix JavaWS apps. (LP: #1098186)
-  * Cherry-pick additional commit finalising the JavaWS fix
+  * BamfMatcher: ignore the javaws windows when setting the window hint
     (LP: #1108380)
 
  -- Timo Jyrinki <timo-jyrinki@ubuntu.com>  Thu, 31 Jan 2013 13:58:44 +0200
