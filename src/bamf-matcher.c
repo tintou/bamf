@@ -28,6 +28,7 @@
 
 #ifdef HAVE_WEBAPPS
 #include "bamf-unity-webapps-application.h"
+#include "bamf-unity-webapps-tab.h"
 #endif
 #include <strings.h>
 
@@ -1601,16 +1602,8 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
   if (!filter_by_wmclass)
   {
-    if (is_web_app_window (window))
-      {
-        // This ensures that a new application is created even for unknown webapps
-        filter_by_wmclass = TRUE;
-      }
-    else
-      {
-        target_class = class_name;
-        filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
-      }
+    target_class = class_name;
+    filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
   }
 
   if (desktop_file)
@@ -1998,6 +1991,7 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
   if (pid > 1 && !g_list_find (self->priv->known_pids, GUINT_TO_POINTER (pid)))
     self->priv->known_pids = g_list_prepend (self->priv->known_pids, GUINT_TO_POINTER (pid));
 
+  
   ensure_window_hint_set (self, window);
 
   /* We need to make our objects for bus export, the quickest way to do this, though not
@@ -2112,6 +2106,13 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
 
       return;
     }
+
+  // A new chromeless webapp window will be "matched" later
+  // when the context daemon pick up the new "interest" in
+  // on_webapp_child_added to avoid duplicates (matching on the
+  // browser AND the webapp itself)
+  if (is_web_app_window(window))
+    return;
 
   if (is_open_office_window (self, window))
     {
@@ -2809,14 +2810,71 @@ on_dbus_handle_window_stack_for_monitor (BamfDBusMatcher *interface,
 }
 
 #ifdef HAVE_WEBAPPS
+static gboolean
+does_webapp_tab_with_xid_exists(BamfMatcher *matcher, guint64 xid)
+{
+  GList *l;
+  BamfView *view;
+
+  g_return_val_if_fail(matcher != NULL, FALSE);
+  g_return_val_if_fail(matcher->priv != NULL, FALSE);
+
+  for (l = matcher->priv->views; l; l = l->next)
+    {
+      view = l->data;
+      if (!BAMF_IS_UNITY_WEBAPPS_TAB (view))
+        continue;
+
+      if (xid == bamf_tab_get_xid(BAMF_TAB(view)))
+        break;
+    }
+  return l != NULL;
+}
+
 static void
 on_webapp_child_added (BamfView *application,
                        BamfView *child,
                        gpointer user_data)
 {
   BamfMatcher *self;
+  BamfLegacyWindow * legacy_window;
 
   self = (BamfMatcher *)user_data;
+
+  if (!BAMF_IS_UNITY_WEBAPPS_TAB(child))
+    return;
+
+  legacy_window =
+    bamf_unity_webapps_tab_get_legacy_window_for(BAMF_UNITY_WEBAPPS_TAB(child));
+
+  if (is_web_app_window(legacy_window))
+    {
+      // Quickly check if we need to create an main window for
+      // this chromeless webapp (so that unity can pick it up as an
+      // independant window: see
+      // BamfApplicationManager::create_window & friends)
+      g_debug("Chromeless webapp launch detected: '%s'",
+              bamf_legacy_window_get_name (legacy_window));
+
+      gboolean do_register_bamf_window = TRUE;
+      if (self->priv->views
+          && does_webapp_tab_with_xid_exists(self, bamf_tab_get_xid(BAMF_TAB(child))))
+        do_register_bamf_window = FALSE;
+
+      if (do_register_bamf_window)
+        {
+          bamf_matcher_register_view_stealing_ref (self,
+              BAMF_VIEW (bamf_window_new (legacy_window)));
+        }
+      else
+        {
+          g_debug("Found at least another window/tab for chromeless"
+                  " webapp '%s' and same window id",
+                    bamf_legacy_window_get_name (legacy_window));
+        }
+    }
+
+  // In all cases register the new tab with the "Launcher" & bamf views
   bamf_matcher_register_view_stealing_ref (self, child);
 }
 

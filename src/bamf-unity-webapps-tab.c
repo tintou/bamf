@@ -402,7 +402,17 @@ bamf_unity_webapps_tab_class_init (BamfUnityWebappsTabClass * klass)
 gint 
 bamf_unity_webapps_tab_get_interest_id (BamfUnityWebappsTab *tab)
 {
+  g_return_val_if_fail(tab != NULL, -1);
+  g_return_val_if_fail(BAMF_IS_UNITY_WEBAPPS_TAB(tab), -1);
   return tab->priv->interest_id;
+}
+
+BamfLegacyWindow*
+bamf_unity_webapps_tab_get_legacy_window_for (BamfUnityWebappsTab *tab)
+{
+  g_return_val_if_fail(tab != NULL, NULL);
+  g_return_val_if_fail(BAMF_IS_UNITY_WEBAPPS_TAB(tab), NULL);
+  return tab->priv->legacy_window;
 }
 
 BamfUnityWebappsTab *
@@ -410,3 +420,5 @@ bamf_unity_webapps_tab_new (UnityWebappsContext *context, gint interest_id)
 {
   return (BamfUnityWebappsTab *)g_object_new (BAMF_TYPE_UNITY_WEBAPPS_TAB, "context", context, "interest-id", interest_id, NULL);
 }
+
+
