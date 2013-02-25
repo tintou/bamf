@@ -1,4 +1,4 @@
-bamf (0.3.6-0ubuntu2) UNRELEASED; urgency=low
+bamf (0.3.6-0ubuntu2) quantal-proposed; urgency=low
 
   * Cherry-pick upstream.
     - BamfMatcher: ignore the javaws windows when setting the window hint
