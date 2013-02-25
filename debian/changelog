@@ -1,4 +1,4 @@
-bamf (0.2.126-0ubuntu1) precise; urgency=low
+bamf (0.2.126-0ubuntu1) precise-proposed; urgency=low
 
   * New upstream release.
     - BamfMatcher: Don't associate .desktopless applications with 
