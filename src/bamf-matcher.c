@@ -821,6 +821,7 @@ load_desktop_file_to_table (BamfMatcher * self,
                             GHashTable *desktop_class_table)
 {
   GDesktopAppInfo *desktop_file;
+  const char *current_desktop;
   char *exec;
   char *path;
   GString *desktop_id; /* is ok... really */
@@ -834,7 +835,9 @@ load_desktop_file_to_table (BamfMatcher * self,
       return;
     }
 
-  if (!g_desktop_app_info_get_show_in (desktop_file, g_getenv ("XDG_CURRENT_DESKTOP")))
+  current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
+
+  if (current_desktop && !g_desktop_app_info_get_show_in (desktop_file, current_desktop))
     {
       g_object_unref (desktop_file);
       return;
@@ -842,9 +845,15 @@ load_desktop_file_to_table (BamfMatcher * self,
 
   exec = g_strdup (g_app_info_get_commandline (G_APP_INFO (desktop_file)));
 
-  if (!exec)
+  if (!exec || exec[0] == '\0')
     {
       g_object_unref (desktop_file);
+
+      if (exec)
+        {
+          g_free (exec);
+        }
+
       return;
     }
 
