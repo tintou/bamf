@@ -31,6 +31,8 @@
 #endif
 #include <strings.h>
 
+#define BAMF_INDEX_NAME "bamf-2.index"
+
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, BAMF_DBUS_TYPE_MATCHER_SKELETON);
 #define BAMF_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
                                        BAMF_TYPE_MATCHER, BamfMatcherPrivate))
@@ -1028,11 +1030,29 @@ load_index_file_to_table (BamfMatcher * self,
 
       show_in = parts[3];
 
-      if (current_desktop && show_in && show_in[0] != '\0' && !strstr(show_in, current_desktop))
+      if (current_desktop && show_in && show_in[0] != '\0')
         {
-          length = 0;
-          g_strfreev (parts);
-          continue;
+          gchar **sub_parts = g_strsplit (show_in, ";", -1);
+          gboolean found_current = FALSE;
+          int i = 0;
+
+          for (i = 0; sub_parts[i]; ++i)
+            {
+              if (g_ascii_strcasecmp (sub_parts[i], current_desktop) == 0)
+                {
+                  found_current = TRUE;
+                  break;
+                }
+            }
+
+          g_strfreev (sub_parts);
+
+          if (!found_current)
+            {
+              length = 0;
+              g_strfreev (parts);
+              continue;
+            }
         }
 
       char *tmp = bamf_matcher_get_trimmed_exec (self, parts[1]);
@@ -1432,7 +1452,7 @@ fill_desktop_file_table (BamfMatcher * self,
 
       bamf_matcher_add_new_monitored_directory (self, directory);
 
-      bamf_file = g_build_filename (directory, "bamf.index", NULL);
+      bamf_file = g_build_filename (directory, BAMF_INDEX_NAME, NULL);
 
       if (g_file_test (bamf_file, G_FILE_TEST_EXISTS))
         {
