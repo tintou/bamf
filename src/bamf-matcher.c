@@ -717,6 +717,7 @@ insert_data_into_tables (BamfMatcher *self,
                          const char *data,
                          const char *exec,
                          const char *desktop_id,
+                         gboolean no_display,
                          GHashTable *desktop_file_table,
                          GHashTable *desktop_id_table)
 {
@@ -739,7 +740,7 @@ insert_data_into_tables (BamfMatcher *self,
 
   /* order so that items whose desktop_id == exec string are first in the list */
 
-  if (g_strcmp0 (exec, desktop_id) == 0 || is_desktop_folder_item (datadup, -1))
+  if (!no_display && (g_strcmp0 (exec, desktop_id) == 0 || is_desktop_folder_item (datadup, -1)))
     {
       GList *l, *last;
       last = NULL;
@@ -821,6 +822,7 @@ load_desktop_file_to_table (BamfMatcher * self,
                             GHashTable *desktop_class_table)
 {
   GDesktopAppInfo *desktop_file;
+  gboolean no_display;
   const char *current_desktop;
   char *exec;
   char *path;
@@ -872,8 +874,9 @@ load_desktop_file_to_table (BamfMatcher * self,
   g_free (path);
 
   desktop_id = g_string_truncate (desktop_id, desktop_id->len - 8); /* remove last 8 characters for .desktop */
+  no_display = g_desktop_app_info_get_nodisplay (desktop_file);
 
-  insert_data_into_tables (self, file, exec, desktop_id->str, desktop_file_table, desktop_id_table);
+  insert_data_into_tables (self, file, exec, desktop_id->str, no_display, desktop_file_table, desktop_id_table);
   insert_desktop_file_class_into_table (self, file, desktop_class_table);
 
   g_free (exec);
@@ -968,6 +971,7 @@ load_index_file_to_table (BamfMatcher * self,
       const char *class;
       const char *show_in;
       GString *desktop_id;
+      gboolean no_display;
 
       /* Order is: 0 Desktop-Id, 1 Exec, 2 class, 3 ShowIn, 4 NoDisplay */
       gchar **parts = g_strsplit (line, "\t", 5);
@@ -991,7 +995,13 @@ load_index_file_to_table (BamfMatcher * self,
       desktop_id = g_string_new (parts[0]);
       g_string_truncate (desktop_id, desktop_id->len - 8);
 
-      insert_data_into_tables (self, filename, exec, desktop_id->str, desktop_file_table, desktop_id_table);
+      no_display = FALSE;
+      if (parts[4] && g_ascii_strcasecmp (parts[4], "true") == 0)
+        {
+          no_display = TRUE;
+        }
+
+      insert_data_into_tables (self, filename, exec, desktop_id->str, no_display, desktop_file_table, desktop_id_table);
 
       class = parts[2];
       if (class && class[0] != '\0')
