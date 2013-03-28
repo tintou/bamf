@@ -1,10 +1,8 @@
 #! /bin/sh
 set -e
 
-if [ "$1" = "configure" ] || [ "$1" = "triggered" ];
-then
-    if [ -d /usr/share/applications ];
-then
+if [ "$1" = "configure" ] || [ "$1" = "triggered" ]; then
+    if [ -d /usr/share/applications ]; then
         # rebuild index
         I=/usr/share/applications/bamf.index
         echo "Rebuilding $I..."
@@ -46,21 +44,25 @@ sub strip_exec
             if (/^Exec=(.+)$/)
             {
                 $exec = $1;
+                $exec =~ s/^\s+|\s+$//g;
             }
 
             if (/^NoDisplay=(.+)$/)
             {
-                $no_display = $1
+                $no_display = $1;
+                $no_display =~ s/^\s+|\s+$//g;
             }
 
             if (/^OnlyShowIn=(.+)$/)
             {
                 $only_show_in = $1;
+                $only_show_in =~ s/^\s+|\s+$//g;
             }
 
             if (/^StartupWMClass=(.+)$/)
             {
-                $class = $1
+                $class = $1;
+                $class =~ s/^\s+|\s+$//g;
             }
         }
     }
