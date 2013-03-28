@@ -738,9 +738,14 @@ insert_data_into_tables (BamfMatcher *self,
 
   datadup = g_strdup (data);
 
+  if (no_display)
+    {
+      self->priv->no_display_desktop = g_list_prepend (self->priv->no_display_desktop, datadup);
+    }
+
   /* order so that items whose desktop_id == exec string are first in the list */
 
-  if (!no_display && (g_strcmp0 (exec, desktop_id) == 0 || is_desktop_folder_item (datadup, -1)))
+  if (g_strcmp0 (exec, desktop_id) == 0 || is_desktop_folder_item (datadup, -1))
     {
       GList *l, *last;
       last = NULL;
@@ -767,7 +772,8 @@ insert_data_into_tables (BamfMatcher *self,
               continue;
             }
 
-          if (strncmp (desktop_id, dname_start, len) != 0 &&
+          if ((strncmp (desktop_id, dname_start, len) != 0 ||
+               g_list_find_custom (self->priv->no_display_desktop, dpath, (GCompareFunc) g_strcmp0)) &&
               !is_desktop_folder_item (dpath, (dname_start - dpath - 1)))
             {
               last = l;
@@ -3017,6 +3023,7 @@ bamf_matcher_finalize (GObject *object)
   g_hash_table_destroy (priv->desktop_file_table);
   g_hash_table_destroy (priv->desktop_class_table);
   g_hash_table_destroy (priv->registered_pids);
+  g_list_free (priv->no_display_desktop);
 
   if (priv->opened_closed_paths_table)
     {
