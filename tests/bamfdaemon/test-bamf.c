@@ -63,6 +63,12 @@ main (gint argc, gchar *argv[])
   gtk_init (&argc, &argv);
   g_test_init (&argc, &argv, NULL);
   glibtop_init ();
+
+  const gchar *path = g_getenv("PATH");
+  gchar *new_path = g_strdup_printf("%s:"TESTDIR "/bamfdaemon/data", path);
+  g_setenv("PATH", new_path, TRUE);
+  g_free(new_path);
+
   g_setenv("BAMF_TEST_MODE", "TRUE", TRUE);
 
   loop = g_main_loop_new (NULL, FALSE);
