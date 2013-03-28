@@ -108,7 +108,6 @@ if HAVE_INTROSPECTION
 INTROSPECTION_GIRS = Bamf-3.gir
 INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)
 INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
-DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
 
 introspection_sources = \
 	$(libbamf_headers) \
