@@ -1,7 +1,7 @@
 [Desktop Entry]
+Version=1.0
 Name=TestBamfApp
 Type=Application
-Exec=testbamfapp
+Exec=test-bamf-app
 Icon=bamf
 StartupWMClass=test_bamf_app
-
