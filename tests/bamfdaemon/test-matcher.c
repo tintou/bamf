@@ -28,6 +28,7 @@
 
 static void test_allocation (void);
 static void test_load_desktop_file (void);
+static void test_load_no_display_desktop_file_has_lower_prio (void);
 static void test_open_windows (void);
 static void test_match_desktopless_application (void);
 static void test_match_desktop_application (void);
@@ -53,6 +54,7 @@ test_matcher_create_suite (GDBusConnection *connection)
 
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
   g_test_add_func (DOMAIN"/LoadDesktopFile", test_load_desktop_file);
+  g_test_add_func (DOMAIN"/LoadDesktopFile/NoDisplay", test_load_no_display_desktop_file_has_lower_prio);
   g_test_add_func (DOMAIN"/OpenWindows", test_open_windows);
   g_test_add_func (DOMAIN"/Matching/Application/DesktopLess", test_match_desktopless_application);
   g_test_add_func (DOMAIN"/Matching/Application/Desktop", test_match_desktop_application);
@@ -88,6 +90,7 @@ cleanup_matcher_tables (BamfMatcher *matcher)
   g_hash_table_destroy (matcher->priv->desktop_file_table);
   g_hash_table_destroy (matcher->priv->desktop_id_table);
   g_hash_table_destroy (matcher->priv->desktop_class_table);
+  g_list_free (matcher->priv->no_display_desktop);
 
   matcher->priv->desktop_file_table =
     g_hash_table_new_full ((GHashFunc) g_str_hash,
@@ -106,6 +109,8 @@ cleanup_matcher_tables (BamfMatcher *matcher)
                            (GEqualFunc) g_str_equal,
                            (GDestroyNotify) g_free,
                            (GDestroyNotify) g_free);
+
+  matcher->priv->no_display_desktop = NULL;
 }
 
 static BamfWindow *
@@ -172,14 +177,34 @@ test_load_desktop_file (void)
   cleanup_matcher_tables (matcher);
   bamf_matcher_load_desktop_file (matcher, TEST_BAMF_APP_DESKTOP);
 
-  GList *l = g_hash_table_lookup (priv->desktop_file_table, "testbamfapp");
+  GList *l = g_hash_table_lookup (priv->desktop_file_table, "test-bamf-app");
+  g_assert (l);
   g_assert_cmpstr (l->data, ==, TEST_BAMF_APP_DESKTOP);
 
   l = g_hash_table_lookup (priv->desktop_id_table, "test-bamf-app");
+  g_assert (l);
   g_assert_cmpstr (l->data, ==, TEST_BAMF_APP_DESKTOP);
 
   const char *desktop = g_hash_table_lookup (priv->desktop_class_table, TEST_BAMF_APP_DESKTOP);
   g_assert_cmpstr (desktop, ==, "test_bamf_app");
+}
+
+static void
+test_load_no_display_desktop_file_has_lower_prio (void)
+{
+  BamfMatcher *matcher = bamf_matcher_get_default ();
+  BamfMatcherPrivate *priv = matcher->priv;
+
+  cleanup_matcher_tables (matcher);
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/no-display/test-bamf-app.desktop");
+  bamf_matcher_load_desktop_file (matcher, TEST_BAMF_APP_DESKTOP);
+
+  GList *l = g_hash_table_lookup (priv->desktop_file_table, "test-bamf-app");
+  g_assert (l);
+  g_assert_cmpstr (l->data, ==, TEST_BAMF_APP_DESKTOP);
+
+  g_assert (l->next);
+  g_assert_cmpstr (l->next->data, ==, DATA_DIR"/no-display/test-bamf-app.desktop");
 }
 
 static void
