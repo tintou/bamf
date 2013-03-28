@@ -108,6 +108,7 @@ if HAVE_INTROSPECTION
 INTROSPECTION_GIRS = Bamf-3.gir
 INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)
 INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
+DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
 
 introspection_sources = \
 	$(libbamf_headers) \
@@ -116,9 +117,8 @@ introspection_sources = \
 
 Bamf-3.gir: libbamf$(LIBBAMF_VER).la
 Bamf_3_gir_INCLUDES = GObject-2.0 GLib-2.0
+Bamf_3_gir_SCANNERFLAGS = --warn-all --c-include='libbamf/libbamf.h'
 Bamf_3_gir_CFLAGS = \
-	--warn-all \
-	--c-include='libbamf/libbamf.h' \
 	$(DBUS_CFLAGS) \
 	-I$(top_srcdir)/lib \
 	-I$(top_builddir)/lib \
