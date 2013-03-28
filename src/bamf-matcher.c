@@ -938,6 +938,7 @@ load_index_file_to_table (BamfMatcher * self,
   GDataInputStream *input;
   char *line;
   char *directory;
+  const char *current_desktop;
   gsize length;
 
   file = g_file_new_for_path (index_file);
@@ -952,16 +953,33 @@ load_index_file_to_table (BamfMatcher * self,
       return;
     }
 
+  length = 0;
+  current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
   directory = g_path_get_dirname (index_file);
   input = g_data_input_stream_new (G_INPUT_STREAM (stream));
+
+  if (current_desktop && current_desktop[0] == '\0')
+    current_desktop = NULL;
 
   while ((line = g_data_input_stream_read_line (input, &length, NULL, NULL)))
     {
       char *exec;
       char *filename;
+      const char *class;
+      const char *show_in;
       GString *desktop_id;
 
-      gchar **parts = g_strsplit (line, "\t", 3);
+      /* Order is: 0 Desktop-Id, 1 Exec, 2 class, 3 ShowIn, 4 NoDisplay */
+      gchar **parts = g_strsplit (line, "\t", 5);
+
+      show_in = parts[3];
+
+      if (current_desktop && show_in && show_in[0] != '\0' && !strstr(show_in, current_desktop))
+        {
+          length = 0;
+          g_strfreev (parts);
+          continue;
+        }
 
       char *tmp = bamf_matcher_get_trimmed_exec (self, parts[1]);
       g_free (parts[1]);
@@ -974,7 +992,12 @@ load_index_file_to_table (BamfMatcher * self,
       g_string_truncate (desktop_id, desktop_id->len - 8);
 
       insert_data_into_tables (self, filename, exec, desktop_id->str, desktop_file_table, desktop_id_table);
-      insert_desktop_file_class_into_table (self, filename, desktop_class_table);
+
+      class = parts[2];
+      if (class && class[0] != '\0')
+        {
+          g_hash_table_insert (desktop_class_table, g_strdup (filename), g_strdup (class));
+        }
 
       g_string_free (desktop_id, TRUE);
       g_free (line);
