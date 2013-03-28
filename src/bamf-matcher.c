@@ -712,6 +712,42 @@ is_desktop_folder_item (const char *desktop_file_path, gssize max_len)
   return FALSE;
 }
 
+static gboolean
+is_no_display_desktop(BamfMatcher *self, const gchar *desktop_path)
+{
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), FALSE);
+
+  if (!desktop_path || desktop_path[0] == '\0')
+    return FALSE;
+
+  GList *list = self->priv->no_display_desktop;
+
+  return g_list_find_custom (list, desktop_path, (GCompareFunc) g_strcmp0) != NULL;
+}
+
+static GList *
+get_last_no_display_desktop_in_list (BamfMatcher *self, GList *desktop_list)
+{
+  GList *last, *l;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
+
+  last = NULL;
+
+  for (l = desktop_list; l; l = l->next)
+    {
+      char *desktop_path = l->data;
+
+      if (is_no_display_desktop (self, desktop_path))
+        {
+          last = l;
+          break;
+        }
+    }
+
+  return last;
+}
+
 static void
 insert_data_into_tables (BamfMatcher *self,
                          const char *data,
@@ -721,7 +757,7 @@ insert_data_into_tables (BamfMatcher *self,
                          GHashTable *desktop_file_table,
                          GHashTable *desktop_id_table)
 {
-  GList *file_list, *id_list;
+  GList *file_list, *id_list, *last, *l;
   char *datadup;
 
   g_return_if_fail (exec);
@@ -747,7 +783,6 @@ insert_data_into_tables (BamfMatcher *self,
 
   if (g_strcmp0 (exec, desktop_id) == 0 || is_desktop_folder_item (datadup, -1))
     {
-      GList *l, *last;
       last = NULL;
 
       for (l = file_list; l; l = l->next)
@@ -772,8 +807,7 @@ insert_data_into_tables (BamfMatcher *self,
               continue;
             }
 
-          if ((strncmp (desktop_id, dname_start, len) != 0 ||
-               g_list_find_custom (self->priv->no_display_desktop, dpath, (GCompareFunc) g_strcmp0)) &&
+          if ((strncmp (desktop_id, dname_start, len) != 0 || is_no_display_desktop (self, dpath)) &&
               !is_desktop_folder_item (dpath, (dname_start - dpath - 1)))
             {
               last = l;
@@ -785,10 +819,20 @@ insert_data_into_tables (BamfMatcher *self,
     }
   else
     {
-      file_list = g_list_append (file_list, datadup);
+      last = NULL;
+
+      if (!no_display)
+        last = get_last_no_display_desktop_in_list (self, file_list);
+
+      file_list = g_list_insert_before (file_list, last, datadup);
     }
 
-  id_list = g_list_append (id_list, datadup);
+  last = NULL;
+
+  if (!no_display)
+    last = get_last_no_display_desktop_in_list (self, id_list);
+
+  id_list = g_list_insert_before (id_list, last, datadup);
 
   g_hash_table_insert (desktop_file_table, g_strdup (exec),       file_list);
   g_hash_table_insert (desktop_id_table,   g_strdup (desktop_id), id_list);
