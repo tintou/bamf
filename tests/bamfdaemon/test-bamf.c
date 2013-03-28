@@ -43,6 +43,8 @@ on_bus_acquired (GDBusConnection *connection, const gchar *name, gpointer data)
   test_view_create_suite (connection);
   test_window_create_suite ();
   test_application_create_suite (connection);
+
+  g_setenv("PATH", TESTDIR"/bamfdaemon/data/bin", TRUE);
   result = g_test_run ();
 
   g_main_loop_quit (loop);
@@ -63,11 +65,6 @@ main (gint argc, gchar *argv[])
   gtk_init (&argc, &argv);
   g_test_init (&argc, &argv, NULL);
   glibtop_init ();
-
-  const gchar *path = g_getenv("PATH");
-  gchar *new_path = g_strdup_printf("%s:"TESTDIR "/bamfdaemon/data", path);
-  g_setenv("PATH", new_path, TRUE);
-  g_free(new_path);
 
   g_setenv("BAMF_TEST_MODE", "TRUE", TRUE);
 

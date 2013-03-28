@@ -715,7 +715,7 @@ is_desktop_folder_item (const char *desktop_file_path, gssize max_len)
 }
 
 static gboolean
-is_no_display_desktop(BamfMatcher *self, const gchar *desktop_path)
+is_no_display_desktop (BamfMatcher *self, const gchar *desktop_path)
 {
   g_return_val_if_fail (BAMF_IS_MATCHER (self), FALSE);
 
