@@ -7,7 +7,7 @@ then
 then
         # rebuild index
         I=/usr/share/applications/bamf.index
-    echo "Rebuilding $I..."
+        echo "Rebuilding $I..."
         rm -f $I
         perl -e '
 use File::Find;
