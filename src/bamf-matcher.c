@@ -31,6 +31,8 @@
 #endif
 #include <strings.h>
 
+#define BAMF_INDEX_NAME "bamf-2.index"
+
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, BAMF_DBUS_TYPE_MATCHER_SKELETON);
 #define BAMF_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
                                        BAMF_TYPE_MATCHER, BamfMatcherPrivate))
@@ -1390,7 +1392,7 @@ fill_desktop_file_table (BamfMatcher * self,
 
       bamf_matcher_add_new_monitored_directory (self, directory);
 
-      bamf_file = g_build_filename (directory, "bamf.index", NULL);
+      bamf_file = g_build_filename (directory, BAMF_INDEX_NAME, NULL);
 
       if (g_file_test (bamf_file, G_FILE_TEST_EXISTS))
         {
