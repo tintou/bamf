@@ -172,7 +172,7 @@ test_load_desktop_file (void)
   cleanup_matcher_tables (matcher);
   bamf_matcher_load_desktop_file (matcher, TEST_BAMF_APP_DESKTOP);
 
-  GList *l = g_hash_table_lookup (priv->desktop_file_table, "testbamfapp");
+  GList *l = g_hash_table_lookup (priv->desktop_file_table, "test-bamf-app");
   g_assert_cmpstr (l->data, ==, TEST_BAMF_APP_DESKTOP);
 
   l = g_hash_table_lookup (priv->desktop_id_table, "test-bamf-app");

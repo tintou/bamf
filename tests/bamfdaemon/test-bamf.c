@@ -43,6 +43,8 @@ on_bus_acquired (GDBusConnection *connection, const gchar *name, gpointer data)
   test_view_create_suite (connection);
   test_window_create_suite ();
   test_application_create_suite (connection);
+
+  g_setenv("PATH", TESTDIR"/bamfdaemon/data/bin", TRUE);
   result = g_test_run ();
 
   g_main_loop_quit (loop);
