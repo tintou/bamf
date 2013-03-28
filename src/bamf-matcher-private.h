@@ -43,6 +43,7 @@ struct _BamfMatcherPrivate
   GList           * views;
   GList           * monitors;
   GList           * favorites;
+  GList           * no_display_desktop;
   BamfView        * active_app;
   BamfView        * active_win;
   guint             dispatch_changes_id;

@@ -65,6 +65,7 @@ main (gint argc, gchar *argv[])
   gtk_init (&argc, &argv);
   g_test_init (&argc, &argv, NULL);
   glibtop_init ();
+
   g_setenv("BAMF_TEST_MODE", "TRUE", TRUE);
 
   loop = g_main_loop_new (NULL, FALSE);
