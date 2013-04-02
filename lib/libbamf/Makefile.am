@@ -116,7 +116,7 @@ introspection_sources = \
 
 Bamf-3.gir: libbamf$(LIBBAMF_VER).la
 Bamf_3_gir_INCLUDES = GObject-2.0 GLib-2.0
-Bamf_3_gir_SCANNERFLAGS = --warn-all --c-include='libbamf/libbamf.h'
+Bamf_3_gir_SCANNERFLAGS = --warn-all
 Bamf_3_gir_CFLAGS = \
 	$(DBUS_CFLAGS) \
 	-I$(top_srcdir)/lib \
