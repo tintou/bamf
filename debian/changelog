@@ -1,3 +1,13 @@
+bamf (0.4.0daily13.03.07-0ubuntu3) UNRELEASED; urgency=low
+
+  * debian/bamfdaemon.postinst:
+    - write it in multiline and add support for StartupWMClass
+      and other properties such as NoDisplay and OnlyShowIn (LP: #1161430).
+  * TestBamfMatcher: fix crashes caused by missing exec in .desktop files
+  * libbamf: use scanner-flags for introspection, fixes a compilation error.
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Tue, 02 Apr 2013 12:49:07 +0200
+
 bamf (0.4.0daily13.03.07-0ubuntu1) raring; urgency=low
 
   * Automatic snapshot from revision 523
