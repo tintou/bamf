@@ -1,3 +1,10 @@
+bamf (0.4.0daily13.03.07-0ubuntu2) UNRELEASED; urgency=low
+
+  * Fix FTBFS against new g-ir-scanner. C-include is not actually needed,
+    verified - no changes to the gir file from previous versions.
+
+ -- Dmitrijs Ledkovs <dmitrij.ledkov@ubuntu.com>  Tue, 02 Apr 2013 11:45:08 +0100
+
 bamf (0.4.0daily13.03.07-0ubuntu1) raring; urgency=low
 
   * Automatic snapshot from revision 523
