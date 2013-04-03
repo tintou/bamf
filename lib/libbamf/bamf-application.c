@@ -103,7 +103,8 @@ bamf_application_get_supported_mime_types (BamfApplication *application)
       return NULL;
     }
 
-  application->priv->cached_mimes = g_strdupv (mimes);
+  if (mimes)
+    application->priv->cached_mimes = g_strdupv (mimes);
 
   return mimes;
 }
