@@ -42,11 +42,8 @@ enum
 struct _BamfUnityWebappsTabPrivate
 {
   UnityWebappsContext *context;
-  
-  gint interest_id;
-  
   BamfLegacyWindow *legacy_window;
-  
+  gint interest_id;
   gboolean tab_active;
 };
 
@@ -78,12 +75,13 @@ static void
 on_window_closed (BamfLegacyWindow *window, gpointer data)
 {
   BamfUnityWebappsTab *self = data;
+
+  g_signal_handlers_disconnect_by_data (self->priv->legacy_window, self);
   self->priv->legacy_window = NULL;
 }
 
 static void
-bamf_unity_webapps_tab_create_bamf_window (BamfUnityWebappsTab *self,
-                                           gulong xid)
+bamf_unity_webapps_tab_set_bamf_window (BamfUnityWebappsTab *self, gulong xid)
 {
   GList *l;
   BamfLegacyScreen *screen;
@@ -148,10 +146,10 @@ bamf_unity_webapps_tab_window_changed (UnityWebappsContext *context,
     {
       return;
     }
-  
+
   g_object_set (self, "xid", xid, NULL);
-  
-  bamf_unity_webapps_tab_create_bamf_window (self, xid);
+
+  bamf_unity_webapps_tab_set_bamf_window (self, xid);
   bamf_unity_webapps_tab_ensure_flags (self);
 }
 
@@ -186,18 +184,17 @@ bamf_unity_webapps_tab_initialize_properties (BamfUnityWebappsTab *self)
   gchar *location;
   guint64 xid;
   gboolean is_active;
-  
+
   location = unity_webapps_context_get_view_location (self->priv->context, self->priv->interest_id);
   xid = unity_webapps_context_get_view_window (self->priv->context, self->priv->interest_id);
   is_active = unity_webapps_context_get_view_is_active (self->priv->context, self->priv->interest_id);
-  
+
   g_object_set (self, "location", location, "xid", xid, "is-foreground-tab", is_active, NULL);
-  
+
   self->priv->tab_active = is_active;
-  bamf_unity_webapps_tab_create_bamf_window (self, xid);
-  
+  bamf_unity_webapps_tab_set_bamf_window (self, xid);
   bamf_unity_webapps_tab_ensure_flags (self);
-  
+
   g_free (location);
 }
 
