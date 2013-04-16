@@ -28,6 +28,7 @@
 
 #ifdef HAVE_WEBAPPS
 #include "bamf-unity-webapps-application.h"
+#include "bamf-unity-webapps-tab.h"
 #endif
 #include <strings.h>
 
@@ -2920,16 +2921,91 @@ on_dbus_handle_window_stack_for_monitor (BamfDBusMatcher *interface,
   return TRUE;
 }
 
+static gboolean
+bamf_matcher_has_tab_with_parent_xid (BamfMatcher *matcher, guint64 xid)
+{
+  GList *l;
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), FALSE);
+
+  for (l = matcher->priv->views; l; l = l->next)
+    {
+      if (!BAMF_IS_TAB (l->data))
+        continue;
+
+      if (xid == bamf_tab_get_xid (BAMF_TAB (l->data)))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 #ifdef HAVE_WEBAPPS
 static void
 on_webapp_child_added (BamfView *application,
                        BamfView *child,
                        gpointer user_data)
 {
+  GList *l;
   BamfMatcher *self;
+  BamfLegacyWindow *legacy_window;
+  BamfUnityWebappsTab *webapp_tab;
 
-  self = (BamfMatcher *)user_data;
+  g_return_if_fail (BAMF_IS_MATCHER (user_data));
+  g_return_if_fail (BAMF_IS_UNITY_WEBAPPS_TAB (child));
+
+  self = BAMF_MATCHER (user_data);
+  webapp_tab = BAMF_UNITY_WEBAPPS_TAB (child);
+  legacy_window = bamf_unity_webapps_tab_get_legacy_window_for (webapp_tab);
+
+  if (is_web_app_window (legacy_window))
+    {
+      /* If we have a chromeless window, we remove the window from the
+       * application children list, so that it won't be duplicated in launcher */
+
+      guint tab_xid = bamf_tab_get_xid (BAMF_TAB (webapp_tab));
+
+      if (!bamf_matcher_has_tab_with_parent_xid (self, tab_xid))
+        {
+          BamfApplication *old_application = bamf_matcher_get_application_by_xid (self, tab_xid);
+
+          if (BAMF_IS_VIEW (old_application))
+            {
+              for (l = bamf_view_get_children (BAMF_VIEW (old_application)); l; l = l->next)
+                {
+                  if (!BAMF_IS_WINDOW (l->data))
+                    continue;
+
+                  if (bamf_window_get_xid (BAMF_WINDOW (l->data)) == tab_xid)
+                    {
+                      bamf_view_remove_child (BAMF_VIEW (old_application), BAMF_VIEW (l->data));
+                      break;
+                    }
+                }
+            }
+        }
+    }
+
   bamf_matcher_register_view_stealing_ref (self, child);
+}
+
+static void on_webapp_child_removed (BamfView *application,
+                                     BamfView *child,
+                                     gpointer user_data)
+{
+  BamfLegacyWindow *legacy_window;
+  BamfUnityWebappsTab *webapp_tab;
+
+  g_return_if_fail (BAMF_IS_UNITY_WEBAPPS_TAB (child));
+
+  webapp_tab = BAMF_UNITY_WEBAPPS_TAB (child);
+  legacy_window = bamf_unity_webapps_tab_get_legacy_window_for (webapp_tab);
+
+  if (is_web_app_window (legacy_window))
+    {
+      /* If we have a chromeless window, we re-match it again as soon as the
+       * webapp handler is gone, so that we don't lose its control */
+      bamf_legacy_window_reopen (legacy_window);
+    }
 }
 
 static void
@@ -2943,8 +3019,9 @@ on_webapp_appeared (BamfUnityWebappsObserver *observer,
 
   bamf_matcher_register_view_stealing_ref (self, (BamfView *)application);
 
-  g_signal_connect (application, "tab-appeared", G_CALLBACK (on_webapp_child_added),
-                    self);
+  g_signal_connect (application, "child-added-internal", G_CALLBACK (on_webapp_child_added), self);
+  g_signal_connect (application, "child-removed-internal", G_CALLBACK (on_webapp_child_removed), self);
+
   bamf_unity_webapps_application_add_existing_interests (BAMF_UNITY_WEBAPPS_APPLICATION (application));
 }
 #endif
