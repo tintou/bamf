@@ -1999,7 +1999,6 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
   if (pid > 1 && !g_list_find (self->priv->known_pids, GUINT_TO_POINTER (pid)))
     self->priv->known_pids = g_list_prepend (self->priv->known_pids, GUINT_TO_POINTER (pid));
 
-  
   ensure_window_hint_set (self, window);
 
   /* We need to make our objects for bus export, the quickest way to do this, though not
