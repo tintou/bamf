@@ -32,6 +32,8 @@
 #endif
 #include <strings.h>
 
+#define BAMF_INDEX_NAME "bamf-2.index"
+
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, BAMF_DBUS_TYPE_MATCHER_SKELETON);
 #define BAMF_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
                                        BAMF_TYPE_MATCHER, BamfMatcherPrivate))
@@ -713,15 +715,52 @@ is_desktop_folder_item (const char *desktop_file_path, gssize max_len)
   return FALSE;
 }
 
+static gboolean
+is_no_display_desktop (BamfMatcher *self, const gchar *desktop_path)
+{
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), FALSE);
+
+  if (!desktop_path || desktop_path[0] == '\0')
+    return FALSE;
+
+  GList *list = self->priv->no_display_desktop;
+
+  return g_list_find_custom (list, desktop_path, (GCompareFunc) g_strcmp0) != NULL;
+}
+
+static GList *
+get_last_no_display_desktop_in_list (BamfMatcher *self, GList *desktop_list)
+{
+  GList *last, *l;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
+
+  last = NULL;
+
+  for (l = desktop_list; l; l = l->next)
+    {
+      char *desktop_path = l->data;
+
+      if (is_no_display_desktop (self, desktop_path))
+        {
+          last = l;
+          break;
+        }
+    }
+
+  return last;
+}
+
 static void
 insert_data_into_tables (BamfMatcher *self,
                          const char *data,
                          const char *exec,
                          const char *desktop_id,
+                         gboolean no_display,
                          GHashTable *desktop_file_table,
                          GHashTable *desktop_id_table)
 {
-  GList *file_list, *id_list;
+  GList *file_list, *id_list, *last, *l;
   char *datadup;
 
   g_return_if_fail (exec);
@@ -738,11 +777,15 @@ insert_data_into_tables (BamfMatcher *self,
 
   datadup = g_strdup (data);
 
+  if (no_display)
+    {
+      self->priv->no_display_desktop = g_list_prepend (self->priv->no_display_desktop, datadup);
+    }
+
   /* order so that items whose desktop_id == exec string are first in the list */
 
   if (g_strcmp0 (exec, desktop_id) == 0 || is_desktop_folder_item (datadup, -1))
     {
-      GList *l, *last;
       last = NULL;
 
       for (l = file_list; l; l = l->next)
@@ -767,7 +810,7 @@ insert_data_into_tables (BamfMatcher *self,
               continue;
             }
 
-          if (strncmp (desktop_id, dname_start, len) != 0 &&
+          if ((strncmp (desktop_id, dname_start, len) != 0 || is_no_display_desktop (self, dpath)) &&
               !is_desktop_folder_item (dpath, (dname_start - dpath - 1)))
             {
               last = l;
@@ -779,10 +822,20 @@ insert_data_into_tables (BamfMatcher *self,
     }
   else
     {
-      file_list = g_list_append (file_list, datadup);
+      last = NULL;
+
+      if (!no_display)
+        last = get_last_no_display_desktop_in_list (self, file_list);
+
+      file_list = g_list_insert_before (file_list, last, datadup);
     }
 
-  id_list = g_list_append (id_list, datadup);
+  last = NULL;
+
+  if (!no_display)
+    last = get_last_no_display_desktop_in_list (self, id_list);
+
+  id_list = g_list_insert_before (id_list, last, datadup);
 
   g_hash_table_insert (desktop_file_table, g_strdup (exec),       file_list);
   g_hash_table_insert (desktop_id_table,   g_strdup (desktop_id), id_list);
@@ -822,6 +875,8 @@ load_desktop_file_to_table (BamfMatcher * self,
                             GHashTable *desktop_class_table)
 {
   GDesktopAppInfo *desktop_file;
+  gboolean no_display;
+  const char *current_desktop;
   char *exec;
   char *path;
   GString *desktop_id; /* is ok... really */
@@ -835,7 +890,9 @@ load_desktop_file_to_table (BamfMatcher * self,
       return;
     }
 
-  if (!g_desktop_app_info_get_show_in (desktop_file, g_getenv ("XDG_CURRENT_DESKTOP")))
+  current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
+
+  if (current_desktop && !g_desktop_app_info_get_show_in (desktop_file, current_desktop))
     {
       g_object_unref (desktop_file);
       return;
@@ -843,9 +900,15 @@ load_desktop_file_to_table (BamfMatcher * self,
 
   exec = g_strdup (g_app_info_get_commandline (G_APP_INFO (desktop_file)));
 
-  if (!exec)
+  if (!exec || exec[0] == '\0')
     {
       g_object_unref (desktop_file);
+
+      if (exec)
+        {
+          g_free (exec);
+        }
+
       return;
     }
 
@@ -864,8 +927,9 @@ load_desktop_file_to_table (BamfMatcher * self,
   g_free (path);
 
   desktop_id = g_string_truncate (desktop_id, desktop_id->len - 8); /* remove last 8 characters for .desktop */
+  no_display = g_desktop_app_info_get_nodisplay (desktop_file);
 
-  insert_data_into_tables (self, file, exec, desktop_id->str, desktop_file_table, desktop_id_table);
+  insert_data_into_tables (self, file, exec, desktop_id->str, no_display, desktop_file_table, desktop_id_table);
   insert_desktop_file_class_into_table (self, file, desktop_class_table);
 
   g_free (exec);
@@ -930,6 +994,7 @@ load_index_file_to_table (BamfMatcher * self,
   GDataInputStream *input;
   char *line;
   char *directory;
+  const char *current_desktop;
   gsize length;
 
   file = g_file_new_for_path (index_file);
@@ -944,16 +1009,52 @@ load_index_file_to_table (BamfMatcher * self,
       return;
     }
 
+  length = 0;
+  current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
   directory = g_path_get_dirname (index_file);
   input = g_data_input_stream_new (G_INPUT_STREAM (stream));
+
+  if (current_desktop && current_desktop[0] == '\0')
+    current_desktop = NULL;
 
   while ((line = g_data_input_stream_read_line (input, &length, NULL, NULL)))
     {
       char *exec;
       char *filename;
+      const char *class;
+      const char *show_in;
       GString *desktop_id;
+      gboolean no_display;
 
-      gchar **parts = g_strsplit (line, "\t", 3);
+      /* Order is: 0 Desktop-Id, 1 Exec, 2 class, 3 ShowIn, 4 NoDisplay */
+      gchar **parts = g_strsplit (line, "\t", 5);
+
+      show_in = parts[3];
+
+      if (current_desktop && show_in && show_in[0] != '\0')
+        {
+          gchar **sub_parts = g_strsplit (show_in, ";", -1);
+          gboolean found_current = FALSE;
+          int i = 0;
+
+          for (i = 0; sub_parts[i]; ++i)
+            {
+              if (g_ascii_strcasecmp (sub_parts[i], current_desktop) == 0)
+                {
+                  found_current = TRUE;
+                  break;
+                }
+            }
+
+          g_strfreev (sub_parts);
+
+          if (!found_current)
+            {
+              length = 0;
+              g_strfreev (parts);
+              continue;
+            }
+        }
 
       char *tmp = bamf_matcher_get_trimmed_exec (self, parts[1]);
       g_free (parts[1]);
@@ -965,8 +1066,19 @@ load_index_file_to_table (BamfMatcher * self,
       desktop_id = g_string_new (parts[0]);
       g_string_truncate (desktop_id, desktop_id->len - 8);
 
-      insert_data_into_tables (self, filename, exec, desktop_id->str, desktop_file_table, desktop_id_table);
-      insert_desktop_file_class_into_table (self, filename, desktop_class_table);
+      no_display = FALSE;
+      if (parts[4] && g_ascii_strcasecmp (parts[4], "true") == 0)
+        {
+          no_display = TRUE;
+        }
+
+      insert_data_into_tables (self, filename, exec, desktop_id->str, no_display, desktop_file_table, desktop_id_table);
+
+      class = parts[2];
+      if (class && class[0] != '\0')
+        {
+          g_hash_table_insert (desktop_class_table, g_strdup (filename), g_strdup (class));
+        }
 
       g_string_free (desktop_id, TRUE);
       g_free (line);
@@ -1341,7 +1453,7 @@ fill_desktop_file_table (BamfMatcher * self,
 
       bamf_matcher_add_new_monitored_directory (self, directory);
 
-      bamf_file = g_build_filename (directory, "bamf.index", NULL);
+      bamf_file = g_build_filename (directory, BAMF_INDEX_NAME, NULL);
 
       if (g_file_test (bamf_file, G_FILE_TEST_EXISTS))
         {
@@ -3052,6 +3164,7 @@ bamf_matcher_finalize (GObject *object)
   g_hash_table_destroy (priv->desktop_file_table);
   g_hash_table_destroy (priv->desktop_class_table);
   g_hash_table_destroy (priv->registered_pids);
+  g_list_free (priv->no_display_desktop);
 
   if (priv->opened_closed_paths_table)
     {

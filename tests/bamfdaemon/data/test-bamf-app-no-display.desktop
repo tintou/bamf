@@ -4,4 +4,5 @@ Name=TestBamfApp
 Type=Application
 Exec=test-bamf-app
 Icon=bamf
+NoDisplay=true
 StartupWMClass=test_bamf_app
