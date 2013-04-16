@@ -44,14 +44,6 @@ struct _BamfUnityWebappsApplicationPrivate
 };
 
 
-enum {
-  TAB_APPEARED,
-  LAST_SIGNAL
-};
-
-static guint webapps_application_signals[LAST_SIGNAL] = {0};
-
-
 static void
 bamf_unity_webapps_application_get_application_menu (BamfApplication *application,
                                                      gchar **name, 
@@ -127,25 +119,22 @@ bamf_unity_webapps_application_interest_appeared (UnityWebappsContext *context,
                                                   gpointer user_data)
 {
   BamfUnityWebappsApplication *self;
-  BamfView *interest_view;
   BamfUnityWebappsTab *child;
-  
-  self = (BamfUnityWebappsApplication *)user_data;
+
+  self = BAMF_UNITY_WEBAPPS_APPLICATION (user_data);
 
   child = bamf_unity_webapps_application_find_child_by_interest (self, interest_id);
-  
+
   if (child != NULL)
     {
       return;
     }
-  
-  interest_view = (BamfView *)bamf_unity_webapps_tab_new (context, interest_id);
-  
-  bamf_view_add_child (BAMF_VIEW (self), interest_view);
-  
+
+  child = bamf_unity_webapps_tab_new (context, interest_id);
+  bamf_view_add_child (BAMF_VIEW (self), BAMF_VIEW (child));
+
   // It's possible that the context had become lonely (i.e. no children) but not yet shut down.
   // however, if we gain an interest we are always running and "mapped".
-  
   bamf_view_set_running (BAMF_VIEW (self), TRUE);
   bamf_view_set_user_visible (BAMF_VIEW (self), TRUE);
 }
@@ -166,15 +155,8 @@ bamf_unity_webapps_application_interest_vanished (UnityWebappsContext *context,
     {
       return;
     }
-  
-  bamf_view_remove_child (BAMF_VIEW (self), BAMF_VIEW (child));
-}
 
-static void
-bamf_unity_webapps_application_child_added (BamfView *view, BamfView *child)
-{
-  g_signal_emit (view, webapps_application_signals [TAB_APPEARED], 0, child);
-  BAMF_VIEW_CLASS (bamf_unity_webapps_application_parent_class)->child_added (view, child);
+  bamf_view_remove_child (BAMF_VIEW (self), BAMF_VIEW (child));
 }
 
 /* It doesn't make any sense for a BamfUnityWebappsTab to live without it's assosciated context.
@@ -321,7 +303,6 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   
   bamf_view_class->stable_bus_name = bamf_unity_webapps_application_get_stable_bus_name;
   bamf_view_class->child_removed = bamf_unity_webapps_application_child_removed;
-  bamf_view_class->child_added = bamf_unity_webapps_application_child_added;
   
   bamf_application_class->get_application_menu = bamf_unity_webapps_application_get_application_menu;
   bamf_application_class->get_focusable_child = bamf_unity_webapps_application_get_focusable_child;
@@ -331,16 +312,7 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   pspec = g_param_spec_object("context", "Context", "The Unity Webapps Context assosciated with the Application",
                               UNITY_WEBAPPS_TYPE_CONTEXT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
   g_object_class_install_property (object_class, PROP_CONTEXT, pspec);
-  
-  webapps_application_signals[TAB_APPEARED] = g_signal_new("tab-appeared",
-                                    G_OBJECT_CLASS_TYPE (klass),
-                                    0,
-                                    0, NULL, NULL,
-                                    g_cclosure_marshal_VOID__OBJECT,
-                                                           G_TYPE_NONE, 1,
-                                    BAMF_TYPE_VIEW);
-  
-  
+
   g_type_class_add_private (klass, sizeof (BamfUnityWebappsApplicationPrivate));
 }
 
