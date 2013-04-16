@@ -1602,8 +1602,16 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
   if (!filter_by_wmclass)
   {
-    target_class = class_name;
-    filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
+    if (is_web_app_window (window))
+      {
+        // This ensures that a new application is created even for unknown webapps
+        filter_by_wmclass = TRUE;
+      }
+    else
+      {
+        target_class = class_name;
+        filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
+      }
   }
 
   if (desktop_file)
@@ -2106,13 +2114,6 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
 
       return;
     }
-
-  // A new chromeless webapp window will be "matched" later
-  // when the context daemon pick up the new "interest" in
-  // on_webapp_child_added to avoid duplicates (matching on the
-  // browser AND the webapp itself)
-  if (is_web_app_window(window))
-    return;
 
   if (is_open_office_window (self, window))
     {
@@ -2809,73 +2810,91 @@ on_dbus_handle_window_stack_for_monitor (BamfDBusMatcher *interface,
   return TRUE;
 }
 
-#ifdef HAVE_WEBAPPS
 static gboolean
-does_webapp_tab_with_xid_exists(BamfMatcher *matcher, guint64 xid)
+bamf_matcher_has_tab_with_parent_xid (BamfMatcher *matcher, guint64 xid)
 {
   GList *l;
-  BamfView *view;
-
-  g_return_val_if_fail(matcher != NULL, FALSE);
-  g_return_val_if_fail(matcher->priv != NULL, FALSE);
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), FALSE);
 
   for (l = matcher->priv->views; l; l = l->next)
     {
-      view = l->data;
-      if (!BAMF_IS_UNITY_WEBAPPS_TAB (view))
+      if (!BAMF_IS_TAB (l->data))
         continue;
 
-      if (xid == bamf_tab_get_xid(BAMF_TAB(view)))
-        break;
+      if (xid == bamf_tab_get_xid (BAMF_TAB (l->data)))
+        return TRUE;
     }
-  return l != NULL;
+
+  return FALSE;
 }
 
+#ifdef HAVE_WEBAPPS
 static void
 on_webapp_child_added (BamfView *application,
                        BamfView *child,
                        gpointer user_data)
 {
+  GList *l;
   BamfMatcher *self;
-  BamfLegacyWindow * legacy_window;
+  BamfLegacyWindow *legacy_window;
+  BamfUnityWebappsTab *webapp_tab;
 
-  self = (BamfMatcher *)user_data;
+  g_return_if_fail (BAMF_IS_MATCHER (user_data));
+  g_return_if_fail (BAMF_IS_UNITY_WEBAPPS_TAB (child));
 
-  if (!BAMF_IS_UNITY_WEBAPPS_TAB(child))
-    return;
+  self = BAMF_MATCHER (user_data);
+  webapp_tab = BAMF_UNITY_WEBAPPS_TAB (child);
+  legacy_window = bamf_unity_webapps_tab_get_legacy_window_for (webapp_tab);
 
-  legacy_window =
-    bamf_unity_webapps_tab_get_legacy_window_for(BAMF_UNITY_WEBAPPS_TAB(child));
-
-  if (is_web_app_window(legacy_window))
+  if (is_web_app_window (legacy_window))
     {
-      // Quickly check if we need to create an main window for
-      // this chromeless webapp (so that unity can pick it up as an
-      // independant window: see
-      // BamfApplicationManager::create_window & friends)
-      g_debug("Chromeless webapp launch detected: '%s'",
-              bamf_legacy_window_get_name (legacy_window));
+      /* If we have a chromeless window, we remove the window from the
+       * application children list, so that it won't be duplicated in launcher */
 
-      gboolean do_register_bamf_window = TRUE;
-      if (self->priv->views
-          && does_webapp_tab_with_xid_exists(self, bamf_tab_get_xid(BAMF_TAB(child))))
-        do_register_bamf_window = FALSE;
+      guint tab_xid = bamf_tab_get_xid (BAMF_TAB (webapp_tab));
 
-      if (do_register_bamf_window)
+      if (!bamf_matcher_has_tab_with_parent_xid (self, tab_xid))
         {
-          bamf_matcher_register_view_stealing_ref (self,
-              BAMF_VIEW (bamf_window_new (legacy_window)));
-        }
-      else
-        {
-          g_debug("Found at least another window/tab for chromeless"
-                  " webapp '%s' and same window id",
-                    bamf_legacy_window_get_name (legacy_window));
+          BamfApplication *old_application = bamf_matcher_get_application_by_xid (self, tab_xid);
+
+          if (BAMF_IS_VIEW (old_application))
+            {
+              for (l = bamf_view_get_children (BAMF_VIEW (old_application)); l; l = l->next)
+                {
+                  if (!BAMF_IS_WINDOW (l->data))
+                    continue;
+
+                  if (bamf_window_get_xid (BAMF_WINDOW (l->data)) == tab_xid)
+                    {
+                      bamf_view_remove_child (BAMF_VIEW (old_application), BAMF_VIEW (l->data));
+                      break;
+                    }
+                }
+            }
         }
     }
 
-  // In all cases register the new tab with the "Launcher" & bamf views
   bamf_matcher_register_view_stealing_ref (self, child);
+}
+
+static void on_webapp_child_removed (BamfView *application,
+                                     BamfView *child,
+                                     gpointer user_data)
+{
+  BamfLegacyWindow *legacy_window;
+  BamfUnityWebappsTab *webapp_tab;
+
+  g_return_if_fail (BAMF_IS_UNITY_WEBAPPS_TAB (child));
+
+  webapp_tab = BAMF_UNITY_WEBAPPS_TAB (child);
+  legacy_window = bamf_unity_webapps_tab_get_legacy_window_for (webapp_tab);
+
+  if (is_web_app_window (legacy_window))
+    {
+      /* If we have a chromeless window, we re-match it again as soon as the
+       * webapp handler is gone, so that we don't lose its control */
+      bamf_legacy_window_reopen (legacy_window);
+    }
 }
 
 static void
@@ -2889,8 +2908,9 @@ on_webapp_appeared (BamfUnityWebappsObserver *observer,
 
   bamf_matcher_register_view_stealing_ref (self, (BamfView *)application);
 
-  g_signal_connect (application, "tab-appeared", G_CALLBACK (on_webapp_child_added),
-                    self);
+  g_signal_connect (application, "child-added-internal", G_CALLBACK (on_webapp_child_added), self);
+  g_signal_connect (application, "child-removed-internal", G_CALLBACK (on_webapp_child_removed), self);
+
   bamf_unity_webapps_application_add_existing_interests (BAMF_UNITY_WEBAPPS_APPLICATION (application));
 }
 #endif
