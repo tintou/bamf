@@ -1167,7 +1167,7 @@ list_prepend_desktop_file_env_directories (GList *dirs, const gchar *varname)
     {
       data_dirs = g_strsplit (env, ":", 0);
 
-      for (data = data_dirs; *data; data++)
+      for (data = data_dirs; data && *data; data++)
         {
           path = g_build_filename (*data, "applications", NULL);
           if (g_file_test (path, G_FILE_TEST_IS_DIR) &&
@@ -2228,8 +2228,6 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
 
   if (is_open_office_window (self, window))
     {
-      win_type = bamf_legacy_window_get_window_type (window);
-
       if (win_type == BAMF_WINDOW_SPLASHSCREEN || win_type == BAMF_WINDOW_TOOLBAR)
         {
           return;
@@ -2321,6 +2319,8 @@ bamf_matcher_load_desktop_file (BamfMatcher * self,
                   BamfLegacyWindow *legacy_window = bamf_window_get_window (win);
                   to_rematch = g_list_prepend (to_rematch, legacy_window);
                 }
+
+              g_list_free_full (desktops, g_free);
             }
         }
     }
