@@ -1002,7 +1002,7 @@ list_prepend_desktop_file_env_directories (GList *dirs, const gchar *varname)
     {
       data_dirs = g_strsplit (env, ":", 0);
 
-      for (data = data_dirs; *data; data++)
+      for (data = data_dirs; data && *data; data++)
         {
           path = g_build_filename (*data, "applications", NULL);
           if (g_file_test (path, G_FILE_TEST_IS_DIR) &&

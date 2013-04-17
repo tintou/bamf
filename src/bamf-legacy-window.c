@@ -256,23 +256,28 @@ bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
   return result;
 }
 
-
-
 const char *
 bamf_legacy_window_save_mini_icon (BamfLegacyWindow *self)
 {
   WnckWindow *window;
   GdkPixbuf *pbuf;
-  char *tmp;
+  GFile *tmp;
+  GFileIOStream *iostream;
+  GOutputStream *output;
 
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
 
   if (self->priv->mini_icon_path)
     {
       if (g_file_test (self->priv->mini_icon_path, G_FILE_TEST_EXISTS))
-        return self->priv->mini_icon_path;
+        {
+          return self->priv->mini_icon_path;
+        }
       else
-        g_free (self->priv->mini_icon_path);
+        {
+          g_free (self->priv->mini_icon_path);
+          self->priv->mini_icon_path = NULL;
+        }
     }
 
   window = self->priv->legacy_window;
@@ -283,15 +288,22 @@ bamf_legacy_window_save_mini_icon (BamfLegacyWindow *self)
   if (wnck_window_get_icon_is_fallback (window))
     return NULL;
 
-  tmp = tmpnam (NULL);
+  tmp = g_file_new_tmp (".bamficonXXXXXX", &iostream, NULL);
+
   if (!tmp)
     return NULL;
 
+  output = g_io_stream_get_output_stream (G_IO_STREAM (iostream));
   pbuf = wnck_window_get_icon (window);
-  if (!gdk_pixbuf_save (pbuf, tmp, "png", NULL, NULL))
-    return NULL;
 
-  self->priv->mini_icon_path = g_strdup (tmp);
+  if (gdk_pixbuf_save_to_stream (pbuf, output, "png", NULL, NULL, NULL))
+    {
+      self->priv->mini_icon_path = g_file_get_path (tmp);
+    }
+
+  g_object_unref (iostream);
+  g_object_unref (tmp);
+
   return self->priv->mini_icon_path;
 }
 
