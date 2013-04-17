@@ -151,17 +151,24 @@ bamf_legacy_window_test_set_role (BamfLegacyWindowTest *self, const char *val)
 void
 bamf_legacy_window_test_set_wmclass (BamfLegacyWindowTest *self, const char *class_name, const char *instance_name)
 {
+  gboolean changed = FALSE;
+
   if (g_strcmp0 (self->wm_class_name, class_name) != 0)
     {
       g_free (self->wm_class_name);
       self->wm_class_name = g_strdup (class_name);
+      changed = TRUE;
     }
 
   if (g_strcmp0 (self->wm_class_instance, instance_name) != 0)
     {
       g_free (self->wm_class_instance);
       self->wm_class_instance = g_strdup (instance_name);
+      changed = TRUE;
     }
+
+  if (changed)
+    g_signal_emit_by_name (self, "class-changed");
 }
 
 static const char *
