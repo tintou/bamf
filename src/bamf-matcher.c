@@ -2320,7 +2320,7 @@ bamf_matcher_load_desktop_file (BamfMatcher * self,
                   to_rematch = g_list_prepend (to_rematch, legacy_window);
                 }
 
-              g_list_free_full (desktops, g_list_free);
+              g_list_free_full (desktops, g_free);
             }
         }
     }
