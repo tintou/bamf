@@ -2160,20 +2160,19 @@ on_open_office_window_closed (BamfLegacyWindow *window, BamfMatcher* self)
 static char *
 get_gnome_control_center_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
 {
-  gchar *role;
+  const gchar *role;
   GList *list;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
 
-  role = bamf_legacy_window_get_hint (window, WM_WINDOW_ROLE);
+  role = bamf_legacy_window_get_role (window);
 
   if (role)
     {
       gchar *exec = g_strconcat ("gnome-control-center ", role, NULL);
       list = g_hash_table_lookup (self->priv->desktop_file_table, exec);
       g_free (exec);
-      g_free (role);
     }
 
   if (!role || !list)
@@ -2185,7 +2184,7 @@ get_gnome_control_center_window_hint (BamfMatcher * self, BamfLegacyWindow * win
 }
 
 static void
-on_gnome_control_center_window_name_changed (BamfLegacyWindow *window, BamfMatcher* self)
+on_gnome_control_center_window_role_changed (BamfLegacyWindow *window, BamfMatcher* self)
 {
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
@@ -2207,7 +2206,7 @@ on_gnome_control_center_window_name_changed (BamfLegacyWindow *window, BamfMatch
 static void
 on_gnome_control_center_window_closed (BamfLegacyWindow *window, BamfMatcher* self)
 {
-  g_signal_handlers_disconnect_by_func (window, on_gnome_control_center_window_name_changed, self);
+  g_signal_handlers_disconnect_by_func (window, on_gnome_control_center_window_role_changed, self);
   g_object_unref (window);
 }
 
@@ -2260,7 +2259,7 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
         }
 
       g_object_ref (window);
-      g_signal_connect (window, "name-changed", (GCallback) on_gnome_control_center_window_name_changed, self);
+      g_signal_connect (window, "role-changed", (GCallback) on_gnome_control_center_window_role_changed, self);
       g_signal_connect (window, "closed", (GCallback) on_gnome_control_center_window_closed, self);
 
       g_free (old_hint);
