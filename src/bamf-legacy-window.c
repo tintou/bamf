@@ -159,6 +159,20 @@ bamf_legacy_window_get_name (BamfLegacyWindow *self)
   return wnck_window_get_name (self->priv->legacy_window);
 }
 
+const char *
+bamf_legacy_window_get_role (BamfLegacyWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_role)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_role (self);
+
+  if (!self->priv->legacy_window)
+    return NULL;
+
+  return wnck_window_get_role (self->priv->legacy_window);
+}
+
 char *
 bamf_legacy_window_get_process_name (BamfLegacyWindow *self)
 {
