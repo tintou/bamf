@@ -472,10 +472,16 @@ gboolean
 bamf_application_manages_xid (BamfApplication *application,
                               guint32 xid)
 {
-  GList *l;
-  gboolean result = FALSE;
+  return (bamf_application_get_window (application, xid) != NULL);
+}
 
-  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+BamfWindow *
+bamf_application_get_window (BamfApplication *application,
+                             guint32 xid)
+{
+  GList *l;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
 
   for (l = bamf_view_get_children (BAMF_VIEW (application)); l; l = l->next)
     {
@@ -484,14 +490,15 @@ bamf_application_manages_xid (BamfApplication *application,
       if (!BAMF_IS_WINDOW (view))
         continue;
 
-      if (bamf_window_get_xid (BAMF_WINDOW (view)) == xid)
+      BamfWindow *window = BAMF_WINDOW (view);
+
+      if (bamf_window_get_xid (window) == xid)
         {
-          result = TRUE;
-          break;
+          return window;
         }
     }
 
-  return result;
+  return NULL;
 }
 
 static const char *
