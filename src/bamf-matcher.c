@@ -2784,7 +2784,6 @@ on_webapp_child_added (BamfView *application,
                        BamfView *child,
                        gpointer user_data)
 {
-  GList *l;
   BamfMatcher *self;
   BamfLegacyWindow *legacy_window;
   BamfUnityWebappsTab *webapp_tab;
@@ -2807,19 +2806,12 @@ on_webapp_child_added (BamfView *application,
         {
           BamfApplication *old_application = bamf_matcher_get_application_by_xid (self, tab_xid);
 
-          if (BAMF_IS_VIEW (old_application))
+          if (BAMF_IS_APPLICATION (old_application))
             {
-              for (l = bamf_view_get_children (BAMF_VIEW (old_application)); l; l = l->next)
-                {
-                  if (!BAMF_IS_WINDOW (l->data))
-                    continue;
+              BamfWindow *bamf_window = bamf_application_get_window (old_application, tab_xid);
 
-                  if (bamf_window_get_xid (BAMF_WINDOW (l->data)) == tab_xid)
-                    {
-                      bamf_view_remove_child (BAMF_VIEW (old_application), BAMF_VIEW (l->data));
-                      break;
-                    }
-                }
+              if (BAMF_IS_VIEW (bamf_window))
+                bamf_view_remove_child (BAMF_VIEW (old_application), BAMF_VIEW (bamf_window));
             }
         }
     }
