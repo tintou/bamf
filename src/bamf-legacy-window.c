@@ -32,9 +32,13 @@ G_DEFINE_TYPE (BamfLegacyWindow, bamf_legacy_window, G_TYPE_OBJECT);
 #define BAMF_LEGACY_WINDOW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_LEGACY_WINDOW, BamfLegacyWindowPrivate))
 
+#define WNCK_WINDOW_BAMF_DATA "bamf-legacy-window"
+
 enum
 {
   NAME_CHANGED,
+  ROLE_CHANGED,
+  CLASS_CHANGED,
   STATE_CHANGED,
   GEOMETRY_CHANGED,
   CLOSED,
@@ -354,11 +358,12 @@ bamf_legacy_window_get_stacking_position (BamfLegacyWindow *self)
 }
 
 static void
-handle_name_changed (WnckWindow *window, BamfLegacyWindow *self)
+handle_window_signal (WnckWindow *window, gpointer data)
 {
+  BamfLegacyWindow *self = g_object_get_data (G_OBJECT (window), WNCK_WINDOW_BAMF_DATA);
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
 
-  g_signal_emit (self, legacy_window_signals[NAME_CHANGED], 0);
+  g_signal_emit (self, legacy_window_signals[GPOINTER_TO_UINT (data)], 0);
 }
 
 static void
@@ -370,14 +375,6 @@ handle_state_changed (WnckWindow *window,
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
 
   g_signal_emit (self, legacy_window_signals[STATE_CHANGED], 0);
-}
-
-static void
-handle_geometry_changed (WnckWindow *window, BamfLegacyWindow *self)
-{
-  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
-
-  g_signal_emit (self, legacy_window_signals[GEOMETRY_CHANGED], 0);
 }
 
 gboolean
@@ -552,6 +549,7 @@ bamf_legacy_window_dispose (GObject *object)
 
   if (self->priv->legacy_window)
     {
+      g_object_set_data (G_OBJECT (self->priv->legacy_window), WNCK_WINDOW_BAMF_DATA, NULL);
       g_signal_handlers_disconnect_by_data (self->priv->legacy_window, self);
     }
 
@@ -581,36 +579,42 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyWindowClass, name_changed),
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
-                  G_TYPE_NONE, 0);
+                  NULL, NULL, NULL, G_TYPE_NONE, 0);
+
+  legacy_window_signals [ROLE_CHANGED] =
+    g_signal_new (BAMF_LEGACY_WINDOW_SIGNAL_ROLE_CHANGED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfLegacyWindowClass, role_changed),
+                  NULL, NULL, NULL, G_TYPE_NONE, 0);
+
+  legacy_window_signals [CLASS_CHANGED] =
+    g_signal_new (BAMF_LEGACY_WINDOW_SIGNAL_CLASS_CHANGED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfLegacyWindowClass, class_changed),
+                  NULL, NULL, NULL, G_TYPE_NONE, 0);
 
   legacy_window_signals [STATE_CHANGED] =
     g_signal_new (BAMF_LEGACY_WINDOW_SIGNAL_STATE_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyWindowClass, state_changed),
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
-                  G_TYPE_NONE, 0);
+                  NULL, NULL, NULL, G_TYPE_NONE, 0);
 
   legacy_window_signals [GEOMETRY_CHANGED] =
     g_signal_new (BAMF_LEGACY_WINDOW_SIGNAL_GEOMETRY_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyWindowClass, geometry_changed),
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
-                  G_TYPE_NONE, 0);
+                  NULL, NULL, NULL, G_TYPE_NONE, 0);
 
   legacy_window_signals [CLOSED] =
     g_signal_new (BAMF_LEGACY_WINDOW_SIGNAL_CLOSED,
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyWindowClass, closed),
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
-                  G_TYPE_NONE, 0);
+                  NULL, NULL, NULL, G_TYPE_NONE, 0);
 }
 
 BamfLegacyWindow *
@@ -621,14 +625,29 @@ bamf_legacy_window_new (WnckWindow *legacy_window)
 
   self->priv->legacy_window = legacy_window;
 
-  g_signal_connect (G_OBJECT (legacy_window), "name-changed",
-                    (GCallback) handle_name_changed, self);
+  g_return_val_if_fail (WNCK_IS_WINDOW (self->priv->legacy_window), self);
+  g_warn_if_fail (!g_object_get_data (G_OBJECT (legacy_window), WNCK_WINDOW_BAMF_DATA));
 
-  g_signal_connect (G_OBJECT (legacy_window), "state-changed",
-                    (GCallback) handle_state_changed, self);
+  g_object_set_data (G_OBJECT (legacy_window), WNCK_WINDOW_BAMF_DATA, self);
+
+  g_signal_connect (G_OBJECT (legacy_window), "name-changed",
+                    G_CALLBACK (handle_window_signal),
+                    GUINT_TO_POINTER (NAME_CHANGED));
+
+  g_signal_connect (G_OBJECT (legacy_window), "role-changed",
+                    G_CALLBACK (handle_window_signal),
+                    GUINT_TO_POINTER (ROLE_CHANGED));
+
+  g_signal_connect (G_OBJECT (legacy_window), "class-changed",
+                    G_CALLBACK (handle_window_signal),
+                    GUINT_TO_POINTER (CLASS_CHANGED));
 
   g_signal_connect (G_OBJECT (legacy_window), "geometry-changed",
-                    (GCallback) handle_geometry_changed, self);
+                    G_CALLBACK (handle_window_signal),
+                    GUINT_TO_POINTER (GEOMETRY_CHANGED));
+
+  g_signal_connect (G_OBJECT (legacy_window), "state-changed",
+                    G_CALLBACK (handle_state_changed), self);
 
   return self;
 }
