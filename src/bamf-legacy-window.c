@@ -150,12 +150,12 @@ bamf_legacy_window_get_name (BamfLegacyWindow *self)
 {
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
 
-
   if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_name)
     return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_name (self);
 
   if (!self->priv->legacy_window)
     return NULL;
+
   return wnck_window_get_name (self->priv->legacy_window);
 }
 
@@ -531,6 +531,7 @@ bamf_legacy_window_dispose (GObject *object)
 {
   BamfLegacyWindow *self;
   GFile *file;
+  guint i;
 
   self = BAMF_LEGACY_WINDOW (object);
 
@@ -551,6 +552,13 @@ bamf_legacy_window_dispose (GObject *object)
     {
       g_object_set_data (G_OBJECT (self->priv->legacy_window), WNCK_WINDOW_BAMF_DATA, NULL);
       g_signal_handlers_disconnect_by_data (self->priv->legacy_window, self);
+
+      for (i = 0; i < LAST_SIGNAL; ++i)
+        {
+          g_signal_handlers_disconnect_by_func (self->priv->legacy_window,
+                                                handle_window_signal,
+                                                GUINT_TO_POINTER (NAME_CHANGED));
+        }
     }
 
   G_OBJECT_CLASS (bamf_legacy_window_parent_class)->dispose (object);
