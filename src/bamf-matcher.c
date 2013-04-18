@@ -337,177 +337,60 @@ bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
     }
 }
 
-static char *
-get_open_office_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
+static const char *
+get_libreoffice_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
 {
   gchar *exec = NULL;
-  const gchar *name;
   const gchar *class;
   const char *binary = NULL;
   const char *parameter = NULL;
-  BamfWindowType type;
+  GList *l = NULL;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
 
-  name = bamf_legacy_window_get_name (window);
   class = bamf_legacy_window_get_class_name (window);
-  type = bamf_legacy_window_get_window_type (window);
 
-  if (name == NULL && class == NULL)
+  if (!class)
     return NULL;
 
-  if (g_str_has_suffix (name, "LibreOffice Writer"))
+  if (g_str_has_prefix (class, "libreoffice-"))
+    {
+      l = g_hash_table_lookup (self->priv->desktop_id_table, class);
+    }
+
+  if (!l)
     {
       binary = "libreoffice";
-      parameter = "writer";
-    }
-  else if (g_str_has_suffix (name, "LibreOffice Calc"))
-    {
-      binary = "libreoffice";
-      parameter = "calc";
-    }
-  else if (g_str_has_suffix (name, "LibreOffice Impress"))
-    {
-      binary = "libreoffice";
-      parameter = "impress";
-    }
-  else if (g_str_has_suffix (name, "LibreOffice Math"))
-    {
-      binary = "libreoffice";
-      parameter = "math";
-    }
-  else if (g_str_has_suffix (name, "LibreOffice Draw"))
-    {
-      binary = "libreoffice";
-      parameter = "draw";
-    }
-  else if (g_str_has_suffix (name, "LibreOffice Base"))
-    {
-      binary = "libreoffice";
-      parameter = "base";
-    }
-  else if (g_strcmp0 (class, "libreoffice-startcenter") == 0)
-    {
-      binary = "libreoffice";
-    }
-  else if (g_strcmp0 (name, "LibreOffice") == 0 && type == BAMF_WINDOW_NORMAL)
-    {
-      binary = "libreoffice";
-    }
-  else if (g_str_has_suffix (name, "OpenOffice.org Writer"))
-    {
-      binary = "ooffice";
-      parameter = "writer";
-    }
-  else if (g_str_has_suffix (name, "OpenOffice.org Calc"))
-    {
-      binary = "ooffice";
-      parameter = "calc";
-    }
-  else if (g_str_has_suffix (name, "OpenOffice.org Impress"))
-    {
-      binary = "ooffice";
-      parameter = "impress";
-    }
-  else if (g_str_has_suffix (name, "OpenOffice.org Math"))
-    {
-      binary = "ooffice";
-      parameter = "math";
-    }
-  else if (g_str_has_suffix (name, "OpenOffice.org Draw"))
-    {
-      binary = "ooffice";
-      parameter = "draw";
-    }
-  else if (g_str_has_suffix (name, "OpenOffice.org Base"))
-    {
-      binary = "ooffice";
-      parameter = "base";
-    }
-  else if (g_strcmp0 (name, "OpenOffice.org") == 0 && type == BAMF_WINDOW_NORMAL)
-    {
-      binary = "ooffice";
-    }
-  else
-    {
-      if (type != BAMF_WINDOW_NORMAL || bamf_legacy_window_get_transient (window))
+
+      parameter = strchr(class, '-');
+
+      if (parameter)
       {
-        /* Child windows can generally easily be recognized by their class */
-        if (g_strcmp0 (class, "libreoffice-writer") == 0)
+        parameter = parameter + 1;
+
+        exec = g_strconcat (binary, " --", parameter, NULL);
+        l = g_hash_table_lookup (self->priv->desktop_file_table, exec);
+        g_free (exec);
+
+        if (!l)
           {
-            binary = "libreoffice";
-            parameter = "writer";
-          }
-        else if (g_strcmp0 (class, "libreoffice-calc") == 0)
-          {
-            binary = "libreoffice";
-            parameter = "calc";
-          }
-        else if (g_strcmp0 (class, "libreoffice-impress") == 0)
-          {
-            binary = "libreoffice";
-            parameter = "impress";
-          }
-        else if (g_strcmp0 (class, "libreoffice-math") == 0)
-          {
-            binary = "libreoffice";
-            parameter = "math";
-          }
-        else if (g_strcmp0 (class, "libreoffice-draw") == 0)
-          {
-            binary = "libreoffice";
-            parameter = "draw";
-          }
-        else if (g_strcmp0 (class, "libreoffice-base") == 0)
-          {
-            binary = "libreoffice";
-            parameter = "base";
+            exec = g_strconcat (binary, " -", parameter, NULL);
+            l = g_hash_table_lookup (self->priv->desktop_file_table, exec);
+            g_free (exec);
+
+            if (!l)
+              {
+                exec = g_strconcat (binary, "-", parameter, NULL);
+                l = g_hash_table_lookup (self->priv->desktop_id_table, exec);
+                g_free (exec);
+              }
           }
       }
-
-      if (!binary)
-        {
-          /* By default fallback to the main launcher */
-          if (g_str_has_prefix (class, "OpenOffice"))
-            {
-              binary = "ooffice";
-            }
-          else
-            {
-              binary = "libreoffice";
-            }
-        }
-    }
-
-  if (!binary)
-    return NULL;
-
-  GList *l = NULL;
-
-  if (parameter)
-    {
-      exec = g_strconcat (binary, " --", parameter, NULL);
-      l = g_hash_table_lookup (self->priv->desktop_file_table, exec);
-      g_free (exec);
-
-      if (!l)
-        {
-          exec = g_strconcat (binary, " -", parameter, NULL);
-          l = g_hash_table_lookup (self->priv->desktop_file_table, exec);
-          g_free (exec);
-
-          if (!l)
-            {
-              exec = g_strconcat (binary, "-", parameter, NULL);
-              l = g_hash_table_lookup (self->priv->desktop_id_table, exec);
-              g_free (exec);
-            }
-        }
-    }
-  else
-    {
-      l = g_hash_table_lookup (self->priv->desktop_file_table, binary);
+    else
+      {
+        l = g_hash_table_lookup (self->priv->desktop_file_table, binary);
+      }
     }
 
   return (l ? (char *) l->data : NULL);
@@ -1507,7 +1390,7 @@ create_desktop_file_table (BamfMatcher * self,
 }
 
 static gboolean
-is_open_office_window (BamfMatcher * self, BamfLegacyWindow * window)
+is_libreoffice_window (BamfMatcher * self, BamfLegacyWindow * window)
 {
   const char *class_name = bamf_legacy_window_get_class_name (window);
 
@@ -2131,7 +2014,7 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
 }
 
 static void
-on_open_office_window_name_changed (BamfLegacyWindow *window, BamfMatcher* self)
+on_libreoffice_window_class_changed (BamfLegacyWindow *window, BamfMatcher* self)
 {
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
@@ -2140,7 +2023,7 @@ on_open_office_window_name_changed (BamfLegacyWindow *window, BamfMatcher* self)
   const char *new_hint;
 
   old_hint = bamf_legacy_window_get_hint (window, _NET_WM_DESKTOP_FILE);
-  new_hint = get_open_office_window_hint (self, window);
+  new_hint = get_libreoffice_window_hint (self, window);
 
   if (new_hint && g_strcmp0 (new_hint, old_hint) != 0)
     {
@@ -2151,29 +2034,28 @@ on_open_office_window_name_changed (BamfLegacyWindow *window, BamfMatcher* self)
 }
 
 static void
-on_open_office_window_closed (BamfLegacyWindow *window, BamfMatcher* self)
+on_libreoffice_window_closed (BamfLegacyWindow *window, BamfMatcher* self)
 {
-  g_signal_handlers_disconnect_by_func (window, on_open_office_window_name_changed, self);
+  g_signal_handlers_disconnect_by_func (window, on_libreoffice_window_class_changed, self);
   g_object_unref (window);
 }
 
 static char *
 get_gnome_control_center_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
 {
-  gchar *role;
+  const gchar *role;
   GList *list;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
 
-  role = bamf_legacy_window_get_hint (window, WM_WINDOW_ROLE);
+  role = bamf_legacy_window_get_role (window);
 
   if (role)
     {
       gchar *exec = g_strconcat ("gnome-control-center ", role, NULL);
       list = g_hash_table_lookup (self->priv->desktop_file_table, exec);
       g_free (exec);
-      g_free (role);
     }
 
   if (!role || !list)
@@ -2185,7 +2067,7 @@ get_gnome_control_center_window_hint (BamfMatcher * self, BamfLegacyWindow * win
 }
 
 static void
-on_gnome_control_center_window_name_changed (BamfLegacyWindow *window, BamfMatcher* self)
+on_gnome_control_center_window_role_changed (BamfLegacyWindow *window, BamfMatcher* self)
 {
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
@@ -2207,7 +2089,7 @@ on_gnome_control_center_window_name_changed (BamfLegacyWindow *window, BamfMatch
 static void
 on_gnome_control_center_window_closed (BamfLegacyWindow *window, BamfMatcher* self)
 {
-  g_signal_handlers_disconnect_by_func (window, on_gnome_control_center_window_name_changed, self);
+  g_signal_handlers_disconnect_by_func (window, on_gnome_control_center_window_role_changed, self);
   g_object_unref (window);
 }
 
@@ -2226,7 +2108,7 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
       return;
     }
 
-  if (is_open_office_window (self, window))
+  if (is_libreoffice_window (self, window))
     {
       if (win_type == BAMF_WINDOW_SPLASHSCREEN || win_type == BAMF_WINDOW_TOOLBAR)
         {
@@ -2234,7 +2116,7 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
         }
 
       char *old_hint = bamf_legacy_window_get_hint (window, _NET_WM_DESKTOP_FILE);
-      const char *new_hint = get_open_office_window_hint (self, window);
+      const char *new_hint = get_libreoffice_window_hint (self, window);
 
       if (new_hint && g_strcmp0 (old_hint, new_hint) != 0)
         {
@@ -2242,8 +2124,8 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
         }
 
       g_object_ref (window);
-      g_signal_connect (window, "name-changed", (GCallback) on_open_office_window_name_changed, self);
-      g_signal_connect (window, "closed", (GCallback) on_open_office_window_closed, self);
+      g_signal_connect (window, "class-changed", (GCallback) on_libreoffice_window_class_changed, self);
+      g_signal_connect (window, "closed", (GCallback) on_libreoffice_window_closed, self);
 
       g_free (old_hint);
     }
@@ -2258,7 +2140,7 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
         }
 
       g_object_ref (window);
-      g_signal_connect (window, "name-changed", (GCallback) on_gnome_control_center_window_name_changed, self);
+      g_signal_connect (window, "role-changed", (GCallback) on_gnome_control_center_window_role_changed, self);
       g_signal_connect (window, "closed", (GCallback) on_gnome_control_center_window_closed, self);
 
       g_free (old_hint);

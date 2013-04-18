@@ -38,6 +38,8 @@
 #define BAMF_LEGACY_WINDOW_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_LEGACY_WINDOW, BamfLegacyWindowClass))
 
 #define BAMF_LEGACY_WINDOW_SIGNAL_NAME_CHANGED     "name-changed"
+#define BAMF_LEGACY_WINDOW_SIGNAL_ROLE_CHANGED     "role-changed"
+#define BAMF_LEGACY_WINDOW_SIGNAL_CLASS_CHANGED    "class-changed"
 #define BAMF_LEGACY_WINDOW_SIGNAL_STATE_CHANGED    "state-changed"
 #define BAMF_LEGACY_WINDOW_SIGNAL_GEOMETRY_CHANGED "geometry-changed"
 #define BAMF_LEGACY_WINDOW_SIGNAL_CLOSED           "closed"
@@ -72,6 +74,7 @@ struct _BamfLegacyWindowClass
 
   BamfLegacyWindow * (*get_transient)     (BamfLegacyWindow *legacy_window);
   const char * (*get_name)                (BamfLegacyWindow *legacy_window);
+  const char * (*get_role)                (BamfLegacyWindow *legacy_window);
   const char * (*get_class_name)          (BamfLegacyWindow *legacy_window);
   const char * (*get_class_instance_name) (BamfLegacyWindow *legacy_window);
   char       * (*get_exec_string)         (BamfLegacyWindow *legacy_window);
@@ -99,6 +102,8 @@ struct _BamfLegacyWindowClass
 
   /*< signals >*/
   void     (*name_changed)     (BamfLegacyWindow *legacy_window);
+  void     (*class_changed)    (BamfLegacyWindow *legacy_window);
+  void     (*role_changed)     (BamfLegacyWindow *legacy_window);
   void     (*state_changed)    (BamfLegacyWindow *legacy_window);
   void     (*geometry_changed) (BamfLegacyWindow *legacy_window);
   void     (*closed)           (BamfLegacyWindow *legacy_window);
@@ -139,6 +144,8 @@ const char       * bamf_legacy_window_get_class_instance_name (BamfLegacyWindow 
 const char       * bamf_legacy_window_get_class_name       (BamfLegacyWindow *self);
 
 const char       * bamf_legacy_window_get_name             (BamfLegacyWindow *self);
+
+const char       * bamf_legacy_window_get_role             (BamfLegacyWindow *self);
 
 const char       * bamf_legacy_window_save_mini_icon       (BamfLegacyWindow *self);
 

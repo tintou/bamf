@@ -461,8 +461,8 @@ test_match_libreoffice_windows (void)
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-startcenter.desktop");
   g_assert (find_window_in_app (app, BAMF_LEGACY_WINDOW (test_win)));
 
-  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-base", class_instance);
   bamf_legacy_window_test_set_name (test_win, "FooDoc.odb - LibreOffice Base");
+  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-base", class_instance);
   g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-startcenter.desktop"));
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-base.desktop");
   g_assert (app);
@@ -472,8 +472,8 @@ test_match_libreoffice_windows (void)
   g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-base.desktop");
   g_free (hint);
 
-  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-calc", class_instance);
   bamf_legacy_window_test_set_name (test_win, "FooDoc.ods - LibreOffice Calc");
+  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-calc", class_instance);
   g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-base.desktop"));
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-calc.desktop");
   g_assert (app);
@@ -483,8 +483,8 @@ test_match_libreoffice_windows (void)
   g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-calc.desktop");
   g_free (hint);
 
-  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-draw", class_instance);
   bamf_legacy_window_test_set_name (test_win, "FooDoc.odg - LibreOffice Draw");
+  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-draw", class_instance);
   g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-calc.desktop"));
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-draw.desktop");
   g_assert (app);
@@ -494,8 +494,8 @@ test_match_libreoffice_windows (void)
   g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-draw.desktop");
   g_free (hint);
 
-  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-impress", class_instance);
   bamf_legacy_window_test_set_name (test_win, "FooDoc.odp - LibreOffice Impress");
+  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-impress", class_instance);
   g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-draw.desktop"));
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-impress.desktop");
   g_assert (app);
@@ -505,8 +505,8 @@ test_match_libreoffice_windows (void)
   g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-impress.desktop");
   g_free (hint);
 
-  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-math", class_instance);
   bamf_legacy_window_test_set_name (test_win, "FooDoc.odf - LibreOffice Math");
+  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-math", class_instance);
   g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-impress.desktop"));
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-math.desktop");
   g_assert (app);
@@ -516,8 +516,8 @@ test_match_libreoffice_windows (void)
   g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-math.desktop");
   g_free (hint);
 
-  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-writer", class_instance);
   bamf_legacy_window_test_set_name (test_win, "FooDoc.odt - LibreOffice Writer");
+  bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-writer", class_instance);
   g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-math.desktop"));
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-writer.desktop");
   g_assert (app);
@@ -570,7 +570,7 @@ test_match_gnome_control_center_panels (void)
 
   test_win = bamf_legacy_window_test_new (xid, "System Settings", NULL, exec);
   bamf_legacy_window_test_set_wmclass (test_win, class_name, class_instance);
-  bamf_legacy_window_set_hint (BAMF_LEGACY_WINDOW (test_win), WM_WINDOW_ROLE, NULL);
+  bamf_legacy_window_test_set_role (test_win, NULL);
   _bamf_legacy_screen_open_test_window (screen, test_win);
 
   hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
@@ -579,8 +579,8 @@ test_match_gnome_control_center_panels (void)
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-control-center.desktop");
   g_assert (find_window_in_app (app, BAMF_LEGACY_WINDOW (test_win)));
 
-  bamf_legacy_window_set_hint (BAMF_LEGACY_WINDOW (test_win), WM_WINDOW_ROLE, "display");
   bamf_legacy_window_test_set_name (test_win, "Displays");
+  bamf_legacy_window_test_set_role (test_win, "display");
   g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-control-center.desktop"));
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-display-panel.desktop");
   g_assert (app);
@@ -590,8 +590,8 @@ test_match_gnome_control_center_panels (void)
   g_assert_cmpstr (hint, ==, DATA_DIR"/gnome-display-panel.desktop");
   g_free (hint);
 
-  bamf_legacy_window_set_hint (BAMF_LEGACY_WINDOW (test_win), WM_WINDOW_ROLE, "mouse");
   bamf_legacy_window_test_set_name (test_win, "Mouse and Touchpad");
+  bamf_legacy_window_test_set_role (test_win, "mouse");
   g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-display-panel.desktop"));
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-mouse-panel.desktop");
   g_assert (app);
@@ -601,8 +601,8 @@ test_match_gnome_control_center_panels (void)
   g_assert_cmpstr (hint, ==, DATA_DIR"/gnome-mouse-panel.desktop");
   g_free (hint);
 
-  bamf_legacy_window_set_hint (BAMF_LEGACY_WINDOW (test_win), WM_WINDOW_ROLE, "invalid-role");
   bamf_legacy_window_test_set_name (test_win, "Invalid Panel");
+  bamf_legacy_window_test_set_role (test_win, "invalid-role");
   g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-mouse-panel.desktop"));
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-control-center.desktop");
   g_assert (app);
