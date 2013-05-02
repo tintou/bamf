@@ -28,7 +28,7 @@
 #include "bamf.h"
 
 void test_application_create_suite (GDBusConnection *connection);
-void test_matcher_create_suite (void);
+void test_matcher_create_suite (GDBusConnection *connection);
 void test_view_create_suite (GDBusConnection *connection);
 void test_window_create_suite (void);
 
@@ -39,10 +39,12 @@ on_bus_acquired (GDBusConnection *connection, const gchar *name, gpointer data)
 {
   GMainLoop *loop = data;
 
-  test_matcher_create_suite ();
+  test_matcher_create_suite (connection);
   test_view_create_suite (connection);
   test_window_create_suite ();
   test_application_create_suite (connection);
+
+  g_setenv("PATH", TESTDIR"/bamfdaemon/data/bin", TRUE);
   result = g_test_run ();
 
   g_main_loop_quit (loop);
@@ -63,6 +65,8 @@ main (gint argc, gchar *argv[])
   gtk_init (&argc, &argv);
   g_test_init (&argc, &argv, NULL);
   glibtop_init ();
+
+  g_setenv("BAMF_TEST_MODE", "TRUE", TRUE);
 
   loop = g_main_loop_new (NULL, FALSE);
 

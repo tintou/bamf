@@ -29,6 +29,4 @@
 #define BAMF_CONTROL_PATH "/org/ayatana/bamf/control"
 #define BAMF_MATCHER_PATH "/org/ayatana/bamf/matcher"
 
-#define BAMF_INDICATOR_SOURCE_PATH "/org/ayatana/bamf/IndicatorSource"
-
 #endif

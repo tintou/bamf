@@ -41,6 +41,8 @@ enum
 enum
 {
   CLOSED_INTERNAL,
+  CHILD_ADDED_INTERNAL,
+  CHILD_REMOVED_INTERNAL,
   EXPORTED,
 
   LAST_SIGNAL,
@@ -56,7 +58,21 @@ struct _BamfViewPrivate
   GList * children;
   GList * parents;
   gboolean closed;
+  guint active_changed_idle;
 };
+
+static gboolean
+on_active_changed_idle (gpointer data)
+{
+  g_return_val_if_fail (BAMF_IS_VIEW (data), FALSE);
+
+  BamfView *self = BAMF_VIEW (data);
+  gboolean active = bamf_view_is_active (self);
+
+  g_signal_emit_by_name (self, "active-changed", active);
+
+  return FALSE;
+}
 
 static void
 bamf_view_active_changed (BamfView *view, gboolean active)
@@ -70,7 +86,13 @@ bamf_view_active_changed (BamfView *view, gboolean active)
     }
 
   if (emit)
-    g_signal_emit_by_name (view, "active-changed", active);
+    {
+      if (view->priv->active_changed_idle)
+        g_source_remove (view->priv->active_changed_idle);
+
+      guint idle = g_idle_add_full (G_PRIORITY_DEFAULT, on_active_changed_idle, view, NULL);
+      view->priv->active_changed_idle = idle;
+    }
 }
 
 static void
@@ -278,6 +300,8 @@ bamf_view_add_child (BamfView *view,
   if (BAMF_VIEW_GET_CLASS (view)->child_added)
     BAMF_VIEW_GET_CLASS (view)->child_added (view, child);
 
+  g_signal_emit (view, view_signals[CHILD_ADDED_INTERNAL], 0, child);
+
   added = bamf_view_get_path (child);
   g_signal_emit_by_name (view, "child-added", added);
 }
@@ -296,6 +320,8 @@ bamf_view_remove_child (BamfView *view,
   /* Make sure our parent child lists are ok, pay attention to whose list you add parents to */
   view->priv->children = g_list_remove (view->priv->children, child);
   child->priv->parents = g_list_remove (child->priv->parents, view);
+
+  g_signal_emit (view, view_signals[CHILD_REMOVED_INTERNAL], 0, child);
 
   removed = bamf_view_get_path (child);
   g_signal_emit_by_name (view, "child-removed", removed);
@@ -496,10 +522,13 @@ bamf_view_is_on_bus (BamfView *view)
   GDBusInterfaceSkeleton *dbus_iface;
   const gchar *exported_path;
 
+  if (!view->priv->path)
+    return FALSE;
+
   dbus_iface = G_DBUS_INTERFACE_SKELETON (view->priv->dbus_iface);
   exported_path = g_dbus_interface_skeleton_get_object_path (dbus_iface);
 
-  return (view->priv->path != NULL && exported_path != NULL);
+  return (exported_path != NULL);
 }
 
 static void
@@ -683,7 +712,8 @@ bamf_view_dispose (GObject *object)
       if (g_dbus_interface_skeleton_get_object_path (iface))
         g_dbus_interface_skeleton_unexport (iface);
     }
-  g_list_free (ifaces);
+
+  g_list_free_full (ifaces, g_object_unref);
 
   if (priv->name)
     {
@@ -707,6 +737,12 @@ bamf_view_dispose (GObject *object)
     {
       g_list_free (priv->parents);
       priv->parents = NULL;
+    }
+
+  if (priv->active_changed_idle)
+    {
+      g_source_remove (priv->active_changed_idle);
+      priv->active_changed_idle = 0;
     }
 
   G_OBJECT_CLASS (bamf_view_parent_class)->dispose (object);
@@ -835,16 +871,24 @@ bamf_view_class_init (BamfViewClass * klass)
   view_signals [CLOSED_INTERNAL] =
     g_signal_new ("closed-internal",
                   G_OBJECT_CLASS_TYPE (klass),
-                  0,
-                  0, NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
+                  0, 0, NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+
+  view_signals [CHILD_ADDED_INTERNAL] =
+    g_signal_new ("child-added-internal",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0, 0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 1, BAMF_TYPE_VIEW);
+
+  view_signals [CHILD_REMOVED_INTERNAL] =
+    g_signal_new ("child-removed-internal",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0, 0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 1, BAMF_TYPE_VIEW);
 
   view_signals [EXPORTED] =
     g_signal_new ("exported",
                   G_OBJECT_CLASS_TYPE (klass),
-                  0,
-                  0, NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
+                  0, 0, NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 }

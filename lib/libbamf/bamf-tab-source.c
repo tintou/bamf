@@ -68,6 +68,12 @@ bamf_tab_source_show_tab        (BamfTabSource *source,
   return TRUE;
 }
 
+/**
+ * bamf_tab_source_get_tab_ids:
+ * @source: a #BamfTabSource
+ *
+ * Returns: (transfer none) (allow-none) (array zero-terminated=1): A string array containing the IDs of this #BamfTabSource.
+ */
 char **
 bamf_tab_source_get_tab_ids     (BamfTabSource *source)
 {
@@ -79,6 +85,13 @@ bamf_tab_source_get_tab_ids     (BamfTabSource *source)
   return NULL;
 }
 
+/**
+ * bamf_tab_source_get_tab_preview:
+ * @source: a #BamfTabSource
+ * @tab_id: an ID
+ *
+ * Returns: (transfer none) (allow-none): A #GArray containing the preview for the given ID of this #BamfTabSource.
+ */
 GArray *
 bamf_tab_source_get_tab_preview (BamfTabSource *source,
                                  char *tab_id)
@@ -212,37 +225,37 @@ bamf_tab_source_class_init (BamfTabSourceClass *klass)
   g_type_class_add_private (object_class, sizeof (BamfTabSourcePrivate));
 
   dbus_g_object_type_install_info (BAMF_TYPE_TAB_SOURCE,
-				   &dbus_glib_bamf_tab_source_object_info);
+                                   &dbus_glib_bamf_tab_source_object_info);
 
   bamf_tab_source_signals [TAB_URI_CHANGED] =
-  	g_signal_new ("tab-uri-changed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              0,
-  	              NULL, NULL,
-  	              _bamf_marshal_VOID__STRING_STRING_STRING,
-  	              G_TYPE_NONE, 3,
-  	              G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+        g_signal_new ("tab-uri-changed",
+                      G_OBJECT_CLASS_TYPE (klass),
+                      G_SIGNAL_RUN_FIRST,
+                      0,
+                      NULL, NULL,
+                      _bamf_marshal_VOID__STRING_STRING_STRING,
+                      G_TYPE_NONE, 3,
+                      G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
   bamf_tab_source_signals [TAB_OPENED] =
-  	g_signal_new ("tab-opened",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              0,
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__STRING,
-  	              G_TYPE_NONE, 1,
-  	              G_TYPE_STRING);
+        g_signal_new ("tab-opened",
+                      G_OBJECT_CLASS_TYPE (klass),
+                      G_SIGNAL_RUN_FIRST,
+                      0,
+                      NULL, NULL,
+                      g_cclosure_marshal_VOID__STRING,
+                      G_TYPE_NONE, 1,
+                      G_TYPE_STRING);
 
   bamf_tab_source_signals [TAB_CLOSED] =
-  	g_signal_new ("tab-closed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              G_SIGNAL_RUN_FIRST,
-  	              0,
-  	              NULL, NULL,
-  	              g_cclosure_marshal_VOID__STRING,
-  	              G_TYPE_NONE, 1,
-  	              G_TYPE_STRING);
+        g_signal_new ("tab-closed",
+                      G_OBJECT_CLASS_TYPE (klass),
+                      G_SIGNAL_RUN_FIRST,
+                      0,
+                      NULL, NULL,
+                      g_cclosure_marshal_VOID__STRING,
+                      G_TYPE_NONE, 1,
+                      G_TYPE_STRING);
 }
 
 static void

@@ -68,9 +68,55 @@ struct _BamfApplicationPrivate
   gchar           *application_type;
   gchar           *desktop_file;
   GList           *cached_xids;
-  int              show_stubs;
+  gchar           **cached_mimes;
+  int             show_stubs;
 };
 
+/**
+ * bamf_application_get_supported_mime_types:
+ * @application: a #BamfApplication
+ *
+ * Returns: (transfer full) (array zero-terminated=1): A string array containing the supported mime-types.
+ */
+gchar **
+bamf_application_get_supported_mime_types (BamfApplication *application)
+{
+  GError *error = NULL;
+  gchar **mimes = NULL;
+
+  if (application->priv->cached_mimes)
+    return g_strdupv (application->priv->cached_mimes);
+
+  if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
+    return NULL;
+
+  if (!dbus_g_proxy_call (application->priv->proxy,
+                          "SupportedMimeTypes",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRV, &mimes,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch mimes: %s", error->message);
+      g_error_free (error);
+
+      return NULL;
+    }
+
+  application->priv->cached_mimes = g_strdupv (mimes);
+
+  return mimes;
+}
+
+/**
+ * bamf_application_get_desktop_file:
+ * @application: a #BamfApplication
+ *
+ * Used to fetch the path to the .desktop file associated with the passed application. If
+ * none exists, the result is NULL.
+ *
+ * Returns: A string representing the path to the desktop file.
+ */
 const gchar *
 bamf_application_get_desktop_file (BamfApplication *application)
 {
@@ -110,6 +156,48 @@ bamf_application_get_desktop_file (BamfApplication *application)
   return file;
 }
 
+gboolean
+bamf_application_get_application_menu (BamfApplication *application,
+                                      gchar **name,
+                                      gchar **object_path)
+{
+  BamfApplicationPrivate *priv;
+  GError *error = NULL;
+  
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+  
+  priv = application->priv;
+  
+  if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
+    return FALSE;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "ApplicationMenu",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, name,
+                         G_TYPE_STRING, object_path,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch application menu path: %s", error->message);
+      g_error_free (error);
+      
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+/**
+ * bamf_application_get_applicaton_type:
+ * @application: a #BamfApplication
+ *
+ * Used to determine what type of application a .desktop file represents. Current values are:
+ *  "system" : A normal application, like firefox or evolution
+ *  "web"    : A web application, like facebook or twitter
+ *
+ * Returns: A string
+ */
 const gchar *
 bamf_application_get_application_type (BamfApplication *application)
 {
@@ -143,6 +231,14 @@ bamf_application_get_application_type (BamfApplication *application)
   return type;
 }
 
+/**
+ * bamf_application_get_xids:
+ * @application: a #BamfApplication
+ *
+ * Used to fetch all #BamfWindow's xids associated with the passed #BamfApplication.
+ *
+ * Returns: (element-type guint32) (transfer full): An array of xids.
+ */
 GArray *
 bamf_application_get_xids (BamfApplication *application)
 {
@@ -172,6 +268,14 @@ bamf_application_get_xids (BamfApplication *application)
   return xids;
 }
 
+/**
+ * bamf_application_get_windows:
+ * @application: a #BamfApplication
+ *
+ * Used to fetch all #BamfWindow's associated with the passed #BamfApplication.
+ *
+ * Returns: (element-type Bamf.Window) (transfer container): A list of #BamfWindow's.
+ */
 GList *
 bamf_application_get_windows (BamfApplication *application)
 {
@@ -197,6 +301,14 @@ bamf_application_get_windows (BamfApplication *application)
   return windows;
 }
 
+/**
+ * bamf_application_get_show_menu_stubs:
+ * @application: a #BamfApplication
+ *
+ * Used to discover whether the application wants menu stubs shown.
+ *
+ * Returns: Whether the stubs should be shown.
+ */
 gboolean
 bamf_application_get_show_menu_stubs (BamfApplication * application)
 {
@@ -244,6 +356,15 @@ bamf_application_get_click_suggestion (BamfView *view)
 }
 
 static void
+bamf_application_on_supported_mime_types_changed (DBusGProxy *proxy, const gchar *const *mimes, BamfApplication *self)
+{
+  if (self->priv->cached_mimes)
+    g_strfreev (self->priv->cached_mimes);
+
+  self->priv->cached_mimes = g_strdupv ((gchar**)mimes);
+}
+
+static void
 bamf_application_on_window_added (DBusGProxy *proxy, char *path, BamfApplication *self)
 {
   BamfView *view;
@@ -287,6 +408,46 @@ bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplicati
     }
 }
 
+/**
+ * bamf_application_get_focusable_child:
+ * @application: a #BamfApplication
+ *
+ * Returns: (transfer none): The focusable child for this application.
+ */
+BamfView *
+bamf_application_get_focusable_child (BamfApplication *application)
+{
+  BamfApplicationPrivate *priv;
+  BamfView *ret;
+  gchar *path;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+  priv = application->priv;
+  
+  if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
+    return NULL;
+
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "FocusableChild",
+                          &error,
+                          G_TYPE_INVALID,
+                          G_TYPE_STRING, &path,
+                          G_TYPE_INVALID))
+    {
+      g_warning ("Failed to fetch focus xids: %s", error->message);
+      g_error_free (error);
+      
+      return NULL;
+    }
+
+  ret = _bamf_factory_view_for_path (_bamf_factory_get_default (), path);
+  
+  g_free (path);
+  
+  return ret;
+}
+
 GList *
 _bamf_application_get_cached_xids (BamfApplication *self)
 {
@@ -315,6 +476,10 @@ bamf_application_unset_proxy (BamfApplication* self)
                                  "WindowRemoved",
                                  (GCallback) bamf_application_on_window_removed,
                                  self);
+  dbus_g_proxy_disconnect_signal (priv->proxy,
+                                  "SupportedMimeTypesChanged",
+                                  (GCallback) bamf_application_on_supported_mime_types_changed,
+                                  self);
 
   g_object_unref (priv->proxy);
   priv->proxy = NULL;
@@ -346,7 +511,7 @@ bamf_application_dispose (GObject *object)
       g_list_free (priv->cached_xids);
       priv->cached_xids = NULL;
     }
-
+  
   bamf_application_unset_proxy (self);
 
   if (G_OBJECT_CLASS (bamf_application_parent_class)->dispose)
@@ -363,6 +528,7 @@ bamf_application_set_path (BamfView *view, const char *path)
   priv = self->priv;
 
   bamf_application_unset_proxy (self);
+
   priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
                                            "org.ayatana.bamf",
                                            path,
@@ -383,6 +549,11 @@ bamf_application_set_path (BamfView *view, const char *path)
                            G_TYPE_STRING,
                            G_TYPE_INVALID);
 
+  dbus_g_proxy_add_signal (priv->proxy,
+                           "SupportedMimeTypesChanged",
+                           G_TYPE_STRV,
+                           G_TYPE_INVALID);
+
   dbus_g_proxy_connect_signal (priv->proxy,
                                "WindowAdded",
                                (GCallback) bamf_application_on_window_added,
@@ -392,6 +563,12 @@ bamf_application_set_path (BamfView *view, const char *path)
   dbus_g_proxy_connect_signal (priv->proxy,
                                "WindowRemoved",
                                (GCallback) bamf_application_on_window_removed,
+                               self,
+                               NULL);
+
+  dbus_g_proxy_connect_signal (priv->proxy,
+                               "SupportedMimeTypesChanged",
+                               (GCallback) bamf_application_on_supported_mime_types_changed,
                                self,
                                NULL);
 
@@ -440,23 +617,23 @@ bamf_application_load_data_from_file (BamfApplication *self)
   name = g_strdup (g_app_info_get_name (G_APP_INFO (desktop_info)));
 
   if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL))
-		{
-		  /* Grab the better name if its available */
-		  gchar *fullname = NULL;
-		  error = NULL;
-		  fullname = g_key_file_get_locale_string (keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL, &error);
-		  if (error != NULL)
-		    {
-		      g_error_free (error);
-		      if (fullname)
-		        g_free (fullname);
-		    }
-		  else
-		    {
-		      g_free (name);
-		      name = fullname;
-		    }
-		}
+                {
+                  /* Grab the better name if its available */
+                  gchar *fullname = NULL;
+                  error = NULL;
+                  fullname = g_key_file_get_locale_string (keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL, &error);
+                  if (error != NULL)
+                    {
+                      g_error_free (error);
+                      if (fullname)
+                        g_free (fullname);
+                    }
+                  else
+                    {
+                      g_free (name);
+                      name = fullname;
+                    }
+                }
 
   _bamf_view_set_name (BAMF_VIEW (self), name);
 
@@ -486,22 +663,22 @@ bamf_application_class_init (BamfApplicationClass *klass)
   g_type_class_add_private (obj_class, sizeof (BamfApplicationPrivate));
 
   application_signals [WINDOW_ADDED] =
-  	g_signal_new ("window-added",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1,
-  	              BAMF_TYPE_VIEW);
+        g_signal_new ("window-added",
+                      G_OBJECT_CLASS_TYPE (klass),
+                      0,
+                      0, NULL, NULL,
+                      g_cclosure_marshal_VOID__OBJECT,
+                      G_TYPE_NONE, 1,
+                      BAMF_TYPE_VIEW);
 
   application_signals [WINDOW_REMOVED] =
-  	g_signal_new ("window-removed",
-  	              G_OBJECT_CLASS_TYPE (klass),
-  	              0,
-  	              0, NULL, NULL,
-  	              g_cclosure_marshal_VOID__OBJECT,
-  	              G_TYPE_NONE, 1,
-  	              BAMF_TYPE_VIEW);
+        g_signal_new ("window-removed",
+                      G_OBJECT_CLASS_TYPE (klass),
+                      0,
+                      0, NULL, NULL,
+                      g_cclosure_marshal_VOID__OBJECT,
+                      G_TYPE_NONE, 1,
+                      BAMF_TYPE_VIEW);
 }
 
 

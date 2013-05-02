@@ -19,11 +19,10 @@
  */
 
 
-#include "bamf-tab-source.h"
 #include "bamf-matcher.h"
 #include "bamf-control.h"
-#include "bamf-indicator-source.h"
 #include "bamf-daemon.h"
+#include "bamf-unity-webapps-observer.h"
 
 G_DEFINE_TYPE (BamfControl, bamf_control, BAMF_DBUS_TYPE_CONTROL_SKELETON);
 #define BAMF_CONTROL_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -86,37 +85,12 @@ on_dbus_handle_quit (BamfDBusControl *interface,
 }
 
 static gboolean
-on_dbus_handle_set_approver_behavior (BamfDBusControl *interface,
-                                      GDBusMethodInvocation *invocation,
-                                      gint behavior,
-                                      BamfControl *self)
-{
-  bamf_control_set_approver_behavior (self, behavior);
-  g_dbus_method_invocation_return_value (invocation, NULL);
-
-  return TRUE;
-}
-
-static gboolean
 on_dbus_handle_om_nom_nom_desktop_file (BamfDBusControl *interface,
                                         GDBusMethodInvocation *invocation,
                                         const gchar *desktop_file,
                                         BamfControl *self)
 {
   bamf_control_insert_desktop_file (self, desktop_file);
-  g_dbus_method_invocation_return_value (invocation, NULL);
-
-  return TRUE;
-}
-
-static gboolean
-on_dbus_handle_register_tab_provider (BamfDBusControl *interface,
-                                      GDBusMethodInvocation *invocation,
-                                      const gchar *tab_path,
-                                      BamfControl *self)
-{
-  const gchar *sender = g_dbus_method_invocation_get_sender (invocation);
-  bamf_control_register_tab_provider (self, sender, tab_path);
   g_dbus_method_invocation_return_value (invocation, NULL);
 
   return TRUE;
@@ -145,14 +119,8 @@ bamf_control_init (BamfControl * self)
   g_signal_connect (self, "handle-quit",
                     G_CALLBACK (on_dbus_handle_quit), self);
 
-  g_signal_connect (self, "handle-set-approver-behavior",
-                    G_CALLBACK (on_dbus_handle_set_approver_behavior), self);
-
   g_signal_connect (self, "handle-om-nom-nom-desktop-file",
                     G_CALLBACK (on_dbus_handle_om_nom_nom_desktop_file), self);
-
-  g_signal_connect (self, "handle-register-tab-provider",
-                    G_CALLBACK (on_dbus_handle_register_tab_provider), self);
 
   g_signal_connect (self, "handle-register-application-for-pid",
                     G_CALLBACK (on_dbus_handle_register_application_for_pid), self);
@@ -178,14 +146,6 @@ bamf_control_class_init (BamfControlClass * klass)
 }
 
 void
-bamf_control_set_approver_behavior (BamfControl *control,
-                                    gint32 behavior)
-{
-  BamfIndicatorSource *indicator_source = bamf_indicator_source_get_default ();
-  bamf_indicator_source_set_behavior (indicator_source, behavior);
-}
-
-void
 bamf_control_register_application_for_pid (BamfControl *control,
                                            const char *application,
                                            gint32 pid)
@@ -200,26 +160,6 @@ bamf_control_insert_desktop_file (BamfControl *control,
 {
   BamfMatcher *matcher = bamf_matcher_get_default ();
   bamf_matcher_load_desktop_file (matcher, path);
-}
-
-void
-bamf_control_register_tab_provider (BamfControl *control,
-                                    const char *sender,
-                                    const char *path)
-{
-  BamfTabSource *source;
-
-  if (!path || !sender)
-    {
-      return;
-    }
-
-  source = bamf_tab_source_new (g_strdup (sender), g_strdup (path));
-
-  if (BAMF_IS_TAB_SOURCE (source))
-    {
-      control->priv->sources = g_list_prepend (control->priv->sources, source);
-    }
 }
 
 static gboolean

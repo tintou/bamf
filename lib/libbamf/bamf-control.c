@@ -112,6 +112,11 @@ bamf_control_init (BamfControl *self)
     }
 }
 
+/**
+ * bamf_control_get_default:
+ *
+ * Returns: (transfer none): The default #BamfControl reference.
+ */
 BamfControl *
 bamf_control_get_default (void)
 {
@@ -119,28 +124,6 @@ bamf_control_get_default (void)
     return g_object_ref (default_control);
 
   return (default_control = g_object_new (BAMF_TYPE_CONTROL, NULL));
-}
-
-void
-bamf_control_set_approver_behavior (BamfControl *control,
-                                    gint32       behavior)
-{
-  BamfControlPrivate *priv;
-  GError *error = NULL;
-
-  g_return_if_fail (BAMF_IS_CONTROL (control));
-  priv = control->priv;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "SetApproverBehavior",
-                          &error,
-                          G_TYPE_INT, behavior,
-                          G_TYPE_INVALID,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to register application: %s", error->message);
-      g_error_free (error);
-    }
 }
 
 void
@@ -180,7 +163,7 @@ bamf_control_register_application_for_pid (BamfControl  *control,
                           "RegisterApplicationForPid",
                           &error,
                           G_TYPE_STRING, application,
-                          G_TYPE_UINT, pid,
+                          G_TYPE_INT, pid,
                           G_TYPE_INVALID,
                           G_TYPE_INVALID))
     {
