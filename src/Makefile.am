@@ -6,12 +6,6 @@ EXTRA_DIST =
 
 include $(top_srcdir)/Makefile.am.marshal
 
-INCLUDE = \
-		-I.		\
-		-I$(srcdir) \
-		-I$(top_builddir)/lib/libbamf-private \
-		$(NULL)
-
 bamfdaemondir = $(pkglibexecdir)
 
 bamfdaemon_PROGRAMS = \
@@ -121,6 +115,7 @@ bamfdaemon_CFLAGS = \
 		-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
 		-I$(srcdir) \
 		-I$(builddir) \
+		-I$(top_srcdir)/lib \
 		$(GLIB_CFLAGS) \
 		$(GTK_CFLAGS) \
 		$(WNCK_CFLAGS) \

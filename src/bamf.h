@@ -21,7 +21,7 @@
 #ifndef __BAMF_H__
 #define __BAMF_H__
 
-#include <lib/libbamf-private/bamf-private.h>
+#include <libbamf-private/bamf-private.h>
 
 #define BAMF_DBUS_PATH "/org/ayatana/bamf"
 #define BAMF_DBUS_SERVICE "org.ayatana.bamf"

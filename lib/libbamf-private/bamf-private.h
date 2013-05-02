@@ -20,8 +20,8 @@
 #ifndef __BAMF_PRIVATE_H__
 #define __BAMF_PRIVATE_H__
 
-#include "bamf-gdbus-generated.h"
-#include "bamf-gdbus-view-generated.h"
-#include "bamf-gdbus-browser-generated.h"
+#include <lib/libbamf-private/bamf-gdbus-generated.h>
+#include <lib/libbamf-private/bamf-gdbus-view-generated.h>
+#include <lib/libbamf-private/bamf-gdbus-browser-generated.h>
 
 #endif
