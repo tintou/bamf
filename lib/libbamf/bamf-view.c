@@ -35,12 +35,14 @@
 #include <config.h>
 #endif
 
+#include <libbamf-private/bamf-private.h>
+
 #include "bamf-view.h"
 #include "bamf-view-private.h"
 #include "bamf-factory.h"
+#include "bamf-tab.h"
 #include "bamf-window.h"
 #include "bamf-marshal.h"
-#include <libbamf-private/bamf-private.h>
 
 G_DEFINE_TYPE (BamfView, bamf_view, G_TYPE_INITIALLY_UNOWNED);
 
@@ -53,11 +55,11 @@ enum
   CLOSED,
   CHILD_ADDED,
   CHILD_REMOVED,
+  CHILD_MOVED,
   RUNNING_CHANGED,
   URGENT_CHANGED,
   VISIBLE_CHANGED,
   NAME_CHANGED,
-
   LAST_SIGNAL,
 };
 
@@ -82,11 +84,19 @@ struct _BamfViewPrivate
   gchar            *local_name;
   gboolean          is_closed;
   gboolean          sticky;
-  GList            *cached_children;
-};
+  GList            *cached_children;};
 
 static void bamf_view_unset_proxy (BamfView *self);
 
+/**
+ * bamf_view_get_children:
+ * @view: a #BamfView
+ *
+ * Note: Makes sever dbus calls the first time this is called on a view. Dbus messaging is reduced afterwards.
+ *
+ * Returns: (element-type Bamf.View) (transfer container): Returns a list of #BamfView which must be
+ *           freed after usage. Elements of the list are owned by bamf and should not be unreffed.
+ */
 GList *
 bamf_view_get_children (BamfView *view)
 {
@@ -121,7 +131,7 @@ bamf_view_get_children (BamfView *view)
 
   len = g_strv_length (children);
 
-  for (i = len-1; i >= 0; i--)
+  for (i = len-1; i >= 0; --i)
     {
       view = _bamf_factory_view_for_path (_bamf_factory_get_default (), children[i]);
       results = g_list_prepend (results, g_object_ref (view));
@@ -131,6 +141,12 @@ bamf_view_get_children (BamfView *view)
   return g_list_copy (priv->cached_children);
 }
 
+/**
+ * bamf_view_is_closed:
+ * @view: a #BamfView
+ *
+ * Determines if the view is closed or not.
+ */
 gboolean
 bamf_view_is_closed (BamfView *view)
 {
@@ -139,6 +155,12 @@ bamf_view_is_closed (BamfView *view)
   return view->priv->is_closed;
 }
 
+/**
+ * bamf_view_is_active:
+ * @view: a #BamfView
+ *
+ * Determines if the view is currently active and focused by the user. Useful for an active window indicator.
+ */
 gboolean
 bamf_view_is_active (BamfView *view)
 {
@@ -154,10 +176,22 @@ bamf_view_is_active (BamfView *view)
 
 }
 
+/**
+ * bamf_view_is_user_visible:
+ * @view: a #BamfView
+ *
+ * Returns: a boolean useful for determining if a particular view is "user visible". User visible
+ * is a concept relating to whether or not a window should be shown in a launcher tasklist.
+ *
+ * Since: 0.4.0
+ */
 gboolean
-bamf_view_user_visible (BamfView *self)
+bamf_view_is_user_visible (BamfView *self)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (self), FALSE);
+
+  if (BAMF_VIEW_GET_CLASS (self)->is_user_visible)
+    return BAMF_VIEW_GET_CLASS (self)->is_user_visible (self);
 
   if (!_bamf_view_remote_ready (self))
     return FALSE;
@@ -165,6 +199,27 @@ bamf_view_user_visible (BamfView *self)
   return bamf_dbus_item_view_get_user_visible (self->priv->proxy);
 }
 
+/**
+ * bamf_view_user_visible: (skip)
+ * @view: a #BamfView
+ *
+ * Returns: a boolean useful for determining if a particular view is "user visible". User visible
+ * is a concept relating to whether or not a window should be shown in a launcher tasklist.
+ *
+ * Deprecated: 0.4.0
+ */
+gboolean
+bamf_view_user_visible (BamfView *self)
+{
+  return bamf_view_is_user_visible (self);
+}
+
+/**
+ * bamf_view_is_running:
+ * @view: a #BamfView
+ *
+ * Determines if the view is currently running. Useful for a running window indicator.
+ */
 gboolean
 bamf_view_is_running (BamfView *self)
 {
@@ -179,6 +234,12 @@ bamf_view_is_running (BamfView *self)
   return bamf_dbus_item_view_get_running (self->priv->proxy);
 }
 
+/**
+ * bamf_view_is_urgent:
+ * @view: a #BamfView
+ *
+ * Determines if the view is currently requiring attention. Useful for a running window indicator.
+ */
 gboolean
 bamf_view_is_urgent (BamfView *self)
 {
@@ -248,6 +309,12 @@ bamf_view_set_sticky (BamfView *view, gboolean value)
     g_object_unref (view);
 }
 
+/**
+ * bamf_view_get_icon:
+ * @view: a #BamfView
+ *
+ * Gets the icon of a view. This icon is used to visually represent the view. 
+ */
 gchar *
 bamf_view_get_icon (BamfView *self)
 {
@@ -278,6 +345,12 @@ bamf_view_get_icon (BamfView *self)
   return g_strdup (priv->local_icon);
 }
 
+/**
+ * bamf_view_get_name:
+ * @view: a #BamfView
+ *
+ * Gets the name of a view. This name is a short name best used to represent the view with text.
+ */
 gchar *
 bamf_view_get_name (BamfView *self)
 {
@@ -317,6 +390,15 @@ _bamf_view_remote_ready (BamfView *view)
   return FALSE;
 }
 
+/**
+ * bamf_view_get_view_type:
+ * @view: a #BamfView
+ *
+ * The view type of a window is a short string used to represent all views of the same class. These
+ * descriptions should not be used to do casting as they are not considered stable.
+ *
+ * Virtual: view_type
+ */
 const gchar *
 bamf_view_get_view_type (BamfView *self)
 {
@@ -360,6 +442,17 @@ bamf_view_get_click_suggestion (BamfView *self)
 }
 
 static void
+bamf_view_child_xid_changed (GObject *object, GParamSpec *pspec, gpointer user_data)
+{
+  BamfView *self;
+
+  self = (BamfView *)user_data;
+
+  g_signal_emit (G_OBJECT (self), view_signals[CHILD_MOVED], 0, BAMF_VIEW (object));
+  g_signal_emit (G_OBJECT (self), view_signals[VISIBLE_CHANGED], 0);
+}
+
+static void
 bamf_view_on_child_added (BamfDBusItemView *proxy, const char *path, BamfView *self)
 {
   BamfView *view;
@@ -367,6 +460,12 @@ bamf_view_on_child_added (BamfDBusItemView *proxy, const char *path, BamfView *s
 
   view = _bamf_factory_view_for_path (_bamf_factory_get_default (), path);
   priv = self->priv;
+
+  if (BAMF_IS_TAB (view))
+    {
+      g_signal_connect (view, "notify::xid",
+                        G_CALLBACK (bamf_view_child_xid_changed), self);
+    }
 
   if (priv->cached_children)
     {
@@ -384,6 +483,9 @@ bamf_view_on_child_removed (BamfDBusItemView *proxy, char *path, BamfView *self)
   BamfViewPrivate *priv;
   view = _bamf_factory_view_for_path (_bamf_factory_get_default (), path);
   priv = self->priv;
+
+  if (BAMF_IS_TAB (view))
+    g_signal_handlers_disconnect_by_func (view, bamf_view_on_child_added, self);
 
   if (priv->cached_children)
     {
@@ -436,6 +538,26 @@ bamf_view_on_user_visible_changed (BamfDBusItemView *proxy, GParamSpec *param, B
   g_object_notify (G_OBJECT (self), "user-visible");
 }
 
+void
+_bamf_view_set_closed (BamfView *view, gboolean closed)
+{
+  BamfViewPrivate *priv;
+  g_return_if_fail (BAMF_IS_VIEW (view));
+
+  priv = view->priv;
+
+  if (priv->is_closed != closed)
+    {
+      priv->is_closed = closed;
+
+      if (closed && priv->cached_children)
+        {
+          g_list_free_full (priv->cached_children, g_object_unref);
+          priv->cached_children = NULL;
+        }
+    }
+}
+
 static void
 bamf_view_on_closed (BamfDBusItemView *proxy, BamfView *self)
 {
@@ -449,6 +571,8 @@ bamf_view_on_closed (BamfDBusItemView *proxy, BamfView *self)
       g_list_free_full (priv->cached_children, g_object_unref);
       priv->cached_children = NULL;
     }
+
+  _bamf_view_set_closed (self, TRUE);
 
   g_object_ref (self);
   g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
@@ -491,7 +615,7 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
         break;
 
       case PROP_USER_VISIBLE:
-        g_value_set_boolean (value, bamf_view_user_visible (self));
+        g_value_set_boolean (value, bamf_view_is_user_visible (self));
         break;
 
       default:
@@ -510,13 +634,7 @@ bamf_view_unset_proxy (BamfView *self)
   if (!priv->proxy)
     return;
 
-  g_signal_handlers_disconnect_by_func (priv->proxy, bamf_view_on_active_changed, self);
-  g_signal_handlers_disconnect_by_func (priv->proxy, bamf_view_on_closed, self);
-  g_signal_handlers_disconnect_by_func (priv->proxy, bamf_view_on_child_added, self);
-  g_signal_handlers_disconnect_by_func (priv->proxy, bamf_view_on_child_removed, self);
-  g_signal_handlers_disconnect_by_func (priv->proxy, bamf_view_on_running_changed, self);
-  g_signal_handlers_disconnect_by_func (priv->proxy, bamf_view_on_urgent_changed, self);
-  g_signal_handlers_disconnect_by_func (priv->proxy, bamf_view_on_user_visible_changed, self);
+  g_signal_handlers_disconnect_by_data (priv->proxy, self);
 
   g_object_unref (priv->proxy);
   priv->proxy = NULL;
@@ -582,7 +700,7 @@ _bamf_view_reset_flags (BamfView *view)
 
   g_return_if_fail (BAMF_IS_VIEW (view));
 
-  user_visible = bamf_view_user_visible (view);
+  user_visible = bamf_view_is_user_visible (view);
   g_signal_emit (G_OBJECT (view), view_signals[VISIBLE_CHANGED], 0, user_visible);
   g_object_notify (G_OBJECT (view), "user-visible");
 
@@ -735,6 +853,16 @@ bamf_view_class_init (BamfViewClass *klass)
                   G_TYPE_NONE, 1,
                   BAMF_TYPE_VIEW);
 
+  view_signals [CHILD_MOVED] =
+    g_signal_new (BAMF_VIEW_SIGNAL_CHILD_MOVED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfViewClass, child_moved),
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1,
+                  BAMF_TYPE_VIEW);
+
   view_signals [RUNNING_CHANGED] =
     g_signal_new (BAMF_VIEW_SIGNAL_RUNNING_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
@@ -769,13 +897,13 @@ bamf_view_class_init (BamfViewClass *klass)
     g_signal_new (BAMF_VIEW_SIGNAL_NAME_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   0,
-                  0, NULL, NULL,
+                  G_STRUCT_OFFSET (BamfViewClass, name_changed),
+                  NULL, NULL,
                   _bamf_marshal_VOID__STRING_STRING,
                   G_TYPE_NONE, 2,
                   G_TYPE_STRING,
                   G_TYPE_STRING);
 }
-
 
 static void
 bamf_view_init (BamfView *self)

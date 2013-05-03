@@ -1,7 +1,10 @@
 noinst_PROGRAMS = \
   test-bamf
 
-XVFB_RUN=$(srcdir)/run-xvfb.sh
+bamf_test_extra_built_sources = \
+		$(top_builddir)/src/bamf-marshal.c \
+		$(top_builddir)/src/bamf-marshal.h \
+		$(NULL)
 
 bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-daemon.c \
@@ -14,12 +17,7 @@ bamf_test_extra_sources = \
 		$(top_srcdir)/src/bamf-application.c \
 		$(top_srcdir)/src/bamf-window.c \
 		$(top_srcdir)/src/bamf-tab.c \
-		$(top_srcdir)/src/bamf-tab-source.c \
-		$(top_srcdir)/src/bamf-indicator.c \
-		$(top_srcdir)/src/bamf-indicator-source.c \
 		$(top_srcdir)/src/bamf-xutils.c \
-		$(top_builddir)/src/bamf-marshal.c \
-		$(top_builddir)/src/bamf-gdbus-indicator-source-generated.c \
 		$(NULL)
 
 bamf_test_extra_headers = \
@@ -34,13 +32,14 @@ bamf_test_extra_headers = \
 		$(top_srcdir)/src/bamf-matcher.h \
 		$(top_srcdir)/src/bamf-window.h \
 		$(top_srcdir)/src/bamf-tab.h \
-		$(top_srcdir)/src/bamf-tab-source.h \
 		$(top_srcdir)/src/bamf-application.h \
-		$(top_srcdir)/src/bamf-indicator-source.h \
-		$(top_srcdir)/src/bamf-indicator.h \
 		$(top_srcdir)/src/bamf-xutils.h \
-		$(top_builddir)/src/bamf-marshal.h \
-		$(top_builddir)/src/bamf-gdbus-indicator-source-generated.h \
+		$(NULL)
+
+bamf_test_webapps_sources = \
+		$(top_srcdir)/src/bamf-unity-webapps-tab.c \
+		$(top_srcdir)/src/bamf-unity-webapps-observer.c \
+		$(top_srcdir)/src/bamf-unity-webapps-application.c \
 		$(NULL)
 
 test_bamf_SOURCES = \
@@ -52,17 +51,33 @@ test_bamf_SOURCES = \
 		test-window.c \
 		test-matcher.c
 
+nodist_test_bamf_SOURCES = \
+  $(bamf_test_extra_built_sources)
+
+BUILT_SOURCES = \
+  $(bamf_test_extra_built_sources)
+
+CLEANFILES = \
+  $(bamf_test_extra_built_sources)
+
+if HAVE_WEBAPPS
+test_bamf_SOURCES += \
+		$(bamf_test_webapps_sources) \
+		$(NULL)
+endif
+
 test_bamf_CPPFLAGS = \
-		-I$(top_srcdir) \
+		-I$(top_srcdir)/lib \
 		-I$(top_srcdir)/src \
 		-I$(top_builddir)/src \
 		-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
-		-DTESTDIR=\""$(top_srcdir)/tests/unit"\" \
+		-DTESTDIR=\""$(abs_top_srcdir)/tests"\" \
 		$(GCC_FLAGS) \
 		$(GTK_CFLAGS) \
 		$(GLIB_CFLAGS) \
 		$(WNCK_CFLAGS) \
 		$(GTOP_CFLAGS) \
+		$(LIBUNITY_WEBAPPS_CFLAGS) \
 		$(MAINTAINER_CFLAGS)
 
 test_bamf_LDADD = \
@@ -71,55 +86,17 @@ test_bamf_LDADD = \
 		$(GLIB_LIBS) \
 		$(WNCK_LIBS) \
 		$(GTOP_LIBS) \
-		$(GTK_LIBS)
+		$(GTK_LIBS) \
+		$(LIBUNITY_WEBAPPS_LIBS)
 
 test_bamf_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
 		$(NULL)
 
-# Run tests as part of make check
-if ENABLE_HEADLESS_TESTS
-check-local: test-headless
-else
-check-local: test
-endif
+EXTRA_DIST = \
+		data \
+		$(bamf_test_webapps_sources) \
+		$(NULL)
 
-test:
-	@gtester --verbose -k -o=test-bamf-results.xml ./test-bamf
-
-.PHONY: check-report full-report
-check-report:
-	@gtester --verbose -k -o=test-bamf-results.xml -k ./test-bamf \
-		&& ( gtester-report test-bamf-results.xml \
-				| sed 's/GTester Unit Test Report</>GTester Unit Test Report (normal)</' \
-				> test-bamf-results.html ) \
-		&& gnome-open ./test-bamf-results.html
-
-full-report:
-		@gtester --verbose-k -o=test-bamf-results.xml -k -m=slow ./test-bamf \
-	  && ( gtester-report test-bamf-results.xml \
-	      | sed 's/>GTester Unit Test Report</>GTester Unit Test Report (normal)</' \
-	      > test-bamf-results.html )
-
-clean-generic:
-	rm -f test-bamf-results.xml test-bamf-results.html
-
-# START HEADLESS TESTS
-if ENABLE_HEADLESS_TESTS
-LOG_PATH = headless-logs
-test-headless:
-	set -e; \
-	rm -rf $(LOG_PATH); \
-	mkdir $(LOG_PATH); \
-	export LOG_PATH=$(LOG_PATH); \
-	export XVFB_PATH=$(XVFB); \
-	export DISPLAY=""; \
-	source $(XVFB_RUN); \
-	\
-	$(DBUS_LAUNCH) > $(LOG_PATH)/sessionbus.sh; \
-	source $(LOG_PATH)/sessionbus.sh; \
-	sleep 3; \
-	\
-	make test;
-endif
-# END HEADLESS TESTS
+TEST_BINARY = test-bamf
+include $(top_srcdir)/tests/Makefile.am.gtests

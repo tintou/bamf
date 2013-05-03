@@ -1,11 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-if USE_GTK3
-VER=3
-else
-VER=
-endif
-
 # automake requirements
 AUTOMAKE_OPTIONS = 1.7
 
@@ -49,17 +43,18 @@ content_files =
 # CFLAGS and LDFLAGS for compiling gtkdoc-scangobj with your library.
 INCLUDES= \
   -I$(top_srcdir)/lib/libbamf   \
-  $(LIBWSBIND_CFLAGS) \
-  $(GLIB_CFLAGS)
+  $(GTK_CFLAGS) \
+  $(GLIB_CFLAGS) \
+  $(DBUS_CFLAGS)
 
 GTKDOC_LIBS = \
-  $(LIBWSBIND_LIBS) \
+  $(GTK_LIBS) \
   $(GLIB_LIBS) \
-  $(top_builddir)/lib/libbamf/libbamf$(VER).la
+  $(top_builddir)/lib/libbamf/libbamf$(LIBBAMF_VER).la
 
 # This includes the standard gtk-doc make rules, copied by gtkdocize.
 include $(top_srcdir)/gtk-doc.make
 
 # Other files to distribute
 # e.g. EXTRA_DIST += version.xml.in
-EXTRA_DIST += 
+EXTRA_DIST +=

@@ -24,6 +24,7 @@
 
 static void test_active              (void);
 static void test_active_event        (void);
+static void test_active_event_count  (void);
 static void test_allocation          (void);
 static void test_child_added_event   (void);
 static void test_child_removed_event (void);
@@ -54,6 +55,7 @@ test_view_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Path/Collision", test_path_collision);
   g_test_add_func (DOMAIN"/Events/Close", test_closed_event);
   g_test_add_func (DOMAIN"/Events/Active", test_active_event);
+  g_test_add_func (DOMAIN"/Events/Active/Count", test_active_event_count);
   g_test_add_func (DOMAIN"/Events/Running", test_running_event);
   g_test_add_func (DOMAIN"/Events/ChildAdded", test_child_added_event);
   g_test_add_func (DOMAIN"/Events/ChildRemoved", test_child_removed_event);
@@ -317,19 +319,62 @@ test_active_event (void)
   active_event_fired = FALSE;
   bamf_view_set_active (view, TRUE);
   g_assert (bamf_view_is_active (view));
+  g_assert (!active_event_fired);
 
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
   g_assert (active_event_fired);
   g_assert (active_event_result);
 
   active_event_fired = FALSE;
   bamf_view_set_active (view, FALSE);
   g_assert (!bamf_view_is_active (view));
+  g_assert (!active_event_fired);
 
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
   g_assert (active_event_fired);
   g_assert (!active_event_result);
 
   g_object_unref (view);
   g_assert (!BAMF_IS_VIEW (view));
+}
+
+guint active_event_calls;
+
+static void
+on_active_event_count (BamfView *view, gboolean active, gpointer pointer)
+{
+  active_event_calls++;;
+  active_event_result = active;
+}
+
+static void
+test_active_event_count (void)
+{
+  BamfView *view;
+
+  view = g_object_new (BAMF_TYPE_VIEW, NULL);
+  g_assert (!bamf_view_is_active (view));
+
+  g_signal_connect (G_OBJECT (view), "active-changed",
+        (GCallback) on_active_event_count, NULL);
+
+  active_event_calls = 0;
+  bamf_view_set_active (view, TRUE);
+  g_assert (bamf_view_is_active (view));
+  g_assert_cmpuint (active_event_calls, ==, 0);
+
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpuint (active_event_calls, ==, 1);
+  g_assert (active_event_result);
+
+  active_event_calls = 0;
+  bamf_view_set_active (view, FALSE);
+  bamf_view_set_active (view, TRUE);
+  bamf_view_set_active (view, FALSE);
+
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpuint (active_event_calls, ==, 1);
+  g_assert (!active_event_result);
 }
 
 static gboolean running_event_fired;

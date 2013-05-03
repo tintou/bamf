@@ -83,138 +83,34 @@ struct _BamfMatcherClass
 
 GType             bamf_matcher_get_type                 (void) G_GNUC_CONST;
 
-/**
- * bamf_matcher_get_default:
- * @matcher: a #BamfMatcher
- *
- * Returns the default matcher. This matcher is owned by bamf and shared between other callers.
- *
- * Returns: (transfer none): A new #BamfMatcher
- */
 BamfMatcher     * bamf_matcher_get_default              (void);
 
-/**
- * bamf_matcher_get_active_application:
- * @matcher: a #BamfMatcher
- *
- * Used to fetch the active #BamfApplication.
- *
- * Returns: (transfer none): The active #BamfApplication.
- */
 BamfApplication * bamf_matcher_get_active_application   (BamfMatcher *matcher);
 
-/**
- * bamf_matcher_get_active_window:
- * @matcher: a #BamfMatcher
- *
- * Used to fetch the active #BamfWindow.
- *
- * Returns: (transfer none): The active #BamfWindow.
- */
 BamfWindow      * bamf_matcher_get_active_window        (BamfMatcher *matcher);
 
-/**
- * bamf_matcher_get_application_for_xid:
- * @matcher: a #BamfMatcher
- * @xid: The XID to search for
- *
- * Used to fetch the #BamfApplication containing the passed xid.
- *
- * Returns: (transfer container): The #BamfApplication representing the xid passed, or NULL if none exists.
- */
 BamfApplication * bamf_matcher_get_application_for_xid  (BamfMatcher *matcher,
                                                          guint32      xid);
-/**
- * bamf_matcher_get_application_for_window:
- * @matcher: a #BamfMatcher
- * @window: The window to look for
- *
- * Used to fetch the #BamfApplication containing the passed window.
- *
- * Returns: (transfer container): The #BamfApplication representing the xid passed, or NULL if none exists.
- */
 BamfApplication * bamf_matcher_get_application_for_window  (BamfMatcher *matcher,
                                                             BamfWindow *window);
 
 gboolean          bamf_matcher_application_is_running   (BamfMatcher *matcher,
                                                          const gchar *desktop_file);
 
-/**
- * bamf_matcher_get_applications:
- * @matcher: a #BamfMatcher
- *
- * Used to fetch all #BamfApplication's running or not. Application authors who wish to only 
- * see running applications should use bamf_matcher_get_running_applications instead. The reason
- * this method is needed is bamf will occasionally track applications which are not currently
- * running for nefarious purposes.
- *
- * Returns: (element-type Bamf.Application) (transfer container): A list of #BamfApplication's.
- */
 GList *           bamf_matcher_get_applications         (BamfMatcher *matcher);
 
-/**
- * bamf_matcher_register_favorites:
- * @matcher: a #BamfMatcher
- * @favorites: an array of strings, each containing an absolute path to a .desktop file
- *
- * Used to effect how bamf performs matching. Desktop files passed to this method will
- * be prefered by bamf to system desktop files.
- */
 void              bamf_matcher_register_favorites       (BamfMatcher *matcher,
                                                          const gchar **favorites);
 
-/**
- * bamf_matcher_get_running_applications:
- * @matcher: a #BamfMatcher
- *
- * Used to fetch all #BamfApplication's which are running.
- *
- * Returns: (element-type Bamf.Application) (transfer container): A list of #BamfApplication's.
- */
 GList *           bamf_matcher_get_running_applications (BamfMatcher *matcher);
 
-/**
- * bamf_matcher_get_tabs:
- * @matcher: a #BamfMatcher
- *
- * Used to fetch all #BamfView's representing tabs. Currently unused.
- *
- * Returns: (element-type Bamf.View) (transfer container): A list of #BamfViews's.
- */
 GList *           bamf_matcher_get_tabs                 (BamfMatcher *matcher);
 
-/**
- * bamf_matcher_get_applications:
- * @matcher: a #BamfMatcher
- *
- * Used to fetch all xid's associated with an application.
- * 
- *
- * Returns: (array zero-terminated=1) (element-type guint32) (transfer full): An array of xids.
- */
 GArray *          bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
                                                          const gchar *desktop_file);
 
-/**
- * bamf_matcher_get_windows:
- * @matcher: a #BamfMatcher
- *
- * Used to fetch all windows that BAMF knows about.
- *
- * Returns: (element-type Bamf.View) (transfer container): A list of windows.
- */
 GList *           bamf_matcher_get_windows (BamfMatcher *matcher);
 
-/**
- * bamf_matcher_get_window_stack_for_monitor:
- * @matcher: a #BamfMatcher
- * @monitor: the monitor you want the stack from, negative value to get all
- *
- * Used to fetch all windows that BAMF knows about in the requested screen,
- * in stacking bottom-to-top order.
- *
- * Returns: (element-type Bamf.View) (transfer container): A list of #BamfWindow.
- */
 GList *           bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher,
                                                              gint monitor);
 

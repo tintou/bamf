@@ -87,6 +87,7 @@ bamf_control_class_init (BamfControlClass *klass)
   obj_class->finalize = bamf_control_finalize;
 
   g_type_class_add_private (obj_class, sizeof (BamfControlPrivate));
+  obj_class->dispose = bamf_control_dispose;
 }
 
 static void
@@ -110,6 +111,11 @@ bamf_control_init (BamfControl *self)
     }
 }
 
+/**
+ * bamf_control_get_default:
+ *
+ * Returns: (transfer none): The default #BamfControl reference.
+ */
 BamfControl *
 bamf_control_get_default (void)
 {
@@ -117,23 +123,6 @@ bamf_control_get_default (void)
     return g_object_ref (default_control);
 
   return (default_control = g_object_new (BAMF_TYPE_CONTROL, NULL));
-}
-
-void
-bamf_control_set_approver_behavior (BamfControl *control, gint32 behavior)
-{
-  BamfControlPrivate *priv;
-  GError *error = NULL;
-
-  g_return_if_fail (BAMF_IS_CONTROL (control));
-  priv = control->priv;
-
-  if (!bamf_dbus_control_call_set_approver_behavior_sync (priv->proxy, behavior,
-                                                          NULL, &error))
-    {
-      g_warning ("Failed to set approver behavior: %s", error->message);
-      g_error_free (error);
-    }
 }
 
 void

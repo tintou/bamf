@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Canonical Ltd
+ * Copyright (C) 2011-2013 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -20,9 +20,9 @@
 #ifndef __BAMF_PRIVATE_H__
 #define __BAMF_PRIVATE_H__
 
-#include "bamf-gdbus-generated.h"
-#include "bamf-gdbus-view-generated.h"
-#include "bamf-gdbus-browser-generated.h"
+#include <libbamf-private/bamf-gdbus-generated.h>
+#include <libbamf-private/bamf-gdbus-view-generated.h>
+#include <libbamf-private/bamf-gdbus-browser-generated.h>
 
 #define BAMF_DBUS_SERVICE_NAME "org.ayatana.bamf"
 

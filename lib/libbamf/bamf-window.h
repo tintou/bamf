@@ -90,6 +90,15 @@ struct _BamfWindowClass
 {
   BamfViewClass parent_class;
 
+  BamfWindow               * (*get_transient)      (BamfWindow *self);
+  BamfWindowType             (*get_window_type)    (BamfWindow *self);
+  guint32                    (*get_xid)            (BamfWindow *self);
+  guint32                    (*get_pid)            (BamfWindow *self);
+  gint                       (*get_monitor)        (BamfWindow *self);
+  gchar                    * (*get_utf8_prop)      (BamfWindow *self, const char* prop);
+  BamfWindowMaximizationType (*maximized)          (BamfWindow *self);
+  time_t                     (*last_active)        (BamfWindow *self);
+
   /*< signals >*/
   void (*monitor_changed)   (BamfWindow *window, gint old_value, gint new_value);
   void (*maximized_changed) (BamfWindow *window, gint old_value, gint new_value);

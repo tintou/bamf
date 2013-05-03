@@ -42,7 +42,7 @@
 #include "bamf-window.h"
 #include "bamf-application.h"
 #include "bamf-application-private.h"
-#include "bamf-indicator.h"
+#include "bamf-tab.h"
 
 G_DEFINE_TYPE (BamfFactory, bamf_factory, G_TYPE_OBJECT);
 
@@ -63,8 +63,6 @@ BamfApplication * bamf_application_new_favorite     (const char *favorite_path);
 BamfApplication * bamf_application_new              (const char *path);
 
 BamfWindow      * bamf_window_new                   (const char *path);
-
-BamfIndicator   * bamf_indicator_new                (const char *path);
 
 static void
 bamf_factory_dispose (GObject *object)
@@ -214,9 +212,9 @@ BamfFactoryViewType compute_factory_type_by_str (const char *type)
         {
           factory_type = BAMF_FACTORY_APPLICATION;
         }
-      else if (g_strcmp0 (type, "indicator") == 0)
+      else if (g_strcmp0 (type, "tab") == 0)
         {
-          factory_type = BAMF_FACTORY_INDICATOR;
+          factory_type = BAMF_FACTORY_TAB;
         }
       else if (g_strcmp0 (type, "view") == 0)
         {
@@ -293,11 +291,12 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
     case BAMF_FACTORY_APPLICATION:
       view = BAMF_VIEW (bamf_application_new (path));
       break;
-    case BAMF_FACTORY_INDICATOR:
-      view = BAMF_VIEW (bamf_indicator_new (path));
+    case BAMF_FACTORY_TAB:
+      view = BAMF_VIEW (bamf_tab_new (path));
       break;
     case BAMF_FACTORY_NONE:
       view = NULL;
+      break;
   }
 
   created = TRUE;
@@ -328,7 +327,7 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
 
           /* If the primary search doesn't give out any result, we fallback
            * to children window comparison */
-          if (!matched_view)
+          if (!list_desktop_file && !matched_view)
             {
               GList *list_children, *ll;
               list_children = _bamf_application_get_cached_xids (list_app);

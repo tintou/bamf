@@ -73,6 +73,12 @@ bamf_tab_source_show_tab        (BamfTabSource *source,
   return TRUE;
 }
 
+/**
+ * bamf_tab_source_get_tab_ids:
+ * @source: a #BamfTabSource
+ *
+ * Returns: (transfer none) (allow-none) (array zero-terminated=1): A string array containing the IDs of this #BamfTabSource.
+ */
 char **
 bamf_tab_source_get_tab_ids     (BamfTabSource *source)
 {
@@ -84,6 +90,13 @@ bamf_tab_source_get_tab_ids     (BamfTabSource *source)
   return NULL;
 }
 
+/**
+ * bamf_tab_source_get_tab_preview:
+ * @source: a #BamfTabSource
+ * @tab_id: an ID
+ *
+ * Returns: (transfer none) (allow-none): A #GArray containing the preview for the given ID of this #BamfTabSource.
+ */
 GArray *
 bamf_tab_source_get_tab_preview (BamfTabSource *source,
                                  char *tab_id)

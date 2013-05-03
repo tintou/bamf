@@ -37,4 +37,6 @@ void _bamf_view_set_name (BamfView *view, const char *name);
 
 void _bamf_view_set_icon (BamfView *view, const char *icon);
 
+void _bamf_view_set_closed (BamfView *view, gboolean closed);
+
 #endif
