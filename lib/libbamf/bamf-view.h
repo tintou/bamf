@@ -133,9 +133,6 @@ gchar    * bamf_view_get_name      (BamfView *view);
 
 gchar    * bamf_view_get_icon      (BamfView *view);
 
-GLIB_DEPRECATED
-gboolean   bamf_view_user_visible  (BamfView *view);
-
 const gchar    * bamf_view_get_view_type (BamfView *view);
 
 void bamf_view_set_sticky (BamfView *view, gboolean value);
@@ -143,6 +140,10 @@ void bamf_view_set_sticky (BamfView *view, gboolean value);
 gboolean bamf_view_is_sticky (BamfView *view);
 
 BamfClickBehavior bamf_view_get_click_suggestion (BamfView *view);
+
+/* Deprecated symbols */
+G_GNUC_DEPRECATED_FOR (bamf_view_user_visible)
+gboolean bamf_view_user_visible (BamfView *view);
 
 G_END_DECLS
 
