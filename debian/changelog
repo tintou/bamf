@@ -1,4 +1,4 @@
-bamf (0.4.0daily13.04.03-0ubuntu2) UNRELEASED; urgency=low
+bamf (0.4.0daily13.05.08~13.04-0ubuntu1) raring; urgency=low
 
   [ Marco Trevisan (Treviño) ]
   * debian/control:
@@ -7,7 +7,23 @@ bamf (0.4.0daily13.04.03-0ubuntu2) UNRELEASED; urgency=low
   [ Timo Jyrinki ]
   * Set Vcs-Bzr url to 0.4 for this raring branch
 
- -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 17 Apr 2013 03:37:31 +0200
+  [ Marco Trevisan (Treviño) <mail@3v1n0.net>, Alexandre Abreu ]
+  * Webapps launchers have incorrect window matching (pips) (LP:
+    #1059475)
+
+  [ Marco Trevisan (Treviño) ]
+  * Coverity SECURE_TEMP - CID 10450 (LP: #1100551)
+  * Matcher leaks memory when rematching a new desktop file (LP:
+    #1169990)
+  * Coverity DEADCODE - CID 10447 (LP: #1100554)
+  * Coverity REVERSE_INULL - CID 12653 (LP: #1100553)
+  * Webapps launchers have incorrect window matching (pips) (LP:
+    #1059475)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 533
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 08 May 2013 02:01:06 +0000
 
 bamf (0.4.0daily13.04.03-0ubuntu1) raring; urgency=low
 
