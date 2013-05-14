@@ -18,7 +18,6 @@
 #include <stdio.h>
 #include <glib.h>
 
-#include <dbus/dbus-glib.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -32,8 +31,6 @@ main (gint argc, gchar *argv[])
   g_type_init ();
 #endif
   g_test_init (&argc, &argv, NULL);
-
-  dbus_g_thread_init ();
 
   test_matcher_create_suite ();
 

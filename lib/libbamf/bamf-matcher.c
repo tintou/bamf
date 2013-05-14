@@ -728,7 +728,7 @@ bamf_matcher_get_tabs (BamfMatcher *matcher)
  * @matcher: a #BamfMatcher
  *
  * Used to fetch all xid's associated with an application. Useful for performing window
- * 
+ *
  *
  * Returns: (element-type guint32) (transfer full): A list of xids.
  */
