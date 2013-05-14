@@ -37,6 +37,7 @@
 
 #include <libbamf-private/bamf-private.h>
 #include "bamf-matcher.h"
+#include "bamf-tab.h"
 #include "bamf-view.h"
 #include "bamf-view-private.h"
 #include "bamf-factory.h"
@@ -542,7 +543,7 @@ bamf_matcher_get_windows (BamfMatcher *matcher)
 
   BamfFactory *factory = _bamf_factory_get_default ();
   len = g_strv_length (array);
-  for (i = len-1; i >= 0; ++i)
+  for (i = len-1; i >= 0; --i)
     {
       view = _bamf_factory_view_for_path_type (factory, array[i], BAMF_FACTORY_WINDOW);
 
@@ -591,7 +592,7 @@ bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
 
   BamfFactory *factory = _bamf_factory_get_default ();
   len = g_strv_length (array);
-  for (i = len-1; i >= 0; i--)
+  for (i = len-1; i >= 0; --i)
     {
       view = _bamf_factory_view_for_path_type (factory, array[i], BAMF_FACTORY_WINDOW);
 
@@ -667,7 +668,7 @@ bamf_matcher_get_running_applications (BamfMatcher *matcher)
 
   BamfFactory *factory = _bamf_factory_get_default ();
   len = g_strv_length (array);
-  for (i = len-1; i >= 0; i--)
+  for (i = len-1; i >= 0; --i)
     {
       view = _bamf_factory_view_for_path_type (factory, array[i], BAMF_FACTORY_APPLICATION);
 
@@ -710,12 +711,13 @@ bamf_matcher_get_tabs (BamfMatcher *matcher)
 
   g_return_val_if_fail (array, NULL);
 
+  BamfFactory *factory = _bamf_factory_get_default ();
   len = g_strv_length (array);
-  for (i = 0; i < len; i++)
+  for (i = len-1; i >= 0; --i)
     {
-      view = _bamf_factory_view_for_path (_bamf_factory_get_default (), array[i]);
+      view = _bamf_factory_view_for_path_type (factory, array[i], BAMF_FACTORY_TAB);
 
-      if (view)
+      if (BAMF_IS_TAB (view))
         result = g_list_prepend (result, view);
     }
 
