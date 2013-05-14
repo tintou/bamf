@@ -82,38 +82,6 @@ bamf_tab_set_path (BamfView *view, const gchar *path)
     }
 
   g_signal_connect (priv->proxy, "notify", G_CALLBACK (on_proxy_property_change), self);
- }
-
-static void
-bamf_tab_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
-{
-  BamfTab *self;
-
-  self = BAMF_TAB (object);
-
-  if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
-    {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-      return;
-    }
-
-  switch (property_id)
-    {
-    case PROP_LOCATION:
-      bamf_dbus_item_tab_set_location (self->priv->proxy, g_value_get_string (value));
-      break;
-    case PROP_DESKTOP_ID:
-      bamf_dbus_item_tab_set_desktop_id (self->priv->proxy, g_value_get_string (value));
-      break;
-    case PROP_XID:
-      bamf_dbus_item_tab_set_xid (self->priv->proxy, g_value_get_uint64 (value));
-      break;
-    case PROP_IS_FOREGROUND_TAB:
-      bamf_dbus_item_tab_set_is_foreground_tab (self->priv->proxy, g_value_get_boolean (value));
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-    }
 }
 
 static void
@@ -182,24 +150,23 @@ bamf_tab_class_init (BamfTabClass *klass)
 
   obj_class->dispose = bamf_tab_dispose;
   obj_class->get_property = bamf_tab_get_property;
-  obj_class->set_property = bamf_tab_set_property;
 
   view_class->set_path = bamf_tab_set_path;
 
   pspec = g_param_spec_string("location", "Location", "The Current location of the remote Tab",
-                              NULL, G_PARAM_READWRITE);
+                              NULL, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_LOCATION, pspec);
 
   pspec = g_param_spec_string("desktop-id", "Desktop Name", "The Desktop ID assosciated with the application hosted in the remote Tab",
-                              NULL, G_PARAM_READWRITE);
+                              NULL, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_DESKTOP_ID, pspec);
 
   pspec = g_param_spec_uint64("xid", "xid", "XID for the toplevel window containing the remote Tab",
-                              0, G_MAXUINT64, 0, G_PARAM_READWRITE);
+                              0, G_MAXUINT64, 0, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_XID, pspec);
 
   pspec = g_param_spec_boolean("is-foreground-tab", "Foreground tab", "Whether the tab is the foreground tab in it's toplevel container",
-                               FALSE, G_PARAM_READWRITE);
+                               FALSE, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_IS_FOREGROUND_TAB, pspec);
 
   g_type_class_add_private (obj_class, sizeof(BamfTabPrivate));
