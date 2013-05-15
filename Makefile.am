@@ -5,7 +5,6 @@ include $(top_srcdir)/Makefile.am.coverage
 SUBDIRS = \
   lib/libbamf-private \
   lib/libbamf \
-  lib/libbamf-private \
   src \
   tests/bamfdaemon \
   tests/libbamf \
