@@ -940,7 +940,7 @@ bamf_application_init (BamfApplication * self)
   priv->wmclass = NULL;
 
   /* Initializing the dbus interface */
-  priv->dbus_iface = bamf_dbus_item_application_skeleton_new ();
+  priv->dbus_iface = _bamf_dbus_item_application_skeleton_new ();
 
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
@@ -970,8 +970,8 @@ bamf_application_init (BamfApplication * self)
                     G_CALLBACK (on_dbus_handle_application_type), self);
 
   /* Setting the interface for the dbus object */
-  bamf_dbus_item_object_skeleton_set_application (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
-                                                  priv->dbus_iface);
+  _bamf_dbus_item_object_skeleton_set_application (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
+                                                   priv->dbus_iface);
 
   g_signal_connect (G_OBJECT (bamf_matcher_get_default ()), "favorites-changed",
                     (GCallback) matcher_favorites_changed, self);

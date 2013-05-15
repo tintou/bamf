@@ -1,6 +1,5 @@
 noinst_LTLIBRARIES = libbamf-private.la
 
-
 bamf_gdbus_files = \
 	bamf-gdbus-generated.c \
 	bamf-gdbus-generated.h \
@@ -53,12 +52,17 @@ EXTRA_DIST = \
 	$(bamf_xml_gdbus_files) \
 	$(NULL)
 
+.NOTPARALLEL:
+
 bamf-gdbus-generated.c: org.ayatana.bamf.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN) \
 	--generate-c-code $(shell basename $@ .c) \
 	--c-namespace BamfDBus \
 	--interface-prefix org.ayatana.bamf \
-	$<;
+	$<; \
+	# Adding '_' prefix to generated private functions \
+	$(SED) "s/bamf_dbus/_bamf_dbus/g" -i \
+	$@ $(shell basename $@ .c).h
 
 bamf-gdbus-view-generated.c: org.ayatana.bamf.view.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN) \
@@ -66,4 +70,7 @@ bamf-gdbus-view-generated.c: org.ayatana.bamf.view.xml
 	--generate-c-code $(shell basename $@ .c) \
 	--c-namespace BamfDBusItem \
 	--interface-prefix org.ayatana.bamf \
-	$<;
+	$<; \
+	# Adding '_' prefix to generated private functions \
+	$(SED) "s/bamf_dbus_item/_bamf_dbus_item/g" -i \
+	$@ $(shell basename $@ .c).h
