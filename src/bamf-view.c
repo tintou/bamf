@@ -634,6 +634,7 @@ static void
 on_view_closed (BamfView *view, gpointer _not_used)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
+  g_dbus_object_skeleton_flush (G_DBUS_OBJECT_SKELETON (view));
   g_signal_emit_by_name (view->priv->dbus_iface, "closed");
 }
 
