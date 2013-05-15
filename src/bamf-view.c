@@ -349,7 +349,7 @@ bamf_view_is_active (BamfView *view)
   if (!bamf_view_is_on_bus (view))
     return view->priv->active;
 
-  return bamf_dbus_item_view_get_active (view->priv->dbus_iface);
+  return _bamf_dbus_item_view_get_active (view->priv->dbus_iface);
 }
 
 void
@@ -362,7 +362,7 @@ bamf_view_set_active (BamfView *view,
     return;
 
   if (bamf_view_is_on_bus (view))
-    bamf_dbus_item_view_set_active (view->priv->dbus_iface, active);
+    _bamf_dbus_item_view_set_active (view->priv->dbus_iface, active);
 
   view->priv->active = active;
   bamf_view_active_changed (view, active);
@@ -376,7 +376,7 @@ bamf_view_is_urgent (BamfView *view)
   if (!bamf_view_is_on_bus (view))
     return view->priv->urgent;
 
-  return bamf_dbus_item_view_get_urgent (view->priv->dbus_iface);
+  return _bamf_dbus_item_view_get_urgent (view->priv->dbus_iface);
 }
 
 void
@@ -389,7 +389,7 @@ bamf_view_set_urgent (BamfView *view,
     return;
 
   if (bamf_view_is_on_bus (view))
-    bamf_dbus_item_view_set_urgent (view->priv->dbus_iface, urgent);
+    _bamf_dbus_item_view_set_urgent (view->priv->dbus_iface, urgent);
 
   view->priv->urgent = urgent;
   bamf_view_urgent_changed (view, urgent);
@@ -403,7 +403,7 @@ bamf_view_is_running (BamfView *view)
   if (!bamf_view_is_on_bus (view))
     return view->priv->running;
 
-  return bamf_dbus_item_view_get_running (view->priv->dbus_iface);
+  return _bamf_dbus_item_view_get_running (view->priv->dbus_iface);
 }
 
 void
@@ -416,7 +416,7 @@ bamf_view_set_running (BamfView *view,
     return;
 
   if (bamf_view_is_on_bus (view))
-    bamf_dbus_item_view_set_running (view->priv->dbus_iface, running);
+    _bamf_dbus_item_view_set_running (view->priv->dbus_iface, running);
 
   view->priv->running = running;
   bamf_view_running_changed (view, running);
@@ -430,7 +430,7 @@ bamf_view_user_visible (BamfView *view)
   if (!bamf_view_is_on_bus (view))
     return view->priv->user_visible;
 
-  return bamf_dbus_item_view_get_user_visible (view->priv->dbus_iface);
+  return _bamf_dbus_item_view_get_user_visible (view->priv->dbus_iface);
 }
 
 void
@@ -442,7 +442,7 @@ bamf_view_set_user_visible (BamfView *view, gboolean user_visible)
     return;
 
   if (bamf_view_is_on_bus (view))
-    bamf_dbus_item_view_set_user_visible (view->priv->dbus_iface, user_visible);
+    _bamf_dbus_item_view_set_user_visible (view->priv->dbus_iface, user_visible);
 
   view->priv->user_visible = user_visible;
   bamf_view_user_visible_changed (view, user_visible);
@@ -835,7 +835,7 @@ bamf_view_init (BamfView * self)
   self->priv = BAMF_VIEW_GET_PRIVATE (self);
 
   /* Initializing the dbus interface */
-  self->priv->dbus_iface = bamf_dbus_item_view_skeleton_new ();
+  self->priv->dbus_iface = _bamf_dbus_item_view_skeleton_new ();
 
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
@@ -877,8 +877,8 @@ bamf_view_init (BamfView * self)
                     G_CALLBACK (on_dbus_handle_children), self);
 
   /* Setting the interface for the dbus object */
-  bamf_dbus_item_object_skeleton_set_view (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
-                                           self->priv->dbus_iface);
+  _bamf_dbus_item_object_skeleton_set_view (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
+                                            self->priv->dbus_iface);
 }
 
 static void

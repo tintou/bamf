@@ -16,21 +16,6 @@ bamf_built_sources = \
 	$(bamf_gdbus_files) \
 	$(NULL)
 
-bamf-gdbus-generated.c bamf-gdbus-generated.h: org.ayatana.bamf.xml
-	$(AM_V_GEN) $(GDBUS_CODEGEN) \
-	--generate-c-code bamf-gdbus-generated \
-	--c-namespace BamfDBus \
-	--interface-prefix org.ayatana.bamf \
-	$<
-
-bamf-gdbus-view-generated.c bamf-gdbus-view-generated.h: org.ayatana.bamf.view.xml
-	$(AM_V_GEN) $(GDBUS_CODEGEN) \
-	--c-generate-object-manager \
-	--generate-c-code bamf-gdbus-view-generated \
-	--c-namespace BamfDBusItem \
-	--interface-prefix org.ayatana.bamf \
-	$<
-
 libbamf_private_la_CFLAGS = \
 	$(GLIB_CFLAGS)
 	$(NULL)
@@ -66,3 +51,26 @@ BUILT_SOURCES = \
 EXTRA_DIST = \
 	$(bamf_xml_gdbus_files) \
 	$(NULL)
+
+.NOTPARALLEL:
+
+bamf-gdbus-generated.c: org.ayatana.bamf.xml
+	$(AM_V_GEN) $(GDBUS_CODEGEN) \
+	--generate-c-code $(shell basename $@ .c) \
+	--c-namespace BamfDBus \
+	--interface-prefix org.ayatana.bamf \
+	$<; \
+	# Adding '_' prefix to generated private functions \
+	$(SED) "s/bamf_dbus/_bamf_dbus/g" -i \
+	$@ $(shell basename $@ .c).h
+
+bamf-gdbus-view-generated.c: org.ayatana.bamf.view.xml
+	$(AM_V_GEN) $(GDBUS_CODEGEN) \
+	--c-generate-object-manager \
+	--generate-c-code $(shell basename $@ .c) \
+	--c-namespace BamfDBusItem \
+	--interface-prefix org.ayatana.bamf \
+	$<; \
+	# Adding '_' prefix to generated private functions \
+	$(SED) "s/bamf_dbus_item/_bamf_dbus_item/g" -i \
+	$@ $(shell basename $@ .c).h

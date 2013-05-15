@@ -472,7 +472,7 @@ bamf_window_init (BamfWindow * self)
   self->priv = BAMF_WINDOW_GET_PRIVATE (self);
 
   /* Initializing the dbus interface */
-  self->priv->dbus_iface = bamf_dbus_item_window_skeleton_new ();
+  self->priv->dbus_iface = _bamf_dbus_item_window_skeleton_new ();
 
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
@@ -502,8 +502,8 @@ bamf_window_init (BamfWindow * self)
                     G_CALLBACK (on_dbus_handle_maximized), self);
 
   /* Setting the interface for the dbus object */
-  bamf_dbus_item_object_skeleton_set_window (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
-                                             self->priv->dbus_iface);
+  _bamf_dbus_item_object_skeleton_set_window (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
+                                              self->priv->dbus_iface);
 
   g_signal_connect (G_OBJECT (bamf_legacy_screen_get_default ()), "active-window-changed",
                     (GCallback) active_window_changed, self);

@@ -230,14 +230,14 @@ static void
 on_tab_opened (BamfTabSource *self, const gchar *tab_uri, gpointer _not_used)
 {
   g_return_if_fail (BAMF_IS_TAB_SOURCE (self));
-  bamf_dbus_tab_tabsource_emit_tab_opened (self->priv->dbus_iface, self->priv->id, tab_uri);
+  _bamf_dbus_tab_tabsource_emit_tab_opened (self->priv->dbus_iface, self->priv->id, tab_uri);
 }
 
 static void
 on_tab_closed (BamfTabSource *self, const gchar *tab_id, gpointer _not_used)
 {
   g_return_if_fail (BAMF_IS_TAB_SOURCE (self));
-  bamf_dbus_tab_tabsource_emit_tab_closed (self->priv->dbus_iface, self->priv->id);
+  _bamf_dbus_tab_tabsource_emit_tab_closed (self->priv->dbus_iface, self->priv->id);
 }
 
 static void
@@ -245,7 +245,7 @@ on_tab_uri_changed (BamfTabSource *self, const gchar *tab_id, const gchar *old_u
                     const gchar *new_uri, gpointer _not_used)
 {
   g_return_if_fail (BAMF_IS_TAB_SOURCE (self));
-  bamf_dbus_tab_tabsource_emit_tab_uri_changed (self->priv->dbus_iface, self->priv->id, old_uri, new_uri);
+  _bamf_dbus_tab_tabsource_emit_tab_uri_changed (self->priv->dbus_iface, self->priv->id, old_uri, new_uri);
 }
 
 static void
@@ -314,7 +314,7 @@ bamf_tab_source_constructed (GObject *object)
   bus = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
   g_return_if_fail (bus);
 
-  self->priv->dbus_iface = bamf_dbus_tab_tabsource_skeleton_new ();
+  self->priv->dbus_iface = _bamf_dbus_tab_tabsource_skeleton_new ();
   path = g_strconcat (BAMF_TAB_SOURCE_PATH"/", self->priv->id, NULL);
   iface = G_DBUS_INTERFACE_SKELETON (self->priv->dbus_iface);
   g_dbus_interface_skeleton_export (iface, bus, path, &error);

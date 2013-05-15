@@ -119,7 +119,7 @@ bamf_view_get_children (BamfView *view)
   if (priv->cached_children)
     return g_list_copy (priv->cached_children);
 
-  if (!bamf_dbus_item_view_call_children_sync (priv->proxy, &children, NULL, &error))
+  if (!_bamf_dbus_item_view_call_children_sync (priv->proxy, &children, NULL, &error))
     {
       g_warning ("Unable to fetch children: %s\n", error ? error->message : "");
       g_error_free (error);
@@ -172,7 +172,7 @@ bamf_view_is_active (BamfView *view)
   if (!_bamf_view_remote_ready (view))
     return FALSE;
 
-  return bamf_dbus_item_view_get_active (view->priv->proxy);
+  return _bamf_dbus_item_view_get_active (view->priv->proxy);
 
 }
 
@@ -196,7 +196,7 @@ bamf_view_is_user_visible (BamfView *self)
   if (!_bamf_view_remote_ready (self))
     return FALSE;
 
-  return bamf_dbus_item_view_get_user_visible (self->priv->proxy);
+  return _bamf_dbus_item_view_get_user_visible (self->priv->proxy);
 }
 
 /**
@@ -231,7 +231,7 @@ bamf_view_is_running (BamfView *self)
   if (!_bamf_view_remote_ready (self))
     return FALSE;
 
-  return bamf_dbus_item_view_get_running (self->priv->proxy);
+  return _bamf_dbus_item_view_get_running (self->priv->proxy);
 }
 
 /**
@@ -251,7 +251,7 @@ bamf_view_is_urgent (BamfView *self)
   if (!_bamf_view_remote_ready (self))
     return FALSE;
 
-  return bamf_dbus_item_view_get_urgent (self->priv->proxy);
+  return _bamf_dbus_item_view_get_urgent (self->priv->proxy);
 }
 
 void
@@ -331,7 +331,7 @@ bamf_view_get_icon (BamfView *self)
   if (!_bamf_view_remote_ready (self))
     return g_strdup (priv->local_icon);
 
-  if (!bamf_dbus_item_view_call_icon_sync (priv->proxy, &icon, NULL, &error))
+  if (!_bamf_dbus_item_view_call_icon_sync (priv->proxy, &icon, NULL, &error))
     {
       g_warning ("Failed to fetch icon: %s", error ? error->message : "");
       g_error_free (error);
@@ -367,7 +367,7 @@ bamf_view_get_name (BamfView *self)
   if (!_bamf_view_remote_ready (self) || priv->local_name)
     return g_strdup (priv->local_name);
 
-  if (!bamf_dbus_item_view_call_name_sync (priv->proxy, &name, NULL, &error))
+  if (!_bamf_dbus_item_view_call_name_sync (priv->proxy, &name, NULL, &error))
     {
       g_warning ("Failed to fetch name: %s", error ? error->message : "");
       g_error_free (error);
@@ -418,7 +418,7 @@ bamf_view_get_view_type (BamfView *self)
   if (!_bamf_view_remote_ready (self))
     return NULL;
 
-  if (!bamf_dbus_item_view_call_view_type_sync (priv->proxy, &type, NULL, &error))
+  if (!_bamf_dbus_item_view_call_view_type_sync (priv->proxy, &type, NULL, &error))
     {
       const gchar *path = g_dbus_proxy_get_object_path (G_DBUS_PROXY (priv->proxy));
       g_warning ("Failed to fetch view type at %s: %s", path, error ? error->message : "");
@@ -499,7 +499,7 @@ bamf_view_on_child_removed (BamfDBusItemView *proxy, char *path, BamfView *self)
 static void
 bamf_view_on_active_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfView *self)
 {
-  gboolean active = bamf_dbus_item_view_get_active (proxy);
+  gboolean active = _bamf_dbus_item_view_get_active (proxy);
   g_signal_emit (G_OBJECT (self), view_signals[ACTIVE_CHANGED], 0, active);
   g_object_notify (G_OBJECT (self), "active");
 }
@@ -517,7 +517,7 @@ bamf_view_on_name_changed (BamfDBusItemView *proxy,
 static void
 bamf_view_on_running_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfView *self)
 {
-  gboolean running = bamf_dbus_item_view_get_running (proxy);
+  gboolean running = _bamf_dbus_item_view_get_running (proxy);
   g_signal_emit (G_OBJECT (self), view_signals[RUNNING_CHANGED], 0, running);
   g_object_notify (G_OBJECT (self), "running");
 }
@@ -525,7 +525,7 @@ bamf_view_on_running_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfVi
 static void
 bamf_view_on_urgent_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfView *self)
 {
-  gboolean urgent = bamf_dbus_item_view_get_urgent (proxy);
+  gboolean urgent = _bamf_dbus_item_view_get_urgent (proxy);
   g_signal_emit (G_OBJECT (self), view_signals[URGENT_CHANGED], 0, urgent);
   g_object_notify (G_OBJECT (self), "urgent");
 }
@@ -533,7 +533,7 @@ bamf_view_on_urgent_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfVie
 static void
 bamf_view_on_user_visible_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfView *self)
 {
-  gboolean user_visible = bamf_dbus_item_view_get_user_visible (proxy);
+  gboolean user_visible = _bamf_dbus_item_view_get_user_visible (proxy);
   g_signal_emit (G_OBJECT (self), view_signals[VISIBLE_CHANGED], 0, user_visible);
   g_object_notify (G_OBJECT (self), "user-visible");
 }
@@ -738,10 +738,10 @@ _bamf_view_set_path (BamfView *view, const char *path)
   }
 
   bamf_view_unset_proxy (view);
-  priv->proxy = bamf_dbus_item_view_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
-                                                            G_DBUS_PROXY_FLAGS_NONE,
-                                                            BAMF_DBUS_SERVICE_NAME,
-                                                            path, NULL, &error);
+  priv->proxy = _bamf_dbus_item_view_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                                             G_DBUS_PROXY_FLAGS_NONE,
+                                                             BAMF_DBUS_SERVICE_NAME,
+                                                             path, NULL, &error);
   if (!G_IS_DBUS_PROXY (priv->proxy))
     {
       g_critical ("Unable to get "BAMF_DBUS_SERVICE_NAME" view: %s", error ? error ? error->message : "" : "");

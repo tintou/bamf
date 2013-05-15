@@ -215,11 +215,11 @@ bamf_matcher_init (BamfMatcher *self)
   GError *error = NULL;
 
   priv = self->priv = BAMF_MATCHER_GET_PRIVATE (self);
-  priv->proxy = bamf_dbus_matcher_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
-                                                          G_DBUS_PROXY_FLAGS_NONE,
-                                                          BAMF_DBUS_SERVICE_NAME,
-                                                          BAMF_DBUS_MATCHER_PATH,
-                                                          NULL, &error);
+  priv->proxy = _bamf_dbus_matcher_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                                           G_DBUS_PROXY_FLAGS_NONE,
+                                                           BAMF_DBUS_SERVICE_NAME,
+                                                           BAMF_DBUS_MATCHER_PATH,
+                                                           NULL, &error);
 
   if (error)
     {
@@ -297,8 +297,7 @@ bamf_matcher_get_active_application (BamfMatcher *matcher)
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
   priv = matcher->priv;
 
-  if (!bamf_dbus_matcher_call_active_application_sync (priv->proxy, &app,
-                                                       NULL, &error))
+  if (!_bamf_dbus_matcher_call_active_application_sync (priv->proxy, &app, NULL, &error))
     {
       g_warning ("Failed to get active application: %s", error ? error->message : "");
       g_error_free (error);
@@ -343,8 +342,7 @@ bamf_matcher_get_active_window (BamfMatcher *matcher)
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
   priv = matcher->priv;
 
-  if (!bamf_dbus_matcher_call_active_window_sync (priv->proxy, &win,
-                                                  NULL, &error))
+  if (!_bamf_dbus_matcher_call_active_window_sync (priv->proxy, &win, NULL, &error))
     {
       g_warning ("Failed to get active window: %s", error ? error->message : "");
       g_error_free (error);
@@ -406,8 +404,7 @@ bamf_matcher_get_application_for_xid (BamfMatcher  *matcher, guint32 xid)
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
   priv = matcher->priv;
 
-  if (!bamf_dbus_matcher_call_application_for_xid_sync (priv->proxy, xid, &app,
-                                                        NULL, &error))
+  if (!_bamf_dbus_matcher_call_application_for_xid_sync (priv->proxy, xid, &app, NULL, &error))
     {
       g_warning ("Failed to get application for xid %u: %s", xid, error ? error->message : "");
       g_error_free (error);
@@ -443,10 +440,10 @@ bamf_matcher_application_is_running (BamfMatcher *matcher, const gchar *app)
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), FALSE);
   priv = matcher->priv;
 
-  if (!bamf_dbus_matcher_call_application_is_running_sync (priv->proxy,
-                                                           app ? app : "",
-                                                           &running,
-                                                           NULL, &error))
+  if (!_bamf_dbus_matcher_call_application_is_running_sync (priv->proxy,
+                                                            app ? app : "",
+                                                            &running,
+                                                            NULL, &error))
     {
       g_warning ("Failed to fetch running status: %s", error ? error->message : "");
       g_error_free (error);
@@ -481,7 +478,7 @@ bamf_matcher_get_applications (BamfMatcher *matcher)
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
   priv = matcher->priv;
 
-  if (!bamf_dbus_matcher_call_application_paths_sync (priv->proxy, &array, NULL, &error))
+  if (!_bamf_dbus_matcher_call_application_paths_sync (priv->proxy, &array, NULL, &error))
     {
       g_warning ("Failed to fetch applications paths: %s", error ? error->message : "");
       g_error_free (error);
@@ -530,7 +527,7 @@ bamf_matcher_get_windows (BamfMatcher *matcher)
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
   priv = matcher->priv;
 
-  if (!bamf_dbus_matcher_call_window_paths_sync (priv->proxy, &array, NULL, &error))
+  if (!_bamf_dbus_matcher_call_window_paths_sync (priv->proxy, &array, NULL, &error))
     {
       g_warning ("Failed to fetch windows paths: %s", error ? error->message : "");
       g_error_free (error);
@@ -578,8 +575,8 @@ bamf_matcher_get_window_stack_for_monitor (BamfMatcher *matcher, gint monitor)
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
   priv = matcher->priv;
 
-  if (!bamf_dbus_matcher_call_window_stack_for_monitor_sync (priv->proxy, monitor,
-                                                             &array, NULL, &error))
+  if (!_bamf_dbus_matcher_call_window_stack_for_monitor_sync (priv->proxy, monitor,
+                                                              &array, NULL, &error))
     {
       g_warning ("Failed to fetch paths: %s", error ? error->message : "");
       g_error_free (error);
@@ -625,8 +622,7 @@ bamf_matcher_register_favorites (BamfMatcher *matcher,
 
   priv = matcher->priv;
 
-  if (!bamf_dbus_matcher_call_register_favorites_sync (priv->proxy, favorites,
-                                                       NULL, &error))
+  if (!_bamf_dbus_matcher_call_register_favorites_sync (priv->proxy, favorites, NULL, &error))
     {
       g_warning ("Failed to register favorites: %s", error ? error->message : "");
       g_error_free (error);
@@ -654,8 +650,7 @@ bamf_matcher_get_running_applications (BamfMatcher *matcher)
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
   priv = matcher->priv;
 
-  if (!bamf_dbus_matcher_call_running_applications_sync (priv->proxy, &array,
-                                                         NULL, &error))
+  if (!_bamf_dbus_matcher_call_running_applications_sync (priv->proxy, &array, NULL, &error))
     {
       g_warning ("Failed to get running applications: %s", error ? error->message : "");
       g_error_free (error);
@@ -701,7 +696,7 @@ bamf_matcher_get_tabs (BamfMatcher *matcher)
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
   priv = matcher->priv;
 
-  if (!bamf_dbus_matcher_call_tab_paths_sync (priv->proxy, &array, NULL, &error))
+  if (!_bamf_dbus_matcher_call_tab_paths_sync (priv->proxy, &array, NULL, &error))
     {
       g_warning ("Failed to get tabs: %s", error ? error->message : "");
       g_error_free (error);
@@ -748,8 +743,8 @@ bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
   priv = matcher->priv;
 
-  if (!bamf_dbus_matcher_call_xids_for_application_sync (priv->proxy, application,
-                                                         &xids, NULL, &error))
+  if (!_bamf_dbus_matcher_call_xids_for_application_sync (priv->proxy, application,
+                                                          &xids, NULL, &error))
     {
       g_warning ("Failed to get xids: %s", error ? error->message : "");
       g_error_free (error);

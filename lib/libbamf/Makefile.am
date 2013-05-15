@@ -115,12 +115,16 @@ libbamf_pc_DATA = \
 glib_marshal_list = bamf-marshal.list
 glib_marshal_prefix = _bamf_marshal
 
-bamf-gdbus-tab-source-generated.c bamf-gdbus-tab-source-generated.h: org.ayatana.bamf.tabsource.xml
+bamf-gdbus-tab-source-generated.c: org.ayatana.bamf.tabsource.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN) \
-	--generate-c-code bamf-gdbus-tab-source-generated \
+	--c-generate-object-manager \
+	--generate-c-code $(shell basename $@ .c) \
 	--c-namespace BamfDBusTab \
 	--interface-prefix org.ayatana.bamf \
-	$<
+	$<; \
+	# Adding '_' prefix to generated private functions \
+	$(SED) "s/bamf_dbus_tab/_bamf_dbus_tab/g" -i \
+	$@ $(shell basename $@ .c).h
 
 BUILT_SOURCES += \
 	$(libbamf_gdbus_files) \

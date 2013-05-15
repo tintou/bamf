@@ -266,14 +266,14 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
 
   if (type == BAMF_FACTORY_NONE)
     {
-      vproxy = bamf_dbus_item_view_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
-                                                           G_DBUS_PROXY_FLAGS_NONE,
-                                                           BAMF_DBUS_SERVICE_NAME,
-                                                           path, NULL, NULL);
+      vproxy = _bamf_dbus_item_view_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                                            G_DBUS_PROXY_FLAGS_NONE,
+                                                            BAMF_DBUS_SERVICE_NAME,
+                                                            path, NULL, NULL);
       if (G_IS_DBUS_PROXY (vproxy))
         {
           char *type_str = NULL;
-          bamf_dbus_item_view_call_view_type_sync (vproxy, &type_str, NULL, NULL);
+          _bamf_dbus_item_view_call_view_type_sync (vproxy, &type_str, NULL, NULL);
           type = compute_factory_type_by_str (type_str);
           g_free (type_str);
           g_object_unref (vproxy);

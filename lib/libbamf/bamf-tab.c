@@ -70,10 +70,10 @@ bamf_tab_set_path (BamfView *view, const gchar *path)
   priv = self->priv;
 
   bamf_tab_unset_proxy (self);
-  priv->proxy = bamf_dbus_item_tab_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
-                                                           G_DBUS_PROXY_FLAGS_NONE,
-                                                           BAMF_DBUS_SERVICE_NAME,
-                                                           path, NULL, &error);
+  priv->proxy = _bamf_dbus_item_tab_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                                            G_DBUS_PROXY_FLAGS_NONE,
+                                                            BAMF_DBUS_SERVICE_NAME,
+                                                            path, NULL, &error);
   if (!G_IS_DBUS_PROXY (priv->proxy))
     {
       g_error ("Unable to get "BAMF_DBUS_SERVICE_NAME" tab: %s", error ? error->message : "");
@@ -100,16 +100,16 @@ bamf_tab_get_property (GObject *object, guint property_id, GValue *value, GParam
   switch (property_id)
     {
     case PROP_LOCATION:
-      g_value_set_string (value, bamf_dbus_item_tab_get_location (self->priv->proxy));
+      g_value_set_string (value, _bamf_dbus_item_tab_get_location (self->priv->proxy));
       break;
     case PROP_DESKTOP_ID:
-      g_value_set_string (value, bamf_dbus_item_tab_get_desktop_id (self->priv->proxy));
+      g_value_set_string (value, _bamf_dbus_item_tab_get_desktop_id (self->priv->proxy));
       break;
     case PROP_XID:
-      g_value_set_uint64 (value, bamf_dbus_item_tab_get_xid (self->priv->proxy));
+      g_value_set_uint64 (value, _bamf_dbus_item_tab_get_xid (self->priv->proxy));
       break;
     case PROP_IS_FOREGROUND_TAB:
-      g_value_set_boolean (value, bamf_dbus_item_tab_get_is_foreground_tab (self->priv->proxy));
+      g_value_set_boolean (value, _bamf_dbus_item_tab_get_is_foreground_tab (self->priv->proxy));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -199,7 +199,7 @@ bamf_tab_raise (BamfTab *self)
   if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
     return FALSE;
 
-  if (!bamf_dbus_item_tab_call_raise_sync (self->priv->proxy, NULL, &error))
+  if (!_bamf_dbus_item_tab_call_raise_sync (self->priv->proxy, NULL, &error))
     {
       g_warning ("Failed to invoke Raise method: %s", error ? error->message : "");
       g_error_free (error);
@@ -222,7 +222,7 @@ bamf_tab_close (BamfTab *self)
 
   error = NULL;
 
-  if (!bamf_dbus_item_tab_call_close_sync (self->priv->proxy, NULL, &error))
+  if (!_bamf_dbus_item_tab_call_close_sync (self->priv->proxy, NULL, &error))
     {
       g_warning ("Failed to invoke Close method: %s", error->message);
       g_error_free (error);
@@ -241,7 +241,7 @@ typedef struct _BamfTabPreviewRequestData
 } BamfTabPreviewRequestData;
 
 static void
-bamf_tab_on_preview_ready (GObject *source_object, GAsyncResult *res, gpointer user_data)
+on_preview_ready (GObject *source_object, GAsyncResult *res, gpointer user_data)
 {
   BamfTab *self;
   BamfTabPreviewRequestData *data;
@@ -251,7 +251,7 @@ bamf_tab_on_preview_ready (GObject *source_object, GAsyncResult *res, gpointer u
   data = user_data;
   self = data->self;
 
-  if (bamf_dbus_item_tab_call_request_preview_finish (self->priv->proxy, &preview_data, res, &error))
+  if (_bamf_dbus_item_tab_call_request_preview_finish (self->priv->proxy, &preview_data, res, &error))
     {
       data->callback (self, NULL, data->user_data);
 
@@ -280,8 +280,8 @@ bamf_tab_request_preview (BamfTab *self, BamfTabPreviewReadyCallback callback, g
   data->callback = callback;
   data->user_data = user_data;
 
-  bamf_dbus_item_tab_call_request_preview (self->priv->proxy, NULL,
-                                           bamf_tab_on_preview_ready, data);
+  _bamf_dbus_item_tab_call_request_preview (self->priv->proxy, NULL,
+                                            on_preview_ready, data);
 }
 
 const gchar *
@@ -292,7 +292,7 @@ bamf_tab_get_location (BamfTab *self)
   if (BAMF_TAB_GET_CLASS (self)->get_location)
     return BAMF_TAB_GET_CLASS (self)->get_location (self);
 
-  return bamf_dbus_item_tab_get_location (self->priv->proxy);
+  return _bamf_dbus_item_tab_get_location (self->priv->proxy);
 }
 
 const gchar *
@@ -303,7 +303,7 @@ bamf_tab_get_desktop_name (BamfTab *self)
   if (BAMF_TAB_GET_CLASS (self)->get_desktop_name)
     return BAMF_TAB_GET_CLASS (self)->get_desktop_name (self);
 
-  return bamf_dbus_item_tab_get_desktop_id (self->priv->proxy);
+  return _bamf_dbus_item_tab_get_desktop_id (self->priv->proxy);
 }
 
 guint64
@@ -314,7 +314,7 @@ bamf_tab_get_xid (BamfTab *self)
   if (BAMF_TAB_GET_CLASS (self)->get_xid)
     return BAMF_TAB_GET_CLASS (self)->get_xid (self);
 
-  return bamf_dbus_item_tab_get_xid (self->priv->proxy);
+  return _bamf_dbus_item_tab_get_xid (self->priv->proxy);
 }
 
 gboolean
@@ -325,5 +325,5 @@ bamf_tab_get_is_foreground_tab (BamfTab *self)
   if (BAMF_TAB_GET_CLASS (self)->get_is_foreground_tab)
     return BAMF_TAB_GET_CLASS (self)->get_is_foreground_tab (self);
 
-  return bamf_dbus_item_tab_get_is_foreground_tab (self->priv->proxy);
+  return _bamf_dbus_item_tab_get_is_foreground_tab (self->priv->proxy);
 }

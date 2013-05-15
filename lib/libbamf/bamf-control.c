@@ -98,11 +98,11 @@ bamf_control_init (BamfControl *self)
 
   priv = self->priv = BAMF_CONTROL_GET_PRIVATE (self);
 
-  priv->proxy = bamf_dbus_control_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
-                                                          G_DBUS_PROXY_FLAGS_NONE,
-                                                          BAMF_DBUS_SERVICE_NAME,
-                                                          BAMF_DBUS_CONTROL_PATH,
-                                                          NULL, &error);
+  priv->proxy = _bamf_dbus_control_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                                           G_DBUS_PROXY_FLAGS_NONE,
+                                                           BAMF_DBUS_SERVICE_NAME,
+                                                           BAMF_DBUS_CONTROL_PATH,
+                                                           NULL, &error);
 
   if (error)
     {
@@ -134,9 +134,9 @@ bamf_control_insert_desktop_file (BamfControl *control, const gchar *desktop_fil
   g_return_if_fail (BAMF_IS_CONTROL (control));
   priv = control->priv;
 
-  if (!bamf_dbus_control_call_om_nom_nom_desktop_file_sync (priv->proxy,
-                                                            desktop_file,
-                                                            NULL, &error))
+  if (!_bamf_dbus_control_call_om_nom_nom_desktop_file_sync (priv->proxy,
+                                                             desktop_file,
+                                                             NULL, &error))
     {
       g_warning ("Failed to insert desktop file: %s", error->message);
       g_error_free (error);
@@ -154,10 +154,10 @@ bamf_control_register_application_for_pid (BamfControl  *control,
   g_return_if_fail (BAMF_IS_CONTROL (control));
   priv = control->priv;
 
-  if (!bamf_dbus_control_call_register_application_for_pid_sync (priv->proxy,
-                                                                 desktop_file,
-                                                                 pid, NULL,
-                                                                 &error))
+  if (!_bamf_dbus_control_call_register_application_for_pid_sync (priv->proxy,
+                                                                  desktop_file,
+                                                                  pid, NULL,
+                                                                  &error))
     {
       g_warning ("Failed to register application: %s", error->message);
       g_error_free (error);
@@ -173,8 +173,8 @@ bamf_control_register_tab_provider (BamfControl *control, const char *path)
   g_return_if_fail (BAMF_IS_CONTROL (control));
   priv = control->priv;
 
-  if (!bamf_dbus_control_call_register_tab_provider_sync (priv->proxy, path,
-                                                          NULL, &error))
+  if (!_bamf_dbus_control_call_register_tab_provider_sync (priv->proxy, path,
+                                                           NULL, &error))
     {
       g_warning ("Failed to register tab provider: %s", error->message);
       g_error_free (error);

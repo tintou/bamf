@@ -103,7 +103,7 @@ bamf_window_get_transient (BamfWindow *self)
   if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
     return NULL;
 
-  if (!bamf_dbus_item_window_call_transient_sync (priv->proxy, &path, NULL, &error))
+  if (!_bamf_dbus_item_window_call_transient_sync (priv->proxy, &path, NULL, &error))
     {
       g_warning ("Failed to fetch path: %s", error ? error->message : "");
       g_error_free (error);
@@ -148,7 +148,7 @@ bamf_window_get_window_type (BamfWindow *self)
   if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
     return priv->type;
 
-  if (!bamf_dbus_item_window_call_window_type_sync (priv->proxy, &priv->type, NULL, &error))
+  if (!_bamf_dbus_item_window_call_window_type_sync (priv->proxy, &priv->type, NULL, &error))
     {
       priv->type = BAMF_WINDOW_UNKNOWN;
       g_warning ("Failed to fetch type: %s", error ? error->message : "");
@@ -177,7 +177,7 @@ bamf_window_get_pid (BamfWindow *self)
   if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
     return priv->pid;
 
-  if (!bamf_dbus_item_window_call_get_pid_sync (priv->proxy, &priv->pid, NULL, &error))
+  if (!_bamf_dbus_item_window_call_get_pid_sync (priv->proxy, &priv->pid, NULL, &error))
     {
       priv->pid = 0;
       g_warning ("Failed to fetch pid: %s", error ? error->message : "");
@@ -206,7 +206,7 @@ bamf_window_get_xid (BamfWindow *self)
   if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
     return priv->xid;
 
-  if (!bamf_dbus_item_window_call_get_xid_sync (priv->proxy, &priv->xid, NULL, &error))
+  if (!_bamf_dbus_item_window_call_get_xid_sync (priv->proxy, &priv->xid, NULL, &error))
     {
       priv->xid = 0;
       g_warning ("Failed to fetch xid: %s", error ? error->message : "");
@@ -234,7 +234,7 @@ bamf_window_get_utf8_prop (BamfWindow *self, const char* xprop)
   if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
     return NULL;
 
-  if (!bamf_dbus_item_window_call_xprop_sync (priv->proxy, xprop, &result, NULL, &error))
+  if (!_bamf_dbus_item_window_call_xprop_sync (priv->proxy, xprop, &result, NULL, &error))
     {
       g_warning ("Failed to fetch property `%s': %s", xprop, error ? error->message : "");
       g_error_free (error);
@@ -270,7 +270,7 @@ bamf_window_get_monitor (BamfWindow *self)
       return priv->monitor;
     }
 
-  if (!bamf_dbus_item_window_call_monitor_sync (priv->proxy, &monitor, NULL, &error))
+  if (!_bamf_dbus_item_window_call_monitor_sync (priv->proxy, &monitor, NULL, &error))
     {
       g_warning ("Failed to fetch monitor: %s", error ? error->message : "");
       g_error_free (error);
@@ -299,7 +299,7 @@ bamf_window_maximized (BamfWindow *self)
       return priv->maximized;
     }
 
-  if (!bamf_dbus_item_window_call_maximized_sync (priv->proxy, (gint*) &priv->maximized, NULL, &error))
+  if (!_bamf_dbus_item_window_call_maximized_sync (priv->proxy, (gint*) &priv->maximized, NULL, &error))
     {
       priv->maximized = -1;
       g_warning ("Failed to fetch maximized state: %s", error->message);
@@ -364,10 +364,10 @@ bamf_window_set_path (BamfView *view, const char *path)
   priv = self->priv;
 
   bamf_window_unset_proxy (self);
-  priv->proxy = bamf_dbus_item_window_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
-                                                              G_DBUS_PROXY_FLAGS_NONE,
-                                                              BAMF_DBUS_SERVICE_NAME,
-                                                              path, NULL, &error);
+  priv->proxy = _bamf_dbus_item_window_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                                               G_DBUS_PROXY_FLAGS_NONE,
+                                                               BAMF_DBUS_SERVICE_NAME,
+                                                               path, NULL, &error);
   if (!G_IS_DBUS_PROXY (priv->proxy))
     {
       g_error ("Unable to get "BAMF_DBUS_SERVICE_NAME" window: %s", error ? error->message : "");
