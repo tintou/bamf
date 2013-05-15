@@ -84,8 +84,6 @@ libbamf_la_LDFLAGS = \
 	$(NULL)
 
 lib_LTLIBRARIES = libbamf3.la
-
-libbamf3_la: $(LIBBAMF_PRIVATE_LIB)
 libbamf3_la_SOURCES = $(libbamf_la_SOURCES)
 libbamf3_la_LIBADD = $(libbamf_la_LIBADD)
 libbamf3_la_CFLAGS = $(libbamf_la_CFLAGS)
