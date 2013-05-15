@@ -1,8 +1,3 @@
-
-INCLUDE = \
-	-I. \
-	$(NULL)
-
 noinst_LTLIBRARIES = libbamf-private.la
 
 bamf_gdbus_files = \
