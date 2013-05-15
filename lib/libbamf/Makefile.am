@@ -63,13 +63,13 @@ libbamf_la_LIBADD = \
 	$(COVERAGE_LIBS) \
 	$(NULL)
 
-libbamf_la_CPPFLAGS = \
+libbamf_la_CFLAGS = \
 	-Wall -std=c99 \
 	-fPIC \
 	-DDATADIR=\""$(datadir)"\" \
+	-I$(srcdir) \
 	-I$(top_srcdir)/lib \
-	-I$(top_srcdir)/lib/libbamf \
-	-I$(top_builddir)/lib/libbamf \
+	-I$(top_builddir)/lib \
 	$(COVERAGE_CFLAGS) \
 	$(LIBWSBIND_CFLAGS) \
 	$(GLIB_CFLAGS) \
@@ -86,7 +86,7 @@ lib_LTLIBRARIES = libbamf3.la
 
 libbamf3_la_SOURCES = $(libbamf_la_SOURCES)
 libbamf3_la_LIBADD = $(libbamf_la_LIBADD)
-libbamf3_la_CPPFLAGS = $(libbamf_la_CPPFLAGS)
+libbamf3_la_CFLAGS = $(libbamf_la_CFLAGS)
 libbamf3_la_LDFLAGS = $(libbamf_la_LDFLAGS)
 
 library_includedir=$(includedir)/libbamf$(VER)/libbamf

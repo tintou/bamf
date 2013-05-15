@@ -112,8 +112,8 @@ bamfdaemon_CFLAGS = \
 		-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
 		-I$(top_srcdir)/src \
 		-I$(srcdir) \
-		-I$(builddir) \
 		-I$(top_srcdir)/lib \
+		-I$(top_builddir)/lib \
 		$(GLIB_CFLAGS) \
 		$(GTK_CFLAGS) \
 		$(WNCK_CFLAGS) \
