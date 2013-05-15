@@ -42,8 +42,8 @@ bamf-gdbus-view-generated.c bamf-gdbus-view-generated.h: org.ayatana.bamf.view.x
 bamf-gdbus-browser-generated.c bamf-gdbus-browser-generated.h: org.ayatana.bamf.browser.xml
 		$(AM_V_GEN) $(GDBUS_CODEGEN) \
 		--generate-c-code bamf-gdbus-browser-generated \
-		--c-namespace BamfDBus \
-		--interface-prefix org.ayatana.bamf \
+		--c-namespace BamfDBusBrowser \
+		--interface-prefix org.ayatana.bamf.browser \
 		$<
 
 libbamf_private_la_CFLAGS = \
