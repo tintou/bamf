@@ -22,7 +22,6 @@
 
 #include <libbamf-private/bamf-gdbus-generated.h>
 #include <libbamf-private/bamf-gdbus-view-generated.h>
-#include <libbamf-private/bamf-gdbus-browser-generated.h>
 
 #define BAMF_DBUS_SERVICE_NAME "org.ayatana.bamf"
 
