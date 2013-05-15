@@ -2,6 +2,7 @@ CLEANFILES =
 DISTCLEANFILES =
 BUILT_SOURCES =
 EXTRA_DIST =
+LIBBAMF_PRIVATE_LIB = $(top_builddir)/lib/libbamf-private/libbamf-private.la
 
 include $(top_srcdir)/Makefile.am.marshal
 -include $(INTROSPECTION_MAKEFILE)
@@ -57,7 +58,7 @@ libbamf_la_SOURCES = \
 	$(NULL)
 
 libbamf_la_LIBADD = \
-	$(top_builddir)/lib/libbamf-private/libbamf-private.la \
+	$(LIBBAMF_PRIVATE_LIB) \
 	$(LIBWSBIND_LIBS) \
 	$(GLIB_LIBS) \
 	$(COVERAGE_LIBS) \
@@ -84,6 +85,7 @@ libbamf_la_LDFLAGS = \
 
 lib_LTLIBRARIES = libbamf3.la
 
+libbamf3_la: $(LIBBAMF_PRIVATE_LIB)
 libbamf3_la_SOURCES = $(libbamf_la_SOURCES)
 libbamf3_la_LIBADD = $(libbamf_la_LIBADD)
 libbamf3_la_CFLAGS = $(libbamf_la_CFLAGS)

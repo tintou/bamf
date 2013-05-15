@@ -108,11 +108,9 @@ bamfdaemon_LDADD = \
 		$(NULL)
 
 bamfdaemon_CFLAGS = \
-		-I$(top_builddir)/lib \
 		-Wall -std=c99 \
 		-DDATADIR=\""$(datadir)"\" \
 		-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
-		-I$(top_srcdir)/src \
 		-I$(srcdir) \
 		-I$(top_srcdir)/lib \
 		-I$(top_builddir)/lib \
