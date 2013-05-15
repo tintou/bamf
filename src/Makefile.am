@@ -7,7 +7,6 @@ LIBBAMF_PRIVATE_LIB = $(top_builddir)/lib/libbamf-private/libbamf-private.la
 
 include $(top_srcdir)/Makefile.am.marshal
 
-bamfdaemon: $(LIBBAMF_PRIVATE_LIB)
 bamfdaemondir = $(pkglibexecdir)
 
 bamfdaemon_PROGRAMS = \
