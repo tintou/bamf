@@ -53,7 +53,7 @@ libbamf3_la_LIBADD = \
   $(DBUS_LIBS) \
   $(NULL)
 
-libbamf3_la_CPPFLAGS = \
+libbamf3_la_CFLAGS = \
   -Wall -std=c99 \
   -fPIC \
   -DDATADIR=\""$(datadir)"\" \

@@ -12,10 +12,6 @@ bamfdaemon_PROGRAMS = \
 		bamfdaemon \
 		$(NULL)
 
-bamfdaemon_xml_gdbus_files = \
-		com.canonical.StatusNotifierApprover.xml \
-		$(NULL)
-
 bamfdaemon_built_sources = \
 		bamf-marshal.c \
 		bamf-marshal.h \
@@ -114,8 +110,8 @@ bamfdaemon_CFLAGS = \
 		-DDATADIR=\""$(datadir)"\" \
 		-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
 		-I$(srcdir) \
-		-I$(builddir) \
 		-I$(top_srcdir)/lib \
+		-I$(top_builddir)/lib \
 		$(GLIB_CFLAGS) \
 		$(GTK_CFLAGS) \
 		$(WNCK_CFLAGS) \
@@ -128,8 +124,3 @@ bamfdaemon_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
 		$(COVERAGE_LDFLAGS) \
 		$(NULL)
-
-EXTRA_DIST += \
-		$(bamfdaemon_xml_gdbus_files) \
-		$(NULL)
-
