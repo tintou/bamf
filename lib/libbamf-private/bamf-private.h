@@ -22,6 +22,5 @@
 
 #include <libbamf-private/bamf-gdbus-generated.h>
 #include <libbamf-private/bamf-gdbus-view-generated.h>
-#include <libbamf-private/bamf-gdbus-browser-generated.h>
 
 #endif

@@ -10,14 +10,11 @@ bamf_gdbus_files = \
 	bamf-gdbus-generated.h \
 	bamf-gdbus-view-generated.c \
 	bamf-gdbus-view-generated.h \
-	bamf-gdbus-browser-generated.c \
-	bamf-gdbus-browser-generated.h \
 	$(NULL)
 
 bamf_xml_gdbus_files = \
 	org.ayatana.bamf.xml \
 	org.ayatana.bamf.view.xml \
-	org.ayatana.bamf.browser.xml \
 	$(NULL)
 
 bamf_built_sources = \
@@ -37,13 +34,6 @@ bamf-gdbus-view-generated.c bamf-gdbus-view-generated.h: org.ayatana.bamf.view.x
 	--generate-c-code bamf-gdbus-view-generated \
 	--c-namespace BamfDBusItem \
 	--interface-prefix org.ayatana.bamf \
-	$<
-
-bamf-gdbus-browser-generated.c bamf-gdbus-browser-generated.h: org.ayatana.bamf.browser.xml
-	$(AM_V_GEN) $(GDBUS_CODEGEN) \
-	--generate-c-code bamf-gdbus-browser-generated \
-	--c-namespace BamfDBusBrowser \
-	--interface-prefix org.ayatana.bamf.browser \
 	$<
 
 libbamf_private_la_CFLAGS = \
