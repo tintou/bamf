@@ -253,17 +253,17 @@ on_preview_ready (GObject *source_object, GAsyncResult *res, gpointer user_data)
 
   if (_bamf_dbus_item_tab_call_request_preview_finish (self->priv->proxy, &preview_data, res, &error))
     {
+      data->callback (self, preview_data, data->user_data);
+      g_free (preview_data);
+    }
+  else
+    {
       data->callback (self, NULL, data->user_data);
 
       g_warning ("Error requesting BamfTab preview: %s", error ? error->message : "");
       g_error_free (error);
-      g_free (data);
-      return;
     }
 
-  data->callback (self, preview_data, data->user_data);
-
-  g_free (preview_data);
   g_free (data);
 }
 
