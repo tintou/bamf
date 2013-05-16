@@ -79,6 +79,7 @@ static guint view_signals[LAST_SIGNAL] = { 0 };
 struct _BamfViewPrivate
 {
   BamfDBusItemView *proxy;
+  GCancellable     *cancellable;
   gchar            *type;
   gchar            *local_icon;
   gchar            *local_name;
@@ -119,7 +120,7 @@ bamf_view_get_children (BamfView *view)
   if (priv->cached_children)
     return g_list_copy (priv->cached_children);
 
-  if (!_bamf_dbus_item_view_call_children_sync (priv->proxy, &children, NULL, &error))
+  if (!_bamf_dbus_item_view_call_children_sync (priv->proxy, &children, CANCELLABLE (view), &error))
     {
       g_warning ("Unable to fetch children: %s\n", error ? error->message : "");
       g_error_free (error);
@@ -313,7 +314,7 @@ bamf_view_set_sticky (BamfView *view, gboolean value)
  * bamf_view_get_icon:
  * @view: a #BamfView
  *
- * Gets the icon of a view. This icon is used to visually represent the view. 
+ * Gets the icon of a view. This icon is used to visually represent the view.
  */
 gchar *
 bamf_view_get_icon (BamfView *self)
@@ -331,7 +332,7 @@ bamf_view_get_icon (BamfView *self)
   if (!_bamf_view_remote_ready (self))
     return g_strdup (priv->local_icon);
 
-  if (!_bamf_dbus_item_view_call_icon_sync (priv->proxy, &icon, NULL, &error))
+  if (!_bamf_dbus_item_view_call_icon_sync (priv->proxy, &icon, CANCELLABLE (self), &error))
     {
       g_warning ("Failed to fetch icon: %s", error ? error->message : "");
       g_error_free (error);
@@ -367,7 +368,7 @@ bamf_view_get_name (BamfView *self)
   if (!_bamf_view_remote_ready (self) || priv->local_name)
     return g_strdup (priv->local_name);
 
-  if (!_bamf_dbus_item_view_call_name_sync (priv->proxy, &name, NULL, &error))
+  if (!_bamf_dbus_item_view_call_name_sync (priv->proxy, &name, CANCELLABLE (self), &error))
     {
       g_warning ("Failed to fetch name: %s", error ? error->message : "");
       g_error_free (error);
@@ -418,7 +419,7 @@ bamf_view_get_view_type (BamfView *self)
   if (!_bamf_view_remote_ready (self))
     return NULL;
 
-  if (!_bamf_dbus_item_view_call_view_type_sync (priv->proxy, &type, NULL, &error))
+  if (!_bamf_dbus_item_view_call_view_type_sync (priv->proxy, &type, CANCELLABLE (self), &error))
     {
       const gchar *path = g_dbus_proxy_get_object_path (G_DBUS_PROXY (priv->proxy));
       g_warning ("Failed to fetch view type at %s: %s", path, error ? error->message : "");
@@ -538,6 +539,14 @@ bamf_view_on_user_visible_changed (BamfDBusItemView *proxy, GParamSpec *param, B
   g_object_notify (G_OBJECT (self), "user-visible");
 }
 
+GCancellable *
+_bamf_view_get_cancellable (BamfView *view)
+{
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+
+  return view->priv->cancellable;
+}
+
 void
 _bamf_view_set_closed (BamfView *view, gboolean closed)
 {
@@ -649,6 +658,12 @@ bamf_view_dispose (GObject *object)
   view = BAMF_VIEW (object);
 
   priv = view->priv;
+
+  if (priv->cancellable)
+    {
+      g_cancellable_cancel (priv->cancellable);
+      g_object_unref (priv->cancellable);
+    }
 
   if (priv->type)
     {
@@ -911,5 +926,6 @@ bamf_view_init (BamfView *self)
   BamfViewPrivate *priv;
 
   priv = self->priv = BAMF_VIEW_GET_PRIVATE (self);
+  priv->cancellable = g_cancellable_new ();
   priv->is_closed = TRUE;
 }
