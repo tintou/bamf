@@ -40,9 +40,6 @@ G_BEGIN_DECLS
 #define BAMF_IS_TAB_CLASS(klass)        (G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_TAB))
 #define BAMF_TAB_GET_CLASS(obj)         (G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_TAB, BamfTabClass))
 
-#define BAMF_TAB_SIGNAL_URI_CHANGED     "uri-changed"
-#define BAMF_TAB_SIGNAL_PREVIEW_UPDATED "preview-updated"
-
 typedef struct _BamfTab         BamfTab;
 typedef struct _BamfTabClass    BamfTabClass;
 typedef struct _BamfTabPrivate  BamfTabPrivate;
