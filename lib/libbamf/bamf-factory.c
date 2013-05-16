@@ -262,8 +262,6 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
   if (BAMF_IS_VIEW (view))
     return view;
 
-  view = NULL;
-
   if (type == BAMF_FACTORY_NONE)
     {
       vproxy = _bamf_dbus_item_view_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
