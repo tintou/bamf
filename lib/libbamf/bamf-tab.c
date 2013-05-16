@@ -189,6 +189,14 @@ bamf_tab_new (const gchar *path)
   return self;
 }
 
+/**
+ * bamf_tab_raise:
+ * @self: A #BamfTab.
+ *
+ * Selects the @self tab in the parent window.
+ *
+ * Returns: %TRUE if success, %FALSE otherwise.
+ */
 gboolean
 bamf_tab_raise (BamfTab *self)
 {
@@ -210,6 +218,14 @@ bamf_tab_raise (BamfTab *self)
   return TRUE;
 }
 
+/**
+ * bamf_tab_close:
+ * @self: A #BamfTab.
+ *
+ * Closes the selected @self tab.
+ *
+ * Returns: %TRUE if success, %FALSE otherwise.
+ */
 gboolean
 bamf_tab_close (BamfTab *self)
 {
@@ -267,6 +283,12 @@ on_preview_ready (GObject *source_object, GAsyncResult *res, gpointer user_data)
   g_free (data);
 }
 
+/**
+ * bamf_tab_request_preview:
+ * @self: a #BamfTab
+ * @callback: (closure) (scope async): a callback function to call when the result is ready
+ * @user_data: (closure) (allow-none): data to be sent to the callback.
+ */
 void
 bamf_tab_request_preview (BamfTab *self, BamfTabPreviewReadyCallback callback, gpointer user_data)
 {
@@ -295,6 +317,14 @@ bamf_tab_get_location (BamfTab *self)
   return _bamf_dbus_item_tab_get_location (self->priv->proxy);
 }
 
+/**
+ * bamf_tab_get_desktop_name:
+ * @self: A #BamfTab.
+ *
+ * Returns the desktop file for the tab.
+ *
+ * Returns: (transfer none): The tab desktop id or %NULL if not set or available. Do not free the returned value, it belongs to @self.
+ */
 const gchar *
 bamf_tab_get_desktop_name (BamfTab *self)
 {
@@ -306,6 +336,14 @@ bamf_tab_get_desktop_name (BamfTab *self)
   return _bamf_dbus_item_tab_get_desktop_id (self->priv->proxy);
 }
 
+/**
+ * bamf_tab_get_xid:
+ * @self: A #BamfTab.
+ *
+ * The desktop file for the tab.
+ *
+ * Returns: The tab parent window XID id or 0 if not set or available.
+ */
 guint64
 bamf_tab_get_xid (BamfTab *self)
 {
@@ -317,6 +355,12 @@ bamf_tab_get_xid (BamfTab *self)
   return _bamf_dbus_item_tab_get_xid (self->priv->proxy);
 }
 
+/**
+ * bamf_tab_get_is_foreground_tab:
+ * @self: A #BamfTab.
+ *
+ * Returns: %TRUE if the tab is the active one on parent window XID, %FALSE otherwise.
+ */
 gboolean
 bamf_tab_get_is_foreground_tab (BamfTab *self)
 {
