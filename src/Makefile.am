@@ -25,7 +25,6 @@ bamfdaemon_xml_gdbus_files = \
 		org.ayatana.bamf.xml \
 		org.ayatana.bamf.view.xml \
 		org.ayatana.bamf.browser.xml \
-		com.canonical.StatusNotifierApprover.xml \
 		$(NULL)
 
 bamfdaemon_built_sources = \
