@@ -139,6 +139,7 @@ test_get_mime_types (void)
   g_assert_cmpstr (mimes[4], ==, "text/css");
   g_assert_cmpstr (mimes[5], ==, "text/x-diff");
   g_assert_cmpstr (mimes[6], ==, "application/xml");
+  g_assert_cmpstr (mimes[7], ==, NULL);
 
   g_strfreev (mimes);
   g_object_unref (application);
