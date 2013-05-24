@@ -377,20 +377,23 @@ bamf_view_is_sticky (BamfView *view)
   return view->priv->sticky;
 }
 
-void 
+void
 bamf_view_set_sticky (BamfView *view, gboolean value)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
-  
+
   if (value == view->priv->sticky)
     return;
 
   view->priv->sticky = value;
-  
+
   if (value)
     g_object_ref_sink (view);
   else
     g_object_unref (view);
+
+  if (BAMF_VIEW_GET_CLASS (view)->set_sticky)
+    return BAMF_VIEW_GET_CLASS (view)->set_sticky (view, value);
 }
 
 /**
