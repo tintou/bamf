@@ -600,6 +600,32 @@ bamf_application_set_path (BamfView *view, const char *path)
 }
 
 static void
+bamf_application_set_sticky (BamfView *view, gboolean sticky)
+{
+  BamfApplication *self = BAMF_APPLICATION (view);
+
+  if (sticky)
+    {
+      bamf_application_get_desktop_file (self);
+      bamf_application_get_application_type (self);
+
+      /* When setting the application sticky, we need to cache the relevant values */
+      if (!self->priv->cached_mimes)
+        {
+          gchar **tmp_mimes = bamf_application_get_supported_mime_types (self);
+          g_strfreev (tmp_mimes);
+        }
+
+      gchar *tmp;
+      tmp = bamf_view_get_icon (view);
+      g_free (tmp);
+
+      tmp = bamf_view_get_name (view);
+      g_free (tmp);
+    }
+}
+
+static void
 bamf_application_load_data_from_file (BamfApplication *self, GKeyFile * keyfile)
 {
   GDesktopAppInfo *desktop_info;
@@ -667,6 +693,7 @@ bamf_application_class_init (BamfApplicationClass *klass)
 
   obj_class->dispose     = bamf_application_dispose;
   view_class->set_path   = bamf_application_set_path;
+  view_class->set_sticky = bamf_application_set_sticky;
   view_class->click_behavior = bamf_application_get_click_suggestion;
 
   g_type_class_add_private (obj_class, sizeof (BamfApplicationPrivate));
