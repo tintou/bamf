@@ -73,7 +73,8 @@ bamf_tab_set_path (BamfView *view, const gchar *path)
   priv->proxy = _bamf_dbus_item_tab_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
                                                             G_DBUS_PROXY_FLAGS_NONE,
                                                             BAMF_DBUS_SERVICE_NAME,
-                                                            path, NULL, &error);
+                                                            path, CANCELLABLE (view),
+                                                            &error);
   if (!G_IS_DBUS_PROXY (priv->proxy))
     {
       g_error ("Unable to get "BAMF_DBUS_SERVICE_NAME" tab: %s", error ? error->message : "");
@@ -207,7 +208,7 @@ bamf_tab_raise (BamfTab *self)
   if (!_bamf_view_remote_ready (BAMF_VIEW (self)))
     return FALSE;
 
-  if (!_bamf_dbus_item_tab_call_raise_sync (self->priv->proxy, NULL, &error))
+  if (!_bamf_dbus_item_tab_call_raise_sync (self->priv->proxy, CANCELLABLE (self), &error))
     {
       g_warning ("Failed to invoke Raise method: %s", error ? error->message : "");
       g_error_free (error);
@@ -238,7 +239,7 @@ bamf_tab_close (BamfTab *self)
 
   error = NULL;
 
-  if (!_bamf_dbus_item_tab_call_close_sync (self->priv->proxy, NULL, &error))
+  if (!_bamf_dbus_item_tab_call_close_sync (self->priv->proxy, CANCELLABLE (self), &error))
     {
       g_warning ("Failed to invoke Close method: %s", error->message);
       g_error_free (error);
