@@ -93,7 +93,8 @@ bamf_application_get_supported_mime_types (BamfApplication *application)
 
   if (!_bamf_dbus_item_application_call_supported_mime_types_sync (priv->proxy,
                                                                    &priv->cached_mimes,
-                                                                   NULL, &error))
+                                                                   CANCELLABLE (application),
+                                                                   &error))
     {
       priv->cached_mimes = NULL;
       g_warning ("Failed to fetch mimes: %s", error ? error->message : "");
@@ -128,7 +129,9 @@ bamf_application_get_desktop_file (BamfApplication *application)
   if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return NULL;
 
-  if (!_bamf_dbus_item_application_call_desktop_file_sync (priv->proxy, &file, NULL, &error))
+  if (!_bamf_dbus_item_application_call_desktop_file_sync (priv->proxy, &file,
+                                                           CANCELLABLE (application),
+                                                           &error))
     {
       g_warning ("Failed to fetch path: %s", error ? error->message : "");
       g_error_free (error);
@@ -162,7 +165,10 @@ bamf_application_get_application_menu (BamfApplication *application,
   if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return FALSE;
 
-  if (!_bamf_dbus_item_application_call_application_menu_sync (priv->proxy, name, object_path, NULL, &error))
+  if (!_bamf_dbus_item_application_call_application_menu_sync (priv->proxy, name,
+                                                               object_path,
+                                                               CANCELLABLE (application),
+                                                               &error))
     {
       *name = NULL;
       *object_path = NULL;
@@ -202,7 +208,9 @@ bamf_application_get_application_type (BamfApplication *application)
   if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return NULL;
 
-  if (!_bamf_dbus_item_application_call_application_type_sync (priv->proxy, &type, NULL, &error))
+  if (!_bamf_dbus_item_application_call_application_type_sync (priv->proxy, &type,
+                                                               CANCELLABLE (application),
+                                                               &error))
     {
       g_warning ("Failed to fetch path: %s", error ? error->message : "");
       g_error_free (error);
@@ -238,7 +246,8 @@ bamf_application_get_xids (BamfApplication *application)
   if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return NULL;
 
-  if (!_bamf_dbus_item_application_call_xids_sync (priv->proxy, &xids_variant, NULL, &error))
+  if (!_bamf_dbus_item_application_call_xids_sync (priv->proxy, &xids_variant,
+                                                   CANCELLABLE (application), &error))
     {
       g_warning ("Failed to fetch xids: %s", error ? error->message : "");
       g_error_free (error);
@@ -321,7 +330,9 @@ bamf_application_get_show_menu_stubs (BamfApplication * application)
 
   if (priv->show_stubs == -1)
     {
-      if (!_bamf_dbus_item_application_call_show_stubs_sync (priv->proxy, &result, NULL, &error))
+      if (!_bamf_dbus_item_application_call_show_stubs_sync (priv->proxy, &result,
+                                                             CANCELLABLE (application),
+                                                             &error))
         {
           g_warning ("Failed to fetch show_stubs: %s", error ? error->message : "");
           g_error_free (error);
@@ -367,7 +378,9 @@ bamf_application_get_focusable_child (BamfApplication *application)
   if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return NULL;
 
-  if (!_bamf_dbus_item_application_call_focusable_child_sync (priv->proxy, &path, NULL, &error))
+  if (!_bamf_dbus_item_application_call_focusable_child_sync (priv->proxy, &path,
+                                                              CANCELLABLE (application),
+                                                              &error))
     {
       g_warning ("Failed to fetch focusable child: %s", error ? error->message : "");
       g_error_free (error);
@@ -505,7 +518,8 @@ bamf_application_set_path (BamfView *view, const char *path)
   priv->proxy = _bamf_dbus_item_application_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
                                                                     G_DBUS_PROXY_FLAGS_NONE,
                                                                     BAMF_DBUS_SERVICE_NAME,
-                                                                    path, NULL, &error);
+                                                                    path, CANCELLABLE (view),
+                                                                    &error);
 
   if (!G_IS_DBUS_PROXY (priv->proxy))
     {
