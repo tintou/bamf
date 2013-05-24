@@ -168,6 +168,7 @@ Makefile
 lib/libbamf/Makefile
 lib/libbamf/libbamf3.pc
 src/Makefile
+tests/Makefile
 tests/bamfdaemon/Makefile
 tests/libbamf/Makefile
 data/Makefile

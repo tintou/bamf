@@ -3,15 +3,15 @@ noinst_PROGRAMS = \
 
 test_libbamf_SOURCES = \
   test-libbamf.c \
+  test-application.c \
   test-matcher.c
 
 test_libbamf_CPPFLAGS = \
   -I$(top_srcdir) \
   -I$(top_srcdir)/lib \
-  -I$(top_srcdir)/src \
   -I$(top_srcdir)/lib/libbamf \
   -I$(top_builddir)/lib/libbamf \
-  -DTESTDIR=\""$(abs_top_srcdir)/tests/libbamf"\" \
+  -DTESTDIR=\""$(abs_top_srcdir)/tests"\" \
   $(GCC_FLAGS) \
   $(DBUS_CFLAGS) \
   $(GLIB_CFLAGS)

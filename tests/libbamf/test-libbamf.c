@@ -24,6 +24,7 @@
 
 
 void test_matcher_create_suite (void);
+void test_application_create_suite (void);
 
 gint
 main (gint argc, gchar *argv[])
@@ -36,6 +37,8 @@ main (gint argc, gchar *argv[])
   dbus_g_thread_init ();
 
   test_matcher_create_suite ();
+  test_application_create_suite ();
 
+  g_setenv ("PATH", TESTDIR"/data/bin", TRUE);
   return g_test_run ();
 }
