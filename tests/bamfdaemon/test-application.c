@@ -111,7 +111,7 @@ static void
 test_desktop_no_icon (void)
 {
   BamfApplication    *application;
-  const char no_icon_desktop[] = TESTDIR"/bamfdaemon/data/no-icon.desktop";
+  const char no_icon_desktop[] = TESTDIR"/data/no-icon.desktop";
 
   application = bamf_application_new_from_desktop_file (no_icon_desktop);
   g_assert (g_strcmp0 (bamf_application_get_desktop_file (application), no_icon_desktop) == 0);
@@ -124,7 +124,7 @@ static void
 test_get_mime_types (void)
 {
   BamfApplication *application;
-  const char* mime_types_desktop = TESTDIR"/bamfdaemon/data/mime-types.desktop";
+  const char* mime_types_desktop = TESTDIR"/data/mime-types.desktop";
 
   application = bamf_application_new_from_desktop_file (mime_types_desktop);
   g_assert_cmpstr (bamf_application_get_desktop_file (application), ==, mime_types_desktop);
@@ -148,7 +148,7 @@ static void
 test_get_mime_types_none (void)
 {
   BamfApplication *application;
-  const char* mime_types_desktop = TESTDIR"/bamfdaemon/data/test-bamf-app.desktop";
+  const char* mime_types_desktop = TESTDIR"/data/test-bamf-app.desktop";
 
   application = bamf_application_new_from_desktop_file (mime_types_desktop);
   g_assert_cmpstr (bamf_application_get_desktop_file (application), ==, mime_types_desktop);
