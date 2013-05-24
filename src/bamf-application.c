@@ -100,24 +100,25 @@ bamf_application_default_get_close_when_empty (BamfApplication *application)
 static gchar **
 bamf_application_default_get_supported_mime_types (BamfApplication *application)
 {
-  const char *desktop_file = bamf_application_get_desktop_file (application);
+  const char *desktop_file;
+  char** mimes;
+
+  desktop_file = bamf_application_get_desktop_file (application);
 
   if (!desktop_file)
     return NULL;
 
   GKeyFile* key_file = g_key_file_new ();
-  GError *error = NULL;
 
-  g_key_file_load_from_file (key_file, desktop_file, (GKeyFileFlags) 0, &error);
-
-  if (error)
+  if (!g_key_file_load_from_file (key_file, desktop_file, (GKeyFileFlags) 0, NULL))
     {
       g_key_file_free (key_file);
-      g_error_free (error);
       return NULL;
     }
 
-  char** mimes = g_key_file_get_string_list (key_file, "Desktop Entry", "MimeType", NULL, NULL);
+  mimes = g_key_file_get_string_list (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                      G_KEY_FILE_DESKTOP_KEY_MIME_TYPE, NULL, NULL);
+
   g_signal_emit (application, application_signals[SUPPORTED_MIMES_CHANGED], 0, mimes);
 
   g_key_file_free (key_file);
