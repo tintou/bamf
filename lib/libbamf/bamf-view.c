@@ -174,7 +174,6 @@ bamf_view_is_active (BamfView *view)
     return FALSE;
 
   return _bamf_dbus_item_view_get_active (view->priv->proxy);
-
 }
 
 /**
@@ -559,10 +558,15 @@ _bamf_view_set_closed (BamfView *view, gboolean closed)
     {
       priv->is_closed = closed;
 
-      if (closed && priv->cached_children)
+      if (closed)
         {
+          g_cancellable_cancel (priv->cancellable);
           g_list_free_full (priv->cached_children, g_object_unref);
           priv->cached_children = NULL;
+        }
+      else
+        {
+          g_cancellable_reset (priv->cancellable);
         }
     }
 }
@@ -570,17 +574,6 @@ _bamf_view_set_closed (BamfView *view, gboolean closed)
 static void
 bamf_view_on_closed (BamfDBusItemView *proxy, BamfView *self)
 {
-  BamfViewPrivate *priv;
-
-  priv = self->priv;
-  priv->is_closed = TRUE;
-
-  if (priv->cached_children)
-    {
-      g_list_free_full (priv->cached_children, g_object_unref);
-      priv->cached_children = NULL;
-    }
-
   _bamf_view_set_closed (self, TRUE);
 
   g_object_ref (self);
@@ -608,7 +601,7 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
   switch (property_id)
     {
       case PROP_PATH:
-        g_value_set_string (value, self->priv->is_closed ? NULL : _bamf_view_get_path (self));
+        g_value_set_string (value, bamf_view_is_closed (self) ? NULL : _bamf_view_get_path (self));
         break;
 
       case PROP_ACTIVE:
@@ -663,6 +656,7 @@ bamf_view_dispose (GObject *object)
     {
       g_cancellable_cancel (priv->cancellable);
       g_object_unref (priv->cancellable);
+      priv->cancellable = NULL;
     }
 
   if (priv->type)
@@ -741,9 +735,7 @@ _bamf_view_set_path (BamfView *view, const char *path)
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (path);
 
-  priv = view->priv;
-
-  priv->is_closed = FALSE;
+  _bamf_view_set_closed (view, FALSE);
 
   if (g_strcmp0 (_bamf_view_get_path (view), path) == 0)
   {
@@ -752,6 +744,7 @@ _bamf_view_set_path (BamfView *view, const char *path)
     return;
   }
 
+  priv = view->priv;
   bamf_view_unset_proxy (view);
   priv->proxy = _bamf_dbus_item_view_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
                                                              G_DBUS_PROXY_FLAGS_NONE,
