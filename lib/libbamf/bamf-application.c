@@ -633,9 +633,8 @@ bamf_application_load_data_from_file (BamfApplication *self, GKeyFile * keyfile)
 
   _bamf_view_set_name (BAMF_VIEW (self), name);
 
-
   gicon = g_app_info_get_icon (G_APP_INFO (desktop_info));
-  icon = g_icon_to_string (gicon);
+  icon = gicon ? g_icon_to_string (gicon) : NULL;
 
   if (!icon)
     icon = g_strdup ("application-default-icon");
@@ -730,6 +729,8 @@ bamf_application_new_favorite (const char * favorite_path)
   GKeyFile        *desktop_keyfile;
   gchar           *type;
   gboolean         supported = FALSE;
+
+  g_return_val_if_fail (favorite_path, NULL);
 
   // check that we support this kind of desktop file
   desktop_keyfile = g_key_file_new ();
