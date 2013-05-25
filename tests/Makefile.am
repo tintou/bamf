@@ -1,6 +1,5 @@
 SUBDIRS = \
 	bamfdaemon \
-	functional \
 	libbamf \
 	$(NULL)
 
