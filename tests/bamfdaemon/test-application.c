@@ -78,13 +78,11 @@ test_allocation (void)
   g_assert (BAMF_IS_APPLICATION (application));
 
   g_object_unref (application);
-  g_assert (!BAMF_IS_APPLICATION (application));
 
   application = bamf_application_new_from_desktop_file (DESKTOP_FILE);
   g_assert (BAMF_IS_APPLICATION (application));
 
   g_object_unref (application);
-  g_assert (!BAMF_IS_APPLICATION (application));
 }
 
 static void
