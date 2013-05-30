@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <glib.h>
 
+#include <gtk/gtk.h>
 #include <dbus/dbus-glib.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -32,6 +33,7 @@ main (gint argc, gchar *argv[])
 #if !GLIB_CHECK_VERSION(2, 35, 0)
   g_type_init ();
 #endif
+  gtk_init (&argc, &argv);
   g_test_init (&argc, &argv, NULL);
 
   dbus_g_thread_init ();
