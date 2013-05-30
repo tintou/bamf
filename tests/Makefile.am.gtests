@@ -21,7 +21,6 @@ test-headless:
 	\
 	$(DBUS_LAUNCH) > $(LOG_PATH)/sessionbus.sh; \
 	source $(LOG_PATH)/sessionbus.sh; \
-	sleep 3; \
 	\
 	make test;
 # END HEADLESS TESTS

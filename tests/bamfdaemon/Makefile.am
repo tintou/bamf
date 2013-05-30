@@ -99,7 +99,6 @@ test_bamf_LDFLAGS = \
 		$(NULL)
 
 EXTRA_DIST = \
-		data \
 		$(bamf_test_webapps_sources) \
 		$(NULL)
 
