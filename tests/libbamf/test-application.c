@@ -36,7 +36,6 @@ test_allocation (void)
   g_assert (BAMF_IS_APPLICATION (application));
 
   g_object_unref (application);
-  g_assert (!BAMF_IS_APPLICATION (application));
 }
 
 static void
