@@ -1,3 +1,19 @@
+bamf (0.4.0daily13.05.31~13.04-0ubuntu1) raring; urgency=low
+
+  [ Brandon Schaefer ]
+  * libbamf: BamfApplication: cache MimeTypes and ApplicationType on
+    favorite and sticky apps.
+
+  [ Marco Trevisan (Treviño) ]
+  * Releasing Bamf-0.4.0
+  * libbamf: BamfApplication: cache MimeTypes and ApplicationType on
+    favorite and sticky apps.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 536
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 31 May 2013 02:02:06 +0000
+
 bamf (0.4.0daily13.05.08~13.04-0ubuntu1) raring; urgency=low
 
   [ Marco Trevisan (Treviño) ]
