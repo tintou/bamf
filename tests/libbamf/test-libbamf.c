@@ -18,12 +18,14 @@
 #include <stdio.h>
 #include <glib.h>
 
+#include <gtk/gtk.h>
 #include <dbus/dbus-glib.h>
 #include <sys/types.h>
 #include <unistd.h>
 
 
 void test_matcher_create_suite (void);
+void test_application_create_suite (void);
 
 gint
 main (gint argc, gchar *argv[])
@@ -31,11 +33,14 @@ main (gint argc, gchar *argv[])
 #if !GLIB_CHECK_VERSION(2, 35, 0)
   g_type_init ();
 #endif
+  gtk_init (&argc, &argv);
   g_test_init (&argc, &argv, NULL);
 
   dbus_g_thread_init ();
 
   test_matcher_create_suite ();
+  test_application_create_suite ();
 
+  g_setenv ("PATH", TESTDIR"/data/bin", TRUE);
   return g_test_run ();
 }

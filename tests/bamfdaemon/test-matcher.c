@@ -45,7 +45,7 @@ static void test_trim_exec_string (void);
 static GDBusConnection *gdbus_connection = NULL;
 
 #define DOMAIN "/Matcher"
-#define DATA_DIR TESTDIR "/bamfdaemon/data"
+#define DATA_DIR TESTDIR "/data"
 #define TEST_BAMF_APP_DESKTOP DATA_DIR "/test-bamf-app.desktop"
 
 void

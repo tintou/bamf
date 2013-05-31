@@ -83,6 +83,7 @@ struct _BamfViewClass
   gchar            * (*get_icon)            (BamfView *view);
   const gchar      * (*view_type)           (BamfView *view);
   void               (*set_path)            (BamfView *view, const gchar *path);
+  void               (*set_sticky)          (BamfView *view, gboolean value);
   BamfClickBehavior  (*click_behavior)      (BamfView *view);
   
   
