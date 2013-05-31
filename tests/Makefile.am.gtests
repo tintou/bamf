@@ -3,9 +3,11 @@
 #
 # Author: Marco Trevisan <marco@ubuntu.com>
 
+GTESTER2XUNIT_RUN = $(abs_top_srcdir)/tests/gtester2xunit.py
+
 # Run tests as part of make check
+
 if ENABLE_HEADLESS_TESTS
-check-local: test-headless
 
 XVFB_RUN = $(abs_top_srcdir)/tests/run-xvfb.sh
 LOG_PATH = headless-logs
@@ -22,15 +24,20 @@ test-headless:
 	$(DBUS_LAUNCH) > $(LOG_PATH)/sessionbus.sh; \
 	source $(LOG_PATH)/sessionbus.sh; \
 	\
-	make test;
-# END HEADLESS TESTS
-else
+	make $(AM_MAKEFLAGS) -k test
+
+check-local: test-headless
+
+else # END HEADLESS TESTS
+
 check-local: test
+
 endif
 
 
 test:
-	@gtester -k --verbose -o=$(TEST_BINARY)-results.xml ./$(TEST_BINARY)
+	@gtester -k --verbose -o=$(TEST_BINARY)-results.xml ./$(TEST_BINARY); \
+	$(GTESTER2XUNIT_RUN) $(TEST_BINARY)-results.xml
 
 .PHONY: check-report full-report
 check-report: $(TEST_BINARY)
@@ -47,4 +54,4 @@ full-report:
 	      > $(TEST_BINARY)-results.html )
 
 clean-generic:
-	rm -f $(TEST_BINARY)-results.xml $(TEST_BINARY)-results.html
+	rm -f $(TEST_BINARY)-results*.xml $(TEST_BINARY)-results.html
