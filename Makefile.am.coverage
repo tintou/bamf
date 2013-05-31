@@ -45,6 +45,8 @@ generate-coverage-gcovr:
 clean-coverage-gcovr: clean-gcda
 	-rm -rf $(top_builddir)/coverage.xml
 
+clean-coverage-xml: clean-coverage-gcovr
+
 endif # HAVE_GCOVR
 
 endif # HAVE_GCOV
