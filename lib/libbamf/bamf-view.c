@@ -738,11 +738,11 @@ _bamf_view_set_path (BamfView *view, const char *path)
   _bamf_view_set_closed (view, FALSE);
 
   if (g_strcmp0 (_bamf_view_get_path (view), path) == 0)
-  {
-    // The proxy path has not been changed, no need to unset and re-set it again
-    _bamf_view_reset_flags (view);
-    return;
-  }
+    {
+      // The proxy path has not been changed, no need to unset and re-set it again
+      _bamf_view_reset_flags (view);
+      return;
+    }
 
   priv = view->priv;
   bamf_view_unset_proxy (view);
@@ -788,19 +788,11 @@ _bamf_view_set_path (BamfView *view, const char *path)
 }
 
 static void
-bamf_view_constructed (GObject *object)
-{
-  if (G_OBJECT_CLASS (bamf_view_parent_class)->constructed)
-    G_OBJECT_CLASS (bamf_view_parent_class)->constructed (object);
-}
-
-static void
 bamf_view_class_init (BamfViewClass *klass)
 {
   GParamSpec *pspec;
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
 
-  obj_class->constructed  = bamf_view_constructed;
   obj_class->dispose      = bamf_view_dispose;
   obj_class->get_property = bamf_view_get_property;
   obj_class->set_property = bamf_view_set_property;
