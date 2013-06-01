@@ -72,30 +72,30 @@ test_bamf_CFLAGS = \
 	-I$(top_builddir)/lib \
 	-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
 	-DTESTDIR=\""$(abs_top_srcdir)/tests"\" \
+	$(COVERAGE_CFLAGS) \
 	$(GCC_FLAGS) \
-	$(GTK_CFLAGS) \
 	$(GLIB_CFLAGS) \
-	$(WNCK_CFLAGS) \
+	$(GTK_CFLAGS) \
 	$(GTOP_CFLAGS) \
 	$(LIBUNITY_WEBAPPS_CFLAGS) \
-	$(MAINTAINER_CFLAGS)
+	$(MAINTAINER_CFLAGS) \
+	$(WNCK_CFLAGS) \
+	$(X_CFLAGS) \
+	$(NULL)
 
 test_bamf_LDADD = \
 	$(top_builddir)/lib/libbamf-private/libbamf-private.la \
-	$(X_LIBS) \
 	$(GLIB_LIBS) \
-	$(WNCK_LIBS) \
-	$(GTOP_LIBS) \
 	$(GTK_LIBS) \
-	$(LIBUNITY_WEBAPPS_LIBS)
+	$(GTOP_LIBS) \
+	$(LIBUNITY_WEBAPPS_LIBS) \
+	$(WNCK_LIBS) \
+	$(X_LIBS) \
+	$(NULL)
 
 test_bamf_LDFLAGS = \
 	-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
-	$(NULL)
-
-EXTRA_DIST = \
-	data \
-	$(bamf_test_webapps_sources) \
+	$(COVERAGE_LDFLAGS) \
 	$(NULL)
 
 TEST_BINARY = test-bamf

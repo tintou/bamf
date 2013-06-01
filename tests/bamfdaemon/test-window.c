@@ -67,7 +67,6 @@ test_allocation (void)
   
   g_object_unref (window);
   
-  g_assert (!BAMF_IS_WINDOW (window));
   
   g_object_unref (test);
 }
