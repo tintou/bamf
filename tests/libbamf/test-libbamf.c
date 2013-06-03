@@ -21,18 +21,33 @@
 #include <glib.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <gio/gio.h>
 
 void test_matcher_create_suite (void);
 void test_application_create_suite (void);
+
+static gboolean
+not_fatal_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
+                                const gchar *message, gpointer user_data)
+{
+  // Don't crash if used
+  return FALSE;
+}
+
+void
+ignore_fatal_errors (void)
+{
+  g_test_log_set_fatal_handler (not_fatal_log_handler, NULL);
+}
 
 gint
 main (gint argc, gchar *argv[])
 {
   g_test_init (&argc, &argv, NULL);
 
+  g_setenv ("PATH", TESTDIR"/data/bin", TRUE);
   test_matcher_create_suite ();
   test_application_create_suite ();
 
-  g_setenv ("PATH", TESTDIR"/data/bin", TRUE);
   return g_test_run ();
 }
