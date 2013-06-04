@@ -493,7 +493,7 @@ bamf_view_get_view_type (BamfView *view)
   return "view";
 }
 
-char *
+static char *
 bamf_view_get_stable_bus_name (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);

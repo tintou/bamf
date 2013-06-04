@@ -238,7 +238,7 @@ bamf_window_get_monitor (BamfWindow *self)
   return gdk_screen_get_monitor_at_point (gdk_screen, x + width/2, y + height/2);
 }
 
-char *
+static char *
 bamf_window_get_stable_bus_name (BamfView *view)
 {
   BamfWindow *self;
