@@ -28,7 +28,7 @@ void test_application_create_suite (void);
 
 static gboolean
 not_fatal_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
-                                const gchar *message, gpointer user_data)
+                       const gchar *message, gpointer user_data)
 {
   // Don't crash if used
   return FALSE;
@@ -45,7 +45,12 @@ main (gint argc, gchar *argv[])
 {
   g_test_init (&argc, &argv, NULL);
 
-  g_setenv ("PATH", TESTDIR"/data/bin", TRUE);
+  const gchar *old_path = g_getenv ("PATH");
+  gchar *new_path = g_strdup_printf (TESTDIR"/data/bin:%s", old_path);
+  g_setenv ("BAMF_TEST_MODE", "TRUE", TRUE);
+  g_setenv ("PATH", new_path, TRUE);
+  g_free (new_path);
+
   test_matcher_create_suite ();
   test_application_create_suite ();
 
