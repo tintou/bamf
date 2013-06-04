@@ -752,7 +752,8 @@ _bamf_view_set_path (BamfView *view, const char *path)
   priv->proxy = _bamf_dbus_item_view_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
                                                              G_DBUS_PROXY_FLAGS_NONE,
                                                              BAMF_DBUS_SERVICE_NAME,
-                                                             path, NULL, &error);
+                                                             path, CANCELLABLE (view),
+                                                             &error);
   if (!G_IS_DBUS_PROXY (priv->proxy))
     {
       g_critical ("Unable to get %s view: %s", BAMF_DBUS_SERVICE_NAME, error ? error ? error->message : "" : "");
