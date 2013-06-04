@@ -45,8 +45,24 @@ test_singleton (void)
   matcher = bamf_matcher_get_default ();
   g_assert (BAMF_IS_MATCHER (matcher));
   g_assert (matcher == bamf_matcher_get_default ());
+  g_assert_cmpuint (G_OBJECT (matcher)->ref_count, ==, 2);
 
   g_object_unref (matcher);
+  g_object_unref (matcher);
+}
+
+static void
+test_singleton_after_unref (void)
+{
+  BamfMatcher *matcher_old, *matcher_new;
+
+  ignore_fatal_errors();
+  matcher_old = bamf_matcher_get_default ();
+  g_object_unref (matcher_old);
+
+  matcher_new = bamf_matcher_get_default ();
+  g_assert (matcher_old != matcher_new);
+  g_object_unref (matcher_new);
 }
 
 void
@@ -56,4 +72,5 @@ test_matcher_create_suite (void)
 
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
   g_test_add_func (DOMAIN"/Singleton", test_singleton);
+  g_test_add_func (DOMAIN"/SingletonUnref", test_singleton_after_unref);
 }
