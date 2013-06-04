@@ -6,8 +6,6 @@ import sys
 import os
 
 XSL_TRANSFORM='/usr/share/gtester2xunit/gtester.xsl'
-#XSL_TRANSFORM='./gtester.xsl'
-
 
 def transform_file(input_filename, output_filename, xsl_file):
     gtester = libxml2.parseFile(xsl_file)
