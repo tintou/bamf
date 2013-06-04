@@ -70,17 +70,15 @@ typedef void (*BamfTabPreviewReadyCallback) (BamfTab *self, const gchar *preview
 
 GType bamf_tab_get_type (void) G_GNUC_CONST;
 
-BamfTab * bamf_tab_new         (const gchar *path);
-
-gboolean bamf_tab_raise        (BamfTab *self);
-gboolean bamf_tab_close        (BamfTab *self);
-void bamf_tab_request_preview  (BamfTab *self,
-                                BamfTabPreviewReadyCallback callback,
-                                gpointer user_data);
-const gchar *bamf_tab_get_desktop_name (BamfTab *self);
-const gchar *bamf_tab_get_location (BamfTab *self);
-guint64 bamf_tab_get_xid (BamfTab *self);
-gboolean bamf_tab_get_is_foreground_tab (BamfTab *self);
+gboolean     bamf_tab_raise                 (BamfTab *self);
+gboolean     bamf_tab_close                 (BamfTab *self);
+void         bamf_tab_request_preview       (BamfTab *self,
+                                             BamfTabPreviewReadyCallback callback,
+                                             gpointer user_data);
+const gchar *bamf_tab_get_desktop_name      (BamfTab *self);
+const gchar *bamf_tab_get_location          (BamfTab *self);
+guint64      bamf_tab_get_xid               (BamfTab *self);
+gboolean     bamf_tab_get_is_foreground_tab (BamfTab *self);
 
 G_END_DECLS
 

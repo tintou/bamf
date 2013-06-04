@@ -37,12 +37,8 @@
 
 #include <libbamf-private/bamf-private.h>
 #include "bamf-factory.h"
-#include "bamf-view.h"
-#include "bamf-view-private.h"
-#include "bamf-window.h"
-#include "bamf-application.h"
 #include "bamf-application-private.h"
-#include "bamf-tab.h"
+#include "bamf-view-private.h"
 
 G_DEFINE_TYPE (BamfFactory, bamf_factory, G_TYPE_OBJECT);
 
@@ -57,12 +53,6 @@ struct _BamfFactoryPrivate
 };
 
 static BamfFactory *factory = NULL;
-
-BamfApplication * bamf_application_new_favorite     (const char *favorite_path);
-
-BamfApplication * bamf_application_new              (const char *path);
-
-BamfWindow      * bamf_window_new                   (const char *path);
 
 static void
 bamf_factory_dispose (GObject *object)

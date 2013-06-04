@@ -20,12 +20,11 @@
 #include <stdlib.h>
 #include <glib.h>
 #include <glib-object.h>
-#include "bamf-application.h"
+#include "bamf-view-private.h"
 
 #define DATA_DIR TESTDIR "/data"
 
 void ignore_fatal_errors (void);
-BamfApplication * bamf_application_new_favorite (const char *favorite_path);
 
 static void
 test_allocation (void)
