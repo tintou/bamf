@@ -39,12 +39,14 @@ on_bus_acquired (GDBusConnection *connection, const gchar *name, gpointer data)
 {
   GMainLoop *loop = data;
 
+  g_setenv ("BAMF_TEST_MODE", "TRUE", TRUE);
+  g_setenv ("PATH", TESTDIR"/data/bin", TRUE);
+
   test_matcher_create_suite (connection);
   test_view_create_suite (connection);
   test_window_create_suite ();
   test_application_create_suite (connection);
 
-  g_setenv ("PATH", TESTDIR"/data/bin", TRUE);
   result = g_test_run ();
 
   g_main_loop_quit (loop);
@@ -66,12 +68,10 @@ main (gint argc, gchar *argv[])
   g_test_init (&argc, &argv, NULL);
   glibtop_init ();
 
-  g_setenv("BAMF_TEST_MODE", "TRUE", TRUE);
-
   loop = g_main_loop_new (NULL, FALSE);
 
   g_bus_own_name (G_BUS_TYPE_SESSION,
-                  BAMF_DBUS_SERVICE".test",
+                  BAMF_DBUS_SERVICE,
                   G_BUS_NAME_OWNER_FLAGS_NONE,
                   on_bus_acquired,
                   NULL,

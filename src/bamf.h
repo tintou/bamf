@@ -23,10 +23,10 @@
 
 #include <libbamf-private/bamf-private.h>
 
-#define BAMF_DBUS_PATH "/org/ayatana/bamf"
-#define BAMF_DBUS_SERVICE "org.ayatana.bamf"
+#define BAMF_DBUS_PATH BAMF_DBUS_BASE_PATH
+#define BAMF_DBUS_SERVICE BAMF_DBUS_SERVICE_NAME
 
-#define BAMF_CONTROL_PATH "/org/ayatana/bamf/control"
-#define BAMF_MATCHER_PATH "/org/ayatana/bamf/matcher"
+#define BAMF_CONTROL_PATH BAMF_DBUS_CONTROL_PATH
+#define BAMF_MATCHER_PATH BAMF_DBUS_MATCHER_PATH
 
 #endif
