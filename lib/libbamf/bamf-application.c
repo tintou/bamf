@@ -672,7 +672,7 @@ bamf_application_class_init (BamfApplicationClass *klass)
                   0, NULL, NULL,
                   g_cclosure_marshal_VOID__OBJECT,
                   G_TYPE_NONE, 1,
-                  BAMF_TYPE_VIEW);
+                  BAMF_TYPE_WINDOW);
 
   application_signals [WINDOW_REMOVED] =
     g_signal_new (BAMF_APPLICATION_SIGNAL_WINDOW_REMOVED,
@@ -681,7 +681,7 @@ bamf_application_class_init (BamfApplicationClass *klass)
                   0, NULL, NULL,
                   g_cclosure_marshal_VOID__OBJECT,
                   G_TYPE_NONE, 1,
-                  BAMF_TYPE_VIEW);
+                  BAMF_TYPE_WINDOW);
 }
 
 

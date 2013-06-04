@@ -111,7 +111,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
                   0, NULL, NULL,
                   _bamf_marshal_VOID__OBJECT_OBJECT,
                   G_TYPE_NONE, 2,
-                  BAMF_TYPE_VIEW, BAMF_TYPE_VIEW);
+                  BAMF_TYPE_APPLICATION, BAMF_TYPE_APPLICATION);
 
   matcher_signals [ACTIVE_WINDOW_CHANGED] =
     g_signal_new (BAMF_MATCHER_SIGNAL_ACTIVE_WINDOW_CHANGED,
@@ -120,7 +120,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
                   0, NULL, NULL,
                   _bamf_marshal_VOID__OBJECT_OBJECT,
                   G_TYPE_NONE, 2,
-                  G_TYPE_OBJECT, G_TYPE_OBJECT);
+                  BAMF_TYPE_WINDOW, BAMF_TYPE_WINDOW);
 
   matcher_signals [STACKING_ORDER_CHANGED] =
     g_signal_new (BAMF_MATCHER_SIGNAL_STACKING_ORDER_CHANGED,
