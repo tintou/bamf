@@ -77,7 +77,7 @@ bamf_tab_set_path (BamfView *view, const gchar *path)
                                                             &error);
   if (!G_IS_DBUS_PROXY (priv->proxy))
     {
-      g_error ("Unable to get "BAMF_DBUS_SERVICE_NAME" tab: %s", error ? error->message : "");
+      g_error ("Unable to get %s tab: %s", BAMF_DBUS_SERVICE_NAME, error ? error->message : "");
       g_error_free (error);
       return;
     }

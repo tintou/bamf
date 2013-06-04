@@ -755,7 +755,7 @@ _bamf_view_set_path (BamfView *view, const char *path)
                                                              path, NULL, &error);
   if (!G_IS_DBUS_PROXY (priv->proxy))
     {
-      g_critical ("Unable to get "BAMF_DBUS_SERVICE_NAME" view: %s", error ? error ? error->message : "" : "");
+      g_critical ("Unable to get %s view: %s", BAMF_DBUS_SERVICE_NAME, error ? error ? error->message : "" : "");
       g_error_free (error);
       return;
     }

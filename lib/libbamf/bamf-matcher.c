@@ -223,7 +223,7 @@ bamf_matcher_init (BamfMatcher *self)
 
   if (error)
     {
-      g_error ("Unable to get "BAMF_DBUS_SERVICE_NAME" matcher: %s", error ? error->message : "");
+      g_error ("Unable to get %s matcher: %s", BAMF_DBUS_SERVICE_NAME, error ? error->message : "");
       g_error_free (error);
     }
 

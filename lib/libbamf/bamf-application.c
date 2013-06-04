@@ -529,7 +529,7 @@ bamf_application_set_path (BamfView *view, const char *path)
 
   if (!G_IS_DBUS_PROXY (priv->proxy))
     {
-      g_critical ("Unable to get "BAMF_DBUS_SERVICE_NAME" application: %s", error ? error->message : "");
+      g_critical ("Unable to get %s application: %s", BAMF_DBUS_SERVICE_NAME, error ? error->message : "");
       return;
     }
 
