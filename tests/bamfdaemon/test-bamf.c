@@ -25,7 +25,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <glibtop.h>
-#include "bamf.h"
+#include <libbamf-private/bamf-private.h>
 
 void test_application_create_suite (GDBusConnection *connection);
 void test_matcher_create_suite (GDBusConnection *connection);
@@ -71,7 +71,7 @@ main (gint argc, gchar *argv[])
   loop = g_main_loop_new (NULL, FALSE);
 
   g_bus_own_name (G_BUS_TYPE_SESSION,
-                  BAMF_DBUS_SERVICE,
+                  BAMF_DBUS_SERVICE_NAME,
                   G_BUS_NAME_OWNER_FLAGS_NONE,
                   on_bus_acquired,
                   NULL,

@@ -18,7 +18,6 @@
  *
  */
 
-#include "bamf.h"
 #include "bamf-tab.h"
 
 #define BAMF_TAB_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \

@@ -17,8 +17,6 @@
  *
  */
 
-#include "bamf.h"
-
 #include "bamf-daemon.h"
 #include "bamf-matcher.h"
 #include "bamf-control.h"

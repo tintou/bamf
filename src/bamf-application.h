@@ -21,7 +21,6 @@
 #ifndef __BAMFAPPLICATION_H__
 #define __BAMFAPPLICATION_H__
 
-#include "bamf.h"
 #include "bamf-view.h"
 #include "bamf-window.h"
 #include <glib.h>
