@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT(bamf, 0.4.0, dx-team@canonical.com)
+AC_INIT(bamf, 0.5.0, dx-team@canonical.com)
 AC_PREREQ(2.62)
 AC_SUBST(LIBBAMF_VER, 3)
 
