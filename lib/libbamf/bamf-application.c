@@ -533,6 +533,8 @@ bamf_application_set_path (BamfView *view, const char *path)
       return;
     }
 
+  g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (priv->proxy), BAMF_DBUS_DEFAULT_TIMEOUT);
+
   g_signal_connect (priv->proxy, "window-added",
                     G_CALLBACK (bamf_application_on_window_added), view);
 

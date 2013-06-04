@@ -227,6 +227,8 @@ bamf_matcher_init (BamfMatcher *self)
       g_error_free (error);
     }
 
+  g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (priv->proxy), BAMF_DBUS_DEFAULT_TIMEOUT);
+
   g_signal_connect (priv->proxy, "view-opened",
                     G_CALLBACK (bamf_matcher_on_view_opened), self);
 

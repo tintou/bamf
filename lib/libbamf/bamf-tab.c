@@ -82,6 +82,7 @@ bamf_tab_set_path (BamfView *view, const gchar *path)
       return;
     }
 
+  g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (priv->proxy), BAMF_DBUS_DEFAULT_TIMEOUT);
   g_signal_connect (priv->proxy, "notify", G_CALLBACK (on_proxy_property_change), self);
 }
 

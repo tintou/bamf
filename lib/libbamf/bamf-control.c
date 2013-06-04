@@ -108,7 +108,10 @@ bamf_control_init (BamfControl *self)
     {
       g_error ("Unable to get "BAMF_DBUS_CONTROL_PATH" controller: %s", error->message);
       g_error_free (error);
+      return;
     }
+
+  g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (priv->proxy), BAMF_DBUS_DEFAULT_TIMEOUT);
 }
 
 /**

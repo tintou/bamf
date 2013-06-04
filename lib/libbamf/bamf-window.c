@@ -383,6 +383,8 @@ bamf_window_set_path (BamfView *view, const char *path)
       return;
     }
 
+  g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (priv->proxy), BAMF_DBUS_DEFAULT_TIMEOUT);
+
   priv->xid = bamf_window_get_xid (self);
   priv->type = bamf_window_get_window_type (self);
   priv->monitor = bamf_window_get_monitor (self);

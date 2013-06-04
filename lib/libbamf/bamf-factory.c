@@ -271,6 +271,7 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
       if (G_IS_DBUS_PROXY (vproxy))
         {
           char *type_str = NULL;
+          g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (vproxy), BAMF_DBUS_DEFAULT_TIMEOUT);
           _bamf_dbus_item_view_call_view_type_sync (vproxy, &type_str, NULL, NULL);
           type = compute_factory_type_by_str (type_str);
           g_free (type_str);

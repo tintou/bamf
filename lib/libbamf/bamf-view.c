@@ -760,6 +760,7 @@ _bamf_view_set_path (BamfView *view, const char *path)
       return;
     }
 
+  g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (priv->proxy), BAMF_DBUS_DEFAULT_TIMEOUT);
   _bamf_view_reset_flags (view);
 
   g_signal_connect (priv->proxy, "notify::active",
