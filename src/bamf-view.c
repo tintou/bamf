@@ -533,11 +533,11 @@ bamf_view_export_on_bus (BamfView *view, GDBusConnection *connection)
           g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (l->data),
                                             connection, path, &error);
           if (error)
-          {
-            g_critical ("Can't register BAMF view interface: %s", error->message);
-            g_clear_error (&error);
-            exported = FALSE;
-          }
+            {
+              g_critical ("Can't register BAMF view interface: %s", error->message);
+              g_clear_error (&error);
+              exported = FALSE;
+            }
         }
 
       if (exported)
