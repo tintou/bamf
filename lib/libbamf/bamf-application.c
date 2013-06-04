@@ -511,7 +511,13 @@ bamf_application_dispose (GObject *object)
       g_list_free (priv->cached_xids);
       priv->cached_xids = NULL;
     }
-  
+
+  if (priv->cached_mimes)
+    {
+      g_strfreev (priv->cached_mimes);
+      priv->cached_mimes = NULL;
+    }
+
   bamf_application_unset_proxy (self);
 
   if (G_OBJECT_CLASS (bamf_application_parent_class)->dispose)
@@ -594,59 +600,88 @@ bamf_application_set_path (BamfView *view, const char *path)
 }
 
 static void
-bamf_application_load_data_from_file (BamfApplication *self)
+bamf_application_set_sticky (BamfView *view, gboolean sticky)
+{
+  BamfApplication *self = BAMF_APPLICATION (view);
+
+  if (sticky)
+    {
+      bamf_application_get_desktop_file (self);
+      bamf_application_get_application_type (self);
+
+      /* When setting the application sticky, we need to cache the relevant values */
+      if (!self->priv->cached_mimes)
+        {
+          gchar **tmp_mimes = bamf_application_get_supported_mime_types (self);
+          g_strfreev (tmp_mimes);
+        }
+
+      gchar *tmp;
+      tmp = bamf_view_get_icon (view);
+      g_free (tmp);
+
+      tmp = bamf_view_get_name (view);
+      g_free (tmp);
+    }
+}
+
+static void
+bamf_application_load_data_from_file (BamfApplication *self, GKeyFile * keyfile)
 {
   GDesktopAppInfo *desktop_info;
   GIcon *gicon;
+  char *fullname;
   char *name;
   char *icon;
-  GKeyFile * keyfile;
-  GError *error;
 
-  keyfile = g_key_file_new();
-  if (!g_key_file_load_from_file(keyfile, self->priv->desktop_file, G_KEY_FILE_NONE, NULL)) {
-      g_key_file_free(keyfile);
-    return;
-  }
+  g_return_if_fail (keyfile);
 
   desktop_info = g_desktop_app_info_new_from_keyfile (keyfile);
-
-  if (!desktop_info)
-    return;
+  g_return_if_fail (G_IS_DESKTOP_APP_INFO (desktop_info));
 
   name = g_strdup (g_app_info_get_name (G_APP_INFO (desktop_info)));
 
-  if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL))
-                {
-                  /* Grab the better name if its available */
-                  gchar *fullname = NULL;
-                  error = NULL;
-                  fullname = g_key_file_get_locale_string (keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL, &error);
-                  if (error != NULL)
-                    {
-                      g_error_free (error);
-                      if (fullname)
-                        g_free (fullname);
-                    }
-                  else
-                    {
-                      g_free (name);
-                      name = fullname;
-                    }
-                }
+  /* Grab the better name if its available */
+  fullname = g_key_file_get_locale_string (keyfile, G_KEY_FILE_DESKTOP_GROUP,
+                                           G_KEY_FILE_DESKTOP_KEY_FULLNAME, NULL, NULL);
+
+  if (fullname && fullname[0] == '\0')
+    {
+      g_free (fullname);
+      fullname = NULL;
+    }
+
+  if (fullname)
+    {
+      g_free (name);
+      name = fullname;
+    }
 
   _bamf_view_set_name (BAMF_VIEW (self), name);
 
   gicon = g_app_info_get_icon (G_APP_INFO (desktop_info));
-  icon = g_icon_to_string (gicon);
+  icon = gicon ? g_icon_to_string (gicon) : NULL;
 
   if (!icon)
     icon = g_strdup ("application-default-icon");
 
   _bamf_view_set_icon (BAMF_VIEW (self), icon);
+
+  self->priv->cached_mimes = g_key_file_get_string_list (keyfile, G_KEY_FILE_DESKTOP_GROUP,
+                                                         G_KEY_FILE_DESKTOP_KEY_MIME_TYPE, NULL, NULL);
+
+  if (g_strcmp0 (g_app_info_get_executable (G_APP_INFO (desktop_info)), "unity-webapps-runner") == 0)
+    {
+      self->priv->application_type = g_strdup ("webapp");
+    }
+  else
+    {
+      self->priv->application_type = g_strdup ("system");
+    }
+
   g_free (icon);
-  g_key_file_free (keyfile);
   g_free (name);
+  g_key_file_free (keyfile);
   g_object_unref (desktop_info);
 }
 
@@ -658,6 +693,7 @@ bamf_application_class_init (BamfApplicationClass *klass)
 
   obj_class->dispose     = bamf_application_dispose;
   view_class->set_path   = bamf_application_set_path;
+  view_class->set_sticky = bamf_application_set_sticky;
   view_class->click_behavior = bamf_application_get_click_suggestion;
 
   g_type_class_add_private (obj_class, sizeof (BamfApplicationPrivate));
@@ -718,29 +754,35 @@ bamf_application_new_favorite (const char * favorite_path)
 {
   BamfApplication *self;
   GKeyFile        *desktop_keyfile;
-  GKeyFileFlags    flags;
   gchar           *type;
   gboolean         supported = FALSE;
 
+  g_return_val_if_fail (favorite_path, NULL);
+
   // check that we support this kind of desktop file
   desktop_keyfile = g_key_file_new ();
-  flags = G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS;
-  if (g_key_file_load_from_file (desktop_keyfile, favorite_path, flags, NULL))
+
+  if (g_key_file_load_from_file (desktop_keyfile, favorite_path, G_KEY_FILE_NONE, NULL))
     {
-      type = g_key_file_get_string (desktop_keyfile, "Desktop Entry", "Type", NULL);
-      if (g_strcmp0 (type, "Application") == 0)
+      type = g_key_file_get_string (desktop_keyfile, G_KEY_FILE_DESKTOP_GROUP,
+                                    G_KEY_FILE_DESKTOP_KEY_TYPE, NULL);
+
+      if (g_strcmp0 (type, G_KEY_FILE_DESKTOP_TYPE_APPLICATION) == 0)
         supported = TRUE;
 
-      g_key_file_free (desktop_keyfile);
       g_free (type);
     }
+
   if (!supported)
-    return NULL;
+    {
+      g_key_file_free (desktop_keyfile);
+      return NULL;
+    }
 
   self = g_object_new (BAMF_TYPE_APPLICATION, NULL);
 
   self->priv->desktop_file = g_strdup (favorite_path);
-  bamf_application_load_data_from_file (self);
+  bamf_application_load_data_from_file (self, desktop_keyfile);
 
   return self;
 }

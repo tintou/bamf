@@ -6,8 +6,7 @@ SUBDIRS = \
   lib/libbamf-private \
   lib/libbamf \
   src \
-  tests/bamfdaemon \
-  tests/libbamf \
+  tests \
   data \
   doc
 
