@@ -52,7 +52,7 @@ struct _BamfFactoryPrivate
   GList *registered_views;
 };
 
-static BamfFactory *factory = NULL;
+static BamfFactory *static_factory = NULL;
 
 static void
 bamf_factory_dispose (GObject *object)
@@ -83,7 +83,7 @@ bamf_factory_dispose (GObject *object)
 static void
 bamf_factory_finalize (GObject *object)
 {
-  factory = NULL;
+  static_factory = NULL;
 
   G_OBJECT_CLASS (bamf_factory_parent_class)->finalize (object);
 }
@@ -393,9 +393,9 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
 BamfFactory *
 _bamf_factory_get_default (void)
 {
-  if (BAMF_IS_FACTORY (factory))
-    return factory;
+  if (BAMF_IS_FACTORY (static_factory))
+    return static_factory;
 
-  factory = (BamfFactory *) g_object_new (BAMF_TYPE_FACTORY, NULL);
-  return factory;
+  static_factory = (BamfFactory *) g_object_new (BAMF_TYPE_FACTORY, NULL);
+  return static_factory;
 }

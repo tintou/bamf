@@ -75,6 +75,8 @@ bamf_matcher_finalize (GObject *object)
 {
   default_matcher = NULL;
 
+  g_object_unref (_bamf_factory_get_default ());
+
   G_OBJECT_CLASS (bamf_matcher_parent_class)->finalize (object);
 }
 
@@ -259,11 +261,11 @@ bamf_matcher_dispose (GObject *object)
       self->priv->proxy = NULL;
     }
 
-    if (G_IS_CANCELLABLE (self->priv->cancellable))
-      {
-        g_cancellable_cancel (self->priv->cancellable);
-        g_object_unref (self->priv->cancellable);
-      }
+  if (G_IS_CANCELLABLE (self->priv->cancellable))
+    {
+      g_cancellable_cancel (self->priv->cancellable);
+      g_object_unref (self->priv->cancellable);
+    }
 
   G_OBJECT_CLASS (bamf_matcher_parent_class)->dispose (object);
 }
