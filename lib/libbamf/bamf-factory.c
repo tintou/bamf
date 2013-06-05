@@ -365,11 +365,15 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
   if (matched_view)
     {
       created = FALSE;
-      g_object_unref (view);
+
+      if (view)
+        g_object_unref (view);
 
       view = matched_view;
       _bamf_view_set_path (view, path);
-      g_object_ref_sink (view);
+
+      if (g_object_is_floating (view))
+        g_object_ref_sink (view);
     }
 
   if (view)
