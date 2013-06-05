@@ -382,8 +382,8 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
 
       if (created)
         {
-          factory->priv->local_views = g_list_prepend (factory->priv->local_views, view);
           g_object_ref_sink (view);
+          factory->priv->local_views = g_list_prepend (factory->priv->local_views, view);
         }
     }
 
