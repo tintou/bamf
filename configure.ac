@@ -120,6 +120,18 @@ AC_SUBST(LIBUNITY_WEBAPPS_CFLAGS)
 AC_SUBST(LIBUNITY_WEBAPPS_LIBS)
 
 ###########################
+# gtester2xunit checks    #
+###########################
+
+AC_PATH_PROG([PYTHON],[python])
+AC_MSG_CHECKING(for gtester2xunit dependencies)
+if !($PYTHON -c "import libxslt, libxml2" 2> /dev/null); then
+  AC_MSG_RESULT([no])
+  AC_MSG_ERROR([You need to install python-libxslt1 and python-libxml2]);
+fi
+AC_MSG_RESULT([yes])
+
+###########################
 # Headless tests
 ###########################
 AC_ARG_ENABLE([headless-tests],
@@ -165,6 +177,7 @@ AC_SUBST(giomodulesdir)
 
 AC_OUTPUT([
 Makefile
+lib/libbamf-private/Makefile
 lib/libbamf/Makefile
 lib/libbamf/libbamf3.pc
 src/Makefile

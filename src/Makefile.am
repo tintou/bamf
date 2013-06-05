@@ -3,6 +3,7 @@ CLEANFILES =
 DISTCLEANFILES =
 BUILT_SOURCES =
 EXTRA_DIST =
+LIBBAMF_PRIVATE_LIB = $(top_builddir)/lib/libbamf-private/libbamf-private.la
 
 include $(top_srcdir)/Makefile.am.marshal
 
@@ -12,25 +13,9 @@ bamfdaemon_PROGRAMS = \
 		bamfdaemon \
 		$(NULL)
 
-bamfdaemon_gdbus_files = \
-		bamf-gdbus-generated.c \
-		bamf-gdbus-generated.h \
-		bamf-gdbus-view-generated.c \
-		bamf-gdbus-view-generated.h \
-		bamf-gdbus-browser-generated.c \
-		bamf-gdbus-browser-generated.h \
-		$(NULL)
-
-bamfdaemon_xml_gdbus_files = \
-		org.ayatana.bamf.xml \
-		org.ayatana.bamf.view.xml \
-		org.ayatana.bamf.browser.xml \
-		$(NULL)
-
 bamfdaemon_built_sources = \
 		bamf-marshal.c \
 		bamf-marshal.h \
-		$(bamfdaemon_gdbus_files) \
 		$(NULL)
 
 bamfdaemon_sources = \
@@ -112,6 +97,7 @@ CLEANFILES += \
 		$(NULL)
 
 bamfdaemon_LDADD = \
+		$(LIBBAMF_PRIVATE_LIB) \
 		$(X_LIBS) \
 		$(GLIB_LIBS) \
 		$(GTK_LIBS) \
@@ -125,7 +111,8 @@ bamfdaemon_CFLAGS = \
 		-DDATADIR=\""$(datadir)"\" \
 		-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
 		-I$(srcdir) \
-		-I$(builddir) \
+		-I$(top_srcdir)/lib \
+		-I$(top_builddir)/lib \
 		$(GLIB_CFLAGS) \
 		$(GTK_CFLAGS) \
 		$(WNCK_CFLAGS) \
@@ -138,30 +125,3 @@ bamfdaemon_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
 		$(COVERAGE_LDFLAGS) \
 		$(NULL)
-
-bamf-gdbus-generated.c bamf-gdbus-generated.h: org.ayatana.bamf.xml
-		$(AM_V_GEN) $(GDBUS_CODEGEN) \
-		--generate-c-code bamf-gdbus-generated \
-		--c-namespace BamfDBus \
-		--interface-prefix org.ayatana.bamf \
-		$<
-
-bamf-gdbus-view-generated.c bamf-gdbus-view-generated.h: org.ayatana.bamf.view.xml
-		$(AM_V_GEN) $(GDBUS_CODEGEN) \
-		--c-generate-object-manager \
-		--generate-c-code bamf-gdbus-view-generated \
-		--c-namespace BamfDBusItem \
-		--interface-prefix org.ayatana.bamf \
-		$<
-
-bamf-gdbus-browser-generated.c bamf-gdbus-browser-generated.h: org.ayatana.bamf.browser.xml
-		$(AM_V_GEN) $(GDBUS_CODEGEN) \
-		--generate-c-code bamf-gdbus-browser-generated \
-		--c-namespace BamfDBusBrowser \
-		--interface-prefix org.ayatana.bamf.browser \
-		$<
-
-EXTRA_DIST += \
-		$(bamfdaemon_xml_gdbus_files) \
-		$(NULL)
-

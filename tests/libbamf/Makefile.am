@@ -6,8 +6,7 @@ test_libbamf_SOURCES = \
   test-application.c \
   test-matcher.c
 
-test_libbamf_CPPFLAGS = \
-  -I$(top_srcdir) \
+test_libbamf_CFLAGS = \
   -I$(top_srcdir)/lib \
   -I$(top_srcdir)/lib/libbamf \
   -I$(top_builddir)/lib/libbamf \
