@@ -571,7 +571,8 @@ bamf_matcher_get_windows (BamfMatcher *matcher)
  * @monitor: the monitor you want the stack from, negative value to get all
  *
  * Used to fetch all windows that BAMF knows about in the requested screen,
- * in stacking bottom-to-top order.
+ * in stacking bottom-to-top order. If the @monitor is set to a negative value,
+ * then it fetches all the available windows in all monitors.
  *
  * Returns: (element-type Bamf.View) (transfer container): A list of #BamfWindow.
  */
