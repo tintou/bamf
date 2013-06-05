@@ -2223,8 +2223,7 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
 {
   gpointer key;
   BamfLegacyScreen *screen;
-  GList *glist_item;
-  GList *windows;
+  GList *windows, *l;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (desktopFile);
@@ -2240,10 +2239,9 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
 
   windows = bamf_legacy_screen_get_windows (screen);
 
-  for (glist_item = windows; glist_item != NULL;
-       glist_item = glist_item->next)
+  for (l = windows; l; l = l->next)
     {
-      ensure_window_hint_set (self, glist_item->data);
+      ensure_window_hint_set (self, l->data);
     }
 }
 

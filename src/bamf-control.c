@@ -29,6 +29,8 @@ BAMF_TYPE_CONTROL, BamfControlPrivate))
 
 struct _BamfControlPrivate
 {
+  GDBusConnection *connection;
+  guint launched_signal;
   GList *sources;
 };
 
@@ -52,24 +54,41 @@ bamf_control_on_launched_callback (GDBusConnection *connection,
 }
 
 static void
+on_bus_connection (GObject *source_object, GAsyncResult *res, gpointer user_data)
+{
+  BamfControl *self;
+  GError *error = NULL;
+
+  g_return_if_fail (BAMF_IS_CONTROL (user_data));
+
+  self = BAMF_CONTROL (user_data);
+  self->priv->connection = g_bus_get_finish (res, &error);
+
+  if (error)
+    {
+      g_warning ("Got error when connecting to session bus: %s", error->message);
+      g_clear_error (&error);
+      self->priv->connection = NULL;
+      return;
+    }
+
+  self->priv->launched_signal =
+    g_dbus_connection_signal_subscribe  (self->priv->connection, NULL,
+                                         "org.gtk.gio.DesktopAppInfo",
+                                         "Launched",
+                                         "/org/gtk/gio/DesktopAppInfo",
+                                         NULL, G_DBUS_SIGNAL_FLAGS_NONE,
+                                         bamf_control_on_launched_callback,
+                                         self, NULL);
+}
+
+static void
 bamf_control_constructed (GObject *object)
 {
-  GDBusConnection *gbus;
-
   if (G_OBJECT_CLASS (bamf_control_parent_class)->constructed)
     G_OBJECT_CLASS (bamf_control_parent_class)->constructed (object);
 
-  gbus = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
-  g_dbus_connection_signal_subscribe  (gbus,
-                                       NULL,
-                                       "org.gtk.gio.DesktopAppInfo",
-                                       "Launched",
-                                       "/org/gtk/gio/DesktopAppInfo",
-                                       NULL,
-                                       0,
-                                       bamf_control_on_launched_callback,
-                                       BAMF_CONTROL (object),
-                                       NULL);
+  g_bus_get (G_BUS_TYPE_SESSION, NULL, on_bus_connection, object);
 }
 
 static gboolean
@@ -129,8 +148,19 @@ static void
 bamf_control_finalize (GObject *object)
 {
   BamfControl *self = BAMF_CONTROL (object);
+
+  if (self->priv->connection)
+    {
+      if (self->priv->launched_signal)
+        {
+          g_dbus_connection_signal_unsubscribe (self->priv->connection,
+                                                self->priv->launched_signal);
+        }
+
+      g_object_unref (self->priv->connection);
+    }
+
   g_list_free_full (self->priv->sources, g_object_unref);
-  self->priv->sources = NULL;
 }
 
 static void
