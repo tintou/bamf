@@ -500,9 +500,8 @@ bamf_view_on_child_removed (BamfDBusItemView *proxy, char *path, BamfView *self)
 }
 
 static void
-bamf_view_on_active_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfView *self)
+bamf_view_on_active_changed (BamfDBusItemView *proxy, gboolean active, BamfView *self)
 {
-  gboolean active = _bamf_dbus_item_view_get_active (proxy);
   g_signal_emit (G_OBJECT (self), view_signals[ACTIVE_CHANGED], 0, active);
   g_object_notify (G_OBJECT (self), "active");
 }
@@ -518,25 +517,22 @@ bamf_view_on_name_changed (BamfDBusItemView *proxy,
 }
 
 static void
-bamf_view_on_running_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfView *self)
+bamf_view_on_running_changed (BamfDBusItemView *proxy, gboolean running, BamfView *self)
 {
-  gboolean running = _bamf_dbus_item_view_get_running (proxy);
   g_signal_emit (G_OBJECT (self), view_signals[RUNNING_CHANGED], 0, running);
   g_object_notify (G_OBJECT (self), "running");
 }
 
 static void
-bamf_view_on_urgent_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfView *self)
+bamf_view_on_urgent_changed (BamfDBusItemView *proxy, gboolean urgent, BamfView *self)
 {
-  gboolean urgent = _bamf_dbus_item_view_get_urgent (proxy);
   g_signal_emit (G_OBJECT (self), view_signals[URGENT_CHANGED], 0, urgent);
   g_object_notify (G_OBJECT (self), "urgent");
 }
 
 static void
-bamf_view_on_user_visible_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfView *self)
+bamf_view_on_user_visible_changed (BamfDBusItemView *proxy, gboolean user_visible, BamfView *self)
 {
-  gboolean user_visible = _bamf_dbus_item_view_get_user_visible (proxy);
   g_signal_emit (G_OBJECT (self), view_signals[VISIBLE_CHANGED], 0, user_visible);
   g_object_notify (G_OBJECT (self), "user-visible");
 }
@@ -764,16 +760,16 @@ _bamf_view_set_path (BamfView *view, const char *path)
   g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (priv->proxy), BAMF_DBUS_DEFAULT_TIMEOUT);
   _bamf_view_reset_flags (view);
 
-  g_signal_connect (priv->proxy, "notify::active",
+  g_signal_connect (priv->proxy, "active-changed",
                     G_CALLBACK (bamf_view_on_active_changed), view);
 
-  g_signal_connect (priv->proxy, "notify::running",
+  g_signal_connect (priv->proxy, "running-changed",
                     G_CALLBACK (bamf_view_on_running_changed), view);
 
-  g_signal_connect (priv->proxy, "notify::urgent",
+  g_signal_connect (priv->proxy, "urgent-changed",
                     G_CALLBACK (bamf_view_on_urgent_changed), view);
 
-  g_signal_connect (priv->proxy, "notify::user-visible",
+  g_signal_connect (priv->proxy, "user-visible-changed",
                     G_CALLBACK (bamf_view_on_user_visible_changed), view);
 
   g_signal_connect (priv->proxy, "name-changed",
