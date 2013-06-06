@@ -18,7 +18,6 @@
  *
  */
 
-#include "bamf.h"
 #include "bamf-tab.h"
 
 #define BAMF_TAB_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -47,6 +46,12 @@ static const gchar *
 bamf_tab_get_view_type (BamfView *view)
 {
   return "tab";
+}
+
+static char *
+bamf_tab_get_stable_bus_name (BamfView *view)
+{
+  return g_strdup_printf ("tab%u", GPOINTER_TO_UINT (view));
 }
 
 static void
@@ -187,17 +192,18 @@ bamf_tab_class_init (BamfTabClass * klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   BamfViewClass *view_class = BAMF_VIEW_CLASS (klass);
-  
+
   object_class->get_property = bamf_tab_get_property;
   object_class->set_property = bamf_tab_set_property;
   object_class->finalize = bamf_tab_finalize;
   view_class->view_type = bamf_tab_get_view_type;
-  
+  view_class->stable_bus_name = bamf_tab_get_stable_bus_name;
+
   g_object_class_override_property (object_class, PROP_LOCATION, "location");
   g_object_class_override_property (object_class, PROP_DESKTOP_ID, "desktop-id");
   g_object_class_override_property (object_class, PROP_XID, "xid");
   g_object_class_override_property (object_class, PROP_IS_FOREGROUND_TAB, "is-foreground-tab");
-  
+
   g_type_class_add_private (klass, sizeof (BamfTabPrivate));
 }
 

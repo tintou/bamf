@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Canonical Ltd
+ * Copyright (C) 2011-2013 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3 as
@@ -22,5 +22,13 @@
 
 #include <libbamf-private/bamf-gdbus-generated.h>
 #include <libbamf-private/bamf-gdbus-view-generated.h>
+
+#define BAMF_DBUS_SERVICE_NAME (g_getenv ("BAMF_TEST_MODE") ? "org.ayatana.bamf.Test" : "org.ayatana.bamf")
+
+#define BAMF_DBUS_BASE_PATH "/org/ayatana/bamf"
+#define BAMF_DBUS_CONTROL_PATH BAMF_DBUS_BASE_PATH"/control"
+#define BAMF_DBUS_MATCHER_PATH BAMF_DBUS_BASE_PATH"/matcher"
+
+#define BAMF_DBUS_DEFAULT_TIMEOUT 500
 
 #endif

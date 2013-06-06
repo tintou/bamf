@@ -17,7 +17,7 @@ bamf_built_sources = \
 	$(NULL)
 
 libbamf_private_la_CFLAGS = \
-	$(GLIB_CFLAGS)
+	$(GLIB_CFLAGS) \
 	$(NULL)
 
 libbamf_private_la_LDFLAGS = \

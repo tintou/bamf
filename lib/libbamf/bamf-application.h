@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Canonical Ltd.
+ * Copyright 2010-2011 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -21,6 +21,7 @@
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
  *              Neil Jagdish Patel <neil.patel@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -48,6 +49,9 @@ G_BEGIN_DECLS
 
 #define BAMF_APPLICATION_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj),\
         BAMF_TYPE_APPLICATION, BamfApplicationClass))
+
+#define BAMF_APPLICATION_SIGNAL_WINDOW_ADDED   "window-added"
+#define BAMF_APPLICATION_SIGNAL_WINDOW_REMOVED "window-removed"
 
 typedef struct _BamfApplication        BamfApplication;
 typedef struct _BamfApplicationClass   BamfApplicationClass;

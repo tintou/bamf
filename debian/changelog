@@ -1,3 +1,11 @@
+bamf (0.5.0) UNRELEASED; urgency=low
+
+  * New upstream release, bumping debian version to 0.5.0
+  * debian/control:
+      - don't build-depend anymore on libdbus-glib-1-dev
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 05 Jun 2013 14:00:27 +0200
+
 bamf (0.4.0daily13.05.02-0ubuntu1) saucy; urgency=low
 
   [ Marco Trevisan (Treviño) ]

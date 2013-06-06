@@ -132,8 +132,8 @@ bamf_window_get_xid (BamfWindow *window)
 time_t
 bamf_window_opened (BamfWindow *self)
 {
-  g_return_val_if_fail (BAMF_IS_WINDOW (self), (time_t) 0);
-  
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), 0);
+
   return self->priv->opened;
 }
 
@@ -234,16 +234,16 @@ bamf_window_get_monitor (BamfWindow *self)
 
   GdkScreen *gdk_screen =  gdk_screen_get_default ();
   bamf_legacy_window_get_geometry (self->priv->legacy_window, &x, &y, &width, &height);
-  
+
   return gdk_screen_get_monitor_at_point (gdk_screen, x + width/2, y + height/2);
 }
 
-char *
+static char *
 bamf_window_get_stable_bus_name (BamfView *view)
 {
   BamfWindow *self;
 
-  g_return_val_if_fail (BAMF_IS_WINDOW (view), NULL);  
+  g_return_val_if_fail (BAMF_IS_WINDOW (view), NULL);
   self = BAMF_WINDOW (view);
 
   return g_strdup_printf ("window%u", bamf_legacy_window_get_xid (self->priv->legacy_window));
@@ -451,6 +451,7 @@ bamf_window_dispose (GObject *object)
       g_object_unref (self->priv->legacy_window);
       self->priv->legacy_window = NULL;
     }
+
   G_OBJECT_CLASS (bamf_window_parent_class)->dispose (object);
 }
 
