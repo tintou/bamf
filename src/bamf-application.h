@@ -21,6 +21,7 @@
 #ifndef __BAMFAPPLICATION_H__
 #define __BAMFAPPLICATION_H__
 
+#include "bamf.h"
 #include "bamf-view.h"
 #include "bamf-window.h"
 #include <glib.h>
@@ -40,12 +41,13 @@ typedef struct _BamfApplicationPrivate BamfApplicationPrivate;
 struct _BamfApplicationClass
 {
   BamfViewClass parent;
-
+  
   void (*get_application_menu) (BamfApplication *application, gchar **name, gchar **path);
   BamfView* (*get_focusable_child) (BamfApplication *application);
   char ** (*get_supported_mime_types) (BamfApplication *application);
   gboolean (*get_close_when_empty) (BamfApplication *application);
   void (*supported_mimes_changed) (BamfApplication *application, const gchar **mimes);
+
 };
 
 struct _BamfApplication

@@ -20,6 +20,7 @@
 #ifndef __BAMFWINDOW_H__
 #define __BAMFWINDOW_H__
 
+#include "bamf.h"
 #include "bamf-view.h"
 #include "bamf-legacy-window.h"
 #include <glib.h>

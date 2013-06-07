@@ -2,96 +2,79 @@ CLEANFILES =
 DISTCLEANFILES =
 BUILT_SOURCES =
 EXTRA_DIST =
-LIBBAMF_PRIVATE_LIB = $(top_builddir)/lib/libbamf-private/libbamf-private.la
 
 include $(top_srcdir)/Makefile.am.marshal
 -include $(INTROSPECTION_MAKEFILE)
 
-libbamf_xml_gdbus_files = \
-  org.ayatana.bamf.tabsource.xml \
+libbamf_built_sources = \
+  bamf-marshal.c \
+  bamf-marshal.h \
+  bamf-tab-source-glue.h \
   $(NULL)
 
-libbamf_gdbus_files = \
-	bamf-gdbus-tab-source-generated.c \
-	bamf-gdbus-tab-source-generated.h \
-	$(NULL)
-
-libbamf_built_sources = \
-	bamf-marshal.c \
-	bamf-marshal.h \
-	$(libbamf_gdbus_files) \
-	$(NULL)
-
 libbamf_sources = \
-	bamf-application.c \
-	bamf-control.c \
-	bamf-matcher.c \
-	bamf-view.c \
-	bamf-window.c \
-	bamf-factory.c \
-	bamf-tab-source.c \
-	bamf-tab.c \
-	$(NULL)
+  bamf-application.c \
+  bamf-control.c \
+  bamf-matcher.c \
+  bamf-view.c \
+  bamf-window.c \
+  bamf-factory.c \
+  bamf-tab-source.c \
+  bamf-tab.c \
+  $(NULL)
 
 libbamf_headers = \
-	bamf-application.h \
-	bamf-control.h \
-	bamf-matcher.h \
-	bamf-view.h \
-	bamf-window.h \
-	bamf-tab-source.h \
-	bamf-tab.h \
-	libbamf.h \
-	$(NULL)
-
-libbamf_private_headers = \
-	bamf-factory.h \
-	bamf-application-private.h \
-	bamf-view-private.h \
-	$(NULL)
-
-libbamf_la_SOURCES = \
-	$(libbamf_built_sources) \
-	$(libbamf_private_headers) \
-	$(libbamf_headers) \
-	$(libbamf_sources) \
-	$(NULL)
-
-libbamf_la_LIBADD = \
-	$(LIBBAMF_PRIVATE_LIB) \
-	$(LIBWSBIND_LIBS) \
-	$(GLIB_LIBS) \
-	$(COVERAGE_LIBS) \
-	$(NULL)
-
-libbamf_la_CFLAGS = \
-	-Wall -std=c99 \
-	-fPIC \
-	-DDATADIR=\""$(datadir)"\" \
-	-I$(srcdir) \
-	-I$(top_srcdir)/lib \
-	-I$(top_builddir)/lib \
-	$(COVERAGE_CFLAGS) \
-	$(LIBWSBIND_CFLAGS) \
-	$(GLIB_CFLAGS) \
-	$(NULL)
-
-libbamf_la_LDFLAGS = \
-	-shared \
-	-export-symbols-regex "^bamf_" \
-	-version-info 1:0:0 \
-	$(COVERAGE_LDFLAGS) \
-	$(NULL)
+  bamf-application.h \
+  bamf-control.h \
+  bamf-matcher.h \
+  bamf-view.h \
+  bamf-window.h \
+  bamf-tab-source.h \
+  bamf-tab.h \
+  libbamf.h \
+  $(NULL)
 
 lib_LTLIBRARIES = libbamf3.la
-libbamf3_la_SOURCES = $(libbamf_la_SOURCES)
-libbamf3_la_LIBADD = $(libbamf_la_LIBADD)
-libbamf3_la_CFLAGS = $(libbamf_la_CFLAGS)
-libbamf3_la_LDFLAGS = $(libbamf_la_LDFLAGS)
 
-library_includedir=$(includedir)/libbamf$(VER)/libbamf
-library_include_HEADERS = \
-	$(sources_h)
+libbamf3_la_SOURCES = \
+  bamf-factory.h \
+  bamf-application-private.h \
+  bamf-view-private.h \
+  $(libbamf_headers) \
+  $(libbamf_sources) \
+  $(NULL)
+
+nodist_libbamf3_la_SOURCES = \
+  $(libbamf_built_sources)
+  $(NULL)
+
+libbamf3_la_LIBADD = \
+  $(GLIB_LIBS) \
+  $(DBUS_LIBS) \
+  $(NULL)
+
+libbamf3_la_CPPFLAGS = \
+  -Wall -std=c99 \
+  -fPIC \
+  -DDATADIR=\""$(datadir)"\" \
+  -I$(top_srcdir)/lib \
+  -I$(top_builddir)/lib \
+  -I$(top_srcdir)/lib/libbamf \
+  -I$(top_builddir)/lib/libbamf \
+  $(GLIB_CFLAGS) \
+  $(DBUS_CFLAGS) \
+  $(COVERAGE_CFLAGS) \
+  $(NULL)
+
+libbamf3_la_LDFLAGS = \
+  -shared \
+  -export-symbols-regex "^bamf_" \
+  -version-info 1:0:0 \
+  $(COVERAGE_LDFLAGS) \
+  $(NULL)
+
+glib_marshal_list = bamf-marshal.list
+glib_marshal_prefix = _bamf_marshal
 
 # resetting BUILT_SOURCES here is intended
 BUILT_SOURCES = \
@@ -102,6 +85,11 @@ CLEANFILES += \
 	$(libbamf_built_sources) \
 	$(NULL)
 
+bamf-tab-source-glue.h: bamf-tab-source-glue.xml
+	$(AM_V_GEN)$(DBUS_GLIB_BIN)/dbus-binding-tool --prefix=bamf_tab_source --mode=glib-server --output=$@ $<
+
+EXTRA_DIST += bamf-tab-source-glue.xml
+
 libbamf_includedir=$(includedir)/libbamf$(LIBBAMF_VER)/libbamf
 libbamf_include_HEADERS = \
 	$(libbamf_headers)
@@ -109,36 +97,6 @@ libbamf_include_HEADERS = \
 libbamf_pcdir = $(libdir)/pkgconfig
 libbamf_pc_DATA = \
 	libbamf$(LIBBAMF_VER).pc
-
-glib_marshal_list = bamf-marshal.list
-glib_marshal_prefix = _bamf_marshal
-
-bamf-gdbus-tab-source-generated.c: org.ayatana.bamf.tabsource.xml
-	$(AM_V_GEN) $(GDBUS_CODEGEN) \
-	--c-generate-object-manager \
-	--generate-c-code $(shell basename $@ .c) \
-	--c-namespace BamfDBusTab \
-	--interface-prefix org.ayatana.bamf \
-	$<; \
-	# Adding '_' prefix to generated private functions \
-	$(SED) "s/bamf_dbus_tab/_bamf_dbus_tab/g" -i \
-	$@ $(shell basename $@ .c).h
-
-BUILT_SOURCES += \
-	$(libbamf_gdbus_files) \
-	$(NULL)
-
-EXTRA_DIST += \
-	$(libbamf_xml_gdbus_files) \
-	$(NULL)
-
-DISTCLEANFILES += \
-	$(libbamf_built_sources) \
-	$(NULL)
-
-CLEANFILES += \
-	$(libbamf_built_sources) \
-	$(NULL)
 
 
 #########################

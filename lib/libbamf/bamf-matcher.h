@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Canonical Ltd.
+ * Copyright 2010 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -21,7 +21,6 @@
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
  *              Neil Jagdish Patel <neil.patel@canonical.com>
- *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -50,12 +49,6 @@ G_BEGIN_DECLS
 
 #define BAMF_MATCHER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj),\
         BAMF_TYPE_MATCHER, BamfMatcherClass))
-
-#define BAMF_MATCHER_SIGNAL_VIEW_OPENED                "view-opened"
-#define BAMF_MATCHER_SIGNAL_VIEW_CLOSED                "view-closed"
-#define BAMF_MATCHER_SIGNAL_ACTIVE_APPLICATION_CHANGED "active-application-changed"
-#define BAMF_MATCHER_SIGNAL_ACTIVE_WINDOW_CHANGED      "active-window-changed"
-#define BAMF_MATCHER_SIGNAL_STACKING_ORDER_CHANGED     "stacking-order-changed"
 
 typedef struct _BamfMatcher        BamfMatcher;
 typedef struct _BamfMatcherClass   BamfMatcherClass;
@@ -95,7 +88,7 @@ BamfApplication * bamf_matcher_get_application_for_window  (BamfMatcher *matcher
                                                             BamfWindow *window);
 
 gboolean          bamf_matcher_application_is_running   (BamfMatcher *matcher,
-                                                         const gchar *desktop_file);
+                                                         const gchar *application);
 
 GList *           bamf_matcher_get_applications         (BamfMatcher *matcher);
 
@@ -107,7 +100,7 @@ GList *           bamf_matcher_get_running_applications (BamfMatcher *matcher);
 GList *           bamf_matcher_get_tabs                 (BamfMatcher *matcher);
 
 GArray *          bamf_matcher_get_xids_for_application (BamfMatcher *matcher,
-                                                         const gchar *desktop_file);
+                                                         const gchar *application);
 
 GList *           bamf_matcher_get_windows (BamfMatcher *matcher);
 

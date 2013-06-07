@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2012 Canonical Ltd.
+ * Copyright 2010 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -21,7 +21,6 @@
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
  *              Neil Jagdish Patel <neil.patel@canonical.com>
- *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 /**
@@ -35,8 +34,10 @@
 #include <config.h>
 #endif
 
-#include <libbamf-private/bamf-private.h>
 #include "bamf-control.h"
+
+#include <dbus/dbus.h>
+#include <dbus/dbus-glib.h>
 
 G_DEFINE_TYPE (BamfControl, bamf_control, G_TYPE_OBJECT);
 
@@ -45,7 +46,8 @@ G_DEFINE_TYPE (BamfControl, bamf_control, G_TYPE_OBJECT);
 
 struct _BamfControlPrivate
 {
-  BamfDBusControl *proxy;
+  DBusGConnection *connection;
+  DBusGProxy      *proxy;
 };
 
 /* Globals */
@@ -68,27 +70,19 @@ bamf_control_dispose (GObject *object)
       self->priv->proxy = NULL;
     }
 
-  G_OBJECT_CLASS (bamf_control_parent_class)->dispose (object);
-}
-
-static void
-bamf_control_finalize (GObject *object)
-{
-  default_control = NULL;
-
-  G_OBJECT_CLASS (bamf_control_parent_class)->finalize (object);
+  if (G_OBJECT_CLASS (bamf_control_parent_class)->dispose)
+      G_OBJECT_CLASS (bamf_control_parent_class)->dispose (object);
 }
 
 static void
 bamf_control_class_init (BamfControlClass *klass)
 {
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
-  obj_class->dispose = bamf_control_dispose;
-  obj_class->finalize = bamf_control_finalize;
 
   g_type_class_add_private (obj_class, sizeof (BamfControlPrivate));
   obj_class->dispose = bamf_control_dispose;
 }
+
 
 static void
 bamf_control_init (BamfControl *self)
@@ -98,20 +92,24 @@ bamf_control_init (BamfControl *self)
 
   priv = self->priv = BAMF_CONTROL_GET_PRIVATE (self);
 
-  priv->proxy = _bamf_dbus_control_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
-                                                           G_DBUS_PROXY_FLAGS_NONE,
-                                                           BAMF_DBUS_SERVICE_NAME,
-                                                           BAMF_DBUS_CONTROL_PATH,
-                                                           NULL, &error);
-
-  if (error)
+  priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+  if (priv->connection == NULL)
     {
-      g_error ("Unable to get "BAMF_DBUS_CONTROL_PATH" controller: %s", error->message);
-      g_error_free (error);
+      g_warning ("Failed to open connection to bus: %s",
+               error != NULL ? error->message : "Unknown");
+      if (error)
+        g_error_free (error);
       return;
     }
 
-  g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (priv->proxy), BAMF_DBUS_DEFAULT_TIMEOUT);
+  priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
+                                           "org.ayatana.bamf",
+                                           "/org/ayatana/bamf/control",
+                                           "org.ayatana.bamf.control");
+  if (priv->proxy == NULL)
+    {
+      g_error ("Unable to get org.bamf.Control control");
+    }
 }
 
 /**
@@ -129,7 +127,8 @@ bamf_control_get_default (void)
 }
 
 void
-bamf_control_insert_desktop_file (BamfControl *control, const gchar *desktop_file)
+bamf_control_insert_desktop_file (BamfControl *control,
+                                   const gchar *desktop_file)
 {
   BamfControlPrivate *priv;
   GError *error = NULL;
@@ -137,9 +136,12 @@ bamf_control_insert_desktop_file (BamfControl *control, const gchar *desktop_fil
   g_return_if_fail (BAMF_IS_CONTROL (control));
   priv = control->priv;
 
-  if (!_bamf_dbus_control_call_om_nom_nom_desktop_file_sync (priv->proxy,
-                                                             desktop_file,
-                                                             NULL, &error))
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "OmNomNomDesktopFile",
+                          &error,
+                          G_TYPE_STRING, desktop_file,
+                          G_TYPE_INVALID,
+                          G_TYPE_INVALID))
     {
       g_warning ("Failed to insert desktop file: %s", error->message);
       g_error_free (error);
@@ -148,7 +150,7 @@ bamf_control_insert_desktop_file (BamfControl *control, const gchar *desktop_fil
 
 void
 bamf_control_register_application_for_pid (BamfControl  *control,
-                                           const gchar  *desktop_file,
+                                           const gchar  *application,
                                            gint32        pid)
 {
   BamfControlPrivate *priv;
@@ -157,10 +159,13 @@ bamf_control_register_application_for_pid (BamfControl  *control,
   g_return_if_fail (BAMF_IS_CONTROL (control));
   priv = control->priv;
 
-  if (!_bamf_dbus_control_call_register_application_for_pid_sync (priv->proxy,
-                                                                  desktop_file,
-                                                                  pid, NULL,
-                                                                  &error))
+  if (!dbus_g_proxy_call (priv->proxy,
+                          "RegisterApplicationForPid",
+                          &error,
+                          G_TYPE_STRING, application,
+                          G_TYPE_INT, pid,
+                          G_TYPE_INVALID,
+                          G_TYPE_INVALID))
     {
       g_warning ("Failed to register application: %s", error->message);
       g_error_free (error);
@@ -168,18 +173,7 @@ bamf_control_register_application_for_pid (BamfControl  *control,
 }
 
 void
-bamf_control_register_tab_provider (BamfControl *control, const char *path)
+bamf_control_register_tab_provider (BamfControl *control,
+                                    const char  *path)
 {
-  BamfControlPrivate *priv;
-  GError *error = NULL;
-
-  g_return_if_fail (BAMF_IS_CONTROL (control));
-  priv = control->priv;
-
-  if (!_bamf_dbus_control_call_register_tab_provider_sync (priv->proxy, path,
-                                                           NULL, &error))
-    {
-      g_warning ("Failed to register tab provider: %s", error->message);
-      g_error_free (error);
-    }
 }

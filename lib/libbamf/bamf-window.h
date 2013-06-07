@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Canonical Ltd.
+ * Copyright 2010 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -21,7 +21,6 @@
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
  *              Neil Jagdish Patel <neil.patel@canonical.com>
- *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -51,9 +50,6 @@ G_BEGIN_DECLS
 #define BAMF_WINDOW_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj),\
         BAMF_TYPE_WINDOW, BamfWindowClass))
 
-#define BAMF_WINDOW_SIGNAL_MONITOR_CHANGED   "monitor-changed"
-#define BAMF_WINDOW_SIGNAL_MAXIMIZED_CHANGED "maximized-changed"
-
 typedef struct _BamfWindow        BamfWindow;
 typedef struct _BamfWindowClass   BamfWindowClass;
 typedef struct _BamfWindowPrivate BamfWindowPrivate;
@@ -74,8 +70,7 @@ typedef enum
   BAMF_WINDOW_TOOLBAR,      /* tearoff toolbar */
   BAMF_WINDOW_MENU,         /* tearoff menu */
   BAMF_WINDOW_UTILITY,      /* palette/toolbox window */
-  BAMF_WINDOW_SPLASHSCREEN, /* splash screen */
-  BAMF_WINDOW_UNKNOWN
+  BAMF_WINDOW_SPLASHSCREEN  /* splash screen */
 } BamfWindowType;
 
 typedef enum

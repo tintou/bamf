@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Canonical Ltd.
+ * Copyright 2010 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -21,7 +21,6 @@
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
  *              Neil Jagdish Patel <neil.patel@canonical.com>
- *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -49,16 +48,6 @@ G_BEGIN_DECLS
 #define BAMF_VIEW_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj),\
         BAMF_TYPE_VIEW, BamfViewClass))
 
-#define BAMF_VIEW_SIGNAL_ACTIVE_CHANGED       "active-changed"
-#define BAMF_VIEW_SIGNAL_RUNNING_CHANGED      "running-changed"
-#define BAMF_VIEW_SIGNAL_URGENT_CHANGED       "urgent-changed"
-#define BAMF_VIEW_SIGNAL_USER_VISIBLE_CHANGED "user-visible-changed"
-#define BAMF_VIEW_SIGNAL_NAME_CHANGED         "name-changed"
-#define BAMF_VIEW_SIGNAL_CHILD_ADDED          "child-added"
-#define BAMF_VIEW_SIGNAL_CHILD_REMOVED        "child-removed"
-#define BAMF_VIEW_SIGNAL_CHILD_MOVED          "child-moved"
-#define BAMF_VIEW_SIGNAL_CLOSED               "closed"
-
 typedef enum
 {
   BAMF_CLICK_BEHAVIOR_NONE,
@@ -85,19 +74,19 @@ struct _BamfView
 struct _BamfViewClass
 {
   GInitiallyUnownedClass parent_class;
-
+  
   GList            * (*get_children)        (BamfView *view);
   gboolean           (*is_active)           (BamfView *view);
   gboolean           (*is_running)          (BamfView *view);
   gboolean           (*is_urgent)           (BamfView *view);
-  gboolean           (*is_user_visible)     (BamfView *view);
   gchar            * (*get_name)            (BamfView *view);
   gchar            * (*get_icon)            (BamfView *view);
   const gchar      * (*view_type)           (BamfView *view);
   void               (*set_path)            (BamfView *view, const gchar *path);
   void               (*set_sticky)          (BamfView *view, gboolean value);
   BamfClickBehavior  (*click_behavior)      (BamfView *view);
-
+  
+  
   /*< signals >*/
   void (*active_changed)              (BamfView *view, gboolean active);
   void (*closed)                      (BamfView *view);
@@ -134,6 +123,9 @@ gchar    * bamf_view_get_name      (BamfView *view);
 
 gchar    * bamf_view_get_icon      (BamfView *view);
 
+GLIB_DEPRECATED
+gboolean   bamf_view_user_visible  (BamfView *view);
+
 const gchar    * bamf_view_get_view_type (BamfView *view);
 
 void bamf_view_set_sticky (BamfView *view, gboolean value);
@@ -141,10 +133,6 @@ void bamf_view_set_sticky (BamfView *view, gboolean value);
 gboolean bamf_view_is_sticky (BamfView *view);
 
 BamfClickBehavior bamf_view_get_click_suggestion (BamfView *view);
-
-/* Deprecated symbols */
-G_GNUC_DEPRECATED_FOR (bamf_view_user_visible)
-gboolean bamf_view_user_visible (BamfView *view);
 
 G_END_DECLS
 

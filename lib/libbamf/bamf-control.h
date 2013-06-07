@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Canonical Ltd.
+ * Copyright 2010 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -21,7 +21,6 @@
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
  *              Neil Jagdish Patel <neil.patel@canonical.com>
- *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -81,13 +80,11 @@ void          bamf_control_insert_desktop_file          (BamfControl *control,
                                                          const gchar *desktop_file);
 
 void          bamf_control_register_application_for_pid (BamfControl *control,
-                                                         const gchar *desktop_file,
+                                                         const gchar *application,
                                                          gint32       pid);
 
 void          bamf_control_register_tab_provider        (BamfControl *control,
                                                          const char  *path);
-void          bamf_control_set_approver_behavior        (BamfControl *control,
-                                                         gint32       behavior);
 
 G_END_DECLS
 #endif

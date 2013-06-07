@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<node name="/org/ayatana/bamf">
+
+	<interface name="org.ayatana.bamf.tabsource">
+
+		<signal name="TabOpened">
+			<arg type="s" name="tab_id" direction="out" />
+			<arg type="s" name="uri" direction="out" />
+		</signal>
+
+		<signal name="TabClosed">
+			<arg type="s" name="tab_id" direction="out" />
+		</signal>
+
+		<signal name="TabUriChanged">
+			<arg type="s" name="tab_id" direction="out" />
+			<arg type="s" name="old_uri" direction="out" />
+			<arg type="s" name="new_uri" direction="out" />
+		</signal>
+
+		<method name="ShowTab">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_tab_source_show_tab" />
+			<arg type="s" name="tab_id" direction="in" />
+		</method>
+
+		<method name="TabIds">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_tab_source_get_tab_ids" />
+			<arg type="as" name="tab_ids" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+
+		<method name="TabPreview">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_tab_source_get_tab_preview" />
+			<arg type="s" name="tab_id" direction="in" />
+			<arg type="ay" name="data" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+
+		<method name="TabUri">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_tab_source_get_tab_uri" />
+			<arg type="s" name="tab_id" direction="in" />
+			<arg type="s" name="uri" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+
+		<method name="TabXid">
+			<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="bamf_tab_source_get_tab_xid" />
+			<arg type="s" name="tab_id" direction="in" />
+			<arg type="u" name="xid" direction="out">
+				<annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+			</arg>
+		</method>
+	
+	</interface>
+
+</node>

@@ -5,26 +5,22 @@
     <method name="ViewType">
       <arg name="view_type" type="s" direction="out"/>
     </method>
+    <method name="UserVisible">
+      <arg name="visible" type="b" direction="out"/>
+    </method>
     <method name="Icon">
       <arg name="name" type="s" direction="out"/>
     </method>
     <method name="Name">
       <arg name="name" type="s" direction="out"/>
     </method>
-    <method name="UserVisible">
-      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
-      <arg name="visible" type="b" direction="out"/>
-    </method>
     <method name="IsUrgent">
-      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="urgent" type="b" direction="out"/>
     </method>
     <method name="IsRunning">
-      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="running" type="b" direction="out"/>
     </method>
     <method name="IsActive">
-      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="active" type="b" direction="out"/>
     </method>
     <method name="Parents">
@@ -38,20 +34,13 @@
       <arg name="new_name" type="s"/>
     </signal>
     <signal name="UserVisibleChanged">
-      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="user_visible" type="b"/>
     </signal>
     <signal name="UrgentChanged">
-      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="is_urgent" type="b"/>
     </signal>
     <signal name="RunningChanged">
-      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="is_running" type="b"/>
-    </signal>
-    <signal name="ActiveChanged">
-      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
-      <arg name="is_active" type="b"/>
     </signal>
     <signal name="ChildRemoved">
       <arg name="path" type="s"/>
@@ -60,6 +49,9 @@
       <arg name="path" type="s"/>
     </signal>
     <signal name="Closed">
+    </signal>
+    <signal name="ActiveChanged">
+      <arg name="is_active" type="b"/>
     </signal>
     <property name="UserVisible" type="b" access="read"/>
     <property name="Running" type="b" access="read"/>

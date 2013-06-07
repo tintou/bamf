@@ -77,7 +77,7 @@ export_matcher_on_bus (BamfMatcher *matcher)
   g_return_if_fail (BAMF_IS_MATCHER (matcher));
 
   g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (matcher),
-                                    gdbus_connection, BAMF_DBUS_MATCHER_PATH,
+                                    gdbus_connection, BAMF_MATCHER_PATH"/Test",
                                     &error);
 
   g_assert (!error);

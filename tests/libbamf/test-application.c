@@ -20,11 +20,11 @@
 #include <stdlib.h>
 #include <glib.h>
 #include <glib-object.h>
-#include "bamf-view-private.h"
+#include "bamf-application.h"
 
 #define DATA_DIR TESTDIR "/data"
 
-void ignore_fatal_errors (void);
+BamfApplication * bamf_application_new_favorite (const char *favorite_path);
 
 static void
 test_allocation (void)
@@ -47,10 +47,6 @@ test_favorite_invalid_desktop (void)
   g_assert (!BAMF_IS_APPLICATION (application));
 
   application = bamf_application_new_favorite (DATA_DIR"/not-existing-file.desktop");
-  g_assert (!BAMF_IS_APPLICATION (application));
-
-  ignore_fatal_errors ();
-  application = bamf_application_new_favorite (NULL);
   g_assert (!BAMF_IS_APPLICATION (application));
 }
 
