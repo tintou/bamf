@@ -372,8 +372,8 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
       view = matched_view;
       _bamf_view_set_path (view, path);
 
-      if (g_object_is_floating (view))
-        g_object_ref_sink (view);
+      // FIXME: this is shouldn't be needed
+      g_object_ref_sink (view);
     }
 
   if (view)
