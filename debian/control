@@ -16,6 +16,7 @@ Build-Depends: dbus-x11,
                libunity-webapps-dev (>= 2.3.3),
                libwnck-3-dev (>= 3.4.5),
                libgirepository1.0-dev,
+               python-libxslt1,
                valac,
                xvfb,
 Standards-Version: 3.9.3
