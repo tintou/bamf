@@ -78,6 +78,7 @@ test_bamf_CPPFLAGS = \
   -I$(top_builddir)/src \
   -DWNCK_I_KNOW_THIS_IS_UNSTABLE \
   -DTESTDIR=\""$(abs_top_srcdir)/tests"\" \
+  $(COVERAGE_CFLAGS) \
   $(GCC_FLAGS) \
   $(GTK_CFLAGS) \
   $(GLIB_CFLAGS) \
@@ -92,10 +93,11 @@ test_bamf_LDADD = \
   $(WNCK_LIBS) \
   $(GTOP_LIBS) \
   $(GTK_LIBS) \
-  $(LIBUNITY_WEBAPPS_LIBS) 
+  $(LIBUNITY_WEBAPPS_LIBS)
 
 test_bamf_LDFLAGS = \
 		-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
+		$(COVERAGE_LDFLAGS) \
 		$(NULL)
 
 EXTRA_DIST = \
