@@ -270,23 +270,23 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
     }
 
   switch (type)
-  {
-    case BAMF_FACTORY_VIEW:
-      view = g_object_new (BAMF_TYPE_VIEW, NULL);
-      break;
-    case BAMF_FACTORY_WINDOW:
-      view = BAMF_VIEW (bamf_window_new (path));
-      break;
-    case BAMF_FACTORY_APPLICATION:
-      view = BAMF_VIEW (bamf_application_new (path));
-      break;
-    case BAMF_FACTORY_TAB:
-      view = BAMF_VIEW (bamf_tab_new (path));
-      break;
-    case BAMF_FACTORY_NONE:
-      view = NULL;
-      break;
-  }
+    {
+      case BAMF_FACTORY_VIEW:
+        view = g_object_new (BAMF_TYPE_VIEW, NULL);
+        break;
+      case BAMF_FACTORY_WINDOW:
+        view = BAMF_VIEW (bamf_window_new (path));
+        break;
+      case BAMF_FACTORY_APPLICATION:
+        view = BAMF_VIEW (bamf_application_new (path));
+        break;
+      case BAMF_FACTORY_TAB:
+        view = BAMF_VIEW (bamf_tab_new (path));
+        break;
+      case BAMF_FACTORY_NONE:
+        view = NULL;
+        break;
+    }
 
   created = TRUE;
   BamfView *matched_view = NULL;
