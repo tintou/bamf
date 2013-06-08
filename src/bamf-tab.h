@@ -19,7 +19,6 @@
 #ifndef __BAMFTAB_H__
 #define __BAMFTAB_H__
 
-#include "bamf.h"
 #include "bamf-view.h"
 #include <glib.h>
 #include <glib-object.h>

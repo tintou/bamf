@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT(bamf, 0.4.0, dx-team@canonical.com)
+AC_INIT(bamf, 0.5.0, dx-team@canonical.com)
 AC_PREREQ(2.62)
 AC_SUBST(LIBBAMF_VER, 3)
 
@@ -53,16 +53,6 @@ if test -z "$GLIB_GENMARSHAL"; then AC_MSG_ERROR([glib-genmarshal is required bu
 #
 AC_PATH_PROG([GDBUS_CODEGEN], [gdbus-codegen])
 if test -z "$GDBUS_CODEGEN"; then AC_MSG_ERROR([gdbus-codegen is required but was not found]); fi
-
-#
-# dbus
-#
-PKG_CHECK_MODULES(DBUS, dbus-glib-1 >= 0.76)
-AC_SUBST(DBUS_LIBS)
-AC_SUBST(DBUS_CFLAGS)
-
-DBUS_GLIB_BIN="`$PKG_CONFIG --variable=exec_prefix dbus-glib-1`/bin"
-AC_SUBST(DBUS_GLIB_BIN)
 
 #
 # libwnck
@@ -120,6 +110,18 @@ AC_SUBST(LIBUNITY_WEBAPPS_CFLAGS)
 AC_SUBST(LIBUNITY_WEBAPPS_LIBS)
 
 ###########################
+# gtester2xunit checks    #
+###########################
+
+AC_PATH_PROG([PYTHON],[python])
+AC_MSG_CHECKING(for gtester2xunit dependencies)
+if !($PYTHON -c "import libxslt, libxml2" 2> /dev/null); then
+  AC_MSG_RESULT([no])
+  AC_MSG_ERROR([You need to install python-libxslt1 and python-libxml2]);
+fi
+AC_MSG_RESULT([yes])
+
+###########################
 # Headless tests
 ###########################
 AC_ARG_ENABLE([headless-tests],
@@ -165,6 +167,7 @@ AC_SUBST(giomodulesdir)
 
 AC_OUTPUT([
 Makefile
+lib/libbamf-private/Makefile
 lib/libbamf/Makefile
 lib/libbamf/libbamf3.pc
 src/Makefile

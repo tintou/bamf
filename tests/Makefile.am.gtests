@@ -37,7 +37,7 @@ endif
 
 test:
 	@gtester -k --verbose -o=$(TEST_BINARY)-results.xml ./$(TEST_BINARY); \
-	$(GTESTER2XUNIT_RUN) --xsl $(abs_top_srcdir)/tests/gtester.xsl $(TEST_BINARY)-results.xml
+	$(GTESTER2XUNIT_RUN) -x $(abs_top_srcdir)/tests/gtester.xsl $(TEST_BINARY)-results.xml
 
 .PHONY: check-report full-report
 check-report: $(TEST_BINARY)

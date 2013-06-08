@@ -2223,8 +2223,7 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
 {
   gpointer key;
   BamfLegacyScreen *screen;
-  GList *glist_item;
-  GList *windows;
+  GList *windows, *l;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (desktopFile);
@@ -2240,10 +2239,9 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
 
   windows = bamf_legacy_screen_get_windows (screen);
 
-  for (glist_item = windows; glist_item != NULL;
-       glist_item = glist_item->next)
+  for (l = windows; l; l = l->next)
     {
-      ensure_window_hint_set (self, glist_item->data);
+      ensure_window_hint_set (self, l->data);
     }
 }
 
@@ -2608,11 +2606,30 @@ bamf_matcher_running_applications_desktop_files (BamfMatcher *matcher)
 GVariant *
 bamf_matcher_tab_dbus_paths (BamfMatcher *matcher)
 {
+  GList *l;
+  BamfView *view;
+  BamfMatcherPrivate *priv;
   GVariantBuilder b;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
 
   g_variant_builder_init (&b, G_VARIANT_TYPE ("(as)"));
   g_variant_builder_open (&b, G_VARIANT_TYPE ("as"));
+
+  priv = matcher->priv;
+
+  for (l = priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_TAB (view))
+        continue;
+
+      g_variant_builder_add (&b, "s", bamf_view_get_path (view));
+    }
+
   g_variant_builder_close (&b);
+
   return g_variant_builder_end (&b);
 }
 
