@@ -291,7 +291,7 @@ bamf_application_get_windows (BamfApplication *application)
     {
       view = l->data;
 
-      if (BAMF_IS_WINDOW (view));
+      if (BAMF_IS_WINDOW (view))
         {
           windows = g_list_prepend (windows, view);
         }
