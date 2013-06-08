@@ -22,10 +22,16 @@ test-headless:
 	$(DBUS_LAUNCH) > $(LOG_PATH)/sessionbus.sh; \
 	source $(LOG_PATH)/sessionbus.sh; \
 	\
-	make test;
-# END HEADLESS TESTS
-else
+	make $(AM_MAKEFLAGS) -k test;
+	\
+	source $(LOG_PATH)/sessionbus.sh; \
+	rm $(LOG_PATH)/sessionbus.sh; \
+	kill $$DBUS_SESSION_BUS_PID;
+
+else # END HEADLESS TESTS
+
 check-local: test
+
 endif
 
 
