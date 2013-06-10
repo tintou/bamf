@@ -145,7 +145,7 @@ bamf_factory_register_view (BamfFactory *self, BamfView *view, const char *path)
   if (g_list_find (self->priv->registered_views, view))
     return;
 
-  g_signal_connect (G_OBJECT (view), "closed", (GCallback) on_view_closed, self);
+  g_signal_connect_after (G_OBJECT (view), "closed", (GCallback) on_view_closed, self);
   g_object_weak_ref (G_OBJECT (view), (GWeakNotify) on_view_weak_unref, self);
 
   self->priv->registered_views = g_list_prepend (self->priv->registered_views, view);
