@@ -410,9 +410,9 @@ bamf_application_on_window_added (BamfDBusItemApplication *proxy, const char *pa
       guint32 xid = bamf_window_get_xid (BAMF_WINDOW (view));
 
       if (!g_list_find (self->priv->cached_xids, GUINT_TO_POINTER (xid)))
-      {
-        self->priv->cached_xids = g_list_prepend (self->priv->cached_xids, GUINT_TO_POINTER (xid));
-      }
+        {
+          self->priv->cached_xids = g_list_prepend (self->priv->cached_xids, GUINT_TO_POINTER (xid));
+        }
 
       g_signal_emit (G_OBJECT (self), application_signals[WINDOW_ADDED], 0, view);
     }
