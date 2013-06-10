@@ -293,9 +293,9 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
 
   if (BAMF_IS_APPLICATION (view))
     {
-      /* handle case where a favorite exists and this matches it */
+      /* handle case where another living view exists and the new one matches it */
       const char *local_desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
-      GList *local_children = bamf_view_get_children (view);
+      GList *local_children = _bamf_application_get_cached_xids (BAMF_APPLICATION (view));
 
       for (l = factory->priv->local_views; l; l = l->next)
         {
@@ -323,21 +323,16 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
 
               for (ll = local_children; ll; ll = ll->next)
                 {
-                  if (!BAMF_IS_WINDOW (ll->data))
-                    continue;
-
-                  guint32 local_xid = bamf_window_get_xid (BAMF_WINDOW (ll->data));
-
-                  if (g_list_find (list_children, GUINT_TO_POINTER (local_xid)))
+                  if (g_list_find (list_children, ll->data))
                     {
+                      /* Not stopping the parent loop here is intended, as we
+                       * can still find a better result in next iterations */
                       matched_view = list_view;
                       break;
                     }
                 }
             }
         }
-
-      g_list_free (local_children);
     }
   else if (BAMF_IS_WINDOW (view))
     {
