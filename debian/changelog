@@ -1,3 +1,10 @@
+bamf (0.4.0daily13.06.07-0ubuntu2) UNRELEASED; urgency=low
+
+  * Have libbamf3-dev depend on gir1.2-bamf-3
+  * Drop explicit build-depends on gir1.2-glib-2.0 
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Mon, 10 Jun 2013 14:28:12 -0400
+
 bamf (0.4.0daily13.06.07-0ubuntu1) saucy; urgency=low
 
   [ Brandon Schaefer ]
