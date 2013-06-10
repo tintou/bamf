@@ -313,7 +313,7 @@ bamf_view_set_sticky (BamfView *view, gboolean sticky)
     }
 
   if (BAMF_VIEW_GET_CLASS (view)->set_sticky)
-    return BAMF_VIEW_GET_CLASS (view)->set_sticky (view, value);
+    return BAMF_VIEW_GET_CLASS (view)->set_sticky (view, sticky);
 }
 
 /**
@@ -389,10 +389,10 @@ bamf_view_get_name (BamfView *self)
 }
 
 gboolean
-_bamf_view_remote_ready (BamfView *view)
+_bamf_view_remote_ready (BamfView *self)
 {
-  if (BAMF_IS_VIEW (view) && G_IS_DBUS_PROXY (view->priv->proxy))
-    return !view->priv->is_closed;
+  if (BAMF_IS_VIEW (self) && G_IS_DBUS_PROXY (self->priv->proxy))
+    return !self->priv->is_closed;
 
   return FALSE;
 }
@@ -554,12 +554,12 @@ _bamf_view_get_cancellable (BamfView *view)
 }
 
 void
-_bamf_view_set_closed (BamfView *view, gboolean closed)
+_bamf_view_set_closed (BamfView *self, gboolean closed)
 {
   BamfViewPrivate *priv;
-  g_return_if_fail (BAMF_IS_VIEW (view));
+  g_return_if_fail (BAMF_IS_VIEW (self));
 
-  priv = view->priv;
+  priv = self->priv;
 
   if (priv->is_closed != closed)
     {
