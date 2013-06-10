@@ -291,7 +291,7 @@ bamf_application_get_windows (BamfApplication *application)
     {
       view = l->data;
 
-      if (BAMF_IS_WINDOW (view));
+      if (BAMF_IS_WINDOW (view))
         {
           windows = g_list_prepend (windows, view);
         }
@@ -640,6 +640,11 @@ bamf_application_load_data_from_file (BamfApplication *self, GKeyFile * keyfile)
   g_return_if_fail (G_IS_DESKTOP_APP_INFO (desktop_info));
 
   name = g_strdup (g_app_info_get_name (G_APP_INFO (desktop_info)));
+
+/* GLib doesn't provide this by default */
+#ifndef G_KEY_FILE_DESKTOP_KEY_FULLNAME
+#define G_KEY_FILE_DESKTOP_KEY_FULLNAME "X-GNOME-FullName"
+#endif
 
   /* Grab the better name if its available */
   fullname = g_key_file_get_locale_string (keyfile, G_KEY_FILE_DESKTOP_GROUP,

@@ -23,6 +23,7 @@
 #include "bamf-matcher.h"
 #include "bamf-matcher-private.h"
 #include "bamf-application.h"
+#include "bamf-tab.h"
 #include "bamf-window.h"
 #include "bamf-legacy-screen.h"
 
