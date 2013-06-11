@@ -60,7 +60,7 @@ enum
   URGENT_CHANGED,
   VISIBLE_CHANGED,
   NAME_CHANGED,
-  LAST_SIGNAL,
+  LAST_SIGNAL
 };
 
 enum
@@ -72,9 +72,11 @@ enum
   PROP_ACTIVE,
   PROP_USER_VISIBLE,
   PROP_URGENT,
+  PROP_LAST
 };
 
 static guint view_signals[LAST_SIGNAL] = { 0 };
+static GParamSpec *properties[PROP_LAST] = { 0 };
 
 struct _BamfViewPrivate
 {
@@ -294,22 +296,26 @@ bamf_view_is_sticky (BamfView *view)
 }
 
 void
-bamf_view_set_sticky (BamfView *view, gboolean value)
+bamf_view_set_sticky (BamfView *view, gboolean sticky)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
 
-  if (value == view->priv->sticky)
+  if (view->priv->sticky == sticky)
     return;
 
-  view->priv->sticky = value;
+  view->priv->sticky = sticky;
 
-  if (value)
-    g_object_ref_sink (view);
+  if (sticky)
+    {
+      g_object_ref_sink (view);
+    }
   else
-    g_object_unref (view);
+    {
+      g_object_unref (view);
+    }
 
   if (BAMF_VIEW_GET_CLASS (view)->set_sticky)
-    return BAMF_VIEW_GET_CLASS (view)->set_sticky (view, value);
+    return BAMF_VIEW_GET_CLASS (view)->set_sticky (view, sticky);
 }
 
 /**
@@ -385,10 +391,10 @@ bamf_view_get_name (BamfView *self)
 }
 
 gboolean
-_bamf_view_remote_ready (BamfView *view)
+_bamf_view_remote_ready (BamfView *self)
 {
-  if (BAMF_IS_VIEW (view) && G_IS_DBUS_PROXY (view->priv->proxy))
-    return !view->priv->is_closed;
+  if (BAMF_IS_VIEW (self) && G_IS_DBUS_PROXY (self->priv->proxy))
+    return !self->priv->is_closed;
 
   return FALSE;
 }
@@ -504,7 +510,7 @@ bamf_view_on_active_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfVie
 {
   gboolean active = _bamf_dbus_item_view_get_active (proxy);
   g_signal_emit (G_OBJECT (self), view_signals[ACTIVE_CHANGED], 0, active);
-  g_object_notify (G_OBJECT (self), "active");
+  g_object_notify_by_pspec (G_OBJECT (self), properties[PROP_ACTIVE]);
 }
 
 static void
@@ -522,7 +528,7 @@ bamf_view_on_running_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfVi
 {
   gboolean running = _bamf_dbus_item_view_get_running (proxy);
   g_signal_emit (G_OBJECT (self), view_signals[RUNNING_CHANGED], 0, running);
-  g_object_notify (G_OBJECT (self), "running");
+  g_object_notify_by_pspec (G_OBJECT (self), properties[PROP_RUNNING]);
 }
 
 static void
@@ -530,7 +536,7 @@ bamf_view_on_urgent_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfVie
 {
   gboolean urgent = _bamf_dbus_item_view_get_urgent (proxy);
   g_signal_emit (G_OBJECT (self), view_signals[URGENT_CHANGED], 0, urgent);
-  g_object_notify (G_OBJECT (self), "urgent");
+  g_object_notify_by_pspec (G_OBJECT (self), properties[PROP_URGENT]);
 }
 
 static void
@@ -538,7 +544,7 @@ bamf_view_on_user_visible_changed (BamfDBusItemView *proxy, GParamSpec *param, B
 {
   gboolean user_visible = _bamf_dbus_item_view_get_user_visible (proxy);
   g_signal_emit (G_OBJECT (self), view_signals[VISIBLE_CHANGED], 0, user_visible);
-  g_object_notify (G_OBJECT (self), "user-visible");
+  g_object_notify_by_pspec (G_OBJECT (self), properties[PROP_USER_VISIBLE]);
 }
 
 GCancellable *
@@ -550,12 +556,12 @@ _bamf_view_get_cancellable (BamfView *view)
 }
 
 void
-_bamf_view_set_closed (BamfView *view, gboolean closed)
+_bamf_view_set_closed (BamfView *self, gboolean closed)
 {
   BamfViewPrivate *priv;
-  g_return_if_fail (BAMF_IS_VIEW (view));
+  g_return_if_fail (BAMF_IS_VIEW (self));
 
-  priv = view->priv;
+  priv = self->priv;
 
   if (priv->is_closed != closed)
     {
@@ -578,10 +584,7 @@ static void
 bamf_view_on_closed (BamfDBusItemView *proxy, BamfView *self)
 {
   _bamf_view_set_closed (self, TRUE);
-
-  g_object_ref (self);
   g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
-  g_object_unref (self);
 }
 
 static void
@@ -714,19 +717,19 @@ _bamf_view_reset_flags (BamfView *view)
 
   user_visible = bamf_view_is_user_visible (view);
   g_signal_emit (G_OBJECT (view), view_signals[VISIBLE_CHANGED], 0, user_visible);
-  g_object_notify (G_OBJECT (view), "user-visible");
+  g_object_notify_by_pspec (G_OBJECT (view), properties[PROP_USER_VISIBLE]);
 
   active = bamf_view_is_active (view);
   g_signal_emit (G_OBJECT (view), view_signals[ACTIVE_CHANGED], 0, active);
-  g_object_notify (G_OBJECT (view), "active");
+  g_object_notify_by_pspec (G_OBJECT (view), properties[PROP_ACTIVE]);
 
   running = bamf_view_is_running (view);
   g_signal_emit (G_OBJECT (view), view_signals[RUNNING_CHANGED], 0, running);
-  g_object_notify (G_OBJECT (view), "running");
+  g_object_notify_by_pspec (G_OBJECT (view), properties[PROP_RUNNING]);
 
   urgent = bamf_view_is_urgent (view);
   g_signal_emit (G_OBJECT (view), view_signals[URGENT_CHANGED], 0, urgent);
-  g_object_notify (G_OBJECT (view), "urgent");
+  g_object_notify_by_pspec (G_OBJECT (view), properties[PROP_URGENT]);
 }
 
 void
@@ -763,6 +766,7 @@ _bamf_view_set_path (BamfView *view, const char *path)
 
   g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (priv->proxy), BAMF_DBUS_DEFAULT_TIMEOUT);
   _bamf_view_reset_flags (view);
+  g_object_notify_by_pspec (G_OBJECT (view), properties[PROP_PATH]);
 
   g_signal_connect (priv->proxy, "notify::active",
                     G_CALLBACK (bamf_view_on_active_changed), view);
@@ -795,27 +799,26 @@ _bamf_view_set_path (BamfView *view, const char *path)
 static void
 bamf_view_class_init (BamfViewClass *klass)
 {
-  GParamSpec *pspec;
   GObjectClass *obj_class = G_OBJECT_CLASS (klass);
 
   obj_class->dispose      = bamf_view_dispose;
   obj_class->get_property = bamf_view_get_property;
   obj_class->set_property = bamf_view_set_property;
 
-  pspec = g_param_spec_string ("path", "path", "path", NULL, G_PARAM_READABLE);
-  g_object_class_install_property (obj_class, PROP_PATH, pspec);
+  properties[PROP_PATH] = g_param_spec_string ("path", "path", "path", NULL, G_PARAM_READABLE);
+  g_object_class_install_property (obj_class, PROP_PATH, properties[PROP_PATH]);
 
-  pspec = g_param_spec_boolean ("active", "active", "active", FALSE, G_PARAM_READABLE);
-  g_object_class_install_property (obj_class, PROP_ACTIVE, pspec);
+  properties[PROP_ACTIVE] = g_param_spec_boolean ("active", "active", "active", FALSE, G_PARAM_READABLE);
+  g_object_class_install_property (obj_class, PROP_ACTIVE, properties[PROP_ACTIVE]);
 
-  pspec = g_param_spec_boolean ("urgent", "urgent", "urgent", FALSE, G_PARAM_READABLE);
-  g_object_class_install_property (obj_class, PROP_URGENT, pspec);
+  properties[PROP_URGENT] = g_param_spec_boolean ("urgent", "urgent", "urgent", FALSE, G_PARAM_READABLE);
+  g_object_class_install_property (obj_class, PROP_URGENT, properties[PROP_URGENT]);
 
-  pspec = g_param_spec_boolean ("running", "running", "running", FALSE, G_PARAM_READABLE);
-  g_object_class_install_property (obj_class, PROP_RUNNING, pspec);
+  properties[PROP_RUNNING] = g_param_spec_boolean ("running", "running", "running", FALSE, G_PARAM_READABLE);
+  g_object_class_install_property (obj_class, PROP_RUNNING, properties[PROP_RUNNING]);
 
-  pspec = g_param_spec_boolean ("user-visible", "user-visible", "user-visible", FALSE, G_PARAM_READABLE);
-  g_object_class_install_property (obj_class, PROP_USER_VISIBLE, pspec);
+  properties[PROP_USER_VISIBLE] = g_param_spec_boolean ("user-visible", "user-visible", "user-visible", FALSE, G_PARAM_READABLE);
+  g_object_class_install_property (obj_class, PROP_USER_VISIBLE, properties[PROP_USER_VISIBLE]);
 
   g_type_class_add_private (obj_class, sizeof (BamfViewPrivate));
 

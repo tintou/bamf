@@ -47,7 +47,7 @@ G_DEFINE_TYPE (BamfFactory, bamf_factory, G_TYPE_OBJECT);
 
 struct _BamfFactoryPrivate
 {
-  GHashTable *views;
+  GHashTable *open_views;
   GList *local_views;
   GList *registered_views;
 };
@@ -59,10 +59,10 @@ bamf_factory_dispose (GObject *object)
 {
   BamfFactory *self = (BamfFactory *) object;
 
-  if (self->priv->views)
+  if (self->priv->open_views)
     {
-      g_hash_table_destroy (self->priv->views);
-      self->priv->views = NULL;
+      g_hash_table_destroy (self->priv->open_views);
+      self->priv->open_views = NULL;
     }
 
   if (self->priv->registered_views)
@@ -107,7 +107,7 @@ bamf_factory_init (BamfFactory *self)
 
   priv = self->priv = BAMF_FACTORY_GET_PRIVATE (self);
 
-  priv->views = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  priv->open_views = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 }
 
 static void
@@ -120,7 +120,7 @@ on_view_closed (BamfView *view, BamfFactory *self)
   path = _bamf_view_get_path (view);
 
   if (path)
-    g_hash_table_remove (self->priv->views, path);
+    g_hash_table_remove (self->priv->open_views, path);
 
   g_object_unref (view);
 }
@@ -128,24 +128,34 @@ on_view_closed (BamfView *view, BamfFactory *self)
 static void
 on_view_weak_unref (BamfFactory *self, BamfView *view)
 {
+  GHashTableIter iter;
+  gpointer key, value;
+
   g_return_if_fail (BAMF_IS_FACTORY (self));
 
   self->priv->local_views = g_list_remove (self->priv->local_views, view);
   self->priv->registered_views = g_list_remove (self->priv->registered_views, view);
+
+  g_hash_table_iter_init (&iter, self->priv->open_views);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      if (value == view)
+        {
+          g_hash_table_iter_remove (&iter);
+          break;
+        }
+    }
 }
 
 static void
 bamf_factory_register_view (BamfFactory *self, BamfView *view, const char *path)
 {
-  GHashTable *views;
-  views = self->priv->views;
-
-  g_hash_table_insert (views, g_strdup (path), view);
+  g_hash_table_insert (self->priv->open_views, g_strdup (path), view);
 
   if (g_list_find (self->priv->registered_views, view))
     return;
 
-  g_signal_connect (G_OBJECT (view), "closed", (GCallback) on_view_closed, self);
+  g_signal_connect_after (G_OBJECT (view), "closed", (GCallback) on_view_closed, self);
   g_object_weak_ref (G_OBJECT (view), (GWeakNotify) on_view_weak_unref, self);
 
   self->priv->registered_views = g_list_prepend (self->priv->registered_views, view);
@@ -246,7 +256,7 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
   if (!path || path[0] == '\0')
     return NULL;
 
-  views = factory->priv->views;
+  views = factory->priv->open_views;
   view = g_hash_table_lookup (views, path);
 
   if (BAMF_IS_VIEW (view))
@@ -270,32 +280,32 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
     }
 
   switch (type)
-  {
-    case BAMF_FACTORY_VIEW:
-      view = g_object_new (BAMF_TYPE_VIEW, NULL);
-      break;
-    case BAMF_FACTORY_WINDOW:
-      view = BAMF_VIEW (bamf_window_new (path));
-      break;
-    case BAMF_FACTORY_APPLICATION:
-      view = BAMF_VIEW (bamf_application_new (path));
-      break;
-    case BAMF_FACTORY_TAB:
-      view = BAMF_VIEW (bamf_tab_new (path));
-      break;
-    case BAMF_FACTORY_NONE:
-      view = NULL;
-      break;
-  }
+    {
+      case BAMF_FACTORY_VIEW:
+        view = g_object_new (BAMF_TYPE_VIEW, NULL);
+        break;
+      case BAMF_FACTORY_WINDOW:
+        view = BAMF_VIEW (bamf_window_new (path));
+        break;
+      case BAMF_FACTORY_APPLICATION:
+        view = BAMF_VIEW (bamf_application_new (path));
+        break;
+      case BAMF_FACTORY_TAB:
+        view = BAMF_VIEW (bamf_tab_new (path));
+        break;
+      case BAMF_FACTORY_NONE:
+        view = NULL;
+        break;
+    }
 
   created = TRUE;
   BamfView *matched_view = NULL;
 
   if (BAMF_IS_APPLICATION (view))
     {
-      /* handle case where a favorite exists and this matches it */
+      /* handle case where another living view exists and the new one matches it */
       const char *local_desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
-      GList *local_children = bamf_view_get_children (view);
+      GList *local_children = _bamf_application_get_cached_xids (BAMF_APPLICATION (view));
 
       for (l = factory->priv->local_views; l; l = l->next)
         {
@@ -323,21 +333,16 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
 
               for (ll = local_children; ll; ll = ll->next)
                 {
-                  if (!BAMF_IS_WINDOW (ll->data))
-                    continue;
-
-                  guint32 local_xid = bamf_window_get_xid (BAMF_WINDOW (ll->data));
-
-                  if (g_list_find (list_children, GUINT_TO_POINTER (local_xid)))
+                  if (g_list_find (list_children, ll->data))
                     {
+                      /* Not stopping the parent loop here is intended, as we
+                       * can still find a better result in next iterations */
                       matched_view = list_view;
                       break;
                     }
                 }
             }
         }
-
-      g_list_free (local_children);
     }
   else if (BAMF_IS_WINDOW (view))
     {
