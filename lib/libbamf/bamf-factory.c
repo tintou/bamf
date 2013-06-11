@@ -249,7 +249,6 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
   BamfView *view;
   BamfDBusItemView *vproxy;
   GList *l;
-  gboolean created = FALSE;
 
   g_return_val_if_fail (BAMF_IS_FACTORY (factory), NULL);
 
@@ -298,16 +297,17 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
         break;
     }
 
-  created = TRUE;
+  gboolean created = TRUE;
   BamfView *matched_view = NULL;
 
   if (BAMF_IS_APPLICATION (view))
     {
-      /* handle case where another living view exists and the new one matches it */
+      /* handle case where another allocated view exists and the new one matches it */
       const char *local_desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
       GList *local_children = _bamf_application_get_cached_xids (BAMF_APPLICATION (view));
+      char *local_name = bamf_view_get_name (view);
 
-      for (l = factory->priv->local_views; l; l = l->next)
+      for (l = factory->priv->registered_views; l; l = l->next)
         {
           if (!BAMF_IS_APPLICATION (l->data))
             continue;
@@ -326,7 +326,7 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
 
           /* If the primary search doesn't give out any result, we fallback
            * to children window comparison */
-          if (!list_desktop_file && !matched_view)
+          if (!list_desktop_file)
             {
               GList *list_children, *ll;
               list_children = _bamf_application_get_cached_xids (list_app);
@@ -341,14 +341,27 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
                       break;
                     }
                 }
+
+              if (!matched_view && local_name && local_name[0] != '\0')
+                {
+                  char *list_name = bamf_view_get_name (list_view);
+                  if (g_strcmp0 (local_name, list_name) == 0)
+                    {
+                      matched_view = list_view;
+                    }
+
+                  g_free (list_name);
+                }
             }
         }
+
+      g_free (local_name);
     }
   else if (BAMF_IS_WINDOW (view))
     {
       guint32 local_xid = bamf_window_get_xid (BAMF_WINDOW (view));
 
-      for (l = factory->priv->local_views; l; l = l->next)
+      for (l = factory->priv->registered_views; l; l = l->next)
         {
           if (!BAMF_IS_WINDOW (l->data))
             continue;
