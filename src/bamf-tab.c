@@ -13,13 +13,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Authored by: 
+ * Authored by:
  *              Robert Carr <racarr@canonical.com>
  *
  */
 
 #include "bamf-tab.h"
-#include "bamf-gdbus-view-generated.h"
 
 #define BAMF_TAB_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_TAB, BamfTabPrivate))
@@ -47,6 +46,12 @@ static const gchar *
 bamf_tab_get_view_type (BamfView *view)
 {
   return "tab";
+}
+
+static char *
+bamf_tab_get_stable_bus_name (BamfView *view)
+{
+  return g_strdup_printf ("tab%u", GPOINTER_TO_UINT (view));
 }
 
 static void
@@ -85,16 +90,16 @@ bamf_tab_set_property (GObject *object, guint property_id, const GValue *value, 
   switch (property_id)
     {
     case PROP_LOCATION:
-      bamf_dbus_item_tab_set_location (self->priv->dbus_iface, g_value_get_string (value));
+      _bamf_dbus_item_tab_set_location (self->priv->dbus_iface, g_value_get_string (value));
       break;
     case PROP_DESKTOP_ID:
-      bamf_dbus_item_tab_set_desktop_id (self->priv->dbus_iface, g_value_get_string (value));
+      _bamf_dbus_item_tab_set_desktop_id (self->priv->dbus_iface, g_value_get_string (value));
       break;
     case PROP_XID:
-      bamf_dbus_item_tab_set_xid (self->priv->dbus_iface, g_value_get_uint64 (value));
+      _bamf_dbus_item_tab_set_xid (self->priv->dbus_iface, g_value_get_uint64 (value));
       break;
     case PROP_IS_FOREGROUND_TAB:
-      bamf_dbus_item_tab_set_is_foreground_tab (self->priv->dbus_iface, g_value_get_boolean (value));
+      _bamf_dbus_item_tab_set_is_foreground_tab (self->priv->dbus_iface, g_value_get_boolean (value));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -163,7 +168,7 @@ bamf_tab_init (BamfTab *self)
 {
   self->priv = BAMF_TAB_GET_PRIVATE (self);
   
-  self->priv->dbus_iface = bamf_dbus_item_tab_skeleton_new ();
+  self->priv->dbus_iface = _bamf_dbus_item_tab_skeleton_new ();
   
   g_signal_connect (self->priv->dbus_iface, "handle-raise",
                     G_CALLBACK (on_dbus_handle_raise), self);
@@ -171,9 +176,9 @@ bamf_tab_init (BamfTab *self)
                     G_CALLBACK (on_dbus_handle_close), self);
   g_signal_connect (self->priv->dbus_iface, "handle-request-preview",
                     G_CALLBACK (on_dbus_handle_request_preview), self);
-  
-  bamf_dbus_item_object_skeleton_set_tab (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
-                                          self->priv->dbus_iface);
+
+  _bamf_dbus_item_object_skeleton_set_tab (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
+                                           self->priv->dbus_iface);
 }
 
 
@@ -187,17 +192,18 @@ bamf_tab_class_init (BamfTabClass * klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   BamfViewClass *view_class = BAMF_VIEW_CLASS (klass);
-  
+
   object_class->get_property = bamf_tab_get_property;
   object_class->set_property = bamf_tab_set_property;
   object_class->finalize = bamf_tab_finalize;
   view_class->view_type = bamf_tab_get_view_type;
-  
+  view_class->stable_bus_name = bamf_tab_get_stable_bus_name;
+
   g_object_class_override_property (object_class, PROP_LOCATION, "location");
   g_object_class_override_property (object_class, PROP_DESKTOP_ID, "desktop-id");
   g_object_class_override_property (object_class, PROP_XID, "xid");
   g_object_class_override_property (object_class, PROP_IS_FOREGROUND_TAB, "is-foreground-tab");
-  
+
   g_type_class_add_private (klass, sizeof (BamfTabPrivate));
 }
 
@@ -207,7 +213,7 @@ bamf_tab_get_location (BamfTab *self)
 {
   g_return_val_if_fail (BAMF_IS_TAB (self), NULL);
 
-  return bamf_dbus_item_tab_get_location (self->priv->dbus_iface);
+  return _bamf_dbus_item_tab_get_location (self->priv->dbus_iface);
 }
 
 const gchar *
@@ -215,7 +221,7 @@ bamf_tab_get_desktop_id (BamfTab *self)
 {
   g_return_val_if_fail (BAMF_IS_TAB (self), NULL);
   
-  return bamf_dbus_item_tab_get_desktop_id (self->priv->dbus_iface);
+  return _bamf_dbus_item_tab_get_desktop_id (self->priv->dbus_iface);
 }
 
 guint64
@@ -223,7 +229,7 @@ bamf_tab_get_xid (BamfTab *self)
 {
   g_return_val_if_fail (BAMF_IS_TAB (self), 0);
   
-  return bamf_dbus_item_tab_get_xid (self->priv->dbus_iface);
+  return _bamf_dbus_item_tab_get_xid (self->priv->dbus_iface);
 }
 
 gboolean
@@ -231,7 +237,7 @@ bamf_tab_get_is_foreground_tab (BamfTab *self)
 {
   g_return_val_if_fail (BAMF_IS_TAB (self), 0);
   
-  return bamf_dbus_item_tab_get_is_foreground_tab (self->priv->dbus_iface);
+  return _bamf_dbus_item_tab_get_is_foreground_tab (self->priv->dbus_iface);
 }
 
 void

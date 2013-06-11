@@ -23,7 +23,6 @@
 
 #include "config.h"
 
-#include "bamf.h"
 #include "bamf-view.h"
 #include <sys/types.h>
 #include <glib.h>

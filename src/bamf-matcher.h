@@ -22,7 +22,6 @@
 #ifndef __BAMFMATCHER_H__
 #define __BAMFMATCHER_H__
 
-#include "bamf.h"
 #include "bamf-view.h"
 #include <stdio.h>
 #include <stdlib.h>

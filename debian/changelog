@@ -1,26 +1,22 @@
-bamf (0.4.0daily13.06.07-0ubuntu1) saucy; urgency=low
+bamf (0.5.0) UNRELEASED; urgency=low
 
-  [ Brandon Schaefer ]
-  * libbamf: BamfApplication: cache MimeTypes and ApplicationType on
-    favorite and sticky apps. (LP: #1183978, #1183871)
-
-  [ Mathieu Trudel-Lapierre ]
-  * Fix test-libbamf to properly call gtester2xunit.
-
-  [ Timo Jyrinki ]
-  * libbamf: BamfApplication: cache MimeTypes and ApplicationType on
-    favorite and sticky apps. (LP: #1183978, #1183871)
-
-  [ Marco Trevisan (Treviño) ]
-  * libbamf: BamfApplication: cache MimeTypes and ApplicationType on
-    favorite and sticky apps. (LP: #1183978, #1183871)
+  * New upstream release, bumping debian version to 0.5.0
   * LibBamfPrivate: add new private library to share code between client
     and daemon.
   * libbamf, BamfView: Use dbus-properties (both values and signals) It
     allows to have correct values and signals when they get updated.
     Deprecating related dbus methods/signals.
+  * debian/control:
+      - don't build-depend anymore on libdbus-glib-1-dev
 
-  [ Automatic PS uploader ]
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 05 Jun 2013 14:00:27 +0200
+
+bamf (0.4.0daily13.06.07-0ubuntu1) saucy; urgency=low
+
+  [ Mathieu Trudel-Lapierre ]
+  * Fix test-libbamf to properly call gtester2xunit.
+
+  [ Marco Trevisan (Treviño) ]
   * libbamf: BamfApplication: cache MimeTypes and ApplicationType on
     favorite and sticky apps. (LP: #1183978, #1183871)
 

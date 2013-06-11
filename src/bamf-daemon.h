@@ -20,7 +20,6 @@
 #ifndef __BAMFDAEMON_H__
 #define __BAMFDAEMON_H__
 
-#include "bamf.h"
 #include <glib.h>
 #include <glib-object.h>
 

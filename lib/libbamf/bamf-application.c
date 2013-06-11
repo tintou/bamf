@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Canonical Ltd.
+ * Copyright 2010-2012 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -21,6 +21,7 @@
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
  *              Neil Jagdish Patel <neil.patel@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 /**
@@ -34,6 +35,7 @@
 #include <config.h>
 #endif
 
+#include <libbamf-private/bamf-private.h>
 #include "bamf-application.h"
 #include "bamf-window.h"
 #include "bamf-factory.h"
@@ -41,9 +43,6 @@
 #include "bamf-view-private.h"
 
 #include <gio/gdesktopappinfo.h>
-#include <dbus/dbus.h>
-#include <dbus/dbus-glib.h>
-#include <dbus/dbus-glib-lowlevel.h>
 #include <string.h>
 
 G_DEFINE_TYPE (BamfApplication, bamf_application, BAMF_TYPE_VIEW);
@@ -63,13 +62,12 @@ static guint application_signals[LAST_SIGNAL] = { 0 };
 
 struct _BamfApplicationPrivate
 {
-  DBusGConnection *connection;
-  DBusGProxy      *proxy;
-  gchar           *application_type;
-  gchar           *desktop_file;
-  GList           *cached_xids;
-  gchar           **cached_mimes;
-  int             show_stubs;
+  BamfDBusItemApplication *proxy;
+  gchar                   *application_type;
+  gchar                   *desktop_file;
+  GList                   *cached_xids;
+  gchar                  **cached_mimes;
+  int                      show_stubs;
 };
 
 /**
@@ -81,31 +79,29 @@ struct _BamfApplicationPrivate
 gchar **
 bamf_application_get_supported_mime_types (BamfApplication *application)
 {
+  BamfApplicationPrivate *priv;
   GError *error = NULL;
-  gchar **mimes = NULL;
 
-  if (application->priv->cached_mimes)
-    return g_strdupv (application->priv->cached_mimes);
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
+  priv = application->priv;
+
+  if (priv->cached_mimes)
+    return g_strdupv (priv->cached_mimes);
 
   if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return NULL;
 
-  if (!dbus_g_proxy_call (application->priv->proxy,
-                          "SupportedMimeTypes",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRV, &mimes,
-                          G_TYPE_INVALID))
+  if (!_bamf_dbus_item_application_call_supported_mime_types_sync (priv->proxy,
+                                                                   &priv->cached_mimes,
+                                                                   CANCELLABLE (application),
+                                                                   &error))
     {
-      g_warning ("Failed to fetch mimes: %s", error->message);
+      priv->cached_mimes = NULL;
+      g_warning ("Failed to fetch mimes: %s", error ? error->message : "");
       g_error_free (error);
-
-      return NULL;
     }
 
-  application->priv->cached_mimes = g_strdupv (mimes);
-
-  return mimes;
+  return g_strdupv (priv->cached_mimes);
 }
 
 /**
@@ -133,14 +129,11 @@ bamf_application_get_desktop_file (BamfApplication *application)
   if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return NULL;
 
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "DesktopFile",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &file,
-                          G_TYPE_INVALID))
+  if (!_bamf_dbus_item_application_call_desktop_file_sync (priv->proxy, &file,
+                                                           CANCELLABLE (application),
+                                                           &error))
     {
-      g_warning ("Failed to fetch path: %s", error->message);
+      g_warning ("Failed to fetch path: %s", error ? error->message : "");
       g_error_free (error);
 
       return NULL;
@@ -158,30 +151,31 @@ bamf_application_get_desktop_file (BamfApplication *application)
 
 gboolean
 bamf_application_get_application_menu (BamfApplication *application,
-                                      gchar **name,
-                                      gchar **object_path)
+                                       gchar **name,
+                                       gchar **object_path)
 {
   BamfApplicationPrivate *priv;
   GError *error = NULL;
-  
+
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
-  
+  g_return_val_if_fail (name != NULL && object_path != NULL, FALSE);
+
   priv = application->priv;
-  
+
   if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return FALSE;
 
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "ApplicationMenu",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, name,
-                         G_TYPE_STRING, object_path,
-                          G_TYPE_INVALID))
+  if (!_bamf_dbus_item_application_call_application_menu_sync (priv->proxy, name,
+                                                               object_path,
+                                                               CANCELLABLE (application),
+                                                               &error))
     {
-      g_warning ("Failed to fetch application menu path: %s", error->message);
+      *name = NULL;
+      *object_path = NULL;
+
+      g_warning ("Failed to fetch application menu path: %s", error ? error->message : "");
       g_error_free (error);
-      
+
       return FALSE;
     }
 
@@ -214,14 +208,11 @@ bamf_application_get_application_type (BamfApplication *application)
   if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return NULL;
 
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "ApplicationType",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &type,
-                          G_TYPE_INVALID))
+  if (!_bamf_dbus_item_application_call_application_type_sync (priv->proxy, &type,
+                                                               CANCELLABLE (application),
+                                                               &error))
     {
-      g_warning ("Failed to fetch path: %s", error->message);
+      g_warning ("Failed to fetch path: %s", error ? error->message : "");
       g_error_free (error);
 
       return NULL;
@@ -243,7 +234,10 @@ GArray *
 bamf_application_get_xids (BamfApplication *application)
 {
   BamfApplicationPrivate *priv;
+  GVariantIter *iter;
+  GVariant *xids_variant;
   GArray *xids;
+  guint32 xid;
   GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
@@ -252,18 +246,29 @@ bamf_application_get_xids (BamfApplication *application)
   if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return NULL;
 
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "Xids",
-                          &error,
-                          G_TYPE_INVALID,
-                          DBUS_TYPE_G_UINT_ARRAY, &xids,
-                          G_TYPE_INVALID))
+  if (!_bamf_dbus_item_application_call_xids_sync (priv->proxy, &xids_variant,
+                                                   CANCELLABLE (application), &error))
     {
-      g_warning ("Failed to fetch xids: %s", error->message);
+      g_warning ("Failed to fetch xids: %s", error ? error->message : "");
       g_error_free (error);
 
       return NULL;
     }
+
+  g_return_val_if_fail (xids_variant, NULL);
+  g_return_val_if_fail (g_variant_type_equal (g_variant_get_type (xids_variant),
+                                              G_VARIANT_TYPE ("au")), NULL);
+
+  xids = g_array_new (FALSE, TRUE, sizeof (guint32));
+
+  g_variant_get (xids_variant, "au", &iter);
+  while (g_variant_iter_loop (iter, "u", &xid))
+    {
+      g_array_append_val (xids, xid);
+    }
+
+  g_variant_iter_free (iter);
+  g_variant_unref (xids_variant);
 
   return xids;
 }
@@ -325,14 +330,11 @@ bamf_application_get_show_menu_stubs (BamfApplication * application)
 
   if (priv->show_stubs == -1)
     {
-      if (!dbus_g_proxy_call (application->priv->proxy,
-                              "ShowStubs",
-                              &error,
-                              G_TYPE_INVALID,
-                              G_TYPE_BOOLEAN, &result,
-                              G_TYPE_INVALID))
+      if (!_bamf_dbus_item_application_call_show_stubs_sync (priv->proxy, &result,
+                                                             CANCELLABLE (application),
+                                                             &error))
         {
-          g_warning ("Failed to fetch show_stubs: %s", error->message);
+          g_warning ("Failed to fetch show_stubs: %s", error ? error->message : "");
           g_error_free (error);
 
           return TRUE;
@@ -352,20 +354,48 @@ bamf_application_get_click_suggestion (BamfView *view)
 {
   if (!bamf_view_is_running (view))
     return BAMF_CLICK_BEHAVIOR_OPEN;
+
   return 0;
 }
 
-static void
-bamf_application_on_supported_mime_types_changed (DBusGProxy *proxy, const gchar *const *mimes, BamfApplication *self)
+/**
+ * bamf_application_get_focusable_child:
+ * @application: a #BamfApplication
+ *
+ * Returns: (transfer none): The focusable child for this application.
+ */
+BamfView *
+bamf_application_get_focusable_child (BamfApplication *application)
 {
-  if (self->priv->cached_mimes)
-    g_strfreev (self->priv->cached_mimes);
+  BamfApplicationPrivate *priv;
+  BamfView *ret;
+  gchar *path;
+  GError *error = NULL;
 
-  self->priv->cached_mimes = g_strdupv ((gchar**)mimes);
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+  priv = application->priv;
+
+  if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
+    return NULL;
+
+  if (!_bamf_dbus_item_application_call_focusable_child_sync (priv->proxy, &path,
+                                                              CANCELLABLE (application),
+                                                              &error))
+    {
+      g_warning ("Failed to fetch focusable child: %s", error ? error->message : "");
+      g_error_free (error);
+
+      return NULL;
+    }
+
+  ret = _bamf_factory_view_for_path (_bamf_factory_get_default (), path);
+  g_free (path);
+
+  return ret;
 }
 
 static void
-bamf_application_on_window_added (DBusGProxy *proxy, char *path, BamfApplication *self)
+bamf_application_on_window_added (BamfDBusItemApplication *proxy, const char *path, BamfApplication *self)
 {
   BamfView *view;
   BamfFactory *factory;
@@ -389,7 +419,7 @@ bamf_application_on_window_added (DBusGProxy *proxy, char *path, BamfApplication
 }
 
 static void
-bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplication *self)
+bamf_application_on_window_removed (BamfDBusItemApplication *proxy, const char *path, BamfApplication *self)
 {
   BamfView *view;
   BamfFactory *factory;
@@ -408,52 +438,21 @@ bamf_application_on_window_removed (DBusGProxy *proxy, char *path, BamfApplicati
     }
 }
 
-/**
- * bamf_application_get_focusable_child:
- * @application: a #BamfApplication
- *
- * Returns: (transfer none): The focusable child for this application.
- */
-BamfView *
-bamf_application_get_focusable_child (BamfApplication *application)
-{
-  BamfApplicationPrivate *priv;
-  BamfView *ret;
-  gchar *path;
-  GError *error = NULL;
-
-  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
-  priv = application->priv;
-  
-  if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
-    return NULL;
-
-  if (!dbus_g_proxy_call (priv->proxy,
-                          "FocusableChild",
-                          &error,
-                          G_TYPE_INVALID,
-                          G_TYPE_STRING, &path,
-                          G_TYPE_INVALID))
-    {
-      g_warning ("Failed to fetch focus xids: %s", error->message);
-      g_error_free (error);
-      
-      return NULL;
-    }
-
-  ret = _bamf_factory_view_for_path (_bamf_factory_get_default (), path);
-  
-  g_free (path);
-  
-  return ret;
-}
-
 GList *
 _bamf_application_get_cached_xids (BamfApplication *self)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION (self), NULL);
 
   return self->priv->cached_xids;
+}
+
+static void
+bamf_application_on_supported_mime_types_changed (BamfDBusItemApplication *proxy, const gchar *const *mimes, BamfApplication *self)
+{
+  if (self->priv->cached_mimes)
+    g_strfreev (self->priv->cached_mimes);
+
+  self->priv->cached_mimes = g_strdupv ((gchar**)mimes);
 }
 
 static void
@@ -464,25 +463,12 @@ bamf_application_unset_proxy (BamfApplication* self)
   g_return_if_fail (BAMF_IS_APPLICATION (self));
   priv = self->priv;
 
-  if (!priv->proxy)
-    return;
-
-  dbus_g_proxy_disconnect_signal (priv->proxy,
-                                 "WindowAdded",
-                                 (GCallback) bamf_application_on_window_added,
-                                 self);
-
-  dbus_g_proxy_disconnect_signal (priv->proxy,
-                                 "WindowRemoved",
-                                 (GCallback) bamf_application_on_window_removed,
-                                 self);
-  dbus_g_proxy_disconnect_signal (priv->proxy,
-                                  "SupportedMimeTypesChanged",
-                                  (GCallback) bamf_application_on_supported_mime_types_changed,
-                                  self);
-
-  g_object_unref (priv->proxy);
-  priv->proxy = NULL;
+  if (G_IS_DBUS_PROXY (priv->proxy))
+    {
+      g_signal_handlers_disconnect_by_data (priv->proxy, self);
+      g_object_unref (priv->proxy);
+      priv->proxy = NULL;
+    }
 }
 
 static void
@@ -529,54 +515,35 @@ bamf_application_set_path (BamfView *view, const char *path)
 {
   BamfApplication *self;
   BamfApplicationPrivate *priv;
+  GError *error = NULL;
 
   self = BAMF_APPLICATION (view);
   priv = self->priv;
 
   bamf_application_unset_proxy (self);
+  priv->proxy = _bamf_dbus_item_application_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                                                    G_DBUS_PROXY_FLAGS_NONE,
+                                                                    BAMF_DBUS_SERVICE_NAME,
+                                                                    path, CANCELLABLE (view),
+                                                                    &error);
 
-  priv->proxy = dbus_g_proxy_new_for_name (priv->connection,
-                                           "org.ayatana.bamf",
-                                           path,
-                                           "org.ayatana.bamf.application");
-  if (priv->proxy == NULL)
+  if (!G_IS_DBUS_PROXY (priv->proxy))
     {
-      g_critical ("Unable to get org.ayatana.bamf.application application");
+      g_critical ("Unable to get %s application: %s", BAMF_DBUS_SERVICE_NAME, error ? error->message : "");
+      g_clear_error (&error);
       return;
     }
 
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "WindowAdded",
-                           G_TYPE_STRING,
-                           G_TYPE_INVALID);
+  g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (priv->proxy), BAMF_DBUS_DEFAULT_TIMEOUT);
 
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "WindowRemoved",
-                           G_TYPE_STRING,
-                           G_TYPE_INVALID);
+  g_signal_connect (priv->proxy, "window-added",
+                    G_CALLBACK (bamf_application_on_window_added), view);
 
-  dbus_g_proxy_add_signal (priv->proxy,
-                           "SupportedMimeTypesChanged",
-                           G_TYPE_STRV,
-                           G_TYPE_INVALID);
+  g_signal_connect (priv->proxy, "window-removed",
+                    G_CALLBACK (bamf_application_on_window_removed), view);
 
-  dbus_g_proxy_connect_signal (priv->proxy,
-                               "WindowAdded",
-                               (GCallback) bamf_application_on_window_added,
-                               self,
-                               NULL);
-
-  dbus_g_proxy_connect_signal (priv->proxy,
-                               "WindowRemoved",
-                               (GCallback) bamf_application_on_window_removed,
-                               self,
-                               NULL);
-
-  dbus_g_proxy_connect_signal (priv->proxy,
-                               "SupportedMimeTypesChanged",
-                               (GCallback) bamf_application_on_supported_mime_types_changed,
-                               self,
-                               NULL);
+  g_signal_connect (priv->proxy, "supported-mime-types-changed",
+                    G_CALLBACK (bamf_application_on_supported_mime_types_changed), view);
 
   GList *children, *l;
   children = bamf_view_get_children (view);
@@ -704,22 +671,22 @@ bamf_application_class_init (BamfApplicationClass *klass)
   g_type_class_add_private (obj_class, sizeof (BamfApplicationPrivate));
 
   application_signals [WINDOW_ADDED] =
-        g_signal_new ("window-added",
-                      G_OBJECT_CLASS_TYPE (klass),
-                      0,
-                      0, NULL, NULL,
-                      g_cclosure_marshal_VOID__OBJECT,
-                      G_TYPE_NONE, 1,
-                      BAMF_TYPE_VIEW);
+    g_signal_new (BAMF_APPLICATION_SIGNAL_WINDOW_ADDED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1,
+                  BAMF_TYPE_WINDOW);
 
   application_signals [WINDOW_REMOVED] =
-        g_signal_new ("window-removed",
-                      G_OBJECT_CLASS_TYPE (klass),
-                      0,
-                      0, NULL, NULL,
-                      g_cclosure_marshal_VOID__OBJECT,
-                      G_TYPE_NONE, 1,
-                      BAMF_TYPE_VIEW);
+    g_signal_new (BAMF_APPLICATION_SIGNAL_WINDOW_REMOVED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1,
+                  BAMF_TYPE_WINDOW);
 }
 
 
@@ -727,20 +694,9 @@ static void
 bamf_application_init (BamfApplication *self)
 {
   BamfApplicationPrivate *priv;
-  GError           *error = NULL;
 
   priv = self->priv = BAMF_APPLICATION_GET_PRIVATE (self);
   priv->show_stubs = -1;
-
-  priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-  if (priv->connection == NULL)
-    {
-      g_critical ("Failed to open connection to bus: %s",
-               error != NULL ? error->message : "Unknown");
-      if (error)
-        g_error_free (error);
-      return;
-    }
 }
 
 BamfApplication *
