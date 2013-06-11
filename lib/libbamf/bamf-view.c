@@ -572,8 +572,6 @@ _bamf_view_set_closed (BamfView *self, gboolean closed)
           g_cancellable_cancel (priv->cancellable);
           g_list_free_full (priv->cached_children, g_object_unref);
           priv->cached_children = NULL;
-
-          g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
         }
       else
         {
@@ -586,6 +584,7 @@ static void
 bamf_view_on_closed (BamfDBusItemView *proxy, BamfView *self)
 {
   _bamf_view_set_closed (self, TRUE);
+  g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
 }
 
 static void
