@@ -155,7 +155,7 @@ AC_SUBST(COVERAGE_LDFLAGS)
 AM_PATH_GTK_3_0
 
 dnl CFLAGS
-CFLAGS="$CFLAGS -Wall -Werror -lm"
+CFLAGS="$CFLAGS -Wall -Werror -Wempty-body -Wformat-security -Winit-self -Warray-bounds -Wimplicit-function-declaration -lm"
 
 AC_SUBST(BAMFDAEMON_CFLAGS)
 AC_SUBST(BAMFDAEMON_LIBS)

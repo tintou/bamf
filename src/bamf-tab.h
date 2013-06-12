@@ -39,7 +39,7 @@ typedef void (*BamfTabPreviewReadyCallback) (BamfTab *, const gchar *, gpointer)
 struct _BamfTabClass
 {
   BamfViewClass parent;
-  
+
   void (*raise) (BamfTab *self);
   void (*close) (BamfTab *self);
   void (*request_preview) (BamfTab *self, BamfTabPreviewReadyCallback callback, gpointer user_data);

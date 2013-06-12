@@ -5,7 +5,6 @@ Maintainer: Didier Roche <didrocks@ubuntu.com>
 Uploaders: Andrea Veri <and@debian.org>
 Build-Depends: dbus-x11,
                debhelper (>= 9),
-               gir1.2-glib-2.0,
                dh-autoreconf,
                gobject-introspection (>= 0.6.5-3),
                gtk-doc-tools,
@@ -53,6 +52,7 @@ Package: libbamf3-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends},
+         gir1.2-bamf-3 (= ${binary:Version}),
          libbamf3-1 (= ${binary:Version}),
          libglib2.0-dev (>= 2.30.0),
 Suggests: libbamf-doc
@@ -92,7 +92,7 @@ Description: Window matching library - debugging symbols
  This package contains debugging symbols for the daemon and library.
 
 Package: gir1.2-bamf-3
-Section: libs
+Section: introspection
 Architecture: any
 Depends: ${gir:Depends},
          ${misc:Depends},
