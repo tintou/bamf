@@ -306,6 +306,7 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
       const char *local_desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
       GList *local_children = _bamf_application_get_cached_xids (BAMF_APPLICATION (view));
       char *local_name = bamf_view_get_name (view);
+      gboolean matched_by_name = FALSE;
 
       for (l = factory->priv->registered_views; l; l = l->next)
         {
@@ -342,12 +343,23 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
                     }
                 }
 
-              if (!matched_view && local_name && local_name[0] != '\0')
+              if ((!matched_view || matched_by_name) && local_name && local_name[0] != '\0')
                 {
                   char *list_name = bamf_view_get_name (list_view);
                   if (g_strcmp0 (local_name, list_name) == 0)
                     {
-                      matched_view = list_view;
+                      if (!matched_by_name)
+                        {
+                          matched_view = list_view;
+                          matched_by_name = TRUE;
+                        }
+                      else
+                        {
+                          /* We have already matched an app by its name, this
+                           * means that there are two apps with the same name.
+                           * It's safer to ignore this, then. */
+                          matched_view = NULL;
+                        }
                     }
 
                   g_free (list_name);
