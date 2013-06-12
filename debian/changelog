@@ -1,5 +1,6 @@
 bamf (0.5.0) UNRELEASED; urgency=low
 
+  [ Marco Trevisan (Treviño) ]
   * New upstream release, bumping debian version to 0.5.0
   * LibBamfPrivate: add new private library to share code between client
     and daemon.
@@ -7,16 +8,14 @@ bamf (0.5.0) UNRELEASED; urgency=low
     allows to have correct values and signals when they get updated.
     Deprecating related dbus methods/signals.
   * debian/control:
-      - don't build-depend anymore on libdbus-glib-1-dev
+    - don't build-depend anymore on libdbus-glib-1-dev
 
- -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 05 Jun 2013 14:00:27 +0200
+  [ Jeremy Bicha ]
+  * debian/control:
+    - Have libbamf3-dev depend on gir1.2-bamf-3
+    - Drop explicit build-depends on gir1.2-glib-2.0 
 
-bamf (0.4.0daily13.06.07-0ubuntu2) UNRELEASED; urgency=low
-
-  * Have libbamf3-dev depend on gir1.2-bamf-3
-  * Drop explicit build-depends on gir1.2-glib-2.0 
-
- -- Jeremy Bicha <jbicha@ubuntu.com>  Mon, 10 Jun 2013 14:28:12 -0400
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 12 Jun 2013 14:30:03 +0200
 
 bamf (0.4.0daily13.06.07-0ubuntu1) saucy; urgency=low
 
