@@ -41,6 +41,8 @@ enum
 enum
 {
   CLOSED_INTERNAL,
+  CHILD_ADDED_INTERNAL,
+  CHILD_REMOVED_INTERNAL,
   EXPORTED,
 
   LAST_SIGNAL,
@@ -56,7 +58,31 @@ struct _BamfViewPrivate
   GList * children;
   GList * parents;
   gboolean closed;
+
+  /* FIXME: temporary cache these properties until we don't export the view
+   * to the bus, we need this until the skeleton won't be smart enough to emit
+   * signals as soon as the object is exported */
+  gboolean running;
+  gboolean user_visible;
+  gboolean urgent;
+  gboolean active;
+
+  /* FIXME: remove this as soon as we move to properties on library as well */
+  guint active_changed_idle;
 };
+
+static gboolean
+on_active_changed_idle (gpointer data)
+{
+  g_return_val_if_fail (BAMF_IS_VIEW (data), FALSE);
+
+  BamfView *self = BAMF_VIEW (data);
+  gboolean active = bamf_view_is_active (self);
+
+  g_signal_emit_by_name (self, "active-changed", active);
+
+  return FALSE;
+}
 
 static void
 bamf_view_active_changed (BamfView *view, gboolean active)
@@ -70,7 +96,13 @@ bamf_view_active_changed (BamfView *view, gboolean active)
     }
 
   if (emit)
-    g_signal_emit_by_name (view, "active-changed", active);
+    {
+      if (view->priv->active_changed_idle)
+        g_source_remove (view->priv->active_changed_idle);
+
+      guint idle = g_idle_add_full (G_PRIORITY_DEFAULT, on_active_changed_idle, view, NULL);
+      view->priv->active_changed_idle = idle;
+    }
 }
 
 static void
@@ -278,6 +310,8 @@ bamf_view_add_child (BamfView *view,
   if (BAMF_VIEW_GET_CLASS (view)->child_added)
     BAMF_VIEW_GET_CLASS (view)->child_added (view, child);
 
+  g_signal_emit (view, view_signals[CHILD_ADDED_INTERNAL], 0, child);
+
   added = bamf_view_get_path (child);
   g_signal_emit_by_name (view, "child-added", added);
 }
@@ -297,6 +331,8 @@ bamf_view_remove_child (BamfView *view,
   view->priv->children = g_list_remove (view->priv->children, child);
   child->priv->parents = g_list_remove (child->priv->parents, view);
 
+  g_signal_emit (view, view_signals[CHILD_REMOVED_INTERNAL], 0, child);
+
   removed = bamf_view_get_path (child);
   g_signal_emit_by_name (view, "child-removed", removed);
 
@@ -310,7 +346,10 @@ bamf_view_is_active (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
-  return bamf_dbus_item_view_get_active (view->priv->dbus_iface);
+  if (!bamf_view_is_on_bus (view))
+    return view->priv->active;
+
+  return _bamf_dbus_item_view_get_active (view->priv->dbus_iface);
 }
 
 void
@@ -322,7 +361,10 @@ bamf_view_set_active (BamfView *view,
   if (active == bamf_view_is_active (view))
     return;
 
-  bamf_dbus_item_view_set_active (view->priv->dbus_iface, active);
+  if (bamf_view_is_on_bus (view))
+    _bamf_dbus_item_view_set_active (view->priv->dbus_iface, active);
+
+  view->priv->active = active;
   bamf_view_active_changed (view, active);
 }
 
@@ -331,7 +373,10 @@ bamf_view_is_urgent (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
-  return bamf_dbus_item_view_get_urgent (view->priv->dbus_iface);
+  if (!bamf_view_is_on_bus (view))
+    return view->priv->urgent;
+
+  return _bamf_dbus_item_view_get_urgent (view->priv->dbus_iface);
 }
 
 void
@@ -343,7 +388,10 @@ bamf_view_set_urgent (BamfView *view,
   if (urgent == bamf_view_is_urgent (view))
     return;
 
-  bamf_dbus_item_view_set_urgent (view->priv->dbus_iface, urgent);
+  if (bamf_view_is_on_bus (view))
+    _bamf_dbus_item_view_set_urgent (view->priv->dbus_iface, urgent);
+
+  view->priv->urgent = urgent;
   bamf_view_urgent_changed (view, urgent);
 }
 
@@ -352,7 +400,10 @@ bamf_view_is_running (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
-  return bamf_dbus_item_view_get_running (view->priv->dbus_iface);
+  if (!bamf_view_is_on_bus (view))
+    return view->priv->running;
+
+  return _bamf_dbus_item_view_get_running (view->priv->dbus_iface);
 }
 
 void
@@ -364,7 +415,10 @@ bamf_view_set_running (BamfView *view,
   if (running == bamf_view_is_running (view))
     return;
 
-  bamf_dbus_item_view_set_running (view->priv->dbus_iface, running);
+  if (bamf_view_is_on_bus (view))
+    _bamf_dbus_item_view_set_running (view->priv->dbus_iface, running);
+
+  view->priv->running = running;
   bamf_view_running_changed (view, running);
 }
 
@@ -373,7 +427,10 @@ bamf_view_user_visible (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
-  return bamf_dbus_item_view_get_user_visible (view->priv->dbus_iface);
+  if (!bamf_view_is_on_bus (view))
+    return view->priv->user_visible;
+
+  return _bamf_dbus_item_view_get_user_visible (view->priv->dbus_iface);
 }
 
 void
@@ -384,7 +441,10 @@ bamf_view_set_user_visible (BamfView *view, gboolean user_visible)
   if (user_visible == bamf_view_user_visible (view))
     return;
 
-  bamf_dbus_item_view_set_user_visible (view->priv->dbus_iface, user_visible);
+  if (bamf_view_is_on_bus (view))
+    _bamf_dbus_item_view_set_user_visible (view->priv->dbus_iface, user_visible);
+
+  view->priv->user_visible = user_visible;
   bamf_view_user_visible_changed (view, user_visible);
 }
 
@@ -433,14 +493,14 @@ bamf_view_get_view_type (BamfView *view)
   return "view";
 }
 
-char *
+static char *
 bamf_view_get_stable_bus_name (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
 
   if (BAMF_VIEW_GET_CLASS (view)->stable_bus_name)
     return BAMF_VIEW_GET_CLASS (view)->stable_bus_name (view);
-    
+
   return g_strdup_printf ("view%p", view);
 }
 
@@ -456,8 +516,9 @@ bamf_view_export_on_bus (BamfView *view, GDBusConnection *connection)
 
   if (!view->priv->path)
     {
+      gboolean exported = TRUE;
       char *stable_name = bamf_view_get_stable_bus_name (view);
-      path = g_strdup_printf ("%s/%s", BAMF_DBUS_PATH, stable_name);
+      path = g_strconcat (BAMF_DBUS_BASE_PATH"/", stable_name, NULL);
       g_free (stable_name);
 
       BAMF_VIEW_GET_CLASS (view)->names = g_list_prepend (BAMF_VIEW_GET_CLASS (view)->names, path);
@@ -467,19 +528,31 @@ bamf_view_export_on_bus (BamfView *view, GDBusConnection *connection)
 
       /* The dbus object interface list is in reversed order, we try to export
        * the interfaces in bottom to top order (BamfView should be the first) */
-      for (l = g_list_last(ifaces); l; l = l->prev)
+      for (l = g_list_last (ifaces); l; l = l->prev)
         {
           g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (l->data),
                                             connection, path, &error);
+          if (error)
+            {
+              g_critical ("Can't register BAMF view interface: %s", error->message);
+              g_clear_error (&error);
+              exported = FALSE;
+            }
         }
 
-      if (error)
+      if (exported)
         {
-          g_critical ("Can't register BAMF view: %s", error->message);
-          g_error_free (error);
-        }
-      else
-        {
+          /* FIXME: if we change the properties before that the view has been
+           * exported, the skeleton doesn't emit the proper signals to notify
+           * the proxy that the values have been changed, and this causes
+           * the properties not to be updated on the client side.
+           * So we store the values locally until the proxy is not exported,
+           * then we notify our clients. */
+          bamf_view_set_active (view, view->priv->active);
+          bamf_view_set_running (view, view->priv->running);
+          bamf_view_set_user_visible (view, view->priv->user_visible);
+          bamf_view_set_urgent (view, view->priv->urgent);
+
           g_signal_emit (view, view_signals[EXPORTED], 0);
         }
 
@@ -496,10 +569,13 @@ bamf_view_is_on_bus (BamfView *view)
   GDBusInterfaceSkeleton *dbus_iface;
   const gchar *exported_path;
 
+  if (!view->priv->path)
+    return FALSE;
+
   dbus_iface = G_DBUS_INTERFACE_SKELETON (view->priv->dbus_iface);
   exported_path = g_dbus_interface_skeleton_get_object_path (dbus_iface);
 
-  return (view->priv->path != NULL && exported_path != NULL);
+  return (exported_path != NULL);
 }
 
 static void
@@ -558,6 +634,7 @@ static void
 on_view_closed (BamfView *view, gpointer _not_used)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
+  g_dbus_object_skeleton_flush (G_DBUS_OBJECT_SKELETON (view));
   g_signal_emit_by_name (view->priv->dbus_iface, "closed");
 }
 
@@ -672,19 +749,6 @@ bamf_view_dispose (GObject *object)
 {
   BamfView *view = BAMF_VIEW (object);
   BamfViewPrivate *priv = view->priv;
-  GList *ifaces, *l;
-
-  ifaces = g_dbus_object_get_interfaces (G_DBUS_OBJECT (view));
-
-  for (l = ifaces; l; l = l->next)
-    {
-      GDBusInterfaceSkeleton *iface = G_DBUS_INTERFACE_SKELETON (l->data);
-
-      if (g_dbus_interface_skeleton_get_object_path (iface))
-        g_dbus_interface_skeleton_unexport (iface);
-    }
-
-  g_list_free_full (ifaces, g_object_unref);
 
   if (priv->name)
     {
@@ -708,6 +772,14 @@ bamf_view_dispose (GObject *object)
     {
       g_list_free (priv->parents);
       priv->parents = NULL;
+    }
+
+  g_dbus_object_skeleton_flush (G_DBUS_OBJECT_SKELETON (view));
+
+  if (priv->active_changed_idle)
+    {
+      g_source_remove (priv->active_changed_idle);
+      priv->active_changed_idle = 0;
     }
 
   G_OBJECT_CLASS (bamf_view_parent_class)->dispose (object);
@@ -763,7 +835,7 @@ bamf_view_init (BamfView * self)
   self->priv = BAMF_VIEW_GET_PRIVATE (self);
 
   /* Initializing the dbus interface */
-  self->priv->dbus_iface = bamf_dbus_item_view_skeleton_new ();
+  self->priv->dbus_iface = _bamf_dbus_item_view_skeleton_new ();
 
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
@@ -805,8 +877,8 @@ bamf_view_init (BamfView * self)
                     G_CALLBACK (on_dbus_handle_children), self);
 
   /* Setting the interface for the dbus object */
-  bamf_dbus_item_object_skeleton_set_view (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
-                                           self->priv->dbus_iface);
+  _bamf_dbus_item_object_skeleton_set_view (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
+                                            self->priv->dbus_iface);
 }
 
 static void
@@ -838,6 +910,18 @@ bamf_view_class_init (BamfViewClass * klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   0, 0, NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+
+  view_signals [CHILD_ADDED_INTERNAL] =
+    g_signal_new ("child-added-internal",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0, 0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 1, BAMF_TYPE_VIEW);
+
+  view_signals [CHILD_REMOVED_INTERNAL] =
+    g_signal_new ("child-removed-internal",
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0, 0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 1, BAMF_TYPE_VIEW);
 
   view_signals [EXPORTED] =
     g_signal_new ("exported",

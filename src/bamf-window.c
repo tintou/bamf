@@ -44,11 +44,6 @@ struct _BamfWindowPrivate
   BamfLegacyWindow *legacy_window;
   BamfWindowMaximizationType maximized;
   gint monitor;
-  gulong closed_id;
-  gulong name_changed_id;
-  gulong state_changed_id;
-  gulong geometry_changed_id;
-  time_t last_active;
   time_t opened;
 };
 
@@ -69,21 +64,21 @@ bamf_window_get_transient (BamfWindow *self)
   BamfLegacyWindow *legacy, *transient;
   BamfWindow *other;
   GList *l;
-  
+
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
-  
+
   legacy = bamf_window_get_window (self);
   transient = bamf_legacy_window_get_transient (legacy);
-  
+
   if (transient)
     {
       for (l = bamf_windows; l; l = l->next)
         {
           other = l->data;
-      
+
           if (!BAMF_IS_WINDOW (other))
             continue;
-      
+
           if (transient == bamf_window_get_window (other))
             return other;
         }
@@ -95,22 +90,22 @@ const char *
 bamf_window_get_transient_path (BamfWindow *self)
 {
   BamfWindow *transient;
-  
+
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
-  
+
   transient = bamf_window_get_transient (self);
-  
+
   if (transient == NULL)
     return "";
-  
+
   return bamf_view_get_path (BAMF_VIEW (transient));
-} 
+}
 
 guint32
 bamf_window_get_window_type (BamfWindow *window)
 {
   g_return_val_if_fail (BAMF_IS_WINDOW (window), 0);
-  
+
   return (guint32) bamf_legacy_window_get_window_type (window->priv->legacy_window);
 }
 
@@ -135,20 +130,10 @@ bamf_window_get_xid (BamfWindow *window)
 }
 
 time_t
-bamf_window_last_active (BamfWindow *self)
-{
-  g_return_val_if_fail (BAMF_IS_WINDOW (self), (time_t) 0);
-  
-  if (bamf_view_is_active (BAMF_VIEW (self)))
-    return time (NULL);
-  return self->priv->last_active;
-}
-
-time_t
 bamf_window_opened (BamfWindow *self)
 {
-  g_return_val_if_fail (BAMF_IS_WINDOW (self), (time_t) 0);
-  
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), 0);
+
   return self->priv->opened;
 }
 
@@ -180,10 +165,6 @@ bamf_window_ensure_flags (BamfWindow *self)
 {
   g_return_if_fail (BAMF_IS_WINDOW (self));
 
-  /* if we are going innactive, set our last active time */
-  if (bamf_view_is_active (BAMF_VIEW (self)) && !bamf_legacy_window_is_active (self->priv->legacy_window))
-    self->priv->last_active = time (NULL);
-  
   bamf_view_set_active       (BAMF_VIEW (self), bamf_legacy_window_is_active (self->priv->legacy_window));
   bamf_view_set_urgent       (BAMF_VIEW (self), bamf_legacy_window_needs_attention (self->priv->legacy_window));
   bamf_view_set_user_visible (BAMF_VIEW (self), !bamf_legacy_window_is_skip_tasklist (self->priv->legacy_window));
@@ -232,10 +213,10 @@ bamf_window_get_view_type (BamfView *view)
 }
 
 char *
-bamf_window_get_xprop (BamfWindow *self, const char* prop)
+bamf_window_get_string_hint (BamfWindow *self, const char* prop)
 {
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
-  return bamf_legacy_window_get_utf8_xprop(self->priv->legacy_window, prop);
+  return bamf_legacy_window_get_hint (self->priv->legacy_window, prop);
 }
 
 BamfWindowMaximizationType
@@ -253,16 +234,16 @@ bamf_window_get_monitor (BamfWindow *self)
 
   GdkScreen *gdk_screen =  gdk_screen_get_default ();
   bamf_legacy_window_get_geometry (self->priv->legacy_window, &x, &y, &width, &height);
-  
+
   return gdk_screen_get_monitor_at_point (gdk_screen, x + width/2, y + height/2);
 }
 
-char *
+static char *
 bamf_window_get_stable_bus_name (BamfView *view)
 {
   BamfWindow *self;
 
-  g_return_val_if_fail (BAMF_IS_WINDOW (view), NULL);  
+  g_return_val_if_fail (BAMF_IS_WINDOW (view), NULL);
   self = BAMF_WINDOW (view);
 
   return g_strdup_printf ("window%u", bamf_legacy_window_get_xid (self->priv->legacy_window));
@@ -334,11 +315,11 @@ on_dbus_handle_xprop (BamfDBusItemWindow *interface,
                       const gchar *prop,
                       BamfWindow *self)
 {
-  char *bus_name = bamf_window_get_xprop (self, prop);
+  char *hint = bamf_window_get_string_hint (self, prop);
   g_dbus_method_invocation_return_value (invocation,
-                                         g_variant_new ("(s)", bus_name ? bus_name : ""));
+                                         g_variant_new ("(s)", hint ? hint : ""));
 
-  g_free (bus_name);
+  g_free (hint);
 
   return TRUE;
 }
@@ -437,17 +418,14 @@ bamf_window_constructed (GObject *object)
 
   bamf_view_set_name (BAMF_VIEW (self), bamf_legacy_window_get_name (window));
 
-  self->priv->name_changed_id = g_signal_connect (G_OBJECT (window), "name-changed",
-                                                  (GCallback) handle_name_changed, self);
-
-  self->priv->state_changed_id = g_signal_connect (G_OBJECT (window), "state-changed",
-                                                   (GCallback) handle_state_changed, self);
-
-  self->priv->geometry_changed_id = g_signal_connect (G_OBJECT (window), "geometry-changed",
-                                                      (GCallback) handle_geometry_changed, self);
-
-  self->priv->closed_id = g_signal_connect (G_OBJECT (window), "closed",
-                                            (GCallback) handle_window_closed, self);
+  g_signal_connect (G_OBJECT (window), "name-changed",
+                    (GCallback) handle_name_changed, self);
+  g_signal_connect (G_OBJECT (window), "state-changed",
+                    (GCallback) handle_state_changed, self);
+  g_signal_connect (G_OBJECT (window), "geometry-changed",
+                    (GCallback) handle_geometry_changed, self);
+  g_signal_connect (G_OBJECT (window), "closed",
+                    (GCallback) handle_window_closed, self);
 
   self->priv->maximized = -1;
   self->priv->monitor = -1;
@@ -469,21 +447,11 @@ bamf_window_dispose (GObject *object)
 
   if (self->priv->legacy_window)
     {
-      g_signal_handler_disconnect (self->priv->legacy_window,
-                                   self->priv->name_changed_id);
-
-      g_signal_handler_disconnect (self->priv->legacy_window,
-                                   self->priv->state_changed_id);
-
-      g_signal_handler_disconnect (self->priv->legacy_window,
-                                   self->priv->geometry_changed_id);
-
-      g_signal_handler_disconnect (self->priv->legacy_window,
-                                   self->priv->closed_id);
-
+      g_signal_handlers_disconnect_by_data (self->priv->legacy_window, self);
       g_object_unref (self->priv->legacy_window);
       self->priv->legacy_window = NULL;
     }
+
   G_OBJECT_CLASS (bamf_window_parent_class)->dispose (object);
 }
 
@@ -504,7 +472,7 @@ bamf_window_init (BamfWindow * self)
   self->priv = BAMF_WINDOW_GET_PRIVATE (self);
 
   /* Initializing the dbus interface */
-  self->priv->dbus_iface = bamf_dbus_item_window_skeleton_new ();
+  self->priv->dbus_iface = _bamf_dbus_item_window_skeleton_new ();
 
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
@@ -534,8 +502,8 @@ bamf_window_init (BamfWindow * self)
                     G_CALLBACK (on_dbus_handle_maximized), self);
 
   /* Setting the interface for the dbus object */
-  bamf_dbus_item_object_skeleton_set_window (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
-                                             self->priv->dbus_iface);
+  _bamf_dbus_item_object_skeleton_set_window (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
+                                              self->priv->dbus_iface);
 
   g_signal_connect (G_OBJECT (bamf_legacy_screen_get_default ()), "active-window-changed",
                     (GCallback) active_window_changed, self);
@@ -574,6 +542,6 @@ bamf_window_new (BamfLegacyWindow *window)
 {
   BamfWindow *self;
   self = (BamfWindow *) g_object_new (BAMF_TYPE_WINDOW, "legacy-window", window, NULL);
-  
+
   return self;
 }

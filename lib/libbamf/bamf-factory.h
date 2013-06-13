@@ -21,6 +21,7 @@
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
  *              Neil Jagdish Patel <neil.patel@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -59,7 +60,6 @@ typedef enum
   BAMF_FACTORY_VIEW,
   BAMF_FACTORY_WINDOW,
   BAMF_FACTORY_APPLICATION,
-  BAMF_FACTORY_INDICATOR,
   BAMF_FACTORY_TAB,
   BAMF_FACTORY_NONE
 } BamfFactoryViewType;

@@ -20,7 +20,6 @@
 #ifndef __BAMFWINDOW_H__
 #define __BAMFWINDOW_H__
 
-#include "bamf.h"
 #include "bamf-view.h"
 #include "bamf-legacy-window.h"
 #include <glib.h>
@@ -70,13 +69,11 @@ guint32            bamf_window_get_xid (BamfWindow *window);
 
 guint32            bamf_window_get_pid (BamfWindow *window);
 
-time_t             bamf_window_last_active (BamfWindow *window);
-
 time_t             bamf_window_opened (BamfWindow *window);
 
 gint               bamf_window_get_stack_position (BamfWindow *window);
 
-char             * bamf_window_get_xprop (BamfWindow *self, const char* prop);
+char             * bamf_window_get_string_hint (BamfWindow *self, const char* prop);
 
 BamfWindowMaximizationType bamf_window_maximized (BamfWindow *self);
 

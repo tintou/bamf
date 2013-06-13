@@ -52,14 +52,17 @@ struct _BamfLegacyWindowTest
 {
   BamfLegacyWindow parent;
   guint32 xid;
-  gint    pid;
+  guint   pid;
   char * name;
+  char * role;
   char * wm_class_name;
   char * wm_class_instance;
   char * exec;
+  char * process_name;
   char * application_id;
   char * unique_bus_name;
   char * dbus_menu_object_path;
+  BamfLegacyWindow * transient_window;
   gboolean needs_attention;
   gboolean is_desktop;
   gboolean is_skip;
@@ -68,6 +71,7 @@ struct _BamfLegacyWindowTest
   GdkRectangle geometry;
   BamfWindowMaximizationType maximized;
   BamfWindowType window_type;
+  GHashTable * hints;
 };
 
 struct _BamfLegacyWindowTestClass
@@ -85,7 +89,7 @@ struct _BamfLegacyWindowTestClass
 
 GType       bamf_legacy_window_test_get_type (void) G_GNUC_CONST;
 
-gint
+guint
 bamf_legacy_window_test_get_pid (BamfLegacyWindow *legacy_window);
 
 guint32
@@ -116,7 +120,10 @@ gboolean
 bamf_legacy_window_test_is_skip_tasklist (BamfLegacyWindow *legacy_window);
 
 void
-bamf_legacy_window_test_set_name (BamfLegacyWindowTest *self, char *val);
+bamf_legacy_window_test_set_name (BamfLegacyWindowTest *self, const char *val);
+
+void
+bamf_legacy_window_test_set_role (BamfLegacyWindowTest *self, const char *val);
 
 void
 bamf_legacy_window_test_set_geometry (BamfLegacyWindowTest *self, int x, int y,
@@ -136,10 +143,13 @@ void
 bamf_legacy_window_test_set_dbus_menu_object_path (BamfLegacyWindowTest *self, const char *object_path);
 
 void
+bamf_legacy_window_test_set_wmclass (BamfLegacyWindowTest *self, const char *class_name, const char *instance_name);
+
+void
 bamf_legacy_window_test_close (BamfLegacyWindowTest *self);
 
 BamfLegacyWindowTest *
-bamf_legacy_window_test_new (guint32 xid, gchar *name, gchar *wmclass_name, gchar *exec);
+bamf_legacy_window_test_new (guint32 xid, const gchar *name, const gchar *wmclass_name, const gchar *exec);
 
 BamfLegacyWindowTest *
 bamf_legacy_window_copy (BamfLegacyWindowTest *self);

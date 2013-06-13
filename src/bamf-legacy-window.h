@@ -23,7 +23,6 @@
 
 #include "config.h"
 
-#include "bamf.h"
 #include "bamf-view.h"
 #include <sys/types.h>
 #include <glib.h>
@@ -38,6 +37,8 @@
 #define BAMF_LEGACY_WINDOW_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_LEGACY_WINDOW, BamfLegacyWindowClass))
 
 #define BAMF_LEGACY_WINDOW_SIGNAL_NAME_CHANGED     "name-changed"
+#define BAMF_LEGACY_WINDOW_SIGNAL_ROLE_CHANGED     "role-changed"
+#define BAMF_LEGACY_WINDOW_SIGNAL_CLASS_CHANGED    "class-changed"
 #define BAMF_LEGACY_WINDOW_SIGNAL_STATE_CHANGED    "state-changed"
 #define BAMF_LEGACY_WINDOW_SIGNAL_GEOMETRY_CHANGED "geometry-changed"
 #define BAMF_LEGACY_WINDOW_SIGNAL_CLOSED           "closed"
@@ -70,14 +71,19 @@ struct _BamfLegacyWindowClass
 {
   GObjectClass parent;
 
+  BamfLegacyWindow * (*get_transient)     (BamfLegacyWindow *legacy_window);
   const char * (*get_name)                (BamfLegacyWindow *legacy_window);
+  const char * (*get_role)                (BamfLegacyWindow *legacy_window);
   const char * (*get_class_name)          (BamfLegacyWindow *legacy_window);
   const char * (*get_class_instance_name) (BamfLegacyWindow *legacy_window);
   char       * (*get_exec_string)         (BamfLegacyWindow *legacy_window);
+  char       * (*get_process_name)        (BamfLegacyWindow *legacy_window);
   char       * (*get_app_id)              (BamfLegacyWindow *legacy_window);
   char       * (*get_unique_bus_name)     (BamfLegacyWindow *legacy_window);
   char       * (*get_menu_object_path)    (BamfLegacyWindow *legacy_window);
-  gint         (*get_pid)                 (BamfLegacyWindow *legacy_window);
+  char       * (*get_hint)                (BamfLegacyWindow *legacy_window,
+                                           const gchar *name);
+  guint        (*get_pid)                 (BamfLegacyWindow *legacy_window);
   guint32      (*get_xid)                 (BamfLegacyWindow *legacy_window);
   gboolean     (*needs_attention)         (BamfLegacyWindow *legacy_window);
   gboolean     (*is_active)               (BamfLegacyWindow *legacy_window);
@@ -88,12 +94,15 @@ struct _BamfLegacyWindowClass
   BamfWindowMaximizationType (*maximized) (BamfLegacyWindow *legacy_window);
   BamfWindowType (*get_window_type)       (BamfLegacyWindow *legacy_window);
   void         (*get_geometry)            (BamfLegacyWindow *legacy_window,
-                                           gint *x, gint *y,
-                                           gint *width, gint *height);
+                                           gint *x, gint *y, gint *w, gint *h);
+  void         (*set_hint)                (BamfLegacyWindow *legacy_window,
+                                           const gchar *name, const gchar *value);
   void         (*reopen)                  (BamfLegacyWindow *legacy_window);
 
   /*< signals >*/
   void     (*name_changed)     (BamfLegacyWindow *legacy_window);
+  void     (*class_changed)    (BamfLegacyWindow *legacy_window);
+  void     (*role_changed)     (BamfLegacyWindow *legacy_window);
   void     (*state_changed)    (BamfLegacyWindow *legacy_window);
   void     (*geometry_changed) (BamfLegacyWindow *legacy_window);
   void     (*closed)           (BamfLegacyWindow *legacy_window);
@@ -111,7 +120,7 @@ GType              bamf_legacy_window_get_type             (void) G_GNUC_CONST;
 
 guint32            bamf_legacy_window_get_xid              (BamfLegacyWindow *self);
 
-gint               bamf_legacy_window_get_pid              (BamfLegacyWindow *self);
+guint              bamf_legacy_window_get_pid              (BamfLegacyWindow *self);
 
 void               bamf_legacy_window_get_geometry         (BamfLegacyWindow *self,
                                                             gint *x, gint *y,
@@ -135,13 +144,22 @@ const char       * bamf_legacy_window_get_class_name       (BamfLegacyWindow *se
 
 const char       * bamf_legacy_window_get_name             (BamfLegacyWindow *self);
 
+const char       * bamf_legacy_window_get_role             (BamfLegacyWindow *self);
+
 const char       * bamf_legacy_window_save_mini_icon       (BamfLegacyWindow *self);
 
 char             * bamf_legacy_window_get_exec_string      (BamfLegacyWindow *self);
 
+char             * bamf_legacy_window_get_process_name     (BamfLegacyWindow *self);
+
 BamfLegacyWindow * bamf_legacy_window_get_transient        (BamfLegacyWindow *self);
 
-char             * bamf_legacy_window_get_utf8_xprop       (BamfLegacyWindow *self, const char* prop);
+char             * bamf_legacy_window_get_hint             (BamfLegacyWindow *self,
+                                                            const char *name);
+
+void               bamf_legacy_window_set_hint             (BamfLegacyWindow *self,
+                                                            const char *name,
+                                                            const char *value);
 
 gint               bamf_legacy_window_get_stacking_position (BamfLegacyWindow *self);
 
@@ -150,3 +168,4 @@ void               bamf_legacy_window_reopen               (BamfLegacyWindow *se
 BamfLegacyWindow * bamf_legacy_window_new                  (WnckWindow *legacy_window);
 
 #endif
+

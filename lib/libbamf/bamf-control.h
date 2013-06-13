@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Canonical Ltd.
+ * Copyright 2010-2011 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -21,6 +21,7 @@
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
  *              Neil Jagdish Patel <neil.patel@canonical.com>
+ *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
  *
  */
 
@@ -52,13 +53,6 @@ typedef struct _BamfControl        BamfControl;
 typedef struct _BamfControlClass   BamfControlClass;
 typedef struct _BamfControlPrivate BamfControlPrivate;
 
-enum
-{
-  BAMF_CONTROL_APPROVE_NONE,
-  BAMF_CONTROL_APPROVE_MATCHED,
-  BAMF_CONTROL_APPROVE_ALL
-};
-
 struct _BamfControl
 {
   GObject parent;
@@ -87,12 +81,11 @@ void          bamf_control_insert_desktop_file          (BamfControl *control,
                                                          const gchar *desktop_file);
 
 void          bamf_control_register_application_for_pid (BamfControl *control,
-                                                         const gchar *application,
+                                                         const gchar *desktop_file,
                                                          gint32       pid);
 
 void          bamf_control_register_tab_provider        (BamfControl *control,
                                                          const char  *path);
-                                                     
 void          bamf_control_set_approver_behavior        (BamfControl *control,
                                                          gint32       behavior);
 

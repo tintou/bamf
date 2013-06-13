@@ -17,12 +17,9 @@
  *
  */
 
-#include "bamf.h"
-
 #include "bamf-daemon.h"
 #include "bamf-matcher.h"
 #include "bamf-control.h"
-#include "bamf-indicator-source.h"
 
 G_DEFINE_TYPE (BamfDaemon, bamf_daemon, G_TYPE_OBJECT);
 #define BAMF_DAEMON_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -34,7 +31,6 @@ struct _BamfDaemonPrivate
 {
   BamfMatcher *matcher;
   BamfControl *control;
-  BamfIndicatorSource *approver;
   GMainLoop *loop;
 };
 
@@ -64,44 +60,30 @@ bamf_on_bus_acquired (GDBusConnection *connection, const gchar *name,
 
   self->priv->matcher = bamf_matcher_get_default ();
   self->priv->control = bamf_control_get_default ();
-  //self->priv->approver = bamf_indicator_source_get_default ();
 
   g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (self->priv->matcher),
                                     connection,
-                                    BAMF_MATCHER_PATH,
+                                    BAMF_DBUS_MATCHER_PATH,
                                     &error);
 
   if (error)
     {
-      g_critical ("Can't register BAMF matcher at path %s: %s", BAMF_MATCHER_PATH,
+      g_critical ("Can't register BAMF matcher at path %s: %s", BAMF_DBUS_MATCHER_PATH,
                                                                 error->message);
       g_clear_error (&error);
     }
 
   g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (self->priv->control),
                                     connection,
-                                    BAMF_CONTROL_PATH,
+                                    BAMF_DBUS_CONTROL_PATH,
                                     &error);
 
   if (error)
     {
-      g_critical ("Can't register BAMF control at path %s: %s", BAMF_CONTROL_PATH,
+      g_critical ("Can't register BAMF control at path %s: %s", BAMF_DBUS_CONTROL_PATH,
                                                                 error->message);
       g_clear_error (&error);
     }
-/*
-  g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (self->priv->approver),
-                                    connection,
-                                    BAMF_INDICATOR_SOURCE_PATH,
-                                    &error);
-
-  if (error)
-    {
-      g_critical ("Can't register BAMF approver at path %s: %s",
-                                     BAMF_INDICATOR_SOURCE_PATH, error->message);
-      g_clear_error (&error);
-    }
-*/
 }
 
 static void
@@ -127,7 +109,7 @@ bamf_daemon_start (BamfDaemon *self)
   if (bamf_daemon_is_running (self))
     return;
 
-  g_bus_own_name (G_BUS_TYPE_SESSION, BAMF_DBUS_SERVICE,
+  g_bus_own_name (G_BUS_TYPE_SESSION, BAMF_DBUS_SERVICE_NAME,
                   G_BUS_NAME_OWNER_FLAGS_NONE,
                   (GBusAcquiredCallback) bamf_on_bus_acquired,
                   (GBusNameAcquiredCallback) bamf_on_name_acquired,
@@ -152,12 +134,6 @@ bamf_daemon_stop (BamfDaemon *self)
     {
       g_object_unref (self->priv->control);
       self->priv->control = NULL;
-    }
-
-  if (self->priv->approver)
-    {
-      g_object_unref (self->priv->approver);
-      self->priv->approver = NULL;
     }
 
   g_main_loop_quit (self->priv->loop);

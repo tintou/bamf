@@ -23,6 +23,7 @@
 
 #include <unity-webapps-context.h>
 
+#include "bamf-legacy-window.h"
 #include "bamf-tab.h"
 
 
@@ -55,7 +56,7 @@ GType       bamf_unity_webapps_tab_get_type    (void) G_GNUC_CONST;
 BamfUnityWebappsTab *bamf_unity_webapps_tab_new (UnityWebappsContext *context, gint interest_id);
 
 gint bamf_unity_webapps_tab_get_interest_id (BamfUnityWebappsTab *tab);
-
+BamfLegacyWindow* bamf_unity_webapps_tab_get_legacy_window_for(BamfUnityWebappsTab *tab);
 
 
 #endif

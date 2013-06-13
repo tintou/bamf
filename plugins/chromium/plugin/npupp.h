@@ -261,7 +261,7 @@ typedef void (* NP_LOADDS NPN_StatusUPP)(NPP instance, const char* message);
 #define NewNPN_StatusProc(FUNC)		\
 		((NPN_StatusUPP) (FUNC))
 #define CallNPN_StatusProc(FUNC, npp, msg)		\
-		(*(FUNC))((npp), (msg))	
+		(*(FUNC))((npp), (msg))
 
 /* NPN_UserAgent */
 typedef const char*	(* NP_LOADDS NPN_UserAgentUPP)(NPP instance);
@@ -275,28 +275,28 @@ typedef void* (* NP_LOADDS NPN_MemAllocUPP)(uint32_t size);
 #define NewNPN_MemAllocProc(FUNC)		\
 		((NPN_MemAllocUPP) (FUNC))
 #define CallNPN_MemAllocProc(FUNC, ARG1)		\
-		(*(FUNC))((ARG1))	
+		(*(FUNC))((ARG1))
 
 /* NPN__MemFree */
 typedef void (* NP_LOADDS NPN_MemFreeUPP)(void* ptr);
 #define NewNPN_MemFreeProc(FUNC)		\
 		((NPN_MemFreeUPP) (FUNC))
 #define CallNPN_MemFreeProc(FUNC, ARG1)		\
-		(*(FUNC))((ARG1))	
+		(*(FUNC))((ARG1))
 
 /* NPN_MemFlush */
 typedef uint32_t (* NP_LOADDS NPN_MemFlushUPP)(uint32_t size);
 #define NewNPN_MemFlushProc(FUNC)		\
 		((NPN_MemFlushUPP) (FUNC))
 #define CallNPN_MemFlushProc(FUNC, ARG1)		\
-		(*(FUNC))((ARG1))	
+		(*(FUNC))((ARG1))
 
 /* NPN_ReloadPlugins */
 typedef void (* NP_LOADDS NPN_ReloadPluginsUPP)(NPBool reloadPages);
 #define NewNPN_ReloadPluginsProc(FUNC)		\
 		((NPN_ReloadPluginsUPP) (FUNC))
 #define CallNPN_ReloadPluginsProc(FUNC, ARG1)		\
-		(*(FUNC))((ARG1))	
+		(*(FUNC))((ARG1))
 
 /* NPN_GetJavaEnv */
 // The return type of this used to be JRIEnv*. Use void* now to
@@ -306,7 +306,7 @@ typedef void* (* NP_LOADDS NPN_GetJavaEnvUPP)(void);
 #define NewNPN_GetJavaEnvProc(FUNC)		\
 		((NPN_GetJavaEnvUPP) (FUNC))
 #define CallNPN_GetJavaEnvProc(FUNC)		\
-		(*(FUNC))()	
+		(*(FUNC))()
 
 /* NPN_GetJavaPeer */
 // The return type of this used to be jref, which was a pointer to a
@@ -316,28 +316,28 @@ typedef void* (* NP_LOADDS NPN_GetJavaPeerUPP)(NPP instance);
 #define NewNPN_GetJavaPeerProc(FUNC)		\
 		((NPN_GetJavaPeerUPP) (FUNC))
 #define CallNPN_GetJavaPeerProc(FUNC, ARG1)		\
-		(*(FUNC))((ARG1))	
+		(*(FUNC))((ARG1))
 
 /* NPN_InvalidateRect */
 typedef void (* NP_LOADDS NPN_InvalidateRectUPP)(NPP instance, NPRect *rect);
 #define NewNPN_InvalidateRectProc(FUNC)		\
 		((NPN_InvalidateRectUPP) (FUNC))
 #define CallNPN_InvalidateRectProc(FUNC, ARG1, ARG2)		\
-		(*(FUNC))((ARG1), (ARG2))	
+		(*(FUNC))((ARG1), (ARG2))
 
 /* NPN_InvalidateRegion */
 typedef void (* NP_LOADDS NPN_InvalidateRegionUPP)(NPP instance, NPRegion region);
 #define NewNPN_InvalidateRegionProc(FUNC)		\
 		((NPN_InvalidateRegionUPP) (FUNC))
 #define CallNPN_InvalidateRegionProc(FUNC, ARG1, ARG2)		\
-		(*(FUNC))((ARG1), (ARG2))	
+		(*(FUNC))((ARG1), (ARG2))
 
 /* NPN_ForceRedraw */
 typedef void (* NP_LOADDS NPN_ForceRedrawUPP)(NPP instance);
 #define NewNPN_ForceRedrawProc(FUNC)		\
 		((NPN_ForceRedrawUPP) (FUNC))
 #define CallNPN_ForceRedrawProc(FUNC, ARG1)		\
-		(*(FUNC))((ARG1))	
+		(*(FUNC))((ARG1))
 
 /* NPN_GetStringIdentifier */
 typedef NPIdentifier (* NP_LOADDS NPN_GetStringIdentifierUPP)(const NPUTF8* name);
@@ -472,7 +472,7 @@ typedef void (* NP_LOADDS NPN_SetExceptionUPP)(NPObject *obj, const NPUTF8 *mess
 #define NewNPN_SetExceptionProc(FUNC)		\
 		((NPN_SetExceptionUPP) (FUNC))
 #define CallNPN_SetExceptionProc(FUNC, ARG1, ARG2)		\
-		(*(FUNC))((ARG1), (ARG2))	
+		(*(FUNC))((ARG1), (ARG2))
 
 /* NPN_PushPopupsEnabledStateUPP */
 typedef void (* NP_LOADDS NPN_PushPopupsEnabledStateUPP)(NPP npp, NPBool enabled);
@@ -610,7 +610,7 @@ typedef NPError (* NP_LOADDS NPP_MainEntryUPP)(NPNetscapeFuncs*, NPPluginFuncs*,
  * These can be called to retreive MIME information from the plugin dynamically
  *
  * Note: For compatibility with Quicktime, BPSupportedMIMEtypes is another way
- *       to get mime info from the plugin only on OSX and may not be supported 
+ *       to get mime info from the plugin only on OSX and may not be supported
  *       in furture version -- use NP_GetMIMEDescription instead
  */
 

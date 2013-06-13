@@ -2,7 +2,7 @@
  * Copyright (C) 2011 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 3 as 
+ * it under the terms of the GNU General Public License version 3 as
  * published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -25,7 +25,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <glibtop.h>
-#include "bamf.h"
+#include <libbamf-private/bamf-private.h>
 
 void test_application_create_suite (GDBusConnection *connection);
 void test_matcher_create_suite (GDBusConnection *connection);
@@ -39,10 +39,14 @@ on_bus_acquired (GDBusConnection *connection, const gchar *name, gpointer data)
 {
   GMainLoop *loop = data;
 
+  g_setenv ("BAMF_TEST_MODE", "TRUE", TRUE);
+  g_setenv ("PATH", TESTDIR"/data/bin", TRUE);
+
   test_matcher_create_suite (connection);
   test_view_create_suite (connection);
   test_window_create_suite ();
   test_application_create_suite (connection);
+
   result = g_test_run ();
 
   g_main_loop_quit (loop);
@@ -67,7 +71,7 @@ main (gint argc, gchar *argv[])
   loop = g_main_loop_new (NULL, FALSE);
 
   g_bus_own_name (G_BUS_TYPE_SESSION,
-                  BAMF_DBUS_SERVICE".test",
+                  BAMF_DBUS_SERVICE_NAME,
                   G_BUS_NAME_OWNER_FLAGS_NONE,
                   on_bus_acquired,
                   NULL,

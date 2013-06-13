@@ -21,9 +21,7 @@
 
 #include "bamf-matcher.h"
 #include "bamf-control.h"
-#include "bamf-indicator-source.h"
 #include "bamf-daemon.h"
-#include "bamf-unity-webapps-observer.h"
 
 G_DEFINE_TYPE (BamfControl, bamf_control, BAMF_DBUS_TYPE_CONTROL_SKELETON);
 #define BAMF_CONTROL_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -31,10 +29,12 @@ BAMF_TYPE_CONTROL, BamfControlPrivate))
 
 struct _BamfControlPrivate
 {
+  GDBusConnection *connection;
+  guint launched_signal;
   GList *sources;
 };
 
-static void 
+static void
 bamf_control_on_launched_callback (GDBusConnection *connection,
                                    const gchar *sender_name,
                                    const gchar *object_path,
@@ -54,24 +54,41 @@ bamf_control_on_launched_callback (GDBusConnection *connection,
 }
 
 static void
+on_bus_connection (GObject *source_object, GAsyncResult *res, gpointer user_data)
+{
+  BamfControl *self;
+  GError *error = NULL;
+
+  g_return_if_fail (BAMF_IS_CONTROL (user_data));
+
+  self = BAMF_CONTROL (user_data);
+  self->priv->connection = g_bus_get_finish (res, &error);
+
+  if (error)
+    {
+      g_warning ("Got error when connecting to session bus: %s", error->message);
+      g_clear_error (&error);
+      self->priv->connection = NULL;
+      return;
+    }
+
+  self->priv->launched_signal =
+    g_dbus_connection_signal_subscribe  (self->priv->connection, NULL,
+                                         "org.gtk.gio.DesktopAppInfo",
+                                         "Launched",
+                                         "/org/gtk/gio/DesktopAppInfo",
+                                         NULL, G_DBUS_SIGNAL_FLAGS_NONE,
+                                         bamf_control_on_launched_callback,
+                                         self, NULL);
+}
+
+static void
 bamf_control_constructed (GObject *object)
 {
-  GDBusConnection *gbus;
-
   if (G_OBJECT_CLASS (bamf_control_parent_class)->constructed)
     G_OBJECT_CLASS (bamf_control_parent_class)->constructed (object);
 
-  gbus = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
-  g_dbus_connection_signal_subscribe  (gbus,
-                                       NULL,
-                                       "org.gtk.gio.DesktopAppInfo",
-                                       "Launched",
-                                       "/org/gtk/gio/DesktopAppInfo",
-                                       NULL,
-                                       0,
-                                       bamf_control_on_launched_callback,
-                                       BAMF_CONTROL (object),
-                                       NULL);
+  g_bus_get (G_BUS_TYPE_SESSION, NULL, on_bus_connection, object);
 }
 
 static gboolean
@@ -80,18 +97,6 @@ on_dbus_handle_quit (BamfDBusControl *interface,
                      BamfControl *self)
 {
   bamf_control_quit (self);
-  g_dbus_method_invocation_return_value (invocation, NULL);
-
-  return TRUE;
-}
-
-static gboolean
-on_dbus_handle_set_approver_behavior (BamfDBusControl *interface,
-                                      GDBusMethodInvocation *invocation,
-                                      gint behavior,
-                                      BamfControl *self)
-{
-  bamf_control_set_approver_behavior (self, behavior);
   g_dbus_method_invocation_return_value (invocation, NULL);
 
   return TRUE;
@@ -132,9 +137,6 @@ bamf_control_init (BamfControl * self)
   g_signal_connect (self, "handle-quit",
                     G_CALLBACK (on_dbus_handle_quit), self);
 
-  g_signal_connect (self, "handle-set-approver-behavior",
-                    G_CALLBACK (on_dbus_handle_set_approver_behavior), self);
-
   g_signal_connect (self, "handle-om-nom-nom-desktop-file",
                     G_CALLBACK (on_dbus_handle_om_nom_nom_desktop_file), self);
 
@@ -146,8 +148,19 @@ static void
 bamf_control_finalize (GObject *object)
 {
   BamfControl *self = BAMF_CONTROL (object);
+
+  if (self->priv->connection)
+    {
+      if (self->priv->launched_signal)
+        {
+          g_dbus_connection_signal_unsubscribe (self->priv->connection,
+                                                self->priv->launched_signal);
+        }
+
+      g_object_unref (self->priv->connection);
+    }
+
   g_list_free_full (self->priv->sources, g_object_unref);
-  self->priv->sources = NULL;
 }
 
 static void
@@ -159,14 +172,6 @@ bamf_control_class_init (BamfControlClass * klass)
   obj_class->finalize = bamf_control_finalize;
 
   g_type_class_add_private (klass, sizeof (BamfControlPrivate));
-}
-
-void
-bamf_control_set_approver_behavior (BamfControl *control,
-                                    gint32 behavior)
-{
-  BamfIndicatorSource *indicator_source = bamf_indicator_source_get_default ();
-  bamf_indicator_source_set_behavior (indicator_source, behavior);
 }
 
 void

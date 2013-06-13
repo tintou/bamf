@@ -78,13 +78,11 @@ test_allocation (void)
   g_assert (BAMF_IS_APPLICATION (application));
 
   g_object_unref (application);
-  g_assert (!BAMF_IS_APPLICATION (application));
 
   application = bamf_application_new_from_desktop_file (DESKTOP_FILE);
   g_assert (BAMF_IS_APPLICATION (application));
 
   g_object_unref (application);
-  g_assert (!BAMF_IS_APPLICATION (application));
 }
 
 static void
@@ -111,7 +109,7 @@ static void
 test_desktop_no_icon (void)
 {
   BamfApplication    *application;
-  const char no_icon_desktop[] = TESTDIR"/bamfdaemon/data/no-icon.desktop";
+  const char no_icon_desktop[] = TESTDIR"/data/no-icon.desktop";
 
   application = bamf_application_new_from_desktop_file (no_icon_desktop);
   g_assert (g_strcmp0 (bamf_application_get_desktop_file (application), no_icon_desktop) == 0);
@@ -124,7 +122,7 @@ static void
 test_get_mime_types (void)
 {
   BamfApplication *application;
-  const char* mime_types_desktop = TESTDIR"/bamfdaemon/data/mime-types.desktop";
+  const char* mime_types_desktop = TESTDIR"/data/mime-types.desktop";
 
   application = bamf_application_new_from_desktop_file (mime_types_desktop);
   g_assert_cmpstr (bamf_application_get_desktop_file (application), ==, mime_types_desktop);
@@ -139,6 +137,7 @@ test_get_mime_types (void)
   g_assert_cmpstr (mimes[4], ==, "text/css");
   g_assert_cmpstr (mimes[5], ==, "text/x-diff");
   g_assert_cmpstr (mimes[6], ==, "application/xml");
+  g_assert_cmpstr (mimes[7], ==, NULL);
 
   g_strfreev (mimes);
   g_object_unref (application);
@@ -148,7 +147,7 @@ static void
 test_get_mime_types_none (void)
 {
   BamfApplication *application;
-  const char* mime_types_desktop = TESTDIR"/bamfdaemon/data/test-bamf-app.desktop";
+  const char* mime_types_desktop = TESTDIR"/data/test-bamf-app.desktop";
 
   application = bamf_application_new_from_desktop_file (mime_types_desktop);
   g_assert_cmpstr (bamf_application_get_desktop_file (application), ==, mime_types_desktop);
@@ -268,6 +267,8 @@ test_active (void)
 
   // Ensure that when adding a skip-tasklist window, we dont set this to visible
   g_assert (bamf_view_is_active (BAMF_VIEW (application)));
+  g_assert (!signal_seen);
+  while (g_main_context_pending (NULL)) g_main_context_iteration(NULL, TRUE);
   g_assert (signal_seen);
   g_assert (signal_result);
 
@@ -279,6 +280,9 @@ test_active (void)
   g_assert (!signal_seen);
 
   bamf_legacy_window_test_set_active (test1, FALSE);
+  g_assert (!signal_seen);
+  g_assert (bamf_view_is_active (BAMF_VIEW (application)));
+  while (g_main_context_pending (NULL)) g_main_context_iteration(NULL, TRUE);
 
   g_assert (!bamf_view_is_active (BAMF_VIEW (application)));
   g_assert (signal_seen);

@@ -22,7 +22,6 @@
 #ifndef __BAMFMATCHER_H__
 #define __BAMFMATCHER_H__
 
-#include "bamf.h"
 #include "bamf-view.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,7 +46,6 @@
 #define BAMF_MATCHER_GET_CLASS(obj)             (G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_MATCHER, BamfMatcherClass))
 
 #define _NET_WM_DESKTOP_FILE "_NET_WM_DESKTOP_FILE"
-#define WM_WINDOW_ROLE       "WM_WINDOW_ROLE"
 
 typedef struct _BamfMatcher BamfMatcher;
 typedef struct _BamfMatcherClass BamfMatcherClass;
@@ -97,7 +95,7 @@ const char  * bamf_matcher_dbus_path_for_application     (BamfMatcher *matcher,
 
 void          bamf_matcher_register_favorites            (BamfMatcher *matcher,
                                                           const char **favorites);
-                                                          
+
 GList       * bamf_matcher_get_favorites                 (BamfMatcher *matcher);
 
 GVariant    * bamf_matcher_running_application_paths     (BamfMatcher *matcher);

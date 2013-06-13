@@ -10,7 +10,7 @@ REQUIRED_AUTOMAKE_VERSION=1.8
 REQUIRED_MACROS="python.m4"
 ACLOCAL_FLAGS="$ACLOCAL_FLAGS -I m4"
 
-(test -f $srcdir/configure.in) || {
+(test -f $srcdir/configure.ac) || {
     echo -n "**Error**: Directory "\`$srcdir\'" does not look like the"
     echo " top-level $PKG_NAME directory"
     exit 1
