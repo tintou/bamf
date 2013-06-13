@@ -103,11 +103,9 @@ bamf_factory_class_init (BamfFactoryClass *klass)
 static void
 bamf_factory_init (BamfFactory *self)
 {
-  BamfFactoryPrivate *priv;
-
-  priv = self->priv = BAMF_FACTORY_GET_PRIVATE (self);
-
-  priv->open_views = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
+  self->priv = BAMF_FACTORY_GET_PRIVATE (self);
+  self->priv->open_views = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                                  g_free, g_object_unref);
 }
 
 static void
@@ -314,7 +312,6 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
         break;
     }
 
-  gboolean created = TRUE;
   BamfView *matched_view = NULL;
 
   if (BAMF_IS_APPLICATION (view))
@@ -411,24 +408,20 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
 
   if (matched_view)
     {
-      created = FALSE;
-
       if (view)
-        g_object_unref (view);
+        {
+          /* We don't need anymore the view we've just created, let's forget it */
+          g_object_unref (view);
+        }
 
       view = matched_view;
       _bamf_view_set_path (view, path);
     }
-
-  if (view)
+  else if (view)
     {
+      /* It's the first time we register this view, we also have to track it, then */
+      bamf_factory_track_view (factory, view);
       bamf_factory_register_view (factory, view, path);
-
-      if (created)
-        {
-          /* It's the first time we register this view, we have also to track it */
-          bamf_factory_track_view (factory, view);
-        }
     }
 
   return view;
