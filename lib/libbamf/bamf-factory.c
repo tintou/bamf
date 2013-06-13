@@ -54,20 +54,23 @@ struct _BamfFactoryPrivate
 
 static BamfFactory *static_factory = NULL;
 
+static void on_view_weak_unref (BamfFactory *self, BamfView *view_was_here);
+
 static void
 bamf_factory_dispose (GObject *object)
 {
-  BamfFactory *self = (BamfFactory *) object;
-
-  if (self->priv->open_views)
-    {
-      g_hash_table_destroy (self->priv->open_views);
-      self->priv->open_views = NULL;
-    }
+  GList *l, *next;
+  BamfFactory *self = BAMF_FACTORY (object);
 
   if (self->priv->allocated_views)
     {
-      g_list_free (self->priv->allocated_views);
+      for (l = self->priv->allocated_views, next = NULL; l; l = next)
+        {
+          g_object_weak_unref (G_OBJECT (l->data), (GWeakNotify) on_view_weak_unref, self);
+          next = l->next;
+          g_list_free1 (l);
+        }
+
       self->priv->allocated_views = NULL;
     }
 
@@ -75,6 +78,12 @@ bamf_factory_dispose (GObject *object)
     {
       g_list_free (self->priv->local_views);
       self->priv->local_views = NULL;
+    }
+
+  if (self->priv->open_views)
+    {
+      g_hash_table_destroy (self->priv->open_views);
+      self->priv->open_views = NULL;
     }
 
   G_OBJECT_CLASS (bamf_factory_parent_class)->dispose (object);
@@ -144,10 +153,10 @@ on_view_closed (BamfView *view, BamfFactory *self)
 }
 
 static void
-on_view_weak_unref (BamfFactory *self, BamfView *view)
+on_view_weak_unref (BamfFactory *self, BamfView *view_was_here)
 {
-  self->priv->local_views = g_list_remove (self->priv->local_views, view);
-  self->priv->allocated_views = g_list_remove (self->priv->allocated_views, view);
+  self->priv->local_views = g_list_remove (self->priv->local_views, view_was_here);
+  self->priv->allocated_views = g_list_remove (self->priv->allocated_views, view_was_here);
 }
 
 static void
