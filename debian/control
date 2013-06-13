@@ -27,6 +27,7 @@ Package: bamfdaemon
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
+         libbamf3-1 (= ${binary:Version}),
 Multi-Arch: foreign
 Description: Window matching library - daemon
  bamf matches application windows to desktop files
@@ -39,7 +40,6 @@ Package: libbamf3-1
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         bamfdaemon (= ${binary:Version}),
 Breaks: unity (<< 3.2.12)
 Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
