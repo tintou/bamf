@@ -58,9 +58,9 @@ static void
 bamf_tab_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
 {
   BamfTab *self;
-  
+
   self = BAMF_TAB (object);
-  
+
   switch (property_id)
     {
     case PROP_LOCATION:
@@ -84,9 +84,9 @@ static void
 bamf_tab_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
   BamfTab *self;
-  
+
   self = BAMF_TAB (object);
-  
+
   switch (property_id)
     {
     case PROP_LOCATION:
@@ -112,7 +112,7 @@ bamf_tab_finalize (GObject *object)
   BamfTab *self = BAMF_TAB (object);
 
   g_object_unref (self->priv->dbus_iface);
-  
+
   G_OBJECT_CLASS (bamf_tab_parent_class)->finalize (object);
 }
 
@@ -123,9 +123,9 @@ on_dbus_handle_raise (BamfDBusItemView *interface,
                       BamfTab *self)
 {
   bamf_tab_raise (self);
-  
+
   g_dbus_method_invocation_return_value (invocation, NULL);
-  
+
   return TRUE;
 }
 
@@ -135,9 +135,9 @@ on_dbus_handle_close (BamfDBusItemView *interface,
                       BamfTab *self)
 {
   bamf_tab_close (self);
-  
+
   g_dbus_method_invocation_return_value (invocation, NULL);
-  
+
   return TRUE;
 }
 
@@ -147,9 +147,9 @@ bamf_tab_preview_ready (BamfTab *self,
                         gpointer user_data)
 {
   GDBusMethodInvocation *invocation;
-  
+
   invocation = (GDBusMethodInvocation *)user_data;
-  
+
   g_dbus_method_invocation_return_value (invocation, g_variant_new ("(s)", preview_data));
 }
 
@@ -159,7 +159,7 @@ on_dbus_handle_request_preview (BamfDBusItemView *interface,
                                 BamfTab *self)
 {
   bamf_tab_request_preview (self, bamf_tab_preview_ready, invocation);
-  
+
   return TRUE;
 }
 
@@ -167,9 +167,9 @@ static void
 bamf_tab_init (BamfTab *self)
 {
   self->priv = BAMF_TAB_GET_PRIVATE (self);
-  
+
   self->priv->dbus_iface = _bamf_dbus_item_tab_skeleton_new ();
-  
+
   g_signal_connect (self->priv->dbus_iface, "handle-raise",
                     G_CALLBACK (on_dbus_handle_raise), self);
   g_signal_connect (self->priv->dbus_iface, "handle-close",
@@ -220,7 +220,7 @@ const gchar *
 bamf_tab_get_desktop_id (BamfTab *self)
 {
   g_return_val_if_fail (BAMF_IS_TAB (self), NULL);
-  
+
   return _bamf_dbus_item_tab_get_desktop_id (self->priv->dbus_iface);
 }
 
@@ -228,7 +228,7 @@ guint64
 bamf_tab_get_xid (BamfTab *self)
 {
   g_return_val_if_fail (BAMF_IS_TAB (self), 0);
-  
+
   return _bamf_dbus_item_tab_get_xid (self->priv->dbus_iface);
 }
 
@@ -236,7 +236,7 @@ gboolean
 bamf_tab_get_is_foreground_tab (BamfTab *self)
 {
   g_return_val_if_fail (BAMF_IS_TAB (self), 0);
-  
+
   return _bamf_dbus_item_tab_get_is_foreground_tab (self->priv->dbus_iface);
 }
 
@@ -244,22 +244,22 @@ void
 bamf_tab_raise (BamfTab *self)
 {
   g_return_if_fail (BAMF_IS_TAB (self));
-  
+
   BAMF_TAB_GET_CLASS (self)->raise (self);
 }
 
-void 
+void
 bamf_tab_close (BamfTab *self)
 {
   g_return_if_fail (BAMF_IS_TAB (self));
-  
+
   BAMF_TAB_GET_CLASS (self)->close (self);
 }
 
-void 
+void
 bamf_tab_request_preview (BamfTab *self, BamfTabPreviewReadyCallback callback, gpointer user_data)
 {
   g_return_if_fail (BAMF_IS_TAB (self));
-  
+
   BAMF_TAB_GET_CLASS (self)->request_preview (self, callback, user_data);
 }

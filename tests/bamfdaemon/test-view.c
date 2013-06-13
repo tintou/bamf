@@ -2,7 +2,7 @@
  * Copyright (C) 2009-2011 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 3 as 
+ * it under the terms of the GNU General Public License version 3 as
  * published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -145,7 +145,7 @@ static void
 test_path_collision (void)
 {
   int i, j;
-  
+
   for (i = 0; i < 20; i++)
     {
       GList *views = NULL;
@@ -442,7 +442,7 @@ test_child_added_event (void)
 
   bamf_view_close (child);
   bamf_view_close (parent);
-  
+
   g_object_unref (child);
   g_object_unref (parent);
 }

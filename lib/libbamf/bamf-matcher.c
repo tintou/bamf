@@ -471,7 +471,7 @@ bamf_matcher_application_is_running (BamfMatcher *matcher, const gchar *app)
  * bamf_matcher_get_applications:
  * @matcher: a #BamfMatcher
  *
- * Used to fetch all #BamfApplication's running or not. Application authors who wish to only 
+ * Used to fetch all #BamfApplication's running or not. Application authors who wish to only
  * see running applications should use bamf_matcher_get_running_applications instead. The reason
  * this method is needed is bamf will occasionally track applications which are not currently
  * running for nefarious purposes.

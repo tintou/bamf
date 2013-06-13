@@ -3,17 +3,17 @@
  * Copyright (C) Canonical LTD 2012
  *
  * Author: Robert Carr <racarr@canonical.com>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * unity-webapps is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.";
  */
@@ -25,7 +25,7 @@
 
 struct _BamfUnityWebappsObserverPrivate {
   UnityWebappsService *service;
-  
+
   GHashTable *applications_by_context_name;
 
   guint service_watch_id;
@@ -33,7 +33,7 @@ struct _BamfUnityWebappsObserverPrivate {
 
 G_DEFINE_TYPE(BamfUnityWebappsObserver, bamf_unity_webapps_observer, G_TYPE_OBJECT)
 
-enum 
+enum
 {
   APPLICATION_APPEARED,
   LAST_SIGNAL
@@ -51,22 +51,22 @@ bamf_unity_webapps_observer_context_vanished (UnityWebappsService *service,
 {
   BamfUnityWebappsObserver *observer;
   BamfApplication *application;
-  
+
   observer = (BamfUnityWebappsObserver *)user_data;
-  
+
   application = g_hash_table_lookup (observer->priv->applications_by_context_name, name);
-  
+
   if (application == NULL)
     return;
-  
+
   bamf_view_set_running (BAMF_VIEW (application), FALSE);
   bamf_view_close (BAMF_VIEW (application));
-  
+
   g_hash_table_remove (observer->priv->applications_by_context_name, name);
-  
+
 }
 
-static void 
+static void
 bamf_unity_webapps_application_closed (BamfView *view,
                                        gpointer user_data)
 {
@@ -74,14 +74,14 @@ bamf_unity_webapps_application_closed (BamfView *view,
   BamfUnityWebappsApplication *application;
   UnityWebappsContext *context;
   const gchar *context_name;
-  
+
   observer = (BamfUnityWebappsObserver *)user_data;
-  
+
   application = BAMF_UNITY_WEBAPPS_APPLICATION (view);
-  
+
   context = bamf_unity_webapps_application_get_context  (application);
   context_name = unity_webapps_context_get_context_name (context);
-  
+
   g_hash_table_remove (observer->priv->applications_by_context_name, context_name);
 }
 
@@ -110,7 +110,7 @@ bamf_unity_webapps_observer_context_appeared (UnityWebappsService *service,
                     observer);
 
   g_hash_table_insert (observer->priv->applications_by_context_name, g_strdup (name), application);
-  
+
   g_signal_emit (observer, webapps_observer_signals[APPLICATION_APPEARED], 0, application);
 }
 
@@ -120,22 +120,22 @@ bamf_unity_webapps_observer_register_existing_contexts (BamfUnityWebappsObserver
 {
   gchar **contexts;
   gint i, len;
-  
+
   contexts = unity_webapps_service_list_contexts (service);
-  
+
   if (contexts == NULL)
     return;
-  
+
   len = g_strv_length (contexts);
-  
+
   if (len == 0)
     return;
-  
+
   for (i = 0; i < len; i++)
     {
       bamf_unity_webapps_observer_context_appeared (service, contexts[i], observer);
     }
-  
+
   g_strfreev (contexts);
 }
 
@@ -146,33 +146,33 @@ bamf_unity_webapps_observer_service_appeared (GDBusConnection *connection,
                                               gpointer user_data)
 {
   BamfUnityWebappsObserver *observer;
-  
+
   observer = (BamfUnityWebappsObserver *)user_data;
-  
+
   observer->priv->service = unity_webapps_service_new ();
-  
+
   unity_webapps_service_on_context_appeared (observer->priv->service, bamf_unity_webapps_observer_context_appeared, observer);
   unity_webapps_service_on_context_vanished (observer->priv->service, bamf_unity_webapps_observer_context_vanished, observer);
 
   bamf_unity_webapps_observer_register_existing_contexts (observer, observer->priv->service);
-  
+
 }
 
 static void
 bamf_unity_webapps_observer_close_all (BamfUnityWebappsObserver *observer)
 {
   GList *names, *walk;
-  
+
   names = g_hash_table_get_keys (observer->priv->applications_by_context_name);
-  
+
   for (walk = names; walk != NULL; walk = walk->next)
     {
       bamf_unity_webapps_observer_context_vanished (observer->priv->service, (const gchar *)walk->data,
                                                     observer);
     }
-  
+
   g_list_free (names);
-  
+
 
 }
 
@@ -188,9 +188,9 @@ bamf_unity_webapps_observer_service_vanished (GDBusConnection *connection,
     {
       return;
     }
-  
-  bamf_unity_webapps_observer_close_all (observer);  
-  
+
+  bamf_unity_webapps_observer_close_all (observer);
+
   g_object_unref (G_OBJECT (observer->priv->service));
   observer->priv->service = NULL;
 }
@@ -199,18 +199,18 @@ static void
 bamf_unity_webapps_observer_finalize (GObject *object)
 {
   BamfUnityWebappsObserver *observer;
-  
+
   observer = BAMF_UNITY_WEBAPPS_OBSERVER (object);
-  
+
   g_hash_table_destroy (observer->priv->applications_by_context_name);
-  
+
   g_bus_unwatch_name (observer->priv->service_watch_id);
 
   if (observer->priv->service)
     {
       g_object_unref (G_OBJECT (observer->priv->service));
     }
-  
+
   G_OBJECT_CLASS (bamf_unity_webapps_observer_parent_class)->finalize (object);
 }
 
@@ -218,7 +218,7 @@ static void
 bamf_unity_webapps_observer_constructed (GObject *object)
 {
   BamfUnityWebappsObserver *observer;
-  
+
   observer = (BamfUnityWebappsObserver *)object;
   if (G_OBJECT_CLASS (bamf_unity_webapps_observer_parent_class)->constructed)
     {
@@ -238,13 +238,13 @@ static void
 bamf_unity_webapps_observer_class_init (BamfUnityWebappsObserverClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  
+
   object_class->finalize = bamf_unity_webapps_observer_finalize;
   object_class->constructed = bamf_unity_webapps_observer_constructed;
-  
+
   g_type_class_add_private (object_class, sizeof(BamfUnityWebappsObserverPrivate));
-  
-  webapps_observer_signals [APPLICATION_APPEARED] = 
+
+  webapps_observer_signals [APPLICATION_APPEARED] =
     g_signal_new ("application-appeared",
                   G_OBJECT_CLASS_TYPE (klass),
                   0,
@@ -252,7 +252,7 @@ bamf_unity_webapps_observer_class_init (BamfUnityWebappsObserverClass *klass)
                   g_cclosure_marshal_VOID__OBJECT,
                   G_TYPE_NONE, 1,
                   BAMF_TYPE_APPLICATION);
-  
+
 }
 
 
@@ -261,9 +261,9 @@ static void
 bamf_unity_webapps_observer_init (BamfUnityWebappsObserver *observer)
 {
   observer->priv = BAMF_UNITY_WEBAPPS_OBSERVER_GET_PRIVATE (observer);
-  
+
   observer->priv->service = NULL;
-  
+
   observer->priv->applications_by_context_name = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                                         g_free, NULL);
 }
