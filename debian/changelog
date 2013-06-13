@@ -13,7 +13,7 @@ bamf (0.5.0) UNRELEASED; urgency=low
   [ Jeremy Bicha ]
   * debian/control:
     - Have libbamf3-dev depend on gir1.2-bamf-3
-    - Drop explicit build-depends on gir1.2-glib-2.0 
+    - Drop explicit build-depends on gir1.2-glib-2.0
 
  -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 12 Jun 2013 14:30:03 +0200
 
@@ -171,9 +171,9 @@ bamf (0.3.4-0ubuntu1) quantal-proposed; urgency=low
     - Autoconf: Make libunity-webapps an optional dependency (on by default)
     - Libbamf: Some signal, type and annotation fixes
     - libbamf: gir-annotion fixes and make gi-scanner verbose
-    - Autoconf: Exclude generated sources from tarball and fix "make 
+    - Autoconf: Exclude generated sources from tarball and fix "make
       distcheck".
-    - BamfMatcher: add support for libreoffice Base, and libreoffice matching 
+    - BamfMatcher: add support for libreoffice Base, and libreoffice matching
       tests (LP: #1063862)
 
   [ Didier Roche ]
@@ -205,11 +205,11 @@ bamf (0.3.0-0ubuntu2) quantal-proposed; urgency=low
 
 bamf (0.3.0-0ubuntu1) quantal-proposed; urgency=low
 
-  * Note that while technically that update breaks compatibility by 
-    dropping some public functions the corresponding code never worked and 
+  * Note that while technically that update breaks compatibility by
+    dropping some public functions the corresponding code never worked and
     it has been verified those were not used by any rdepends.
-  * debian/control: 
-    - Build-Depends on libunity-webapps-dev to prepare the landing of the 
+  * debian/control:
+    - Build-Depends on libunity-webapps-dev to prepare the landing of the
       branch using it
   * debian/libbamf3-0.symbols:
     - updated as well
@@ -225,7 +225,7 @@ bamf (0.3.0-0ubuntu1) quantal-proposed; urgency=low
 bamf (0.2.122-0ubuntu1) quantal-proposed; urgency=low
 
   * New upstream release.
-    - Type mismatch in libbamf bamf_control_register_application_for_pid() 
+    - Type mismatch in libbamf bamf_control_register_application_for_pid()
       and dbus interface (LP: #1021143)
     - running applications without an icon use a blank icon (LP: #886778)
 
@@ -240,7 +240,7 @@ bamf (0.2.120-0ubuntu1) quantal; urgency=low
     - sometimes icons get dropped from the launcher when they should not
       (LP: #925421)
   * debian/libbamf0.symbols, debian/libbamf3-0.symbols:
-    - removed symbols that were wrongly exported upstream before (private 
+    - removed symbols that were wrongly exported upstream before (private
       symbols)
 
  -- Didier Roche <didrocks@ubuntu.com>  Tue, 10 Jul 2012 08:41:32 +0200
@@ -266,7 +266,7 @@ bamf (0.2.118-1) unstable; urgency=low
   * debian/control:
     - bump Standards-Version to latest
     - remove build-dep only used for unit tests
-    - replace the gtk2 variant of the wnck introspection gir package with 
+    - replace the gtk2 variant of the wnck introspection gir package with
       gtk3 one
     - ensure the gtk2/gtk3 version doesn't have the same description
   * debian/*.symbols:
@@ -300,7 +300,7 @@ bamf (0.2.118-0ubuntu1) quantal; urgency=low
     - Locked smuxi launcher icon does not indicate smuxi running status
       (LP: #999820)
     - No launcher icon or Alt+Tab entry for Gimp windows (LP: #995916)
-    - the RunningApplicationsChanged signal is no longer emitted when an 
+    - the RunningApplicationsChanged signal is no longer emitted when an
       application is closed since r460 (LP: #989551)
 
  -- Alan Pope <popey@ubuntu.com>  Wed, 23 May 2012 09:10:08 +0100
@@ -324,7 +324,7 @@ bamf (0.2.118-0ubuntu0.1) precise-proposed; urgency=low
     - Locked smuxi launcher icon does not indicate smuxi running status
       (LP: #999820)
     - No launcher icon or Alt+Tab entry for Gimp windows (LP: #995916)
-    - the RunningApplicationsChanged signal is no longer emitted when an 
+    - the RunningApplicationsChanged signal is no longer emitted when an
       application is closed since r460 (LP: #989551)
 
  -- Alan Pope <popey@ubuntu.com>  Wed, 23 May 2012 09:10:08 +0100
@@ -340,7 +340,7 @@ bamf (0.2.112-0ubuntu1) precise; urgency=low
 
   * New upstream release.
     - bamf matcher messes up refcounting on views (LP: #942070)
-    - Chromium is running, but not showing in launcher or alt-tab. 
+    - Chromium is running, but not showing in launcher or alt-tab.
       (LP: #918474)
     - libbamf leaks memory on view dispose (LP: #942148)
     - Coverity PW.PARAMETER_HIDDEN - CID 10449 (LP: #937398)
@@ -411,7 +411,7 @@ bamf (0.2.104-1) unstable; urgency=low
    * debian/control:
      - removed gir's package for now, still not building
        correctly.
- 
+
    [ Andrea Veri ]
    * debian/control:
      - changed Maintainer accordingly.
@@ -711,10 +711,10 @@ bamf (0.2.46-0ubuntu1) maverick; urgency=low
 bamf (0.2.44-0ubuntu1) maverick; urgency=low
 
   * New upstream release:
-    - Fix potential NULL deref when XDG_DATA_DIRS is not set 
+    - Fix potential NULL deref when XDG_DATA_DIRS is not set
       (lp: #602519)
-  * debian/control: 
-    - updated for the new vala versioning 
+  * debian/control:
+    - updated for the new vala versioning
   * debian/libbamf0.symbols:
     - new version update
 
@@ -753,7 +753,7 @@ bamf (0.2.36-0ubuntu1) maverick; urgency=low
 
   * New upstream release.
   * debian/libbamf0.symbols:
-    - update to latest 
+    - update to latest
 
  -- Didier Roche <didrocks@ubuntu.com>  Fri, 16 Jul 2010 14:44:16 +0200
 
@@ -803,7 +803,7 @@ bamf (0.2.26-0ubuntu1) maverick; urgency=low
   * debian/control, debian/libbamf-doc.install:
     - add libbamf-doc package
   * debian/libbamf0.symbols:
-    - updated 
+    - updated
   * debian/control, debian/rules:
     - build the doc by default
   * debian/libbamf-dev.install:

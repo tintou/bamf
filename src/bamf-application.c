@@ -594,7 +594,7 @@ static void
 view_xid_changed (GObject *object, GParamSpec *pspec, gpointer user_data)
 {
   BamfApplication *self;
-  
+
   self = (BamfApplication *)user_data;
   bamf_application_ensure_flags (self);
 }
@@ -1086,7 +1086,7 @@ gboolean
 bamf_application_get_close_when_empty (BamfApplication *application)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION(application), FALSE);
-  
+
   if (BAMF_APPLICATION_GET_CLASS (application)->get_close_when_empty)
     {
       return BAMF_APPLICATION_GET_CLASS (application)->get_close_when_empty(application);
@@ -1098,7 +1098,7 @@ void
 bamf_application_get_application_menu (BamfApplication *application, gchar **name, gchar **object_path)
 {
   g_return_if_fail (BAMF_IS_APPLICATION (application));
-  
+
   if (BAMF_APPLICATION_GET_CLASS (application)->get_application_menu)
     {
       BAMF_APPLICATION_GET_CLASS (application)->get_application_menu (application, name, object_path);
@@ -1114,11 +1114,11 @@ BamfView *
 bamf_application_get_focusable_child (BamfApplication *application)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
-  
+
   if (BAMF_APPLICATION_GET_CLASS (application)->get_focusable_child)
     {
       return BAMF_APPLICATION_GET_CLASS (application)->get_focusable_child (application);
     }
-  
+
   return NULL;
 }

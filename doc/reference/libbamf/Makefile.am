@@ -38,7 +38,7 @@ IGNORE_HFILES = \
 HTML_IMAGES =
 
 # Extra SGML files that are included by $(DOC_MAIN_SGML_FILE).
-content_files = 
+content_files =
 
 # CFLAGS and LDFLAGS for compiling gtkdoc-scangobj with your library.
 INCLUDES= \

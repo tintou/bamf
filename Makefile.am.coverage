@@ -19,12 +19,12 @@ if HAVE_GCOV
 coverage-html:
 	-$(MAKE) $(AM_MAKEFLAGS) -k check
 	$(MAKE) $(AM_MAKEFLAGS) generate-coverage-html
-  
+
 generate-coverage-html:
 	@echo Collecting coverage data
 	$(LCOV) --directory $(top_builddir) --capture --output-file coverage.info --no-checksum --compat-libtool
 	LANG=C $(GENHTML) --prefix $(top_builddir) --output-directory coveragereport --title "Code Coverage" --legend --show-details coverage.info
-  
+
 clean-coverage-html: clean-gcda
 	-$(LCOV) --directory $(top_builddir) -z
 	-rm -rf coverage.info coveragereport

@@ -46,14 +46,14 @@ hasMethod(NPObject* obj, NPIdentifier methodName) {
 }
 
 static bool
-invokeAddTab (NPObject *obj, const NPVariant *args, uint32_t argCount, NPVariant *result) 
+invokeAddTab (NPObject *obj, const NPVariant *args, uint32_t argCount, NPVariant *result)
 {
 	const NPString *id;
 	id = &NPVARIANT_TO_STRING (args[0]);
-	
+
 	logmsg (id->UTF8Characters);
 	logmsg ("\n");
-	
+
 	return true;
 }
 
@@ -187,7 +187,7 @@ NP_GetEntryPoints(NPPluginFuncs *nppfuncs) {
 #endif
 
 NPError OSCALL
-NP_Initialize(NPNetscapeFuncs *npnf, 
+NP_Initialize(NPNetscapeFuncs *npnf,
               NPPluginFuncs *nppfuncs)
 {
 	logmsg("npsimple: NP_Initialize\n");

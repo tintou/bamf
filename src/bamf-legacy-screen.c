@@ -242,7 +242,7 @@ handle_window_opened (WnckScreen *screen, WnckWindow *window, BamfLegacyScreen *
   g_signal_connect (G_OBJECT (legacy_window), "closed",
                     (GCallback) handle_window_closed, legacy);
 
-  legacy->priv->windows = g_list_insert_sorted_with_data (legacy->priv->windows, legacy_window, 
+  legacy->priv->windows = g_list_insert_sorted_with_data (legacy->priv->windows, legacy_window,
                                                           compare_windows_by_stack_order,
                                                           legacy);
 

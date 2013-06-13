@@ -64,21 +64,21 @@ bamf_window_get_transient (BamfWindow *self)
   BamfLegacyWindow *legacy, *transient;
   BamfWindow *other;
   GList *l;
-  
+
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
-  
+
   legacy = bamf_window_get_window (self);
   transient = bamf_legacy_window_get_transient (legacy);
-  
+
   if (transient)
     {
       for (l = bamf_windows; l; l = l->next)
         {
           other = l->data;
-      
+
           if (!BAMF_IS_WINDOW (other))
             continue;
-      
+
           if (transient == bamf_window_get_window (other))
             return other;
         }
@@ -90,22 +90,22 @@ const char *
 bamf_window_get_transient_path (BamfWindow *self)
 {
   BamfWindow *transient;
-  
+
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
-  
+
   transient = bamf_window_get_transient (self);
-  
+
   if (transient == NULL)
     return "";
-  
+
   return bamf_view_get_path (BAMF_VIEW (transient));
-} 
+}
 
 guint32
 bamf_window_get_window_type (BamfWindow *window)
 {
   g_return_val_if_fail (BAMF_IS_WINDOW (window), 0);
-  
+
   return (guint32) bamf_legacy_window_get_window_type (window->priv->legacy_window);
 }
 
@@ -542,6 +542,6 @@ bamf_window_new (BamfLegacyWindow *window)
 {
   BamfWindow *self;
   self = (BamfWindow *) g_object_new (BAMF_TYPE_WINDOW, "legacy-window", window, NULL);
-  
+
   return self;
 }

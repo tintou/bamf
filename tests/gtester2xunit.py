@@ -24,11 +24,11 @@ def main():
     parser = ArgumentParser(
             description="Simple utility that converts xml output of " +
                         "gtester to xunit output for jenkins")
-    parser.add_argument('-o', '--output', 
+    parser.add_argument('-o', '--output',
             help="Write output to specified file instead of default")
-    parser.add_argument('-x', '--xsl', 
+    parser.add_argument('-x', '--xsl',
             help="xsl file that should be used for the transformation")
-    parser.add_argument('-i', '--in-place', 
+    parser.add_argument('-i', '--in-place',
             help="Write the ouput to the original file (i.e. replace " +
             "the original xml)",
             action='store_true',
@@ -49,6 +49,6 @@ def main():
         else:
             xsl = args['xsl']
         transform_file(input_filename, output_filename, xsl)
-    
+
 sys.exit(main())
 # vim: set syntex=python:
