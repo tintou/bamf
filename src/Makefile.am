@@ -22,7 +22,6 @@ bamfdaemon_sources = \
 
 bamfdaemon_headers = \
 	main.h \
-	bamf.h \
 	bamf-daemon.h \
 	bamf-legacy-window.h \
 	bamf-legacy-window-test.h \
@@ -61,11 +60,6 @@ bamfdaemon_SOURCES += \
 	$(bamfdaemon_webapps_headers) \
 	$(NULL)
 endif
-
-EXTRA_DIST += \
-	$(bamfdaemon_webapps_sources) \
-	$(bamfdaemon_webapps_headers) \
-	$(NULL)
 
 bamfdaemon_LDADD = \
 	$(LIBBAMF_PRIVATE_LIB) \
