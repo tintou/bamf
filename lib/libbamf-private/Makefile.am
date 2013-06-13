@@ -53,7 +53,6 @@ EXTRA_DIST = \
 	$(NULL)
 
 .NOTPARALLEL:
-
 bamf-gdbus-generated.c: org.ayatana.bamf.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN) \
 	--generate-c-code $(shell basename $@ .c) \
@@ -64,6 +63,7 @@ bamf-gdbus-generated.c: org.ayatana.bamf.xml
 	$(SED) "s/bamf_dbus/_bamf_dbus/g" -i \
 	$@ $(shell basename $@ .c).h
 
+.NOTPARALLEL:
 bamf-gdbus-view-generated.c: org.ayatana.bamf.view.xml
 	$(AM_V_GEN) $(GDBUS_CODEGEN) \
 	--c-generate-object-manager \

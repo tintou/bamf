@@ -27,7 +27,6 @@
 
 #include <libbamf-private/bamf-private.h>
 #include "bamf-tab-source.h"
-#include "bamf-marshal.h"
 #include "bamf-control.h"
 #include "bamf-gdbus-tab-source-generated.h"
 
@@ -374,8 +373,7 @@ bamf_tab_source_class_init (BamfTabSourceClass *klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   0,
-                  NULL, NULL,
-                  _bamf_marshal_VOID__STRING_STRING_STRING,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 3,
                   G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
@@ -384,8 +382,7 @@ bamf_tab_source_class_init (BamfTabSourceClass *klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   0,
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__STRING,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   G_TYPE_STRING);
 
@@ -394,8 +391,7 @@ bamf_tab_source_class_init (BamfTabSourceClass *klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   0,
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__STRING,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   G_TYPE_STRING);
 }

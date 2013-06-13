@@ -39,7 +39,6 @@
 #include "bamf-view-private.h"
 #include "bamf-window.h"
 #include "bamf-factory.h"
-#include "bamf-marshal.h"
 
 G_DEFINE_TYPE (BamfWindow, bamf_window, BAMF_TYPE_VIEW);
 
@@ -424,8 +423,7 @@ bamf_window_class_init (BamfWindowClass *klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfWindowClass, monitor_changed),
-                  NULL, NULL,
-                  _bamf_marshal_VOID__INT_INT,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 2,
                   G_TYPE_INT, G_TYPE_INT);
 
@@ -434,8 +432,7 @@ bamf_window_class_init (BamfWindowClass *klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfWindowClass, maximized_changed),
-                  NULL, NULL,
-                  _bamf_marshal_VOID__INT_INT,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 2,
                   G_TYPE_INT, G_TYPE_INT);
 }

@@ -45,10 +45,7 @@ lib/libbamf/libbamf*.pc
 lib/libbamf/libbamf*.vapi
 lib/libbamf/Bamf-*.gir
 lib/libbamf/Bamf-*.typelib
-lib/libbamf/bamf-marshal.c
-lib/libbamf/bamf-marshal.h
 lib/libbamf/bamf-tab-source-glue.h
-lib/libbamf/stamp-marshal
 lib/libbamf/*-generated.c
 lib/libbamf/*-generated.h
 lib/libbamf-private/*-generated.c
@@ -83,12 +80,9 @@ doc/reference/libbamf/xml
 debian/*/
 m4/gtk-doc.m4
 module/libgiobamf.la
-src/bamf-marshal.h
-src/bamf-marshal.c
 src/bamf-gdbus*-generated.h
 src/bamf-gdbus*-generated.c
 src/bamfdaemon
-src/stamp-marshal
 tests/bamfdaemon/test-bamf
 tests/libbamf/test-libbamf
 tests/*/headless-logs

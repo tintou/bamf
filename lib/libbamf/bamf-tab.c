@@ -27,7 +27,6 @@
 
 #include <libbamf-private/bamf-private.h>
 #include "bamf-tab.h"
-#include "bamf-marshal.h"
 #include "bamf-view-private.h"
 
 #define BAMF_TAB_GET_PRIVATE(object) (G_TYPE_INSTANCE_GET_PRIVATE (object, BAMF_TYPE_TAB, BamfTabPrivate))
