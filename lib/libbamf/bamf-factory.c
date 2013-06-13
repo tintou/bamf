@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2012 Canonical Ltd.
+ * Copyright 2010-2013 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of either or both of the following licenses:
@@ -21,7 +21,7 @@
  *
  * Authored by: Jason Smith <jason.smith@canonical.com>
  *              Neil Jagdish Patel <neil.patel@canonical.com>
- *              Marco Trevisan (Treviño) <3v1n0@ubuntu.com>
+ *              Marco Trevisan (Treviño) <marco.trevisan@canonical.com>
  *
  */
 /**
@@ -331,9 +331,10 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
 
   BamfView *matched_view = NULL;
 
+  /* handle case where another allocated (but closed) view exists and the new
+   * one matches it, so that we can reuse it. */
   if (BAMF_IS_APPLICATION (view))
     {
-      /* handle case where another allocated view exists and the new one matches it */
       const char *local_desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
       GList *local_children = _bamf_application_get_cached_xids (BAMF_APPLICATION (view));
       char *local_name = bamf_view_get_name (view);
@@ -342,6 +343,9 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
       for (l = factory->priv->allocated_views; l; l = l->next)
         {
           if (!BAMF_IS_APPLICATION (l->data))
+            continue;
+
+          if (!bamf_view_is_closed (l->data))
             continue;
 
           BamfView *list_view = BAMF_VIEW (l->data);
@@ -409,6 +413,9 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
           if (!BAMF_IS_WINDOW (l->data))
             continue;
 
+          if (!bamf_view_is_closed (l->data))
+            continue;
+
           BamfView *list_view = BAMF_VIEW (l->data);
           BamfWindow *list_win = BAMF_WINDOW (l->data);
 
@@ -431,16 +438,12 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
           g_object_unref (view);
         }
 
+      /* If we are here, we're pretty sure that the view is not in the
+       * open_views, hash-table (since it has been closed) so we can safely
+       * re-register it here again. */
       view = matched_view;
       _bamf_view_set_path (view, path);
-
-      if (bamf_view_is_closed (view))
-        {
-          /* If we are here, we're pretty sure that the view is not in the
-           * open_views, hash-table (since it has been closed) so we can safely
-           * re-register it here again. */
-          bamf_factory_register_view (factory, view, path);
-        }
+      bamf_factory_register_view (factory, view, path);
     }
   else if (view)
     {
