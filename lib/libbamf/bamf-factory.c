@@ -392,7 +392,7 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
                         {
                           /* We have already matched an app by its name, this
                            * means that there are two apps with the same name.
-                           * It's safer to ignore this, then. */
+                           * It's safer to ignore both, then. */
                           matched_view = NULL;
                         }
                     }
