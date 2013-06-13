@@ -505,7 +505,9 @@ bamf_view_on_child_removed (BamfDBusItemView *proxy, char *path, BamfView *self)
   g_return_if_fail (BAMF_IS_VIEW (view));
 
   if (BAMF_IS_TAB (view))
-    g_signal_handlers_disconnect_by_func (view, bamf_view_on_child_added, self);
+    {
+      g_signal_handlers_disconnect_by_func (view, bamf_view_child_xid_changed, self);
+    }
 
   if (priv->cached_children)
     {
