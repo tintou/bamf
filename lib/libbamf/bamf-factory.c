@@ -416,6 +416,14 @@ _bamf_factory_view_for_path_type (BamfFactory * factory, const char * path,
 
       view = matched_view;
       _bamf_view_set_path (view, path);
+
+      if (bamf_view_is_closed (view))
+        {
+          /* If we are here, we're pretty sure that the view is not in the
+           * open_views, hash-table (since it has been closed) so we can safely
+           * re-register it here again. */
+          bamf_factory_register_view (factory, view, path);
+        }
     }
   else if (view)
     {
