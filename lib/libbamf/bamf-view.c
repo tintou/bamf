@@ -835,7 +835,7 @@ bamf_view_class_init (BamfViewClass *klass)
   view_signals [CLOSED] =
     g_signal_new (BAMF_VIEW_SIGNAL_CLOSED,
                   G_OBJECT_CLASS_TYPE (klass),
-                  G_SIGNAL_RUN_FIRST,
+                  G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (BamfViewClass, closed),
                   NULL, NULL,
                   g_cclosure_marshal_VOID__VOID,
