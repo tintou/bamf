@@ -1,11 +1,6 @@
 noinst_PROGRAMS = \
 	test-bamf
 
-bamf_test_extra_built_sources = \
-	$(top_builddir)/src/bamf-marshal.c \
-	$(top_builddir)/src/bamf-marshal.h \
-	$(NULL)
-
 bamf_test_extra_sources = \
 	$(top_srcdir)/src/bamf-daemon.c \
 	$(top_srcdir)/src/bamf-legacy-window.c \
@@ -22,7 +17,6 @@ bamf_test_extra_sources = \
 
 bamf_test_extra_headers = \
 	$(top_srcdir)/src/main.h \
-	$(top_srcdir)/src/bamf.h \
 	$(top_srcdir)/src/bamf-daemon.h \
 	$(top_srcdir)/src/bamf-legacy-window.h \
 	$(top_srcdir)/src/bamf-legacy-window-test.h \
@@ -50,15 +44,6 @@ test_bamf_SOURCES = \
 	test-application.c \
 	test-window.c \
 	test-matcher.c
-
-nodist_test_bamf_SOURCES = \
-  $(bamf_test_extra_built_sources)
-
-BUILT_SOURCES = \
-  $(bamf_test_extra_built_sources)
-
-CLEANFILES = \
-  $(bamf_test_extra_built_sources)
 
 if HAVE_WEBAPPS
 test_bamf_SOURCES += \

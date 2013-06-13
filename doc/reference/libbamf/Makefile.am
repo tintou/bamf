@@ -31,7 +31,6 @@ CFILE_GLOB = $(top_srcdir)/lib/libbamf/bamf-*.c
 
 # Header files to ignore when scanning.
 IGNORE_HFILES = \
-  bamf-marshal.h \
   bamf-gdbus-tab-source-generated.h
 
 # Images to copy into HTML directory.

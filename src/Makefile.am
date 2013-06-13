@@ -1,21 +1,8 @@
-# Defined as these will be needed by Makefile.am.marshal
-CLEANFILES =
-DISTCLEANFILES =
-BUILT_SOURCES =
-EXTRA_DIST =
 LIBBAMF_PRIVATE_LIB = $(top_builddir)/lib/libbamf-private/libbamf-private.la
-
-include $(top_srcdir)/Makefile.am.marshal
-
 bamfdaemondir = $(pkglibexecdir)
 
 bamfdaemon_PROGRAMS = \
 	bamfdaemon \
-	$(NULL)
-
-bamfdaemon_built_sources = \
-	bamf-marshal.c \
-	bamf-marshal.h \
 	$(NULL)
 
 bamfdaemon_sources = \
@@ -35,7 +22,6 @@ bamfdaemon_sources = \
 
 bamfdaemon_headers = \
 	main.h \
-	bamf.h \
 	bamf-daemon.h \
 	bamf-legacy-window.h \
 	bamf-legacy-window-test.h \
@@ -68,33 +54,12 @@ bamfdaemon_SOURCES = \
 	$(bamfdaemon_headers) \
 	$(NULL)
 
-nodist_bamfdaemon_SOURCES = \
-	$(bamfdaemon_built_sources) \
-	$(NULL)
-
 if HAVE_WEBAPPS
 bamfdaemon_SOURCES += \
 	$(bamfdaemon_webapps_sources) \
 	$(bamfdaemon_webapps_headers) \
 	$(NULL)
 endif
-
-EXTRA_DIST += \
-	$(bamfdaemon_webapps_sources) \
-	$(bamfdaemon_webapps_headers) \
-	$(NULL)
-
-glib_marshal_list = bamf-marshal.list
-glib_marshal_prefix = bamf_marshal
-
-# resetting BUILT_SOURCES here is intended
-BUILT_SOURCES = \
-	$(bamfdaemon_built_sources) \
-	$(NULL)
-
-CLEANFILES += \
-	$(bamfdaemon_built_sources) \
-	$(NULL)
 
 bamfdaemon_LDADD = \
 	$(LIBBAMF_PRIVATE_LIB) \

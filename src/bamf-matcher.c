@@ -3109,9 +3109,7 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
   matcher_signals [FAVORITES_CHANGED] =
     g_signal_new ("favorites-changed",
                   G_OBJECT_CLASS_TYPE (klass),
-                  0,
-                  0, NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
+                  0, 0, NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 }
 

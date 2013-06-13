@@ -1,11 +1,7 @@
-CLEANFILES =
-DISTCLEANFILES =
-BUILT_SOURCES =
-EXTRA_DIST =
-LIBBAMF_PRIVATE_LIB = $(top_builddir)/lib/libbamf-private/libbamf-private.la
-
-include $(top_srcdir)/Makefile.am.marshal
+include Makefile.am.notparallel
 -include $(INTROSPECTION_MAKEFILE)
+
+LIBBAMF_PRIVATE_LIB = $(top_builddir)/lib/libbamf-private/libbamf-private.la
 
 libbamf_xml_gdbus_files = \
   org.ayatana.bamf.tabsource.xml \
@@ -17,8 +13,6 @@ libbamf_gdbus_files = \
 	$(NULL)
 
 libbamf_built_sources = \
-	bamf-marshal.c \
-	bamf-marshal.h \
 	$(libbamf_gdbus_files) \
 	$(NULL)
 
@@ -89,19 +83,6 @@ libbamf3_la_LIBADD = $(libbamf_la_LIBADD)
 libbamf3_la_CFLAGS = $(libbamf_la_CFLAGS)
 libbamf3_la_LDFLAGS = $(libbamf_la_LDFLAGS)
 
-library_includedir=$(includedir)/libbamf$(VER)/libbamf
-library_include_HEADERS = \
-	$(sources_h)
-
-# resetting BUILT_SOURCES here is intended
-BUILT_SOURCES = \
-	$(libbamf_built_sources) \
-	$(NULL)
-
-CLEANFILES += \
-	$(libbamf_built_sources) \
-	$(NULL)
-
 libbamf_includedir=$(includedir)/libbamf$(LIBBAMF_VER)/libbamf
 libbamf_include_HEADERS = \
 	$(libbamf_headers)
@@ -110,33 +91,19 @@ libbamf_pcdir = $(libdir)/pkgconfig
 libbamf_pc_DATA = \
 	libbamf$(LIBBAMF_VER).pc
 
-glib_marshal_list = bamf-marshal.list
-glib_marshal_prefix = _bamf_marshal
-
-bamf-gdbus-tab-source-generated.c: org.ayatana.bamf.tabsource.xml
-	$(AM_V_GEN) $(GDBUS_CODEGEN) \
-	--c-generate-object-manager \
-	--generate-c-code $(shell basename $@ .c) \
-	--c-namespace BamfDBusTab \
-	--interface-prefix org.ayatana.bamf \
-	$<; \
-	# Adding '_' prefix to generated private functions \
-	$(SED) "s/bamf_dbus_tab/_bamf_dbus_tab/g" -i \
-	$@ $(shell basename $@ .c).h
-
-BUILT_SOURCES += \
+BUILT_SOURCES = \
 	$(libbamf_gdbus_files) \
 	$(NULL)
 
-EXTRA_DIST += \
+EXTRA_DIST = \
 	$(libbamf_xml_gdbus_files) \
 	$(NULL)
 
-DISTCLEANFILES += \
+DISTCLEANFILES = \
 	$(libbamf_built_sources) \
 	$(NULL)
 
-CLEANFILES += \
+CLEANFILES = \
 	$(libbamf_built_sources) \
 	$(NULL)
 

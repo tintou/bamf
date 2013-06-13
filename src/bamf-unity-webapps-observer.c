@@ -247,12 +247,9 @@ bamf_unity_webapps_observer_class_init (BamfUnityWebappsObserverClass *klass)
   webapps_observer_signals [APPLICATION_APPEARED] =
     g_signal_new ("application-appeared",
                   G_OBJECT_CLASS_TYPE (klass),
-                  0,
-                  0, NULL, NULL,
-                  g_cclosure_marshal_VOID__OBJECT,
+                  0, 0, NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   BAMF_TYPE_APPLICATION);
-
 }
 
 

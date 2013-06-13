@@ -45,8 +45,6 @@ PKG_PROG_PKG_CONFIG
 # glib
 #
 PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.32.0 gio-2.0 >= 2.30.0 gio-unix-2.0)
-AC_PATH_PROG([GLIB_GENMARSHAL], [glib-genmarshal])
-if test -z "$GLIB_GENMARSHAL"; then AC_MSG_ERROR([glib-genmarshal is required but was not found]); fi
 
 #
 # gdbus-codegen

@@ -41,7 +41,6 @@
 #include "bamf-view.h"
 #include "bamf-view-private.h"
 #include "bamf-factory.h"
-#include "bamf-marshal.h"
 
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, G_TYPE_OBJECT);
 
@@ -93,8 +92,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
     g_signal_new (BAMF_MATCHER_SIGNAL_VIEW_OPENED,
                   G_OBJECT_CLASS_TYPE (klass),
                   0,
-                  0, NULL, NULL,
-                  g_cclosure_marshal_VOID__OBJECT,
+                  0, NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   BAMF_TYPE_VIEW);
 
@@ -102,8 +100,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
     g_signal_new (BAMF_MATCHER_SIGNAL_VIEW_CLOSED,
                   G_OBJECT_CLASS_TYPE (klass),
                   0,
-                  0, NULL, NULL,
-                  g_cclosure_marshal_VOID__OBJECT,
+                  0, NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   BAMF_TYPE_VIEW);
 
@@ -111,8 +108,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
     g_signal_new (BAMF_MATCHER_SIGNAL_ACTIVE_APPLICATION_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   0,
-                  0, NULL, NULL,
-                  _bamf_marshal_VOID__OBJECT_OBJECT,
+                  0, NULL, NULL, NULL,
                   G_TYPE_NONE, 2,
                   BAMF_TYPE_APPLICATION, BAMF_TYPE_APPLICATION);
 
@@ -120,8 +116,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
     g_signal_new (BAMF_MATCHER_SIGNAL_ACTIVE_WINDOW_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   0,
-                  0, NULL, NULL,
-                  _bamf_marshal_VOID__OBJECT_OBJECT,
+                  0, NULL, NULL, NULL,
                   G_TYPE_NONE, 2,
                   BAMF_TYPE_WINDOW, BAMF_TYPE_WINDOW);
 
@@ -129,8 +124,7 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
     g_signal_new (BAMF_MATCHER_SIGNAL_STACKING_ORDER_CHANGED,
                   G_OBJECT_CLASS_TYPE (klass),
                   0,
-                  0, NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
+                  0, NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 }
 
