@@ -114,13 +114,35 @@ static void
 on_view_closed (BamfView *view, BamfFactory *self)
 {
   const char *path;
+  gboolean removed;
 
-  g_return_if_fail (BAMF_IS_VIEW (view));
-
+  removed = FALSE;
   path = _bamf_view_get_path (view);
 
+  g_signal_handlers_disconnect_by_func (view, on_view_closed, self);
+
   if (path)
-    g_hash_table_remove (self->priv->open_views, path);
+    {
+      removed = g_hash_table_remove (self->priv->open_views, path);
+    }
+
+  if (G_UNLIKELY (!removed))
+    {
+      /* Unlikely to happen, but who knows... */
+      GHashTableIter iter;
+      gpointer value;
+
+      g_hash_table_iter_init (&iter, self->priv->open_views);
+      while (g_hash_table_iter_next (&iter, NULL, &value))
+        {
+          if (value == view)
+            {
+              g_hash_table_iter_remove (&iter);
+              removed = TRUE;
+              break;
+            }
+        }
+    }
 }
 
 static void
