@@ -73,7 +73,7 @@ bamf_factory_dispose (GObject *object)
 
   if (self->priv->local_views)
     {
-      g_list_free_full (self->priv->local_views, g_object_unref);
+      g_list_free (self->priv->local_views);
       self->priv->local_views = NULL;
     }
 
@@ -107,7 +107,7 @@ bamf_factory_init (BamfFactory *self)
 
   priv = self->priv = BAMF_FACTORY_GET_PRIVATE (self);
 
-  priv->open_views = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  priv->open_views = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
 }
 
 static void
@@ -121,8 +121,6 @@ on_view_closed (BamfView *view, BamfFactory *self)
 
   if (path)
     g_hash_table_remove (self->priv->open_views, path);
-
-  g_object_unref (view);
 }
 
 static void
