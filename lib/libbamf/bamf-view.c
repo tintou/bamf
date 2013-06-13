@@ -85,9 +85,10 @@ struct _BamfViewPrivate
   gchar            *type;
   gchar            *local_icon;
   gchar            *local_name;
+  GList            *cached_children;
+  gboolean          reload_children;
   gboolean          is_closed;
   gboolean          sticky;
-  GList            *cached_children;
 };
 
 static void bamf_view_unset_proxy (BamfView *self);
@@ -121,7 +122,7 @@ bamf_view_get_children (BamfView *view)
 
   priv = view->priv;
 
-  if (priv->cached_children)
+  if (priv->cached_children || !priv->reload_children)
     return g_list_copy (priv->cached_children);
 
   if (!_bamf_dbus_item_view_call_children_sync (priv->proxy, &children, CANCELLABLE (view), &error))
@@ -146,7 +147,9 @@ bamf_view_get_children (BamfView *view)
         }
     }
 
+  priv->reload_children = FALSE;
   priv->cached_children = results;
+
   return g_list_copy (priv->cached_children);
 }
 
@@ -534,6 +537,7 @@ bamf_view_on_name_owner_changed (BamfDBusItemView *proxy, GParamSpec *param, Bam
       if (self->priv->cached_children)
         {
           g_list_free_full (self->priv->cached_children, g_object_unref);
+          self->priv->reload_children = TRUE;
           self->priv->cached_children = NULL;
         }
 
@@ -963,4 +967,5 @@ bamf_view_init (BamfView *self)
   priv = self->priv = BAMF_VIEW_GET_PRIVATE (self);
   priv->cancellable = g_cancellable_new ();
   priv->is_closed = TRUE;
+  priv->reload_children = TRUE;
 }
