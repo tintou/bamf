@@ -1,5 +1,7 @@
-LIBBAMF_PRIVATE_LIB = $(top_builddir)/lib/libbamf-private/libbamf-private.la
+include Makefile.am.notparallel
 -include $(INTROSPECTION_MAKEFILE)
+
+LIBBAMF_PRIVATE_LIB = $(top_builddir)/lib/libbamf-private/libbamf-private.la
 
 libbamf_xml_gdbus_files = \
   org.ayatana.bamf.tabsource.xml \
@@ -88,17 +90,6 @@ libbamf_include_HEADERS = \
 libbamf_pcdir = $(libdir)/pkgconfig
 libbamf_pc_DATA = \
 	libbamf$(LIBBAMF_VER).pc
-
-bamf-gdbus-tab-source-generated.c: org.ayatana.bamf.tabsource.xml
-	$(AM_V_GEN) $(GDBUS_CODEGEN) \
-	--c-generate-object-manager \
-	--generate-c-code $(shell basename $@ .c) \
-	--c-namespace BamfDBusTab \
-	--interface-prefix org.ayatana.bamf \
-	$<; \
-	# Adding '_' prefix to generated private functions \
-	$(SED) "s/bamf_dbus_tab/_bamf_dbus_tab/g" -i \
-	$@ $(shell basename $@ .c).h
 
 BUILT_SOURCES = \
 	$(libbamf_gdbus_files) \
