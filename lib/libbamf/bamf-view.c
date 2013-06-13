@@ -87,7 +87,8 @@ struct _BamfViewPrivate
   gchar            *local_name;
   gboolean          is_closed;
   gboolean          sticky;
-  GList            *cached_children;};
+  GList            *cached_children;
+};
 
 static void bamf_view_unset_proxy (BamfView *self);
 
@@ -108,6 +109,7 @@ bamf_view_get_children (BamfView *view)
   GList *results = NULL;
   GError *error = NULL;
   BamfViewPrivate *priv;
+  BamfView *child;
 
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
 
@@ -136,8 +138,12 @@ bamf_view_get_children (BamfView *view)
 
   for (i = len-1; i >= 0; --i)
     {
-      view = _bamf_factory_view_for_path (_bamf_factory_get_default (), children[i]);
-      results = g_list_prepend (results, g_object_ref (view));
+      child = _bamf_factory_view_for_path (_bamf_factory_get_default (), children[i]);
+
+      if (BAMF_IS_VIEW (child))
+        {
+          results = g_list_prepend (results, g_object_ref (child));
+        }
     }
 
   priv->cached_children = results;
@@ -470,16 +476,18 @@ bamf_view_on_child_added (BamfDBusItemView *proxy, const char *path, BamfView *s
   view = _bamf_factory_view_for_path (_bamf_factory_get_default (), path);
   priv = self->priv;
 
+  g_return_if_fail (BAMF_IS_VIEW (view));
+
   if (BAMF_IS_TAB (view))
     {
       g_signal_connect (view, "notify::xid",
                         G_CALLBACK (bamf_view_child_xid_changed), self);
     }
 
-  if (priv->cached_children)
+  if (!g_list_find (priv->cached_children, view))
     {
-      g_list_free_full (priv->cached_children, g_object_unref);
-      priv->cached_children = NULL;
+      g_object_ref (view);
+      priv->cached_children = g_list_prepend (priv->cached_children, view);
     }
 
   g_signal_emit (G_OBJECT (self), view_signals[CHILD_ADDED], 0, view);
@@ -490,16 +498,24 @@ bamf_view_on_child_removed (BamfDBusItemView *proxy, char *path, BamfView *self)
 {
   BamfView *view;
   BamfViewPrivate *priv;
+
   view = _bamf_factory_view_for_path (_bamf_factory_get_default (), path);
   priv = self->priv;
+
+  g_return_if_fail (BAMF_IS_VIEW (view));
 
   if (BAMF_IS_TAB (view))
     g_signal_handlers_disconnect_by_func (view, bamf_view_on_child_added, self);
 
   if (priv->cached_children)
     {
-      g_list_free_full (priv->cached_children, g_object_unref);
-      priv->cached_children = NULL;
+      GList *l = g_list_find (priv->cached_children, view);
+
+      if (l)
+        {
+          priv->cached_children = g_list_delete_link (priv->cached_children, l);
+          g_object_unref (view);
+        }
     }
 
   g_signal_emit (G_OBJECT (self), view_signals[CHILD_REMOVED], 0, view);
@@ -513,6 +529,12 @@ bamf_view_on_name_owner_changed (BamfDBusItemView *proxy, GParamSpec *param, Bam
 
   if (!name_owner)
     {
+      if (self->priv->cached_children)
+        {
+          g_list_free_full (self->priv->cached_children, g_object_unref);
+          self->priv->cached_children = NULL;
+        }
+
       _bamf_view_set_closed (self, TRUE);
       g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
     }
