@@ -506,6 +506,21 @@ bamf_view_on_child_removed (BamfDBusItemView *proxy, char *path, BamfView *self)
 }
 
 static void
+bamf_view_on_name_owner_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfView *self)
+{
+  /* This is called when the bamfdaemon is killed / started */
+  gchar *name_owner = g_dbus_proxy_get_name_owner (G_DBUS_PROXY (proxy));
+
+  if (!name_owner)
+    {
+      _bamf_view_set_closed (self, TRUE);
+      g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
+    }
+
+  g_free (name_owner);
+}
+
+static void
 bamf_view_on_active_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfView *self)
 {
   gboolean active = _bamf_dbus_item_view_get_active (proxy);
@@ -768,6 +783,9 @@ _bamf_view_set_path (BamfView *view, const char *path)
   _bamf_view_reset_flags (view);
   g_object_notify_by_pspec (G_OBJECT (view), properties[PROP_PATH]);
 
+  g_signal_connect (priv->proxy, "notify::g-name-owner",
+                    G_CALLBACK (bamf_view_on_name_owner_changed), view);
+
   g_signal_connect (priv->proxy, "notify::active",
                     G_CALLBACK (bamf_view_on_active_changed), view);
 
@@ -835,7 +853,7 @@ bamf_view_class_init (BamfViewClass *klass)
   view_signals [CLOSED] =
     g_signal_new (BAMF_VIEW_SIGNAL_CLOSED,
                   G_OBJECT_CLASS_TYPE (klass),
-                  G_SIGNAL_RUN_FIRST,
+                  G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (BamfViewClass, closed),
                   NULL, NULL,
                   g_cclosure_marshal_VOID__VOID,

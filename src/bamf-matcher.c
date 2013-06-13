@@ -2821,6 +2821,7 @@ on_dbus_handle_window_stack_for_monitor (BamfDBusMatcher *interface,
   return TRUE;
 }
 
+#ifdef HAVE_WEBAPPS
 static gboolean
 bamf_matcher_has_tab_with_parent_xid (BamfMatcher *matcher, guint64 xid)
 {
@@ -2839,7 +2840,6 @@ bamf_matcher_has_tab_with_parent_xid (BamfMatcher *matcher, guint64 xid)
   return FALSE;
 }
 
-#ifdef HAVE_WEBAPPS
 static void
 on_webapp_child_added (BamfView *application,
                        BamfView *child,
