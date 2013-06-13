@@ -71,7 +71,7 @@ GVariant        * bamf_application_get_xids                   (BamfApplication *
 gboolean          bamf_application_manages_xid                (BamfApplication *application,
                                                                guint32 xid);
 
-gboolean          bamf_application_contains_similar_to_window (BamfApplication *app, 
+gboolean          bamf_application_contains_similar_to_window (BamfApplication *app,
                                                                BamfWindow *window);
 
 const char      * bamf_application_get_wmclass                (BamfApplication *application);

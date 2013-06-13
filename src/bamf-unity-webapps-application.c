@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Authored by: 
+ * Authored by:
  *              Robert Carr <racarr@canonical.com>
  *
  */
@@ -31,7 +31,7 @@
 BAMF_TYPE_UNITY_WEBAPPS_APPLICATION, BamfUnityWebappsApplicationPrivate))
 
 G_DEFINE_TYPE(BamfUnityWebappsApplication, bamf_unity_webapps_application, BAMF_TYPE_APPLICATION);
-        
+
 enum
 {
   PROP_0,
@@ -46,13 +46,13 @@ struct _BamfUnityWebappsApplicationPrivate
 
 static void
 bamf_unity_webapps_application_get_application_menu (BamfApplication *application,
-                                                     gchar **name, 
+                                                     gchar **name,
                                                      gchar **path)
 {
   BamfUnityWebappsApplication *self;
-  
+
   self = (BamfUnityWebappsApplication *)application;
-  
+
   *name = g_strdup (unity_webapps_context_get_context_name (self->priv->context));
   *path = g_strdup (UNITY_WEBAPPS_CONTEXT_MENU_PATH);
 }
@@ -61,9 +61,9 @@ static void
 bamf_unity_webapps_application_get_property (GObject *object, guint property_id, GValue *gvalue, GParamSpec *pspec)
 {
   BamfUnityWebappsApplication *self;
-  
+
   self = BAMF_UNITY_WEBAPPS_APPLICATION (object);
-  
+
   switch (property_id)
     {
     case PROP_CONTEXT:
@@ -80,19 +80,19 @@ bamf_unity_webapps_application_find_child_by_interest (BamfUnityWebappsApplicati
 {
   GList *children, *walk;
   BamfUnityWebappsTab *child;
-  
+
   children = bamf_view_get_children (BAMF_VIEW (application));
-  
+
   for (walk = children; walk != NULL; walk = walk->next)
     {
       child = BAMF_UNITY_WEBAPPS_TAB (walk->data);
-      
+
       if (interest_id == bamf_unity_webapps_tab_get_interest_id (child))
         {
           return child;
         }
     }
-  
+
   return NULL;
 }
 
@@ -101,11 +101,11 @@ bamf_unity_webapps_application_get_focusable_child (BamfApplication *application
 {
   BamfUnityWebappsApplication *self;
   gint focus_interest;
-  
+
   self = BAMF_UNITY_WEBAPPS_APPLICATION (application);
-  
+
   focus_interest = unity_webapps_context_get_focus_interest (self->priv->context);
-  
+
   if (focus_interest == -1)
     return NULL;
 
@@ -146,11 +146,11 @@ bamf_unity_webapps_application_interest_vanished (UnityWebappsContext *context,
 {
   BamfUnityWebappsApplication *self;
   BamfUnityWebappsTab *child;
-  
+
   self = (BamfUnityWebappsApplication *)user_data;
-  
+
   child = bamf_unity_webapps_application_find_child_by_interest (self, interest_id);
-  
+
   if (child == NULL)
     {
       return;
@@ -176,22 +176,22 @@ bamf_unity_webapps_application_add_existing_interests (BamfUnityWebappsApplicati
 {
   GVariant *interests, *interest_variant;
   GVariantIter *variant_iter;
-  
+
   interests = unity_webapps_context_list_interests (self->priv->context);
-  
+
   if (interests == NULL)
     {
       return;
     }
-  
+
   variant_iter = g_variant_iter_new (interests);
-  
+
   while ((interest_variant = g_variant_iter_next_value (variant_iter)))
     {
       gint interest_id;
-      
+
       interest_id = g_variant_get_int32 (interest_variant);
-      
+
       bamf_unity_webapps_application_interest_appeared (self->priv->context, interest_id, self);
     }
 }
@@ -201,7 +201,7 @@ bamf_unity_webapps_application_context_set (BamfUnityWebappsApplication *self)
 {
   bamf_application_set_desktop_file_from_id (BAMF_APPLICATION (self),
                                              unity_webapps_context_get_desktop_name (self->priv->context));
-  
+
   unity_webapps_context_on_interest_appeared (self->priv->context, bamf_unity_webapps_application_interest_appeared, self);
   unity_webapps_context_on_interest_vanished (self->priv->context, bamf_unity_webapps_application_interest_vanished, self);
 }
@@ -210,15 +210,15 @@ static void
 bamf_unity_webapps_application_set_property (GObject *object, guint property_id, const GValue *gvalue, GParamSpec *pspec)
 {
   BamfUnityWebappsApplication *self;
-  
+
   self = BAMF_UNITY_WEBAPPS_APPLICATION (object);
-  
+
   switch (property_id)
     {
     case PROP_CONTEXT:
       g_assert (self->priv->context == NULL);
       self->priv->context = g_value_get_object (gvalue);
-      
+
       bamf_unity_webapps_application_context_set (self);
       break;
     default:
@@ -255,7 +255,7 @@ static void
 bamf_unity_webapps_application_constructed (GObject *object)
 {
   BamfUnityWebappsApplication *self;
-  
+
   self = (BamfUnityWebappsApplication *)object;
 
   g_signal_connect (self->priv->context, "accept-data-changed", G_CALLBACK (on_accept_data_changed), self);
@@ -295,20 +295,20 @@ bamf_unity_webapps_application_class_init (BamfUnityWebappsApplicationClass * kl
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   BamfApplicationClass *bamf_application_class = BAMF_APPLICATION_CLASS (klass);
   BamfViewClass *bamf_view_class = BAMF_VIEW_CLASS (klass);
-  
+
   object_class->get_property = bamf_unity_webapps_application_get_property;
   object_class->set_property = bamf_unity_webapps_application_set_property;
   object_class->finalize = bamf_unity_webapps_application_finalize;
   object_class->constructed = bamf_unity_webapps_application_constructed;
-  
+
   bamf_view_class->stable_bus_name = bamf_unity_webapps_application_get_stable_bus_name;
   bamf_view_class->child_removed = bamf_unity_webapps_application_child_removed;
-  
+
   bamf_application_class->get_application_menu = bamf_unity_webapps_application_get_application_menu;
   bamf_application_class->get_focusable_child = bamf_unity_webapps_application_get_focusable_child;
   bamf_application_class->get_supported_mime_types = bamf_unity_webapps_application_get_supported_mime_types;
   bamf_application_class->get_close_when_empty = bamf_unity_webapps_application_get_close_when_empty;
-  
+
   pspec = g_param_spec_object("context", "Context", "The Unity Webapps Context assosciated with the Application",
                               UNITY_WEBAPPS_TYPE_CONTEXT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
   g_object_class_install_property (object_class, PROP_CONTEXT, pspec);
