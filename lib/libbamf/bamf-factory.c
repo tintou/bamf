@@ -82,7 +82,7 @@ bamf_factory_dispose (GObject *object)
 
   if (self->priv->open_views)
     {
-      g_hash_table_destroy (self->priv->open_views);
+      g_hash_table_remove_all (self->priv->open_views);
       self->priv->open_views = NULL;
     }
 
@@ -92,6 +92,14 @@ bamf_factory_dispose (GObject *object)
 static void
 bamf_factory_finalize (GObject *object)
 {
+  BamfFactory *self = BAMF_FACTORY (object);
+
+  if (self->priv->open_views)
+    {
+      g_hash_table_destroy (self->priv->open_views);
+      self->priv->open_views = NULL;
+    }
+
   static_factory = NULL;
 
   G_OBJECT_CLASS (bamf_factory_parent_class)->finalize (object);
