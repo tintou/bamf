@@ -3,7 +3,7 @@
 #  * lcov
 #  * genhtml
 #  * gcovr
-# 
+#
 # Sets ac_cv_check_gcov to yes if tooling is present
 # and reports the executables to the variables LCOV, GCOVR and GENHTML.
 AC_DEFUN([AC_TDD_GCOV],

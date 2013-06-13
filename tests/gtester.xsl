@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-    
+
     <!-- I can't believe I have to do this -->
     <!-- Based on this code:
             http://geekswithblogs.net/Erik/archive/2008/04/01/120915.aspx

@@ -50,7 +50,7 @@ $(ASSEMBLY_FILE): $(SOURCES_BUILD) $(RESOURCES_EXPANDED) $(COMPONENT_DEPS)
 	test "x$$colors" = "xyes" && \
 	        echo -e "\033[1mCompiling $(notdir $@)...\033[0m" || \
 	        echo "Compiling $(notdir $@)...";
-	@$(MCS) $(MCS_FLAGS) -target:$(TARGET) -out:$@ $(BUILD_DEFINES) $(BUILD_REFERENCES) $(COMPONENT_REFERENCES) $(RESOURCES_BUILD) $(SOURCES_BUILD) 
+	@$(MCS) $(MCS_FLAGS) -target:$(TARGET) -out:$@ $(BUILD_DEFINES) $(BUILD_REFERENCES) $(COMPONENT_REFERENCES) $(RESOURCES_BUILD) $(SOURCES_BUILD)
 	@if [ -e $(srcdir)/$(notdir $@.config) ]; then \
 	        cp $(srcdir)/$(notdir $@.config) $(BUILD_DIR) ; \
 	fi;
