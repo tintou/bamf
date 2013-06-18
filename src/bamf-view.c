@@ -50,15 +50,8 @@ enum
 
 static guint view_signals[LAST_SIGNAL] = { 0 };
 
-struct _BamfViewPrivate
+typedef struct _BamfViewPropCache
 {
-  BamfDBusItemView *dbus_iface;
-  char * name;
-  char * path;
-  GList * children;
-  GList * parents;
-  gboolean closed;
-
   /* FIXME: temporary cache these properties until we don't export the view
    * to the bus, we need this until the skeleton won't be smart enough to emit
    * signals as soon as the object is exported */
@@ -66,6 +59,17 @@ struct _BamfViewPrivate
   gboolean user_visible;
   gboolean urgent;
   gboolean active;
+} BamfViewPropCache;
+
+struct _BamfViewPrivate
+{
+  BamfDBusItemView * dbus_iface;
+  BamfViewPropCache * props;
+  char * name;
+  char * path;
+  GList * children;
+  GList * parents;
+  gboolean closed;
 
   /* FIXME: remove this as soon as we move to properties on library as well */
   guint active_changed_idle;
@@ -345,8 +349,8 @@ bamf_view_is_active (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
-  if (!bamf_view_is_on_bus (view))
-    return view->priv->active;
+  if (view->priv->props)
+    return view->priv->props->active;
 
   return _bamf_dbus_item_view_get_active (view->priv->dbus_iface);
 }
@@ -360,10 +364,15 @@ bamf_view_set_active (BamfView *view,
   if (active == bamf_view_is_active (view))
     return;
 
-  if (bamf_view_is_on_bus (view))
-    _bamf_dbus_item_view_set_active (view->priv->dbus_iface, active);
+  if (view->priv->props)
+    {
+      view->priv->props->active = active;
+    }
+  else
+    {
+      _bamf_dbus_item_view_set_active (view->priv->dbus_iface, active);
+    }
 
-  view->priv->active = active;
   bamf_view_active_changed (view, active);
 }
 
@@ -372,8 +381,8 @@ bamf_view_is_urgent (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
-  if (!bamf_view_is_on_bus (view))
-    return view->priv->urgent;
+  if (view->priv->props)
+    return view->priv->props->urgent;
 
   return _bamf_dbus_item_view_get_urgent (view->priv->dbus_iface);
 }
@@ -387,10 +396,15 @@ bamf_view_set_urgent (BamfView *view,
   if (urgent == bamf_view_is_urgent (view))
     return;
 
-  if (bamf_view_is_on_bus (view))
-    _bamf_dbus_item_view_set_urgent (view->priv->dbus_iface, urgent);
+  if (view->priv->props)
+    {
+      view->priv->props->urgent = urgent;
+    }
+  else
+    {
+      _bamf_dbus_item_view_set_urgent (view->priv->dbus_iface, urgent);
+    }
 
-  view->priv->urgent = urgent;
   bamf_view_urgent_changed (view, urgent);
 }
 
@@ -399,8 +413,8 @@ bamf_view_is_running (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
-  if (!bamf_view_is_on_bus (view))
-    return view->priv->running;
+  if (view->priv->props)
+    return view->priv->props->running;
 
   return _bamf_dbus_item_view_get_running (view->priv->dbus_iface);
 }
@@ -414,10 +428,15 @@ bamf_view_set_running (BamfView *view,
   if (running == bamf_view_is_running (view))
     return;
 
-  if (bamf_view_is_on_bus (view))
-    _bamf_dbus_item_view_set_running (view->priv->dbus_iface, running);
+  if (view->priv->props)
+    {
+      view->priv->props->running = running;
+    }
+  else
+    {
+      _bamf_dbus_item_view_set_running (view->priv->dbus_iface, running);
+    }
 
-  view->priv->running = running;
   bamf_view_running_changed (view, running);
 }
 
@@ -426,8 +445,8 @@ bamf_view_user_visible (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
-  if (!bamf_view_is_on_bus (view))
-    return view->priv->user_visible;
+  if (view->priv->props)
+    return view->priv->props->user_visible;
 
   return _bamf_dbus_item_view_get_user_visible (view->priv->dbus_iface);
 }
@@ -440,10 +459,15 @@ bamf_view_set_user_visible (BamfView *view, gboolean user_visible)
   if (user_visible == bamf_view_user_visible (view))
     return;
 
-  if (bamf_view_is_on_bus (view))
-    _bamf_dbus_item_view_set_user_visible (view->priv->dbus_iface, user_visible);
+  if (view->priv->props)
+    {
+      view->priv->props->user_visible = user_visible;
+    }
+  else
+    {
+      _bamf_dbus_item_view_set_user_visible (view->priv->dbus_iface, user_visible);
+    }
 
-  view->priv->user_visible = user_visible;
   bamf_view_user_visible_changed (view, user_visible);
 }
 
@@ -503,6 +527,21 @@ bamf_view_get_stable_bus_name (BamfView *view)
   return g_strdup_printf ("view%p", view);
 }
 
+static void
+bamf_view_notify_cached_properties (BamfView *view)
+{
+  if (!view->priv->props)
+    return;
+
+  bamf_view_set_active (view, view->priv->props->active);
+  bamf_view_set_running (view, view->priv->props->running);
+  bamf_view_set_user_visible (view, view->priv->props->user_visible);
+  bamf_view_set_urgent (view, view->priv->props->urgent);
+
+  g_free (view->priv->props);
+  view->priv->props = NULL;
+}
+
 const char *
 bamf_view_export_on_bus (BamfView *view, GDBusConnection *connection)
 {
@@ -547,10 +586,7 @@ bamf_view_export_on_bus (BamfView *view, GDBusConnection *connection)
            * the properties not to be updated on the client side.
            * So we store the values locally until the proxy is not exported,
            * then we notify our clients. */
-          bamf_view_set_active (view, view->priv->active);
-          bamf_view_set_running (view, view->priv->running);
-          bamf_view_set_user_visible (view, view->priv->user_visible);
-          bamf_view_set_urgent (view, view->priv->urgent);
+          bamf_view_notify_cached_properties (view);
 
           g_signal_emit (view, view_signals[EXPORTED], 0);
         }
@@ -773,6 +809,12 @@ bamf_view_dispose (GObject *object)
       priv->parents = NULL;
     }
 
+  if (priv->props)
+    {
+      g_free (priv->props);
+      priv->props = NULL;
+    }
+
   g_dbus_object_skeleton_flush (G_DBUS_OBJECT_SKELETON (view));
 
   if (priv->active_changed_idle)
@@ -835,6 +877,7 @@ bamf_view_init (BamfView * self)
 
   /* Initializing the dbus interface */
   self->priv->dbus_iface = _bamf_dbus_item_view_skeleton_new ();
+  self->priv->props = g_new0 (BamfViewPropCache, 1);
 
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
