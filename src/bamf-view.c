@@ -32,6 +32,7 @@ enum
 {
   PROP_0,
 
+  PROP_NAME,
   PROP_ACTIVE,
   PROP_RUNNING,
   PROP_URGENT,
@@ -59,13 +60,14 @@ typedef struct _BamfViewPropCache
   gboolean user_visible;
   gboolean urgent;
   gboolean active;
+
+  gchar *name;
 } BamfViewPropCache;
 
 struct _BamfViewPrivate
 {
   BamfDBusItemView * dbus_iface;
   BamfViewPropCache * props;
-  char * name;
   char * path;
   GList * children;
   GList * parents;
@@ -110,18 +112,12 @@ bamf_view_active_changed (BamfView *view, gboolean active)
 }
 
 static void
-bamf_view_name_changed (BamfView *view,
-                        const gchar *old_name,
-                        const gchar *new_name)
+bamf_view_name_changed (BamfView *view, const gchar *new_name)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
 
+  const gchar *old_name = bamf_view_get_name (view);
   g_signal_emit_by_name (view, "name-changed", old_name, new_name);
-
-  if (view->priv->name)
-    g_free (view->priv->name);
-
-  view->priv->name = g_strdup (new_name);
 }
 
 static void
@@ -369,6 +365,26 @@ bamf_view_remove_child (BamfView *view, BamfView *child)
                                                                               \
   bamf_view_##property##_changed (v, property);
 
+#define BAMF_VIEW_SET_STRING_PROPERTY(v, property)                            \
+  g_return_if_fail (BAMF_IS_VIEW (v));                                        \
+                                                                              \
+  const gchar *current_value = bamf_view_get_##property (v);                  \
+                                                                              \
+  if (current_value == property || g_strcmp0 (current_value, property) == 0)  \
+    return;                                                                   \
+                                                                              \
+  bamf_view_##property##_changed (v, property);                               \
+                                                                              \
+  if (v->priv->props)                                                         \
+    {                                                                         \
+      g_free (v->priv->props->property);                                      \
+      v->priv->props->property = g_strdup (property);                         \
+    }                                                                         \
+  else                                                                        \
+    {                                                                         \
+      _bamf_dbus_item_view_set_##property (v->priv->dbus_iface, property);    \
+    }
+
 gboolean
 bamf_view_is_active (BamfView *view)
 {
@@ -385,8 +401,6 @@ bamf_view_set_active (BamfView *view,
 gboolean
 bamf_view_is_urgent (BamfView *view)
 {
-  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-
   BAMF_VIEW_GET_PROPERTY (view, urgent, FALSE);
 }
 
@@ -441,19 +455,14 @@ bamf_view_get_name (BamfView *view)
   if (BAMF_VIEW_GET_CLASS (view)->get_name)
     return BAMF_VIEW_GET_CLASS (view)->get_name (view);
 
-  return view->priv->name;
+  BAMF_VIEW_GET_PROPERTY (view, name, NULL);
 }
 
 void
 bamf_view_set_name (BamfView *view,
                     const char * name)
 {
-  g_return_if_fail (BAMF_IS_VIEW (view));
-
-  if (!g_strcmp0 (name, view->priv->name))
-    return;
-
-  bamf_view_name_changed (view, view->priv->name, name);
+  BAMF_VIEW_SET_STRING_PROPERTY (view, name);
 }
 
 const char *
@@ -479,18 +488,27 @@ bamf_view_get_stable_bus_name (BamfView *view)
 }
 
 static void
+bamf_view_clear_cached_properties (BamfView *view)
+{
+  if (!view->priv->props)
+    return;
+
+  g_free (view->priv->props->name);
+  g_free (view->priv->props);
+  view->priv->props = NULL;
+}
+
+static void
 bamf_view_notify_cached_properties (BamfView *view)
 {
   if (!view->priv->props || !bamf_view_is_on_bus (view))
     return;
 
+  bamf_view_set_name (view, view->priv->props->name);
   bamf_view_set_active (view, view->priv->props->active);
   bamf_view_set_running (view, view->priv->props->running);
   bamf_view_set_user_visible (view, view->priv->props->user_visible);
   bamf_view_set_urgent (view, view->priv->props->urgent);
-
-  g_free (view->priv->props);
-  view->priv->props = NULL;
 }
 
 const char *
@@ -538,6 +556,7 @@ bamf_view_export_on_bus (BamfView *view, GDBusConnection *connection)
            * So we store the values locally until the proxy is not exported,
            * then we notify our clients. */
           bamf_view_notify_cached_properties (view);
+          bamf_view_clear_cached_properties (view);
 
           g_signal_emit (view, view_signals[EXPORTED], 0);
         }
@@ -736,12 +755,6 @@ bamf_view_dispose (GObject *object)
   BamfView *view = BAMF_VIEW (object);
   BamfViewPrivate *priv = view->priv;
 
-  if (priv->name)
-    {
-      g_free (priv->name);
-      priv->name = NULL;
-    }
-
   if (priv->path)
     {
       g_free (priv->path);
@@ -760,19 +773,14 @@ bamf_view_dispose (GObject *object)
       priv->parents = NULL;
     }
 
-  if (priv->props)
-    {
-      g_free (priv->props);
-      priv->props = NULL;
-    }
-
-  g_dbus_object_skeleton_flush (G_DBUS_OBJECT_SKELETON (view));
-
   if (priv->active_changed_idle)
     {
       g_source_remove (priv->active_changed_idle);
       priv->active_changed_idle = 0;
     }
+
+  bamf_view_clear_cached_properties (view);
+  g_dbus_object_skeleton_flush (G_DBUS_OBJECT_SKELETON (view));
 
   G_OBJECT_CLASS (bamf_view_parent_class)->dispose (object);
 }
@@ -794,6 +802,9 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
 
   switch (property_id)
     {
+      case PROP_NAME:
+        g_value_set_string (value, bamf_view_get_name (view));
+        break;
       case PROP_ACTIVE:
         g_value_set_boolean (value, bamf_view_is_active (view));
         break;
@@ -893,6 +904,7 @@ bamf_view_class_init (BamfViewClass * klass)
 
   /* Overriding the properties defined in the interface, this is needed
    * but we actually don't use these properties, as we act like a proxy       */
+  g_object_class_override_property (object_class, PROP_NAME, "name");
   g_object_class_override_property (object_class, PROP_ACTIVE, "active");
   g_object_class_override_property (object_class, PROP_URGENT, "urgent");
   g_object_class_override_property (object_class, PROP_RUNNING, "running");
