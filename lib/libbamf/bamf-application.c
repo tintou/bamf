@@ -152,8 +152,8 @@ bamf_application_get_desktop_file (BamfApplication *application)
 /**
  * bamf_application_get_application_menu:
  * @application: a #BamfApplication
- * name (out): the bus name
- * object_path (out): the object path
+ * @name: (out): the bus name
+ * @object_path: (out): the object path
  *
  * Used to fetch the bus name and the object path of the remote application menu.
  *
