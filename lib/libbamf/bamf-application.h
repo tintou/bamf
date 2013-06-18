@@ -83,13 +83,13 @@ const gchar     * bamf_application_get_application_type (BamfApplication *applic
 
 const gchar     * bamf_application_get_desktop_file     (BamfApplication *application);
 
-gchar ** bamf_application_get_supported_mime_types (BamfApplication *application);
+gchar          ** bamf_application_get_supported_mime_types (BamfApplication *application);
 
 GList           * bamf_application_get_windows          (BamfApplication *application);
 
 GArray          * bamf_application_get_xids             (BamfApplication *application);
 
-BamfView * bamf_application_get_focusable_child (BamfApplication *application);
+BamfView        * bamf_application_get_focusable_child  (BamfApplication *application);
 
 gboolean          bamf_application_get_show_menu_stubs  (BamfApplication *application);
 
