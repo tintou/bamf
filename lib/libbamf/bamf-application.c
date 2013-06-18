@@ -149,6 +149,17 @@ bamf_application_get_desktop_file (BamfApplication *application)
   return file;
 }
 
+/**
+ * bamf_application_get_application_menu:
+ * @application: a #BamfApplication
+ * name (out): the bus name
+ * object_path (out): the object path
+ *
+ * Used to fetch the bus name and the object path of the remote application menu.
+ *
+ * Deprecated: 0.5.0
+ * Returns: %TRUE if found, %FALSE otherwise.
+ */
 gboolean
 bamf_application_get_application_menu (BamfApplication *application,
                                        gchar **name,
@@ -165,10 +176,12 @@ bamf_application_get_application_menu (BamfApplication *application,
   if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return FALSE;
 
+GCC_IGNORE_DEPRECATED_BEGIN
   if (!_bamf_dbus_item_application_call_application_menu_sync (priv->proxy, name,
                                                                object_path,
                                                                CANCELLABLE (application),
                                                                &error))
+GCC_IGNORE_DEPRECATED_END
     {
       *name = NULL;
       *object_path = NULL;

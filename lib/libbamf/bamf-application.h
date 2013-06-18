@@ -93,6 +93,9 @@ BamfView * bamf_application_get_focusable_child (BamfApplication *application);
 
 gboolean          bamf_application_get_show_menu_stubs  (BamfApplication *application);
 
+
+/* Deprecated symbols */
+G_GNUC_DEPRECATED
 gboolean bamf_application_get_application_menu (BamfApplication *application,
                                                 gchar **name,
                                                 gchar **object_path);

@@ -84,14 +84,13 @@
       <arg name="type" type="s" direction="out"/>
     </method>
     <method name="ApplicationMenu">
+      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="busname" type="s" direction="out"/>
       <arg name="objectpath" type="s" direction="out"/>
     </method>
-
     <method name="FocusableChild">
       <arg name="path" type="s" direction="out"/>
     </method>
-
     <signal name="WindowRemoved">
       <arg name="path" type="s"/>
     </signal>
