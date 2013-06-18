@@ -339,41 +339,47 @@ bamf_view_remove_child (BamfView *view, BamfView *child)
   removed = bamf_view_get_path (child);
   g_signal_emit_by_name (view, "child-removed", removed);
 
-  // Do this by hand so we can pass and object instead of a string
+  /* Do this by hand so we can pass and object instead of a string */
   if (BAMF_VIEW_GET_CLASS (view)->child_removed)
     BAMF_VIEW_GET_CLASS (view)->child_removed (view, child);
 }
 
+#define BAMF_VIEW_GET_PROPERTY(v, property, ret_val)                          \
+  g_return_val_if_fail (BAMF_IS_VIEW (v), ret_val);                           \
+                                                                              \
+  if (v->priv->props)                                                         \
+    return v->priv->props->property;                                          \
+                                                                              \
+  return _bamf_dbus_item_view_get_##property (v->priv->dbus_iface);
+
+#define BAMF_VIEW_SET_BOOL_PROPERTY(v, property)                              \
+  g_return_if_fail (BAMF_IS_VIEW (v));                                        \
+                                                                              \
+  if (property == bamf_view_is_##property (v))                                \
+    return;                                                                   \
+                                                                              \
+  if (v->priv->props)                                                         \
+    {                                                                         \
+      v->priv->props->property = property;                                    \
+    }                                                                         \
+  else                                                                        \
+    {                                                                         \
+      _bamf_dbus_item_view_set_##property (v->priv->dbus_iface, property);    \
+    }                                                                         \
+                                                                              \
+  bamf_view_##property##_changed (v, property);
+
 gboolean
 bamf_view_is_active (BamfView *view)
 {
-  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-
-  if (view->priv->props)
-    return view->priv->props->active;
-
-  return _bamf_dbus_item_view_get_active (view->priv->dbus_iface);
+  BAMF_VIEW_GET_PROPERTY (view, active, FALSE);
 }
 
 void
 bamf_view_set_active (BamfView *view,
                       gboolean active)
 {
-  g_return_if_fail (BAMF_IS_VIEW (view));
-
-  if (active == bamf_view_is_active (view))
-    return;
-
-  if (view->priv->props)
-    {
-      view->priv->props->active = active;
-    }
-  else
-    {
-      _bamf_dbus_item_view_set_active (view->priv->dbus_iface, active);
-    }
-
-  bamf_view_active_changed (view, active);
+  BAMF_VIEW_SET_BOOL_PROPERTY (view, active);
 }
 
 gboolean
@@ -381,94 +387,39 @@ bamf_view_is_urgent (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
-  if (view->priv->props)
-    return view->priv->props->urgent;
-
-  return _bamf_dbus_item_view_get_urgent (view->priv->dbus_iface);
+  BAMF_VIEW_GET_PROPERTY (view, urgent, FALSE);
 }
 
 void
 bamf_view_set_urgent (BamfView *view,
                        gboolean urgent)
 {
-  g_return_if_fail (BAMF_IS_VIEW (view));
-
-  if (urgent == bamf_view_is_urgent (view))
-    return;
-
-  if (view->priv->props)
-    {
-      view->priv->props->urgent = urgent;
-    }
-  else
-    {
-      _bamf_dbus_item_view_set_urgent (view->priv->dbus_iface, urgent);
-    }
-
-  bamf_view_urgent_changed (view, urgent);
+  BAMF_VIEW_SET_BOOL_PROPERTY (view, urgent);
 }
 
 gboolean
 bamf_view_is_running (BamfView *view)
 {
-  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-
-  if (view->priv->props)
-    return view->priv->props->running;
-
-  return _bamf_dbus_item_view_get_running (view->priv->dbus_iface);
+ BAMF_VIEW_GET_PROPERTY (view, running, FALSE);
 }
 
 void
 bamf_view_set_running (BamfView *view,
                        gboolean running)
 {
-  g_return_if_fail (BAMF_IS_VIEW (view));
-
-  if (running == bamf_view_is_running (view))
-    return;
-
-  if (view->priv->props)
-    {
-      view->priv->props->running = running;
-    }
-  else
-    {
-      _bamf_dbus_item_view_set_running (view->priv->dbus_iface, running);
-    }
-
-  bamf_view_running_changed (view, running);
+  BAMF_VIEW_SET_BOOL_PROPERTY (view, running);
 }
 
 gboolean
 bamf_view_is_user_visible (BamfView *view)
 {
-  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-
-  if (view->priv->props)
-    return view->priv->props->user_visible;
-
-  return _bamf_dbus_item_view_get_user_visible (view->priv->dbus_iface);
+  BAMF_VIEW_GET_PROPERTY (view, user_visible, FALSE);
 }
 
 void
 bamf_view_set_user_visible (BamfView *view, gboolean user_visible)
 {
-  g_return_if_fail (BAMF_IS_VIEW (view));
-
-  if (user_visible == bamf_view_is_user_visible (view))
-    return;
-
-  if (view->priv->props)
-    {
-      view->priv->props->user_visible = user_visible;
-    }
-  else
-    {
-      _bamf_dbus_item_view_set_user_visible (view->priv->dbus_iface, user_visible);
-    }
-
-  bamf_view_user_visible_changed (view, user_visible);
+  BAMF_VIEW_SET_BOOL_PROPERTY (view, user_visible);
 }
 
 const char *
@@ -530,7 +481,7 @@ bamf_view_get_stable_bus_name (BamfView *view)
 static void
 bamf_view_notify_cached_properties (BamfView *view)
 {
-  if (!view->priv->props)
+  if (!view->priv->props || !bamf_view_is_on_bus (view))
     return;
 
   bamf_view_set_active (view, view->priv->props->active);
