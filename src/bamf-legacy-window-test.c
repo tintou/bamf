@@ -132,6 +132,7 @@ bamf_legacy_window_test_set_name (BamfLegacyWindowTest *self, const char *val)
   if (g_strcmp0 (self->name, val) == 0)
     return;
 
+  g_free (self->name);
   self->name = g_strdup (val);
 
   g_signal_emit_by_name (self, "name-changed");
@@ -143,6 +144,7 @@ bamf_legacy_window_test_set_role (BamfLegacyWindowTest *self, const char *val)
   if (g_strcmp0 (self->role, val) == 0)
     return;
 
+  g_free (self->role);
   self->role = g_strdup (val);
 
   g_signal_emit_by_name (self, "role-changed");

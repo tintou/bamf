@@ -45,7 +45,7 @@ static void test_trim_exec_string (void);
 static GDBusConnection *gdbus_connection = NULL;
 
 #define DOMAIN "/Matcher"
-#define DATA_DIR TESTDIR "/bamfdaemon/data"
+#define DATA_DIR TESTDIR "/data"
 #define TEST_BAMF_APP_DESKTOP DATA_DIR "/test-bamf-app.desktop"
 
 void
@@ -77,7 +77,7 @@ export_matcher_on_bus (BamfMatcher *matcher)
   g_return_if_fail (BAMF_IS_MATCHER (matcher));
 
   g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (matcher),
-                                    gdbus_connection, BAMF_MATCHER_PATH"/Test",
+                                    gdbus_connection, BAMF_DBUS_MATCHER_PATH,
                                     &error);
 
   g_assert (!error);

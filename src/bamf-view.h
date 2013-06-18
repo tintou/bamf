@@ -21,9 +21,9 @@
 #ifndef __BAMFVIEW_H__
 #define __BAMFVIEW_H__
 
-#include "bamf.h"
 #include <glib.h>
 #include <glib-object.h>
+#include <libbamf-private/bamf-private.h>
 
 #define BAMF_TYPE_VIEW                  (bamf_view_get_type ())
 #define BAMF_VIEW(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_VIEW, BamfView))

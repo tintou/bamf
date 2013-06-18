@@ -2,7 +2,7 @@
  * Copyright (C) 2009-2011 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 3 as 
+ * it under the terms of the GNU General Public License version 3 as
  * published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -73,7 +73,6 @@ test_allocation (void)
   g_assert (BAMF_IS_VIEW (view));
 
   g_object_unref (G_OBJECT (view));
-  g_assert (!BAMF_IS_VIEW (view));
 }
 
 static void
@@ -90,7 +89,6 @@ test_name (void)
   g_assert (g_strcmp0 (bamf_view_get_name (view), "SomeName") == 0);
 
   g_object_unref (view);
-  g_assert (!BAMF_IS_VIEW (view));
 }
 
 static void
@@ -108,7 +106,6 @@ test_active (void)
   g_assert (!bamf_view_is_active (view));
 
   g_object_unref (view);
-  g_assert (!BAMF_IS_VIEW (view));
 }
 
 static void
@@ -126,7 +123,6 @@ test_running (void)
   g_assert (!bamf_view_is_running (view));
 
   g_object_unref (view);
-  g_assert (!BAMF_IS_VIEW (view));
 }
 
 static void
@@ -143,14 +139,13 @@ test_path (void)
   g_assert (g_strcmp0 (path, bamf_view_get_path (view)) == 0);
 
   g_object_unref (view);
-  g_assert (!BAMF_IS_VIEW (view));
 }
 
 static void
 test_path_collision (void)
 {
   int i, j;
-  
+
   for (i = 0; i < 20; i++)
     {
       GList *views = NULL;
@@ -335,7 +330,6 @@ test_active_event (void)
   g_assert (!active_event_result);
 
   g_object_unref (view);
-  g_assert (!BAMF_IS_VIEW (view));
 }
 
 guint active_event_calls;
@@ -413,7 +407,6 @@ test_running_event (void)
   g_assert (!running_event_result);
 
   g_object_unref (view);
-  g_assert (!BAMF_IS_VIEW (view));
 }
 
 static gboolean child_added_event_fired;
@@ -449,7 +442,7 @@ test_child_added_event (void)
 
   bamf_view_close (child);
   bamf_view_close (parent);
-  
+
   g_object_unref (child);
   g_object_unref (parent);
 }

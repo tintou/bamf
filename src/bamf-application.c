@@ -48,7 +48,8 @@ struct _BamfApplicationPrivate
   gboolean show_stubs;
 };
 
-enum {
+enum
+{
   SUPPORTED_MIMES_CHANGED,
   LAST_SIGNAL
 };
@@ -100,24 +101,25 @@ bamf_application_default_get_close_when_empty (BamfApplication *application)
 static gchar **
 bamf_application_default_get_supported_mime_types (BamfApplication *application)
 {
-  const char *desktop_file = bamf_application_get_desktop_file (application);
+  const char *desktop_file;
+  char** mimes;
+
+  desktop_file = bamf_application_get_desktop_file (application);
 
   if (!desktop_file)
     return NULL;
 
   GKeyFile* key_file = g_key_file_new ();
-  GError *error = NULL;
 
-  g_key_file_load_from_file (key_file, desktop_file, (GKeyFileFlags) 0, &error);
-
-  if (error)
+  if (!g_key_file_load_from_file (key_file, desktop_file, (GKeyFileFlags) 0, NULL))
     {
       g_key_file_free (key_file);
-      g_error_free (error);
       return NULL;
     }
 
-  char** mimes = g_key_file_get_string_list (key_file, "Desktop Entry", "MimeType", NULL, NULL);
+  mimes = g_key_file_get_string_list (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                      G_KEY_FILE_DESKTOP_KEY_MIME_TYPE, NULL, NULL);
+
   g_signal_emit (application, application_signals[SUPPORTED_MIMES_CHANGED], 0, mimes);
 
   g_key_file_free (key_file);
@@ -128,12 +130,16 @@ bamf_application_default_get_supported_mime_types (BamfApplication *application)
 char **
 bamf_application_get_supported_mime_types (BamfApplication *application)
 {
+  gchar **mimes = NULL;
+
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
 
   if (application->priv->mimes)
     return g_strdupv (application->priv->mimes);
 
-  gchar **mimes = BAMF_APPLICATION_GET_CLASS (application)->get_supported_mime_types (application);
+  if (BAMF_APPLICATION_GET_CLASS (application)->get_supported_mime_types)
+    mimes = BAMF_APPLICATION_GET_CLASS (application)->get_supported_mime_types (application);
+
   application->priv->mimes = mimes;
 
   return g_strdupv (mimes);
@@ -151,10 +157,10 @@ void
 bamf_application_set_application_type (BamfApplication *application, const gchar *type)
 {
   g_return_if_fail (BAMF_IS_APPLICATION (application));
-  
+
   if (application->priv->app_type)
     g_free (application->priv->app_type);
-  
+
   application->priv->app_type = g_strdup (type);
 }
 
@@ -289,14 +295,14 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
           do
             {
               class = bamf_legacy_window_get_class_name (bamf_window_get_window (window));
-              
-              if (class == NULL)
-                break;
 
-              icon = g_utf8_strdown (class, -1);
+              if (class)
+                {
+                  icon = g_utf8_strdown (class, -1);
 
-              if (icon_name_is_valid (icon))
-                break;
+                  if (icon_name_is_valid (icon))
+                    break;
+                }
 
               g_free (icon);
               icon = bamf_legacy_window_get_exec_string (bamf_window_get_window (window));
@@ -367,19 +373,20 @@ bamf_application_set_desktop_file_from_id (BamfApplication *application,
 {
   GDesktopAppInfo *info;
   const char *filename;
-  
+
   info = g_desktop_app_info_new (desktop_id);
-  
+
   if (info == NULL)
     {
       g_warning ("Failed to load desktop file from desktop ID: %s", desktop_id);
       return FALSE;
     }
+
   filename = g_desktop_app_info_get_filename (info);
   bamf_application_set_desktop_file (application, filename);
-  
+
   g_object_unref (G_OBJECT (info));
-  
+
   return TRUE;
 }
 
@@ -538,7 +545,7 @@ bamf_application_get_stable_bus_name (BamfView *view)
 static void
 bamf_application_ensure_flags (BamfApplication *self)
 {
-  gboolean urgent = FALSE, visible = FALSE, running = FALSE, active = FALSE, close_when_empty;
+  gboolean urgent = FALSE, visible = FALSE, running = FALSE, active = FALSE;
   GList *l;
   BamfView *view;
 
@@ -565,7 +572,7 @@ bamf_application_ensure_flags (BamfApplication *self)
         break;
     }
 
-  close_when_empty = bamf_application_get_close_when_empty (self);
+  gboolean close_when_empty = bamf_application_get_close_when_empty (self);
   bamf_view_set_urgent (BAMF_VIEW (self), urgent);
   bamf_view_set_user_visible (BAMF_VIEW (self), (visible || !close_when_empty));
   bamf_view_set_running (BAMF_VIEW (self), (running || !close_when_empty));
@@ -594,7 +601,7 @@ static void
 view_xid_changed (GObject *object, GParamSpec *pspec, gpointer user_data)
 {
   BamfApplication *self;
-  
+
   self = (BamfApplication *)user_data;
   bamf_application_ensure_flags (self);
 }
@@ -780,8 +787,8 @@ on_dbus_handle_xids (BamfDBusItemApplication *interface,
 
 static gboolean
 on_dbus_handle_focusable_child (BamfDBusItemApplication *interface,
-                           GDBusMethodInvocation *invocation,
-                           BamfApplication *self)
+                                GDBusMethodInvocation *invocation,
+                                BamfApplication *self)
 {
   GVariant *out_variant;
   BamfView *focusable_child;
@@ -947,7 +954,7 @@ bamf_application_init (BamfApplication * self)
   priv->wmclass = NULL;
 
   /* Initializing the dbus interface */
-  priv->dbus_iface = bamf_dbus_item_application_skeleton_new ();
+  priv->dbus_iface = _bamf_dbus_item_application_skeleton_new ();
 
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
@@ -977,8 +984,8 @@ bamf_application_init (BamfApplication * self)
                     G_CALLBACK (on_dbus_handle_application_type), self);
 
   /* Setting the interface for the dbus object */
-  bamf_dbus_item_object_skeleton_set_application (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
-                                                  priv->dbus_iface);
+  _bamf_dbus_item_object_skeleton_set_application (BAMF_DBUS_ITEM_OBJECT_SKELETON (self),
+                                                   priv->dbus_iface);
 
   g_signal_connect (G_OBJECT (bamf_matcher_get_default ()), "favorites-changed",
                     (GCallback) matcher_favorites_changed, self);
@@ -1015,8 +1022,7 @@ bamf_application_class_init (BamfApplicationClass * klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfApplicationClass, supported_mimes_changed),
-                  NULL, NULL,
-                  g_cclosure_marshal_generic,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   G_TYPE_STRV);
 }
@@ -1086,7 +1092,7 @@ gboolean
 bamf_application_get_close_when_empty (BamfApplication *application)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION(application), FALSE);
-  
+
   if (BAMF_APPLICATION_GET_CLASS (application)->get_close_when_empty)
     {
       return BAMF_APPLICATION_GET_CLASS (application)->get_close_when_empty(application);
@@ -1098,7 +1104,7 @@ void
 bamf_application_get_application_menu (BamfApplication *application, gchar **name, gchar **object_path)
 {
   g_return_if_fail (BAMF_IS_APPLICATION (application));
-  
+
   if (BAMF_APPLICATION_GET_CLASS (application)->get_application_menu)
     {
       BAMF_APPLICATION_GET_CLASS (application)->get_application_menu (application, name, object_path);
@@ -1114,11 +1120,11 @@ BamfView *
 bamf_application_get_focusable_child (BamfApplication *application)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
-  
+
   if (BAMF_APPLICATION_GET_CLASS (application)->get_focusable_child)
     {
       return BAMF_APPLICATION_GET_CLASS (application)->get_focusable_child (application);
     }
-  
+
   return NULL;
 }

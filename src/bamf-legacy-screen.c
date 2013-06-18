@@ -242,7 +242,7 @@ handle_window_opened (WnckScreen *screen, WnckWindow *window, BamfLegacyScreen *
   g_signal_connect (G_OBJECT (legacy_window), "closed",
                     (GCallback) handle_window_closed, legacy);
 
-  legacy->priv->windows = g_list_insert_sorted_with_data (legacy->priv->windows, legacy_window, 
+  legacy->priv->windows = g_list_insert_sorted_with_data (legacy->priv->windows, legacy_window,
                                                           compare_windows_by_stack_order,
                                                           legacy);
 
@@ -397,8 +397,7 @@ bamf_legacy_screen_class_init (BamfLegacyScreenClass * klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyScreenClass, window_opened),
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__OBJECT,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   BAMF_TYPE_LEGACY_WINDOW);
 
@@ -407,8 +406,7 @@ bamf_legacy_screen_class_init (BamfLegacyScreenClass * klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyScreenClass, window_closed),
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__OBJECT,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   BAMF_TYPE_LEGACY_WINDOW);
 
@@ -417,8 +415,7 @@ bamf_legacy_screen_class_init (BamfLegacyScreenClass * klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyScreenClass, stacking_changed),
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
   legacy_screen_signals [ACTIVE_WINDOW_CHANGED] =
@@ -426,8 +423,7 @@ bamf_legacy_screen_class_init (BamfLegacyScreenClass * klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyScreenClass, active_window_changed),
-                  NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 }
 

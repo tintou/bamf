@@ -2,7 +2,7 @@
  * Copyright (C) 2009 Canonical Ltd
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 3 as 
+ * it under the terms of the GNU General Public License version 3 as
  * published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -16,7 +16,7 @@
  * Authored by Jason Smith <jason.smith@canonical.com>
  *
  */
- 
+
 #include <glib.h>
 #include <stdlib.h>
 #include "bamf-window.h"
@@ -53,22 +53,21 @@ test_window_create_suite (void)
   g_test_add_func (DOMAIN"/Events/HorizontallyMaximized", test_hmaximized);
 }
 
-void 
+void
 test_allocation (void)
 {
   BamfWindow *window;
   BamfLegacyWindowTest *test;
-  
+
   test = bamf_legacy_window_test_new (20,"Window X", "class", "exec");
-  
+
   window = bamf_window_new (BAMF_LEGACY_WINDOW (test));
-  
+
   g_assert (BAMF_IS_WINDOW (window));
-  
+
   g_object_unref (window);
-  
-  g_assert (!BAMF_IS_WINDOW (window));
-  
+
+
   g_object_unref (test);
 }
 
@@ -95,13 +94,13 @@ test_xid (void)
 {
   BamfWindow *window;
   BamfLegacyWindowTest *test;
-  
+
   test = bamf_legacy_window_test_new (20,"Window X", "class", "exec");
-  
+
   window = bamf_window_new (BAMF_LEGACY_WINDOW (test));
 
-  g_assert (bamf_window_get_xid (window) == 20);  
-  
+  g_assert (bamf_window_get_xid (window) == 20);
+
   g_object_unref (window);
   g_object_unref (test);
 }
@@ -120,27 +119,27 @@ test_urgent (void)
 
   BamfWindow *window;
   BamfLegacyWindowTest *test;
-  
+
   test = bamf_legacy_window_test_new (20,"Window X", "class", "exec");
-  
+
   window = bamf_window_new (BAMF_LEGACY_WINDOW (test));
   g_signal_connect (G_OBJECT (window), "urgent-changed", (GCallback) on_urgent_changed, NULL);
-  
+
   g_assert (!bamf_view_is_urgent (BAMF_VIEW (window)));
   g_assert (!signal_seen);
-  
-  bamf_legacy_window_test_set_attention (test, TRUE);  
+
+  bamf_legacy_window_test_set_attention (test, TRUE);
   g_assert (bamf_view_is_urgent (BAMF_VIEW (window)));
   g_assert (signal_seen);
   g_assert (signal_result);
-  
+
   signal_seen = FALSE;
-  
-  bamf_legacy_window_test_set_attention (test, FALSE);  
+
+  bamf_legacy_window_test_set_attention (test, FALSE);
   g_assert (!bamf_view_is_urgent (BAMF_VIEW (window)));
   g_assert (signal_seen);
   g_assert (!signal_result);
-  
+
   g_object_unref (window);
   g_object_unref (test);
 }
@@ -159,31 +158,31 @@ test_active (void)
 
   BamfWindow *window;
   BamfLegacyWindowTest *test;
-  
+
   test = bamf_legacy_window_test_new (20,"Window X", "class", "exec");
-  
+
   window = bamf_window_new (BAMF_LEGACY_WINDOW (test));
   g_signal_connect (G_OBJECT (window), "active-changed", (GCallback) on_active_changed, NULL);
-  
+
   g_assert (!bamf_view_is_active (BAMF_VIEW (window)));
   g_assert (!signal_seen);
-  
-  bamf_legacy_window_test_set_active (test, TRUE);  
+
+  bamf_legacy_window_test_set_active (test, TRUE);
   g_assert (bamf_view_is_active (BAMF_VIEW (window)));
   g_assert (!signal_seen);
   while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
   g_assert (signal_seen);
   g_assert (signal_result);
-  
+
   signal_seen = FALSE;
-  
-  bamf_legacy_window_test_set_active (test, FALSE);  
+
+  bamf_legacy_window_test_set_active (test, FALSE);
   g_assert (!bamf_view_is_active (BAMF_VIEW (window)));
   g_assert (!signal_seen);
   while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
   g_assert (signal_seen);
   g_assert (!signal_result);
-  
+
   g_object_unref (window);
   g_object_unref (test);
 }
@@ -202,27 +201,27 @@ test_user_visible (void)
 
   BamfWindow *window;
   BamfLegacyWindowTest *test;
-  
+
   test = bamf_legacy_window_test_new (20,"Window X", "class", "exec");
-  
+
   window = bamf_window_new (BAMF_LEGACY_WINDOW (test));
   g_signal_connect (G_OBJECT (window), "user-visible-changed", (GCallback) on_user_visible_changed, NULL);
-  
+
   g_assert (bamf_view_user_visible (BAMF_VIEW (window)));
   g_assert (!signal_seen);
-  
-  bamf_legacy_window_test_set_skip (test, TRUE);  
+
+  bamf_legacy_window_test_set_skip (test, TRUE);
   g_assert (!bamf_view_user_visible (BAMF_VIEW (window)));
   g_assert (signal_seen);
   g_assert (!signal_result);
-  
+
   signal_seen = FALSE;
-  
-  bamf_legacy_window_test_set_skip (test, FALSE);  
+
+  bamf_legacy_window_test_set_skip (test, FALSE);
   g_assert (bamf_view_user_visible (BAMF_VIEW (window)));
   g_assert (signal_seen);
   g_assert (signal_result);
-  
+
   g_object_unref (window);
   g_object_unref (test);
 }
@@ -251,18 +250,18 @@ test_maximized (void)
   g_assert (bamf_window_maximized (window) == BAMF_WINDOW_FLOATING);
   g_assert (!signal_seen);
 
-  bamf_legacy_window_test_set_maximized (test, BAMF_WINDOW_MAXIMIZED);  
+  bamf_legacy_window_test_set_maximized (test, BAMF_WINDOW_MAXIMIZED);
   g_assert (bamf_window_maximized (window) == BAMF_WINDOW_MAXIMIZED);
   g_assert (signal_seen);
   g_assert (signal_result);
-  
+
   signal_seen = FALSE;
 
-  bamf_legacy_window_test_set_maximized (test, BAMF_WINDOW_FLOATING);  
+  bamf_legacy_window_test_set_maximized (test, BAMF_WINDOW_FLOATING);
   g_assert (bamf_window_maximized (window) == BAMF_WINDOW_FLOATING);
   g_assert (signal_seen);
   g_assert (!signal_result);
-  
+
   g_object_unref (window);
   g_object_unref (test);
 }
@@ -290,18 +289,18 @@ test_vmaximized (void)
   g_assert (bamf_window_maximized (window) == BAMF_WINDOW_FLOATING);
   g_assert (!signal_seen);
 
-  bamf_legacy_window_test_set_maximized (test, BAMF_WINDOW_VERTICAL_MAXIMIZED);  
+  bamf_legacy_window_test_set_maximized (test, BAMF_WINDOW_VERTICAL_MAXIMIZED);
   g_assert (bamf_window_maximized (window) == BAMF_WINDOW_VERTICAL_MAXIMIZED);
   g_assert (signal_seen);
   g_assert (signal_result);
-  
+
   signal_seen = FALSE;
 
-  bamf_legacy_window_test_set_maximized (test, BAMF_WINDOW_FLOATING);  
+  bamf_legacy_window_test_set_maximized (test, BAMF_WINDOW_FLOATING);
   g_assert (bamf_window_maximized (window) == BAMF_WINDOW_FLOATING);
   g_assert (signal_seen);
   g_assert (!signal_result);
-  
+
   g_object_unref (window);
   g_object_unref (test);
 }
@@ -329,18 +328,18 @@ test_hmaximized (void)
   g_assert (bamf_window_maximized (window) == BAMF_WINDOW_FLOATING);
   g_assert (!signal_seen);
 
-  bamf_legacy_window_test_set_maximized (test, BAMF_WINDOW_HORIZONTAL_MAXIMIZED);  
+  bamf_legacy_window_test_set_maximized (test, BAMF_WINDOW_HORIZONTAL_MAXIMIZED);
   g_assert (bamf_window_maximized (window) == BAMF_WINDOW_HORIZONTAL_MAXIMIZED);
   g_assert (signal_seen);
   g_assert (signal_result);
-  
+
   signal_seen = FALSE;
 
-  bamf_legacy_window_test_set_maximized (test, BAMF_WINDOW_FLOATING);  
+  bamf_legacy_window_test_set_maximized (test, BAMF_WINDOW_FLOATING);
   g_assert (bamf_window_maximized (window) == BAMF_WINDOW_FLOATING);
   g_assert (signal_seen);
   g_assert (!signal_result);
-  
+
   g_object_unref (window);
   g_object_unref (test);
 }

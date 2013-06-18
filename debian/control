@@ -5,17 +5,16 @@ Maintainer: Didier Roche <didrocks@ubuntu.com>
 Uploaders: Andrea Veri <and@debian.org>
 Build-Depends: dbus-x11,
                debhelper (>= 9),
-               gir1.2-glib-2.0,
                dh-autoreconf,
                gobject-introspection (>= 0.6.5-3),
                gtk-doc-tools,
-               libdbus-glib-1-dev,
                libglib2.0-dev (>= 2.32.0),
                libgtop2-dev,
                libgtk-3-dev (>= 3.0.0),
                libunity-webapps-dev (>= 2.3.3),
                libwnck-3-dev (>= 3.4.5),
                libgirepository1.0-dev,
+               python-libxslt1,
                valac,
                xvfb,
 Standards-Version: 3.9.3
@@ -28,6 +27,7 @@ Package: bamfdaemon
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
+         libbamf3-1 (= ${binary:Version}),
 Multi-Arch: foreign
 Description: Window matching library - daemon
  bamf matches application windows to desktop files
@@ -40,7 +40,6 @@ Package: libbamf3-1
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         bamfdaemon (= ${binary:Version}),
 Breaks: unity (<< 3.2.12)
 Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
@@ -53,6 +52,7 @@ Package: libbamf3-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends},
+         gir1.2-bamf-3 (= ${binary:Version}),
          libbamf3-1 (= ${binary:Version}),
          libglib2.0-dev (>= 2.30.0),
 Suggests: libbamf-doc
@@ -92,7 +92,7 @@ Description: Window matching library - debugging symbols
  This package contains debugging symbols for the daemon and library.
 
 Package: gir1.2-bamf-3
-Section: libs
+Section: introspection
 Architecture: any
 Depends: ${gir:Depends},
          ${misc:Depends},

@@ -31,14 +31,13 @@ CFILE_GLOB = $(top_srcdir)/lib/libbamf/bamf-*.c
 
 # Header files to ignore when scanning.
 IGNORE_HFILES = \
-  bamf-marshal.h \
-  bamf-tab-source-glue.h
+  bamf-gdbus-tab-source-generated.h
 
 # Images to copy into HTML directory.
 HTML_IMAGES =
 
 # Extra SGML files that are included by $(DOC_MAIN_SGML_FILE).
-content_files = 
+content_files =
 
 # CFLAGS and LDFLAGS for compiling gtkdoc-scangobj with your library.
 INCLUDES= \
@@ -50,7 +49,6 @@ INCLUDES= \
 GTKDOC_LIBS = \
   $(GTK_LIBS) \
   $(GLIB_LIBS) \
-  $(DBUS_LIBS) \
   $(top_builddir)/lib/libbamf/libbamf$(LIBBAMF_VER).la
 
 # This includes the standard gtk-doc make rules, copied by gtkdocize.

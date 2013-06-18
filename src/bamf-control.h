@@ -22,7 +22,6 @@
 #ifndef __BAMFCONTROL_H__
 #define __BAMFCONTROL_H__
 
-#include "bamf.h"
 #include <glib.h>
 #include <glib-object.h>
 #include <gio/gio.h>

@@ -23,6 +23,7 @@
 #include "bamf-matcher.h"
 #include "bamf-matcher-private.h"
 #include "bamf-application.h"
+#include "bamf-tab.h"
 #include "bamf-window.h"
 #include "bamf-legacy-screen.h"
 
@@ -2099,7 +2100,6 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
         }
 
       g_signal_connect (window, "role-changed", (GCallback) on_gnome_control_center_window_role_changed, self);
-
       g_free (old_hint);
     }
 
@@ -2180,8 +2180,7 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
 {
   gpointer key;
   BamfLegacyScreen *screen;
-  GList *glist_item;
-  GList *windows;
+  GList *windows, *l;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (desktopFile);
@@ -2197,10 +2196,9 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
 
   windows = bamf_legacy_screen_get_windows (screen);
 
-  for (glist_item = windows; glist_item != NULL;
-       glist_item = glist_item->next)
+  for (l = windows; l; l = l->next)
     {
-      ensure_window_hint_set (self, glist_item->data);
+      ensure_window_hint_set (self, l->data);
     }
 }
 
@@ -2565,11 +2563,30 @@ bamf_matcher_running_applications_desktop_files (BamfMatcher *matcher)
 GVariant *
 bamf_matcher_tab_dbus_paths (BamfMatcher *matcher)
 {
+  GList *l;
+  BamfView *view;
+  BamfMatcherPrivate *priv;
   GVariantBuilder b;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
 
   g_variant_builder_init (&b, G_VARIANT_TYPE ("(as)"));
   g_variant_builder_open (&b, G_VARIANT_TYPE ("as"));
+
+  priv = matcher->priv;
+
+  for (l = priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_TAB (view))
+        continue;
+
+      g_variant_builder_add (&b, "s", bamf_view_get_path (view));
+    }
+
   g_variant_builder_close (&b);
+
   return g_variant_builder_end (&b);
 }
 
@@ -2760,6 +2777,7 @@ on_dbus_handle_window_stack_for_monitor (BamfDBusMatcher *interface,
   return TRUE;
 }
 
+#ifdef HAVE_WEBAPPS
 static gboolean
 bamf_matcher_has_tab_with_parent_xid (BamfMatcher *matcher, guint64 xid)
 {
@@ -2778,7 +2796,6 @@ bamf_matcher_has_tab_with_parent_xid (BamfMatcher *matcher, guint64 xid)
   return FALSE;
 }
 
-#ifdef HAVE_WEBAPPS
 static void
 on_webapp_child_added (BamfView *application,
                        BamfView *child,
@@ -3040,9 +3057,7 @@ bamf_matcher_class_init (BamfMatcherClass * klass)
   matcher_signals [FAVORITES_CHANGED] =
     g_signal_new ("favorites-changed",
                   G_OBJECT_CLASS_TYPE (klass),
-                  0,
-                  0, NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
+                  0, 0, NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 }
 
