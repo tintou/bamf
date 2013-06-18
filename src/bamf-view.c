@@ -441,7 +441,7 @@ bamf_view_set_running (BamfView *view,
 }
 
 gboolean
-bamf_view_user_visible (BamfView *view)
+bamf_view_is_user_visible (BamfView *view)
 {
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
 
@@ -456,7 +456,7 @@ bamf_view_set_user_visible (BamfView *view, gboolean user_visible)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
 
-  if (user_visible == bamf_view_user_visible (view))
+  if (user_visible == bamf_view_is_user_visible (view))
     return;
 
   if (view->priv->props)
@@ -690,7 +690,7 @@ on_dbus_handle_user_visible (BamfDBusItemView *interface,
                              GDBusMethodInvocation *invocation,
                              BamfView *view)
 {
-  gboolean user_visible = bamf_view_user_visible (view);
+  gboolean user_visible = bamf_view_is_user_visible (view);
   g_dbus_method_invocation_return_value (invocation,
                                          g_variant_new ("(b)", user_visible));
 
@@ -850,7 +850,7 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
         g_value_set_boolean (value, bamf_view_is_urgent (view));
         break;
       case PROP_USER_VISIBLE:
-        g_value_set_boolean (value, bamf_view_user_visible (view));
+        g_value_set_boolean (value, bamf_view_is_user_visible (view));
         break;
       case PROP_RUNNING:
         g_value_set_boolean (value, bamf_view_is_running (view));

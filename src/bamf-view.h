@@ -92,7 +92,7 @@ void          bamf_view_set_active         (BamfView *view, gboolean active);
 gboolean      bamf_view_is_running         (BamfView *view);
 void          bamf_view_set_running        (BamfView *view, gboolean running);
 
-gboolean      bamf_view_user_visible       (BamfView *view);
+gboolean      bamf_view_is_user_visible    (BamfView *view);
 void          bamf_view_set_user_visible   (BamfView *view, gboolean user_visible);
 
 gboolean      bamf_view_is_urgent          (BamfView *view);

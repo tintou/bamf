@@ -207,18 +207,18 @@ test_user_visible (void)
   window = bamf_window_new (BAMF_LEGACY_WINDOW (test));
   g_signal_connect (G_OBJECT (window), "user-visible-changed", (GCallback) on_user_visible_changed, NULL);
 
-  g_assert (bamf_view_user_visible (BAMF_VIEW (window)));
+  g_assert (bamf_view_is_user_visible (BAMF_VIEW (window)));
   g_assert (!signal_seen);
 
   bamf_legacy_window_test_set_skip (test, TRUE);
-  g_assert (!bamf_view_user_visible (BAMF_VIEW (window)));
+  g_assert (!bamf_view_is_user_visible (BAMF_VIEW (window)));
   g_assert (signal_seen);
   g_assert (!signal_result);
 
   signal_seen = FALSE;
 
   bamf_legacy_window_test_set_skip (test, FALSE);
-  g_assert (bamf_view_user_visible (BAMF_VIEW (window)));
+  g_assert (bamf_view_is_user_visible (BAMF_VIEW (window)));
   g_assert (signal_seen);
   g_assert (signal_result);
 
