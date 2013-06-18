@@ -317,10 +317,9 @@ bamf_view_add_child (BamfView *view,
 }
 
 void
-bamf_view_remove_child (BamfView *view,
-                        BamfView *child)
+bamf_view_remove_child (BamfView *view, BamfView *child)
 {
-  const char * removed;
+  const char *removed;
 
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_return_if_fail (BAMF_IS_VIEW (child));

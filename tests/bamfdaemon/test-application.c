@@ -37,6 +37,7 @@ static void test_urgent              (void);
 static void test_active              (void);
 static void test_get_xids            (void);
 static void test_manages_xid         (void);
+static void test_get_window          (void);
 static void test_user_visible        (void);
 static void test_urgent              (void);
 static void test_window_added        (void);
@@ -60,6 +61,7 @@ test_application_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/Valid", test_get_mime_types);
   g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/None", test_get_mime_types_none);
   g_test_add_func (DOMAIN"/ManagesXid", test_manages_xid);
+  g_test_add_func (DOMAIN"/GetWindow", test_get_window);
   g_test_add_func (DOMAIN"/Xids", test_get_xids);
   g_test_add_func (DOMAIN"/Events/Active", test_active);
   g_test_add_func (DOMAIN"/Events/Urgent", test_urgent);
@@ -373,6 +375,26 @@ test_manages_xid (void)
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
 
   g_assert (bamf_application_manages_xid (application, 20));
+
+  g_object_unref (lwin);
+  g_object_unref (test);
+  g_object_unref (application);
+}
+
+static void
+test_get_window (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *test;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", "class", "exec");
+  test = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
+
+  g_assert (bamf_application_get_window (application, 20) == test);
 
   g_object_unref (lwin);
   g_object_unref (test);

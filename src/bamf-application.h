@@ -71,6 +71,9 @@ GVariant        * bamf_application_get_xids                   (BamfApplication *
 gboolean          bamf_application_manages_xid                (BamfApplication *application,
                                                                guint32 xid);
 
+BamfWindow      * bamf_application_get_window                 (BamfApplication *application,
+                                                               guint32 xid);
+
 gboolean          bamf_application_contains_similar_to_window (BamfApplication *app,
                                                                BamfWindow *window);
 

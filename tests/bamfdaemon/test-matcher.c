@@ -432,7 +432,6 @@ test_match_libreoffice_windows (void)
   BamfLegacyScreen *screen;
   BamfLegacyWindowTest *test_win;
   BamfApplication *app;
-  char *hint;
 
   screen = bamf_legacy_screen_get_default ();
   matcher = bamf_matcher_get_default ();
@@ -455,9 +454,6 @@ test_match_libreoffice_windows (void)
   bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-startcenter", class_instance);
   _bamf_legacy_screen_open_test_window (screen, test_win);
 
-  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
-  g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-startcenter.desktop");
-  g_free (hint);
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-startcenter.desktop");
   g_assert (find_window_in_app (app, BAMF_LEGACY_WINDOW (test_win)));
 
@@ -466,66 +462,54 @@ test_match_libreoffice_windows (void)
   g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-startcenter.desktop"));
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-base.desktop");
   g_assert (app);
+  g_assert_cmpuint (g_list_length (bamf_view_get_children (BAMF_VIEW (app))), ==, 1);
   window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
-  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
-  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
-  g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-base.desktop");
-  g_free (hint);
+  g_assert (bamf_window_get_window (window) == BAMF_LEGACY_WINDOW (test_win));
 
   bamf_legacy_window_test_set_name (test_win, "FooDoc.ods - LibreOffice Calc");
   bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-calc", class_instance);
   g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-base.desktop"));
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-calc.desktop");
   g_assert (app);
+  g_assert_cmpuint (g_list_length (bamf_view_get_children (BAMF_VIEW (app))), ==, 1);
   window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
-  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
-  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
-  g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-calc.desktop");
-  g_free (hint);
+  g_assert (bamf_window_get_window (window) == BAMF_LEGACY_WINDOW (test_win));
 
   bamf_legacy_window_test_set_name (test_win, "FooDoc.odg - LibreOffice Draw");
   bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-draw", class_instance);
   g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-calc.desktop"));
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-draw.desktop");
   g_assert (app);
+  g_assert_cmpuint (g_list_length (bamf_view_get_children (BAMF_VIEW (app))), ==, 1);
   window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
-  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
-  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
-  g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-draw.desktop");
-  g_free (hint);
+  g_assert (bamf_window_get_window (window) == BAMF_LEGACY_WINDOW (test_win));
 
   bamf_legacy_window_test_set_name (test_win, "FooDoc.odp - LibreOffice Impress");
   bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-impress", class_instance);
   g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-draw.desktop"));
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-impress.desktop");
   g_assert (app);
+  g_assert_cmpuint (g_list_length (bamf_view_get_children (BAMF_VIEW (app))), ==, 1);
   window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
-  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
-  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
-  g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-impress.desktop");
-  g_free (hint);
+  g_assert (bamf_window_get_window (window) == BAMF_LEGACY_WINDOW (test_win));
 
   bamf_legacy_window_test_set_name (test_win, "FooDoc.odf - LibreOffice Math");
   bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-math", class_instance);
   g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-impress.desktop"));
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-math.desktop");
   g_assert (app);
+  g_assert_cmpuint (g_list_length (bamf_view_get_children (BAMF_VIEW (app))), ==, 1);
   window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
-  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
-  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
-  g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-math.desktop");
-  g_free (hint);
+  g_assert (bamf_window_get_window (window) == BAMF_LEGACY_WINDOW (test_win));
 
   bamf_legacy_window_test_set_name (test_win, "FooDoc.odt - LibreOffice Writer");
   bamf_legacy_window_test_set_wmclass (test_win, "libreoffice-writer", class_instance);
   g_assert (!bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-math.desktop"));
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/libreoffice-writer.desktop");
   g_assert (app);
+  g_assert_cmpuint (g_list_length (bamf_view_get_children (BAMF_VIEW (app))), ==, 1);
   window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
-  test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
-  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
-  g_assert_cmpstr (hint, ==, DATA_DIR"/libreoffice-writer.desktop");
-  g_free (hint);
+  g_assert (bamf_window_get_window (window) == BAMF_LEGACY_WINDOW (test_win));
 
   xid = g_random_int ();
   test_win = bamf_legacy_window_test_new (xid, "BarDoc.odt - LibreOffice Writer", "libreoffice-writer", exec);

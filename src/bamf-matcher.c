@@ -272,6 +272,17 @@ bamf_matcher_prepare_path_change (BamfMatcher *self, const gchar *desktop_file, 
     }
 }
 
+static gboolean
+bamf_matcher_is_view_registered (BamfMatcher *self, BamfView *view)
+{
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), FALSE);
+  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
+
+  /* Instead of looping over the self->priv->views list, we can safely assume
+   * that if a view is not registered then its path is NULL */
+  return (bamf_view_get_path (view) != NULL);
+}
+
 static void
 bamf_matcher_register_view_stealing_ref (BamfMatcher *self, BamfView *view)
 {
@@ -336,65 +347,6 @@ bamf_matcher_unregister_view (BamfMatcher *self, BamfView *view)
       self->priv->views = g_list_delete_link (self->priv->views, listed_view);
       g_object_unref (view);
     }
-}
-
-static const char *
-get_libreoffice_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
-{
-  gchar *exec = NULL;
-  const gchar *class;
-  const char *binary = NULL;
-  const char *parameter = NULL;
-  GList *l = NULL;
-
-  g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
-  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (window), NULL);
-
-  class = bamf_legacy_window_get_class_name (window);
-
-  if (!class)
-    return NULL;
-
-  if (g_str_has_prefix (class, "libreoffice-"))
-    {
-      l = g_hash_table_lookup (self->priv->desktop_id_table, class);
-    }
-
-  if (!l)
-    {
-      binary = "libreoffice";
-
-      parameter = strchr(class, '-');
-
-      if (parameter)
-      {
-        parameter = parameter + 1;
-
-        exec = g_strconcat (binary, " --", parameter, NULL);
-        l = g_hash_table_lookup (self->priv->desktop_file_table, exec);
-        g_free (exec);
-
-        if (!l)
-          {
-            exec = g_strconcat (binary, " -", parameter, NULL);
-            l = g_hash_table_lookup (self->priv->desktop_file_table, exec);
-            g_free (exec);
-
-            if (!l)
-              {
-                exec = g_strconcat (binary, "-", parameter, NULL);
-                l = g_hash_table_lookup (self->priv->desktop_id_table, exec);
-                g_free (exec);
-              }
-          }
-      }
-    else
-      {
-        l = g_hash_table_lookup (self->priv->desktop_file_table, binary);
-      }
-    }
-
-  return (l ? (char *) l->data : NULL);
 }
 
 gboolean
@@ -1390,20 +1342,6 @@ create_desktop_file_table (BamfMatcher * self,
   g_list_free_full (directories, g_free);
 }
 
-static gboolean
-is_libreoffice_window (BamfMatcher * self, BamfLegacyWindow * window)
-{
-  const char *class_name = bamf_legacy_window_get_class_name (window);
-
-  if (!class_name)
-    return FALSE;
-
-  return (g_str_has_prefix (class_name, "LibreOffice") ||
-          g_str_has_prefix (class_name, "libreoffice") ||
-          g_str_has_prefix (class_name, "OpenOffice") ||
-          g_str_has_prefix (class_name, "openoffice"));
-}
-
 static GList *
 bamf_matcher_possible_applications_for_window_process (BamfMatcher *self, BamfLegacyWindow *window)
 {
@@ -1462,6 +1400,18 @@ bamf_matcher_possible_applications_for_window_process (BamfMatcher *self, BamfLe
 }
 
 static gboolean
+is_libreoffice_window (BamfLegacyWindow * window)
+{
+  const char *class_name = bamf_legacy_window_get_class_name (window);
+
+  if (!class_name)
+    return FALSE;
+
+  return (g_ascii_strncasecmp (class_name, "libreoffice", 11) == 0 ||
+          g_ascii_strncasecmp (class_name, "openoffice", 10) == 0);
+}
+
+static gboolean
 is_web_app_window (BamfLegacyWindow *window)
 {
   const char *window_class = bamf_legacy_window_get_class_name (window);
@@ -1516,7 +1466,7 @@ bamf_matcher_window_skips_hint_set (BamfMatcher *self, BamfLegacyWindow *window)
   gboolean skip_hint_set;
   g_return_val_if_fail (BAMF_IS_MATCHER (self), TRUE);
 
-  skip_hint_set = is_web_app_window (window) || is_javaws_window (window);
+  skip_hint_set = is_libreoffice_window (window) || is_web_app_window (window) || is_javaws_window (window);
 
   return skip_hint_set;
 }
@@ -1983,6 +1933,60 @@ ensure_window_hint_set (BamfMatcher *self,
 }
 
 static void
+on_raw_window_class_changed (BamfLegacyWindow *window, BamfMatcher* self)
+{
+  BamfWindow *bamf_win;
+  BamfApplication *old_app, *new_app;
+
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
+
+  guint xid = bamf_legacy_window_get_xid (window);
+  old_app = bamf_matcher_get_application_by_xid (self, xid);
+
+  if (!old_app)
+    return;
+
+  bamf_win = bamf_application_get_window (old_app, xid);
+
+  if (bamf_win)
+    {
+      new_app = bamf_matcher_get_application_for_window (self, bamf_win);
+
+      if (new_app)
+        {
+          if (old_app != new_app)
+            {
+              g_object_ref (bamf_win);
+              bamf_view_remove_child (BAMF_VIEW (old_app), BAMF_VIEW (bamf_win));
+
+              if (!bamf_matcher_is_view_registered (self, BAMF_VIEW (new_app)))
+                {
+                  bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (new_app));
+                }
+
+              bamf_view_add_child (BAMF_VIEW (new_app), BAMF_VIEW (bamf_win));
+              g_object_unref (bamf_win);
+            }
+          else
+            {
+              if (!bamf_matcher_is_view_registered (self, BAMF_VIEW (new_app)))
+                {
+                  /* This is probably never happening, but just in case... */
+                  g_object_unref (new_app);
+                }
+            }
+        }
+    }
+}
+
+static void
+on_raw_window_closed (BamfLegacyWindow *window, BamfMatcher* self)
+{
+  g_signal_handlers_disconnect_by_data (window, self);
+}
+
+static void
 handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
 {
   BamfWindow *bamf_win;
@@ -1990,6 +1994,9 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
+
+  g_signal_connect (window, "class-changed", G_CALLBACK (on_raw_window_class_changed), self);
+  g_signal_connect (window, "closed", G_CALLBACK (on_raw_window_closed), self);
 
   guint pid = bamf_legacy_window_get_pid (window);
   if (pid > 1 && !g_list_find (self->priv->known_pids, GUINT_TO_POINTER (pid)))
@@ -2006,39 +2013,12 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
 
   bamf_app = bamf_matcher_get_application_for_window (self, bamf_win);
 
-  if (!bamf_view_get_path (BAMF_VIEW (bamf_app)))
+  if (!bamf_matcher_is_view_registered (self, BAMF_VIEW (bamf_app)))
     {
       bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (bamf_app));
     }
 
   bamf_view_add_child (BAMF_VIEW (bamf_app), BAMF_VIEW (bamf_win));
-}
-
-static void
-on_libreoffice_window_class_changed (BamfLegacyWindow *window, BamfMatcher* self)
-{
-  g_return_if_fail (BAMF_IS_MATCHER (self));
-  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
-
-  char *old_hint;
-  const char *new_hint;
-
-  old_hint = bamf_legacy_window_get_hint (window, _NET_WM_DESKTOP_FILE);
-  new_hint = get_libreoffice_window_hint (self, window);
-
-  if (new_hint && g_strcmp0 (new_hint, old_hint) != 0)
-    {
-      bamf_legacy_window_reopen (window);
-    }
-
-  g_free (old_hint);
-}
-
-static void
-on_libreoffice_window_closed (BamfLegacyWindow *window, BamfMatcher* self)
-{
-  g_signal_handlers_disconnect_by_func (window, on_libreoffice_window_class_changed, self);
-  g_object_unref (window);
 }
 
 static char *
@@ -2088,13 +2068,6 @@ on_gnome_control_center_window_role_changed (BamfLegacyWindow *window, BamfMatch
 }
 
 static void
-on_gnome_control_center_window_closed (BamfLegacyWindow *window, BamfMatcher* self)
-{
-  g_signal_handlers_disconnect_by_func (window, on_gnome_control_center_window_role_changed, self);
-  g_object_unref (window);
-}
-
-static void
 handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, BamfMatcher *self)
 {
   g_return_if_fail (BAMF_IS_MATCHER (self));
@@ -2109,26 +2082,12 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
       return;
     }
 
-  if (is_libreoffice_window (self, window))
+  if (is_libreoffice_window (window))
     {
       if (win_type == BAMF_WINDOW_SPLASHSCREEN || win_type == BAMF_WINDOW_TOOLBAR)
         {
           return;
         }
-
-      char *old_hint = bamf_legacy_window_get_hint (window, _NET_WM_DESKTOP_FILE);
-      const char *new_hint = get_libreoffice_window_hint (self, window);
-
-      if (new_hint && g_strcmp0 (old_hint, new_hint) != 0)
-        {
-          bamf_legacy_window_set_hint (window, _NET_WM_DESKTOP_FILE, new_hint);
-        }
-
-      g_object_ref (window);
-      g_signal_connect (window, "class-changed", (GCallback) on_libreoffice_window_class_changed, self);
-      g_signal_connect (window, "closed", (GCallback) on_libreoffice_window_closed, self);
-
-      g_free (old_hint);
     }
   else if (g_strcmp0 (bamf_legacy_window_get_class_name (window), "Gnome-control-center") == 0)
     {
@@ -2140,10 +2099,7 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
           bamf_legacy_window_set_hint (window, _NET_WM_DESKTOP_FILE, new_hint);
         }
 
-      g_object_ref (window);
       g_signal_connect (window, "role-changed", (GCallback) on_gnome_control_center_window_role_changed, self);
-      g_signal_connect (window, "closed", (GCallback) on_gnome_control_center_window_closed, self);
-
       g_free (old_hint);
     }
 
@@ -2845,7 +2801,6 @@ on_webapp_child_added (BamfView *application,
                        BamfView *child,
                        gpointer user_data)
 {
-  GList *l;
   BamfMatcher *self;
   BamfLegacyWindow *legacy_window;
   BamfUnityWebappsTab *webapp_tab;
@@ -2868,19 +2823,12 @@ on_webapp_child_added (BamfView *application,
         {
           BamfApplication *old_application = bamf_matcher_get_application_by_xid (self, tab_xid);
 
-          if (BAMF_IS_VIEW (old_application))
+          if (BAMF_IS_APPLICATION (old_application))
             {
-              for (l = bamf_view_get_children (BAMF_VIEW (old_application)); l; l = l->next)
-                {
-                  if (!BAMF_IS_WINDOW (l->data))
-                    continue;
+              BamfWindow *bamf_window = bamf_application_get_window (old_application, tab_xid);
 
-                  if (bamf_window_get_xid (BAMF_WINDOW (l->data)) == tab_xid)
-                    {
-                      bamf_view_remove_child (BAMF_VIEW (old_application), BAMF_VIEW (l->data));
-                      break;
-                    }
-                }
+              if (BAMF_IS_VIEW (bamf_window))
+                bamf_view_remove_child (BAMF_VIEW (old_application), BAMF_VIEW (bamf_window));
             }
         }
     }
