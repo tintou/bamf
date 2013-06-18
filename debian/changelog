@@ -1,3 +1,16 @@
+bamf (0.4.0daily13.05.31~13.04-0ubuntu2) UNRELEASED; urgency=low
+
+  [ Marco Trevisan (Treviño) ]
+  * Makefile.am.gtests, Makefile.am.coverage: add missing entries to
+    allow building in jenkins. (LP: #1192216)
+  * Makefile.am.gtests: kill the launched dbus-daemon after running the
+    tests. (LP: #1088696)
+
+  [ Łukasz 'sil2100' Zemczak ]
+  * Automatic snapshot from revision 540
+
+ -- Łukasz 'sil2100' Zemczak <lukasz.zemczak@canonical.com>  Tue, 18 Jun 2013 17:35:08 +0200
+
 bamf (0.4.0daily13.05.31~13.04-0ubuntu1) raring; urgency=low
 
   [ Marco Trevisan (Treviño) ]
