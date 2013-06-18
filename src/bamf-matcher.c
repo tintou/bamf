@@ -1959,6 +1959,7 @@ on_raw_window_class_changed (BamfLegacyWindow *window, BamfMatcher* self)
         {
           if (old_app != new_app)
             {
+              g_object_ref (bamf_win);
               bamf_view_remove_child (BAMF_VIEW (old_app), BAMF_VIEW (bamf_win));
 
               if (!bamf_matcher_is_view_registered (self, BAMF_VIEW (new_app)))
@@ -1967,6 +1968,7 @@ on_raw_window_class_changed (BamfLegacyWindow *window, BamfMatcher* self)
                 }
 
               bamf_view_add_child (BAMF_VIEW (new_app), BAMF_VIEW (bamf_win));
+              g_object_unref (bamf_win);
             }
           else
             {
