@@ -22,81 +22,7 @@
 #include <stdlib.h>
 #include "bamf-view.h"
 
-static void test_active_event_count  (void);
-static void test_active_event_exported (void);
-static void test_allocation          (void);
-static void test_child_added_event   (void);
-static void test_child_removed_event (void);
-static void test_children            (void);
-static void test_children_paths      (void);
-static void test_closed_event        (void);
-static void test_name                (void);
-static void test_name_exported       (void);
-static void test_path                (void);
-static void test_path_collision      (void);
-static void test_parent_child_out_of_order_unref (void);
-
-#define define_test_boolean_property(prop) static void test_##prop (void);
-#define test_boolean_property(prop) test_##prop
-
-define_test_boolean_property (active);
-define_test_boolean_property (running);
-define_test_boolean_property (urgent);
-define_test_boolean_property (user_visible);
-
-#define define_test_boolean_property_exported(prop) \
-  static void test_##prop##_exported (void);
-#define test_boolean_property_exported(prop) test_##prop##_exported
-
-define_test_boolean_property_exported (active);
-define_test_boolean_property_exported (running);
-define_test_boolean_property_exported (urgent);
-define_test_boolean_property_exported (user_visible);
-
-#define define_test_boolean_property_event(prop) \
-  static void  test_##prop##_event (void);
-#define test_boolean_property_event(prop) test_##prop##_event
-
-define_test_boolean_property_event (active);
-define_test_boolean_property_event (running);
-define_test_boolean_property_event (urgent);
-define_test_boolean_property_event (user_visible);
-
 static GDBusConnection *gdbus_connection = NULL;
-
-void
-test_view_create_suite (GDBusConnection *connection)
-{
-#define DOMAIN "/View"
-
-  gdbus_connection = connection;
-
-  g_test_add_func (DOMAIN"/Allocation", test_allocation);
-  g_test_add_func (DOMAIN"/Name", test_name);
-  g_test_add_func (DOMAIN"/Name/Exported", test_name_exported);
-  g_test_add_func (DOMAIN"/Active", test_boolean_property (active));
-  g_test_add_func (DOMAIN"/Active/Exported", test_boolean_property_exported (active));
-  g_test_add_func (DOMAIN"/Running", test_boolean_property (running));
-  g_test_add_func (DOMAIN"/Running/Exported", test_boolean_property_exported (running));
-  g_test_add_func (DOMAIN"/Urgent", test_boolean_property (urgent));
-  g_test_add_func (DOMAIN"/Urgent/Exported", test_boolean_property_exported (urgent));
-  g_test_add_func (DOMAIN"/UserVisible", test_boolean_property (user_visible));
-  g_test_add_func (DOMAIN"/UserVisible/Exported", test_boolean_property_exported (user_visible));
-  g_test_add_func (DOMAIN"/Path", test_path);
-  g_test_add_func (DOMAIN"/Path/Collision", test_path_collision);
-  g_test_add_func (DOMAIN"/Events/Close", test_closed_event);
-  g_test_add_func (DOMAIN"/Events/Active", test_boolean_property_event (active));
-  g_test_add_func (DOMAIN"/Events/Active/Count", test_active_event_count);
-  g_test_add_func (DOMAIN"/Events/Active/Exported", test_active_event_exported);
-  g_test_add_func (DOMAIN"/Events/Running", test_boolean_property_event (running));
-  g_test_add_func (DOMAIN"/Events/Urgent", test_boolean_property_event (urgent));
-  g_test_add_func (DOMAIN"/Events/UserVisible", test_boolean_property_event (user_visible));
-  g_test_add_func (DOMAIN"/Events/ChildAdded", test_child_added_event);
-  g_test_add_func (DOMAIN"/Events/ChildRemoved", test_child_removed_event);
-  g_test_add_func (DOMAIN"/Children", test_children);
-  g_test_add_func (DOMAIN"/Children/Paths", test_children_paths);
-  g_test_add_func (DOMAIN"/Children/UnrefOrder", test_parent_child_out_of_order_unref);
-}
 
 static void
 test_allocation (void)
@@ -142,6 +68,7 @@ test_name_exported (void)
   g_object_unref (view);
 }
 
+#define test_boolean_property(prop) test_##prop
 #define declare_test_boolean_property(prop)     \
   static void                                   \
   test_##prop (void)                            \
@@ -165,6 +92,7 @@ declare_test_boolean_property (running);
 declare_test_boolean_property (urgent);
 declare_test_boolean_property (user_visible);
 
+#define test_boolean_property_exported(prop) test_##prop##_exported
 #define declare_test_boolean_property_exported(prop)  \
   static void                                         \
   test_##prop##_exported (void)                       \
@@ -371,6 +299,7 @@ on_boolean_event_count (BamfView *view, gboolean active, gpointer pointer)
   boolean_event_result = active;
 }
 
+#define test_boolean_property_event(prop) test_##prop##_event
 #define declare_test_boolean_property_event(prop)                                \
   static void                                                                    \
   test_##prop##_event (void)                                                     \
@@ -589,4 +518,39 @@ test_parent_child_out_of_order_unref (void)
 
   g_object_unref (parent);
   g_object_unref (child);
+}
+
+/* Test Suite */
+void
+test_view_create_suite (GDBusConnection *connection)
+{
+#define DOMAIN "/View"
+
+  gdbus_connection = connection;
+
+  g_test_add_func (DOMAIN"/Allocation", test_allocation);
+  g_test_add_func (DOMAIN"/Name", test_name);
+  g_test_add_func (DOMAIN"/Name/Exported", test_name_exported);
+  g_test_add_func (DOMAIN"/Active", test_boolean_property (active));
+  g_test_add_func (DOMAIN"/Active/Exported", test_boolean_property_exported (active));
+  g_test_add_func (DOMAIN"/Running", test_boolean_property (running));
+  g_test_add_func (DOMAIN"/Running/Exported", test_boolean_property_exported (running));
+  g_test_add_func (DOMAIN"/Urgent", test_boolean_property (urgent));
+  g_test_add_func (DOMAIN"/Urgent/Exported", test_boolean_property_exported (urgent));
+  g_test_add_func (DOMAIN"/UserVisible", test_boolean_property (user_visible));
+  g_test_add_func (DOMAIN"/UserVisible/Exported", test_boolean_property_exported (user_visible));
+  g_test_add_func (DOMAIN"/Path", test_path);
+  g_test_add_func (DOMAIN"/Path/Collision", test_path_collision);
+  g_test_add_func (DOMAIN"/Events/Close", test_closed_event);
+  g_test_add_func (DOMAIN"/Events/Active", test_boolean_property_event (active));
+  g_test_add_func (DOMAIN"/Events/Active/Count", test_active_event_count);
+  g_test_add_func (DOMAIN"/Events/Active/Exported", test_active_event_exported);
+  g_test_add_func (DOMAIN"/Events/Running", test_boolean_property_event (running));
+  g_test_add_func (DOMAIN"/Events/Urgent", test_boolean_property_event (urgent));
+  g_test_add_func (DOMAIN"/Events/UserVisible", test_boolean_property_event (user_visible));
+  g_test_add_func (DOMAIN"/Events/ChildAdded", test_child_added_event);
+  g_test_add_func (DOMAIN"/Events/ChildRemoved", test_child_removed_event);
+  g_test_add_func (DOMAIN"/Children", test_children);
+  g_test_add_func (DOMAIN"/Children/Paths", test_children_paths);
+  g_test_add_func (DOMAIN"/Children/UnrefOrder", test_parent_child_out_of_order_unref);
 }
