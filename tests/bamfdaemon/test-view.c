@@ -38,7 +38,7 @@ test_allocation (void)
 #define test_string_property(prop) test_##prop
 #define declare_test_string_property(prop)                         \
   static void                                                      \
-  test_##prop (void)                                               \
+  test_string_property (prop) (void)                               \
   {                                                                \
     BamfView *view;                                                \
                                                                    \
@@ -62,7 +62,7 @@ declare_test_string_property (icon);
 #define test_string_property_exported(prop) test_##prop##_exported
 #define declare_test_string_property_exported(prop)                \
   static void                                                      \
-  test_##prop##_exported (void)                                    \
+  test_string_property_exported (prop) (void)                      \
   {                                                                \
     BamfView *view;                                                \
                                                                    \
@@ -87,7 +87,7 @@ declare_test_string_property_exported (icon);
 #define test_boolean_property(prop) test_##prop
 #define declare_test_boolean_property(prop)     \
   static void                                   \
-  test_##prop (void)                            \
+  test_boolean_property (prop) (void)           \
   {                                             \
     BamfView *view;                             \
                                                 \
@@ -111,7 +111,7 @@ declare_test_boolean_property (user_visible);
 #define test_boolean_property_exported(prop) test_##prop##_exported
 #define declare_test_boolean_property_exported(prop)  \
   static void                                         \
-  test_##prop##_exported (void)                       \
+  test_boolean_property_exported(prop) (void)         \
   {                                                   \
     BamfView *view;                                   \
                                                       \
@@ -311,7 +311,7 @@ on_boolean_event (BamfView *view, gboolean event, gpointer pointer)
 #define test_boolean_property_event(prop) test_##prop##_event
 #define declare_test_boolean_property_event(prop)                                \
   static void                                                                    \
-  test_##prop##_event (void)                                                     \
+  test_boolean_property_event (prop) (void)                                      \
   {                                                                              \
     BamfView *view;                                                              \
                                                                                  \
@@ -394,7 +394,7 @@ test_name_event (void)
 #define test_boolean_property_event_exported(prop) test_##prop##_event_exported
 #define declare_test_boolean_property_event_exported(prop)                       \
   static void                                                                    \
-  test_##prop##_event_exported (void)                                            \
+  test_boolean_property_event_exported (prop) (void)                             \
   {                                                                              \
     BamfView *view;                                                              \
                                                                                  \
