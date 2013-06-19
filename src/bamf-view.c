@@ -447,11 +447,6 @@ bamf_view_set_user_visible (BamfView *view, gboolean user_visible)
 const char *
 bamf_view_get_icon (BamfView *view)
 {
-  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-
-  if (BAMF_VIEW_GET_CLASS (view)->get_icon)
-    return BAMF_VIEW_GET_CLASS (view)->get_icon (view);
-
   BAMF_VIEW_GET_PROPERTY (view, icon, NULL);
 }
 
@@ -464,11 +459,6 @@ bamf_view_set_icon (BamfView *view, const char *icon)
 const char *
 bamf_view_get_name (BamfView *view)
 {
-  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-
-  if (BAMF_VIEW_GET_CLASS (view)->get_name)
-    return BAMF_VIEW_GET_CLASS (view)->get_name (view);
-
   BAMF_VIEW_GET_PROPERTY (view, name, NULL);
 }
 
@@ -938,24 +928,32 @@ bamf_view_class_init (BamfViewClass * klass)
   view_signals [CLOSED_INTERNAL] =
     g_signal_new ("closed-internal",
                   G_OBJECT_CLASS_TYPE (klass),
-                  0, 0, NULL, NULL, NULL,
+                  G_SIGNAL_RUN_LAST,
+                  G_STRUCT_OFFSET (BamfViewClass, closed_internal),
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
   view_signals [CHILD_ADDED_INTERNAL] =
     g_signal_new ("child-added-internal",
                   G_OBJECT_CLASS_TYPE (klass),
-                  0, 0, NULL, NULL, NULL,
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfViewClass, child_added_internal),
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 1, BAMF_TYPE_VIEW);
 
   view_signals [CHILD_REMOVED_INTERNAL] =
     g_signal_new ("child-removed-internal",
                   G_OBJECT_CLASS_TYPE (klass),
-                  0, 0, NULL, NULL, NULL,
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfViewClass, child_removed_internal),
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 1, BAMF_TYPE_VIEW);
 
   view_signals [EXPORTED] =
     g_signal_new ("exported",
                   G_OBJECT_CLASS_TYPE (klass),
-                  0, 0, NULL, NULL, NULL,
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfViewClass, exported),
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 }
