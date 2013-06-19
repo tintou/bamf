@@ -645,7 +645,7 @@ bamf_application_load_data_from_file (BamfApplication *self, GKeyFile * keyfile)
   if (!icon)
     icon = g_strdup (BAMF_APPLICATION_DEFAULT_ICON);
 
-  _bamf_view_set_icon (BAMF_VIEW (self), icon);
+  _bamf_view_set_cached_icon (BAMF_VIEW (self), icon);
 
   self->priv->cached_mimes = g_key_file_get_string_list (keyfile, G_KEY_FILE_DESKTOP_GROUP,
                                                          G_KEY_FILE_DESKTOP_KEY_MIME_TYPE, NULL, NULL);

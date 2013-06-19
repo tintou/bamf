@@ -6,6 +6,7 @@
       <arg name="view_type" type="s" direction="out"/>
     </method>
     <method name="Icon">
+      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="name" type="s" direction="out"/>
     </method>
     <method name="Name">
@@ -44,6 +45,7 @@
       <arg name="user_visible" type="b"/>
     </signal>
     <signal name="UrgentChanged">
+      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="is_urgent" type="b"/>
     </signal>
     <signal name="RunningChanged">
