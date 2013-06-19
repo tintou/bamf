@@ -488,7 +488,7 @@ bamf_view_get_stable_bus_name (BamfView *view)
 }
 
 static void
-bamf_view_clear_cached_properties (BamfView *view)
+bamf_view_cached_properties_clear (BamfView *view)
 {
   if (!view->priv->props)
     return;
@@ -499,16 +499,22 @@ bamf_view_clear_cached_properties (BamfView *view)
 }
 
 static void
-bamf_view_notify_cached_properties (BamfView *view)
+bamf_view_cached_properties_notify (BamfView *view)
 {
   if (!view->priv->props || !bamf_view_is_on_bus (view))
     return;
 
-  bamf_view_set_name (view, view->priv->props->name);
-  bamf_view_set_active (view, view->priv->props->active);
-  bamf_view_set_running (view, view->priv->props->running);
-  bamf_view_set_user_visible (view, view->priv->props->user_visible);
-  bamf_view_set_urgent (view, view->priv->props->urgent);
+  /* Temporary disable the cache so that cached values will be set on the skeleton */
+  BamfViewPropCache *cache = view->priv->props;
+  view->priv->props = NULL;
+
+  bamf_view_set_name (view, cache->name);
+  bamf_view_set_active (view, cache->active);
+  bamf_view_set_running (view, cache->running);
+  bamf_view_set_user_visible (view, cache->user_visible);
+  bamf_view_set_urgent (view, cache->urgent);
+
+  view->priv->props = cache;
 }
 
 const char *
@@ -555,8 +561,8 @@ bamf_view_export_on_bus (BamfView *view, GDBusConnection *connection)
            * the properties not to be updated on the client side.
            * So we store the values locally until the proxy is not exported,
            * then we notify our clients. */
-          bamf_view_notify_cached_properties (view);
-          bamf_view_clear_cached_properties (view);
+          bamf_view_cached_properties_notify (view);
+          bamf_view_cached_properties_clear (view);
 
           g_signal_emit (view, view_signals[EXPORTED], 0);
         }
@@ -779,7 +785,7 @@ bamf_view_dispose (GObject *object)
       priv->active_changed_idle = 0;
     }
 
-  bamf_view_clear_cached_properties (view);
+  bamf_view_cached_properties_clear (view);
   g_dbus_object_skeleton_flush (G_DBUS_OBJECT_SKELETON (view));
 
   G_OBJECT_CLASS (bamf_view_parent_class)->dispose (object);
