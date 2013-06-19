@@ -35,38 +35,54 @@ test_allocation (void)
   g_object_unref (G_OBJECT (view));
 }
 
-static void
-test_name (void)
-{
-  BamfView *view;
+#define test_string_property(prop) test_##prop
+#define declare_test_string_property(prop)                         \
+  static void                                                      \
+  test_##prop (void)                                               \
+  {                                                                \
+    BamfView *view;                                                \
+                                                                   \
+    view = g_object_new (BAMF_TYPE_VIEW, NULL);                    \
+    g_assert (!bamf_view_get_##prop (view));                       \
+                                                                   \
+    const gchar *new_##prop = "Some" #prop;                        \
+    bamf_view_set_##prop (view, new_##prop);                       \
+    g_assert_cmpstr (bamf_view_get_##prop (view), ==, new_##prop); \
+                                                                   \
+    new_##prop = "Another" #prop;                                  \
+    bamf_view_set_##prop (view, new_##prop);                       \
+    g_assert_cmpstr (bamf_view_get_##prop (view), ==, new_##prop); \
+                                                                   \
+    g_object_unref (view);                                         \
+  }
 
-  view = g_object_new (BAMF_TYPE_VIEW, NULL);
+declare_test_string_property (name);
+declare_test_string_property (icon);
 
-  g_assert (bamf_view_get_name (view) == NULL);
+#define test_string_property_exported(prop) test_##prop##_exported
+#define declare_test_string_property_exported(prop)                \
+  static void                                                      \
+  test_##prop##_exported (void)                                    \
+  {                                                                \
+    BamfView *view;                                                \
+                                                                   \
+    view = g_object_new (BAMF_TYPE_VIEW, NULL);                    \
+    g_assert (!bamf_view_get_##prop (view));                       \
+                                                                   \
+    const gchar *new_##prop = "Some" #prop;                        \
+    bamf_view_set_##prop (view, new_##prop);                       \
+    bamf_view_export_on_bus (view, gdbus_connection);              \
+    g_assert_cmpstr (bamf_view_get_##prop (view), ==, new_##prop); \
+                                                                   \
+    new_##prop = "Another" #prop;                                  \
+    bamf_view_set_##prop (view, new_##prop);                       \
+    g_assert_cmpstr (bamf_view_get_##prop (view), ==, new_##prop); \
+                                                                   \
+    g_object_unref (view);                                         \
+  }
 
-  bamf_view_set_name (view, "SomeName");
-
-  g_assert_cmpstr (bamf_view_get_name (view), ==, "SomeName");
-
-  g_object_unref (view);
-}
-
-static void
-test_name_exported (void)
-{
-  BamfView *view;
-
-  view = g_object_new (BAMF_TYPE_VIEW, NULL);
-
-  bamf_view_set_name (view, "SomeName");
-  bamf_view_export_on_bus (view, gdbus_connection);
-  g_assert_cmpstr (bamf_view_get_name (view), ==, "SomeName");
-
-  bamf_view_set_name (view, "AnotherName");
-  g_assert_cmpstr (bamf_view_get_name (view), ==, "AnotherName");
-
-  g_object_unref (view);
-}
+declare_test_string_property_exported (name);
+declare_test_string_property_exported (icon);
 
 #define test_boolean_property(prop) test_##prop
 #define declare_test_boolean_property(prop)     \
@@ -625,8 +641,10 @@ test_view_create_suite (GDBusConnection *connection)
   gdbus_connection = connection;
 
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
-  g_test_add_func (DOMAIN"/Name", test_name);
-  g_test_add_func (DOMAIN"/Name/Exported", test_name_exported);
+  g_test_add_func (DOMAIN"/Name", test_string_property (name));
+  g_test_add_func (DOMAIN"/Name/Exported", test_string_property_exported (name));
+  g_test_add_func (DOMAIN"/Icon", test_string_property (icon));
+  g_test_add_func (DOMAIN"/Icon/Exported", test_string_property_exported (icon));
   g_test_add_func (DOMAIN"/Active", test_boolean_property (active));
   g_test_add_func (DOMAIN"/Active/Exported", test_boolean_property_exported (active));
   g_test_add_func (DOMAIN"/Running", test_boolean_property (running));
