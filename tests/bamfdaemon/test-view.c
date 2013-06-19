@@ -23,6 +23,7 @@
 #include "bamf-view.h"
 
 static void test_active              (void);
+static void test_active_exported     (void);
 static void test_active_event        (void);
 static void test_active_event_count  (void);
 static void test_allocation          (void);
@@ -32,11 +33,17 @@ static void test_children            (void);
 static void test_children_paths      (void);
 static void test_closed_event        (void);
 static void test_name                (void);
+static void test_name_exported       (void);
 static void test_path                (void);
 static void test_path_collision      (void);
 static void test_running             (void);
 static void test_running_event       (void);
+static void test_running_exported    (void);
 static void test_parent_child_out_of_order_unref (void);
+static void test_urgent              (void);
+static void test_urgent_exported     (void);
+static void test_user_visible        (void);
+static void test_user_visible_exported(void);
 
 static GDBusConnection *gdbus_connection = NULL;
 
@@ -49,8 +56,15 @@ test_view_create_suite (GDBusConnection *connection)
 
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
   g_test_add_func (DOMAIN"/Name", test_name);
+  g_test_add_func (DOMAIN"/Name/Exported", test_name_exported);
   g_test_add_func (DOMAIN"/Active", test_active);
+  g_test_add_func (DOMAIN"/Active/Exported", test_active_exported);
   g_test_add_func (DOMAIN"/Running", test_running);
+  g_test_add_func (DOMAIN"/Running/Exported", test_running_exported);
+  g_test_add_func (DOMAIN"/Urgent", test_urgent);
+  g_test_add_func (DOMAIN"/Urgent/Exported", test_urgent_exported);
+  g_test_add_func (DOMAIN"/UserVisible", test_user_visible);
+  g_test_add_func (DOMAIN"/UserVisible/Exported", test_user_visible_exported);
   g_test_add_func (DOMAIN"/Path", test_path);
   g_test_add_func (DOMAIN"/Path/Collision", test_path_collision);
   g_test_add_func (DOMAIN"/Events/Close", test_closed_event);
@@ -86,7 +100,24 @@ test_name (void)
 
   bamf_view_set_name (view, "SomeName");
 
-  g_assert (g_strcmp0 (bamf_view_get_name (view), "SomeName") == 0);
+  g_assert_cmpstr (bamf_view_get_name (view), ==, "SomeName");
+
+  g_object_unref (view);
+}
+
+static void
+test_name_exported (void)
+{
+  BamfView *view;
+
+  view = g_object_new (BAMF_TYPE_VIEW, NULL);
+
+  bamf_view_set_name (view, "SomeName");
+  bamf_view_export_on_bus (view, gdbus_connection);
+  g_assert_cmpstr (bamf_view_get_name (view), ==, "SomeName");
+
+  bamf_view_set_name (view, "AnotherName");
+  g_assert_cmpstr (bamf_view_get_name (view), ==, "AnotherName");
 
   g_object_unref (view);
 }
@@ -109,6 +140,23 @@ test_active (void)
 }
 
 static void
+test_active_exported (void)
+{
+  BamfView *view;
+
+  view = g_object_new (BAMF_TYPE_VIEW, NULL);
+  bamf_view_set_active (view, TRUE);
+
+  bamf_view_export_on_bus (view, gdbus_connection);
+  g_assert (bamf_view_is_active (view));
+
+  bamf_view_set_active (view, FALSE);
+  g_assert (!bamf_view_is_active (view));
+
+  g_object_unref (view);
+}
+
+static void
 test_running (void)
 {
   BamfView *view;
@@ -121,6 +169,91 @@ test_running (void)
 
   bamf_view_set_running (view, FALSE);
   g_assert (!bamf_view_is_running (view));
+
+  g_object_unref (view);
+}
+
+static void
+test_running_exported (void)
+{
+  BamfView *view;
+
+  view = g_object_new (BAMF_TYPE_VIEW, NULL);
+  bamf_view_set_running (view, TRUE);
+
+  bamf_view_export_on_bus (view, gdbus_connection);
+  g_assert (bamf_view_is_running (view));
+
+  bamf_view_set_running (view, FALSE);
+  g_assert (!bamf_view_is_running (view));
+
+  g_object_unref (view);
+}
+
+static void
+test_urgent (void)
+{
+  BamfView *view;
+
+  view = g_object_new (BAMF_TYPE_VIEW, NULL);
+  g_assert (!bamf_view_is_urgent (view));
+
+  bamf_view_set_urgent (view, TRUE);
+  g_assert (bamf_view_is_urgent (view));
+
+  bamf_view_set_urgent (view, FALSE);
+  g_assert (!bamf_view_is_urgent (view));
+
+  g_object_unref (view);
+}
+
+static void
+test_urgent_exported (void)
+{
+  BamfView *view;
+
+  view = g_object_new (BAMF_TYPE_VIEW, NULL);
+  bamf_view_set_urgent (view, TRUE);
+
+  bamf_view_export_on_bus (view, gdbus_connection);
+  g_assert (bamf_view_is_urgent (view));
+
+  bamf_view_set_urgent (view, FALSE);
+  g_assert (!bamf_view_is_urgent (view));
+
+  g_object_unref (view);
+}
+
+static void
+test_user_visible (void)
+{
+  BamfView *view;
+
+  view = g_object_new (BAMF_TYPE_VIEW, NULL);
+  g_assert (!bamf_view_is_user_visible (view));
+
+  bamf_view_set_user_visible (view, TRUE);
+  g_assert (bamf_view_is_user_visible (view));
+
+  bamf_view_set_user_visible (view, FALSE);
+  g_assert (!bamf_view_is_user_visible (view));
+
+  g_object_unref (view);
+}
+
+static void
+test_user_visible_exported (void)
+{
+  BamfView *view;
+
+  view = g_object_new (BAMF_TYPE_VIEW, NULL);
+  bamf_view_set_user_visible (view, TRUE);
+
+  bamf_view_export_on_bus (view, gdbus_connection);
+  g_assert (bamf_view_is_user_visible (view));
+
+  bamf_view_set_user_visible (view, FALSE);
+  g_assert (!bamf_view_is_user_visible (view));
 
   g_object_unref (view);
 }
