@@ -338,39 +338,50 @@ declare_test_boolean_property_event (running);
 declare_test_boolean_property_event (urgent);
 declare_test_boolean_property_event (user_visible);
 
-static void
-test_active_event_exported (void)
-{
-  BamfView *view;
+#define test_boolean_property_event_exported(prop) test_##prop##_event_exported
+#define declare_test_boolean_property_event_exported(prop)                       \
+  static void                                                                    \
+  test_##prop##_event_exported (void)                                            \
+  {                                                                              \
+    BamfView *view;                                                              \
+                                                                                 \
+    view = g_object_new (BAMF_TYPE_VIEW, NULL);                                  \
+    g_assert (!bamf_view_is_##prop (view));                                      \
+                                                                                 \
+    g_signal_connect (G_OBJECT (view), #prop "_changed",                         \
+          (GCallback) on_boolean_event, NULL);                                   \
+                                                                                 \
+    boolean_event_fired = FALSE;                                                 \
+    boolean_event_result = FALSE;                                                \
+                                                                                 \
+    bamf_view_set_##prop (view, TRUE);                                           \
+                                                                                 \
+    while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE); \
+    g_assert (boolean_event_fired);                                              \
+    g_assert (boolean_event_result);                                             \
+    boolean_event_fired = FALSE;                                                 \
+    boolean_event_result = FALSE;                                                \
+                                                                                 \
+    bamf_view_export_on_bus (view, gdbus_connection);                            \
+    while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE); \
+    g_assert (boolean_event_fired);                                              \
+    g_assert (boolean_event_result);                                             \
+                                                                                 \
+    boolean_event_fired = FALSE;                                                 \
+    bamf_view_set_##prop (view, FALSE);                                          \
+    g_assert (!bamf_view_is_##prop (view));                                      \
+                                                                                 \
+    while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE); \
+    g_assert (boolean_event_fired);                                              \
+    g_assert (!boolean_event_result);                                            \
+                                                                                 \
+    g_object_unref (view);                                                       \
+  }
 
-  view = g_object_new (BAMF_TYPE_VIEW, NULL);
-
-  g_signal_connect (G_OBJECT (view), "active-changed",
-        (GCallback) on_boolean_event, NULL);
-
-  boolean_event_fired = FALSE;
-  boolean_event_result = FALSE;
-
-  bamf_view_set_active (view, TRUE);
-  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
-  g_assert (boolean_event_fired);
-  g_assert (boolean_event_result);
-  boolean_event_fired = FALSE;
-  boolean_event_result = FALSE;
-
-  bamf_view_export_on_bus (view, gdbus_connection);
-  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
-  g_assert (boolean_event_fired);
-  g_assert (boolean_event_result);
-  boolean_event_fired = FALSE;
-
-  bamf_view_set_active (view, FALSE);
-  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
-  g_assert (boolean_event_fired);
-  g_assert (!boolean_event_result);
-
-  g_object_unref (view);
-}
+declare_test_boolean_property_event_exported (active);
+declare_test_boolean_property_event_exported (running);
+declare_test_boolean_property_event_exported (urgent);
+declare_test_boolean_property_event_exported (user_visible);
 
 static void
 test_active_event_count (void)
@@ -544,10 +555,13 @@ test_view_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Events/Close", test_closed_event);
   g_test_add_func (DOMAIN"/Events/Active", test_boolean_property_event (active));
   g_test_add_func (DOMAIN"/Events/Active/Count", test_active_event_count);
-  g_test_add_func (DOMAIN"/Events/Active/Exported", test_active_event_exported);
+  g_test_add_func (DOMAIN"/Events/Active/Exported", test_boolean_property_event_exported (active));
   g_test_add_func (DOMAIN"/Events/Running", test_boolean_property_event (running));
+  g_test_add_func (DOMAIN"/Events/Running/Exported", test_boolean_property_event_exported (running));
   g_test_add_func (DOMAIN"/Events/Urgent", test_boolean_property_event (urgent));
+  g_test_add_func (DOMAIN"/Events/Urgent/Exported", test_boolean_property_event_exported (urgent));
   g_test_add_func (DOMAIN"/Events/UserVisible", test_boolean_property_event (user_visible));
+  g_test_add_func (DOMAIN"/Events/UserVisible/Exported", test_boolean_property_event_exported (user_visible));
   g_test_add_func (DOMAIN"/Events/ChildAdded", test_child_added_event);
   g_test_add_func (DOMAIN"/Events/ChildRemoved", test_child_removed_event);
   g_test_add_func (DOMAIN"/Children", test_children);
