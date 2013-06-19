@@ -348,7 +348,7 @@ declare_test_boolean_property_event (urgent);
 declare_test_boolean_property_event (user_visible);
 
 static gboolean string_event_fired = FALSE;
-static char * string_event_result = FALSE;
+static char * string_event_result = NULL;
 
 static void
 on_string_event (BamfView *view, const gchar *oval, const gchar *nval, gpointer pointer)
@@ -386,6 +386,48 @@ test_name_event (void)
   while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
   g_assert (string_event_fired);
   g_assert_cmpstr (string_event_result, ==, "AnotherName");
+
+  g_object_unref (view);
+}
+
+static gboolean property_event_fired = FALSE;
+static char * property_event_name = NULL;
+
+static void
+on_property_changed (BamfView *view, GParamSpec *param, BamfView *self)
+{
+  g_free (property_event_name);
+  property_event_fired = TRUE;
+  property_event_name = g_strdup (param->name);
+}
+
+static void
+test_icon_event (void)
+{
+  BamfView *view;
+
+  view = g_object_new (BAMF_TYPE_VIEW, NULL);
+  g_assert (!bamf_view_get_icon (view));
+
+  g_signal_connect (G_OBJECT (view), "notify::icon",
+        (GCallback) on_property_changed, NULL);
+
+  property_event_fired = FALSE;
+  property_event_name = NULL;
+
+  bamf_view_set_icon (view, "NewIcon");
+
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
+  g_assert (property_event_fired);
+  g_assert_cmpstr (property_event_name, ==, "icon");
+
+  property_event_fired = FALSE;
+  bamf_view_set_icon (view, "AnotherIcon");
+  g_assert_cmpstr (bamf_view_get_icon (view), ==, "AnotherIcon");
+
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
+  g_assert (property_event_fired);
+  g_assert_cmpstr (property_event_name, ==, "icon");
 
   g_object_unref (view);
 }
@@ -472,6 +514,45 @@ test_name_event_exported (void)
   g_assert (string_event_fired);
   g_assert_cmpstr (string_event_result, ==, "AnotherName");
 
+  g_object_unref (view);
+}
+
+static void
+test_icon_event_exported (void)
+{
+  BamfView *view;
+
+  view = g_object_new (BAMF_TYPE_VIEW, NULL);
+  g_assert (!bamf_view_get_icon (view));
+
+
+  g_signal_connect (G_OBJECT (view), "notify::icon",
+        (GCallback) on_property_changed, NULL);
+
+  property_event_fired = FALSE;
+  property_event_name = NULL;
+
+  bamf_view_set_icon (view, "NewIcon");
+
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
+  g_assert (property_event_fired);
+  g_assert_cmpstr (property_event_name, ==, "icon");
+  property_event_fired = FALSE;
+  g_free (property_event_name);
+  property_event_name = NULL;
+
+  bamf_view_export_on_bus (view, gdbus_connection);
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
+  g_assert (property_event_fired);
+  g_assert_cmpstr (property_event_name, ==, "icon");
+
+  property_event_fired = FALSE;
+  bamf_view_set_icon (view, "AnotherIcon");
+  g_assert_cmpstr (bamf_view_get_icon (view), ==, "AnotherIcon");
+
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
+  g_assert (property_event_fired);
+  g_assert_cmpstr (property_event_name, ==, "icon");
   g_object_unref (view);
 }
 
@@ -659,6 +740,8 @@ test_view_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Events/Active", test_boolean_property_event (active));
   g_test_add_func (DOMAIN"/Events/Name", test_name_event);
   g_test_add_func (DOMAIN"/Events/Name/Exported", test_name_event_exported);
+  g_test_add_func (DOMAIN"/Events/Icon", test_icon_event);
+  g_test_add_func (DOMAIN"/Events/Icon/Exported", test_icon_event_exported);
   g_test_add_func (DOMAIN"/Events/Active/Count", test_active_event_count);
   g_test_add_func (DOMAIN"/Events/Active/Exported", test_boolean_property_event_exported (active));
   g_test_add_func (DOMAIN"/Events/Running", test_boolean_property_event (running));
