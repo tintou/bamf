@@ -1,4 +1,4 @@
-bamf (0.5.0) UNRELEASED; urgency=low
+bamf (0.5.0daily13.06.19-0ubuntu1) saucy; urgency=low
 
   [ Marco Trevisan (Treviño) ]
   * New upstream release, bumping debian version to 0.5.0
@@ -15,7 +15,44 @@ bamf (0.5.0) UNRELEASED; urgency=low
     - Have libbamf3-dev depend on gir1.2-bamf-3
     - Drop explicit build-depends on gir1.2-glib-2.0
 
- -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 12 Jun 2013 14:30:03 +0200
+  [ Ted Gould ]
+  * Have bamfdaemon depend on the library instead of vice versa.
+
+  [ Marco Trevisan (Treviño) ]
+  * Makefile.am.gtests: kill the launched dbus-daemon after running the
+    tests. (LP: #1088696, #1186915)
+  * BamfDaemon, LibBamf: Fix compilation errors out from ubuntu. (LP:
+    #1186915, #1176524)
+  * BamfView: use statically allocated pspec to notify property changes
+    BamfFactory: some initial cleanup, remove views that have changed
+    their path and use cached children.
+  * BamfView: use incremental children caching, delete them only when
+    daemon stops Each view used to cleanup the cached children every
+    time a new one was added or removed. This was needed at the dbus-
+    glib times to handle the case of bamfdaemon restart, but now we can
+    handle this nicely, clening the children up only when this happens.
+  * BamfView: disconnect proper callback if a bamf-tab is closed I guess
+    it was a typo, we need to disconnect to the callback we've been
+    connected to before.
+  * BamfView: don't try to reload the children if they're empty but we
+    already tried once This finally mutes the "Unable to fetch children"
+    warning... \o/. (LP: #943083)
+  * Bamf: use generic marshallers when creating signals, remove legacy
+    bamf-marshal Improvements to the build system, fixed "make
+    distcheck" (it was still referencing the old bamf.h file) and
+    generation of files when using parallel builds (make -jX).
+  * BamfMatcher: If a Window has changed its class, then we try to
+    rematch it This is mostly the case of LibreOffice, but if a window
+    has changed its class, then we should try to re-match, checking if
+    now it can be matched by a new application. If this is the case,
+    then we remove the window from the previous application (that may
+    eventually be closed) and we add it to the new one. Thanks to this
+    we can finally remove a lot of libreoffice-only related code.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 554
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 19 Jun 2013 02:01:25 +0000
 
 bamf (0.4.0daily13.06.07-0ubuntu1) saucy; urgency=low
 
