@@ -563,7 +563,7 @@ bamf_application_ensure_flags (BamfApplication *self)
 
       if (bamf_view_is_urgent (view))
         urgent = TRUE;
-      if (bamf_view_user_visible (view))
+      if (bamf_view_is_user_visible (view))
         visible = TRUE;
       if (bamf_view_is_active (view))
         active = TRUE;

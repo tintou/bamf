@@ -428,12 +428,12 @@ test_user_visible (void)
   window2 = bamf_window_new (BAMF_LEGACY_WINDOW (test2));
 
   // Ensure we are not visible with no windows
-  g_assert (!bamf_view_user_visible (BAMF_VIEW (application)));
+  g_assert (!bamf_view_is_user_visible (BAMF_VIEW (application)));
 
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window1));
 
   // Test that when added, we signaled properly
-  g_assert (bamf_view_user_visible (BAMF_VIEW (application)));
+  g_assert (bamf_view_is_user_visible (BAMF_VIEW (application)));
   g_assert (signal_seen);
   g_assert (signal_result);
 
@@ -442,7 +442,7 @@ test_user_visible (void)
   bamf_view_remove_child (BAMF_VIEW (application), BAMF_VIEW (window1));
 
   // Test that we unset and signal properly
-  g_assert (!bamf_view_user_visible (BAMF_VIEW (application)));
+  g_assert (!bamf_view_is_user_visible (BAMF_VIEW (application)));
   g_assert (signal_seen);
   g_assert (!signal_result);
 
@@ -452,12 +452,12 @@ test_user_visible (void)
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window1));
 
   // Ensure that when adding a skip-tasklist window, we dont set this to visible
-  g_assert (!bamf_view_user_visible (BAMF_VIEW (application)));
+  g_assert (!bamf_view_is_user_visible (BAMF_VIEW (application)));
   g_assert (!signal_seen);
 
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (window2));
 
-  g_assert (bamf_view_user_visible (BAMF_VIEW (application)));
+  g_assert (bamf_view_is_user_visible (BAMF_VIEW (application)));
   g_assert (signal_seen);
   g_assert (signal_result);
 
@@ -465,8 +465,8 @@ test_user_visible (void)
 
   bamf_legacy_window_test_set_skip (test2, TRUE);
 
-  g_assert (!bamf_view_user_visible (BAMF_VIEW (window1)));
-  g_assert (!bamf_view_user_visible (BAMF_VIEW (application)));
+  g_assert (!bamf_view_is_user_visible (BAMF_VIEW (window1)));
+  g_assert (!bamf_view_is_user_visible (BAMF_VIEW (application)));
   g_assert (signal_seen);
   g_assert (!signal_result);
 }

@@ -32,6 +32,7 @@ enum
 {
   PROP_0,
 
+  PROP_NAME,
   PROP_ACTIVE,
   PROP_RUNNING,
   PROP_URGENT,
@@ -50,15 +51,8 @@ enum
 
 static guint view_signals[LAST_SIGNAL] = { 0 };
 
-struct _BamfViewPrivate
+typedef struct _BamfViewPropCache
 {
-  BamfDBusItemView *dbus_iface;
-  char * name;
-  char * path;
-  GList * children;
-  GList * parents;
-  gboolean closed;
-
   /* FIXME: temporary cache these properties until we don't export the view
    * to the bus, we need this until the skeleton won't be smart enough to emit
    * signals as soon as the object is exported */
@@ -66,6 +60,18 @@ struct _BamfViewPrivate
   gboolean user_visible;
   gboolean urgent;
   gboolean active;
+
+  gchar *name;
+} BamfViewPropCache;
+
+struct _BamfViewPrivate
+{
+  BamfDBusItemView * dbus_iface;
+  BamfViewPropCache * props;
+  char * path;
+  GList * children;
+  GList * parents;
+  gboolean closed;
 
   /* FIXME: remove this as soon as we move to properties on library as well */
   guint active_changed_idle;
@@ -106,18 +112,12 @@ bamf_view_active_changed (BamfView *view, gboolean active)
 }
 
 static void
-bamf_view_name_changed (BamfView *view,
-                        const gchar *old_name,
-                        const gchar *new_name)
+bamf_view_name_changed (BamfView *view, const gchar *new_name)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
 
+  const gchar *old_name = bamf_view_get_name (view);
   g_signal_emit_by_name (view, "name-changed", old_name, new_name);
-
-  if (view->priv->name)
-    g_free (view->priv->name);
-
-  view->priv->name = g_strdup (new_name);
 }
 
 static void
@@ -335,116 +335,105 @@ bamf_view_remove_child (BamfView *view, BamfView *child)
   removed = bamf_view_get_path (child);
   g_signal_emit_by_name (view, "child-removed", removed);
 
-  // Do this by hand so we can pass and object instead of a string
+  /* Do this by hand so we can pass and object instead of a string */
   if (BAMF_VIEW_GET_CLASS (view)->child_removed)
     BAMF_VIEW_GET_CLASS (view)->child_removed (view, child);
 }
 
+#define BAMF_VIEW_GET_PROPERTY(v, property, ret_val)                          \
+  g_return_val_if_fail (BAMF_IS_VIEW (v), ret_val);                           \
+                                                                              \
+  if (v->priv->props)                                                         \
+    return v->priv->props->property;                                          \
+                                                                              \
+  return _bamf_dbus_item_view_get_##property (v->priv->dbus_iface);
+
+#define BAMF_VIEW_SET_BOOL_PROPERTY(v, property)                              \
+  g_return_if_fail (BAMF_IS_VIEW (v));                                        \
+                                                                              \
+  if (property == bamf_view_is_##property (v))                                \
+    return;                                                                   \
+                                                                              \
+  if (v->priv->props)                                                         \
+    {                                                                         \
+      v->priv->props->property = property;                                    \
+    }                                                                         \
+  else                                                                        \
+    {                                                                         \
+      _bamf_dbus_item_view_set_##property (v->priv->dbus_iface, property);    \
+    }                                                                         \
+                                                                              \
+  bamf_view_##property##_changed (v, property);
+
+#define BAMF_VIEW_SET_STRING_PROPERTY(v, property)                            \
+  g_return_if_fail (BAMF_IS_VIEW (v));                                        \
+                                                                              \
+  const gchar *current_value = bamf_view_get_##property (v);                  \
+                                                                              \
+  if (current_value == property || g_strcmp0 (current_value, property) == 0)  \
+    return;                                                                   \
+                                                                              \
+  bamf_view_##property##_changed (v, property);                               \
+                                                                              \
+  if (v->priv->props)                                                         \
+    {                                                                         \
+      g_free (v->priv->props->property);                                      \
+      v->priv->props->property = g_strdup (property);                         \
+    }                                                                         \
+  else                                                                        \
+    {                                                                         \
+      _bamf_dbus_item_view_set_##property (v->priv->dbus_iface, property);    \
+    }
+
 gboolean
 bamf_view_is_active (BamfView *view)
 {
-  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-
-  if (!bamf_view_is_on_bus (view))
-    return view->priv->active;
-
-  return _bamf_dbus_item_view_get_active (view->priv->dbus_iface);
+  BAMF_VIEW_GET_PROPERTY (view, active, FALSE);
 }
 
 void
 bamf_view_set_active (BamfView *view,
                       gboolean active)
 {
-  g_return_if_fail (BAMF_IS_VIEW (view));
-
-  if (active == bamf_view_is_active (view))
-    return;
-
-  if (bamf_view_is_on_bus (view))
-    _bamf_dbus_item_view_set_active (view->priv->dbus_iface, active);
-
-  view->priv->active = active;
-  bamf_view_active_changed (view, active);
+  BAMF_VIEW_SET_BOOL_PROPERTY (view, active);
 }
 
 gboolean
 bamf_view_is_urgent (BamfView *view)
 {
-  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-
-  if (!bamf_view_is_on_bus (view))
-    return view->priv->urgent;
-
-  return _bamf_dbus_item_view_get_urgent (view->priv->dbus_iface);
+  BAMF_VIEW_GET_PROPERTY (view, urgent, FALSE);
 }
 
 void
 bamf_view_set_urgent (BamfView *view,
                        gboolean urgent)
 {
-  g_return_if_fail (BAMF_IS_VIEW (view));
-
-  if (urgent == bamf_view_is_urgent (view))
-    return;
-
-  if (bamf_view_is_on_bus (view))
-    _bamf_dbus_item_view_set_urgent (view->priv->dbus_iface, urgent);
-
-  view->priv->urgent = urgent;
-  bamf_view_urgent_changed (view, urgent);
+  BAMF_VIEW_SET_BOOL_PROPERTY (view, urgent);
 }
 
 gboolean
 bamf_view_is_running (BamfView *view)
 {
-  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-
-  if (!bamf_view_is_on_bus (view))
-    return view->priv->running;
-
-  return _bamf_dbus_item_view_get_running (view->priv->dbus_iface);
+ BAMF_VIEW_GET_PROPERTY (view, running, FALSE);
 }
 
 void
 bamf_view_set_running (BamfView *view,
                        gboolean running)
 {
-  g_return_if_fail (BAMF_IS_VIEW (view));
-
-  if (running == bamf_view_is_running (view))
-    return;
-
-  if (bamf_view_is_on_bus (view))
-    _bamf_dbus_item_view_set_running (view->priv->dbus_iface, running);
-
-  view->priv->running = running;
-  bamf_view_running_changed (view, running);
+  BAMF_VIEW_SET_BOOL_PROPERTY (view, running);
 }
 
 gboolean
-bamf_view_user_visible (BamfView *view)
+bamf_view_is_user_visible (BamfView *view)
 {
-  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
-
-  if (!bamf_view_is_on_bus (view))
-    return view->priv->user_visible;
-
-  return _bamf_dbus_item_view_get_user_visible (view->priv->dbus_iface);
+  BAMF_VIEW_GET_PROPERTY (view, user_visible, FALSE);
 }
 
 void
 bamf_view_set_user_visible (BamfView *view, gboolean user_visible)
 {
-  g_return_if_fail (BAMF_IS_VIEW (view));
-
-  if (user_visible == bamf_view_user_visible (view))
-    return;
-
-  if (bamf_view_is_on_bus (view))
-    _bamf_dbus_item_view_set_user_visible (view->priv->dbus_iface, user_visible);
-
-  view->priv->user_visible = user_visible;
-  bamf_view_user_visible_changed (view, user_visible);
+  BAMF_VIEW_SET_BOOL_PROPERTY (view, user_visible);
 }
 
 const char *
@@ -466,19 +455,14 @@ bamf_view_get_name (BamfView *view)
   if (BAMF_VIEW_GET_CLASS (view)->get_name)
     return BAMF_VIEW_GET_CLASS (view)->get_name (view);
 
-  return view->priv->name;
+  BAMF_VIEW_GET_PROPERTY (view, name, NULL);
 }
 
 void
 bamf_view_set_name (BamfView *view,
                     const char * name)
 {
-  g_return_if_fail (BAMF_IS_VIEW (view));
-
-  if (!g_strcmp0 (name, view->priv->name))
-    return;
-
-  bamf_view_name_changed (view, view->priv->name, name);
+  BAMF_VIEW_SET_STRING_PROPERTY (view, name);
 }
 
 const char *
@@ -501,6 +485,36 @@ bamf_view_get_stable_bus_name (BamfView *view)
     return BAMF_VIEW_GET_CLASS (view)->stable_bus_name (view);
 
   return g_strdup_printf ("view%p", view);
+}
+
+static void
+bamf_view_cached_properties_clear (BamfView *view)
+{
+  if (!view->priv->props)
+    return;
+
+  g_free (view->priv->props->name);
+  g_free (view->priv->props);
+  view->priv->props = NULL;
+}
+
+static void
+bamf_view_cached_properties_notify (BamfView *view)
+{
+  if (!view->priv->props || !bamf_view_is_on_bus (view))
+    return;
+
+  /* Temporary disable the cache so that cached values will be set on the skeleton */
+  BamfViewPropCache *cache = view->priv->props;
+  view->priv->props = NULL;
+
+  bamf_view_set_name (view, cache->name);
+  bamf_view_set_active (view, cache->active);
+  bamf_view_set_running (view, cache->running);
+  bamf_view_set_user_visible (view, cache->user_visible);
+  bamf_view_set_urgent (view, cache->urgent);
+
+  view->priv->props = cache;
 }
 
 const char *
@@ -547,10 +561,8 @@ bamf_view_export_on_bus (BamfView *view, GDBusConnection *connection)
            * the properties not to be updated on the client side.
            * So we store the values locally until the proxy is not exported,
            * then we notify our clients. */
-          bamf_view_set_active (view, view->priv->active);
-          bamf_view_set_running (view, view->priv->running);
-          bamf_view_set_user_visible (view, view->priv->user_visible);
-          bamf_view_set_urgent (view, view->priv->urgent);
+          bamf_view_cached_properties_notify (view);
+          bamf_view_cached_properties_clear (view);
 
           g_signal_emit (view, view_signals[EXPORTED], 0);
         }
@@ -654,7 +666,7 @@ on_dbus_handle_user_visible (BamfDBusItemView *interface,
                              GDBusMethodInvocation *invocation,
                              BamfView *view)
 {
-  gboolean user_visible = bamf_view_user_visible (view);
+  gboolean user_visible = bamf_view_is_user_visible (view);
   g_dbus_method_invocation_return_value (invocation,
                                          g_variant_new ("(b)", user_visible));
 
@@ -749,12 +761,6 @@ bamf_view_dispose (GObject *object)
   BamfView *view = BAMF_VIEW (object);
   BamfViewPrivate *priv = view->priv;
 
-  if (priv->name)
-    {
-      g_free (priv->name);
-      priv->name = NULL;
-    }
-
   if (priv->path)
     {
       g_free (priv->path);
@@ -773,13 +779,14 @@ bamf_view_dispose (GObject *object)
       priv->parents = NULL;
     }
 
-  g_dbus_object_skeleton_flush (G_DBUS_OBJECT_SKELETON (view));
-
   if (priv->active_changed_idle)
     {
       g_source_remove (priv->active_changed_idle);
       priv->active_changed_idle = 0;
     }
+
+  bamf_view_cached_properties_clear (view);
+  g_dbus_object_skeleton_flush (G_DBUS_OBJECT_SKELETON (view));
 
   G_OBJECT_CLASS (bamf_view_parent_class)->dispose (object);
 }
@@ -801,6 +808,9 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
 
   switch (property_id)
     {
+      case PROP_NAME:
+        g_value_set_string (value, bamf_view_get_name (view));
+        break;
       case PROP_ACTIVE:
         g_value_set_boolean (value, bamf_view_is_active (view));
         break;
@@ -808,7 +818,7 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
         g_value_set_boolean (value, bamf_view_is_urgent (view));
         break;
       case PROP_USER_VISIBLE:
-        g_value_set_boolean (value, bamf_view_user_visible (view));
+        g_value_set_boolean (value, bamf_view_is_user_visible (view));
         break;
       case PROP_RUNNING:
         g_value_set_boolean (value, bamf_view_is_running (view));
@@ -835,6 +845,7 @@ bamf_view_init (BamfView * self)
 
   /* Initializing the dbus interface */
   self->priv->dbus_iface = _bamf_dbus_item_view_skeleton_new ();
+  self->priv->props = g_new0 (BamfViewPropCache, 1);
 
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
@@ -899,6 +910,7 @@ bamf_view_class_init (BamfViewClass * klass)
 
   /* Overriding the properties defined in the interface, this is needed
    * but we actually don't use these properties, as we act like a proxy       */
+  g_object_class_override_property (object_class, PROP_NAME, "name");
   g_object_class_override_property (object_class, PROP_ACTIVE, "active");
   g_object_class_override_property (object_class, PROP_URGENT, "urgent");
   g_object_class_override_property (object_class, PROP_RUNNING, "running");

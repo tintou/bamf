@@ -9,6 +9,7 @@
       <arg name="name" type="s" direction="out"/>
     </method>
     <method name="Name">
+      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="name" type="s" direction="out"/>
     </method>
     <method name="UserVisible">
@@ -34,6 +35,7 @@
       <arg name="children_paths" type="as" direction="out"/>
     </method>
     <signal name="NameChanged">
+      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="old_name" type="s"/>
       <arg name="new_name" type="s"/>
     </signal>
@@ -61,6 +63,7 @@
     </signal>
     <signal name="Closed">
     </signal>
+    <property name="Name" type="s" access="read"/>
     <property name="UserVisible" type="b" access="read"/>
     <property name="Running" type="b" access="read"/>
     <property name="Urgent" type="b" access="read"/>
@@ -84,14 +87,13 @@
       <arg name="type" type="s" direction="out"/>
     </method>
     <method name="ApplicationMenu">
+      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="busname" type="s" direction="out"/>
       <arg name="objectpath" type="s" direction="out"/>
     </method>
-
     <method name="FocusableChild">
       <arg name="path" type="s" direction="out"/>
     </method>
-
     <signal name="WindowRemoved">
       <arg name="path" type="s"/>
     </signal>
