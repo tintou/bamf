@@ -6,7 +6,6 @@
       <arg name="view_type" type="s" direction="out"/>
     </method>
     <method name="Icon">
-      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="name" type="s" direction="out"/>
     </method>
     <method name="Name">
@@ -36,6 +35,7 @@
       <arg name="children_paths" type="as" direction="out"/>
     </method>
     <signal name="NameChanged">
+      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="old_name" type="s"/>
       <arg name="new_name" type="s"/>
     </signal>
