@@ -43,7 +43,7 @@ static void test_parent_child_out_of_order_unref (void);
 static void test_urgent              (void);
 static void test_urgent_exported     (void);
 static void test_user_visible        (void);
-static void test_user_visible_exported(void);
+static void test_user_visible_exported (void);
 
 static GDBusConnection *gdbus_connection = NULL;
 
@@ -423,14 +423,22 @@ test_children_paths (void)
   g_object_unref (parent);
 }
 
-static gboolean active_event_fired;
-static gboolean active_event_result;
+static gboolean boolean_event_fired = FALSE;
+static gboolean boolean_event_result = FALSE;
+static guint boolean_event_calls = 0;
 
 static void
-on_active_event (BamfView *view, gboolean active, gpointer pointer)
+on_boolean_event (BamfView *view, gboolean active, gpointer pointer)
 {
-  active_event_fired = TRUE;
-  active_event_result = active;
+  boolean_event_fired = TRUE;
+  boolean_event_result = active;
+}
+
+static void
+on_boolean_event_count (BamfView *view, gboolean active, gpointer pointer)
+{
+  boolean_event_calls++;
+  boolean_event_result = active;
 }
 
 static void
@@ -442,36 +450,29 @@ test_active_event (void)
   g_assert (!bamf_view_is_active (view));
 
   g_signal_connect (G_OBJECT (view), "active-changed",
-		    (GCallback) on_active_event, NULL);
+		    (GCallback) on_boolean_event, NULL);
 
-  active_event_fired = FALSE;
+  boolean_event_fired = FALSE;
+  boolean_event_result = FALSE;
+
   bamf_view_set_active (view, TRUE);
   g_assert (bamf_view_is_active (view));
-  g_assert (!active_event_fired);
+  g_assert (!boolean_event_fired);
 
   while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
-  g_assert (active_event_fired);
-  g_assert (active_event_result);
+  g_assert (boolean_event_fired);
+  g_assert (boolean_event_result);
 
-  active_event_fired = FALSE;
+  boolean_event_fired = FALSE;
   bamf_view_set_active (view, FALSE);
   g_assert (!bamf_view_is_active (view));
-  g_assert (!active_event_fired);
+  g_assert (!boolean_event_fired);
 
   while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
-  g_assert (active_event_fired);
-  g_assert (!active_event_result);
+  g_assert (boolean_event_fired);
+  g_assert (!boolean_event_result);
 
   g_object_unref (view);
-}
-
-guint active_event_calls;
-
-static void
-on_active_event_count (BamfView *view, gboolean active, gpointer pointer)
-{
-  active_event_calls++;;
-  active_event_result = active;
 }
 
 static void
@@ -483,35 +484,25 @@ test_active_event_count (void)
   g_assert (!bamf_view_is_active (view));
 
   g_signal_connect (G_OBJECT (view), "active-changed",
-        (GCallback) on_active_event_count, NULL);
+        (GCallback) on_boolean_event_count, NULL);
 
-  active_event_calls = 0;
+  boolean_event_calls = 0;
   bamf_view_set_active (view, TRUE);
   g_assert (bamf_view_is_active (view));
-  g_assert_cmpuint (active_event_calls, ==, 0);
+  g_assert_cmpuint (boolean_event_calls, ==, 0);
 
   while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
-  g_assert_cmpuint (active_event_calls, ==, 1);
-  g_assert (active_event_result);
+  g_assert_cmpuint (boolean_event_calls, ==, 1);
+  g_assert (boolean_event_result);
 
-  active_event_calls = 0;
+  boolean_event_calls = 0;
   bamf_view_set_active (view, FALSE);
   bamf_view_set_active (view, TRUE);
   bamf_view_set_active (view, FALSE);
 
   while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
-  g_assert_cmpuint (active_event_calls, ==, 1);
-  g_assert (!active_event_result);
-}
-
-static gboolean running_event_fired;
-static gboolean running_event_result;
-
-static void
-on_running_event (BamfView *view, gboolean running, gpointer pointer)
-{
-  running_event_fired = TRUE;
-  running_event_result = running;
+  g_assert_cmpuint (boolean_event_calls, ==, 1);
+  g_assert (!boolean_event_result);
 }
 
 static void
@@ -523,21 +514,22 @@ test_running_event (void)
   g_assert (!bamf_view_is_running (view));
 
   g_signal_connect (G_OBJECT (view), "running-changed",
-		    (GCallback) on_running_event, NULL);
+		    (GCallback) on_boolean_event, NULL);
 
-  running_event_fired = FALSE;
+  boolean_event_result = FALSE;
+  boolean_event_fired = FALSE;
   bamf_view_set_running (view, TRUE);
   g_assert (bamf_view_is_running (view));
 
-  g_assert (running_event_fired);
-  g_assert (running_event_result);
+  g_assert (boolean_event_fired);
+  g_assert (boolean_event_result);
 
-  running_event_fired = FALSE;
+  boolean_event_fired = FALSE;
   bamf_view_set_running (view, FALSE);
   g_assert (!bamf_view_is_running (view));
 
-  g_assert (running_event_fired);
-  g_assert (!running_event_result);
+  g_assert (boolean_event_fired);
+  g_assert (!boolean_event_result);
 
   g_object_unref (view);
 }
