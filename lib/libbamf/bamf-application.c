@@ -642,7 +642,7 @@ bamf_application_load_data_from_file (BamfApplication *self, GKeyFile * keyfile)
       name = fullname;
     }
 
-  _bamf_view_set_name (BAMF_VIEW (self), name);
+  _bamf_view_set_cached_name (BAMF_VIEW (self), name);
 
   gicon = g_app_info_get_icon (G_APP_INFO (desktop_info));
   icon = gicon ? g_icon_to_string (gicon) : NULL;
