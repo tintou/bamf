@@ -621,11 +621,6 @@ bamf_application_load_data_from_file (BamfApplication *self, GKeyFile * keyfile)
 
   name = g_strdup (g_app_info_get_name (G_APP_INFO (desktop_info)));
 
-/* GLib doesn't provide this by default */
-#ifndef G_KEY_FILE_DESKTOP_KEY_FULLNAME
-#define G_KEY_FILE_DESKTOP_KEY_FULLNAME "X-GNOME-FullName"
-#endif
-
   /* Grab the better name if its available */
   fullname = g_key_file_get_locale_string (keyfile, G_KEY_FILE_DESKTOP_GROUP,
                                            G_KEY_FILE_DESKTOP_KEY_FULLNAME, NULL, NULL);
@@ -648,7 +643,7 @@ bamf_application_load_data_from_file (BamfApplication *self, GKeyFile * keyfile)
   icon = gicon ? g_icon_to_string (gicon) : NULL;
 
   if (!icon)
-    icon = g_strdup ("application-default-icon");
+    icon = g_strdup (BAMF_APPLICATION_DEFAULT_ICON);
 
   _bamf_view_set_icon (BAMF_VIEW (self), icon);
 

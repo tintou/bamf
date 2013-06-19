@@ -31,6 +31,12 @@
 
 #define BAMF_DBUS_DEFAULT_TIMEOUT 500
 
+/* GLib doesn't provide this by default */
+#ifndef G_KEY_FILE_DESKTOP_KEY_FULLNAME
+#define G_KEY_FILE_DESKTOP_KEY_FULLNAME "X-GNOME-FullName"
+#endif
+
+#define BAMF_APPLICATION_DEFAULT_ICON "application-default-icon"
 
 /* GCC Macros to handle warnings
  * Authored by: Patrick Horgan <patrick@dbp-consulting.com>

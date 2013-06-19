@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <glib.h>
 #include <glib-object.h>
+#include <libbamf-private/bamf-private.h>
 #include "bamf-view-private.h"
 
 #define DATA_DIR TESTDIR "/data"
@@ -86,7 +87,7 @@ test_favorite_no_icon (void)
   BamfApplication *application;
 
   application = bamf_application_new_favorite (DATA_DIR"/no-icon.desktop");
-  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "application-default-icon");
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, BAMF_APPLICATION_DEFAULT_ICON);
 
   g_object_unref (application);
 }
