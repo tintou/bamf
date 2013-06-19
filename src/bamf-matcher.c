@@ -1407,10 +1407,8 @@ is_libreoffice_window (BamfLegacyWindow * window)
   if (!class_name)
     return FALSE;
 
-  return (g_str_has_prefix (class_name, "LibreOffice") ||
-          g_str_has_prefix (class_name, "libreoffice") ||
-          g_str_has_prefix (class_name, "OpenOffice") ||
-          g_str_has_prefix (class_name, "openoffice"));
+  return (g_ascii_strncasecmp (class_name, "libreoffice", 11) == 0 ||
+          g_ascii_strncasecmp (class_name, "openoffice", 10) == 0);
 }
 
 static gboolean
