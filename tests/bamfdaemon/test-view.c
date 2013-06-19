@@ -286,17 +286,10 @@ static gboolean boolean_event_result = FALSE;
 static guint boolean_event_calls = 0;
 
 static void
-on_boolean_event (BamfView *view, gboolean active, gpointer pointer)
+on_boolean_event (BamfView *view, gboolean event, gpointer pointer)
 {
   boolean_event_fired = TRUE;
-  boolean_event_result = active;
-}
-
-static void
-on_boolean_event_count (BamfView *view, gboolean active, gpointer pointer)
-{
-  boolean_event_calls++;
-  boolean_event_result = active;
+  boolean_event_result = event;
 }
 
 #define test_boolean_property_event(prop) test_##prop##_event
@@ -384,6 +377,13 @@ declare_test_boolean_property_event_exported (urgent);
 declare_test_boolean_property_event_exported (user_visible);
 
 static void
+on_boolean_event_count (BamfView *view, gboolean event, gpointer pointer)
+{
+  boolean_event_calls++;
+  boolean_event_result = event;
+}
+
+static void
 test_active_event_count (void)
 {
   BamfView *view;
@@ -411,6 +411,8 @@ test_active_event_count (void)
   while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
   g_assert_cmpuint (boolean_event_calls, ==, 1);
   g_assert (!boolean_event_result);
+
+  g_object_unref (view);
 }
 
 static gboolean child_added_event_fired;
