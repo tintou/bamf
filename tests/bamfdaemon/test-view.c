@@ -26,6 +26,7 @@ static void test_active              (void);
 static void test_active_exported     (void);
 static void test_active_event        (void);
 static void test_active_event_count  (void);
+static void test_active_event_exported (void);
 static void test_allocation          (void);
 static void test_child_added_event   (void);
 static void test_child_removed_event (void);
@@ -70,6 +71,7 @@ test_view_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Events/Close", test_closed_event);
   g_test_add_func (DOMAIN"/Events/Active", test_active_event);
   g_test_add_func (DOMAIN"/Events/Active/Count", test_active_event_count);
+  g_test_add_func (DOMAIN"/Events/Active/Exported", test_active_event_exported);
   g_test_add_func (DOMAIN"/Events/Running", test_running_event);
   g_test_add_func (DOMAIN"/Events/ChildAdded", test_child_added_event);
   g_test_add_func (DOMAIN"/Events/ChildRemoved", test_child_removed_event);
@@ -468,6 +470,40 @@ test_active_event (void)
   g_assert (!bamf_view_is_active (view));
   g_assert (!boolean_event_fired);
 
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
+  g_assert (boolean_event_fired);
+  g_assert (!boolean_event_result);
+
+  g_object_unref (view);
+}
+
+static void
+test_active_event_exported (void)
+{
+  BamfView *view;
+
+  view = g_object_new (BAMF_TYPE_VIEW, NULL);
+
+  g_signal_connect (G_OBJECT (view), "active-changed",
+        (GCallback) on_boolean_event, NULL);
+
+  boolean_event_fired = FALSE;
+  boolean_event_result = FALSE;
+
+  bamf_view_set_active (view, TRUE);
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
+  g_assert (boolean_event_fired);
+  g_assert (boolean_event_result);
+  boolean_event_fired = FALSE;
+  boolean_event_result = FALSE;
+
+  bamf_view_export_on_bus (view, gdbus_connection);
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
+  g_assert (boolean_event_fired);
+  g_assert (boolean_event_result);
+  boolean_event_fired = FALSE;
+
+  bamf_view_set_active (view, FALSE);
   while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
   g_assert (boolean_event_fired);
   g_assert (!boolean_event_result);
