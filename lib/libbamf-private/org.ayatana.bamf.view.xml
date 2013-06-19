@@ -44,7 +44,6 @@
       <arg name="user_visible" type="b"/>
     </signal>
     <signal name="UrgentChanged">
-      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="is_urgent" type="b"/>
     </signal>
     <signal name="RunningChanged">
@@ -64,6 +63,7 @@
     <signal name="Closed">
     </signal>
     <property name="Name" type="s" access="read"/>
+    <property name="Icon" type="s" access="read"/>
     <property name="UserVisible" type="b" access="read"/>
     <property name="Running" type="b" access="read"/>
     <property name="Urgent" type="b" access="read"/>

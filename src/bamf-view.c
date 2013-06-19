@@ -33,6 +33,7 @@ enum
   PROP_0,
 
   PROP_NAME,
+  PROP_ICON,
   PROP_ACTIVE,
   PROP_RUNNING,
   PROP_URGENT,
@@ -62,6 +63,7 @@ typedef struct _BamfViewPropCache
   gboolean active;
 
   gchar *name;
+  gchar *icon;
 } BamfViewPropCache;
 
 struct _BamfViewPrivate
@@ -118,6 +120,12 @@ bamf_view_name_changed (BamfView *view, const gchar *new_name)
 
   const gchar *old_name = bamf_view_get_name (view);
   g_signal_emit_by_name (view, "name-changed", old_name, new_name);
+}
+
+static void
+bamf_view_icon_changed (BamfView *view, const gchar *new_icon)
+{
+  g_object_notify (G_OBJECT (view), "icon");
 }
 
 static void
@@ -444,7 +452,13 @@ bamf_view_get_icon (BamfView *view)
   if (BAMF_VIEW_GET_CLASS (view)->get_icon)
     return BAMF_VIEW_GET_CLASS (view)->get_icon (view);
 
-  return NULL;
+  BAMF_VIEW_GET_PROPERTY (view, icon, NULL);
+}
+
+void
+bamf_view_set_icon (BamfView *view, const char *icon)
+{
+  BAMF_VIEW_SET_STRING_PROPERTY (view, icon);
 }
 
 const char *
@@ -459,8 +473,7 @@ bamf_view_get_name (BamfView *view)
 }
 
 void
-bamf_view_set_name (BamfView *view,
-                    const char * name)
+bamf_view_set_name (BamfView *view, const char *name)
 {
   BAMF_VIEW_SET_STRING_PROPERTY (view, name);
 }
@@ -494,6 +507,7 @@ bamf_view_cached_properties_clear (BamfView *view)
     return;
 
   g_free (view->priv->props->name);
+  g_free (view->priv->props->icon);
   g_free (view->priv->props);
   view->priv->props = NULL;
 }
@@ -509,6 +523,7 @@ bamf_view_cached_properties_notify (BamfView *view)
   view->priv->props = NULL;
 
   bamf_view_set_name (view, cache->name);
+  bamf_view_set_icon (view, cache->icon);
   bamf_view_set_active (view, cache->active);
   bamf_view_set_running (view, cache->running);
   bamf_view_set_user_visible (view, cache->user_visible);
@@ -811,6 +826,9 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
       case PROP_NAME:
         g_value_set_string (value, bamf_view_get_name (view));
         break;
+      case PROP_ICON:
+        g_value_set_string (value, bamf_view_get_icon (view));
+        break;
       case PROP_ACTIVE:
         g_value_set_boolean (value, bamf_view_is_active (view));
         break;
@@ -911,6 +929,7 @@ bamf_view_class_init (BamfViewClass * klass)
   /* Overriding the properties defined in the interface, this is needed
    * but we actually don't use these properties, as we act like a proxy       */
   g_object_class_override_property (object_class, PROP_NAME, "name");
+  g_object_class_override_property (object_class, PROP_ICON, "icon");
   g_object_class_override_property (object_class, PROP_ACTIVE, "active");
   g_object_class_override_property (object_class, PROP_URGENT, "urgent");
   g_object_class_override_property (object_class, PROP_RUNNING, "running");

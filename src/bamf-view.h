@@ -98,10 +98,11 @@ void          bamf_view_set_user_visible   (BamfView *view, gboolean user_visibl
 gboolean      bamf_view_is_urgent          (BamfView *view);
 void          bamf_view_set_urgent         (BamfView *view, gboolean urgent);
 
+void          bamf_view_set_icon           (BamfView *view, const char *icon);
 const char  * bamf_view_get_icon           (BamfView *view);
 
 const char  * bamf_view_get_name           (BamfView *view);
-void          bamf_view_set_name           (BamfView *view, const char * name);
+void          bamf_view_set_name           (BamfView *view, const char *name);
 
 const char  * bamf_view_get_parent_path    (BamfView *view);
 
