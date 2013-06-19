@@ -54,6 +54,7 @@ G_BEGIN_DECLS
 #define BAMF_VIEW_SIGNAL_URGENT_CHANGED       "urgent-changed"
 #define BAMF_VIEW_SIGNAL_USER_VISIBLE_CHANGED "user-visible-changed"
 #define BAMF_VIEW_SIGNAL_NAME_CHANGED         "name-changed"
+#define BAMF_VIEW_SIGNAL_ICON_CHANGED         "icon-changed"
 #define BAMF_VIEW_SIGNAL_CHILD_ADDED          "child-added"
 #define BAMF_VIEW_SIGNAL_CHILD_REMOVED        "child-removed"
 #define BAMF_VIEW_SIGNAL_CHILD_MOVED          "child-moved"
@@ -107,13 +108,13 @@ struct _BamfViewClass
   void (*urgent_changed)              (BamfView *view, gboolean urgent);
   void (*user_visible_changed)        (BamfView *view, gboolean user_visible);
   void (*name_changed)                (BamfView *view, gchar* old_name, gchar* new_name);
+  void (*icon_changed)                (BamfView *view, gchar* icon);
   void (*child_moved)                 (BamfView *view, BamfView *child);
 
   /*< private >*/
   void (*_view_padding1) (void);
   void (*_view_padding2) (void);
   void (*_view_padding3) (void);
-  void (*_view_padding4) (void);
 };
 
 GType      bamf_view_get_type             (void) G_GNUC_CONST;

@@ -41,7 +41,6 @@ struct _BamfApplicationPrivate
   char * desktop_file;
   GList * desktop_file_list;
   char * app_type;
-  char * icon;
   char * wmclass;
   char ** mimes;
   gboolean is_tab_container;
@@ -57,14 +56,6 @@ enum
 static guint application_signals[LAST_SIGNAL] = { 0 };
 
 #define STUB_KEY  "X-Ayatana-Appmenu-Show-Stubs"
-
-static const char *
-bamf_application_get_icon (BamfView *view)
-{
-  g_return_val_if_fail (BAMF_IS_APPLICATION (view), NULL);
-
-  return BAMF_APPLICATION (view)->priv->icon;
-}
 
 void
 bamf_application_supported_mime_types_changed (BamfApplication *application,
@@ -213,16 +204,16 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
 
   g_return_if_fail (BAMF_IS_APPLICATION (self));
 
-  if (self->priv->icon && bamf_view_get_name (BAMF_VIEW (self)))
+  if (bamf_view_get_icon (BAMF_VIEW (self)) && bamf_view_get_name (BAMF_VIEW (self)))
     return;
 
   if (self->priv->desktop_file)
     {
-      keyfile = g_key_file_new();
+      keyfile = g_key_file_new ();
 
-      if (!g_key_file_load_from_file(keyfile, self->priv->desktop_file, G_KEY_FILE_NONE, NULL))
+      if (!g_key_file_load_from_file (keyfile, self->priv->desktop_file, G_KEY_FILE_NONE, NULL))
         {
-          g_key_file_free(keyfile);
+          g_key_file_free (keyfile);
           return;
         }
 
@@ -235,7 +226,6 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
         }
 
       gicon = g_app_info_get_icon (G_APP_INFO (desktop));
-
       name = g_strdup (g_app_info_get_display_name (G_APP_INFO (desktop)));
 
       if (gicon)
@@ -244,7 +234,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
         }
       else
         {
-          icon = g_strdup ("application-default-icon");
+          icon = g_strdup (BAMF_APPLICATION_DEFAULT_ICON);
         }
 
       if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, STUB_KEY, NULL))
@@ -257,20 +247,19 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
                                                            STUB_KEY, NULL);
         }
 
-      if (g_key_file_has_key (keyfile, G_KEY_FILE_DESKTOP_GROUP, "X-GNOME-FullName", NULL))
+      if (g_key_file_has_key (keyfile, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_FULLNAME, NULL))
         {
           /* Grab the better name if its available */
           gchar *fullname = NULL;
           error = NULL;
           fullname = g_key_file_get_locale_string (keyfile,
                                                    G_KEY_FILE_DESKTOP_GROUP,
-                                                   "X-GNOME-FullName", NULL,
-                                                   &error);
+                                                   G_KEY_FILE_DESKTOP_KEY_FULLNAME,
+                                                   NULL, &error);
           if (error != NULL)
             {
               g_error_free (error);
-              if (fullname)
-                g_free (fullname);
+              g_free (fullname);
             }
           else
             {
@@ -327,7 +316,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
 
           if (!icon)
             {
-              icon = g_strdup ("application-default-icon");
+              icon = g_strdup (BAMF_APPLICATION_DEFAULT_ICON);
             }
         }
     }
@@ -337,12 +326,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
     }
 
   if (icon)
-    {
-      if (self->priv->icon)
-        g_free (self->priv->icon);
-
-      self->priv->icon = icon;
-    }
+    bamf_view_set_icon (BAMF_VIEW (self), icon);
 
   if (name)
     bamf_view_set_name (BAMF_VIEW (self), name);
@@ -910,12 +894,6 @@ bamf_application_dispose (GObject *object)
       priv->app_type = NULL;
     }
 
-  if (priv->icon)
-    {
-      g_free (priv->icon);
-      priv->icon = NULL;
-    }
-
   if (priv->wmclass)
     {
       g_free (priv->wmclass);
@@ -1008,7 +986,6 @@ bamf_application_class_init (BamfApplicationClass * klass)
   view_class->view_type = bamf_application_get_view_type;
   view_class->child_added = bamf_application_child_added;
   view_class->child_removed = bamf_application_child_removed;
-  view_class->get_icon = bamf_application_get_icon;
   view_class->stable_bus_name = bamf_application_get_stable_bus_name;
 
   klass->get_supported_mime_types = bamf_application_default_get_supported_mime_types;
@@ -1083,8 +1060,8 @@ bamf_application_new_with_wmclass (const char *wmclass)
 gboolean
 bamf_application_get_show_stubs (BamfApplication *application)
 {
-    g_return_val_if_fail(BAMF_IS_APPLICATION(application), TRUE);
-    return application->priv->show_stubs;
+  g_return_val_if_fail (BAMF_IS_APPLICATION(application), TRUE);
+  return application->priv->show_stubs;
 }
 
 

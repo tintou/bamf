@@ -45,7 +45,7 @@ void _bamf_view_reset_flags (BamfView *view);
 
 void _bamf_view_set_cached_name (BamfView *view, const char *name);
 
-void _bamf_view_set_icon (BamfView *view, const char *icon);
+void _bamf_view_set_cached_icon (BamfView *view, const char *icon);
 
 void _bamf_view_set_closed (BamfView *view, gboolean closed);
 

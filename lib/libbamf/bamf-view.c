@@ -59,6 +59,7 @@ enum
   URGENT_CHANGED,
   VISIBLE_CHANGED,
   NAME_CHANGED,
+  ICON_CHANGED,
   LAST_SIGNAL
 };
 
@@ -82,8 +83,8 @@ struct _BamfViewPrivate
   BamfDBusItemView *proxy;
   GCancellable     *cancellable;
   gchar            *type;
-  gchar            *local_icon;
   gchar            *cached_name;
+  gchar            *cached_icon;
   GList            *cached_children;
   gboolean          reload_children;
   gboolean          is_closed;
@@ -282,16 +283,19 @@ _bamf_view_set_cached_name (BamfView *view, const char *name)
 }
 
 void
-_bamf_view_set_icon (BamfView *view, const char *icon)
+_bamf_view_set_cached_icon (BamfView *view, const char *icon)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
 
-  g_free (view->priv->local_icon);
-  view->priv->local_icon = NULL;
+  if (!icon || g_strcmp0 (icon, view->priv->cached_icon) == 0)
+    return;
+
+  g_free (view->priv->cached_icon);
+  view->priv->cached_icon = NULL;
 
   if (icon && icon[0] != '\0')
     {
-      view->priv->local_icon = g_strdup (icon);
+      view->priv->cached_icon = g_strdup (icon);
     }
 }
 
@@ -336,8 +340,6 @@ gchar *
 bamf_view_get_icon (BamfView *self)
 {
   BamfViewPrivate *priv;
-  char *icon = NULL;
-  GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_VIEW (self), NULL);
   priv = self->priv;
@@ -346,20 +348,9 @@ bamf_view_get_icon (BamfView *self)
     return BAMF_VIEW_GET_CLASS (self)->get_icon (self);
 
   if (!_bamf_view_remote_ready (self))
-    return g_strdup (priv->local_icon);
+    return g_strdup (priv->cached_icon);
 
-  if (!_bamf_dbus_item_view_call_icon_sync (priv->proxy, &icon, CANCELLABLE (self), &error))
-    {
-      g_warning ("Failed to fetch icon: %s", error ? error->message : "");
-      g_error_free (error);
-
-      return NULL;
-    }
-
-  _bamf_view_set_icon (self, icon);
-  g_free (icon);
-
-  return g_strdup (priv->local_icon);
+  return _bamf_dbus_item_view_dup_icon (priv->proxy);
 }
 
 /**
@@ -372,7 +363,6 @@ gchar *
 bamf_view_get_name (BamfView *self)
 {
   BamfViewPrivate *priv;
-  gchar *name;
 
   g_return_val_if_fail (BAMF_IS_VIEW (self), NULL);
   priv = self->priv;
@@ -383,9 +373,7 @@ bamf_view_get_name (BamfView *self)
   if (!_bamf_view_remote_ready (self))
     return g_strdup (priv->cached_name);
 
-  name = _bamf_dbus_item_view_dup_name (priv->proxy);
-
-  return name;
+  return _bamf_dbus_item_view_dup_name (priv->proxy);
 }
 
 gboolean
@@ -536,6 +524,12 @@ bamf_view_on_name_owner_changed (BamfDBusItemView *proxy, GParamSpec *param, Bam
           g_signal_emit (G_OBJECT (self), view_signals[NAME_CHANGED], 0, NULL, cached_name);
         }
 
+      if (self->priv->cached_icon)
+        {
+          const char *cached_icon = self->priv->cached_icon;
+          g_signal_emit (G_OBJECT (self), view_signals[ICON_CHANGED], 0, cached_icon);
+        }
+
       _bamf_view_set_closed (self, TRUE);
       g_signal_emit (G_OBJECT (self), view_signals[CLOSED], 0);
     }
@@ -558,6 +552,14 @@ bamf_view_on_name_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfView 
   const char *old_name = self->priv->cached_name;
   g_signal_emit (self, view_signals[NAME_CHANGED], 0, old_name, new_name);
   _bamf_view_set_cached_name (self, new_name);
+}
+
+static void
+bamf_view_on_icon_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfView *self)
+{
+  const char *icon = _bamf_dbus_item_view_get_icon (proxy);
+  g_signal_emit (self, view_signals[ICON_CHANGED], 0, icon);
+  _bamf_view_set_cached_icon (self, icon);
 }
 
 static void
@@ -708,10 +710,10 @@ bamf_view_dispose (GObject *object)
       priv->type = NULL;
     }
 
-  if (priv->local_icon)
+  if (priv->cached_icon)
     {
-      g_free (priv->local_icon);
-      priv->local_icon = NULL;
+      g_free (priv->cached_icon);
+      priv->cached_icon = NULL;
     }
 
   if (priv->cached_name)
@@ -807,6 +809,9 @@ _bamf_view_set_path (BamfView *view, const char *path)
 
   g_signal_connect (priv->proxy, "notify::name",
                     G_CALLBACK (bamf_view_on_name_changed), view);
+
+  g_signal_connect (priv->proxy, "notify::icon",
+                    G_CALLBACK (bamf_view_on_icon_changed), view);
 
   g_signal_connect (priv->proxy, "child-added",
                     G_CALLBACK (bamf_view_on_child_added), view);
@@ -928,6 +933,15 @@ bamf_view_class_init (BamfViewClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 2,
                   G_TYPE_STRING,
+                  G_TYPE_STRING);
+
+  view_signals [ICON_CHANGED] =
+    g_signal_new (BAMF_VIEW_SIGNAL_ICON_CHANGED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  G_STRUCT_OFFSET (BamfViewClass, icon_changed),
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
                   G_TYPE_STRING);
 }
 

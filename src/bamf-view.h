@@ -42,10 +42,8 @@ struct _BamfViewClass
   GList *names;
 
   /*< methods >*/
-  const char * (*view_type)                 (BamfView *view);
-  char *       (*stable_bus_name)           (BamfView *view);
-  const char * (*get_name)                  (BamfView *view);
-  const char * (*get_icon)                  (BamfView *view);
+  const char * (*view_type)         (BamfView *view);
+  char *       (*stable_bus_name)   (BamfView *view);
 
   /*< random stuff >*/
   gboolean (* urgent_changed)       (BamfView *view, gboolean urgent);
@@ -53,12 +51,14 @@ struct _BamfViewClass
   gboolean (* active_changed)       (BamfView *view, gboolean active);
   gboolean (* user_visible_changed) (BamfView *view, gboolean visible);
   gboolean (* closed)               (BamfView *view);
+  void     (* child_added)          (BamfView *view, BamfView *child);
+  void     (* child_removed)        (BamfView *view, BamfView *child);
 
   /*< signals >*/
-  void   (*child_added)   (BamfView *view, BamfView *child);
-  void   (*child_removed) (BamfView *view, BamfView *child);
-  void   (*exported)      (BamfView *view);
-  void   (*name_changed)  (BamfView *view, const gchar* old_name, const gchar* new_name);
+  void (* closed_internal)          (BamfView *view);
+  void (* child_added_internal)     (BamfView *view, BamfView *child);
+  void (* child_removed_internal)   (BamfView *view, BamfView *child);
+  void (* exported)                 (BamfView *view);
 };
 
 struct _BamfView
@@ -98,10 +98,11 @@ void          bamf_view_set_user_visible   (BamfView *view, gboolean user_visibl
 gboolean      bamf_view_is_urgent          (BamfView *view);
 void          bamf_view_set_urgent         (BamfView *view, gboolean urgent);
 
+void          bamf_view_set_icon           (BamfView *view, const char *icon);
 const char  * bamf_view_get_icon           (BamfView *view);
 
 const char  * bamf_view_get_name           (BamfView *view);
-void          bamf_view_set_name           (BamfView *view, const char * name);
+void          bamf_view_set_name           (BamfView *view, const char *name);
 
 const char  * bamf_view_get_parent_path    (BamfView *view);
 
