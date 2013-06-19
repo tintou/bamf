@@ -331,6 +331,50 @@ declare_test_boolean_property_event (running);
 declare_test_boolean_property_event (urgent);
 declare_test_boolean_property_event (user_visible);
 
+static gboolean string_event_fired = FALSE;
+static char * string_event_result = FALSE;
+
+static void
+on_string_event (BamfView *view, const gchar *oval, const gchar *nval, gpointer pointer)
+{
+  string_event_fired = TRUE;
+  g_free (string_event_result);
+  string_event_result = g_strdup (nval);
+}
+
+static void
+test_name_event (void)
+{
+  BamfView *view;
+
+  view = g_object_new (BAMF_TYPE_VIEW, NULL);
+  g_assert (!bamf_view_get_name (view));
+
+  g_signal_connect (G_OBJECT (view), "name_changed",
+        (GCallback) on_string_event, NULL);
+
+  string_event_fired = FALSE;
+  string_event_result = NULL;
+
+  bamf_view_set_name (view, "NewName");
+  g_assert_cmpstr (bamf_view_get_name (view), ==, "NewName");
+
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
+  g_assert (string_event_fired);
+  g_assert_cmpstr (string_event_result, ==, "NewName");
+
+  string_event_fired = FALSE;
+  bamf_view_set_name (view, "AnotherName");
+  g_assert_cmpstr (bamf_view_get_name (view), ==, "AnotherName");
+
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
+  g_assert (string_event_fired);
+  g_assert_cmpstr (string_event_result, ==, "AnotherName");
+
+  g_object_unref (view);
+}
+
+
 #define test_boolean_property_event_exported(prop) test_##prop##_event_exported
 #define declare_test_boolean_property_event_exported(prop)                       \
   static void                                                                    \
@@ -375,6 +419,45 @@ declare_test_boolean_property_event_exported (active);
 declare_test_boolean_property_event_exported (running);
 declare_test_boolean_property_event_exported (urgent);
 declare_test_boolean_property_event_exported (user_visible);
+
+static void
+test_name_event_exported (void)
+{
+  BamfView *view;
+
+  view = g_object_new (BAMF_TYPE_VIEW, NULL);
+  g_assert (!bamf_view_get_name (view));
+
+  g_signal_connect (G_OBJECT (view), "name_changed",
+        (GCallback) on_string_event, NULL);
+
+  string_event_fired = FALSE;
+  string_event_result = NULL;
+
+  bamf_view_set_name (view, "NewName");
+
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
+  g_assert (string_event_fired);
+  g_assert_cmpstr (string_event_result, ==, "NewName");
+  string_event_fired = FALSE;
+  g_free (string_event_result);
+  string_event_result = NULL;
+
+  bamf_view_export_on_bus (view, gdbus_connection);
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
+  g_assert (string_event_fired);
+  g_assert_cmpstr (string_event_result, ==, "NewName");
+
+  string_event_fired = FALSE;
+  bamf_view_set_name (view, "AnotherName");
+  g_assert_cmpstr (bamf_view_get_name (view), ==, "AnotherName");
+
+  while (g_main_context_pending (NULL)) g_main_context_iteration (NULL, TRUE);
+  g_assert (string_event_fired);
+  g_assert_cmpstr (string_event_result, ==, "AnotherName");
+
+  g_object_unref (view);
+}
 
 static void
 on_boolean_event_count (BamfView *view, gboolean event, gpointer pointer)
@@ -556,6 +639,8 @@ test_view_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Path/Collision", test_path_collision);
   g_test_add_func (DOMAIN"/Events/Close", test_closed_event);
   g_test_add_func (DOMAIN"/Events/Active", test_boolean_property_event (active));
+  g_test_add_func (DOMAIN"/Events/Name", test_name_event);
+  g_test_add_func (DOMAIN"/Events/Name/Exported", test_name_event_exported);
   g_test_add_func (DOMAIN"/Events/Active/Count", test_active_event_count);
   g_test_add_func (DOMAIN"/Events/Active/Exported", test_boolean_property_event_exported (active));
   g_test_add_func (DOMAIN"/Events/Running", test_boolean_property_event (running));
