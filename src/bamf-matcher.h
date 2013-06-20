@@ -108,6 +108,12 @@ GVariant    * bamf_matcher_xids_for_application          (BamfMatcher *matcher,
 GVariant    * bamf_matcher_get_window_stack_for_monitor  (BamfMatcher *matcher,
                                                           gint monitor);
 
+gboolean      bamf_matcher_is_valid_process_prefix       (BamfMatcher *matcher,
+                                                          const char *process_name);
+
+char        * bamf_matcher_get_trimmed_exec              (BamfMatcher *matcher,
+                                                          const char *exec_string);
+
 
 BamfMatcher * bamf_matcher_get_default                   (void);
 
