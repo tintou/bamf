@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Test Bamf App with Icon
 Exec=test-bamf-app
-Icon=xterm_48x48
+Icon=test-bamf-icon
 Terminal=false
 Type=Application
 Categories=Graphics;

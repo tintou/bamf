@@ -77,7 +77,7 @@ test_desktop_icon (void)
   const char *icon_desktop = TESTDIR"/data/icon.desktop";
 
   application = bamf_application_new_from_desktop_file (icon_desktop);
-  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "xterm_48x48");
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "test-bamf-icon");
   g_object_unref (application);
 }
 
@@ -114,12 +114,12 @@ test_icon_class_name (void)
   BamfWindow *test;
 
   application = bamf_application_new ();
-  lwin = bamf_legacy_window_test_new (20, "window", "xterm_48x48", "execution-binary");
+  lwin = bamf_legacy_window_test_new (20, "window", "test-bamf-icon", "execution-binary");
   test = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
 
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
 
-  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "xterm_48x48");
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "test-bamf-icon");
 
   g_object_unref (lwin);
   g_object_unref (test);
@@ -134,12 +134,12 @@ test_icon_exec_string (void)
   BamfWindow *test;
 
   application = bamf_application_new ();
-  lwin = bamf_legacy_window_test_new (20, "window", "class", "xterm_48x48");
+  lwin = bamf_legacy_window_test_new (20, "window", "class", "test-bamf-icon");
   test = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
 
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
 
-  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "xterm_48x48");
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "test-bamf-icon");
 
   g_object_unref (lwin);
   g_object_unref (test);
@@ -155,12 +155,12 @@ test_icon_embedded (void)
 
   application = bamf_application_new ();
   lwin = bamf_legacy_window_test_new (20, "window", "class", "python execution-script.py");
-  bamf_legacy_window_test_set_icon (lwin, "xterm_48x48");
+  bamf_legacy_window_test_set_icon (lwin, "test-bamf-icon");
   test = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
 
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
 
-  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "xterm_48x48");
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "test-bamf-icon");
 
   g_object_unref (lwin);
   g_object_unref (test);
@@ -174,19 +174,19 @@ test_icon_priority (void)
   BamfLegacyWindowTest *lwin;
   BamfWindow *test;
 
-  lwin = bamf_legacy_window_test_new (20, "window", "xterm_48x48", "xterm-color_32x32");
+  lwin = bamf_legacy_window_test_new (20, "window", "test-bamf-icon", "test-bamf-pixmap");
   bamf_legacy_window_test_set_icon (lwin, "bamf-custom-icon");
   test = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
 
   application = bamf_application_new ();
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
-  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "xterm_48x48");
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "test-bamf-icon");
   g_object_unref (application);
 
   application = bamf_application_new ();
   bamf_legacy_window_test_set_wmclass (lwin, NULL, NULL);
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
-  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "xterm-color_32x32");
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "test-bamf-pixmap");
   g_object_unref (application);
 
   application = bamf_application_new ();
@@ -232,12 +232,12 @@ test_icon_generic_exec (void)
   BamfLegacyWindowTest *lwin;
   BamfWindow *test;
 
-  lwin = bamf_legacy_window_test_new (20, "window", "class", "python");
+  lwin = bamf_legacy_window_test_new (20, "window", "class", "python2.7");
   test = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
 
   application = bamf_application_new ();
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
-  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "python");
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "python2.7");
   g_object_unref (application);
 
   application = bamf_application_new ();
