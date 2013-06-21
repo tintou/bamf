@@ -267,6 +267,9 @@ bamf_legacy_window_save_mini_icon (BamfLegacyWindow *self)
 
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
 
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->save_mini_icon)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->save_mini_icon (self);
+
   if (self->priv->mini_icon_path)
     {
       if (g_file_test (self->priv->mini_icon_path, G_FILE_TEST_EXISTS))
