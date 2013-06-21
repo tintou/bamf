@@ -28,47 +28,10 @@
 
 #define DESKTOP_FILE "/usr/share/applications/gnome-terminal.desktop"
 
-static void test_allocation          (void);
-static void test_desktop_file        (void);
-static void test_desktop_no_icon     (void);
-static void test_get_mime_types      (void);
-static void test_get_mime_types_none (void);
-static void test_urgent              (void);
-static void test_active              (void);
-static void test_get_xids            (void);
-static void test_manages_xid         (void);
-static void test_get_window          (void);
-static void test_user_visible        (void);
-static void test_urgent              (void);
-static void test_window_added        (void);
-static void test_window_removed      (void);
-
 static gboolean          signal_seen   = FALSE;
 static gboolean          signal_result = FALSE;
 static char *            signal_window = NULL;
 static GDBusConnection * gdbus_connection = NULL;
-
-void
-test_application_create_suite (GDBusConnection *connection)
-{
-#define DOMAIN "/Application"
-
-  gdbus_connection = connection;
-
-  g_test_add_func (DOMAIN"/Allocation", test_allocation);
-  g_test_add_func (DOMAIN"/DesktopFile", test_desktop_file);
-  g_test_add_func (DOMAIN"/DesktopFile/NoIcon", test_desktop_no_icon);
-  g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/Valid", test_get_mime_types);
-  g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/None", test_get_mime_types_none);
-  g_test_add_func (DOMAIN"/ManagesXid", test_manages_xid);
-  g_test_add_func (DOMAIN"/GetWindow", test_get_window);
-  g_test_add_func (DOMAIN"/Xids", test_get_xids);
-  g_test_add_func (DOMAIN"/Events/Active", test_active);
-  g_test_add_func (DOMAIN"/Events/Urgent", test_urgent);
-  g_test_add_func (DOMAIN"/Events/UserVisible", test_user_visible);
-  g_test_add_func (DOMAIN"/Events/WindowAdded", test_window_added);
-  g_test_add_func (DOMAIN"/Events/WindowRemoved", test_window_removed);
-}
 
 static void
 test_allocation (void)
@@ -108,15 +71,38 @@ test_desktop_file (void)
 }
 
 static void
-test_desktop_no_icon (void)
+test_desktop_icon (void)
 {
-  BamfApplication    *application;
+  BamfApplication *application;
+  const char *icon_desktop = TESTDIR"/data/icon.desktop";
+
+  application = bamf_application_new_from_desktop_file (icon_desktop);
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "xterm_48x48");
+  g_object_unref (application);
+}
+
+static void
+test_desktop_icon_empty (void)
+{
+  BamfApplication *application;
   const char no_icon_desktop[] = TESTDIR"/data/no-icon.desktop";
 
   application = bamf_application_new_from_desktop_file (no_icon_desktop);
-  g_assert (g_strcmp0 (bamf_application_get_desktop_file (application), no_icon_desktop) == 0);
+  g_assert_cmpstr (bamf_application_get_desktop_file (application), ==, no_icon_desktop);
 
-  g_assert (g_strcmp0(bamf_view_get_icon(BAMF_VIEW(application)), "application-default-icon") == 0);
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "application-default-icon");
+  g_object_unref (application);
+}
+
+static void
+test_desktop_icon_invalid (void)
+{
+  BamfApplication *application;
+  const char *invalid_icon_desktop = TESTDIR"/data/test-bamf-app.desktop";
+
+  application = bamf_application_new_from_desktop_file (invalid_icon_desktop);
+
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "application-default-icon");
   g_object_unref (application);
 }
 
@@ -557,4 +543,30 @@ test_window_removed (void)
 
   g_object_unref (window);
   g_object_unref (test);
+}
+
+/* Initialize test suite */
+
+void
+test_application_create_suite (GDBusConnection *connection)
+{
+#define DOMAIN "/Application"
+
+  gdbus_connection = connection;
+
+  g_test_add_func (DOMAIN"/Allocation", test_allocation);
+  g_test_add_func (DOMAIN"/DesktopFile", test_desktop_file);
+  g_test_add_func (DOMAIN"/DesktopFile/Icon", test_desktop_icon);
+  g_test_add_func (DOMAIN"/DesktopFile/Icon/Empty", test_desktop_icon_empty);
+  g_test_add_func (DOMAIN"/DesktopFile/Icon/Invalid", test_desktop_icon_invalid);
+  g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/Valid", test_get_mime_types);
+  g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/None", test_get_mime_types_none);
+  g_test_add_func (DOMAIN"/ManagesXid", test_manages_xid);
+  g_test_add_func (DOMAIN"/GetWindow", test_get_window);
+  g_test_add_func (DOMAIN"/Xids", test_get_xids);
+  g_test_add_func (DOMAIN"/Events/Active", test_active);
+  g_test_add_func (DOMAIN"/Events/Urgent", test_urgent);
+  g_test_add_func (DOMAIN"/Events/UserVisible", test_user_visible);
+  g_test_add_func (DOMAIN"/Events/WindowAdded", test_window_added);
+  g_test_add_func (DOMAIN"/Events/WindowRemoved", test_window_removed);
 }
