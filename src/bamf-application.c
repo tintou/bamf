@@ -229,7 +229,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
 
       if (!G_IS_APP_INFO (desktop))
         {
-          g_key_file_free(keyfile);
+          g_key_file_free (keyfile);
           return;
         }
 
@@ -239,8 +239,15 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
       if (gicon)
         {
           icon = g_icon_to_string (gicon);
+
+          if (!icon_name_is_valid (icon))
+            {
+              g_free (icon);
+              icon = NULL;
+            }
         }
-      else
+
+      if (!icon)
         {
           icon = g_strdup (BAMF_APPLICATION_DEFAULT_ICON);
         }
@@ -277,7 +284,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
         }
 
       g_object_unref (desktop);
-      g_key_file_free(keyfile);
+      g_key_file_free (keyfile);
     }
   else if ((children = bamf_view_get_children (BAMF_VIEW (self))) != NULL)
     {
