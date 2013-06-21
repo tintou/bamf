@@ -54,6 +54,7 @@ struct _BamfLegacyWindowTest
   guint32 xid;
   guint   pid;
   char * name;
+  char * icon;
   char * role;
   char * wm_class_name;
   char * wm_class_instance;
@@ -121,6 +122,9 @@ bamf_legacy_window_test_is_skip_tasklist (BamfLegacyWindow *legacy_window);
 
 void
 bamf_legacy_window_test_set_name (BamfLegacyWindowTest *self, const char *val);
+
+void
+bamf_legacy_window_test_set_icon (BamfLegacyWindowTest *self, const char *val);
 
 void
 bamf_legacy_window_test_set_role (BamfLegacyWindowTest *self, const char *val);

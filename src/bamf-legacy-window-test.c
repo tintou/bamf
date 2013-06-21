@@ -139,6 +139,16 @@ bamf_legacy_window_test_set_name (BamfLegacyWindowTest *self, const char *val)
 }
 
 void
+bamf_legacy_window_test_set_icon (BamfLegacyWindowTest *self, const char *val)
+{
+  if (g_strcmp0 (self->icon, val) == 0)
+    return;
+
+  g_free (self->icon);
+  self->icon = g_strdup (val);
+}
+
+void
 bamf_legacy_window_test_set_role (BamfLegacyWindowTest *self, const char *val)
 {
   if (g_strcmp0 (self->role, val) == 0)
@@ -410,12 +420,19 @@ bamf_legacy_window_test_set_hint (BamfLegacyWindow *window, const char *name, co
   return g_hash_table_insert (self->hints, g_strdup (name), g_strdup (value));
 }
 
+static const char *
+bamf_legacy_window_test_save_mini_icon (BamfLegacyWindow *window)
+{
+  return BAMF_LEGACY_WINDOW_TEST (window)->icon;
+}
+
 static void
 bamf_legacy_window_test_finalize (GObject *object)
 {
   BamfLegacyWindowTest *self = BAMF_LEGACY_WINDOW_TEST (object);
 
   g_free (self->name);
+  g_free (self->icon);
   g_free (self->role);
   g_free (self->wm_class_name);
   g_free (self->wm_class_instance);
@@ -438,6 +455,7 @@ bamf_legacy_window_test_class_init (BamfLegacyWindowTestClass *klass)
   obj_class->finalize         = bamf_legacy_window_test_finalize;
   win_class->get_transient    = bamf_legacy_window_test_get_transient;
   win_class->get_name         = bamf_legacy_window_test_get_name;
+  win_class->save_mini_icon   = bamf_legacy_window_test_save_mini_icon;
   win_class->get_role         = bamf_legacy_window_test_get_role;
   win_class->get_class_name   = bamf_legacy_window_test_get_class_name;
   win_class->get_class_instance_name = bamf_legacy_window_test_get_class_instance_name;
@@ -481,6 +499,7 @@ bamf_legacy_window_copy (BamfLegacyWindowTest *self)
   copy->xid = self->xid;
   copy->pid = self->pid;
   copy->name = g_strdup (self->name);
+  copy->icon = g_strdup (self->icon);
   copy->role = g_strdup (self->role);
   copy->wm_class_name = g_strdup (self->wm_class_name);
   copy->wm_class_instance = g_strdup (self->wm_class_instance);
