@@ -154,7 +154,7 @@ test_icon_embedded (void)
   BamfWindow *test;
 
   application = bamf_application_new ();
-  lwin = bamf_legacy_window_test_new (20, "window", "class", "execution-binary");
+  lwin = bamf_legacy_window_test_new (20, "window", "class", "python execution-script.py");
   bamf_legacy_window_test_set_icon (lwin, "xterm_48x48");
   test = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
 
@@ -175,7 +175,7 @@ test_icon_priority (void)
   BamfWindow *test;
 
   lwin = bamf_legacy_window_test_new (20, "window", "xterm_48x48", "xterm-color_32x32");
-  bamf_legacy_window_test_set_icon (lwin, "xterm_32x32");
+  bamf_legacy_window_test_set_icon (lwin, "bamf-custom-icon");
   test = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
 
   application = bamf_application_new ();
@@ -193,7 +193,57 @@ test_icon_priority (void)
   g_free (lwin->exec);
   lwin->exec = NULL;
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
-  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "xterm_32x32");
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "bamf-custom-icon");
+  g_object_unref (application);
+
+  g_object_unref (lwin);
+  g_object_unref (test);
+}
+
+static void
+test_icon_generic_class (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *test;
+
+  lwin = bamf_legacy_window_test_new (20, "window", "python", "execution-script");
+  test = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+
+  application = bamf_application_new ();
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "python");
+  g_object_unref (application);
+
+  application = bamf_application_new ();
+  bamf_legacy_window_test_set_icon (lwin, "bamf-custom-icon");
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "bamf-custom-icon");
+  g_object_unref (application);
+
+  g_object_unref (lwin);
+  g_object_unref (test);
+}
+
+static void
+test_icon_generic_exec (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *test;
+
+  lwin = bamf_legacy_window_test_new (20, "window", "class", "python");
+  test = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+
+  application = bamf_application_new ();
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "python");
+  g_object_unref (application);
+
+  application = bamf_application_new ();
+  bamf_legacy_window_test_set_icon (lwin, "bamf-custom-icon");
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "bamf-custom-icon");
   g_object_unref (application);
 
   g_object_unref (lwin);
@@ -659,6 +709,8 @@ test_application_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/DesktopLess/Icon/Exec", test_icon_exec_string);
   g_test_add_func (DOMAIN"/DesktopLess/Icon/Embedded", test_icon_embedded);
   g_test_add_func (DOMAIN"/DesktopLess/Icon/Priority", test_icon_priority);
+  g_test_add_func (DOMAIN"/DesktopLess/Icon/Generic/Class", test_icon_generic_class);
+  g_test_add_func (DOMAIN"/DesktopLess/Icon/Generic/Exec", test_icon_generic_exec);
   g_test_add_func (DOMAIN"/ManagesXid", test_manages_xid);
   g_test_add_func (DOMAIN"/GetWindow", test_get_window);
   g_test_add_func (DOMAIN"/Xids", test_get_xids);
