@@ -147,6 +147,27 @@ test_icon_exec_string (void)
 }
 
 static void
+test_icon_embedded (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *test;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", "class", "execution-path");
+  bamf_legacy_window_test_set_icon (lwin, "xterm_48x48");
+  test = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
+
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "xterm_48x48");
+
+  g_object_unref (lwin);
+  g_object_unref (test);
+  g_object_unref (application);
+}
+
+static void
 test_get_mime_types (void)
 {
   BamfApplication *application;
@@ -603,6 +624,7 @@ test_application_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/None", test_get_mime_types_none);
   g_test_add_func (DOMAIN"/DesktopLess/Icon/ClassName", test_icon_class_name);
   g_test_add_func (DOMAIN"/DesktopLess/Icon/Exec", test_icon_exec_string);
+  g_test_add_func (DOMAIN"/DesktopLess/Icon/Embedded", test_icon_embedded);
   g_test_add_func (DOMAIN"/ManagesXid", test_manages_xid);
   g_test_add_func (DOMAIN"/GetWindow", test_get_window);
   g_test_add_func (DOMAIN"/Xids", test_get_xids);
