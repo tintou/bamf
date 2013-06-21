@@ -114,7 +114,7 @@ test_icon_class_name (void)
   BamfWindow *test;
 
   application = bamf_application_new ();
-  lwin = bamf_legacy_window_test_new (20, "window", "xterm_48x48", "exec");
+  lwin = bamf_legacy_window_test_new (20, "window", "xterm_48x48", "execution-binary");
   test = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
 
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
@@ -154,7 +154,7 @@ test_icon_embedded (void)
   BamfWindow *test;
 
   application = bamf_application_new ();
-  lwin = bamf_legacy_window_test_new (20, "window", "class", "execution-path");
+  lwin = bamf_legacy_window_test_new (20, "window", "class", "execution-binary");
   bamf_legacy_window_test_set_icon (lwin, "xterm_48x48");
   test = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
 
@@ -165,6 +165,39 @@ test_icon_embedded (void)
   g_object_unref (lwin);
   g_object_unref (test);
   g_object_unref (application);
+}
+
+static void
+test_icon_priority (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *test;
+
+  lwin = bamf_legacy_window_test_new (20, "window", "xterm_48x48", "xterm-color_32x32");
+  bamf_legacy_window_test_set_icon (lwin, "xterm_32x32");
+  test = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+
+  application = bamf_application_new ();
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "xterm_48x48");
+  g_object_unref (application);
+
+  application = bamf_application_new ();
+  bamf_legacy_window_test_set_wmclass (lwin, NULL, NULL);
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "xterm-color_32x32");
+  g_object_unref (application);
+
+  application = bamf_application_new ();
+  g_free (lwin->exec);
+  lwin->exec = NULL;
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (test));
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "xterm_32x32");
+  g_object_unref (application);
+
+  g_object_unref (lwin);
+  g_object_unref (test);
 }
 
 static void
@@ -625,6 +658,7 @@ test_application_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/DesktopLess/Icon/ClassName", test_icon_class_name);
   g_test_add_func (DOMAIN"/DesktopLess/Icon/Exec", test_icon_exec_string);
   g_test_add_func (DOMAIN"/DesktopLess/Icon/Embedded", test_icon_embedded);
+  g_test_add_func (DOMAIN"/DesktopLess/Icon/Priority", test_icon_priority);
   g_test_add_func (DOMAIN"/ManagesXid", test_manages_xid);
   g_test_add_func (DOMAIN"/GetWindow", test_get_window);
   g_test_add_func (DOMAIN"/Xids", test_get_xids);
