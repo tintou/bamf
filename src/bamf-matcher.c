@@ -2224,7 +2224,7 @@ is_autostart_desktop_file (const gchar *desktop_file)
 void
 bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
                                             const gchar * desktop_file,
-                                            gint pid)
+                                            guint64 pid)
 {
   gpointer key;
   BamfLegacyScreen *screen;
