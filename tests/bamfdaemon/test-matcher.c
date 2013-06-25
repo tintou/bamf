@@ -154,6 +154,21 @@ test_load_desktop_file (void)
 }
 
 static void
+test_load_desktop_file_autostart (void)
+{
+  BamfMatcher *matcher = bamf_matcher_get_default ();
+
+  BamfMatcherPrivate *priv = matcher->priv;
+  gchar *file = g_build_filename (g_get_user_config_dir(), "autostart", "foo-app.desktop", NULL);
+
+  cleanup_matcher_tables (matcher);
+  bamf_matcher_load_desktop_file (matcher, file);
+
+  g_assert (!g_hash_table_lookup (priv->desktop_id_table, "foo-app"));
+  g_free (file);
+}
+
+static void
 test_load_desktop_file_no_display_has_lower_prio_same_id (void)
 {
   BamfMatcher *matcher = bamf_matcher_get_default ();
@@ -885,6 +900,7 @@ test_matcher_create_suite (GDBusConnection *connection)
 
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
   g_test_add_func (DOMAIN"/LoadDesktopFile", test_load_desktop_file);
+  g_test_add_func (DOMAIN"/LoadDesktopFile/Autostart", test_load_desktop_file_autostart);
   g_test_add_func (DOMAIN"/LoadDesktopFile/NoDisplay/SameID", test_load_desktop_file_no_display_has_lower_prio_same_id);
   g_test_add_func (DOMAIN"/LoadDesktopFile/NoDisplay/DifferentID", test_load_desktop_file_no_display_has_lower_prio_different_id);
   g_test_add_func (DOMAIN"/OpenWindows", test_open_windows);
