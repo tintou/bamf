@@ -38,6 +38,7 @@ G_DEFINE_TYPE_WITH_CODE (BamfApplication, bamf_application, BAMF_TYPE_VIEW,
 struct _BamfApplicationPrivate
 {
   BamfDBusItemApplication *dbus_iface;
+  BamfView * main_child;
   char * desktop_file;
   GList * desktop_file_list;
   char * app_type;
@@ -198,22 +199,23 @@ icon_name_is_generic (const char *name)
 }
 
 static void
-bamf_application_setup_icon_and_name (BamfApplication *self)
+bamf_application_setup_icon_and_name (BamfApplication *self, gboolean force)
 {
-  BamfView *view;
-  BamfWindow *window = NULL;
+  BamfWindow *window;
   GDesktopAppInfo *desktop;
   GKeyFile * keyfile;
   GIcon *gicon;
-  GList *children, *l;
   const char *class;
   char *icon = NULL, *generic_icon = NULL, *name = NULL;
   GError *error;
 
   g_return_if_fail (BAMF_IS_APPLICATION (self));
 
-  if (bamf_view_get_icon (BAMF_VIEW (self)) && bamf_view_get_name (BAMF_VIEW (self)))
-    return;
+  if (!force)
+    {
+      if (bamf_view_get_icon (BAMF_VIEW (self)) && bamf_view_get_name (BAMF_VIEW (self)))
+        return;
+    }
 
   if (self->priv->desktop_file)
     {
@@ -286,41 +288,17 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
       g_object_unref (desktop);
       g_key_file_free (keyfile);
     }
-  else if ((children = bamf_view_get_children (BAMF_VIEW (self))) != NULL)
+  else if (BAMF_IS_WINDOW (self->priv->main_child))
     {
-      for (l = children; l && !icon; l = l->next)
+      window = BAMF_WINDOW (self->priv->main_child);
+
+      do
         {
-          view = l->data;
-          if (!BAMF_IS_WINDOW (view))
-            continue;
+          class = bamf_legacy_window_get_class_name (bamf_window_get_window (window));
 
-          window = BAMF_WINDOW (view);
-
-          do
+          if (class)
             {
-              class = bamf_legacy_window_get_class_name (bamf_window_get_window (window));
-
-              if (class)
-                {
-                  icon = g_utf8_strdown (class, -1);
-
-                  if (icon_name_is_valid (icon))
-                    {
-                      if (icon_name_is_generic (icon))
-                        {
-                          generic_icon = g_strdup (icon);
-                        }
-                      else
-                        {
-                          break;
-                        }
-                    }
-                }
-
-              g_free (icon);
-              char *exec = bamf_legacy_window_get_exec_string (bamf_window_get_window (window));
-              icon = bamf_matcher_get_trimmed_exec (bamf_matcher_get_default (), exec);
-              g_free (exec);
+              icon = g_utf8_strdown (class, -1);
 
               if (icon_name_is_valid (icon))
                 {
@@ -333,14 +311,31 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
                       break;
                     }
                 }
-
-              g_free (icon);
-              icon = NULL;
             }
-          while (FALSE);
 
-          name = g_strdup (bamf_legacy_window_get_name (bamf_window_get_window (window)));
+          g_free (icon);
+          char *exec = bamf_legacy_window_get_exec_string (bamf_window_get_window (window));
+          icon = bamf_matcher_get_trimmed_exec (bamf_matcher_get_default (), exec);
+          g_free (exec);
+
+          if (icon_name_is_valid (icon))
+            {
+              if (icon_name_is_generic (icon))
+                {
+                  generic_icon = g_strdup (icon);
+                }
+              else
+                {
+                  break;
+                }
+            }
+
+          g_free (icon);
+          icon = NULL;
         }
+      while (FALSE);
+
+      name = g_strdup (bamf_view_get_name (BAMF_VIEW (window)));
 
       if (!icon)
         {
@@ -378,15 +373,16 @@ bamf_application_set_desktop_file (BamfApplication *application,
 {
   g_return_if_fail (BAMF_IS_APPLICATION (application));
 
-  if (application->priv->desktop_file)
-    g_free (application->priv->desktop_file);
+  if (g_strcmp0 (application->priv->desktop_file, desktop_file) == 0)
+    return;
+
+  g_free (application->priv->desktop_file);
+  application->priv->desktop_file = NULL;
 
   if (desktop_file && desktop_file[0] != '\0')
     application->priv->desktop_file = g_strdup (desktop_file);
-  else
-    application->priv->desktop_file = NULL;
 
-  bamf_application_setup_icon_and_name (application);
+  bamf_application_setup_icon_and_name (application, TRUE);
 }
 
 gboolean
@@ -632,22 +628,32 @@ static void
 view_exported (BamfView *view, BamfApplication *self)
 {
   g_signal_emit_by_name (self, "window-added", bamf_view_get_path (view));
+  g_signal_handlers_disconnect_by_func (view, view_exported, self);
 }
 
 static void
 bamf_application_child_added (BamfView *view, BamfView *child)
 {
   BamfApplication *application;
+  BamfWindow *window = NULL;
+  gboolean reset_emblems = FALSE;
 
   application = BAMF_APPLICATION (view);
 
   if (BAMF_IS_WINDOW (child))
     {
+      window = BAMF_WINDOW (child);
+
       if (bamf_view_is_on_bus (child))
-        g_signal_emit_by_name (BAMF_APPLICATION (view), "window-added", bamf_view_get_path (child));
+        {
+          g_signal_emit_by_name (BAMF_APPLICATION (view), "window-added",
+                                 bamf_view_get_path (child));
+        }
       else
-        g_signal_connect (G_OBJECT (child), "exported",
-                          (GCallback) view_exported, view);
+        {
+          g_signal_connect (G_OBJECT (child), "exported",
+                            (GCallback) view_exported, view);
+        }
     }
 
   g_signal_connect (G_OBJECT (child), "active-changed",
@@ -663,9 +669,28 @@ bamf_application_child_added (BamfView *view, BamfView *child)
                         (GCallback) view_xid_changed, view);
     }
 
+  if (application->priv->main_child)
+    {
+      if (window && BAMF_IS_WINDOW (application->priv->main_child))
+        {
+          BamfWindow *main_window = BAMF_WINDOW (application->priv->main_child);
+
+          if (bamf_window_get_window_type (main_window) != BAMF_WINDOW_NORMAL &&
+              bamf_window_get_window_type (window) == BAMF_WINDOW_NORMAL)
+            {
+              application->priv->main_child = child;
+            }
+        }
+    }
+  else
+    {
+      application->priv->main_child = child;
+    }
+
   bamf_application_ensure_flags (BAMF_APPLICATION (view));
 
-  bamf_application_setup_icon_and_name (application);
+  reset_emblems = (application->priv->main_child == child);
+  bamf_application_setup_icon_and_name (application, reset_emblems);
 }
 
 static char *
@@ -737,6 +762,8 @@ static void
 bamf_application_child_removed (BamfView *view, BamfView *child)
 {
   BamfApplication *self = BAMF_APPLICATION (view);
+  GList *children, *l;
+
   if (BAMF_IS_WINDOW (child))
     {
       if (bamf_view_is_on_bus (child))
@@ -748,7 +775,30 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
 
   bamf_application_ensure_flags (self);
 
-  if (!bamf_view_get_children (view) && bamf_application_get_close_when_empty (self))
+  children = bamf_view_get_children (view);
+
+  if (self->priv->main_child == child)
+    {
+      self->priv->main_child = (children ? children->data : NULL);
+
+      if (children && g_strcmp0 (self->priv->app_type, "system") == 0)
+        {
+          /* We check if we have a better target in next windows */
+          for (l = children->next; l; l = l->next)
+            {
+              if (bamf_window_get_window_type (BAMF_WINDOW (l->data)) == BAMF_WINDOW_NORMAL)
+                {
+                  self->priv->main_child = l->data;
+                  break;
+                }
+            }
+        }
+
+        if (self->priv->main_child)
+          bamf_application_setup_icon_and_name (self, TRUE);
+    }
+
+  if (!children && bamf_application_get_close_when_empty (self))
     {
       bamf_view_close (view);
     }
@@ -1084,24 +1134,12 @@ bamf_application_new_with_wmclass (const char *wmclass)
   return application;
 }
 
-/**
-    bamf_application_get_show_stubs:
-    @application: Application to check for menu stubs
-
-    Checks to see if the application should show menu stubs or not.
-    This is specified with the "X-Ayatana-Appmenu-Show-Stubs" desktop
-    file key.
-
-    Return Value: Defaults to TRUE, else FALSE if specified in
-      .desktop file.
-*/
 gboolean
 bamf_application_get_show_stubs (BamfApplication *application)
 {
   g_return_val_if_fail (BAMF_IS_APPLICATION(application), TRUE);
   return application->priv->show_stubs;
 }
-
 
 gboolean
 bamf_application_get_close_when_empty (BamfApplication *application)
