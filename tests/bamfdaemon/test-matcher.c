@@ -846,6 +846,36 @@ test_trim_exec_string (void)
   g_object_unref (matcher);
 }
 
+static void
+test_autostart_desktop_file_user (void)
+{
+  gchar *file = g_build_filename (g_get_user_config_dir(), "autostart", "foo-app.desktop", NULL);
+  g_assert (is_autostart_desktop_file (file));
+  g_free (file);
+
+  file = g_build_filename (g_get_user_config_dir(), "foo-app.desktop", NULL);
+  g_assert (!is_autostart_desktop_file (file));
+  g_free (file);
+}
+
+static void
+test_autostart_desktop_file_system (void)
+{
+  const gchar * const * data_dirs = g_get_system_config_dirs ();
+  gint i;
+
+  for (i = 0; data_dirs[i]; ++i)
+    {
+      gchar *file = g_build_filename (data_dirs[i], "autostart", "foo-app.desktop", NULL);
+      g_assert (is_autostart_desktop_file (file));
+      g_free (file);
+
+      file = g_build_filename (data_dirs[i], "foo-app.desktop", NULL);
+      g_assert (!is_autostart_desktop_file (file));
+      g_free (file);
+    }
+}
+
 /* Initialize test suite */
 
 void
@@ -868,4 +898,6 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Matching/Windows/UnmatchedOnNewDesktop", test_new_desktop_matches_unmatched_windows);
   g_test_add_func (DOMAIN"/Matching/Windows/Transient", test_match_transient_windows);
   g_test_add_func (DOMAIN"/ExecStringTrimming", test_trim_exec_string);
+  g_test_add_func (DOMAIN"/AutostartDesktopFile/User", test_autostart_desktop_file_user);
+  g_test_add_func (DOMAIN"/AutostartDesktopFile/System", test_autostart_desktop_file_system);
 }
