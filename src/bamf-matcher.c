@@ -2121,6 +2121,9 @@ bamf_matcher_load_desktop_file (BamfMatcher * self,
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
 
+  if (is_autostart_desktop_file (desktop_file))
+    return;
+
   load_desktop_file_to_table (self,
                               desktop_file,
                               self->priv->desktop_file_table,
@@ -2173,9 +2176,54 @@ bamf_matcher_load_desktop_file (BamfMatcher * self,
   g_list_free (to_rematch);
 }
 
+gboolean
+is_autostart_desktop_file (const gchar *desktop_file)
+{
+  gchar *data_dir;
+  gchar *dirname;
+  gboolean autostart;
+  gint i;
+
+  g_return_val_if_fail (desktop_file, FALSE);
+
+  autostart = FALSE;
+  dirname = g_path_get_dirname (desktop_file);
+  data_dir = g_build_filename (g_get_user_config_dir (), "autostart", NULL);
+
+  if (g_strcmp0 (dirname, data_dir) == 0)
+    {
+      autostart = TRUE;
+    }
+
+  g_free (data_dir);
+
+  if (!autostart)
+    {
+      const gchar * const * data_dirs = g_get_system_config_dirs ();
+
+      for (i = 0; data_dirs[i]; ++i)
+        {
+          data_dir = g_build_filename (data_dirs[i], "autostart", NULL);
+
+          if (g_strcmp0 (dirname, data_dir) == 0)
+            {
+              autostart = TRUE;
+              g_free (data_dir);
+              break;
+            }
+
+          g_free (data_dir);
+        }
+    }
+
+  g_free (dirname);
+
+  return autostart;
+}
+
 void
 bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
-                                            const char * desktopFile,
+                                            const gchar * desktop_file,
                                             gint pid)
 {
   gpointer key;
@@ -2183,10 +2231,13 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
   GList *windows, *l;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
-  g_return_if_fail (desktopFile);
+  g_return_if_fail (desktop_file);
+
+  if (is_autostart_desktop_file (desktop_file))
+    return;
 
   key = GUINT_TO_POINTER (pid);
-  g_hash_table_insert (self->priv->registered_pids, key, g_strdup (desktopFile));
+  g_hash_table_insert (self->priv->registered_pids, key, g_strdup (desktop_file));
 
   /* fixme, this is a bit heavy */
 
