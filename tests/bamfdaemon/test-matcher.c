@@ -151,6 +151,8 @@ test_load_desktop_file (void)
 
   const char *desktop = g_hash_table_lookup (priv->desktop_class_table, TEST_BAMF_APP_DESKTOP);
   g_assert_cmpstr (desktop, ==, "test_bamf_app");
+
+  g_object_unref (matcher);
 }
 
 static void
@@ -166,6 +168,8 @@ test_load_desktop_file_autostart (void)
 
   g_assert (!g_hash_table_lookup (priv->desktop_id_table, "foo-app"));
   g_free (file);
+
+  g_object_unref (matcher);
 }
 
 static void
@@ -191,6 +195,8 @@ test_load_desktop_file_no_display_has_lower_prio_same_id (void)
 
   g_assert (l->next);
   g_assert_cmpstr (l->next->data, ==, DATA_DIR"/no-display/test-bamf-app.desktop");
+
+  g_object_unref (matcher);
 }
 
 static void
@@ -209,6 +215,52 @@ test_load_desktop_file_no_display_has_lower_prio_different_id (void)
 
   g_assert (l->next);
   g_assert_cmpstr (l->next->data, ==, DATA_DIR"/test-bamf-app-no-display.desktop");
+
+  g_object_unref (matcher);
+}
+
+static void
+test_register_desktop_for_pid (void)
+{
+  BamfMatcher *matcher = bamf_matcher_get_default ();
+  BamfMatcherPrivate *priv = matcher->priv;
+  guint pid = g_random_int ();
+
+  bamf_matcher_register_desktop_file_for_pid (matcher, TEST_BAMF_APP_DESKTOP, pid);
+  char *desktop = g_hash_table_lookup (priv->registered_pids, GUINT_TO_POINTER (pid));
+  g_assert_cmpstr (desktop, ==, TEST_BAMF_APP_DESKTOP);
+
+  g_object_unref (matcher);
+}
+
+static void
+test_register_desktop_for_pid_big_number (void)
+{
+  BamfMatcher *matcher = bamf_matcher_get_default ();
+  BamfMatcherPrivate *priv = matcher->priv;
+
+  bamf_matcher_register_desktop_file_for_pid (matcher, TEST_BAMF_APP_DESKTOP, G_MAXINT64);
+  char *desktop = g_hash_table_lookup (priv->registered_pids, GUINT_TO_POINTER (G_MAXINT64));
+  g_assert_cmpstr (desktop, ==, TEST_BAMF_APP_DESKTOP);
+
+  g_object_unref (matcher);
+}
+
+static void
+test_register_desktop_for_pid_autostart (void)
+{
+  BamfMatcher *matcher = bamf_matcher_get_default ();
+  BamfMatcherPrivate *priv = matcher->priv;
+  guint pid = g_random_int ();
+
+  gchar *desktop = g_build_filename (g_get_user_config_dir(), "autostart", "foo-app.desktop", NULL);
+  bamf_matcher_register_desktop_file_for_pid (matcher, desktop, pid);
+  g_free (desktop);
+
+  desktop = g_hash_table_lookup (priv->registered_pids, GUINT_TO_POINTER (pid));
+  g_assert_cmpstr (desktop, ==, NULL);
+
+  g_object_unref (matcher);
 }
 
 static void
@@ -903,6 +955,9 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/LoadDesktopFile/Autostart", test_load_desktop_file_autostart);
   g_test_add_func (DOMAIN"/LoadDesktopFile/NoDisplay/SameID", test_load_desktop_file_no_display_has_lower_prio_same_id);
   g_test_add_func (DOMAIN"/LoadDesktopFile/NoDisplay/DifferentID", test_load_desktop_file_no_display_has_lower_prio_different_id);
+  g_test_add_func (DOMAIN"/RegisterDesktopForPid", test_register_desktop_for_pid);
+  g_test_add_func (DOMAIN"/RegisterDesktopForPid/BigNumber", test_register_desktop_for_pid_big_number);
+  g_test_add_func (DOMAIN"/RegisterDesktopForPid/Autostart", test_register_desktop_for_pid_autostart);
   g_test_add_func (DOMAIN"/OpenWindows", test_open_windows);
   g_test_add_func (DOMAIN"/Matching/Application/DesktopLess", test_match_desktopless_application);
   g_test_add_func (DOMAIN"/Matching/Application/Desktop", test_match_desktop_application);
