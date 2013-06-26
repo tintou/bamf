@@ -643,16 +643,22 @@ bamf_application_set_main_child (BamfApplication *self, BamfView *child)
 
   if (self->priv->main_child)
     {
+      g_object_unref (self->priv->main_child);
       g_signal_handlers_disconnect_by_func (self->priv->main_child,
                                             on_main_child_name_changed, self);
     }
 
   self->priv->main_child = child;
 
-  if (child && !self->priv->desktop_file)
+  if (self->priv->main_child)
     {
-      g_signal_connect (child, "name-changed",
-                        G_CALLBACK (on_main_child_name_changed), self);
+      g_object_ref (self->priv->main_child);
+
+      if (!self->priv->desktop_file)
+        {
+          g_signal_connect (child, "name-changed",
+                            G_CALLBACK (on_main_child_name_changed), self);
+        }
     }
 }
 
@@ -1034,6 +1040,7 @@ bamf_application_dispose (GObject *object)
   if (priv->main_child)
     {
       g_signal_handlers_disconnect_by_data (priv->main_child, app);
+      g_object_unref (priv->main_child);
       priv->main_child = NULL;
     }
 
