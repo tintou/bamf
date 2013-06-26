@@ -48,7 +48,6 @@ G_DEFINE_TYPE (BamfFactory, bamf_factory, G_TYPE_OBJECT);
 struct _BamfFactoryPrivate
 {
   GHashTable *open_views;
-  GList *local_views;
   GList *allocated_views;
 };
 
@@ -72,12 +71,6 @@ bamf_factory_dispose (GObject *object)
         }
 
       self->priv->allocated_views = NULL;
-    }
-
-  if (self->priv->local_views)
-    {
-      g_list_free (self->priv->local_views);
-      self->priv->local_views = NULL;
     }
 
   if (self->priv->open_views)
@@ -163,7 +156,6 @@ on_view_closed (BamfView *view, BamfFactory *self)
 static void
 on_view_weak_unref (BamfFactory *self, BamfView *view_was_here)
 {
-  self->priv->local_views = g_list_remove (self->priv->local_views, view_was_here);
   self->priv->allocated_views = g_list_remove (self->priv->allocated_views, view_was_here);
 }
 
@@ -199,8 +191,8 @@ _bamf_factory_app_for_file (BamfFactory * factory,
   BamfApplication *result = NULL, *app;
   GList *l;
 
-  /* check if result is available in known local_views */
-  for (l = factory->priv->local_views; l; l = l->next)
+  /* check if result is available in known allocated_views */
+  for (l = factory->priv->allocated_views; l; l = l->next)
     {
       if (!BAMF_IS_APPLICATION (l->data))
         continue;
@@ -221,7 +213,6 @@ _bamf_factory_app_for_file (BamfFactory * factory,
 
       if (BAMF_IS_APPLICATION (result))
         {
-          factory->priv->local_views = g_list_prepend (factory->priv->local_views, result);
           bamf_factory_track_view (factory, BAMF_VIEW (result));
         }
     }
