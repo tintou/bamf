@@ -643,6 +643,7 @@ test_window_added (void)
 
   g_object_unref (window);
   g_object_unref (test);
+  g_object_unref (application);
 }
 
 static void
@@ -687,6 +688,7 @@ test_window_removed (void)
 
   g_object_unref (window);
   g_object_unref (test);
+  g_object_unref (application);
 }
 
 /* Initialize test suite */
