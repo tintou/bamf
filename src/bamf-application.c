@@ -643,7 +643,8 @@ bamf_application_set_main_child (BamfApplication *self, BamfView *child)
 
   if (self->priv->main_child)
     {
-      g_object_unref (self->priv->main_child);
+      g_object_remove_weak_pointer (G_OBJECT (self->priv->main_child),
+                                    (gpointer*) &self->priv->main_child);
       g_signal_handlers_disconnect_by_func (self->priv->main_child,
                                             on_main_child_name_changed, self);
     }
@@ -652,7 +653,8 @@ bamf_application_set_main_child (BamfApplication *self, BamfView *child)
 
   if (self->priv->main_child)
     {
-      g_object_ref (self->priv->main_child);
+      g_object_add_weak_pointer (G_OBJECT (self->priv->main_child),
+                                 (gpointer*) &self->priv->main_child);
 
       if (!self->priv->desktop_file)
         {
@@ -1039,8 +1041,9 @@ bamf_application_dispose (GObject *object)
 
   if (priv->main_child)
     {
+      g_object_remove_weak_pointer (G_OBJECT (priv->main_child),
+                                    (gpointer*) &priv->main_child);
       g_signal_handlers_disconnect_by_data (priv->main_child, app);
-      g_object_unref (priv->main_child);
       priv->main_child = NULL;
     }
 
