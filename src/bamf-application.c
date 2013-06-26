@@ -783,10 +783,10 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
     {
       self->priv->main_child = (children ? children->data : NULL);
 
-      if (children && g_strcmp0 (self->priv->app_type, "system") == 0)
+      if (g_strcmp0 (self->priv->app_type, "system") == 0)
         {
           /* We check if we have a better target in next windows */
-          for (l = children->next; l; l = l->next)
+          for (l = children; l; l = l->next)
             {
               if (bamf_window_get_window_type (BAMF_WINDOW (l->data)) == BAMF_WINDOW_NORMAL)
                 {
