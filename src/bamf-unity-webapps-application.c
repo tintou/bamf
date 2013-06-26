@@ -267,7 +267,7 @@ bamf_unity_webapps_application_init (BamfUnityWebappsApplication *self)
 {
   self->priv = BAMF_UNITY_WEBAPPS_APPLICATION_GET_PRIVATE (self);
 
-  bamf_application_set_application_type (BAMF_APPLICATION (self), "webapp");
+  bamf_application_set_application_type (BAMF_APPLICATION (self), BAMF_APPLICATION_WEB);
 
 }
 

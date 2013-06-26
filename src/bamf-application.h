@@ -56,6 +56,13 @@ struct _BamfApplication
   BamfApplicationPrivate *priv;
 };
 
+typedef enum
+{
+  BAMF_APPLICATION_UNKNOWN,
+  BAMF_APPLICATION_SYSTEM,  /* BamfWindow container */
+  BAMF_APPLICATION_WEB,     /* BamfTab container */
+} BamfApplicationType;
+
 GType             bamf_application_get_type                   (void) G_GNUC_CONST;
 
 void              bamf_application_emit_supported_mime_types_changed     (BamfApplication *application);
@@ -64,7 +71,7 @@ const char      * bamf_application_get_desktop_file           (BamfApplication *
 void              bamf_application_set_desktop_file           (BamfApplication *application,
                                                                const char * desktop_file);
 
-char           ** bamf_application_get_supported_mime_types              (BamfApplication *application);
+char           ** bamf_application_get_supported_mime_types   (BamfApplication *application);
 
 GVariant        * bamf_application_get_xids                   (BamfApplication *application);
 
@@ -90,11 +97,14 @@ BamfApplication * bamf_application_new_from_desktop_files     (GList * desktop_f
 
 BamfApplication * bamf_application_new_with_wmclass           (const char *wmclass);
 
-void bamf_application_set_application_type (BamfApplication *application, const gchar *type);
+void              bamf_application_set_application_type       (BamfApplication *application,
+                                                               BamfApplicationType type);
+BamfApplicationType bamf_application_get_application_type     (BamfApplication *application);
 
-void bamf_application_get_application_menu (BamfApplication *application, gchar **name, gchar **object_path);
+void              bamf_application_get_application_menu       (BamfApplication *application,
+                                                               gchar **name, gchar **object_path);
 
-BamfView        * bamf_application_get_focusable_child             (BamfApplication *application);
+BamfView        * bamf_application_get_focusable_child        (BamfApplication *application);
 
 gboolean bamf_application_get_close_when_empty (BamfApplication *application);
 gboolean bamf_application_set_desktop_file_from_id (BamfApplication *application, const char *id);

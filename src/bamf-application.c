@@ -38,13 +38,12 @@ G_DEFINE_TYPE_WITH_CODE (BamfApplication, bamf_application, BAMF_TYPE_VIEW,
 struct _BamfApplicationPrivate
 {
   BamfDBusItemApplication *dbus_iface;
+  BamfApplicationType app_type;
   BamfView * main_child;
   char * desktop_file;
   GList * desktop_file_list;
-  char * app_type;
   char * wmclass;
   char ** mimes;
-  gboolean is_tab_container;
   gboolean show_stubs;
 };
 
@@ -137,23 +136,20 @@ bamf_application_get_supported_mime_types (BamfApplication *application)
   return g_strdupv (mimes);
 }
 
-char *
+BamfApplicationType
 bamf_application_get_application_type (BamfApplication *application)
 {
-  g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), BAMF_APPLICATION_UNKNOWN);
 
-  return g_strdup (application->priv->app_type);
+  return application->priv->app_type;
 }
 
 void
-bamf_application_set_application_type (BamfApplication *application, const gchar *type)
+bamf_application_set_application_type (BamfApplication *application, BamfApplicationType type)
 {
   g_return_if_fail (BAMF_IS_APPLICATION (application));
 
-  if (application->priv->app_type)
-    g_free (application->priv->app_type);
-
-  application->priv->app_type = g_strdup (type);
+  application->priv->app_type = type;
 }
 
 const char *
@@ -783,7 +779,7 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
     {
       self->priv->main_child = (children ? children->data : NULL);
 
-      if (g_strcmp0 (self->priv->app_type, "system") == 0)
+      if (self->priv->app_type == BAMF_APPLICATION_SYSTEM)
         {
           /* We check if we have a better target in next windows */
           for (l = children; l; l = l->next)
@@ -953,9 +949,21 @@ on_dbus_handle_application_type (BamfDBusItemApplication *interface,
                                  GDBusMethodInvocation *invocation,
                                  BamfApplication *self)
 {
-  const char *type = self->priv->app_type ? self->priv->app_type : "";
-  g_dbus_method_invocation_return_value (invocation,
-                                         g_variant_new ("(s)", type));
+  const char *type = "";
+
+  switch (self->priv->app_type)
+    {
+      case BAMF_APPLICATION_SYSTEM:
+        type = "system";
+        break;
+      case BAMF_APPLICATION_WEB:
+        type = "webapp";
+        break;
+      default:
+        type = "unknown";
+    }
+
+  g_dbus_method_invocation_return_value (invocation, g_variant_new ("(s)", type));
 
   return TRUE;
 }
@@ -979,12 +987,6 @@ bamf_application_dispose (GObject *object)
     {
       g_list_free_full (priv->desktop_file_list, g_free);
       priv->desktop_file_list = NULL;
-    }
-
-  if (priv->app_type)
-    {
-      g_free (priv->app_type);
-      priv->app_type = NULL;
     }
 
   if (priv->wmclass)
@@ -1019,10 +1021,8 @@ bamf_application_init (BamfApplication * self)
   BamfApplicationPrivate *priv;
   priv = self->priv = BAMF_APPLICATION_GET_PRIVATE (self);
 
-  priv->is_tab_container = FALSE;
-  priv->app_type = g_strdup ("system");
+  priv->app_type = BAMF_APPLICATION_SYSTEM;
   priv->show_stubs = TRUE;
-  priv->wmclass = NULL;
 
   /* Initializing the dbus interface */
   priv->dbus_iface = _bamf_dbus_item_application_skeleton_new ();
