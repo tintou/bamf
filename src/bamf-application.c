@@ -200,6 +200,7 @@ static void
 bamf_application_setup_icon_and_name (BamfApplication *self, gboolean force)
 {
   BamfWindow *window;
+  BamfLegacyWindow *legacy_window;
   GDesktopAppInfo *desktop;
   GKeyFile * keyfile;
   GIcon *gicon;
@@ -289,10 +290,11 @@ bamf_application_setup_icon_and_name (BamfApplication *self, gboolean force)
   else if (BAMF_IS_WINDOW (self->priv->main_child))
     {
       window = BAMF_WINDOW (self->priv->main_child);
+      legacy_window = bamf_window_get_window (window);
 
       do
         {
-          class = bamf_legacy_window_get_class_name (bamf_window_get_window (window));
+          class = bamf_legacy_window_get_class_name (legacy_window);
 
           if (class)
             {
@@ -312,7 +314,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self, gboolean force)
             }
 
           g_free (icon);
-          char *exec = bamf_legacy_window_get_exec_string (bamf_window_get_window (window));
+          char *exec = bamf_legacy_window_get_exec_string (legacy_window);
           icon = bamf_matcher_get_trimmed_exec (bamf_matcher_get_default (), exec);
           g_free (exec);
 
@@ -338,7 +340,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self, gboolean force)
       if (!icon)
         {
           if (window)
-            icon = g_strdup (bamf_legacy_window_save_mini_icon (bamf_window_get_window (window)));
+            icon = g_strdup (bamf_legacy_window_save_mini_icon (legacy_window));
 
           if (!icon)
             {
