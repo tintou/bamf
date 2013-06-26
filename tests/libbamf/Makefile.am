@@ -9,6 +9,7 @@ test_libbamf_SOURCES = \
 
 test_libbamf_CFLAGS = \
 	-I$(top_srcdir)/lib \
+	-I$(top_builddir)/lib \
 	-I$(top_srcdir)/lib/libbamf \
 	-I$(top_builddir)/lib/libbamf \
 	-DTESTDIR=\""$(abs_top_srcdir)/tests"\" \

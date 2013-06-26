@@ -38,9 +38,13 @@ static void
 on_bus_acquired (GDBusConnection *connection, const gchar *name, gpointer data)
 {
   GMainLoop *loop = data;
+  GtkIconTheme *icon_theme;
 
   g_setenv ("BAMF_TEST_MODE", "TRUE", TRUE);
   g_setenv ("PATH", TESTDIR"/data/bin", TRUE);
+
+  icon_theme = gtk_icon_theme_get_default ();
+  gtk_icon_theme_prepend_search_path (icon_theme, TESTDIR"/data/icons");
 
   test_matcher_create_suite (connection);
   test_view_create_suite (connection);

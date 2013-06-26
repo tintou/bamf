@@ -178,15 +178,23 @@ bamf_application_get_wmclass (BamfApplication *application)
 }
 
 static gboolean
-icon_name_is_valid (char *name)
+icon_name_is_valid (const char *name)
 {
   GtkIconTheme *icon_theme;
 
-  if (name == NULL)
+  if (!name || name[0] == '\0')
     return FALSE;
 
   icon_theme = gtk_icon_theme_get_default ();
   return gtk_icon_theme_has_icon (icon_theme, name);
+}
+
+static gboolean
+icon_name_is_generic (const char *name)
+{
+  BamfMatcher *matcher = bamf_matcher_get_default ();
+
+  return !bamf_matcher_is_valid_process_prefix (matcher, name);
 }
 
 static void
@@ -199,7 +207,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
   GIcon *gicon;
   GList *children, *l;
   const char *class;
-  char *icon = NULL, *name = NULL;
+  char *icon = NULL, *generic_icon = NULL, *name = NULL;
   GError *error;
 
   g_return_if_fail (BAMF_IS_APPLICATION (self));
@@ -221,7 +229,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
 
       if (!G_IS_APP_INFO (desktop))
         {
-          g_key_file_free(keyfile);
+          g_key_file_free (keyfile);
           return;
         }
 
@@ -231,13 +239,20 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
       if (gicon)
         {
           icon = g_icon_to_string (gicon);
+
+          if (!icon_name_is_valid (icon))
+            {
+              g_free (icon);
+              icon = NULL;
+            }
         }
-      else
+
+      if (!icon)
         {
           icon = g_strdup (BAMF_APPLICATION_DEFAULT_ICON);
         }
 
-      if (g_key_file_has_key(keyfile, G_KEY_FILE_DESKTOP_GROUP, STUB_KEY, NULL))
+      if (g_key_file_has_key (keyfile, G_KEY_FILE_DESKTOP_GROUP, STUB_KEY, NULL))
         {
           /* This will error to return false, which is okay as it seems
              unlikely anyone will want to set this flag except to turn
@@ -269,7 +284,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
         }
 
       g_object_unref (desktop);
-      g_key_file_free(keyfile);
+      g_key_file_free (keyfile);
     }
   else if ((children = bamf_view_get_children (BAMF_VIEW (self))) != NULL)
     {
@@ -290,14 +305,34 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
                   icon = g_utf8_strdown (class, -1);
 
                   if (icon_name_is_valid (icon))
-                    break;
+                    {
+                      if (icon_name_is_generic (icon))
+                        {
+                          generic_icon = g_strdup (icon);
+                        }
+                      else
+                        {
+                          break;
+                        }
+                    }
                 }
 
               g_free (icon);
-              icon = bamf_legacy_window_get_exec_string (bamf_window_get_window (window));
+              char *exec = bamf_legacy_window_get_exec_string (bamf_window_get_window (window));
+              icon = bamf_matcher_get_trimmed_exec (bamf_matcher_get_default (), exec);
+              g_free (exec);
 
               if (icon_name_is_valid (icon))
-                break;
+                {
+                  if (icon_name_is_generic (icon))
+                    {
+                      generic_icon = g_strdup (icon);
+                    }
+                  else
+                    {
+                      break;
+                    }
+                }
 
               g_free (icon);
               icon = NULL;
@@ -310,28 +345,31 @@ bamf_application_setup_icon_and_name (BamfApplication *self)
       if (!icon)
         {
           if (window)
-            {
-              icon = g_strdup (bamf_legacy_window_save_mini_icon (bamf_window_get_window (window)));
-            }
+            icon = g_strdup (bamf_legacy_window_save_mini_icon (bamf_window_get_window (window)));
 
           if (!icon)
             {
-              icon = g_strdup (BAMF_APPLICATION_DEFAULT_ICON);
+              if (generic_icon)
+                {
+                  icon = generic_icon;
+                  generic_icon = NULL;
+                }
+              else
+                {
+                  icon = g_strdup (BAMF_APPLICATION_DEFAULT_ICON);
+                }
             }
         }
-    }
-  else
-    {
-      /* we do nothing as we have nothing to go on */
+
+      g_free (generic_icon);
+      generic_icon = NULL;
     }
 
-  if (icon)
-    bamf_view_set_icon (BAMF_VIEW (self), icon);
-
-  if (name)
-    bamf_view_set_name (BAMF_VIEW (self), name);
+  bamf_view_set_icon (BAMF_VIEW (self), icon);
+  bamf_view_set_name (BAMF_VIEW (self), name);
 
   g_free (name);
+  g_free (icon);
 }
 
 void
