@@ -689,7 +689,9 @@ bamf_application_child_added (BamfView *view, BamfView *child)
 
   bamf_application_ensure_flags (BAMF_APPLICATION (view));
 
-  reset_emblems = (application->priv->main_child == child);
+  if (application->priv->desktop_file && application->priv->main_child == child)
+    reset_emblems = TRUE;
+
   bamf_application_setup_icon_and_name (application, reset_emblems);
 }
 
@@ -795,7 +797,10 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
         }
 
         if (self->priv->main_child)
-          bamf_application_setup_icon_and_name (self, TRUE);
+          {
+            gboolean reset_emblems = (self->priv->desktop_file != NULL);
+            bamf_application_setup_icon_and_name (self, reset_emblems);
+          }
     }
 
   if (!children && bamf_application_get_close_when_empty (self))
