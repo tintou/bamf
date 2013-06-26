@@ -57,6 +57,8 @@ static guint application_signals[LAST_SIGNAL] = { 0 };
 
 #define STUB_KEY  "X-Ayatana-Appmenu-Show-Stubs"
 
+static void on_main_child_name_changed (BamfView *, const gchar *, const gchar *, BamfApplication *);
+
 void
 bamf_application_supported_mime_types_changed (BamfApplication *application,
                                                const gchar **new_mimes)
@@ -378,6 +380,12 @@ bamf_application_set_desktop_file (BamfApplication *application,
   if (desktop_file && desktop_file[0] != '\0')
     application->priv->desktop_file = g_strdup (desktop_file);
 
+  if (application->priv->main_child)
+    {
+      g_signal_handlers_disconnect_by_func (application->priv->main_child,
+                                            on_main_child_name_changed, application);
+    }
+
   bamf_application_setup_icon_and_name (application, TRUE);
 }
 
@@ -621,6 +629,34 @@ view_xid_changed (GObject *object, GParamSpec *pspec, gpointer user_data)
 }
 
 static void
+on_main_child_name_changed (BamfView *child, const gchar *old_name,
+                            const gchar *new_name, BamfApplication *self)
+{
+  bamf_view_set_name (BAMF_VIEW (self), new_name);
+}
+
+static void
+bamf_application_set_main_child (BamfApplication *self, BamfView *child)
+{
+  if (self->priv->main_child == child)
+    return;
+
+  if (self->priv->main_child)
+    {
+      g_signal_handlers_disconnect_by_func (self->priv->main_child,
+                                            on_main_child_name_changed, self);
+    }
+
+  self->priv->main_child = child;
+
+  if (child && !self->priv->desktop_file)
+    {
+      g_signal_connect (child, "name-changed",
+                        G_CALLBACK (on_main_child_name_changed), self);
+    }
+}
+
+static void
 view_exported (BamfView *view, BamfApplication *self)
 {
   g_signal_emit_by_name (self, "window-added", bamf_view_get_path (view));
@@ -674,13 +710,13 @@ bamf_application_child_added (BamfView *view, BamfView *child)
           if (bamf_window_get_window_type (main_window) != BAMF_WINDOW_NORMAL &&
               bamf_window_get_window_type (window) == BAMF_WINDOW_NORMAL)
             {
-              application->priv->main_child = child;
+              bamf_application_set_main_child (application, child);
             }
         }
     }
   else
     {
-      application->priv->main_child = child;
+      bamf_application_set_main_child (application, child);
     }
 
   bamf_application_ensure_flags (BAMF_APPLICATION (view));
@@ -777,7 +813,7 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
 
   if (self->priv->main_child == child)
     {
-      self->priv->main_child = (children ? children->data : NULL);
+      bamf_application_set_main_child (self, (children ? children->data : NULL));
 
       if (self->priv->app_type == BAMF_APPLICATION_SYSTEM)
         {
@@ -786,7 +822,7 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
             {
               if (bamf_window_get_window_type (BAMF_WINDOW (l->data)) == BAMF_WINDOW_NORMAL)
                 {
-                  self->priv->main_child = l->data;
+                  bamf_application_set_main_child (self, l->data);
                   break;
                 }
             }
@@ -993,6 +1029,12 @@ bamf_application_dispose (GObject *object)
     {
       g_free (priv->wmclass);
       priv->wmclass = NULL;
+    }
+
+  if (priv->main_child)
+    {
+      g_signal_handlers_disconnect_by_data (priv->main_child, app);
+      priv->main_child = NULL;
     }
 
   g_strfreev (priv->mimes);
