@@ -26,49 +26,11 @@
 #include "bamf-legacy-window.h"
 #include "bamf-legacy-window-test.h"
 
-static void test_allocation (void);
-static void test_load_desktop_file (void);
-static void test_load_desktop_file_no_display_has_lower_prio_same_id (void);
-static void test_load_desktop_file_no_display_has_lower_prio_different_id (void);
-static void test_open_windows (void);
-static void test_match_desktopless_application (void);
-static void test_match_desktop_application (void);
-static void test_match_libreoffice_windows (void);
-static void test_match_gnome_control_center_panels (void);
-static void test_match_javaws_windows (void);
-static void test_match_javaws_windows_hint_ignored (void);
-static void test_match_javaws_windows_no_desktop_match (void);
-static void test_new_desktop_matches_unmatched_windows (void);
-static void test_match_transient_windows (void);
-static void test_trim_exec_string (void);
-
 static GDBusConnection *gdbus_connection = NULL;
 
 #define DOMAIN "/Matcher"
 #define DATA_DIR TESTDIR "/data"
 #define TEST_BAMF_APP_DESKTOP DATA_DIR "/test-bamf-app.desktop"
-
-void
-test_matcher_create_suite (GDBusConnection *connection)
-{
-  gdbus_connection = connection;
-
-  g_test_add_func (DOMAIN"/Allocation", test_allocation);
-  g_test_add_func (DOMAIN"/LoadDesktopFile", test_load_desktop_file);
-  g_test_add_func (DOMAIN"/LoadDesktopFile/NoDisplay/SameID", test_load_desktop_file_no_display_has_lower_prio_same_id);
-  g_test_add_func (DOMAIN"/LoadDesktopFile/NoDisplay/DifferentID", test_load_desktop_file_no_display_has_lower_prio_different_id);
-  g_test_add_func (DOMAIN"/OpenWindows", test_open_windows);
-  g_test_add_func (DOMAIN"/Matching/Application/DesktopLess", test_match_desktopless_application);
-  g_test_add_func (DOMAIN"/Matching/Application/Desktop", test_match_desktop_application);
-  g_test_add_func (DOMAIN"/Matching/Application/LibreOffice", test_match_libreoffice_windows);
-  g_test_add_func (DOMAIN"/Matching/Application/GnomeControlCenter", test_match_gnome_control_center_panels);
-  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart", test_match_javaws_windows);
-  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart/HintIngored", test_match_javaws_windows_hint_ignored);
-  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart/NoDesktopMatch", test_match_javaws_windows_no_desktop_match);
-  g_test_add_func (DOMAIN"/Matching/Windows/UnmatchedOnNewDesktop", test_new_desktop_matches_unmatched_windows);
-  g_test_add_func (DOMAIN"/Matching/Windows/Transient", test_match_transient_windows);
-  g_test_add_func (DOMAIN"/ExecStringTrimming", test_trim_exec_string);
-}
 
 static void
 export_matcher_on_bus (BamfMatcher *matcher)
@@ -189,6 +151,25 @@ test_load_desktop_file (void)
 
   const char *desktop = g_hash_table_lookup (priv->desktop_class_table, TEST_BAMF_APP_DESKTOP);
   g_assert_cmpstr (desktop, ==, "test_bamf_app");
+
+  g_object_unref (matcher);
+}
+
+static void
+test_load_desktop_file_autostart (void)
+{
+  BamfMatcher *matcher = bamf_matcher_get_default ();
+
+  BamfMatcherPrivate *priv = matcher->priv;
+  gchar *file = g_build_filename (g_get_user_config_dir(), "autostart", "foo-app.desktop", NULL);
+
+  cleanup_matcher_tables (matcher);
+  bamf_matcher_load_desktop_file (matcher, file);
+
+  g_assert (!g_hash_table_lookup (priv->desktop_id_table, "foo-app"));
+  g_free (file);
+
+  g_object_unref (matcher);
 }
 
 static void
@@ -214,6 +195,8 @@ test_load_desktop_file_no_display_has_lower_prio_same_id (void)
 
   g_assert (l->next);
   g_assert_cmpstr (l->next->data, ==, DATA_DIR"/no-display/test-bamf-app.desktop");
+
+  g_object_unref (matcher);
 }
 
 static void
@@ -232,6 +215,52 @@ test_load_desktop_file_no_display_has_lower_prio_different_id (void)
 
   g_assert (l->next);
   g_assert_cmpstr (l->next->data, ==, DATA_DIR"/test-bamf-app-no-display.desktop");
+
+  g_object_unref (matcher);
+}
+
+static void
+test_register_desktop_for_pid (void)
+{
+  BamfMatcher *matcher = bamf_matcher_get_default ();
+  BamfMatcherPrivate *priv = matcher->priv;
+  guint pid = g_random_int ();
+
+  bamf_matcher_register_desktop_file_for_pid (matcher, TEST_BAMF_APP_DESKTOP, pid);
+  char *desktop = g_hash_table_lookup (priv->registered_pids, GUINT_TO_POINTER (pid));
+  g_assert_cmpstr (desktop, ==, TEST_BAMF_APP_DESKTOP);
+
+  g_object_unref (matcher);
+}
+
+static void
+test_register_desktop_for_pid_big_number (void)
+{
+  BamfMatcher *matcher = bamf_matcher_get_default ();
+  BamfMatcherPrivate *priv = matcher->priv;
+
+  bamf_matcher_register_desktop_file_for_pid (matcher, TEST_BAMF_APP_DESKTOP, G_MAXINT64);
+  char *desktop = g_hash_table_lookup (priv->registered_pids, GUINT_TO_POINTER (G_MAXINT64));
+  g_assert_cmpstr (desktop, ==, TEST_BAMF_APP_DESKTOP);
+
+  g_object_unref (matcher);
+}
+
+static void
+test_register_desktop_for_pid_autostart (void)
+{
+  BamfMatcher *matcher = bamf_matcher_get_default ();
+  BamfMatcherPrivate *priv = matcher->priv;
+  guint pid = g_random_int ();
+
+  gchar *desktop = g_build_filename (g_get_user_config_dir(), "autostart", "foo-app.desktop", NULL);
+  bamf_matcher_register_desktop_file_for_pid (matcher, desktop, pid);
+  g_free (desktop);
+
+  desktop = g_hash_table_lookup (priv->registered_pids, GUINT_TO_POINTER (pid));
+  g_assert_cmpstr (desktop, ==, NULL);
+
+  g_object_unref (matcher);
 }
 
 static void
@@ -882,4 +911,64 @@ test_trim_exec_string (void)
   g_free (trimmed);
 
   g_object_unref (matcher);
+}
+
+static void
+test_autostart_desktop_file_user (void)
+{
+  gchar *file = g_build_filename (g_get_user_config_dir(), "autostart", "foo-app.desktop", NULL);
+  g_assert (is_autostart_desktop_file (file));
+  g_free (file);
+
+  file = g_build_filename (g_get_user_config_dir(), "foo-app.desktop", NULL);
+  g_assert (!is_autostart_desktop_file (file));
+  g_free (file);
+}
+
+static void
+test_autostart_desktop_file_system (void)
+{
+  const gchar * const * data_dirs = g_get_system_config_dirs ();
+  gint i;
+
+  for (i = 0; data_dirs[i]; ++i)
+    {
+      gchar *file = g_build_filename (data_dirs[i], "autostart", "foo-app.desktop", NULL);
+      g_assert (is_autostart_desktop_file (file));
+      g_free (file);
+
+      file = g_build_filename (data_dirs[i], "foo-app.desktop", NULL);
+      g_assert (!is_autostart_desktop_file (file));
+      g_free (file);
+    }
+}
+
+/* Initialize test suite */
+
+void
+test_matcher_create_suite (GDBusConnection *connection)
+{
+  gdbus_connection = connection;
+
+  g_test_add_func (DOMAIN"/Allocation", test_allocation);
+  g_test_add_func (DOMAIN"/LoadDesktopFile", test_load_desktop_file);
+  g_test_add_func (DOMAIN"/LoadDesktopFile/Autostart", test_load_desktop_file_autostart);
+  g_test_add_func (DOMAIN"/LoadDesktopFile/NoDisplay/SameID", test_load_desktop_file_no_display_has_lower_prio_same_id);
+  g_test_add_func (DOMAIN"/LoadDesktopFile/NoDisplay/DifferentID", test_load_desktop_file_no_display_has_lower_prio_different_id);
+  g_test_add_func (DOMAIN"/RegisterDesktopForPid", test_register_desktop_for_pid);
+  g_test_add_func (DOMAIN"/RegisterDesktopForPid/BigNumber", test_register_desktop_for_pid_big_number);
+  g_test_add_func (DOMAIN"/RegisterDesktopForPid/Autostart", test_register_desktop_for_pid_autostart);
+  g_test_add_func (DOMAIN"/OpenWindows", test_open_windows);
+  g_test_add_func (DOMAIN"/Matching/Application/DesktopLess", test_match_desktopless_application);
+  g_test_add_func (DOMAIN"/Matching/Application/Desktop", test_match_desktop_application);
+  g_test_add_func (DOMAIN"/Matching/Application/LibreOffice", test_match_libreoffice_windows);
+  g_test_add_func (DOMAIN"/Matching/Application/GnomeControlCenter", test_match_gnome_control_center_panels);
+  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart", test_match_javaws_windows);
+  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart/HintIngored", test_match_javaws_windows_hint_ignored);
+  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart/NoDesktopMatch", test_match_javaws_windows_no_desktop_match);
+  g_test_add_func (DOMAIN"/Matching/Windows/UnmatchedOnNewDesktop", test_new_desktop_matches_unmatched_windows);
+  g_test_add_func (DOMAIN"/Matching/Windows/Transient", test_match_transient_windows);
+  g_test_add_func (DOMAIN"/ExecStringTrimming", test_trim_exec_string);
+  g_test_add_func (DOMAIN"/AutostartDesktopFile/User", test_autostart_desktop_file_user);
+  g_test_add_func (DOMAIN"/AutostartDesktopFile/System", test_autostart_desktop_file_system);
 }

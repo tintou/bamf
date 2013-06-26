@@ -54,4 +54,6 @@ BamfApplication * bamf_matcher_get_application_by_xid (BamfMatcher *self, guint 
 char * bamf_matcher_get_trimmed_exec (BamfMatcher *self, const char *exec);
 gboolean bamf_matcher_is_valid_process_prefix (BamfMatcher *self, const char *exec);
 
+gboolean is_autostart_desktop_file (const gchar *desktop_file);
+
 #endif
