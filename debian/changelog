@@ -1,3 +1,24 @@
+bamf (0.5.0+13.10.20130628-0ubuntu1) saucy; urgency=low
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfDaemon, LibBamf: Make the BamfView's name a property, deprecated
+    method+signal.
+  * BamfDaemon, LibBamf: add icon property to store the BamfView icon
+    and notify about its changes. New tests added.
+  * BamfMatcher: ignore registered .desktop files that are in an
+    autostart-folder. (LP: #1193502)
+  * BamfApplication: try to use a window icon if the computed icon
+    belongs to a "generic" app Added a bunch of new BamfApplication
+    tests for icon. (LP: #768931, #1007383)
+  * BamfFactory: remove the local_views list, we don't need that anymore
+    Having them tracked on allocated_views list is enough, and fixes an
+    issue as explained on bug #1193559. (LP: #1193449, #1193559)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 560
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 28 Jun 2013 02:02:32 +0000
+
 bamf (0.5.0daily13.06.19-0ubuntu1) saucy; urgency=low
 
   [ Marco Trevisan (Treviño) ]
