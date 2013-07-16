@@ -34,6 +34,20 @@ void test_window_create_suite (void);
 
 static int result = 1;
 
+static gboolean
+not_fatal_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
+                       const gchar *message, gpointer user_data)
+{
+  // Don't crash if used
+  return FALSE;
+}
+
+void
+ignore_fatal_errors (void)
+{
+  g_test_log_set_fatal_handler (not_fatal_log_handler, NULL);
+}
+
 static void
 on_bus_acquired (GDBusConnection *connection, const gchar *name, gpointer data)
 {

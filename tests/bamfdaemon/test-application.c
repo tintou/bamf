@@ -27,7 +27,9 @@
 #include "bamf-legacy-window.h"
 #include "bamf-legacy-window-test.h"
 
-#define DESKTOP_FILE "/usr/share/applications/gnome-terminal.desktop"
+#define DESKTOP_FILE TESTDIR"/data/test-bamf-app.desktop"
+
+void ignore_fatal_errors (void);
 
 static gboolean          signal_seen   = FALSE;
 static gboolean          signal_result = FALSE;
@@ -66,7 +68,7 @@ write_data_to_tmp_file (const gchar *data)
 static void
 test_allocation (void)
 {
-  BamfApplication    *application;
+  BamfApplication *application;
 
   /* Check it allocates */
   application = bamf_application_new ();
@@ -81,12 +83,47 @@ test_allocation (void)
 }
 
 static void
+test_type (void)
+{
+  BamfApplication *application = bamf_application_new ();
+  g_assert_cmpuint (bamf_application_get_application_type (application), ==, BAMF_APPLICATION_SYSTEM);
+
+  g_object_unref (application);
+}
+
+static void
+test_type_set (void)
+{
+  BamfApplication *application = bamf_application_new ();
+
+  bamf_application_set_application_type (application, BAMF_APPLICATION_WEB);
+  g_assert_cmpuint (bamf_application_get_application_type (application), ==, BAMF_APPLICATION_WEB);
+
+  bamf_application_set_application_type (application, BAMF_APPLICATION_SYSTEM);
+  g_assert_cmpuint (bamf_application_get_application_type (application), ==, BAMF_APPLICATION_SYSTEM);
+
+  g_object_unref (application);
+}
+
+static void
+test_type_set_invalid (void)
+{
+  ignore_fatal_errors();
+  BamfApplication *application = bamf_application_new ();
+
+  bamf_application_set_application_type (application, BAMF_APPLICATION_UNKNOWN);
+  g_assert_cmpuint (bamf_application_get_application_type (application), ==, BAMF_APPLICATION_SYSTEM);
+
+  bamf_application_set_application_type (application, -1);
+  g_assert_cmpuint (bamf_application_get_application_type (application), ==, BAMF_APPLICATION_SYSTEM);
+
+  g_object_unref (application);
+}
+
+static void
 test_desktop_file (void)
 {
-  BamfApplication    *application;
-
-  /* Check it allocates */
-  application = bamf_application_new ();
+  BamfApplication *application = bamf_application_new ();
   g_assert (bamf_application_get_desktop_file (application) == NULL);
 
   bamf_application_set_desktop_file (application, DESKTOP_FILE);
@@ -733,6 +770,7 @@ test_window_added (void)
 
   g_object_unref (window);
   g_object_unref (test);
+  g_object_unref (application);
 }
 
 static void
@@ -777,6 +815,287 @@ test_window_removed (void)
 
   g_object_unref (window);
   g_object_unref (test);
+  g_object_unref (application);
+}
+
+static void
+test_desktop_app_main_child (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win;
+
+  application = bamf_application_new_from_desktop_file (DESKTOP_FILE);
+  lwin = bamf_legacy_window_test_new (20, "window", "test-bamf-icon", "execution-binary");
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+
+  g_assert (!bamf_application_get_main_child (application));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+  g_assert (bamf_application_get_main_child (application) == BAMF_VIEW (win));
+
+  g_object_unref (lwin);
+  g_object_unref (win);
+  g_object_unref (application);
+}
+
+static void
+test_desktop_app_main_child_doesnt_match_emblems (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win;
+
+  application = bamf_application_new_from_desktop_file (DESKTOP_FILE);
+  lwin = bamf_legacy_window_test_new (20, "window", "python", "execution-binary");
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+  g_assert_cmpstr (bamf_view_get_name (BAMF_VIEW (application)), !=, "window");
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), !=, "python");
+
+  g_object_unref (lwin);
+  g_object_unref (win);
+  g_object_unref (application);
+}
+
+static void
+test_desktop_app_main_child_doesnt_update_emblems (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win;
+
+  application = bamf_application_new_from_desktop_file (DESKTOP_FILE);
+  lwin = bamf_legacy_window_test_new (20, "window", "python", "execution-binary");
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+  bamf_legacy_window_test_set_name (lwin, "New Window Name");
+  g_assert_cmpstr (bamf_view_get_name (BAMF_VIEW (application)), !=, "New Window Name");
+
+  bamf_legacy_window_test_set_name (lwin, "even-new-name");
+  g_assert_cmpstr (bamf_view_get_name (BAMF_VIEW (application)), !=, "even-new-name");
+
+  g_object_unref (lwin);
+  g_object_unref (win);
+  g_object_unref (application);
+}
+
+static void
+test_app_main_child (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", "test-bamf-icon", "execution-binary");
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+
+  g_assert (!bamf_application_get_main_child (application));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+  g_assert (bamf_application_get_main_child (application) == BAMF_VIEW (win));
+
+  g_object_unref (lwin);
+  g_object_unref (win);
+
+  g_assert (!bamf_application_get_main_child (application));
+  g_object_unref (application);
+}
+
+static void
+test_app_main_child_matches_emblems (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", "test-bamf-icon", "execution-binary");
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+  g_assert_cmpstr (bamf_view_get_name (BAMF_VIEW (application)), ==, "window");
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "test-bamf-icon");
+
+  g_object_unref (lwin);
+  g_object_unref (win);
+  g_object_unref (application);
+}
+
+static void
+test_app_main_child_updates_emblems (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", "test-bamf-icon", "execution-binary");
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+  bamf_legacy_window_test_set_name (lwin, "New Window Name");
+  g_assert_cmpstr (bamf_view_get_name (BAMF_VIEW (application)), ==, "New Window Name");
+
+  bamf_legacy_window_test_set_name (lwin, "even-new-name");
+  g_assert_cmpstr (bamf_view_get_name (BAMF_VIEW (application)), ==, "even-new-name");
+
+  g_object_unref (lwin);
+  g_object_unref (win);
+  g_object_unref (application);
+}
+
+static void
+test_app_main_child_multiple_children (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win1;
+  GList *wins = NULL;
+  GList *lwins = NULL;
+  int i;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", "test-bamf-icon", "execution-binary");
+  win1 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  g_object_unref (lwin);
+
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win1));
+
+  for (i = 0; i < 10; ++i)
+    {
+      lwin = bamf_legacy_window_test_new (i, "other-window", "", "execution-binary");
+      lwins = g_list_prepend (lwins, lwin);
+      wins = g_list_prepend (wins, bamf_window_new (BAMF_LEGACY_WINDOW (lwin)));
+      bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (wins->data));
+
+      g_assert (bamf_application_get_main_child (application) == BAMF_VIEW (win1));
+      g_assert_cmpstr (bamf_view_get_name (BAMF_VIEW (application)), ==, "window");
+      g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "test-bamf-icon");
+    }
+
+  g_assert (bamf_application_get_main_child (application) == BAMF_VIEW (win1));
+
+  g_object_unref (win1);
+  g_object_unref (application);
+  g_list_free_full (wins, g_object_unref);
+  g_list_free_full (lwins, g_object_unref);
+}
+
+static void
+test_app_main_child_normal_priority (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *dialog, *win;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (10, "dialog", "python", "execution-binary");
+  lwin->window_type = BAMF_WINDOW_DIALOG;
+  dialog = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  g_object_unref (lwin);
+
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (dialog));
+  g_assert (bamf_application_get_main_child (application) == BAMF_VIEW (dialog));
+
+  g_assert_cmpstr (bamf_view_get_name (BAMF_VIEW (application)), ==, "dialog");
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "python");
+
+  lwin = bamf_legacy_window_test_new (20, "window", "test-bamf-icon", "execution-binary");
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  g_object_unref (lwin);
+
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+  g_assert (bamf_application_get_main_child (application) == BAMF_VIEW (win));
+
+  g_assert_cmpstr (bamf_view_get_name (BAMF_VIEW (application)), ==, "window");
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "test-bamf-icon");
+
+  g_object_unref (dialog);
+  g_object_unref (win);
+  g_object_unref (application);
+}
+
+static void
+test_app_main_child_on_window_removal (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win1, *win2, *win3, *win4, *dialog;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (10, "window1", NULL, "execution-binary");
+  win1 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win1));
+  g_object_unref (lwin);
+
+  lwin = bamf_legacy_window_test_new (20, "window2", NULL, "execution-binary");
+  win2 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win2));
+  g_object_unref (lwin);
+
+  lwin = bamf_legacy_window_test_new (21, "dialog", NULL, "execution-binary");
+  lwin->window_type = BAMF_WINDOW_DIALOG;
+  dialog = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (dialog));
+  g_object_unref (lwin);
+
+  lwin = bamf_legacy_window_test_new (30, "window3", NULL, "execution-binary");
+  win3 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win3));
+  g_object_unref (lwin);
+
+  lwin = bamf_legacy_window_test_new (40, "window4", NULL, "execution-binary");
+  win4 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win4));
+  g_object_unref (lwin);
+
+  g_assert (bamf_application_get_main_child (application) == BAMF_VIEW (win1));
+
+  bamf_view_remove_child (BAMF_VIEW (application), BAMF_VIEW (win4));
+  g_assert (bamf_application_get_main_child (application) == BAMF_VIEW (win1));
+
+  bamf_view_remove_child (BAMF_VIEW (application), BAMF_VIEW (win1));
+  g_assert (bamf_application_get_main_child (application) == BAMF_VIEW (win2));
+
+  bamf_view_remove_child (BAMF_VIEW (application), BAMF_VIEW (win2));
+  g_assert (bamf_application_get_main_child (application) == BAMF_VIEW (win3));
+
+  bamf_view_remove_child (BAMF_VIEW (application), BAMF_VIEW (win3));
+  g_assert (bamf_application_get_main_child (application) == BAMF_VIEW (dialog));
+
+  bamf_view_remove_child (BAMF_VIEW (application), BAMF_VIEW (dialog));
+  g_assert (!bamf_application_get_main_child (application));
+
+  g_object_unref (win1);
+  g_object_unref (win2);
+  g_object_unref (win3);
+  g_object_unref (win4);
+  g_object_unref (dialog);
+  g_object_unref (application);
+}
+
+static void
+test_app_main_child_on_window_replace_on_removal (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", "test-bamf-icon", "execution-binary");
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+  g_assert (bamf_application_get_main_child (application) == BAMF_VIEW (win));
+  bamf_view_remove_child (BAMF_VIEW (application), BAMF_VIEW (win));
+  g_assert (!bamf_application_get_main_child (application));
+  bamf_legacy_window_test_set_name (lwin, "don't crash here!");
+
+  g_object_unref (lwin);
+  g_object_unref (win);
+  g_object_unref (application);
 }
 
 /* Initialize test suite */
@@ -789,6 +1108,9 @@ test_application_create_suite (GDBusConnection *connection)
   gdbus_connection = connection;
 
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
+  g_test_add_func (DOMAIN"/Type", test_type);
+  g_test_add_func (DOMAIN"/Type/Set", test_type_set);
+  g_test_add_func (DOMAIN"/Type/Set/Invalid", test_type_set_invalid);
   g_test_add_func (DOMAIN"/DesktopFile", test_desktop_file);
   g_test_add_func (DOMAIN"/DesktopFile/Icon", test_desktop_icon);
   g_test_add_func (DOMAIN"/DesktopFile/Icon/Empty", test_desktop_icon_empty);
@@ -797,12 +1119,22 @@ test_application_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/DesktopFile/Icon/FullPath/Invalid", test_icon_full_path_invalid);
   g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/Valid", test_get_mime_types);
   g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/None", test_get_mime_types_none);
+  g_test_add_func (DOMAIN"/DesktopFile/MainChild", test_desktop_app_main_child);
+  g_test_add_func (DOMAIN"/DesktopFile/MainChild/NotMatchEmblems", test_desktop_app_main_child_doesnt_match_emblems);
+  g_test_add_func (DOMAIN"/DesktopFile/MainChild/NotUpdatesEmblems", test_desktop_app_main_child_doesnt_update_emblems);
   g_test_add_func (DOMAIN"/DesktopLess/Icon/ClassName", test_icon_class_name);
   g_test_add_func (DOMAIN"/DesktopLess/Icon/Exec", test_icon_exec_string);
   g_test_add_func (DOMAIN"/DesktopLess/Icon/Embedded", test_icon_embedded);
   g_test_add_func (DOMAIN"/DesktopLess/Icon/Priority", test_icon_priority);
   g_test_add_func (DOMAIN"/DesktopLess/Icon/Generic/Class", test_icon_generic_class);
   g_test_add_func (DOMAIN"/DesktopLess/Icon/Generic/Exec", test_icon_generic_exec);
+  g_test_add_func (DOMAIN"/DesktopLess/MainChild", test_app_main_child);
+  g_test_add_func (DOMAIN"/DesktopLess/MainChild/MatchesEmblems", test_app_main_child_matches_emblems);
+  g_test_add_func (DOMAIN"/DesktopLess/MainChild/UpdatesEmblems", test_app_main_child_updates_emblems);
+  g_test_add_func (DOMAIN"/DesktopLess/MainChild/MultipleChildren", test_app_main_child_multiple_children);
+  g_test_add_func (DOMAIN"/DesktopLess/MainChild/NormalPriority", test_app_main_child_normal_priority);
+  g_test_add_func (DOMAIN"/DesktopLess/MainChild/Removal", test_app_main_child_on_window_removal);
+  g_test_add_func (DOMAIN"/DesktopLess/MainChild/ReplaceOnRemoval", test_app_main_child_on_window_replace_on_removal);
   g_test_add_func (DOMAIN"/ManagesXid", test_manages_xid);
   g_test_add_func (DOMAIN"/GetWindow", test_get_window);
   g_test_add_func (DOMAIN"/Xids", test_get_xids);

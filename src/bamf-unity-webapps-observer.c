@@ -204,7 +204,10 @@ bamf_unity_webapps_observer_finalize (GObject *object)
 
   g_hash_table_destroy (observer->priv->applications_by_context_name);
 
-  g_bus_unwatch_name (observer->priv->service_watch_id);
+  if (observer->priv->service_watch_id)
+    {
+      g_bus_unwatch_name (observer->priv->service_watch_id);
+    }
 
   if (observer->priv->service)
     {
@@ -224,6 +227,9 @@ bamf_unity_webapps_observer_constructed (GObject *object)
     {
       G_OBJECT_CLASS (bamf_unity_webapps_observer_parent_class)->constructed (object);
     }
+
+  if (g_strcmp0 (g_getenv ("BAMF_TEST_MODE"), "TRUE") == 0)
+    return;
 
   observer->priv->service_watch_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
                                                        "com.canonical.Unity.Webapps.Service",
