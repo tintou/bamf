@@ -29,6 +29,8 @@
 
 #define DESKTOP_FILE "/usr/share/applications/gnome-terminal.desktop"
 
+void ignore_fatal_errors (void);
+
 static gboolean          signal_seen   = FALSE;
 static gboolean          signal_result = FALSE;
 static char *            signal_window = NULL;
@@ -96,6 +98,24 @@ test_type_set (void)
 
   bamf_application_set_application_type (application, BAMF_APPLICATION_WEB);
   g_assert_cmpuint (bamf_application_get_application_type (application), ==, BAMF_APPLICATION_WEB);
+
+  bamf_application_set_application_type (application, BAMF_APPLICATION_SYSTEM);
+  g_assert_cmpuint (bamf_application_get_application_type (application), ==, BAMF_APPLICATION_SYSTEM);
+
+  g_object_unref (application);
+}
+
+static void
+test_type_set_invalid (void)
+{
+  ignore_fatal_errors();
+  BamfApplication *application = bamf_application_new ();
+
+  bamf_application_set_application_type (application, BAMF_APPLICATION_UNKNOWN);
+  g_assert_cmpuint (bamf_application_get_application_type (application), ==, BAMF_APPLICATION_SYSTEM);
+
+  bamf_application_set_application_type (application, -1);
+  g_assert_cmpuint (bamf_application_get_application_type (application), ==, BAMF_APPLICATION_SYSTEM);
 
   g_object_unref (application);
 }
@@ -810,6 +830,7 @@ test_application_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
   g_test_add_func (DOMAIN"/Type", test_type);
   g_test_add_func (DOMAIN"/Type/Set", test_type_set);
+  g_test_add_func (DOMAIN"/Type/Set/Invalid", test_type_set_invalid);
   g_test_add_func (DOMAIN"/DesktopFile", test_desktop_file);
   g_test_add_func (DOMAIN"/DesktopFile/Icon", test_desktop_icon);
   g_test_add_func (DOMAIN"/DesktopFile/Icon/Empty", test_desktop_icon_empty);
