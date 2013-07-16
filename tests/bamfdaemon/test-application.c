@@ -83,12 +83,19 @@ test_allocation (void)
 static void
 test_type (void)
 {
-  BamfApplication *application;
-
-  /* Check it allocates */
-  application = bamf_application_new ();
-  g_assert (BAMF_IS_APPLICATION (application));
+  BamfApplication *application = bamf_application_new ();
   g_assert_cmpuint (bamf_application_get_application_type (application), ==, BAMF_APPLICATION_SYSTEM);
+
+  g_object_unref (application);
+}
+
+static void
+test_type_set (void)
+{
+  BamfApplication *application = bamf_application_new ();
+
+  bamf_application_set_application_type (application, BAMF_APPLICATION_WEB);
+  g_assert_cmpuint (bamf_application_get_application_type (application), ==, BAMF_APPLICATION_WEB);
 
   g_object_unref (application);
 }
@@ -96,10 +103,7 @@ test_type (void)
 static void
 test_desktop_file (void)
 {
-  BamfApplication *application;
-
-  /* Check it allocates */
-  application = bamf_application_new ();
+  BamfApplication *application = bamf_application_new ();
   g_assert (bamf_application_get_desktop_file (application) == NULL);
 
   bamf_application_set_desktop_file (application, DESKTOP_FILE);
@@ -805,6 +809,7 @@ test_application_create_suite (GDBusConnection *connection)
 
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
   g_test_add_func (DOMAIN"/Type", test_type);
+  g_test_add_func (DOMAIN"/Type/Set", test_type_set);
   g_test_add_func (DOMAIN"/DesktopFile", test_desktop_file);
   g_test_add_func (DOMAIN"/DesktopFile/Icon", test_desktop_icon);
   g_test_add_func (DOMAIN"/DesktopFile/Icon/Empty", test_desktop_icon_empty);
