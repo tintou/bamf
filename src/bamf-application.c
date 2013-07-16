@@ -667,6 +667,14 @@ bamf_application_set_main_child (BamfApplication *self, BamfView *child)
     }
 }
 
+BamfView *
+bamf_application_get_main_child (BamfApplication *self)
+{
+  g_return_val_if_fail (BAMF_IS_APPLICATION (self), NULL);
+
+  return self->priv->main_child;
+}
+
 static void
 view_exported (BamfView *view, BamfApplication *self)
 {
@@ -824,12 +832,14 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
 
   if (self->priv->main_child == child)
     {
+      /* Giving priority to older windows, and BamfView has a reversed list */
+      children = g_list_last (children);
       bamf_application_set_main_child (self, (children ? children->data : NULL));
 
       if (self->priv->app_type == BAMF_APPLICATION_SYSTEM)
         {
           /* We check if we have a better target in next windows */
-          for (l = children; l; l = l->next)
+          for (l = children; l; l = l->prev)
             {
               if (bamf_window_get_window_type (BAMF_WINDOW (l->data)) == BAMF_WINDOW_NORMAL)
                 {

@@ -106,6 +106,8 @@ void              bamf_application_get_application_menu       (BamfApplication *
 
 BamfView        * bamf_application_get_focusable_child        (BamfApplication *application);
 
+BamfView        * bamf_application_get_main_child             (BamfApplication *application);
+
 gboolean bamf_application_get_close_when_empty (BamfApplication *application);
 gboolean bamf_application_set_desktop_file_from_id (BamfApplication *application, const char *id);
 
