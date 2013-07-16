@@ -150,6 +150,7 @@ void
 bamf_application_set_application_type (BamfApplication *application, BamfApplicationType type)
 {
   g_return_if_fail (BAMF_IS_APPLICATION (application));
+  g_return_if_fail (type >= 0 && type < BAMF_APPLICATION_UNKNOWN);
 
   application->priv->app_type = type;
 }

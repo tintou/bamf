@@ -58,9 +58,9 @@ struct _BamfApplication
 
 typedef enum
 {
-  BAMF_APPLICATION_UNKNOWN,
   BAMF_APPLICATION_SYSTEM,  /* BamfWindow container */
   BAMF_APPLICATION_WEB,     /* BamfTab container */
+  BAMF_APPLICATION_UNKNOWN,
 } BamfApplicationType;
 
 GType             bamf_application_get_type                   (void) G_GNUC_CONST;
