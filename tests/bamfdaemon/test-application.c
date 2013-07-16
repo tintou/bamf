@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <glib.h>
 #include <glib-object.h>
+#include <string.h>
 #include "bamf-application.h"
 #include "bamf-window.h"
 #include "bamf-legacy-window.h"
@@ -32,6 +33,35 @@ static gboolean          signal_seen   = FALSE;
 static gboolean          signal_result = FALSE;
 static char *            signal_window = NULL;
 static GDBusConnection * gdbus_connection = NULL;
+
+static GFile *
+write_data_to_tmp_file (const gchar *data)
+{
+  GFile *tmp;
+  GFileIOStream *iostream;
+  GOutputStream *output;
+
+  tmp = g_file_new_tmp (NULL, &iostream, NULL);
+
+  if (!tmp)
+    {
+      if (iostream)
+        g_object_unref (iostream);
+
+      return NULL;
+    }
+
+  output = g_io_stream_get_output_stream (G_IO_STREAM (iostream));
+  if (!g_output_stream_write_all (output, data, strlen (data), NULL, NULL, NULL))
+    {
+      g_object_unref (tmp);
+      tmp = NULL;
+    }
+
+  g_object_unref (output);
+
+  return tmp;
+}
 
 static void
 test_allocation (void)
@@ -90,7 +120,7 @@ test_desktop_icon_empty (void)
   application = bamf_application_new_from_desktop_file (no_icon_desktop);
   g_assert_cmpstr (bamf_application_get_desktop_file (application), ==, no_icon_desktop);
 
-  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "application-default-icon");
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, BAMF_APPLICATION_DEFAULT_ICON);
   g_object_unref (application);
 }
 
@@ -102,7 +132,7 @@ test_desktop_icon_invalid (void)
 
   application = bamf_application_new_from_desktop_file (invalid_icon_desktop);
 
-  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, "application-default-icon");
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, BAMF_APPLICATION_DEFAULT_ICON);
   g_object_unref (application);
 }
 
@@ -248,6 +278,66 @@ test_icon_generic_exec (void)
 
   g_object_unref (lwin);
   g_object_unref (test);
+}
+
+static void
+test_icon_full_path (void)
+{
+  BamfApplication *application;
+  GKeyFile *key_file;
+  const char* test_app = TESTDIR"/data/test-bamf-app.desktop";
+  const char* test_icon = TESTDIR"/data/icons/test-bamf-icon.png";
+
+  g_assert (g_file_test (test_icon, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR));
+
+  key_file = g_key_file_new ();
+  g_key_file_load_from_file (key_file, test_app, (GKeyFileFlags)0, NULL);
+  g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_ICON, test_icon);
+
+  gchar *key_data = g_key_file_to_data (key_file, NULL, NULL);
+  GFile *tmp_file = write_data_to_tmp_file (key_data);
+  gchar *path = g_file_get_path (tmp_file);
+
+  application = bamf_application_new_from_desktop_file (path);
+  g_file_delete (tmp_file, NULL, NULL);
+  g_object_unref (tmp_file);
+  g_key_file_free (key_file);
+  g_free (key_data);
+  g_free (path);
+
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, test_icon);
+
+  g_object_unref (application);
+}
+
+static void
+test_icon_full_path_invalid (void)
+{
+  BamfApplication *application;
+  GKeyFile *key_file;
+  const char* test_app = TESTDIR"/data/test-bamf-app.desktop";
+  const char* invalid_test_icon = TESTDIR"/data/icons/not-existent-icon-file.png";
+
+  g_assert (!g_file_test (invalid_test_icon, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR));
+
+  key_file = g_key_file_new ();
+  g_key_file_load_from_file (key_file, test_app, (GKeyFileFlags)0, NULL);
+  g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_ICON, invalid_test_icon);
+
+  gchar *key_data = g_key_file_to_data (key_file, NULL, NULL);
+  GFile *tmp_file = write_data_to_tmp_file (key_data);
+  gchar *path = g_file_get_path (tmp_file);
+
+  application = bamf_application_new_from_desktop_file (path);
+  g_file_delete (tmp_file, NULL, NULL);
+  g_object_unref (tmp_file);
+  g_key_file_free (key_file);
+  g_free (key_data);
+  g_free (path);
+
+  g_assert_cmpstr (bamf_view_get_icon (BAMF_VIEW (application)), ==, BAMF_APPLICATION_DEFAULT_ICON);
+
+  g_object_unref (application);
 }
 
 static void
@@ -703,6 +793,8 @@ test_application_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/DesktopFile/Icon", test_desktop_icon);
   g_test_add_func (DOMAIN"/DesktopFile/Icon/Empty", test_desktop_icon_empty);
   g_test_add_func (DOMAIN"/DesktopFile/Icon/Invalid", test_desktop_icon_invalid);
+  g_test_add_func (DOMAIN"/DesktopFile/Icon/FullPath", test_icon_full_path);
+  g_test_add_func (DOMAIN"/DesktopFile/Icon/FullPath/Invalid", test_icon_full_path_invalid);
   g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/Valid", test_get_mime_types);
   g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/None", test_get_mime_types_none);
   g_test_add_func (DOMAIN"/DesktopLess/Icon/ClassName", test_icon_class_name);
