@@ -1,3 +1,15 @@
+bamf (0.5.0+13.10.20130716-0ubuntu1) saucy; urgency=low
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfApplication: if the .desktop file contains the full-path of an
+    icon we should use it If the parsed icon is a file, then we just use
+    it without asking gtk if it's valid for theme. . (LP: #1201408)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 562
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 16 Jul 2013 02:01:55 +0000
+
 bamf (0.5.0+13.10.20130628-0ubuntu1) saucy; urgency=low
 
   [ Marco Trevisan (Treviño) ]
