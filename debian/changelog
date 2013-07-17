@@ -1,3 +1,17 @@
+bamf (0.5.0+13.10.20130717-0ubuntu1) saucy; urgency=low
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfApplication: keep track of the application main-window and
+    update name and icon accordingly Applications without a .desktop
+    file should update their name and icon based on their children. So
+    now we try to compute the main window children, and we update name
+    and icon based on it. (LP: #751909)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 564
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 17 Jul 2013 02:01:42 +0000
+
 bamf (0.5.0+13.10.20130716-0ubuntu1) saucy; urgency=low
 
   [ Marco Trevisan (Treviño) ]
