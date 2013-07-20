@@ -176,12 +176,12 @@ bamf_application_get_application_menu (BamfApplication *application,
   if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return FALSE;
 
-GCC_IGNORE_DEPRECATED_BEGIN
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
   if (!_bamf_dbus_item_application_call_application_menu_sync (priv->proxy, name,
                                                                object_path,
                                                                CANCELLABLE (application),
                                                                &error))
-GCC_IGNORE_DEPRECATED_END
+G_GNUC_END_IGNORE_DEPRECATIONS
     {
       *name = NULL;
       *object_path = NULL;
