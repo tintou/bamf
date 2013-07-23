@@ -814,6 +814,10 @@ test_trim_exec_string (void)
   g_assert_cmpstr (trimmed, ==, "bad-prefix-bin");
   g_free (trimmed);
 
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "gksu python very-bad-prefix-script.py");
+  g_assert_cmpstr (trimmed, ==, "very-bad-prefix-script");
+  g_free (trimmed);
+
   trimmed = bamf_matcher_get_trimmed_exec (matcher, "sudo --opt val=X /usr/bin/bad-prefix-bin");
   g_assert_cmpstr (trimmed, ==, "bad-prefix-bin");
   g_free (trimmed);
@@ -828,6 +832,22 @@ test_trim_exec_string (void)
 
   trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/python %u --option val=/path");
   g_assert_cmpstr (trimmed, ==, "python");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/mono /usr/share/bar/Foo.exe");
+  g_assert_cmpstr (trimmed, ==, "foo.exe");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/mono %u --option val=/path");
+  g_assert_cmpstr (trimmed, ==, "mono");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/cli /usr/share/foo/Bar.exe");
+  g_assert_cmpstr (trimmed, ==, "bar.exe");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/cli %u --option val=/path");
+  g_assert_cmpstr (trimmed, ==, "cli");
   g_free (trimmed);
 
   trimmed = bamf_matcher_get_trimmed_exec (matcher, "sh -c \"binary --option --value %U || exec binary\"");
