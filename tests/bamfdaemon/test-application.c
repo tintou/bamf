@@ -1098,6 +1098,84 @@ test_app_main_child_on_window_replace_on_removal (void)
   g_object_unref (application);
 }
 
+static void
+test_contain_similar_to_window (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win, *win1, *win2, *win3;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", NULL, "binary");
+  bamf_legacy_window_test_set_wmclass (lwin, "ClassName", "ClassInstance");
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+  g_object_unref (lwin);
+
+  lwin = bamf_legacy_window_test_new (30, "window1", NULL, "binary1");
+  bamf_legacy_window_test_set_wmclass (lwin, "ClassName", "ClassInstance");
+  win1 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  g_object_unref (lwin);
+  g_assert (bamf_application_contains_similar_to_window (application, win1));
+
+  lwin = bamf_legacy_window_test_new (40, "window2", NULL, "binary2");
+  bamf_legacy_window_test_set_wmclass (lwin, "ClassName", "ClassInstance2");
+  win2 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  g_object_unref (lwin);
+  g_assert (!bamf_application_contains_similar_to_window (application, win2));
+
+  lwin = bamf_legacy_window_test_new (50, "window3", NULL, "binary3");
+  bamf_legacy_window_test_set_wmclass (lwin, "ClassName3", "ClassInstance");
+  win3 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  g_object_unref (lwin);
+  g_assert (!bamf_application_contains_similar_to_window (application, win3));
+
+  g_object_unref (win);
+  g_object_unref (win1);
+  g_object_unref (win2);
+  g_object_unref (win3);
+  g_object_unref (application);
+}
+
+static void
+test_contain_similar_to_window_null (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win, *win1, *win2, *win3;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", NULL, "binary");
+  bamf_legacy_window_test_set_wmclass (lwin, NULL, NULL);
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+  g_object_unref (lwin);
+
+  lwin = bamf_legacy_window_test_new (30, "window1", NULL, "binary1");
+  bamf_legacy_window_test_set_wmclass (lwin, NULL, NULL);
+  win1 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  g_object_unref (lwin);
+  g_assert (bamf_application_contains_similar_to_window (application, win1));
+
+  lwin = bamf_legacy_window_test_new (40, "window2", NULL, "binary2");
+  bamf_legacy_window_test_set_wmclass (lwin, "ClassName", NULL);
+  win2 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  g_object_unref (lwin);
+  g_assert (!bamf_application_contains_similar_to_window (application, win2));
+
+  lwin = bamf_legacy_window_test_new (50, "window3", NULL, "binary3");
+  bamf_legacy_window_test_set_wmclass (lwin, NULL, "ClassInstance");
+  win3 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  g_object_unref (lwin);
+  g_assert (!bamf_application_contains_similar_to_window (application, win3));
+
+  g_object_unref (win);
+  g_object_unref (win1);
+  g_object_unref (win2);
+  g_object_unref (win3);
+  g_object_unref (application);
+}
+
 /* Initialize test suite */
 
 void
@@ -1108,6 +1186,8 @@ test_application_create_suite (GDBusConnection *connection)
   gdbus_connection = connection;
 
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
+  g_test_add_func (DOMAIN"/ContainsSimilarToWindow", test_contain_similar_to_window);
+  g_test_add_func (DOMAIN"/ContainsSimilarToWindow/Null", test_contain_similar_to_window_null);
   g_test_add_func (DOMAIN"/Type", test_type);
   g_test_add_func (DOMAIN"/Type/Set", test_type_set);
   g_test_add_func (DOMAIN"/Type/Set/Invalid", test_type_set_invalid);
