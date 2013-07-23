@@ -1550,18 +1550,18 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
   filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
 
   if (!filter_by_wmclass)
-  {
-    if (is_web_app_window (window))
-      {
-        // This ensures that a new application is created even for unknown webapps
-        filter_by_wmclass = TRUE;
-      }
-    else
-      {
-        target_class = class_name;
-        filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
-      }
-  }
+    {
+      if (is_web_app_window (window))
+        {
+          // This ensures that a new application is created even for unknown webapps
+          filter_by_wmclass = TRUE;
+        }
+      else
+        {
+          target_class = class_name;
+          filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
+        }
+    }
 
   if (desktop_file)
     {
