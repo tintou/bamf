@@ -397,7 +397,7 @@ bamf_matcher_get_trimmed_exec (BamfMatcher * self, const char * exec_string)
   for (i = 0; i < parts_size; ++i)
     {
       part = parts[i];
-      if (*part == '%' || g_utf8_strrchr (part, -1, '='))
+      if (*part == '%' || *part == '$' || g_utf8_strrchr (part, -1, '='))
         continue;
 
       if (*part != '-' || good_prefix)
