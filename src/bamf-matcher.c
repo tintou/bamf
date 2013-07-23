@@ -60,10 +60,13 @@ const gchar* EXEC_BAD_PREFIXES[] =
 {
   "^gksu(do)?$", "^sudo$", "^su-to-root$", "^amdxdg-su$", "^java(ws)?$", "^cli$",
   "^mono$", "^ruby$", "^padsp$", "^aoss$", "^python(\\d.\\d)?$", "^(ba)?sh$",
-  "^perl$", "^env$", "^xdg-open$",
+  "^perl$", "^env$", "^xdg-open$", "^qmlscene$", "^qmlviewer$",
   /* javaws strings: */ "^net\\.sourceforge\\.jnlp\\.runtime\\.Boot$", "^rt\\.jar$",
                         "^com\\.sun\\.javaws\\.Main$", "^deploy\\.jar$"
 };
+
+// Sufixes to be ignored in exec strings
+const gchar* EXEC_BAD_SUFIXES = "(\\.bin|\\.py|\\.pl|\\.qml)$";
 
 // Prefixes that must be considered starting point of exec strings
 const gchar* EXEC_GOOD_PREFIXES[] =
@@ -472,7 +475,7 @@ bamf_matcher_get_trimmed_exec (BamfMatcher * self, const char * exec_string)
     {
       tmp = result;
 
-      regex = g_regex_new ("(\\.bin|\\.py|\\.pl)$", 0, 0, NULL);
+      regex = g_regex_new (EXEC_BAD_SUFIXES, 0, 0, NULL);
       result = g_regex_replace_literal (regex, result, -1, 0, "", 0, NULL);
 
       g_free (tmp);
