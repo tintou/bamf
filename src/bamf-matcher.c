@@ -1350,7 +1350,7 @@ bamf_matcher_possible_applications_for_window_process (BamfMatcher *self, BamfLe
 {
   BamfMatcherPrivate *priv;
   GList *result = NULL, *table_list, *l;
-  char *exec_string;
+  const char *exec_string;
   char *trimmed;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
@@ -1376,7 +1376,6 @@ bamf_matcher_possible_applications_for_window_process (BamfMatcher *self, BamfLe
             }
           g_free (trimmed);
         }
-      g_free (exec_string);
     }
 
   if (result)
@@ -1794,9 +1793,8 @@ bamf_matcher_get_application_for_window (BamfMatcher *self,
       const gchar *app_desktop_class;
 
       const char *win_instance_name = bamf_legacy_window_get_class_instance_name (window);
-      char *exec_string = bamf_legacy_window_get_exec_string (window);
+      const char *exec_string = bamf_legacy_window_get_exec_string (window);
       char *trimmed_exec = bamf_matcher_get_trimmed_exec (self, exec_string);
-      g_free (exec_string);
 
       if (trimmed_exec || win_class_name || win_instance_name)
         {
@@ -1819,9 +1817,8 @@ bamf_matcher_get_application_for_window (BamfMatcher *self,
                         continue;
 
                       BamfLegacyWindow *w = bamf_window_get_window (BAMF_WINDOW (ll->data));
-                      char *wexec = bamf_legacy_window_get_exec_string (w);
+                      const char *wexec = bamf_legacy_window_get_exec_string (w);
                       char *wtrimmed = bamf_matcher_get_trimmed_exec (self, wexec);
-                      g_free (wexec);
 
                       if (g_strcmp0 (trimmed_exec, wtrimmed) == 0)
                         {
