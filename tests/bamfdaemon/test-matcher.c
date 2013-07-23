@@ -876,6 +876,22 @@ test_trim_exec_string (void)
   g_assert_cmpstr (trimmed, ==, "myprog");
   g_free (trimmed);
 
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/qmlscene my-app.qml");
+  g_assert_cmpstr (trimmed, ==, "my-app");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "qmlscene /home/user/new-app.qml");
+  g_assert_cmpstr (trimmed, ==, "new-app");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "qmlscene $var /home/user/var-new-app.qml");
+  g_assert_cmpstr (trimmed, ==, "var-new-app");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "qmlscene --option -foo /home/user/opt-app.qml");
+  g_assert_cmpstr (trimmed, ==, "opt-app");
+  g_free (trimmed);
+
   const char *exec = "/usr/lib/jvm/java-6-openjdk-amd64/jre/bin/java " \
                      "-Xbootclasspath/a:/usr/share/icedtea-web/netx.jar " \
                      "-Xms8m -Djava.security.manager " \
