@@ -1010,6 +1010,18 @@ test_trim_exec_string (void)
   g_assert_cmpstr (trimmed, ==, "opt-app");
   g_free (trimmed);
 
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "qmlscene --desktop_file_hint deskapp.desktop desktop-app1.qml");
+  g_assert_cmpstr (trimmed, ==, "desktop-app1");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "qmlscene desktop-app2.qml --desktop_file_hint deskapp.desktop");
+  g_assert_cmpstr (trimmed, ==, "desktop-app2");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "qmlscene desktop-app3.qml --desktop_file_hint");
+  g_assert_cmpstr (trimmed, ==, "desktop-app3");
+  g_free (trimmed);
+
   const char *exec = "/usr/lib/jvm/java-6-openjdk-amd64/jre/bin/java " \
                      "-Xbootclasspath/a:/usr/share/icedtea-web/netx.jar " \
                      "-Xms8m -Djava.security.manager " \
