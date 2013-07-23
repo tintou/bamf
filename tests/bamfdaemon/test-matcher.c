@@ -717,6 +717,49 @@ test_match_javaws_windows_no_desktop_match (void)
 }
 
 static void
+test_match_qml_app_no_desktop (void)
+{
+  BamfMatcher *matcher;
+  BamfLegacyScreen *screen;
+  BamfLegacyWindowTest *test_win;
+  BamfApplication *app1, *app2, *app3;
+
+  screen = bamf_legacy_screen_get_default ();
+  matcher = bamf_matcher_get_default ();
+  cleanup_matcher_tables (matcher);
+  export_matcher_on_bus (matcher);
+
+  guint xid = g_random_int ();
+  test_win = bamf_legacy_window_test_new (xid, "QmlApp1", NULL, "qmlscene qmlapp1.qml");
+  bamf_legacy_window_test_set_wmclass (test_win, NULL, NULL);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  app1 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert (BAMF_IS_APPLICATION (app1));
+
+  xid = g_random_int ();
+  test_win = bamf_legacy_window_test_new (xid, "QmlApp2", NULL, "qmlscene qmlapp2.qml");
+  bamf_legacy_window_test_set_wmclass (test_win, NULL, NULL);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  app2 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert (BAMF_IS_APPLICATION (app2));
+  g_assert (app1 != app2);
+
+  xid = g_random_int ();
+  test_win = bamf_legacy_window_test_new (xid, "QmlApp2", NULL, "qmlscene qmlapp2.qml");
+  bamf_legacy_window_test_set_wmclass (test_win, NULL, NULL);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  app3 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert (BAMF_IS_APPLICATION (app3));
+  g_assert (app2 == app3);
+
+  g_object_unref (matcher);
+  g_object_unref (screen);
+}
+
+static void
 test_match_transient_windows (void)
 {
   BamfMatcher *matcher;
@@ -899,6 +942,7 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart", test_match_javaws_windows);
   g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart/HintIngored", test_match_javaws_windows_hint_ignored);
   g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart/NoDesktopMatch", test_match_javaws_windows_no_desktop_match);
+  g_test_add_func (DOMAIN"/Matching/Application/Qml/NoDesktopMatch", test_match_qml_app_no_desktop);
   g_test_add_func (DOMAIN"/Matching/Windows/UnmatchedOnNewDesktop", test_new_desktop_matches_unmatched_windows);
   g_test_add_func (DOMAIN"/Matching/Windows/Transient", test_match_transient_windows);
   g_test_add_func (DOMAIN"/ExecStringTrimming", test_trim_exec_string);
