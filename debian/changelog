@@ -1,3 +1,14 @@
+bamf (0.5.0+13.10.20130724-0ubuntu1) saucy; urgency=low
+
+  [ Marco Trevisan (Treviño) ]
+  * "BamfPrivate, no need to define depreaction macro, GLib includes
+    one.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 566
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 24 Jul 2013 02:02:33 +0000
+
 bamf (0.5.0+13.10.20130717-0ubuntu1) saucy; urgency=low
 
   [ Marco Trevisan (Treviño) ]
