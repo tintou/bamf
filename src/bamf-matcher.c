@@ -75,6 +75,8 @@ const gchar* EXEC_GOOD_PREFIXES[] =
   "^sol$"
 };
 
+const gchar * EXEC_DESKTOP_FILE_OVERRIDE = "--desktop_file_hint";
+
 static void
 on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
 {
@@ -400,6 +402,13 @@ bamf_matcher_get_trimmed_exec (BamfMatcher * self, const char * exec_string)
       if (*part == '%' || *part == '$' || g_utf8_strrchr (part, -1, '='))
         continue;
 
+      if (i+1 < parts_size && g_strcmp0 (parts[i], EXEC_DESKTOP_FILE_OVERRIDE) == 0)
+        {
+          /* Skip if the .desktop file is overridden using the exec parameter */
+          ++i;
+          continue;
+        }
+
       if (*part != '-' || good_prefix)
         {
           if (!result)
@@ -480,6 +489,37 @@ bamf_matcher_get_trimmed_exec (BamfMatcher * self, const char * exec_string)
 
       g_free (tmp);
       g_regex_unref (regex);
+    }
+
+  g_strfreev (parts);
+
+  return result;
+}
+
+char *
+get_exec_overridden_desktop_file (const char *exec_string)
+{
+  gchar *result = NULL;
+  gchar **parts;
+  gint i, parts_size;
+
+  if (!exec_string || exec_string[0] == '\0')
+    return result;
+
+  if (!g_shell_parse_argv (exec_string, &parts_size, &parts, NULL))
+    return result;
+
+  for (i = 0; i < parts_size; ++i)
+    {
+      if (i+1 < parts_size && g_strcmp0 (parts[i], EXEC_DESKTOP_FILE_OVERRIDE) == 0)
+        {
+          if (g_str_has_suffix (parts[i+1], ".desktop") &&
+              g_file_test (parts[i+1], G_FILE_TEST_EXISTS|G_FILE_TEST_IS_REGULAR))
+            {
+              result = g_strdup (parts[i+1]);
+              break;
+            }
+        }
     }
 
   g_strfreev (parts);
@@ -1573,6 +1613,16 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
       else
         {
           g_free (desktop_file);
+        }
+    }
+  else
+    {
+      const char *exec_string = bamf_legacy_window_get_exec_string (window);
+      desktop_file = get_exec_overridden_desktop_file (exec_string);
+
+      if (desktop_file)
+        {
+          desktop_files = g_list_prepend (desktop_files, desktop_file);
         }
     }
 
