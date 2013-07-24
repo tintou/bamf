@@ -51,7 +51,8 @@ static guint legacy_window_signals[LAST_SIGNAL] = { 0 };
 struct _BamfLegacyWindowPrivate
 {
   WnckWindow * legacy_window;
-  char       * mini_icon_path;
+  gchar      * mini_icon_path;
+  gchar      * exec_string;
   gboolean     is_closed;
 };
 
@@ -218,10 +219,9 @@ bamf_legacy_window_get_process_name (BamfLegacyWindow *self)
   return result;
 }
 
-char *
+const char *
 bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
 {
-  gchar *result = NULL;
   gint pid = 0, i = 0;
   gchar **argv = NULL;
   GString *exec = NULL;
@@ -231,6 +231,9 @@ bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
 
   if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_exec_string)
     return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_exec_string (self);
+
+  if (self->priv->exec_string)
+    return self->priv->exec_string;
 
   pid = bamf_legacy_window_get_pid (self);
 
@@ -251,9 +254,10 @@ bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
 
   g_free (argv);
 
-  result = g_strdup (exec->str);
+  self->priv->exec_string = g_strdup (exec->str);
   g_string_free (exec, TRUE);
-  return result;
+
+  return self->priv->exec_string;
 }
 
 const char *
@@ -564,7 +568,6 @@ bamf_legacy_window_dispose (GObject *object)
 
   self = BAMF_LEGACY_WINDOW (object);
 
-
   if (self->priv->mini_icon_path)
     {
       file = g_file_new_for_path (self->priv->mini_icon_path);
@@ -573,6 +576,12 @@ bamf_legacy_window_dispose (GObject *object)
 
       g_free (self->priv->mini_icon_path);
       self->priv->mini_icon_path = NULL;
+    }
+
+  if (self->priv->exec_string)
+    {
+      g_free (self->priv->exec_string);
+      self->priv->exec_string = NULL;
     }
 
   g_signal_handlers_disconnect_by_data (wnck_screen_get_default (), self);

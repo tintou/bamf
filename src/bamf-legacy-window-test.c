@@ -231,14 +231,14 @@ bamf_legacy_window_test_get_class_instance_name (BamfLegacyWindow *legacy_window
   return self->wm_class_instance;
 }
 
-char *
+const char *
 bamf_legacy_window_test_get_exec_string (BamfLegacyWindow *legacy_window)
 {
   BamfLegacyWindowTest *self;
 
   self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
 
-  return g_strdup (self->exec);
+  return self->exec;
 }
 
 char *
