@@ -1602,15 +1602,6 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
         }
     }
 
-  if (!desktop_file)
-    {
-      const char *exec_string = bamf_legacy_window_get_exec_string (window);
-      desktop_file = get_exec_overridden_desktop_file (exec_string);
-
-      if (desktop_file)
-        filter_by_wmclass = FALSE;
-    }
-
   if (desktop_file)
     {
       desktop_class = bamf_matcher_get_desktop_file_class (self, desktop_file);
@@ -1622,6 +1613,16 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
       else
         {
           g_free (desktop_file);
+        }
+    }
+  else
+    {
+      const char *exec_string = bamf_legacy_window_get_exec_string (window);
+      desktop_file = get_exec_overridden_desktop_file (exec_string);
+
+      if (desktop_file)
+        {
+          desktop_files = g_list_prepend (desktop_files, desktop_file);
         }
     }
 
