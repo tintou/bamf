@@ -58,12 +58,15 @@ static guint matcher_signals[LAST_SIGNAL] = { 0 };
 // Prefixes to be ignored in exec strings
 const gchar* EXEC_BAD_PREFIXES[] =
 {
-  "^gksu(do)?$", "^sudo$", "^su-to-root$", "^amdxdg-su$", "^java(ws)?$",
+  "^gksu(do)?$", "^sudo$", "^su-to-root$", "^amdxdg-su$", "^java(ws)?$", "^cli$",
   "^mono$", "^ruby$", "^padsp$", "^aoss$", "^python(\\d.\\d)?$", "^(ba)?sh$",
-  "^perl$", "^env$", "^xdg-open$",
+  "^perl$", "^env$", "^xdg-open$", "^qmlscene$", "^qmlviewer$",
   /* javaws strings: */ "^net\\.sourceforge\\.jnlp\\.runtime\\.Boot$", "^rt\\.jar$",
                         "^com\\.sun\\.javaws\\.Main$", "^deploy\\.jar$"
 };
+
+// Sufixes to be ignored in exec strings
+const gchar* EXEC_BAD_SUFIXES = "(\\.bin|\\.py|\\.pl|\\.qml)$";
 
 // Prefixes that must be considered starting point of exec strings
 const gchar* EXEC_GOOD_PREFIXES[] =
@@ -394,7 +397,7 @@ bamf_matcher_get_trimmed_exec (BamfMatcher * self, const char * exec_string)
   for (i = 0; i < parts_size; ++i)
     {
       part = parts[i];
-      if (*part == '%' || g_utf8_strrchr (part, -1, '='))
+      if (*part == '%' || *part == '$' || g_utf8_strrchr (part, -1, '='))
         continue;
 
       if (*part != '-' || good_prefix)
@@ -472,7 +475,7 @@ bamf_matcher_get_trimmed_exec (BamfMatcher * self, const char * exec_string)
     {
       tmp = result;
 
-      regex = g_regex_new ("(\\.bin|\\.py|\\.pl)$", 0, 0, NULL);
+      regex = g_regex_new (EXEC_BAD_SUFIXES, 0, 0, NULL);
       result = g_regex_replace_literal (regex, result, -1, 0, "", 0, NULL);
 
       g_free (tmp);
@@ -1547,18 +1550,18 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
   filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
 
   if (!filter_by_wmclass)
-  {
-    if (is_web_app_window (window))
-      {
-        // This ensures that a new application is created even for unknown webapps
-        filter_by_wmclass = TRUE;
-      }
-    else
-      {
-        target_class = class_name;
-        filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
-      }
-  }
+    {
+      if (is_web_app_window (window))
+        {
+          // This ensures that a new application is created even for unknown webapps
+          filter_by_wmclass = TRUE;
+        }
+      else
+        {
+          target_class = class_name;
+          filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
+        }
+    }
 
   if (desktop_file)
     {
@@ -1790,60 +1793,64 @@ bamf_matcher_get_application_for_window (BamfMatcher *self,
 
       const gchar *app_desktop_class;
 
-      for (a = self->priv->views; a; a = a->next)
+      const char *win_instance_name = bamf_legacy_window_get_class_instance_name (window);
+      char *exec_string = bamf_legacy_window_get_exec_string (window);
+      char *trimmed_exec = bamf_matcher_get_trimmed_exec (self, exec_string);
+      g_free (exec_string);
+
+      if (trimmed_exec || win_class_name || win_instance_name)
         {
-          view = a->data;
-
-          if (!BAMF_IS_APPLICATION (view))
-            continue;
-
-          app = BAMF_APPLICATION (view);
-
-          if (bamf_application_contains_similar_to_window (app, bamf_window))
+          for (a = self->priv->views; a; a = a->next)
             {
-              char *exec_string = bamf_legacy_window_get_exec_string (window);
-              char *trimmed_exec = bamf_matcher_get_trimmed_exec (self, exec_string);
-              g_free (exec_string);
+              view = a->data;
 
-              GList *ll;
-              gboolean found_exec = FALSE;
-              for (ll = bamf_view_get_children (BAMF_VIEW (app)); ll && !found_exec; ll = ll->next)
-                {
-                  if (!BAMF_IS_WINDOW (ll->data))
-                    continue;
-
-                  BamfLegacyWindow *w = bamf_window_get_window (BAMF_WINDOW (ll->data));
-                  char *wexec = bamf_legacy_window_get_exec_string (w);
-                  char *wtrimmed = bamf_matcher_get_trimmed_exec (self, wexec);
-                  g_free (wexec);
-
-                  if (g_strcmp0 (trimmed_exec, wtrimmed) == 0)
-                    {
-                      best = BAMF_APPLICATION (view);
-                      found_exec = TRUE;
-                    }
-
-                  g_free (wtrimmed);
-                }
-
-              g_free (trimmed_exec);
-
-              if (!found_exec)
+              if (!BAMF_IS_APPLICATION (view))
                 continue;
 
-              app_desktop_class = bamf_application_get_wmclass (app);
+              app = BAMF_APPLICATION (view);
 
-              if (target_class && g_strcmp0 (target_class, app_desktop_class) == 0)
+              if (bamf_application_contains_similar_to_window (app, bamf_window))
                 {
-                  best = app;
-                  break;
-                }
-              else if (!best)
-                {
-                  best = app;
+                  GList *ll;
+                  gboolean found_exec = FALSE;
+                  for (ll = bamf_view_get_children (BAMF_VIEW (app)); ll && !found_exec; ll = ll->next)
+                    {
+                      if (!BAMF_IS_WINDOW (ll->data))
+                        continue;
+
+                      BamfLegacyWindow *w = bamf_window_get_window (BAMF_WINDOW (ll->data));
+                      char *wexec = bamf_legacy_window_get_exec_string (w);
+                      char *wtrimmed = bamf_matcher_get_trimmed_exec (self, wexec);
+                      g_free (wexec);
+
+                      if (g_strcmp0 (trimmed_exec, wtrimmed) == 0)
+                        {
+                          best = BAMF_APPLICATION (view);
+                          found_exec = TRUE;
+                        }
+
+                      g_free (wtrimmed);
+                    }
+
+                  if (!found_exec)
+                    continue;
+
+                  app_desktop_class = bamf_application_get_wmclass (app);
+
+                  if (target_class && g_strcmp0 (target_class, app_desktop_class) == 0)
+                    {
+                      best = app;
+                      break;
+                    }
+                  else if (!best)
+                    {
+                      best = app;
+                    }
                 }
             }
         }
+
+      g_free (trimmed_exec);
     }
 
   if (!best)

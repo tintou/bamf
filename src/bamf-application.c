@@ -475,9 +475,6 @@ bamf_application_contains_similar_to_window (BamfApplication *self,
   const char *window_class = bamf_legacy_window_get_class_name (window);
   const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
 
-  if (!window_class && !instance_name)
-    return FALSE;
-
   children = bamf_view_get_children (BAMF_VIEW (self));
   for (l = children; l; l = l->next)
     {
