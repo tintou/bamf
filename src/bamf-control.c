@@ -103,10 +103,10 @@ on_dbus_handle_quit (BamfDBusControl *interface,
 }
 
 static gboolean
-on_dbus_handle_om_nom_nom_desktop_file (BamfDBusControl *interface,
-                                        GDBusMethodInvocation *invocation,
-                                        const gchar *desktop_file,
-                                        BamfControl *self)
+on_dbus_handle_insert_desktop_file (BamfDBusControl *interface,
+                                    GDBusMethodInvocation *invocation,
+                                    const gchar *desktop_file,
+                                    BamfControl *self)
 {
   bamf_control_insert_desktop_file (self, desktop_file);
   g_dbus_method_invocation_return_value (invocation, NULL);
@@ -138,7 +138,10 @@ bamf_control_init (BamfControl * self)
                     G_CALLBACK (on_dbus_handle_quit), self);
 
   g_signal_connect (self, "handle-om-nom-nom-desktop-file",
-                    G_CALLBACK (on_dbus_handle_om_nom_nom_desktop_file), self);
+                    G_CALLBACK (on_dbus_handle_insert_desktop_file), self);
+
+  g_signal_connect (self, "handle-insert-desktop-file",
+                    G_CALLBACK (on_dbus_handle_insert_desktop_file), self);
 
   g_signal_connect (self, "handle-register-application-for-pid",
                     G_CALLBACK (on_dbus_handle_register_application_for_pid), self);

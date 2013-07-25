@@ -137,9 +137,8 @@ bamf_control_insert_desktop_file (BamfControl *control, const gchar *desktop_fil
   g_return_if_fail (BAMF_IS_CONTROL (control));
   priv = control->priv;
 
-  if (!_bamf_dbus_control_call_om_nom_nom_desktop_file_sync (priv->proxy,
-                                                             desktop_file,
-                                                             NULL, &error))
+  if (!_bamf_dbus_control_call_insert_desktop_file_sync (priv->proxy, desktop_file,
+                                                         NULL, &error))
     {
       g_warning ("Failed to insert desktop file: %s", error->message);
       g_error_free (error);
