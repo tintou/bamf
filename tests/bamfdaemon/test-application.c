@@ -28,45 +28,10 @@
 
 #define DESKTOP_FILE "/usr/share/applications/gnome-terminal.desktop"
 
-static void test_allocation          (void);
-static void test_desktop_file        (void);
-static void test_desktop_no_icon     (void);
-static void test_get_mime_types      (void);
-static void test_get_mime_types_none (void);
-static void test_urgent              (void);
-static void test_active              (void);
-static void test_get_xids            (void);
-static void test_manages_xid         (void);
-static void test_user_visible        (void);
-static void test_urgent              (void);
-static void test_window_added        (void);
-static void test_window_removed      (void);
-
 static gboolean          signal_seen   = FALSE;
 static gboolean          signal_result = FALSE;
 static char *            signal_window = NULL;
 static GDBusConnection * gdbus_connection = NULL;
-
-void
-test_application_create_suite (GDBusConnection *connection)
-{
-#define DOMAIN "/Application"
-
-  gdbus_connection = connection;
-
-  g_test_add_func (DOMAIN"/Allocation", test_allocation);
-  g_test_add_func (DOMAIN"/DesktopFile", test_desktop_file);
-  g_test_add_func (DOMAIN"/DesktopFile/NoIcon", test_desktop_no_icon);
-  g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/Valid", test_get_mime_types);
-  g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/None", test_get_mime_types_none);
-  g_test_add_func (DOMAIN"/ManagesXid", test_manages_xid);
-  g_test_add_func (DOMAIN"/Xids", test_get_xids);
-  g_test_add_func (DOMAIN"/Events/Active", test_active);
-  g_test_add_func (DOMAIN"/Events/Urgent", test_urgent);
-  g_test_add_func (DOMAIN"/Events/UserVisible", test_user_visible);
-  g_test_add_func (DOMAIN"/Events/WindowAdded", test_window_added);
-  g_test_add_func (DOMAIN"/Events/WindowRemoved", test_window_removed);
-}
 
 static void
 test_allocation (void)
@@ -535,4 +500,105 @@ test_window_removed (void)
 
   g_object_unref (window);
   g_object_unref (test);
+}
+
+static void
+test_contain_similar_to_window (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win, *win1, *win2, *win3;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", NULL, "binary");
+  bamf_legacy_window_test_set_wmclass (lwin, "ClassName", "ClassInstance");
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+  g_object_unref (lwin);
+
+  lwin = bamf_legacy_window_test_new (30, "window1", NULL, "binary1");
+  bamf_legacy_window_test_set_wmclass (lwin, "ClassName", "ClassInstance");
+  win1 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  g_object_unref (lwin);
+  g_assert (bamf_application_contains_similar_to_window (application, win1));
+
+  lwin = bamf_legacy_window_test_new (40, "window2", NULL, "binary2");
+  bamf_legacy_window_test_set_wmclass (lwin, "ClassName", "ClassInstance2");
+  win2 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  g_object_unref (lwin);
+  g_assert (!bamf_application_contains_similar_to_window (application, win2));
+
+  lwin = bamf_legacy_window_test_new (50, "window3", NULL, "binary3");
+  bamf_legacy_window_test_set_wmclass (lwin, "ClassName3", "ClassInstance");
+  win3 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  g_object_unref (lwin);
+  g_assert (!bamf_application_contains_similar_to_window (application, win3));
+
+  g_object_unref (win);
+  g_object_unref (win1);
+  g_object_unref (win2);
+  g_object_unref (win3);
+  g_object_unref (application);
+}
+
+static void
+test_contain_similar_to_window_null (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win, *win1, *win2, *win3;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", NULL, "binary");
+  bamf_legacy_window_test_set_wmclass (lwin, NULL, NULL);
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+  g_object_unref (lwin);
+
+  lwin = bamf_legacy_window_test_new (30, "window1", NULL, "binary1");
+  bamf_legacy_window_test_set_wmclass (lwin, NULL, NULL);
+  win1 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  g_object_unref (lwin);
+  g_assert (bamf_application_contains_similar_to_window (application, win1));
+
+  lwin = bamf_legacy_window_test_new (40, "window2", NULL, "binary2");
+  bamf_legacy_window_test_set_wmclass (lwin, "ClassName", NULL);
+  win2 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  g_object_unref (lwin);
+  g_assert (!bamf_application_contains_similar_to_window (application, win2));
+
+  lwin = bamf_legacy_window_test_new (50, "window3", NULL, "binary3");
+  bamf_legacy_window_test_set_wmclass (lwin, NULL, "ClassInstance");
+  win3 = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  g_object_unref (lwin);
+  g_assert (!bamf_application_contains_similar_to_window (application, win3));
+
+  g_object_unref (win);
+  g_object_unref (win1);
+  g_object_unref (win2);
+  g_object_unref (win3);
+  g_object_unref (application);
+}
+
+void
+test_application_create_suite (GDBusConnection *connection)
+{
+#define DOMAIN "/Application"
+
+  gdbus_connection = connection;
+
+  g_test_add_func (DOMAIN"/Allocation", test_allocation);
+  g_test_add_func (DOMAIN"/ContainsSimilarToWindow", test_contain_similar_to_window);
+  g_test_add_func (DOMAIN"/ContainsSimilarToWindow/Null", test_contain_similar_to_window_null);
+  g_test_add_func (DOMAIN"/DesktopFile", test_desktop_file);
+  g_test_add_func (DOMAIN"/DesktopFile/NoIcon", test_desktop_no_icon);
+  g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/Valid", test_get_mime_types);
+  g_test_add_func (DOMAIN"/DesktopFile/MimeTypes/None", test_get_mime_types_none);
+  g_test_add_func (DOMAIN"/ManagesXid", test_manages_xid);
+  g_test_add_func (DOMAIN"/Xids", test_get_xids);
+  g_test_add_func (DOMAIN"/Events/Active", test_active);
+  g_test_add_func (DOMAIN"/Events/Urgent", test_urgent);
+  g_test_add_func (DOMAIN"/Events/UserVisible", test_user_visible);
+  g_test_add_func (DOMAIN"/Events/WindowAdded", test_window_added);
+  g_test_add_func (DOMAIN"/Events/WindowRemoved", test_window_removed);
 }
