@@ -191,6 +191,31 @@ bamf_matcher_get_application_by_xid (BamfMatcher *self, guint xid)
   return NULL;
 }
 
+
+BamfView *
+bamf_matcher_get_view_by_path (BamfMatcher *self, const char *view_path)
+{
+  GList *l;
+  BamfView *view;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
+
+  for (l = self->priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_VIEW (view))
+        continue;
+
+      if (g_strcmp0 (bamf_view_get_path (view), view_path) == 0)
+        {
+          return view;
+        }
+    }
+
+  return NULL;
+}
+
 static gboolean
 emit_paths_changed (gpointer user_data)
 {

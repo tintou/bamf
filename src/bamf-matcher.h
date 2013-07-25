@@ -114,6 +114,8 @@ gboolean      bamf_matcher_is_valid_process_prefix       (BamfMatcher *matcher,
 char        * bamf_matcher_get_trimmed_exec              (BamfMatcher *matcher,
                                                           const char *exec_string);
 
+BamfView    * bamf_matcher_get_view_by_path              (BamfMatcher *matcher,
+                                                          const char *view_path);
 
 BamfMatcher * bamf_matcher_get_default                   (void);
 
