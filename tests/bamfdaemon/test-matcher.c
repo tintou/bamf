@@ -26,49 +26,11 @@
 #include "bamf-legacy-window.h"
 #include "bamf-legacy-window-test.h"
 
-static void test_allocation (void);
-static void test_load_desktop_file (void);
-static void test_load_desktop_file_no_display_has_lower_prio_same_id (void);
-static void test_load_desktop_file_no_display_has_lower_prio_different_id (void);
-static void test_open_windows (void);
-static void test_match_desktopless_application (void);
-static void test_match_desktop_application (void);
-static void test_match_libreoffice_windows (void);
-static void test_match_gnome_control_center_panels (void);
-static void test_match_javaws_windows (void);
-static void test_match_javaws_windows_hint_ignored (void);
-static void test_match_javaws_windows_no_desktop_match (void);
-static void test_new_desktop_matches_unmatched_windows (void);
-static void test_match_transient_windows (void);
-static void test_trim_exec_string (void);
-
 static GDBusConnection *gdbus_connection = NULL;
 
 #define DOMAIN "/Matcher"
 #define DATA_DIR TESTDIR "/data"
 #define TEST_BAMF_APP_DESKTOP DATA_DIR "/test-bamf-app.desktop"
-
-void
-test_matcher_create_suite (GDBusConnection *connection)
-{
-  gdbus_connection = connection;
-
-  g_test_add_func (DOMAIN"/Allocation", test_allocation);
-  g_test_add_func (DOMAIN"/LoadDesktopFile", test_load_desktop_file);
-  g_test_add_func (DOMAIN"/LoadDesktopFile/NoDisplay/SameID", test_load_desktop_file_no_display_has_lower_prio_same_id);
-  g_test_add_func (DOMAIN"/LoadDesktopFile/NoDisplay/DifferentID", test_load_desktop_file_no_display_has_lower_prio_different_id);
-  g_test_add_func (DOMAIN"/OpenWindows", test_open_windows);
-  g_test_add_func (DOMAIN"/Matching/Application/DesktopLess", test_match_desktopless_application);
-  g_test_add_func (DOMAIN"/Matching/Application/Desktop", test_match_desktop_application);
-  g_test_add_func (DOMAIN"/Matching/Application/LibreOffice", test_match_libreoffice_windows);
-  g_test_add_func (DOMAIN"/Matching/Application/GnomeControlCenter", test_match_gnome_control_center_panels);
-  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart", test_match_javaws_windows);
-  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart/HintIngored", test_match_javaws_windows_hint_ignored);
-  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart/NoDesktopMatch", test_match_javaws_windows_no_desktop_match);
-  g_test_add_func (DOMAIN"/Matching/Windows/UnmatchedOnNewDesktop", test_new_desktop_matches_unmatched_windows);
-  g_test_add_func (DOMAIN"/Matching/Windows/Transient", test_match_transient_windows);
-  g_test_add_func (DOMAIN"/ExecStringTrimming", test_trim_exec_string);
-}
 
 static void
 export_matcher_on_bus (BamfMatcher *matcher)
@@ -771,6 +733,191 @@ test_match_javaws_windows_no_desktop_match (void)
 }
 
 static void
+test_match_qml_app_no_desktop (void)
+{
+  BamfMatcher *matcher;
+  BamfLegacyScreen *screen;
+  BamfLegacyWindowTest *test_win;
+  BamfApplication *app1, *app2, *app3;
+
+  screen = bamf_legacy_screen_get_default ();
+  matcher = bamf_matcher_get_default ();
+  cleanup_matcher_tables (matcher);
+  export_matcher_on_bus (matcher);
+
+  guint xid = g_random_int ();
+  test_win = bamf_legacy_window_test_new (xid, "QmlApp1", NULL, "qmlscene qmlapp1.qml");
+  bamf_legacy_window_test_set_wmclass (test_win, NULL, NULL);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  app1 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert (BAMF_IS_APPLICATION (app1));
+
+  xid = g_random_int ();
+  test_win = bamf_legacy_window_test_new (xid, "QmlApp2", NULL, "qmlscene qmlapp2.qml");
+  bamf_legacy_window_test_set_wmclass (test_win, NULL, NULL);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  app2 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert (BAMF_IS_APPLICATION (app2));
+  g_assert (app1 != app2);
+
+  xid = g_random_int ();
+  test_win = bamf_legacy_window_test_new (xid, "QmlApp2", NULL, "qmlscene qmlapp2.qml");
+  bamf_legacy_window_test_set_wmclass (test_win, NULL, NULL);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  app3 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert (BAMF_IS_APPLICATION (app3));
+  g_assert (app2 == app3);
+
+  g_object_unref (matcher);
+  g_object_unref (screen);
+}
+
+static void
+test_match_qml_app_desktop (void)
+{
+  BamfMatcher *matcher;
+  BamfLegacyScreen *screen;
+  BamfLegacyWindowTest *test_win;
+  BamfApplication *app1, *app2, *app3;
+
+  screen = bamf_legacy_screen_get_default ();
+  matcher = bamf_matcher_get_default ();
+  cleanup_matcher_tables (matcher);
+  export_matcher_on_bus (matcher);
+
+  bamf_matcher_load_desktop_file (matcher, DATA_DIR"/bamf-qml-app.desktop");
+
+  guint xid = g_random_int ();
+  test_win = bamf_legacy_window_test_new (xid, "QmlAppWin1", NULL, "/path/qmlscene bamf_qml_app.qml");
+  bamf_legacy_window_test_set_wmclass (test_win, NULL, NULL);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  app1 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert (BAMF_IS_APPLICATION (app1));
+  g_assert_cmpstr (bamf_application_get_desktop_file (app1), ==, DATA_DIR"/bamf-qml-app.desktop");
+
+  xid = g_random_int ();
+  test_win = bamf_legacy_window_test_new (xid, "QmlAppWin1", NULL, "qmlscene files/foo/bamf_qml_app.qml");
+  bamf_legacy_window_test_set_wmclass (test_win, NULL, NULL);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  app2 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert (BAMF_IS_APPLICATION (app2));
+  g_assert (app1 == app2);
+
+  xid = g_random_int ();
+  test_win = bamf_legacy_window_test_new (xid, "QmlApp2", NULL, "qmlscene qmlapp2.qml");
+  bamf_legacy_window_test_set_wmclass (test_win, NULL, NULL);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  app3 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert (BAMF_IS_APPLICATION (app3));
+  g_assert (app2 != app3);
+
+  g_object_unref (matcher);
+  g_object_unref (screen);
+}
+
+static void
+test_match_desktop_file_hint_exec (void)
+{
+  BamfMatcher *matcher;
+  BamfLegacyScreen *screen;
+  BamfLegacyWindowTest *test_win;
+  BamfApplication *app1, *app2, *app3;
+
+  screen = bamf_legacy_screen_get_default ();
+  matcher = bamf_matcher_get_default ();
+  cleanup_matcher_tables (matcher);
+  export_matcher_on_bus (matcher);
+
+  bamf_matcher_load_desktop_file (matcher, TEST_BAMF_APP_DESKTOP);
+
+  guint xid = g_random_int ();
+  const gchar *exec = "/path/qmlscene --desktop_file_hint "TEST_BAMF_APP_DESKTOP" test-qml-app1.qml";
+  test_win = bamf_legacy_window_test_new (xid, "QmlAppWin1", NULL, exec);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  app1 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert_cmpstr (bamf_application_get_desktop_file (app1), ==, TEST_BAMF_APP_DESKTOP);
+  _bamf_legacy_screen_close_test_window (screen, test_win);
+
+  xid = g_random_int ();
+  exec = "/path/qmlscene test-qml-app2.qml --desktop_file_hint "TEST_BAMF_APP_DESKTOP;
+  test_win = bamf_legacy_window_test_new (xid, "QmlAppWin2", NULL, exec);
+  bamf_legacy_window_test_set_wmclass (test_win, NULL, NULL);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  app2 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert_cmpstr (bamf_application_get_desktop_file (app2), ==, TEST_BAMF_APP_DESKTOP);
+  _bamf_legacy_screen_close_test_window (screen, test_win);
+
+  xid = g_random_int ();
+  exec = "test-bamf-app --desktop_file_hint "TEST_BAMF_APP_DESKTOP;
+  test_win = bamf_legacy_window_test_new (xid, "AnyAppWin1", NULL, exec);
+  bamf_legacy_window_test_set_wmclass (test_win, NULL, NULL);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  app3 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert_cmpstr (bamf_application_get_desktop_file (app3), ==, TEST_BAMF_APP_DESKTOP);
+
+  g_object_unref (matcher);
+  g_object_unref (screen);
+}
+
+static void
+test_match_desktop_file_hint_exec_invalid (void)
+{
+  BamfMatcher *matcher;
+  BamfLegacyScreen *screen;
+  BamfLegacyWindowTest *test_win;
+  BamfApplication *app1, *app2, *app3;
+
+  screen = bamf_legacy_screen_get_default ();
+  matcher = bamf_matcher_get_default ();
+  cleanup_matcher_tables (matcher);
+  export_matcher_on_bus (matcher);
+
+  bamf_matcher_load_desktop_file (matcher, TEST_BAMF_APP_DESKTOP);
+
+  guint xid = g_random_int ();
+  const gchar *exec = "/path/qmlscene --desktop_file_hint invalid-file.desktop test-qml-app1.qml";
+  test_win = bamf_legacy_window_test_new (xid, "QmlAppWin1", NULL, exec);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  app1 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert_cmpstr (bamf_application_get_desktop_file (app1), ==, NULL);
+
+  xid = g_random_int ();
+  exec = "/path/qmlscene test-qml-app2.qml --desktop_file_hint "TEST_BAMF_APP_DESKTOP"s";
+  test_win = bamf_legacy_window_test_new (xid, "QmlAppWin2", NULL, exec);
+  bamf_legacy_window_test_set_wmclass (test_win, NULL, NULL);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  app2 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert_cmpstr (bamf_application_get_desktop_file (app2), ==, NULL);
+  g_assert (app2 != app1);
+  _bamf_legacy_screen_close_test_window (screen, test_win);
+
+  xid = g_random_int ();
+  exec = "test-bamf-app --desktop_file_hint invalid-file";
+  test_win = bamf_legacy_window_test_new (xid, "AnyAppWin1", NULL, exec);
+  bamf_legacy_window_test_set_wmclass (test_win, NULL, NULL);
+  _bamf_legacy_screen_open_test_window (screen, test_win);
+
+  app3 = bamf_matcher_get_application_by_xid (matcher, xid);
+  g_assert_cmpstr (bamf_application_get_desktop_file (app3), ==, TEST_BAMF_APP_DESKTOP);
+  g_assert (app3 != app1);
+  g_assert (app3 != app2);
+
+  g_object_unref (matcher);
+  g_object_unref (screen);
+}
+
+static void
 test_match_transient_windows (void)
 {
   BamfMatcher *matcher;
@@ -830,6 +977,10 @@ test_trim_exec_string (void)
   g_assert_cmpstr (trimmed, ==, "bad-prefix-bin");
   g_free (trimmed);
 
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "gksu python very-bad-prefix-script.py");
+  g_assert_cmpstr (trimmed, ==, "very-bad-prefix-script");
+  g_free (trimmed);
+
   trimmed = bamf_matcher_get_trimmed_exec (matcher, "sudo --opt val=X /usr/bin/bad-prefix-bin");
   g_assert_cmpstr (trimmed, ==, "bad-prefix-bin");
   g_free (trimmed);
@@ -844,6 +995,22 @@ test_trim_exec_string (void)
 
   trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/python %u --option val=/path");
   g_assert_cmpstr (trimmed, ==, "python");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/mono /usr/share/bar/Foo.exe");
+  g_assert_cmpstr (trimmed, ==, "foo.exe");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/mono %u --option val=/path");
+  g_assert_cmpstr (trimmed, ==, "mono");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/cli /usr/share/foo/Bar.exe");
+  g_assert_cmpstr (trimmed, ==, "bar.exe");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/cli %u --option val=/path");
+  g_assert_cmpstr (trimmed, ==, "cli");
   g_free (trimmed);
 
   trimmed = bamf_matcher_get_trimmed_exec (matcher, "sh -c \"binary --option --value %U || exec binary\"");
@@ -872,6 +1039,34 @@ test_trim_exec_string (void)
   g_assert_cmpstr (trimmed, ==, "myprog");
   g_free (trimmed);
 
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/qmlscene my-app.qml");
+  g_assert_cmpstr (trimmed, ==, "my-app");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "qmlscene /home/user/new-app.qml");
+  g_assert_cmpstr (trimmed, ==, "new-app");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "qmlscene $var /home/user/var-new-app.qml");
+  g_assert_cmpstr (trimmed, ==, "var-new-app");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "qmlscene --option -foo /home/user/opt-app.qml");
+  g_assert_cmpstr (trimmed, ==, "opt-app");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "qmlscene --desktop_file_hint deskapp.desktop desktop-app1.qml");
+  g_assert_cmpstr (trimmed, ==, "desktop-app1");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "qmlscene desktop-app2.qml --desktop_file_hint deskapp.desktop");
+  g_assert_cmpstr (trimmed, ==, "desktop-app2");
+  g_free (trimmed);
+
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "qmlscene desktop-app3.qml --desktop_file_hint");
+  g_assert_cmpstr (trimmed, ==, "desktop-app3");
+  g_free (trimmed);
+
   const char *exec = "/usr/lib/jvm/java-6-openjdk-amd64/jre/bin/java " \
                      "-Xbootclasspath/a:/usr/share/icedtea-web/netx.jar " \
                      "-Xms8m -Djava.security.manager " \
@@ -898,4 +1093,30 @@ test_trim_exec_string (void)
   g_free (trimmed);
 
   g_object_unref (matcher);
+}
+
+void
+test_matcher_create_suite (GDBusConnection *connection)
+{
+  gdbus_connection = connection;
+
+  g_test_add_func (DOMAIN"/Allocation", test_allocation);
+  g_test_add_func (DOMAIN"/ExecStringTrimming", test_trim_exec_string);
+  g_test_add_func (DOMAIN"/LoadDesktopFile", test_load_desktop_file);
+  g_test_add_func (DOMAIN"/LoadDesktopFile/NoDisplay/SameID", test_load_desktop_file_no_display_has_lower_prio_same_id);
+  g_test_add_func (DOMAIN"/LoadDesktopFile/NoDisplay/DifferentID", test_load_desktop_file_no_display_has_lower_prio_different_id);
+  g_test_add_func (DOMAIN"/OpenWindows", test_open_windows);
+  g_test_add_func (DOMAIN"/Matching/Application/Desktop", test_match_desktop_application);
+  g_test_add_func (DOMAIN"/Matching/Application/DesktopLess", test_match_desktopless_application);
+  g_test_add_func (DOMAIN"/Matching/Application/DesktopFileHintExec", test_match_desktop_file_hint_exec);
+  g_test_add_func (DOMAIN"/Matching/Application/DesktopFileHintExec/Invalid", test_match_desktop_file_hint_exec_invalid);
+  g_test_add_func (DOMAIN"/Matching/Application/LibreOffice", test_match_libreoffice_windows);
+  g_test_add_func (DOMAIN"/Matching/Application/GnomeControlCenter", test_match_gnome_control_center_panels);
+  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart", test_match_javaws_windows);
+  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart/HintIngored", test_match_javaws_windows_hint_ignored);
+  g_test_add_func (DOMAIN"/Matching/Application/JavaWebStart/NoDesktopMatch", test_match_javaws_windows_no_desktop_match);
+  g_test_add_func (DOMAIN"/Matching/Application/Qml/NoDesktopMatch", test_match_qml_app_no_desktop);
+  g_test_add_func (DOMAIN"/Matching/Application/Qml/DesktopMatch", test_match_qml_app_desktop);
+  g_test_add_func (DOMAIN"/Matching/Windows/UnmatchedOnNewDesktop", test_new_desktop_matches_unmatched_windows);
+  g_test_add_func (DOMAIN"/Matching/Windows/Transient", test_match_transient_windows);
 }
