@@ -1,3 +1,22 @@
+bamf (0.5.0+13.10.20130725-0ubuntu1) saucy; urgency=low
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfMatcher: correctly match QML applications launched with qmlscene
+    or qmlviewer. (LP: #1180402)
+  * BamfLegacyWindow: cache the window Exec string We might use this
+    value multiple times during the BAMF execution, and we don't need to
+    recompute it everytime. Caching looks a good compromise.
+  * BamfMatcher: add support for the "--desktop_file_hint" exec
+    parameter to override matching This is needed mostly by new Qml
+    applications, but it allows to every app to override its matching by
+    calling it with --desktop_file_hint file-to-use.desktop. (LP:
+    #1180402)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 570
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 25 Jul 2013 02:03:06 +0000
+
 bamf (0.5.0+13.10.20130724-0ubuntu1) saucy; urgency=low
 
   [ Marco Trevisan (Treviño) ]
