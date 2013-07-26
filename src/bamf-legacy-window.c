@@ -51,7 +51,7 @@ static guint legacy_window_signals[LAST_SIGNAL] = { 0 };
 struct _BamfLegacyWindowPrivate
 {
   WnckWindow * legacy_window;
-  gchar      * mini_icon_path;
+  GFile      * mini_icon;
   gchar      * exec_string;
   gboolean     is_closed;
 };
@@ -260,7 +260,7 @@ bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
   return self->priv->exec_string;
 }
 
-const char *
+char *
 bamf_legacy_window_save_mini_icon (BamfLegacyWindow *self)
 {
   WnckWindow *window;
@@ -274,16 +274,16 @@ bamf_legacy_window_save_mini_icon (BamfLegacyWindow *self)
   if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->save_mini_icon)
     return BAMF_LEGACY_WINDOW_GET_CLASS (self)->save_mini_icon (self);
 
-  if (self->priv->mini_icon_path)
+  if (self->priv->mini_icon)
     {
-      if (g_file_test (self->priv->mini_icon_path, G_FILE_TEST_EXISTS))
+      if (g_file_query_exists (self->priv->mini_icon, NULL))
         {
-          return self->priv->mini_icon_path;
+          return g_file_get_path (self->priv->mini_icon);
         }
       else
         {
-          g_free (self->priv->mini_icon_path);
-          self->priv->mini_icon_path = NULL;
+          g_object_unref (self->priv->mini_icon);
+          self->priv->mini_icon = NULL;
         }
     }
 
@@ -305,13 +305,13 @@ bamf_legacy_window_save_mini_icon (BamfLegacyWindow *self)
 
   if (gdk_pixbuf_save_to_stream (pbuf, output, "png", NULL, NULL, NULL))
     {
-      self->priv->mini_icon_path = g_file_get_path (tmp);
+      self->priv->mini_icon = g_object_ref (tmp);
     }
 
   g_object_unref (iostream);
   g_object_unref (tmp);
 
-  return self->priv->mini_icon_path;
+  return g_file_get_path (self->priv->mini_icon);
 }
 
 guint
@@ -563,19 +563,14 @@ static void
 bamf_legacy_window_dispose (GObject *object)
 {
   BamfLegacyWindow *self;
-  GFile *file;
   guint i;
 
   self = BAMF_LEGACY_WINDOW (object);
 
-  if (self->priv->mini_icon_path)
+  if (self->priv->mini_icon)
     {
-      file = g_file_new_for_path (self->priv->mini_icon_path);
-      g_file_delete (file, NULL, NULL);
-      g_object_unref (file);
-
-      g_free (self->priv->mini_icon_path);
-      self->priv->mini_icon_path = NULL;
+      g_file_delete (self->priv->mini_icon, NULL, NULL);
+      g_object_unref (self->priv->mini_icon);
     }
 
   if (self->priv->exec_string)

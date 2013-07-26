@@ -340,7 +340,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self, gboolean force)
 
       if (!icon)
         {
-          icon = g_strdup (bamf_legacy_window_save_mini_icon (legacy_window));
+          icon = bamf_legacy_window_save_mini_icon (legacy_window);
 
           if (!icon)
             {

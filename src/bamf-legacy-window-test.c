@@ -420,10 +420,10 @@ bamf_legacy_window_test_set_hint (BamfLegacyWindow *window, const char *name, co
   return g_hash_table_insert (self->hints, g_strdup (name), g_strdup (value));
 }
 
-static const char *
+static char *
 bamf_legacy_window_test_save_mini_icon (BamfLegacyWindow *window)
 {
-  return BAMF_LEGACY_WINDOW_TEST (window)->icon;
+  return g_strdup (BAMF_LEGACY_WINDOW_TEST (window)->icon);
 }
 
 static void
