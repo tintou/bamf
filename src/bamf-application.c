@@ -388,6 +388,9 @@ bamf_application_set_desktop_file (BamfApplication *application,
                                             on_main_child_name_changed, application);
     }
 
+  g_signal_emit_by_name (application, "desktop-file-updated",
+                         application->priv->desktop_file);
+
   bamf_application_setup_icon_and_name (application, TRUE);
 }
 
@@ -888,6 +891,13 @@ on_window_removed (BamfApplication *self, const gchar *win_path, gpointer _not_u
   g_signal_emit_by_name (self->priv->dbus_iface, "window-removed", win_path);
 }
 
+static void
+on_desktop_file_updated (BamfApplication *self, const gchar *file, gpointer _not_used)
+{
+  g_return_if_fail (BAMF_IS_APPLICATION (self));
+  g_signal_emit_by_name (self->priv->dbus_iface, "desktop-file-updated", file);
+}
+
 static gboolean
 on_dbus_handle_show_stubs (BamfDBusItemApplication *interface,
                            GDBusMethodInvocation *invocation,
@@ -1092,6 +1102,7 @@ bamf_application_init (BamfApplication * self)
    * interface                                                                */
   g_signal_connect (self, "window-added", G_CALLBACK (on_window_added), NULL);
   g_signal_connect (self, "window-removed", G_CALLBACK (on_window_removed), NULL);
+  g_signal_connect (self, "desktop-file-updated", G_CALLBACK (on_desktop_file_updated), NULL);
 
   /* Registering signal callbacks to reply to dbus method calls */
   g_signal_connect (priv->dbus_iface, "handle-show-stubs",
