@@ -314,6 +314,14 @@ bamf_legacy_window_save_mini_icon (BamfLegacyWindow *self)
   return g_file_get_path (self->priv->mini_icon);
 }
 
+GFile *
+bamf_legacy_window_get_saved_mini_icon (BamfLegacyWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
+
+  return self->priv->mini_icon;
+}
+
 guint
 bamf_legacy_window_get_pid (BamfLegacyWindow *self)
 {

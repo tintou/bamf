@@ -151,6 +151,8 @@ const char       * bamf_legacy_window_get_exec_string      (BamfLegacyWindow *se
 
 char             * bamf_legacy_window_save_mini_icon       (BamfLegacyWindow *self);
 
+GFile            * bamf_legacy_window_get_saved_mini_icon  (BamfLegacyWindow *self);
+
 char             * bamf_legacy_window_get_process_name     (BamfLegacyWindow *self);
 
 BamfLegacyWindow * bamf_legacy_window_get_transient        (BamfLegacyWindow *self);
