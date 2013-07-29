@@ -63,6 +63,9 @@ void          bamf_control_register_tab_provider        (BamfControl *control,
 void          bamf_control_insert_desktop_file          (BamfControl *control,
                                                          const char *path);
 
+void          bamf_control_create_local_desktop_file 	(BamfControl *control,
+                                                       const char *desktop_file);
+
 void          bamf_control_quit                         (BamfControl *control);
 
 BamfControl * bamf_control_get_default                  (void);

@@ -417,6 +417,14 @@ bamf_application_set_desktop_file_from_id (BamfApplication *application,
   return TRUE;
 }
 
+gboolean
+bamf_application_create_local_desktop_file (BamfApplication *self)
+{
+  g_return_val_if_fail (BAMF_IS_APPLICATION (self), FALSE);
+
+  return FALSE;
+}
+
 void
 bamf_application_set_wmclass (BamfApplication *application,
                               const char *wmclass)
