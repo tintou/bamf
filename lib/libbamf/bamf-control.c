@@ -117,7 +117,7 @@ bamf_control_init (BamfControl *self)
 /**
  * bamf_control_get_default:
  *
- * Returns: (transfer none): The default #BamfControl reference.
+ * Returns: (transfer full): The default #BamfControl reference.
  */
 BamfControl *
 bamf_control_get_default (void)
@@ -125,7 +125,9 @@ bamf_control_get_default (void)
   if (BAMF_IS_CONTROL (default_control))
     return g_object_ref (default_control);
 
-  return (default_control = g_object_new (BAMF_TYPE_CONTROL, NULL));
+  default_control = g_object_new (BAMF_TYPE_CONTROL, NULL);
+
+  return default_control;
 }
 
 void
