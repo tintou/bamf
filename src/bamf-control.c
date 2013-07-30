@@ -99,8 +99,8 @@ on_dbus_handle_quit (BamfDBusControl *interface,
                      GDBusMethodInvocation *invocation,
                      BamfControl *self)
 {
-  bamf_control_quit (self);
   g_dbus_method_invocation_return_value (invocation, NULL);
+  bamf_control_quit (self);
 
   return TRUE;
 }
@@ -111,8 +111,8 @@ on_dbus_handle_insert_desktop_file (BamfDBusControl *interface,
                                     const gchar *desktop_file,
                                     BamfControl *self)
 {
-  bamf_control_insert_desktop_file (self, desktop_file);
   g_dbus_method_invocation_return_value (invocation, NULL);
+  bamf_control_insert_desktop_file (self, desktop_file);
 
   return TRUE;
 }
@@ -124,8 +124,8 @@ on_dbus_handle_register_application_for_pid (BamfDBusControl *interface,
                                              guint pid,
                                              BamfControl *self)
 {
-  bamf_control_register_application_for_pid (self, application, pid);
   g_dbus_method_invocation_return_value (invocation, NULL);
+  bamf_control_register_application_for_pid (self, application, pid);
 
   return TRUE;
 }
@@ -136,8 +136,8 @@ on_dbus_handle_create_local_desktop_file (BamfDBusControl *interface,
                                           const gchar *desktop_file,
                                           BamfControl *self)
 {
-  bamf_control_create_local_desktop_file (self, desktop_file);
   g_dbus_method_invocation_return_value (invocation, NULL);
+  bamf_control_create_local_desktop_file (self, desktop_file);
 
   return TRUE;
 }

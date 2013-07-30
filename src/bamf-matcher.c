@@ -2860,8 +2860,8 @@ on_dbus_handle_register_favorites (BamfDBusMatcher *interface,
                                    const char **favorites,
                                    BamfMatcher *self)
 {
-  bamf_matcher_register_favorites (self, favorites);
   g_dbus_method_invocation_return_value (invocation, NULL);
+  bamf_matcher_register_favorites (self, favorites);
 
   return TRUE;
 }
