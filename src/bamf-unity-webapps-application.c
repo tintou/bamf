@@ -235,10 +235,10 @@ bamf_unity_webapps_application_get_stable_bus_name (BamfView *view)
 
   if (desktop_file)
     {
-      return g_strdup_printf ("application%i", abs (g_str_hash (desktop_file)));
+      return g_strdup_printf ("webapp/%i", abs (g_str_hash (desktop_file)));
     }
 
-  return g_strdup_printf ("application%p", view);
+  return g_strdup_printf ("webapp/%p", view);
 }
 
 

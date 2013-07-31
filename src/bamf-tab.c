@@ -51,7 +51,7 @@ bamf_tab_get_view_type (BamfView *view)
 static char *
 bamf_tab_get_stable_bus_name (BamfView *view)
 {
-  return g_strdup_printf ("tab%u", GPOINTER_TO_UINT (view));
+  return g_strdup_printf ("tab/%u", GPOINTER_TO_UINT (view));
 }
 
 static void

@@ -487,7 +487,7 @@ bamf_view_get_stable_bus_name (BamfView *view)
   if (BAMF_VIEW_GET_CLASS (view)->stable_bus_name)
     return BAMF_VIEW_GET_CLASS (view)->stable_bus_name (view);
 
-  return g_strdup_printf ("view%p", view);
+  return g_strdup_printf ("view/%p", view);
 }
 
 static void
@@ -536,7 +536,7 @@ bamf_view_export_on_bus (BamfView *view, GDBusConnection *connection)
     {
       gboolean exported = TRUE;
       char *stable_name = bamf_view_get_stable_bus_name (view);
-      path = g_strconcat (BAMF_DBUS_BASE_PATH"/", stable_name, NULL);
+      path = g_strconcat (BAMF_DBUS_BASE_PATH, "/", stable_name, NULL);
       g_free (stable_name);
 
       BAMF_VIEW_GET_CLASS (view)->names = g_list_prepend (BAMF_VIEW_GET_CLASS (view)->names, path);
