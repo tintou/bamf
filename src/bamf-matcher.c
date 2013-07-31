@@ -2942,7 +2942,7 @@ on_webapp_child_added (BamfView *application,
   webapp_tab = BAMF_UNITY_WEBAPPS_TAB (child);
   legacy_window = bamf_unity_webapps_tab_get_legacy_window_for (webapp_tab);
 
-  if (is_web_app_window (legacy_window))
+  if (legacy_window && is_web_app_window (legacy_window))
     {
       /* If we have a chromeless window, we remove the window from the
        * application children list, so that it won't be duplicated in launcher */
