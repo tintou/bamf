@@ -50,8 +50,9 @@ G_BEGIN_DECLS
 #define BAMF_APPLICATION_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj),\
         BAMF_TYPE_APPLICATION, BamfApplicationClass))
 
-#define BAMF_APPLICATION_SIGNAL_WINDOW_ADDED   "window-added"
-#define BAMF_APPLICATION_SIGNAL_WINDOW_REMOVED "window-removed"
+#define BAMF_APPLICATION_SIGNAL_DESKTOP_FILE_UPDATED "desktop-file-updated"
+#define BAMF_APPLICATION_SIGNAL_WINDOW_ADDED         "window-added"
+#define BAMF_APPLICATION_SIGNAL_WINDOW_REMOVED       "window-removed"
 
 typedef struct _BamfApplication        BamfApplication;
 typedef struct _BamfApplicationClass   BamfApplicationClass;
