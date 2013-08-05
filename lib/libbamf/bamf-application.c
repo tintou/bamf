@@ -52,6 +52,7 @@ G_DEFINE_TYPE (BamfApplication, bamf_application, BAMF_TYPE_VIEW);
 
 enum
 {
+  DESKTOP_FILE_UPDATED,
   WINDOW_ADDED,
   WINDOW_REMOVED,
 
@@ -408,6 +409,15 @@ bamf_application_get_focusable_child (BamfApplication *application)
 }
 
 static void
+bamf_application_on_desktop_file_updated (BamfDBusItemApplication *proxy, const char *desktop_file, BamfApplication *self)
+{
+  g_free (self->priv->desktop_file);
+  self->priv->desktop_file = g_strdup (desktop_file);
+
+  g_signal_emit (self, application_signals[DESKTOP_FILE_UPDATED], 0, desktop_file);
+}
+
+static void
 bamf_application_on_window_added (BamfDBusItemApplication *proxy, const char *path, BamfApplication *self)
 {
   BamfView *view;
@@ -549,6 +559,9 @@ bamf_application_set_path (BamfView *view, const char *path)
 
   g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (priv->proxy), BAMF_DBUS_DEFAULT_TIMEOUT);
 
+  g_signal_connect (priv->proxy, "desktop-file-updated",
+                    G_CALLBACK (bamf_application_on_desktop_file_updated), view);
+
   g_signal_connect (priv->proxy, "window-added",
                     G_CALLBACK (bamf_application_on_window_added), view);
 
@@ -677,6 +690,14 @@ bamf_application_class_init (BamfApplicationClass *klass)
   view_class->click_behavior = bamf_application_get_click_suggestion;
 
   g_type_class_add_private (obj_class, sizeof (BamfApplicationPrivate));
+
+  application_signals [DESKTOP_FILE_UPDATED] =
+    g_signal_new (BAMF_APPLICATION_SIGNAL_DESKTOP_FILE_UPDATED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  0,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  G_TYPE_STRING);
 
   application_signals [WINDOW_ADDED] =
     g_signal_new (BAMF_APPLICATION_SIGNAL_WINDOW_ADDED,
