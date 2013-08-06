@@ -105,7 +105,7 @@ bamf_application_default_get_supported_mime_types (BamfApplication *application)
 
   GKeyFile* key_file = g_key_file_new ();
 
-  if (!g_key_file_load_from_file (key_file, desktop_file, (GKeyFileFlags) 0, NULL))
+  if (!g_key_file_load_from_file (key_file, desktop_file, G_KEY_FILE_NONE, NULL))
     {
       g_key_file_free (key_file);
       return NULL;
