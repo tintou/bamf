@@ -229,7 +229,16 @@ bamf_unity_webapps_application_set_property (GObject *object, guint property_id,
 static gchar *
 bamf_unity_webapps_application_get_stable_bus_name (BamfView *view)
 {
-  return g_strdup_printf ("application%i", abs (g_str_hash (bamf_application_get_desktop_file (BAMF_APPLICATION (view)))));
+  const gchar *desktop_file;
+
+  desktop_file = bamf_application_get_desktop_file (BAMF_APPLICATION (view));
+
+  if (desktop_file)
+    {
+      return g_strdup_printf ("application%i", abs (g_str_hash (desktop_file)));
+    }
+
+  return g_strdup_printf ("application%p", view);
 }
 
 

@@ -19,9 +19,12 @@
  */
 
 
-#include "bamf-matcher.h"
+#include <libbamf-private/bamf-private.h>
+
 #include "bamf-control.h"
+#include "bamf-application.h"
 #include "bamf-daemon.h"
+#include "bamf-matcher.h"
 
 G_DEFINE_TYPE (BamfControl, bamf_control, BAMF_DBUS_TYPE_CONTROL_SKELETON);
 #define BAMF_CONTROL_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -96,20 +99,20 @@ on_dbus_handle_quit (BamfDBusControl *interface,
                      GDBusMethodInvocation *invocation,
                      BamfControl *self)
 {
-  bamf_control_quit (self);
   g_dbus_method_invocation_return_value (invocation, NULL);
+  bamf_control_quit (self);
 
   return TRUE;
 }
 
 static gboolean
-on_dbus_handle_om_nom_nom_desktop_file (BamfDBusControl *interface,
-                                        GDBusMethodInvocation *invocation,
-                                        const gchar *desktop_file,
-                                        BamfControl *self)
+on_dbus_handle_insert_desktop_file (BamfDBusControl *interface,
+                                    GDBusMethodInvocation *invocation,
+                                    const gchar *desktop_file,
+                                    BamfControl *self)
 {
-  bamf_control_insert_desktop_file (self, desktop_file);
   g_dbus_method_invocation_return_value (invocation, NULL);
+  bamf_control_insert_desktop_file (self, desktop_file);
 
   return TRUE;
 }
@@ -121,8 +124,20 @@ on_dbus_handle_register_application_for_pid (BamfDBusControl *interface,
                                              guint pid,
                                              BamfControl *self)
 {
-  bamf_control_register_application_for_pid (self, application, pid);
   g_dbus_method_invocation_return_value (invocation, NULL);
+  bamf_control_register_application_for_pid (self, application, pid);
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_create_local_desktop_file (BamfDBusControl *interface,
+                                          GDBusMethodInvocation *invocation,
+                                          const gchar *desktop_file,
+                                          BamfControl *self)
+{
+  g_dbus_method_invocation_return_value (invocation, NULL);
+  bamf_control_create_local_desktop_file (self, desktop_file);
 
   return TRUE;
 }
@@ -138,10 +153,16 @@ bamf_control_init (BamfControl * self)
                     G_CALLBACK (on_dbus_handle_quit), self);
 
   g_signal_connect (self, "handle-om-nom-nom-desktop-file",
-                    G_CALLBACK (on_dbus_handle_om_nom_nom_desktop_file), self);
+                    G_CALLBACK (on_dbus_handle_insert_desktop_file), self);
+
+  g_signal_connect (self, "handle-insert-desktop-file",
+                    G_CALLBACK (on_dbus_handle_insert_desktop_file), self);
 
   g_signal_connect (self, "handle-register-application-for-pid",
                     G_CALLBACK (on_dbus_handle_register_application_for_pid), self);
+
+  g_signal_connect (self, "handle-create-local-desktop-file",
+                    G_CALLBACK (on_dbus_handle_create_local_desktop_file), self);
 }
 
 static void
@@ -189,6 +210,22 @@ bamf_control_insert_desktop_file (BamfControl *control,
 {
   BamfMatcher *matcher = bamf_matcher_get_default ();
   bamf_matcher_load_desktop_file (matcher, path);
+}
+
+void
+bamf_control_create_local_desktop_file (BamfControl *control, const char *app_path)
+{
+  BamfMatcher *matcher;
+  BamfView *view;
+
+  g_return_if_fail (BAMF_IS_CONTROL (control));
+  g_return_if_fail (app_path);
+
+  matcher = bamf_matcher_get_default ();
+  view = bamf_matcher_get_view_by_path (matcher, app_path);
+
+  if (BAMF_IS_APPLICATION (view))
+    bamf_application_create_local_desktop_file (BAMF_APPLICATION (view));
 }
 
 static gboolean

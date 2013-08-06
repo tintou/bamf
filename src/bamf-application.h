@@ -84,6 +84,8 @@ BamfWindow      * bamf_application_get_window                 (BamfApplication *
 gboolean          bamf_application_contains_similar_to_window (BamfApplication *app,
                                                                BamfWindow *window);
 
+gboolean          bamf_application_create_local_desktop_file  (BamfApplication *app);
+
 const char      * bamf_application_get_wmclass                (BamfApplication *application);
 void              bamf_application_set_wmclass                (BamfApplication *application,
                                                                const char *wmclass);

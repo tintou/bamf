@@ -122,9 +122,8 @@ on_dbus_handle_raise (BamfDBusItemView *interface,
                       GDBusMethodInvocation *invocation,
                       BamfTab *self)
 {
-  bamf_tab_raise (self);
-
   g_dbus_method_invocation_return_value (invocation, NULL);
+  bamf_tab_raise (self);
 
   return TRUE;
 }
@@ -134,9 +133,8 @@ on_dbus_handle_close (BamfDBusItemView *interface,
                       GDBusMethodInvocation *invocation,
                       BamfTab *self)
 {
-  bamf_tab_close (self);
-
   g_dbus_method_invocation_return_value (invocation, NULL);
+  bamf_tab_close (self);
 
   return TRUE;
 }

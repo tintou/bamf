@@ -105,6 +105,9 @@
     <signal name="SupportedMimeTypesChanged">
       <arg name="dnd_mimes" type="as"/>
     </signal>
+    <signal name="DesktopFileUpdated">
+      <arg name="desktop_file" type="s"/>
+    </signal>
   </interface>
 
   <interface name="org.ayatana.bamf.window">

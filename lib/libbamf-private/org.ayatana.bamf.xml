@@ -4,7 +4,7 @@
   <interface name="org.ayatana.bamf.control">
     <method name="Quit">
     </method>
-    <method name="OmNomNomDesktopFile">
+    <method name="InsertDesktopFile">
       <arg name="tab_path" type="s" direction="in"/>
     </method>
     <method name="RegisterTabProvider">
@@ -13,6 +13,13 @@
     <method name="RegisterApplicationForPid">
       <arg name="application" type="s" direction="in"/>
       <arg name="pid" type="i" direction="in"/>
+    </method>
+    <method name="CreateLocalDesktopFile">
+      <arg name="application" type="s" direction="in"/>
+    </method>
+    <method name="OmNomNomDesktopFile">
+      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
+      <arg name="tab_path" type="s" direction="in"/>
     </method>
   </interface>
 

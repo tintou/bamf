@@ -328,7 +328,7 @@ test_icon_full_path (void)
   g_assert (g_file_test (test_icon, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR));
 
   key_file = g_key_file_new ();
-  g_key_file_load_from_file (key_file, test_app, (GKeyFileFlags)0, NULL);
+  g_key_file_load_from_file (key_file, test_app, G_KEY_FILE_NONE, NULL);
   g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_ICON, test_icon);
 
   gchar *key_data = g_key_file_to_data (key_file, NULL, NULL);
@@ -358,7 +358,7 @@ test_icon_full_path_invalid (void)
   g_assert (!g_file_test (invalid_test_icon, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR));
 
   key_file = g_key_file_new ();
-  g_key_file_load_from_file (key_file, test_app, (GKeyFileFlags)0, NULL);
+  g_key_file_load_from_file (key_file, test_app, G_KEY_FILE_NONE, NULL);
   g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_ICON, invalid_test_icon);
 
   gchar *key_data = g_key_file_to_data (key_file, NULL, NULL);
@@ -1099,6 +1099,218 @@ test_app_main_child_on_window_replace_on_removal (void)
 }
 
 static void
+test_desktop_app_create_local_desktop_file (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win;
+
+  application = bamf_application_new ();
+  bamf_application_set_desktop_file (application, DESKTOP_FILE);
+  lwin = bamf_legacy_window_test_new (20, "window", "test-bamf-class", "execution-binary");
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+
+  g_assert (!bamf_application_create_local_desktop_file (application));
+
+  g_object_unref (lwin);
+  g_object_unref (win);
+  g_object_unref (application);
+}
+
+static void
+test_desktopless_app_create_local_desktop_file_invalid_exec (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", "test-bamf-class", NULL);
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+
+  g_assert (!bamf_application_create_local_desktop_file (application));
+
+  g_object_unref (lwin);
+  g_object_unref (win);
+  g_object_unref (application);
+}
+
+static void
+verify_application_desktop_file_content (BamfApplication *application)
+{
+  GKeyFile *key_file;
+  const gchar *desktop_file, *exec, *class;
+  gchar *str_value;
+  GError *error = NULL;
+  BamfView *main_child;
+  BamfLegacyWindow *main_window;
+
+  desktop_file = bamf_application_get_desktop_file (application);
+
+  key_file = g_key_file_new ();
+  g_key_file_load_from_file (key_file, desktop_file, G_KEY_FILE_NONE, NULL);
+
+  str_value = g_key_file_get_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                     G_KEY_FILE_DESKTOP_KEY_TYPE, &error);
+  g_assert (!error);
+  g_assert_cmpstr (str_value, ==, G_KEY_FILE_DESKTOP_TYPE_APPLICATION);
+  g_clear_pointer (&str_value, g_free);
+
+  if (bamf_view_get_name (BAMF_VIEW (application)))
+    {
+      str_value = g_key_file_get_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                         G_KEY_FILE_DESKTOP_KEY_NAME, &error);
+      g_assert (!error);
+      g_assert_cmpstr (str_value, ==, bamf_view_get_name (BAMF_VIEW (application)));
+      g_clear_pointer (&str_value, g_free);
+    }
+
+  if (bamf_view_get_icon (BAMF_VIEW (application)))
+    {
+      str_value = g_key_file_get_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                         G_KEY_FILE_DESKTOP_KEY_ICON, &error);
+      g_assert (!error);
+      g_assert_cmpstr (str_value, ==, bamf_view_get_icon (BAMF_VIEW (application)));
+      g_clear_pointer (&str_value, g_free);
+    }
+
+  main_child = bamf_application_get_main_child (application);
+  main_window = bamf_window_get_window (BAMF_WINDOW (main_child));
+  exec = bamf_legacy_window_get_exec_string (main_window);
+
+  str_value = g_key_file_get_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                     G_KEY_FILE_DESKTOP_KEY_EXEC, &error);
+  g_assert (!error);
+  g_assert_cmpstr (str_value, ==, exec);
+  g_clear_pointer (&str_value, g_free);
+
+  g_assert (g_key_file_get_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                    G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, &error));
+  g_assert (!error);
+
+  class = bamf_legacy_window_get_class_instance_name (main_window);
+  class = class ? class : bamf_legacy_window_get_class_name (main_window);
+
+  if (class)
+    {
+      str_value = g_key_file_get_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                         G_KEY_FILE_DESKTOP_KEY_STARTUP_WM_CLASS, &error);
+      g_assert (!error);
+      g_assert_cmpstr (str_value, ==, class);
+      g_clear_pointer (&str_value, g_free);
+    }
+
+  g_key_file_free (key_file);
+}
+
+static void
+test_desktopless_app_create_local_desktop_file_using_instance_class_basename (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win;
+  const gchar *desktop_path;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", NULL, "awesome --exec");
+  bamf_legacy_window_test_set_wmclass (lwin, "application-class", "instance-class");
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+
+  g_assert (bamf_application_create_local_desktop_file (application));
+
+  desktop_path = bamf_application_get_desktop_file (application);
+  g_assert (desktop_path);
+  g_assert (g_str_has_suffix (desktop_path, "instance-class.desktop"));
+  g_assert (g_file_test (desktop_path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR));
+  verify_application_desktop_file_content (application);
+
+  g_object_unref (lwin);
+  g_object_unref (win);
+  g_object_unref (application);
+}
+
+static void
+test_desktopless_app_create_local_desktop_file_using_name_class_basename (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win;
+  const gchar *desktop_path;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", "Application!/?Class", "awesome --exec");
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+
+  g_assert (bamf_application_create_local_desktop_file (application));
+
+  desktop_path = bamf_application_get_desktop_file (application);
+  g_assert (desktop_path);
+  g_assert (g_str_has_suffix (desktop_path, "application___class.desktop"));
+  g_assert (g_file_test (desktop_path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR));
+  verify_application_desktop_file_content (application);
+
+  g_object_unref (lwin);
+  g_object_unref (win);
+  g_object_unref (application);
+}
+
+static void
+test_desktopless_app_create_local_desktop_file_using_exec_basename (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win;
+  const gchar *desktop_path;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", NULL, "awesome --exec");
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+
+  g_assert (bamf_application_create_local_desktop_file (application));
+
+  desktop_path = bamf_application_get_desktop_file (application);
+  g_assert (desktop_path);
+  g_assert (g_str_has_suffix (desktop_path, "awesome.desktop"));
+  g_assert (g_file_test (desktop_path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR));
+  verify_application_desktop_file_content (application);
+
+  g_object_unref (lwin);
+  g_object_unref (win);
+  g_object_unref (application);
+}
+
+static void
+test_desktopless_app_create_local_desktop_file_using_trimmed_exec_basename (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win;
+  const gchar *desktop_path;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", NULL, "python awesome-script.py");
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+
+  g_assert (bamf_application_create_local_desktop_file (application));
+
+  desktop_path = bamf_application_get_desktop_file (application);
+  g_assert (desktop_path);
+  g_assert (g_str_has_suffix (desktop_path, "awesome-script.desktop"));
+  g_assert (g_file_test (desktop_path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR));
+  verify_application_desktop_file_content (application);
+
+  g_object_unref (lwin);
+  g_object_unref (win);
+  g_object_unref (application);
+}
+
+static void
 test_contain_similar_to_window (void)
 {
   BamfApplication *application;
@@ -1202,6 +1414,7 @@ test_application_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/DesktopFile/MainChild", test_desktop_app_main_child);
   g_test_add_func (DOMAIN"/DesktopFile/MainChild/NotMatchEmblems", test_desktop_app_main_child_doesnt_match_emblems);
   g_test_add_func (DOMAIN"/DesktopFile/MainChild/NotUpdatesEmblems", test_desktop_app_main_child_doesnt_update_emblems);
+  g_test_add_func (DOMAIN"/DesktopFile/CreateLocalDesktopFile", test_desktop_app_create_local_desktop_file);
   g_test_add_func (DOMAIN"/DesktopLess/Icon/ClassName", test_icon_class_name);
   g_test_add_func (DOMAIN"/DesktopLess/Icon/Exec", test_icon_exec_string);
   g_test_add_func (DOMAIN"/DesktopLess/Icon/Embedded", test_icon_embedded);
@@ -1215,6 +1428,11 @@ test_application_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/DesktopLess/MainChild/NormalPriority", test_app_main_child_normal_priority);
   g_test_add_func (DOMAIN"/DesktopLess/MainChild/Removal", test_app_main_child_on_window_removal);
   g_test_add_func (DOMAIN"/DesktopLess/MainChild/ReplaceOnRemoval", test_app_main_child_on_window_replace_on_removal);
+  g_test_add_func (DOMAIN"/DesktopLess/CreateLocalDesktopFile/InvalidExec", test_desktopless_app_create_local_desktop_file_invalid_exec);
+  g_test_add_func (DOMAIN"/DesktopLess/CreateLocalDesktopFile/UsingClassInstance", test_desktopless_app_create_local_desktop_file_using_instance_class_basename);
+  g_test_add_func (DOMAIN"/DesktopLess/CreateLocalDesktopFile/UsingClassName", test_desktopless_app_create_local_desktop_file_using_name_class_basename);
+  g_test_add_func (DOMAIN"/DesktopLess/CreateLocalDesktopFile/UsingExec", test_desktopless_app_create_local_desktop_file_using_exec_basename);
+  g_test_add_func (DOMAIN"/DesktopLess/CreateLocalDesktopFile/UsingTrimmedExec", test_desktopless_app_create_local_desktop_file_using_trimmed_exec_basename);
   g_test_add_func (DOMAIN"/ManagesXid", test_manages_xid);
   g_test_add_func (DOMAIN"/GetWindow", test_get_window);
   g_test_add_func (DOMAIN"/Xids", test_get_xids);

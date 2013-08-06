@@ -1176,6 +1176,42 @@ test_autostart_desktop_file_system (void)
     }
 }
 
+static void
+test_get_view_by_path (void)
+{
+  BamfMatcher *matcher;
+  BamfLegacyScreen *screen;
+  BamfLegacyWindowTest *lwin;
+  BamfApplication *app;
+  BamfWindow *win;
+  GList *app_children;
+  guint32 xid;
+
+  screen = bamf_legacy_screen_get_default();
+  matcher = bamf_matcher_get_default ();
+
+  cleanup_matcher_tables (matcher);
+  export_matcher_on_bus (matcher);
+
+  xid = g_random_int ();
+  lwin = bamf_legacy_window_test_new (xid, "Window", NULL, NULL);
+  _bamf_legacy_screen_open_test_window (screen, lwin);
+
+  app = bamf_matcher_get_application_by_xid (matcher, xid);
+  const char *app_path = bamf_view_get_path (BAMF_VIEW (app));
+  g_assert (app == BAMF_APPLICATION (bamf_matcher_get_view_by_path (matcher, app_path)));
+
+  app_children = bamf_view_get_children (BAMF_VIEW (app));
+  g_assert (app_children);
+
+  win = BAMF_WINDOW (app_children->data);
+  const char *win_path = bamf_view_get_path (BAMF_VIEW (win));
+  g_assert (win == BAMF_WINDOW (bamf_matcher_get_view_by_path (matcher, win_path)));
+
+  g_object_unref (matcher);
+  g_object_unref (screen);
+}
+
 /* Initialize test suite */
 
 void
@@ -1187,6 +1223,7 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/AutostartDesktopFile/User", test_autostart_desktop_file_user);
   g_test_add_func (DOMAIN"/AutostartDesktopFile/System", test_autostart_desktop_file_system);
   g_test_add_func (DOMAIN"/ExecStringTrimming", test_trim_exec_string);
+  g_test_add_func (DOMAIN"/GetViewByPath", test_get_view_by_path);
   g_test_add_func (DOMAIN"/LoadDesktopFile", test_load_desktop_file);
   g_test_add_func (DOMAIN"/LoadDesktopFile/Autostart", test_load_desktop_file_autostart);
   g_test_add_func (DOMAIN"/LoadDesktopFile/NoDisplay/SameID", test_load_desktop_file_no_display_has_lower_prio_same_id);

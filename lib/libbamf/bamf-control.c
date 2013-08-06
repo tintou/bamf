@@ -37,6 +37,7 @@
 
 #include <libbamf-private/bamf-private.h>
 #include "bamf-control.h"
+#include "bamf-view-private.h"
 
 G_DEFINE_TYPE (BamfControl, bamf_control, G_TYPE_OBJECT);
 
@@ -117,7 +118,7 @@ bamf_control_init (BamfControl *self)
 /**
  * bamf_control_get_default:
  *
- * Returns: (transfer none): The default #BamfControl reference.
+ * Returns: (transfer full): The default #BamfControl reference.
  */
 BamfControl *
 bamf_control_get_default (void)
@@ -125,7 +126,9 @@ bamf_control_get_default (void)
   if (BAMF_IS_CONTROL (default_control))
     return g_object_ref (default_control);
 
-  return (default_control = g_object_new (BAMF_TYPE_CONTROL, NULL));
+  default_control = g_object_new (BAMF_TYPE_CONTROL, NULL);
+
+  return default_control;
 }
 
 void
@@ -137,11 +140,34 @@ bamf_control_insert_desktop_file (BamfControl *control, const gchar *desktop_fil
   g_return_if_fail (BAMF_IS_CONTROL (control));
   priv = control->priv;
 
-  if (!_bamf_dbus_control_call_om_nom_nom_desktop_file_sync (priv->proxy,
-                                                             desktop_file,
-                                                             NULL, &error))
+  if (!_bamf_dbus_control_call_insert_desktop_file_sync (priv->proxy, desktop_file,
+                                                         NULL, &error))
     {
       g_warning ("Failed to insert desktop file: %s", error->message);
+      g_error_free (error);
+    }
+}
+
+void
+bamf_control_create_local_desktop_file (BamfControl *control, BamfApplication *app)
+{
+  BamfControlPrivate *priv;
+  const gchar *app_path;
+  GError *error = NULL;
+
+  g_return_if_fail (BAMF_IS_CONTROL (control));
+  g_return_if_fail (BAMF_IS_APPLICATION (app));
+
+  priv = control->priv;
+  app_path = _bamf_view_get_path (BAMF_VIEW (app));
+
+  if (!app_path)
+    return;
+
+  if (!_bamf_dbus_control_call_create_local_desktop_file_sync (priv->proxy, app_path,
+                                                               NULL, &error))
+    {
+      g_warning ("Failed to create local desktop file: %s", error->message);
       g_error_free (error);
     }
 }

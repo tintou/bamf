@@ -29,6 +29,7 @@
 #define _BAMF_CONTROL_H_
 
 #include <glib-object.h>
+#include "bamf-application.h"
 
 G_BEGIN_DECLS
 
@@ -79,6 +80,9 @@ BamfControl * bamf_control_get_default (void);
 
 void          bamf_control_insert_desktop_file          (BamfControl *control,
                                                          const gchar *desktop_file);
+
+void          bamf_control_create_local_desktop_file    (BamfControl *control,
+                                                         BamfApplication *application);
 
 void          bamf_control_register_application_for_pid (BamfControl *control,
                                                          const gchar *desktop_file,

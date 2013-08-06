@@ -191,6 +191,31 @@ bamf_matcher_get_application_by_xid (BamfMatcher *self, guint xid)
   return NULL;
 }
 
+
+BamfView *
+bamf_matcher_get_view_by_path (BamfMatcher *self, const char *view_path)
+{
+  GList *l;
+  BamfView *view;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
+
+  for (l = self->priv->views; l; l = l->next)
+    {
+      view = l->data;
+
+      if (!BAMF_IS_VIEW (view))
+        continue;
+
+      if (g_strcmp0 (bamf_view_get_path (view), view_path) == 0)
+        {
+          return view;
+        }
+    }
+
+  return NULL;
+}
+
 static gboolean
 emit_paths_changed (gpointer user_data)
 {
@@ -2835,8 +2860,8 @@ on_dbus_handle_register_favorites (BamfDBusMatcher *interface,
                                    const char **favorites,
                                    BamfMatcher *self)
 {
-  bamf_matcher_register_favorites (self, favorites);
   g_dbus_method_invocation_return_value (invocation, NULL);
+  bamf_matcher_register_favorites (self, favorites);
 
   return TRUE;
 }
@@ -2917,7 +2942,7 @@ on_webapp_child_added (BamfView *application,
   webapp_tab = BAMF_UNITY_WEBAPPS_TAB (child);
   legacy_window = bamf_unity_webapps_tab_get_legacy_window_for (webapp_tab);
 
-  if (is_web_app_window (legacy_window))
+  if (legacy_window && is_web_app_window (legacy_window))
     {
       /* If we have a chromeless window, we remove the window from the
        * application children list, so that it won't be duplicated in launcher */

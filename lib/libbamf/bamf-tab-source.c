@@ -138,8 +138,8 @@ on_dbus_handle_show_tab (BamfDBusItemView *interface,
                          gchar *tab_id,
                          BamfTabSource *self)
 {
-  bamf_tab_source_show_tab (self, tab_id, NULL);
   g_dbus_method_invocation_return_value (invocation, NULL);
+  bamf_tab_source_show_tab (self, tab_id, NULL);
 
   return TRUE;
 }

@@ -10,6 +10,7 @@ libbamf3.so.1 libbamf3-1 #MINVER#
  bamf_application_get_xids@Base 0.2.20
  bamf_application_new@Base 0.2.20
  bamf_application_new_favorite@Base 0.2.60
+ bamf_control_create_local_desktop_file@Base 0.5.0
  bamf_control_get_default@Base 0.2.20
  bamf_control_get_type@Base 0.2.20
  bamf_control_insert_desktop_file@Base 0.2.20

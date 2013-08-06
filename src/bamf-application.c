@@ -40,6 +40,7 @@ struct _BamfApplicationPrivate
   BamfDBusItemApplication *dbus_iface;
   BamfApplicationType app_type;
   BamfView * main_child;
+  GCancellable * cancellable;
   char * desktop_file;
   GList * desktop_file_list;
   char * wmclass;
@@ -104,7 +105,7 @@ bamf_application_default_get_supported_mime_types (BamfApplication *application)
 
   GKeyFile* key_file = g_key_file_new ();
 
-  if (!g_key_file_load_from_file (key_file, desktop_file, (GKeyFileFlags) 0, NULL))
+  if (!g_key_file_load_from_file (key_file, desktop_file, G_KEY_FILE_NONE, NULL))
     {
       g_key_file_free (key_file);
       return NULL;
@@ -340,7 +341,7 @@ bamf_application_setup_icon_and_name (BamfApplication *self, gboolean force)
 
       if (!icon)
         {
-          icon = g_strdup (bamf_legacy_window_save_mini_icon (legacy_window));
+          icon = bamf_legacy_window_save_mini_icon (legacy_window);
 
           if (!icon)
             {
@@ -388,6 +389,9 @@ bamf_application_set_desktop_file (BamfApplication *application,
                                             on_main_child_name_changed, application);
     }
 
+  g_signal_emit_by_name (application, "desktop-file-updated",
+                         application->priv->desktop_file);
+
   bamf_application_setup_icon_and_name (application, TRUE);
 }
 
@@ -410,6 +414,255 @@ bamf_application_set_desktop_file_from_id (BamfApplication *application,
   bamf_application_set_desktop_file (application, filename);
 
   g_object_unref (G_OBJECT (info));
+
+  return TRUE;
+}
+
+static GFile *
+try_create_subdir (GFile *parent, const gchar *child_name, GCancellable *cancellable)
+{
+  GFile *child;
+  GError *error = NULL;
+
+  child = g_file_get_child (parent, child_name);
+  g_return_val_if_fail (G_IS_FILE (child), NULL);
+
+  g_file_make_directory_with_parents (child, cancellable, &error);
+
+  if (error)
+    {
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_EXISTS))
+        {
+          g_error ("Impossible to create `%s` directory: %s", child_name, error->message);
+          g_clear_object (&child);
+        }
+
+      g_error_free (error);
+    }
+
+  return child;
+}
+
+static GFile *
+try_create_child (GFile *parent, const gchar *basename, const gchar *extension, GCancellable *cancellable)
+{
+  gchar *down, *child_name;
+
+  down = g_ascii_strdown (basename, -1);
+  g_strdelimit (down, "/\\&%\"'!?`*.;:^|()= <>[]{}", '_');
+
+  child_name = g_strconcat (down, extension, NULL);
+
+  GFile *child = g_file_get_child (parent, child_name);
+  g_return_val_if_fail (G_IS_FILE (child), NULL);
+
+  if (g_file_query_exists (child, cancellable))
+    g_clear_object (&child);
+
+  g_free (child_name);
+  g_free (down);
+
+  return child;
+}
+
+gboolean
+try_create_local_desktop_data (GFile *apps_dir, GFile *icons_dir, const char *basename,
+                               GFile **out_desktop_file, GFile **out_icon_file,
+                               GCancellable *cancellable)
+{
+  g_return_val_if_fail (out_desktop_file, NULL);
+
+  if (!apps_dir)
+    {
+      *out_desktop_file = NULL;
+      g_warn_if_reached ();
+    }
+
+  *out_desktop_file = try_create_child (apps_dir, basename, ".desktop", cancellable);
+
+  if (G_IS_FILE (*out_desktop_file))
+    {
+      if (G_IS_FILE (icons_dir) && out_icon_file)
+        *out_icon_file = try_create_child (icons_dir, basename, ".png", cancellable);
+
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+gboolean
+bamf_application_create_local_desktop_file (BamfApplication *self)
+{
+  BamfApplicationPrivate *priv;
+  BamfLegacyWindow *window;
+  GKeyFile *key_file;
+  const gchar *name, *icon, *iclass, *nclass, *class, *exec;
+  GFile *data_dir, *apps_dir, *icons_dir, *desktop_file, *icon_file, *mini_icon;
+  GError *error = NULL;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (self), FALSE);
+  priv = self->priv;
+
+  if (priv->desktop_file || !BAMF_IS_WINDOW (priv->main_child))
+    {
+      return FALSE;
+    }
+
+  window = bamf_window_get_window (BAMF_WINDOW (priv->main_child));
+  exec = bamf_legacy_window_get_exec_string (window);
+
+  if (!exec)
+    {
+      return FALSE;
+    }
+
+  data_dir = g_file_new_for_path (g_get_user_data_dir ());
+  name = bamf_view_get_name (BAMF_VIEW (self));
+  icon = bamf_view_get_icon (BAMF_VIEW (self));
+  iclass = bamf_legacy_window_get_class_instance_name (window);
+  nclass = bamf_legacy_window_get_class_name (window);
+  mini_icon = bamf_legacy_window_get_saved_mini_icon (window);
+
+  apps_dir = try_create_subdir (data_dir, "applications", priv->cancellable);
+  icons_dir = NULL;
+
+  if (!G_IS_FILE (apps_dir))
+    {
+      g_object_unref (data_dir);
+      return FALSE;
+    }
+
+  if (icon && G_IS_FILE (mini_icon))
+    icons_dir = try_create_subdir (data_dir, "icons", priv->cancellable);
+
+  g_clear_object (&data_dir);
+
+  desktop_file = NULL;
+  icon_file = NULL;
+  class = (iclass) ? iclass : nclass;
+
+  if (class)
+    {
+      try_create_local_desktop_data (apps_dir, icons_dir, class,
+                                     &desktop_file, &icon_file, priv->cancellable);
+    }
+
+  if (!G_IS_FILE (desktop_file))
+    {
+      BamfMatcher *matcher = bamf_matcher_get_default ();
+      gchar *trimmed_exec = bamf_matcher_get_trimmed_exec (matcher, exec);
+      try_create_local_desktop_data (apps_dir, icons_dir, trimmed_exec,
+                                     &desktop_file, &icon_file, priv->cancellable);
+      g_free (trimmed_exec);
+    }
+
+  if (!G_IS_FILE (desktop_file))
+    {
+      try_create_local_desktop_data (apps_dir, icons_dir, exec,
+                                     &desktop_file, &icon_file, priv->cancellable);
+    }
+
+  g_object_unref (apps_dir);
+
+  if (!G_IS_FILE (desktop_file))
+    {
+      g_critical ("Impossible to find a valid path where to save a .desktop file");
+      g_clear_object (&icons_dir);
+      g_clear_object (&icon_file);
+      return FALSE;
+    }
+
+  if (G_IS_FILE (icons_dir) && !G_IS_FILE (icon_file))
+    {
+      gchar *basename = g_file_get_basename (mini_icon);
+      icon_file = try_create_child (icons_dir, basename+1, ".png", priv->cancellable);
+      g_free (basename);
+    }
+
+  g_clear_object (&icons_dir);
+
+  if (G_IS_FILE (icon_file))
+    {
+      if (!g_file_copy (mini_icon, icon_file, G_FILE_COPY_NONE,
+                        priv->cancellable, NULL, NULL, &error))
+        {
+          g_warning ("Impossible to copy icon to final destination: %s", error->message);
+          g_clear_error (&error);
+          g_clear_object (&icon_file);
+        }
+    }
+
+  key_file = g_key_file_new ();
+  g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                         G_KEY_FILE_DESKTOP_KEY_TYPE,
+                         G_KEY_FILE_DESKTOP_TYPE_APPLICATION);
+
+  if (name)
+    {
+      g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                             G_KEY_FILE_DESKTOP_KEY_NAME, name);
+    }
+
+  if (icon_file)
+    {
+      gchar *basename = g_file_get_basename (icon_file);
+      g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                             G_KEY_FILE_DESKTOP_KEY_ICON, basename);
+      bamf_view_set_icon (BAMF_VIEW (self), basename);
+      g_free (basename);
+      g_clear_object (&icon_file);
+    }
+  else if (icon)
+    {
+      g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                             G_KEY_FILE_DESKTOP_KEY_ICON, icon);
+    }
+
+  g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                         G_KEY_FILE_DESKTOP_KEY_EXEC, exec);
+
+  g_key_file_set_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                          G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, TRUE);
+
+  if (class)
+    {
+      g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                             G_KEY_FILE_DESKTOP_KEY_STARTUP_WM_CLASS, class);
+    }
+
+  gsize data_length = 0;
+  gchar *data = g_key_file_to_data (key_file, &data_length, &error);
+  g_key_file_free (key_file);
+
+  if (error)
+    {
+      g_critical ("Impossible to generate local desktop file: %s", error->message);
+      g_clear_error (&error);
+      g_clear_pointer (&data, g_free);
+    }
+
+  if (data)
+    {
+      g_file_replace_contents (desktop_file, data, data_length, NULL, FALSE,
+                               G_FILE_CREATE_NONE, NULL, priv->cancellable, &error);
+      g_free (data);
+
+      if (error)
+        {
+          g_critical ("Impossible to create local desktop file: %s", error->message);
+          g_clear_error (&error);
+          g_object_unref (desktop_file);
+
+          return FALSE;
+        }
+    }
+
+  gchar *desktop_path = g_file_get_path (desktop_file);
+  g_object_unref (desktop_file);
+
+  bamf_application_set_desktop_file (self, desktop_path);
+  g_free (desktop_path);
 
   return TRUE;
 }
@@ -888,6 +1141,13 @@ on_window_removed (BamfApplication *self, const gchar *win_path, gpointer _not_u
   g_signal_emit_by_name (self->priv->dbus_iface, "window-removed", win_path);
 }
 
+static void
+on_desktop_file_updated (BamfApplication *self, const gchar *file, gpointer _not_used)
+{
+  g_return_if_fail (BAMF_IS_APPLICATION (self));
+  g_signal_emit_by_name (self->priv->dbus_iface, "desktop-file-updated", file);
+}
+
 static gboolean
 on_dbus_handle_show_stubs (BamfDBusItemApplication *interface,
                            GDBusMethodInvocation *invocation,
@@ -1056,6 +1316,13 @@ bamf_application_dispose (GObject *object)
       priv->main_child = NULL;
     }
 
+  if (priv->cancellable)
+    {
+      g_cancellable_cancel (priv->cancellable);
+      g_object_unref (priv->cancellable);
+      priv->cancellable = NULL;
+    }
+
   g_strfreev (priv->mimes);
   priv->mimes = NULL;
 
@@ -1085,6 +1352,8 @@ bamf_application_init (BamfApplication * self)
   priv->app_type = BAMF_APPLICATION_SYSTEM;
   priv->show_stubs = TRUE;
 
+  priv->cancellable = g_cancellable_new ();
+
   /* Initializing the dbus interface */
   priv->dbus_iface = _bamf_dbus_item_application_skeleton_new ();
 
@@ -1092,6 +1361,7 @@ bamf_application_init (BamfApplication * self)
    * interface                                                                */
   g_signal_connect (self, "window-added", G_CALLBACK (on_window_added), NULL);
   g_signal_connect (self, "window-removed", G_CALLBACK (on_window_removed), NULL);
+  g_signal_connect (self, "desktop-file-updated", G_CALLBACK (on_desktop_file_updated), NULL);
 
   /* Registering signal callbacks to reply to dbus method calls */
   g_signal_connect (priv->dbus_iface, "handle-show-stubs",

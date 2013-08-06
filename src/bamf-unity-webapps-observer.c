@@ -155,7 +155,6 @@ bamf_unity_webapps_observer_service_appeared (GDBusConnection *connection,
   unity_webapps_service_on_context_vanished (observer->priv->service, bamf_unity_webapps_observer_context_vanished, observer);
 
   bamf_unity_webapps_observer_register_existing_contexts (observer, observer->priv->service);
-
 }
 
 static void
