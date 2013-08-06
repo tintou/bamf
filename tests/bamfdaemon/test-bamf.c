@@ -82,6 +82,15 @@ main (gint argc, gchar *argv[])
 {
   GMainLoop *loop;
 
+  GFile *tmp_dir;
+  gchar *tmp_path;
+
+  tmp_path = g_dir_make_tmp (".bamfhomedataXXXXXX", NULL);
+  tmp_dir = g_file_new_for_path (tmp_path);
+  g_file_make_directory (tmp_dir, NULL, NULL);
+  g_setenv ("XDG_DATA_HOME", tmp_path, TRUE);
+  g_free (tmp_path);
+
   gtk_init (&argc, &argv);
   g_test_init (&argc, &argv, NULL);
   glibtop_init ();
@@ -98,6 +107,9 @@ main (gint argc, gchar *argv[])
                   NULL);
 
   g_main_loop_run (loop);
+
+  g_file_delete (tmp_dir, NULL, NULL);
+  g_object_unref (tmp_dir);
 
   return result;
 }

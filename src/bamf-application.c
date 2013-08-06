@@ -105,7 +105,7 @@ bamf_application_default_get_supported_mime_types (BamfApplication *application)
 
   GKeyFile* key_file = g_key_file_new ();
 
-  if (!g_key_file_load_from_file (key_file, desktop_file, (GKeyFileFlags) 0, NULL))
+  if (!g_key_file_load_from_file (key_file, desktop_file, G_KEY_FILE_NONE, NULL))
     {
       g_key_file_free (key_file);
       return NULL;
@@ -497,7 +497,7 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
   BamfApplicationPrivate *priv;
   BamfLegacyWindow *window;
   GKeyFile *key_file;
-  const gchar *name, *icon, *class, *exec;
+  const gchar *name, *icon, *iclass, *nclass, *class, *exec;
   GFile *data_dir, *apps_dir, *icons_dir, *desktop_file, *icon_file, *mini_icon;
   GError *error = NULL;
 
@@ -520,7 +520,8 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
   data_dir = g_file_new_for_path (g_get_user_data_dir ());
   name = bamf_view_get_name (BAMF_VIEW (self));
   icon = bamf_view_get_icon (BAMF_VIEW (self));
-  class = bamf_legacy_window_get_class_instance_name (window);
+  iclass = bamf_legacy_window_get_class_instance_name (window);
+  nclass = bamf_legacy_window_get_class_name (window);
   mini_icon = bamf_legacy_window_get_saved_mini_icon (window);
 
   apps_dir = try_create_subdir (data_dir, "applications", priv->cancellable);
@@ -539,6 +540,7 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
 
   desktop_file = NULL;
   icon_file = NULL;
+  class = (iclass) ? iclass : nclass;
 
   if (class)
     {
