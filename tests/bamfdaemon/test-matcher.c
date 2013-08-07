@@ -1218,6 +1218,7 @@ test_class_valid_name (void)
   BamfMatcher *matcher;
 
   matcher = bamf_matcher_get_default ();
+  g_assert (bamf_matcher_is_valid_class_name (matcher, "any-good-class"));
   g_assert (!bamf_matcher_is_valid_class_name (matcher, "sun-awt-X11-XFramePeer"));
   g_assert (!bamf_matcher_is_valid_class_name (matcher, "net-sourceforge-jnlp-runtime-Boot"));
   g_assert (!bamf_matcher_is_valid_class_name (matcher, "com-sun-javaws-Main"));

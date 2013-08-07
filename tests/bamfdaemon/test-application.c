@@ -1186,8 +1186,8 @@ verify_application_desktop_file_content (BamfApplication *application)
   g_assert_cmpstr (str_value, ==, exec);
   g_clear_pointer (&str_value, g_free);
 
-  g_assert (g_key_file_get_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP,
-                                    G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, &error));
+  g_assert (!g_key_file_get_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                     G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, &error));
   g_assert (!error);
 
   const gchar *class = bamf_legacy_window_get_class_instance_name (main_window);

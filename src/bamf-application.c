@@ -629,8 +629,9 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
   g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
                          G_KEY_FILE_DESKTOP_KEY_EXEC, exec);
 
+  // It would be nice to be able to find if enabling this from some win property
   g_key_file_set_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP,
-                          G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, TRUE);
+                          G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, FALSE);
 
   if (class)
     {
