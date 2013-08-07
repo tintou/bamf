@@ -1190,7 +1190,6 @@ verify_application_desktop_file_content (BamfApplication *application)
                                     G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, &error));
   g_assert (!error);
 
-  /* Disabled on bamf-application.c for now
   const gchar *class = bamf_legacy_window_get_class_instance_name (main_window);
   class = class ? class : bamf_legacy_window_get_class_name (main_window);
 
@@ -1202,7 +1201,6 @@ verify_application_desktop_file_content (BamfApplication *application)
       g_assert_cmpstr (str_value, ==, class);
       g_clear_pointer (&str_value, g_free);
     }
-  */
 
   g_key_file_free (key_file);
 }
