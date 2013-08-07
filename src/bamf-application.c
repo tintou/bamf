@@ -625,11 +625,15 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
   g_key_file_set_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP,
                           G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, TRUE);
 
+  /* It's safer to disable this, as it may force matching in the wrong way
+   * in case we have different applications with the same class, such it happens
+   * with javaws and some java applications.
   if (class)
     {
       g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
                              G_KEY_FILE_DESKTOP_KEY_STARTUP_WM_CLASS, class);
     }
+  */
 
   gsize data_length = 0;
   gchar *data = g_key_file_to_data (key_file, &data_length, &error);
