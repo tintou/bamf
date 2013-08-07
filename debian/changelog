@@ -1,3 +1,17 @@
+bamf (0.5.0+13.10.20130807.1-0ubuntu1) saucy; urgency=low
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfDaemon: Use nicer and more compliant dbus object paths for
+    views.
+  * BamfMatcher: ignore known invalid window class values when matching
+    windows And generate better .desktop files for local apps. This will
+    make us life easier with Java.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 575
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 07 Aug 2013 16:56:51 +0000
+
 bamf (0.5.0+13.10.20130807-0ubuntu1) saucy; urgency=low
 
   [ Marco Trevisan (Treviño) ]
