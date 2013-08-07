@@ -1,3 +1,21 @@
+bamf (0.5.0+13.10.20130807-0ubuntu1) saucy; urgency=low
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfControl: add an API to allow generation of local .desktop file
+    for a BamfApplication. Add a bamf_control dbus method that requests
+    to generate a new local .desktop file for the provided application
+    path. In case the application has alredy a desktop file, the request
+    is ignored. Otherwise we use some euristic to generate an hopefully
+    valid file saved in $XDG_DATA_HOME dir. Also added a new
+    DesktopUpdated signal to the BamfApplication DBus interface that is
+    emitted when the .desktop file for an application is set (for now).
+    (LP: #753305)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 572
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 07 Aug 2013 02:02:05 +0000
+
 bamf (0.5.0+13.10.20130725-0ubuntu1) saucy; urgency=low
 
   [ Marco Trevisan (Treviño) ]
