@@ -792,28 +792,14 @@ static char *
 bamf_application_get_stable_bus_name (BamfView *view)
 {
   BamfApplication *self;
-  GList *children, *l;
-  BamfView *child;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (view), NULL);
   self = BAMF_APPLICATION (view);
 
   if (self->priv->desktop_file)
-    return g_strdup_printf ("application%i", abs (g_str_hash (self->priv->desktop_file)));
+    return g_strdup_printf ("application/%i", abs (g_str_hash (self->priv->desktop_file)));
 
-  children = bamf_view_get_children (BAMF_VIEW (self));
-  for (l = children; l; l = l->next)
-    {
-      child = l->data;
-
-      if (!BAMF_IS_WINDOW (child))
-        continue;
-
-      return g_strdup_printf ("application%s",
-                              bamf_legacy_window_get_class_name (bamf_window_get_window (BAMF_WINDOW (child))));
-    }
-
-  return g_strdup_printf ("application%p", view);
+  return g_strdup_printf ("application/%p", view);
 }
 
 static void
