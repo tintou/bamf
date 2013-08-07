@@ -520,8 +520,8 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
   data_dir = g_file_new_for_path (g_get_user_data_dir ());
   name = bamf_view_get_name (BAMF_VIEW (self));
   icon = bamf_view_get_icon (BAMF_VIEW (self));
-  iclass = bamf_legacy_window_get_class_instance_name (window);
   nclass = bamf_legacy_window_get_class_name (window);
+  iclass = bamf_legacy_window_get_class_instance_name (window);
   mini_icon = bamf_legacy_window_get_saved_mini_icon (window);
 
   apps_dir = try_create_subdir (data_dir, "applications", priv->cancellable);
@@ -540,7 +540,7 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
 
   desktop_file = NULL;
   icon_file = NULL;
-  class = (iclass) ? iclass : nclass;
+  class = (nclass) ? nclass : iclass;
 
   if (class)
     {
