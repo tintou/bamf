@@ -1141,7 +1141,7 @@ static void
 verify_application_desktop_file_content (BamfApplication *application)
 {
   GKeyFile *key_file;
-  const gchar *desktop_file, *exec, *class;
+  const gchar *desktop_file, *exec;
   gchar *str_value;
   GError *error = NULL;
   BamfView *main_child;
@@ -1186,11 +1186,11 @@ verify_application_desktop_file_content (BamfApplication *application)
   g_assert_cmpstr (str_value, ==, exec);
   g_clear_pointer (&str_value, g_free);
 
-  g_assert (g_key_file_get_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP,
-                                    G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, &error));
+  g_assert (!g_key_file_get_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                     G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, &error));
   g_assert (!error);
 
-  class = bamf_legacy_window_get_class_instance_name (main_window);
+  const gchar *class = bamf_legacy_window_get_class_instance_name (main_window);
   class = class ? class : bamf_legacy_window_get_class_name (main_window);
 
   if (class)
@@ -1215,7 +1215,7 @@ test_desktopless_app_create_local_desktop_file_using_instance_class_basename (vo
 
   application = bamf_application_new ();
   lwin = bamf_legacy_window_test_new (20, "window", NULL, "awesome --exec");
-  bamf_legacy_window_test_set_wmclass (lwin, "application-class", "instance-class");
+  bamf_legacy_window_test_set_wmclass (lwin, NULL, "instance-class");
   win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
   bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
 

@@ -496,6 +496,7 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
 {
   BamfApplicationPrivate *priv;
   BamfLegacyWindow *window;
+  BamfMatcher *matcher;
   GKeyFile *key_file;
   const gchar *name, *icon, *iclass, *nclass, *class, *exec;
   GFile *data_dir, *apps_dir, *icons_dir, *desktop_file, *icon_file, *mini_icon;
@@ -517,12 +518,19 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
       return FALSE;
     }
 
+  matcher = bamf_matcher_get_default ();
   data_dir = g_file_new_for_path (g_get_user_data_dir ());
   name = bamf_view_get_name (BAMF_VIEW (self));
   icon = bamf_view_get_icon (BAMF_VIEW (self));
-  iclass = bamf_legacy_window_get_class_instance_name (window);
   nclass = bamf_legacy_window_get_class_name (window);
+  iclass = bamf_legacy_window_get_class_instance_name (window);
   mini_icon = bamf_legacy_window_get_saved_mini_icon (window);
+
+  if (!bamf_matcher_is_valid_class_name (matcher, iclass))
+    iclass = NULL;
+
+  if (!bamf_matcher_is_valid_class_name (matcher, nclass))
+    nclass = NULL;
 
   apps_dir = try_create_subdir (data_dir, "applications", priv->cancellable);
   icons_dir = NULL;
@@ -540,7 +548,7 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
 
   desktop_file = NULL;
   icon_file = NULL;
-  class = (iclass) ? iclass : nclass;
+  class = (nclass) ? nclass : iclass;
 
   if (class)
     {
@@ -550,7 +558,6 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
 
   if (!G_IS_FILE (desktop_file))
     {
-      BamfMatcher *matcher = bamf_matcher_get_default ();
       gchar *trimmed_exec = bamf_matcher_get_trimmed_exec (matcher, exec);
       try_create_local_desktop_data (apps_dir, icons_dir, trimmed_exec,
                                      &desktop_file, &icon_file, priv->cancellable);
@@ -622,8 +629,9 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
   g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
                          G_KEY_FILE_DESKTOP_KEY_EXEC, exec);
 
+  // It would be nice to be able to find if enabling this from some win property
   g_key_file_set_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP,
-                          G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, TRUE);
+                          G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, FALSE);
 
   if (class)
     {

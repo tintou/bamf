@@ -75,6 +75,13 @@ const gchar* EXEC_GOOD_PREFIXES[] =
   "^sol$"
 };
 
+// These class names are ignored as matching values
+const gchar * CLASS_BAD_VALUES[] =
+{
+  "sun-awt-X11-XFramePeer", "net-sourceforge-jnlp-runtime-Boot",
+  "com-sun-javaws-Main", "VCLSalFrame"
+};
+
 const gchar * EXEC_DESKTOP_FILE_OVERRIDE = "--desktop_file_hint";
 
 static void
@@ -1586,6 +1593,25 @@ bamf_matcher_has_instance_class_desktop_file (BamfMatcher *self, const gchar *cl
   return FALSE;
 }
 
+gboolean
+bamf_matcher_is_valid_class_name (BamfMatcher *self, const char *class_name)
+{
+  int i;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (self), FALSE);
+
+  if (!class_name)
+    return TRUE;
+
+  for (i = 0; i < G_N_ELEMENTS (CLASS_BAD_VALUES); ++i)
+    {
+      if (g_strcmp0 (class_name, CLASS_BAD_VALUES[i]) == 0)
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
 static GList *
 bamf_matcher_possible_applications_for_window (BamfMatcher *self,
                                                BamfWindow *bamf_window,
@@ -1609,6 +1635,12 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
   desktop_file = bamf_legacy_window_get_hint (window, _NET_WM_DESKTOP_FILE);
   class_name = bamf_legacy_window_get_class_name (window);
   instance_name = bamf_legacy_window_get_class_instance_name (window);
+
+  if (!bamf_matcher_is_valid_class_name (self, class_name))
+    class_name = NULL;
+
+  if (!bamf_matcher_is_valid_class_name (self, instance_name))
+    instance_name = NULL;
 
   target_class = instance_name;
   filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);

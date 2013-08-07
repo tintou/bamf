@@ -1212,6 +1212,21 @@ test_get_view_by_path (void)
   g_object_unref (screen);
 }
 
+static void
+test_class_valid_name (void)
+{
+  BamfMatcher *matcher;
+
+  matcher = bamf_matcher_get_default ();
+  g_assert (bamf_matcher_is_valid_class_name (matcher, "any-good-class"));
+  g_assert (!bamf_matcher_is_valid_class_name (matcher, "sun-awt-X11-XFramePeer"));
+  g_assert (!bamf_matcher_is_valid_class_name (matcher, "net-sourceforge-jnlp-runtime-Boot"));
+  g_assert (!bamf_matcher_is_valid_class_name (matcher, "com-sun-javaws-Main"));
+  g_assert (!bamf_matcher_is_valid_class_name (matcher, "VCLSalFrame"));
+
+  g_object_unref (matcher);
+}
+
 /* Initialize test suite */
 
 void
@@ -1222,6 +1237,7 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/Allocation", test_allocation);
   g_test_add_func (DOMAIN"/AutostartDesktopFile/User", test_autostart_desktop_file_user);
   g_test_add_func (DOMAIN"/AutostartDesktopFile/System", test_autostart_desktop_file_system);
+  g_test_add_func (DOMAIN"/ClassValidName", test_class_valid_name);
   g_test_add_func (DOMAIN"/ExecStringTrimming", test_trim_exec_string);
   g_test_add_func (DOMAIN"/GetViewByPath", test_get_view_by_path);
   g_test_add_func (DOMAIN"/LoadDesktopFile", test_load_desktop_file);

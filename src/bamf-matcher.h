@@ -111,6 +111,9 @@ GVariant    * bamf_matcher_get_window_stack_for_monitor  (BamfMatcher *matcher,
 gboolean      bamf_matcher_is_valid_process_prefix       (BamfMatcher *matcher,
                                                           const char *process_name);
 
+gboolean      bamf_matcher_is_valid_class_name           (BamfMatcher *matcher,
+                                                          const char *class_name);
+
 char        * bamf_matcher_get_trimmed_exec              (BamfMatcher *matcher,
                                                           const char *exec_string);
 
