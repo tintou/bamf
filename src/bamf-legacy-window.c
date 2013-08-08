@@ -578,14 +578,10 @@ bamf_legacy_window_dispose (GObject *object)
   if (self->priv->mini_icon)
     {
       g_file_delete (self->priv->mini_icon, NULL, NULL);
-      g_object_unref (self->priv->mini_icon);
+      g_clear_object (&self->priv->mini_icon);
     }
 
-  if (self->priv->exec_string)
-    {
-      g_free (self->priv->exec_string);
-      self->priv->exec_string = NULL;
-    }
+  g_clear_pointer (&self->priv->exec_string, g_free);
 
   g_signal_handlers_disconnect_by_data (wnck_screen_get_default (), self);
 
@@ -600,6 +596,8 @@ bamf_legacy_window_dispose (GObject *object)
                                                 handle_window_signal,
                                                 GUINT_TO_POINTER (NAME_CHANGED));
         }
+
+      self->priv->legacy_window = NULL;
     }
 
   G_OBJECT_CLASS (bamf_legacy_window_parent_class)->dispose (object);
@@ -619,7 +617,7 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->dispose      = bamf_legacy_window_dispose;
+  object_class->dispose = bamf_legacy_window_dispose;
 
   g_type_class_add_private (klass, sizeof (BamfLegacyWindowPrivate));
 
