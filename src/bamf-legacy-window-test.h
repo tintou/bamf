@@ -59,6 +59,7 @@ struct _BamfLegacyWindowTest
   char * wm_class_name;
   char * wm_class_instance;
   char * exec;
+  char * working_dir;
   char * process_name;
   char * application_id;
   char * unique_bus_name;

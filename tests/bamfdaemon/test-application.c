@@ -1150,12 +1150,25 @@ verify_application_desktop_file_content (BamfApplication *application)
   desktop_file = bamf_application_get_desktop_file (application);
 
   key_file = g_key_file_new ();
-  g_key_file_load_from_file (key_file, desktop_file, G_KEY_FILE_NONE, NULL);
+  g_key_file_load_from_file (key_file, desktop_file, G_KEY_FILE_NONE, &error);
+  g_assert (!error);
 
   str_value = g_key_file_get_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
                                      G_KEY_FILE_DESKTOP_KEY_TYPE, &error);
   g_assert (!error);
   g_assert_cmpstr (str_value, ==, G_KEY_FILE_DESKTOP_TYPE_APPLICATION);
+  g_clear_pointer (&str_value, g_free);
+
+  str_value = g_key_file_get_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                     "Encoding", &error);
+  g_assert (!error);
+  g_assert_cmpstr (str_value, ==, "UTF-8");
+  g_clear_pointer (&str_value, g_free);
+
+  str_value = g_key_file_get_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                     G_KEY_FILE_DESKTOP_KEY_VERSION, &error);
+  g_assert (!error);
+  g_assert_cmpstr (str_value, ==, "1.0");
   g_clear_pointer (&str_value, g_free);
 
   if (bamf_view_get_name (BAMF_VIEW (application)))
@@ -1186,6 +1199,27 @@ verify_application_desktop_file_content (BamfApplication *application)
   g_assert_cmpstr (str_value, ==, exec);
   g_clear_pointer (&str_value, g_free);
 
+  const gchar *working_dir = bamf_legacy_window_get_working_dir (main_window);
+  str_value = g_key_file_get_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                     G_KEY_FILE_DESKTOP_KEY_PATH, &error);
+
+  gchar *current_dir = g_get_current_dir ();
+
+  if (g_strcmp0 (current_dir, working_dir) == 0)
+    {
+      g_assert (error);
+      g_clear_error (&error);
+      g_assert_cmpstr (str_value, ==, NULL);
+    }
+  else
+    {
+      g_assert (!error);
+      g_assert_cmpstr (str_value, ==, working_dir);
+      g_clear_pointer (&str_value, g_free);
+    }
+
+  g_clear_pointer (&current_dir, g_free);
+
   g_assert (!g_key_file_get_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP,
                                      G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, &error));
   g_assert (!error);
@@ -1201,6 +1235,25 @@ verify_application_desktop_file_content (BamfApplication *application)
       g_assert_cmpstr (str_value, ==, class);
       g_clear_pointer (&str_value, g_free);
     }
+
+  const gchar *current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
+
+  if (current_desktop)
+    {
+      gchar **list;
+      gsize len;
+      list = g_key_file_get_string_list (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                         G_KEY_FILE_DESKTOP_KEY_ONLY_SHOW_IN,
+                                         &len, &error);
+      g_assert (!error);
+      g_assert_cmpuint (len, ==, 1);
+      g_assert_cmpstr (*list, ==, current_desktop);
+    }
+
+  gchar *generator = g_strdup_printf ("X-%sGenerated", current_desktop ? current_desktop : "BAMF");
+  g_assert (g_key_file_get_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP, generator, &error));
+  g_assert (!error);
+  g_free (generator);
 
   g_key_file_free (key_file);
 }
@@ -1303,6 +1356,28 @@ test_desktopless_app_create_local_desktop_file_using_trimmed_exec_basename (void
   g_assert (desktop_path);
   g_assert (g_str_has_suffix (desktop_path, "awesome-script.desktop"));
   g_assert (g_file_test (desktop_path, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR));
+  verify_application_desktop_file_content (application);
+
+  g_object_unref (lwin);
+  g_object_unref (win);
+  g_object_unref (application);
+}
+
+static void
+test_desktopless_app_create_local_desktop_file_with_working_dir (void)
+{
+  BamfApplication *application;
+  BamfLegacyWindowTest *lwin;
+  BamfWindow *win;
+
+  application = bamf_application_new ();
+  lwin = bamf_legacy_window_test_new (20, "window", NULL, "python ./awesome-script.py");
+  g_clear_pointer (&lwin->working_dir, g_free);
+  lwin->working_dir = g_strdup ("/home/user/my/fantastic/path");
+  win = bamf_window_new (BAMF_LEGACY_WINDOW (lwin));
+  bamf_view_add_child (BAMF_VIEW (application), BAMF_VIEW (win));
+
+  g_assert (bamf_application_create_local_desktop_file (application));
   verify_application_desktop_file_content (application);
 
   g_object_unref (lwin);
@@ -1433,6 +1508,7 @@ test_application_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/DesktopLess/CreateLocalDesktopFile/UsingClassName", test_desktopless_app_create_local_desktop_file_using_name_class_basename);
   g_test_add_func (DOMAIN"/DesktopLess/CreateLocalDesktopFile/UsingExec", test_desktopless_app_create_local_desktop_file_using_exec_basename);
   g_test_add_func (DOMAIN"/DesktopLess/CreateLocalDesktopFile/UsingTrimmedExec", test_desktopless_app_create_local_desktop_file_using_trimmed_exec_basename);
+  g_test_add_func (DOMAIN"/DesktopLess/CreateLocalDesktopFile/WithWorkingDir", test_desktopless_app_create_local_desktop_file_with_working_dir);
   g_test_add_func (DOMAIN"/ManagesXid", test_manages_xid);
   g_test_add_func (DOMAIN"/GetWindow", test_get_window);
   g_test_add_func (DOMAIN"/Xids", test_get_xids);

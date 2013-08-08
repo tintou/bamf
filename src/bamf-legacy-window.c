@@ -24,6 +24,7 @@
 #include "bamf-legacy-screen.h"
 #include "bamf-xutils.h"
 #include <libgtop-2.0/glibtop.h>
+#include <libgtop-2.0/glibtop/procwd.h>
 #include <glibtop/procargs.h>
 #include <glibtop/procuid.h>
 #include <stdio.h>
@@ -53,6 +54,7 @@ struct _BamfLegacyWindowPrivate
   WnckWindow * legacy_window;
   GFile      * mini_icon;
   gchar      * exec_string;
+  gchar      * working_dir;
   gboolean     is_closed;
 };
 
@@ -222,9 +224,8 @@ bamf_legacy_window_get_process_name (BamfLegacyWindow *self)
 const char *
 bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
 {
-  gint pid = 0, i = 0;
-  gchar **argv = NULL;
-  GString *exec = NULL;
+  guint pid;
+  gchar **argv;
   glibtop_proc_args buffer;
 
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
@@ -241,23 +242,41 @@ bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
     return NULL;
 
   argv = glibtop_get_proc_argv (&buffer, pid, 0);
-  exec = g_string_new ("");
-
-  while (argv[i] != NULL)
-    {
-      g_string_append (exec, argv[i]);
-      if (argv[i + 1] != NULL)
-        g_string_append (exec, " ");
-      g_free (argv[i]);
-      i++;
-    }
-
-  g_free (argv);
-
-  self->priv->exec_string = g_strdup (exec->str);
-  g_string_free (exec, TRUE);
+  self->priv->exec_string = g_strstrip (g_strjoinv (" ", argv));
+  g_strfreev (argv);
 
   return self->priv->exec_string;
+}
+
+const char *
+bamf_legacy_window_get_working_dir (BamfLegacyWindow *self)
+{
+  guint pid = 0;
+  gchar **dirs;
+  glibtop_proc_wd buffer_wd;
+
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_working_dir)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_working_dir (self);
+
+  if (self->priv->working_dir)
+    return self->priv->working_dir;
+
+  pid = bamf_legacy_window_get_pid (self);
+
+  if (pid == 0)
+    return NULL;
+
+  dirs = glibtop_get_proc_wd (&buffer_wd, pid);
+
+  if (!dirs)
+    return NULL;
+
+  self->priv->working_dir = g_strdup (dirs[0] ? g_strstrip (dirs[0]) : NULL);
+  g_strfreev (dirs);
+
+  return self->priv->working_dir;
 }
 
 char *
@@ -578,14 +597,11 @@ bamf_legacy_window_dispose (GObject *object)
   if (self->priv->mini_icon)
     {
       g_file_delete (self->priv->mini_icon, NULL, NULL);
-      g_object_unref (self->priv->mini_icon);
+      g_clear_object (&self->priv->mini_icon);
     }
 
-  if (self->priv->exec_string)
-    {
-      g_free (self->priv->exec_string);
-      self->priv->exec_string = NULL;
-    }
+  g_clear_pointer (&self->priv->exec_string, g_free);
+  g_clear_pointer (&self->priv->working_dir, g_free);
 
   g_signal_handlers_disconnect_by_data (wnck_screen_get_default (), self);
 
@@ -600,6 +616,8 @@ bamf_legacy_window_dispose (GObject *object)
                                                 handle_window_signal,
                                                 GUINT_TO_POINTER (NAME_CHANGED));
         }
+
+      self->priv->legacy_window = NULL;
     }
 
   G_OBJECT_CLASS (bamf_legacy_window_parent_class)->dispose (object);
@@ -619,7 +637,7 @@ bamf_legacy_window_class_init (BamfLegacyWindowClass * klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->dispose      = bamf_legacy_window_dispose;
+  object_class->dispose = bamf_legacy_window_dispose;
 
   g_type_class_add_private (klass, sizeof (BamfLegacyWindowPrivate));
 

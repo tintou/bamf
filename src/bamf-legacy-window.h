@@ -77,6 +77,7 @@ struct _BamfLegacyWindowClass
   const char * (*get_class_name)          (BamfLegacyWindow *legacy_window);
   const char * (*get_class_instance_name) (BamfLegacyWindow *legacy_window);
   const char * (*get_exec_string)         (BamfLegacyWindow *legacy_window);
+  const char * (*get_working_dir)         (BamfLegacyWindow *legacy_window);
   char       * (*save_mini_icon)          (BamfLegacyWindow *legacy_window);
   char       * (*get_process_name)        (BamfLegacyWindow *legacy_window);
   char       * (*get_app_id)              (BamfLegacyWindow *legacy_window);
@@ -148,6 +149,8 @@ const char       * bamf_legacy_window_get_name             (BamfLegacyWindow *se
 const char       * bamf_legacy_window_get_role             (BamfLegacyWindow *self);
 
 const char       * bamf_legacy_window_get_exec_string      (BamfLegacyWindow *self);
+
+const char       * bamf_legacy_window_get_working_dir      (BamfLegacyWindow *self);
 
 char             * bamf_legacy_window_save_mini_icon       (BamfLegacyWindow *self);
 

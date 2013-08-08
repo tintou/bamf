@@ -498,7 +498,7 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
   BamfLegacyWindow *window;
   BamfMatcher *matcher;
   GKeyFile *key_file;
-  const gchar *name, *icon, *iclass, *nclass, *class, *exec;
+  const gchar *name, *icon, *iclass, *nclass, *class, *exec, *path, *curdesktop;
   GFile *data_dir, *apps_dir, *icons_dir, *desktop_file, *icon_file, *mini_icon;
   GError *error = NULL;
 
@@ -524,7 +524,9 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
   icon = bamf_view_get_icon (BAMF_VIEW (self));
   nclass = bamf_legacy_window_get_class_name (window);
   iclass = bamf_legacy_window_get_class_instance_name (window);
+  path = bamf_legacy_window_get_working_dir (window);
   mini_icon = bamf_legacy_window_get_saved_mini_icon (window);
+  curdesktop = g_getenv ("XDG_CURRENT_DESKTOP");
 
   if (!bamf_matcher_is_valid_class_name (matcher, iclass))
     iclass = NULL;
@@ -601,6 +603,13 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
     }
 
   key_file = g_key_file_new ();
+
+  g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                         "Encoding", "UTF-8");
+
+  g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                         G_KEY_FILE_DESKTOP_KEY_VERSION, "1.0");
+
   g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
                          G_KEY_FILE_DESKTOP_KEY_TYPE,
                          G_KEY_FILE_DESKTOP_TYPE_APPLICATION);
@@ -626,10 +635,23 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
                              G_KEY_FILE_DESKTOP_KEY_ICON, icon);
     }
 
+  if (path && path[0] != '\0')
+    {
+      gchar *current_dir = g_get_current_dir ();
+
+      if (g_strcmp0 (current_dir, path) != 0)
+        {
+          g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                 G_KEY_FILE_DESKTOP_KEY_PATH, path);
+        }
+
+      g_free (current_dir);
+    }
+
   g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
                          G_KEY_FILE_DESKTOP_KEY_EXEC, exec);
 
-  // It would be nice to be able to find if enabling this from some win property
+  /* It would be nice to know if the app support it from a win property */
   g_key_file_set_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP,
                           G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, FALSE);
 
@@ -638,6 +660,18 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
       g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
                              G_KEY_FILE_DESKTOP_KEY_STARTUP_WM_CLASS, class);
     }
+
+  if (curdesktop)
+    {
+      const gchar* show_in_list[] = { curdesktop, NULL };
+      g_key_file_set_string_list (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                  G_KEY_FILE_DESKTOP_KEY_ONLY_SHOW_IN,
+                                  show_in_list, 1);
+    }
+
+  gchar *generator = g_strdup_printf ("X-%sGenerated", curdesktop ? curdesktop : "BAMF");
+  g_key_file_set_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP, generator, TRUE);
+  g_free (generator);
 
   gsize data_length = 0;
   gchar *data = g_key_file_to_data (key_file, &data_length, &error);
