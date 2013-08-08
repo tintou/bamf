@@ -24,6 +24,7 @@
 #include "bamf-legacy-screen.h"
 #include "bamf-xutils.h"
 #include <libgtop-2.0/glibtop.h>
+#include <libgtop-2.0/glibtop/procwd.h>
 #include <glibtop/procargs.h>
 #include <glibtop/procuid.h>
 #include <stdio.h>
@@ -53,6 +54,7 @@ struct _BamfLegacyWindowPrivate
   WnckWindow * legacy_window;
   GFile      * mini_icon;
   gchar      * exec_string;
+  gchar      * working_dir;
   gboolean     is_closed;
 };
 
@@ -244,6 +246,37 @@ bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
   g_strfreev (argv);
 
   return self->priv->exec_string;
+}
+
+const char *
+bamf_legacy_window_get_working_dir (BamfLegacyWindow *self)
+{
+  guint pid = 0;
+  gchar **dirs;
+  glibtop_proc_wd buffer_wd;
+
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_working_dir)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_working_dir (self);
+
+  if (self->priv->working_dir)
+    return self->priv->working_dir;
+
+  pid = bamf_legacy_window_get_pid (self);
+
+  if (pid == 0)
+    return NULL;
+
+  dirs = glibtop_get_proc_wd (&buffer_wd, pid);
+
+  if (!dirs)
+    return NULL;
+
+  self->priv->working_dir = g_strdup (dirs[0] ? g_strstrip (dirs[0]) : NULL);
+  g_strfreev (dirs);
+
+  return self->priv->working_dir;
 }
 
 char *
@@ -568,6 +601,7 @@ bamf_legacy_window_dispose (GObject *object)
     }
 
   g_clear_pointer (&self->priv->exec_string, g_free);
+  g_clear_pointer (&self->priv->working_dir, g_free);
 
   g_signal_handlers_disconnect_by_data (wnck_screen_get_default (), self);
 
