@@ -498,7 +498,7 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
   BamfLegacyWindow *window;
   BamfMatcher *matcher;
   GKeyFile *key_file;
-  const gchar *name, *icon, *iclass, *nclass, *class, *exec, *current_desktop;
+  const gchar *name, *icon, *iclass, *nclass, *class, *exec, *path, *curdesktop;
   GFile *data_dir, *apps_dir, *icons_dir, *desktop_file, *icon_file, *mini_icon;
   GError *error = NULL;
 
@@ -524,8 +524,9 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
   icon = bamf_view_get_icon (BAMF_VIEW (self));
   nclass = bamf_legacy_window_get_class_name (window);
   iclass = bamf_legacy_window_get_class_instance_name (window);
+  path = bamf_legacy_window_get_working_dir (window);
   mini_icon = bamf_legacy_window_get_saved_mini_icon (window);
-  current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
+  curdesktop = g_getenv ("XDG_CURRENT_DESKTOP");
 
   if (!bamf_matcher_is_valid_class_name (matcher, iclass))
     iclass = NULL;
@@ -634,10 +635,23 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
                              G_KEY_FILE_DESKTOP_KEY_ICON, icon);
     }
 
+  if (path && path[0] != '\0')
+    {
+      gchar *current_dir = g_get_current_dir ();
+
+      if (g_strcmp0 (current_dir, path) != 0)
+        {
+          g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                 G_KEY_FILE_DESKTOP_KEY_PATH, path);
+        }
+
+      g_free (current_dir);
+    }
+
   g_key_file_set_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
                          G_KEY_FILE_DESKTOP_KEY_EXEC, exec);
 
-  /* It would be nice to be able to find if enabling this from some win property */
+  /* It would be nice to know if the app support it from a win property */
   g_key_file_set_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP,
                           G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, FALSE);
 
@@ -647,9 +661,9 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
                              G_KEY_FILE_DESKTOP_KEY_STARTUP_WM_CLASS, class);
     }
 
-  if (current_desktop)
+  if (curdesktop)
     {
-      const gchar* show_in_list[] = { current_desktop, NULL };
+      const gchar* show_in_list[] = { curdesktop, NULL };
       g_key_file_set_string_list (key_file, G_KEY_FILE_DESKTOP_GROUP,
                                   G_KEY_FILE_DESKTOP_KEY_ONLY_SHOW_IN,
                                   show_in_list, 1);
