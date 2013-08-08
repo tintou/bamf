@@ -1158,6 +1158,18 @@ verify_application_desktop_file_content (BamfApplication *application)
   g_assert_cmpstr (str_value, ==, G_KEY_FILE_DESKTOP_TYPE_APPLICATION);
   g_clear_pointer (&str_value, g_free);
 
+  str_value = g_key_file_get_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                     "Encoding", &error);
+  g_assert (!error);
+  g_assert_cmpstr (str_value, ==, "UTF-8");
+  g_clear_pointer (&str_value, g_free);
+
+  str_value = g_key_file_get_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                     G_KEY_FILE_DESKTOP_KEY_VERSION, &error);
+  g_assert (!error);
+  g_assert_cmpstr (str_value, ==, "1.0");
+  g_clear_pointer (&str_value, g_free);
+
   if (bamf_view_get_name (BAMF_VIEW (application)))
     {
       str_value = g_key_file_get_string (key_file, G_KEY_FILE_DESKTOP_GROUP,
@@ -1200,6 +1212,20 @@ verify_application_desktop_file_content (BamfApplication *application)
       g_assert (!error);
       g_assert_cmpstr (str_value, ==, class);
       g_clear_pointer (&str_value, g_free);
+    }
+
+  const gchar *current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
+
+  if (current_desktop)
+    {
+      gchar **list;
+      gsize len;
+      list = g_key_file_get_string_list (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                         G_KEY_FILE_DESKTOP_KEY_ONLY_SHOW_IN,
+                                         &len, &error);
+      g_assert (!error);
+      g_assert_cmpuint (len, ==, 1);
+      g_assert_cmpstr (*list, ==, current_desktop);
     }
 
   g_key_file_free (key_file);
