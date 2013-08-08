@@ -669,6 +669,10 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
                                   show_in_list, 1);
     }
 
+  gchar *generator = g_strdup_printf ("X-%sGenerated", curdesktop ? curdesktop : "BAMF");
+  g_key_file_set_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP, generator, TRUE);
+  g_free (generator);
+
   gsize data_length = 0;
   gchar *data = g_key_file_to_data (key_file, &data_length, &error);
   g_key_file_free (key_file);

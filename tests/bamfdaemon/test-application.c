@@ -1218,10 +1218,11 @@ verify_application_desktop_file_content (BamfApplication *application)
       g_clear_pointer (&str_value, g_free);
     }
 
+  g_clear_pointer (&current_dir, g_free);
+
   g_assert (!g_key_file_get_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP,
                                      G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, &error));
   g_assert (!error);
-  g_clear_pointer (&current_dir, g_free);
 
   const gchar *class = bamf_legacy_window_get_class_instance_name (main_window);
   class = class ? class : bamf_legacy_window_get_class_name (main_window);
@@ -1248,6 +1249,11 @@ verify_application_desktop_file_content (BamfApplication *application)
       g_assert_cmpuint (len, ==, 1);
       g_assert_cmpstr (*list, ==, current_desktop);
     }
+
+  gchar *generator = g_strdup_printf ("X-%sGenerated", current_desktop ? current_desktop : "BAMF");
+  g_assert (g_key_file_get_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP, generator, &error));
+  g_assert (!error);
+  g_free (generator);
 
   g_key_file_free (key_file);
 }
