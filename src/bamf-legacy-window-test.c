@@ -241,6 +241,16 @@ bamf_legacy_window_test_get_exec_string (BamfLegacyWindow *legacy_window)
   return self->exec;
 }
 
+const char *
+bamf_legacy_window_test_get_working_dir (BamfLegacyWindow *legacy_window)
+{
+  BamfLegacyWindowTest *self;
+
+  self = BAMF_LEGACY_WINDOW_TEST (legacy_window);
+
+  return self->working_dir;
+}
+
 char *
 bamf_legacy_window_test_get_process_name (BamfLegacyWindow *legacy_window)
 {
@@ -437,6 +447,7 @@ bamf_legacy_window_test_finalize (GObject *object)
   g_free (self->wm_class_name);
   g_free (self->wm_class_instance);
   g_free (self->exec);
+  g_free (self->working_dir);
   g_free (self->process_name);
   g_free (self->application_id);
   g_free (self->unique_bus_name);
@@ -460,6 +471,7 @@ bamf_legacy_window_test_class_init (BamfLegacyWindowTestClass *klass)
   win_class->get_class_name   = bamf_legacy_window_test_get_class_name;
   win_class->get_class_instance_name = bamf_legacy_window_test_get_class_instance_name;
   win_class->get_exec_string  = bamf_legacy_window_test_get_exec_string;
+  win_class->get_working_dir  = bamf_legacy_window_test_get_working_dir;
   win_class->get_process_name = bamf_legacy_window_test_get_process_name;
   win_class->get_xid          = bamf_legacy_window_test_get_xid;
   win_class->get_pid          = bamf_legacy_window_test_get_pid;
@@ -504,6 +516,7 @@ bamf_legacy_window_copy (BamfLegacyWindowTest *self)
   copy->wm_class_name = g_strdup (self->wm_class_name);
   copy->wm_class_instance = g_strdup (self->wm_class_instance);
   copy->exec = g_strdup (self->exec);
+  copy->working_dir = g_strdup (self->working_dir);
   copy->process_name = g_strdup (self->process_name);
   copy->application_id = g_strdup (self->application_id);
   copy->unique_bus_name = g_strdup (self->unique_bus_name);
@@ -533,6 +546,7 @@ bamf_legacy_window_test_new (guint32 xid, const gchar *name, const gchar *wmclas
   self->name = g_strdup (name);
   self->wm_class_name = g_strdup (wmclass_name);
   self->exec = g_strdup (exec);
+  self->working_dir = g_get_current_dir ();
 
   if (self->exec)
     {
