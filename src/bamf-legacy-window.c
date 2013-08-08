@@ -222,9 +222,8 @@ bamf_legacy_window_get_process_name (BamfLegacyWindow *self)
 const char *
 bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
 {
-  gint pid = 0, i = 0;
-  gchar **argv = NULL;
-  GString *exec = NULL;
+  guint pid;
+  gchar **argv;
   glibtop_proc_args buffer;
 
   g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
@@ -241,21 +240,8 @@ bamf_legacy_window_get_exec_string (BamfLegacyWindow *self)
     return NULL;
 
   argv = glibtop_get_proc_argv (&buffer, pid, 0);
-  exec = g_string_new ("");
-
-  while (argv[i] != NULL)
-    {
-      g_string_append (exec, argv[i]);
-      if (argv[i + 1] != NULL)
-        g_string_append (exec, " ");
-      g_free (argv[i]);
-      i++;
-    }
-
-  g_free (argv);
-
-  self->priv->exec_string = g_strdup (exec->str);
-  g_string_free (exec, TRUE);
+  self->priv->exec_string = g_strstrip (g_strjoinv (" ", argv));
+  g_strfreev (argv);
 
   return self->priv->exec_string;
 }
