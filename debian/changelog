@@ -1,3 +1,14 @@
+bamf (0.5.0+13.10.20130809-0ubuntu1) saucy; urgency=low
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfApplication: include Path in .desktop file if its working dir is
+    not the default one. (LP: #765466)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 577
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 09 Aug 2013 02:02:21 +0000
+
 bamf (0.5.0+13.10.20130807.1-0ubuntu1) saucy; urgency=low
 
   [ Marco Trevisan (Treviño) ]
