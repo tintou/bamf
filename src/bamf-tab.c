@@ -17,6 +17,12 @@
  *              Robert Carr <racarr@canonical.com>
  *
  */
+/**
+ * SECTION:bamf-tab
+ * @short_description: The base class for browser tabs
+ *
+ * #BamfTab is the base class that all tabs need to derive from.
+ */
 
 #include "bamf-tab.h"
 

@@ -1,20 +1,6 @@
-include Makefile.am.notparallel
 -include $(INTROSPECTION_MAKEFILE)
 
 LIBBAMF_PRIVATE_LIB = $(top_builddir)/lib/libbamf-private/libbamf-private.la
-
-libbamf_xml_gdbus_files = \
-  org.ayatana.bamf.tabsource.xml \
-  $(NULL)
-
-libbamf_gdbus_files = \
-	bamf-gdbus-tab-source-generated.c \
-	bamf-gdbus-tab-source-generated.h \
-	$(NULL)
-
-libbamf_built_sources = \
-	$(libbamf_gdbus_files) \
-	$(NULL)
 
 libbamf_sources = \
 	bamf-application.c \
@@ -23,7 +9,6 @@ libbamf_sources = \
 	bamf-view.c \
 	bamf-window.c \
 	bamf-factory.c \
-	bamf-tab-source.c \
 	bamf-tab.c \
 	$(NULL)
 
@@ -33,7 +18,6 @@ libbamf_headers = \
 	bamf-matcher.h \
 	bamf-view.h \
 	bamf-window.h \
-	bamf-tab-source.h \
 	bamf-tab.h \
 	libbamf.h \
 	$(NULL)
@@ -73,7 +57,7 @@ libbamf_la_CFLAGS = \
 libbamf_la_LDFLAGS = \
 	-shared \
 	-export-symbols-regex "^bamf_" \
-	-version-info 1:0:0 \
+	-version-info 2:0:0 \
 	$(COVERAGE_LDFLAGS) \
 	$(NULL)
 
@@ -93,10 +77,6 @@ libbamf_pc_DATA = \
 
 BUILT_SOURCES = \
 	$(libbamf_gdbus_files) \
-	$(NULL)
-
-EXTRA_DIST = \
-	$(libbamf_xml_gdbus_files) \
 	$(NULL)
 
 DISTCLEANFILES = \

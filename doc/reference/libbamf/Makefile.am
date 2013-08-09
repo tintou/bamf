@@ -29,10 +29,6 @@ FIXXREF_OPTIONS =
 HFILE_GLOB = $(top_srcdir)/lib/libbamf/bamf-*.h
 CFILE_GLOB = $(top_srcdir)/lib/libbamf/bamf-*.c
 
-# Header files to ignore when scanning.
-IGNORE_HFILES = \
-  bamf-gdbus-tab-source-generated.h
-
 # Images to copy into HTML directory.
 HTML_IMAGES =
 

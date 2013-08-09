@@ -45,7 +45,6 @@ lib/libbamf/libbamf*.pc
 lib/libbamf/libbamf*.vapi
 lib/libbamf/Bamf-*.gir
 lib/libbamf/Bamf-*.typelib
-lib/libbamf/bamf-tab-source-glue.h
 lib/libbamf/*-generated.c
 lib/libbamf/*-generated.h
 lib/libbamf-private/*-generated.c

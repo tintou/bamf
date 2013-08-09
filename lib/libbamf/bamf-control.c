@@ -192,20 +192,3 @@ bamf_control_register_application_for_pid (BamfControl  *control,
       g_error_free (error);
     }
 }
-
-void
-bamf_control_register_tab_provider (BamfControl *control, const char *path)
-{
-  BamfControlPrivate *priv;
-  GError *error = NULL;
-
-  g_return_if_fail (BAMF_IS_CONTROL (control));
-  priv = control->priv;
-
-  if (!_bamf_dbus_control_call_register_tab_provider_sync (priv->proxy, path,
-                                                           NULL, &error))
-    {
-      g_warning ("Failed to register tab provider: %s", error->message);
-      g_error_free (error);
-    }
-}
