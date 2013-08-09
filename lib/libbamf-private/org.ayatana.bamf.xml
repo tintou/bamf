@@ -5,10 +5,7 @@
     <method name="Quit">
     </method>
     <method name="InsertDesktopFile">
-      <arg name="tab_path" type="s" direction="in"/>
-    </method>
-    <method name="RegisterTabProvider">
-      <arg name="tab_path" type="s" direction="in"/>
+      <arg name="desktop_path" type="s" direction="in"/>
     </method>
     <method name="RegisterApplicationForPid">
       <arg name="application" type="s" direction="in"/>
@@ -19,7 +16,7 @@
     </method>
     <method name="OmNomNomDesktopFile">
       <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
-      <arg name="tab_path" type="s" direction="in"/>
+      <arg name="desktop_path" type="s" direction="in"/>
     </method>
   </interface>
 
