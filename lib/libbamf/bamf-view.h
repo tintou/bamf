@@ -141,9 +141,10 @@ void bamf_view_set_sticky (BamfView *view, gboolean value);
 
 gboolean bamf_view_is_sticky (BamfView *view);
 
+/* Deprecated symbols */
+G_GNUC_DEPRECATED
 BamfClickBehavior bamf_view_get_click_suggestion (BamfView *view);
 
-/* Deprecated symbols */
 G_GNUC_DEPRECATED_FOR (bamf_view_user_visible)
 gboolean bamf_view_user_visible (BamfView *view);
 
