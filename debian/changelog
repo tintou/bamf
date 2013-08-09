@@ -1,10 +1,35 @@
-bamf (0.5.0+13.10.20130807-0ubuntu2) UNRELEASED; urgency=low
+bamf (0.5.0+13.10.20130809-0ubuntu2) UNRELEASED; urgency=low
 
   * Remove deprecated and never used BamfTabSource
   * Bump SONAME
   * Update the package version to libbamf3-2
 
  -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Fri, 09 Aug 2013 17:22:49 +0200
+
+bamf (0.5.0+13.10.20130809-0ubuntu1) saucy; urgency=low
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfApplication: include Path in .desktop file if its working dir is
+    not the default one. (LP: #765466)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 577
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 09 Aug 2013 02:02:21 +0000
+
+bamf (0.5.0+13.10.20130807.1-0ubuntu1) saucy; urgency=low
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfDaemon: Use nicer and more compliant dbus object paths for
+    views.
+  * BamfMatcher: ignore known invalid window class values when matching
+    windows And generate better .desktop files for local apps. This will
+    make us life easier with Java.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 575
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 07 Aug 2013 16:56:51 +0000
 
 bamf (0.5.0+13.10.20130807-0ubuntu1) saucy; urgency=low
 
