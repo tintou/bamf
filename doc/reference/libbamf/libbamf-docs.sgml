@@ -15,7 +15,7 @@
     <xi:include href="xml/bamf-window.xml"/>
     <xi:include href="xml/bamf-factory.xml"/>
     <xi:include href="xml/bamf-control.xml"/>
-    <xi:include href="xml/bamf-tab-source.xml"/>
+    <xi:include href="xml/bamf-tab.xml"/>
     <xi:include href="xml/bamf-view.xml"/>
     <xi:include href="xml/bamf-application.xml"/>
 

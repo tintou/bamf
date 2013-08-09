@@ -1,4 +1,3 @@
-include Makefile.am.notparallel
 -include $(INTROSPECTION_MAKEFILE)
 
 LIBBAMF_PRIVATE_LIB = $(top_builddir)/lib/libbamf-private/libbamf-private.la
