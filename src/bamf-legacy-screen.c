@@ -442,6 +442,9 @@ bamf_legacy_screen_get_default ()
   if (g_strcmp0 (g_getenv ("BAMF_TEST_MODE"), "TRUE") == 0)
     return static_screen;
 
+  wnck_set_default_icon_size (BAMF_DEFAULT_ICON_SIZE);
+  wnck_set_default_mini_icon_size (BAMF_DEFAULT_MINI_ICON_SIZE);
+
   self->priv->legacy_screen = wnck_screen_get_default ();
 
   g_signal_connect (G_OBJECT (self->priv->legacy_screen), "window-opened",
