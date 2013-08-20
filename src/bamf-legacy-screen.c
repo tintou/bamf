@@ -372,6 +372,7 @@ bamf_legacy_screen_finalize (GObject *object)
   if (self->priv->stream)
     g_object_unref (self->priv->stream);
 
+  wnck_shutdown ();
   static_screen = NULL;
 
   G_OBJECT_CLASS (bamf_legacy_screen_parent_class)->finalize (object);
