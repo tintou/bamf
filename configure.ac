@@ -55,7 +55,7 @@ if test -z "$GDBUS_CODEGEN"; then AC_MSG_ERROR([gdbus-codegen is required but wa
 #
 # libwnck
 #
-PKG_CHECK_MODULES(WNCK, libwnck-3.0 >= 3.4.5)
+PKG_CHECK_MODULES(WNCK, libwnck-3.0 >= 3.4.7)
 
 #
 # libgtop

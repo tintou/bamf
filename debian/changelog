@@ -3,6 +3,7 @@ bamf (0.5.0+13.10.20130809-0ubuntu2) UNRELEASED; urgency=low
   * Remove deprecated and never used BamfTabSource
   * Bump SONAME
   * Update the package version to libbamf3-2
+  * debian/control: depend on libwnck-3 3.4.7
 
  -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Fri, 09 Aug 2013 17:22:49 +0200
 
