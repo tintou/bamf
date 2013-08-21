@@ -31,6 +31,9 @@
 
 #define BAMF_DBUS_DEFAULT_TIMEOUT 500
 
+#define BAMF_DEFAULT_ICON_SIZE 128
+#define BAMF_DEFAULT_MINI_ICON_SIZE 24
+
 /* GLib doesn't provide this by default */
 #ifndef G_KEY_FILE_DESKTOP_KEY_FULLNAME
 #define G_KEY_FILE_DESKTOP_KEY_FULLNAME "X-GNOME-FullName"
