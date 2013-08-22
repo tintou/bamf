@@ -1,3 +1,9 @@
+bamf (0.5.0+13.10.20130822.5-0ubuntu1) saucy; urgency=low
+
+  * Automatic snapshot from revision 582
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 22 Aug 2013 20:29:07 +0000
+
 bamf (0.5.0+13.10.20130812.1-0ubuntu1) saucy; urgency=low
 
   [ Marco Trevisan (Treviño) ]
