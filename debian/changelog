@@ -1,3 +1,9 @@
+bamf (0.5.1-0ubuntu1) UNRELEASED; urgency=low
+
+  * Bump version to 0.5.1
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Fri, 30 Aug 2013 18:03:07 +0100
+
 bamf (0.5.0+13.10.20130822.5-0ubuntu1) saucy; urgency=low
 
   * Automatic snapshot from revision 582
