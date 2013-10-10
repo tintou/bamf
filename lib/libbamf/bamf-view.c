@@ -147,6 +147,9 @@ bamf_view_get_children (BamfView *view)
         }
     }
 
+  if (priv->cached_children)
+    g_list_free_full (priv->cached_children, g_object_unref);
+
   priv->reload_children = FALSE;
   priv->cached_children = results;
 
