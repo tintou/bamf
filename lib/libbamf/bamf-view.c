@@ -147,6 +147,9 @@ bamf_view_get_children (BamfView *view)
         }
     }
 
+  if (priv->cached_children)
+    g_list_free_full (priv->cached_children, g_object_unref);
+
   priv->reload_children = FALSE;
   priv->cached_children = results;
 
@@ -775,8 +778,11 @@ _bamf_view_set_path (BamfView *view, const char *path)
       return;
     }
 
-  priv = view->priv;
   bamf_view_unset_proxy (view);
+
+  priv = view->priv;
+  priv->reload_children = TRUE;
+
   priv->proxy = _bamf_dbus_item_view_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
                                                              G_DBUS_PROXY_FLAGS_NONE,
                                                              BAMF_DBUS_SERVICE_NAME,
