@@ -1684,7 +1684,15 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
   if (desktop_file)
     {
-      desktop_class = bamf_matcher_get_desktop_file_class (self, desktop_file);
+      if (is_open_office_window (self, window))
+        {
+          // LO is not fast enough to update its class, and this can lead to matching errors
+          filter_by_wmclass = FALSE;
+        }
+      else
+        {
+          desktop_class = bamf_matcher_get_desktop_file_class (self, desktop_file);
+        }
 
       if ((!filter_by_wmclass && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
         {
