@@ -1,3 +1,18 @@
+bamf (0.5.1+13.10.20131011-0ubuntu1) saucy; urgency=low
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfView: reload the view children everytime it changes dbus path
+    Without doing it we could have children-less views in case we have
+    just re-matched a view with a different dbus path (this happens in
+    general for desktop-less applications), because the proxy won't be
+    fast enough to catch the signal to update the inner children list.
+    (LP: #1238064)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 586
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 11 Oct 2013 04:26:42 +0000
+
 bamf (0.5.1+13.10.20130830-0ubuntu1) saucy; urgency=low
 
   [ Marco Trevisan (Treviño) ]
