@@ -44,6 +44,26 @@ get_xdisplay (gboolean *opened)
   return xdisplay;
 }
 
+static gboolean
+gdk_error_trap_pop_and_print (Display *dpy)
+{
+  gdk_flush ();
+  gint error_code = gdk_error_trap_pop ();
+
+  if (error_code)
+    {
+      gchar tmp[1024];
+      XGetErrorText (dpy, error_code, tmp, sizeof (tmp) - 1);
+      tmp[sizeof (tmp) - 1] = '\0';
+
+      g_warning("Got an X error: %s\n", tmp);
+
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
 static void
 bamf_xutils_get_string_window_hint_and_type (Window xid, const char *atom_name,
                                              gchar** return_hint, Atom* return_type)
@@ -74,6 +94,8 @@ bamf_xutils_get_string_window_hint_and_type (Window xid, const char *atom_name,
     return;
   }
 
+  gdk_error_trap_push ();
+
   int result = XGetWindowProperty (XDisplay,  xid,
                                    gdk_x11_get_xatom_by_name (atom_name),
                                    0,  G_MAXINT, False, AnyPropertyType,
@@ -83,7 +105,7 @@ bamf_xutils_get_string_window_hint_and_type (Window xid, const char *atom_name,
   if (close_display)
     XCloseDisplay (XDisplay);
 
-  if (result == Success && numItems > 0)
+  if (result == Success && numItems > 0 && !gdk_error_trap_pop_and_print (XDisplay))
     {
       if (return_type)
         *return_type = type;
@@ -135,11 +157,19 @@ bamf_xutils_set_string_window_hint (Window xid, const char *atom_name, const cha
   else if (type != XA_STRING && type != gdk_x11_get_xatom_by_name("UTF8_STRING"))
     {
       g_error ("Impossible to set the atom %s on Window %lu", atom_name, xid);
+
+      if (close_display)
+        XCloseDisplay (XDisplay);
+
       return;
     }
 
+  gdk_error_trap_push ();
+
   XChangeProperty (XDisplay, xid, gdk_x11_get_xatom_by_name (atom_name),
                    type, 8, PropModeReplace, (unsigned char *) value, strlen (value));
+
+  gdk_error_trap_pop_and_print (XDisplay);
 
   if (close_display)
     XCloseDisplay (XDisplay);
@@ -163,15 +193,20 @@ bamf_xutils_get_window_class_hints (Window xid, char **class_instance_name, char
   class_hint.res_name = NULL;
   class_hint.res_class = NULL;
 
+  gdk_error_trap_push ();
+
   XGetClassHint(xdisplay, xid, &class_hint);
 
-  if (class_name && class_hint.res_class && class_hint.res_class[0] != 0)
-    *class_name = g_convert (class_hint.res_class, -1, "utf-8", "iso-8859-1",
-                             NULL, NULL, NULL);
+  if (!gdk_error_trap_pop_and_print (xdisplay))
+    {
+      if (class_name && class_hint.res_class && class_hint.res_class[0] != 0)
+        *class_name = g_convert (class_hint.res_class, -1, "utf-8", "iso-8859-1",
+                                 NULL, NULL, NULL);
 
-  if (class_instance_name && class_hint.res_name && class_hint.res_name[0] != 0)
-    *class_instance_name = g_convert (class_hint.res_name, -1, "utf-8", "iso-8859-1",
-                                      NULL, NULL, NULL);
+      if (class_instance_name && class_hint.res_name && class_hint.res_name[0] != 0)
+        *class_instance_name = g_convert (class_hint.res_name, -1, "utf-8", "iso-8859-1",
+                                          NULL, NULL, NULL);
+    }
 
   XFree (class_hint.res_class);
   XFree (class_hint.res_name);
