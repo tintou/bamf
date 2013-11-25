@@ -1,3 +1,14 @@
+bamf (0.5.1+14.04.20131125-0ubuntu1) trusty; urgency=low
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfXutils: trap the X errors when doing async X calls. (LP:
+    #1193714)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 588
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 25 Nov 2013 03:55:07 +0000
+
 bamf (0.5.1+13.10.20131011-0ubuntu1) saucy; urgency=low
 
   [ Marco Trevisan (Treviño) ]
