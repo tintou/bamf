@@ -427,7 +427,7 @@ bamf_legacy_window_test_set_hint (BamfLegacyWindow *window, const char *name, co
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW_TEST (window));
   BamfLegacyWindowTest *self = BAMF_LEGACY_WINDOW_TEST (window);
 
-  return g_hash_table_insert (self->hints, g_strdup (name), g_strdup (value));
+  g_hash_table_insert (self->hints, g_strdup (name), g_strdup (value));
 }
 
 static char *
