@@ -1,3 +1,10 @@
+bamf (0.5.1+14.04.20131125-0ubuntu2) trusty; urgency=medium
+
+  * bamf-legacy-window-test.c: Don't use 'return' with a value, in function
+    returning void.
+
+ -- Matthias Klose <doko@ubuntu.com>  Mon, 30 Dec 2013 07:55:21 +0100
+
 bamf (0.5.1+14.04.20131125-0ubuntu1) trusty; urgency=low
 
   [ Marco Trevisan (Treviño) ]
