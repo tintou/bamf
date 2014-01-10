@@ -88,6 +88,7 @@ on_active_changed_idle (gpointer data)
   gboolean active = bamf_view_is_active (self);
 
   g_signal_emit_by_name (self, "active-changed", active);
+  self->priv->active_changed_idle = 0;
 
   return FALSE;
 }

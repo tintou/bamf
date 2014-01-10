@@ -13,7 +13,8 @@ override_dh_autoreconf:
 override_dh_auto_configure:
 	dh_auto_configure -- --enable-introspection=yes \
 	                     --enable-gtk-doc \
-	                     --enable-headless-tests
+	                     --enable-headless-tests \
+	                     --disable-silent-rules
 
 override_dh_auto_install:
 	dh_auto_install
