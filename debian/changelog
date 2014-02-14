@@ -1,3 +1,22 @@
+bamf (0.5.1+14.04.20140214.1-0ubuntu1) trusty; urgency=low
+
+  [ Michel Alexandre Salim ]
+  * [Merge] Fix return value of try_create_local_desktop_data. (LP:
+    #1280110)
+
+  [ CI bot ]
+  * Release trunk to Ubuntu
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfLegacyScreen: When in Unity monitor for compiz ClientMessage's
+    to show action menu If we get a _COMPIZ_TOOLKIT_ACTION client
+    message with the internal value _COMPIZ_TOOLKIT_ACTION_WINDOW_MENU,
+    then we are requested by compiz to show the window action menu, and
+    thus let's ask the proper BamfLegacyWindow to do that, thanks to
+    libwnck. (LP: #1280042)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 14 Feb 2014 22:58:48 +0000
+
 bamf (0.5.1+14.04.20131125-0ubuntu2) trusty; urgency=medium
 
   * bamf-legacy-window-test.c: Don't use 'return' with a value, in function
