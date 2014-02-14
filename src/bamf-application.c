@@ -470,7 +470,7 @@ try_create_local_desktop_data (GFile *apps_dir, GFile *icons_dir, const char *ba
                                GFile **out_desktop_file, GFile **out_icon_file,
                                GCancellable *cancellable)
 {
-  g_return_val_if_fail (out_desktop_file, NULL);
+  g_return_val_if_fail (out_desktop_file, FALSE);
 
   if (!apps_dir)
     {
