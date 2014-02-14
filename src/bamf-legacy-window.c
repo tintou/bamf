@@ -539,6 +539,36 @@ bamf_legacy_window_set_hint (BamfLegacyWindow *self, const char *name, const cha
 }
 
 static void
+top_window_action_menu (GtkMenu *menu, gint *x, gint *y, gboolean *push, gpointer data)
+{
+  BamfLegacyWindow *self = data;
+  gint w, h;
+  wnck_window_get_client_window_geometry (self->priv->legacy_window, x, y, &w, &h);
+  *push = TRUE;
+}
+
+void bamf_legacy_window_show_action_menu (BamfLegacyWindow *self, guint32 time,
+                                          guint button, gint x, gint y)
+{
+  g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->show_action_menu)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->show_action_menu (self, button, time, x, y);
+
+  g_return_if_fail (WNCK_IS_WINDOW (self->priv->legacy_window));
+
+  GtkWidget *menu = wnck_action_menu_new (self->priv->legacy_window);
+  g_signal_connect (G_OBJECT (menu), "unmap", G_CALLBACK (g_object_unref), NULL);
+  g_object_ref_sink (menu);
+
+  gtk_menu_set_screen (GTK_MENU (menu), gdk_screen_get_default ());
+  gtk_widget_show (menu);
+
+  GtkMenuPositionFunc position = button ? NULL : top_window_action_menu;
+  gtk_menu_popup (GTK_MENU (menu), NULL, NULL, position, self, button, time);
+}
+
+static void
 handle_window_closed (WnckScreen *screen,
                       WnckWindow *window,
                       BamfLegacyWindow *self)

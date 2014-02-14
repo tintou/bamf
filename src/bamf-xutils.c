@@ -19,6 +19,7 @@
  */
 
 #include "bamf-xutils.h"
+#include <X11/Xatom.h>
 #include <string.h>
 
 static Display *

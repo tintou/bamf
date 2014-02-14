@@ -19,6 +19,7 @@
 
 #include "bamf-legacy-screen.h"
 #include "bamf-legacy-screen-private.h"
+#include <gdk/gdkx.h>
 #include <gio/gio.h>
 
 G_DEFINE_TYPE (BamfLegacyScreen, bamf_legacy_screen, G_TYPE_OBJECT);
@@ -38,6 +39,8 @@ enum
 };
 
 static guint legacy_screen_signals[LAST_SIGNAL] = { 0 };
+static Atom _COMPIZ_TOOLKIT_ACTION = 0;
+static Atom _COMPIZ_TOOLKIT_ACTION_WINDOW_MENU = 0;
 
 struct _BamfLegacyScreenPrivate
 {
@@ -350,6 +353,25 @@ bamf_legacy_screen_get_active_window (BamfLegacyScreen *screen)
   return NULL;
 }
 
+static BamfLegacyWindow *
+bamf_legacy_screen_get_window_by_xid (BamfLegacyScreen *screen, Window xid)
+{
+  BamfLegacyWindow *window;
+  GList *l;
+
+  g_return_val_if_fail (BAMF_IS_LEGACY_SCREEN (screen), NULL);
+
+  for (l = screen->priv->windows; l; l = l->next)
+    {
+      window = l->data;
+
+      if (bamf_legacy_window_get_xid (window) == xid)
+        return window;
+    }
+
+  return NULL;
+}
+
 static void
 handle_active_window_changed (WnckScreen *screen, WnckWindow *previous, BamfLegacyScreen *self)
 {
@@ -428,6 +450,42 @@ bamf_legacy_screen_class_init (BamfLegacyScreenClass * klass)
                   G_TYPE_NONE, 0);
 }
 
+#include <gdk/gdkx.h>
+
+GdkFilterReturn filter_compiz_messages(GdkXEvent *gdkxevent, GdkEvent *event, gpointer data)
+{
+  BamfLegacyScreen *self = data;
+  BamfLegacyWindow *window;
+  XEvent *xevent = gdkxevent;
+
+  if (xevent->type == ClientMessage)
+    {
+      if (xevent->xclient.message_type == _COMPIZ_TOOLKIT_ACTION)
+        {
+          Atom msg = xevent->xclient.data.l[0];
+
+          if (msg == _COMPIZ_TOOLKIT_ACTION_WINDOW_MENU)
+            {
+              window = bamf_legacy_screen_get_window_by_xid (self, xevent->xany.window);
+
+              if (BAMF_IS_LEGACY_WINDOW (window))
+                {
+                  Time time = xevent->xclient.data.l[1];
+                  int button = xevent->xclient.data.l[2];
+                  int x = xevent->xclient.data.l[3];
+                  int y = xevent->xclient.data.l[4];
+
+                  bamf_legacy_window_show_action_menu (window, time, button, x, y);
+
+                  return GDK_FILTER_REMOVE;
+                }
+            }
+        }
+    }
+
+  return GDK_FILTER_CONTINUE;
+}
+
 BamfLegacyScreen *
 bamf_legacy_screen_get_default ()
 {
@@ -455,6 +513,14 @@ bamf_legacy_screen_get_default ()
 
   g_signal_connect (G_OBJECT (self->priv->legacy_screen), "active-window-changed",
                     (GCallback) handle_active_window_changed, self);
+
+  if (g_strcmp0 (g_getenv ("XDG_CURRENT_DESKTOP"), "Unity") == 0)
+    {
+      Display *dpy = gdk_x11_get_default_xdisplay ();
+      _COMPIZ_TOOLKIT_ACTION = XInternAtom (dpy, "_COMPIZ_TOOLKIT_ACTION", False);
+      _COMPIZ_TOOLKIT_ACTION_WINDOW_MENU = XInternAtom (dpy, "_COMPIZ_TOOLKIT_ACTION_WINDOW_MENU", False);
+      gdk_window_add_filter (NULL, filter_compiz_messages, self);
+    }
 
   return static_screen;
 }

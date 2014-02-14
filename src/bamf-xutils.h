@@ -22,7 +22,6 @@
 #define __BAMF_XUTILS_H__
 
 #include <glib.h>
-#include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <gdk/gdkx.h>
 
