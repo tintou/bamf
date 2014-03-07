@@ -663,14 +663,7 @@ bamf_application_load_data_from_file (BamfApplication *self, GKeyFile * keyfile)
   self->priv->cached_mimes = g_key_file_get_string_list (keyfile, G_KEY_FILE_DESKTOP_GROUP,
                                                          G_KEY_FILE_DESKTOP_KEY_MIME_TYPE, NULL, NULL);
 
-  if (g_strcmp0 (g_app_info_get_executable (G_APP_INFO (desktop_info)), "unity-webapps-runner") == 0)
-    {
-      self->priv->application_type = g_strdup ("webapp");
-    }
-  else
-    {
-      self->priv->application_type = g_strdup ("system");
-    }
+  self->priv->application_type = g_strdup ("system");
 
   g_free (icon);
   g_free (name);
