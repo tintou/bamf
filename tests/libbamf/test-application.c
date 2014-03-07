@@ -93,17 +93,6 @@ test_favorite_no_icon (void)
 }
 
 static void
-test_favorite_valid_desktop_file_webapp (void)
-{
-  BamfApplication *application;
-
-  application = bamf_application_new_favorite (DATA_DIR"/ubuntu-web-app.desktop");
-  g_assert_cmpstr (bamf_application_get_application_type (application), ==, "webapp");
-
-  g_object_unref (application);
-}
-
-static void
 test_favorite_mime_type_filled (void)
 {
   BamfApplication *application;
@@ -150,5 +139,4 @@ test_application_create_suite (void)
   g_test_add_func (DOMAIN"/Favorite/NoIcon", test_favorite_no_icon);
   g_test_add_func (DOMAIN"/Favorite/MimeType/Filled", test_favorite_mime_type_filled);
   g_test_add_func (DOMAIN"/Favorite/MimeType/Empty", test_favorite_mime_type_empty);
-  g_test_add_func (DOMAIN"/Favorite/DesktopFile/Valid/WebApp", test_favorite_valid_desktop_file_webapp);
 }
