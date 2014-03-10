@@ -1,3 +1,11 @@
+bamf (0.5.1+14.04.20140310-0ubuntu1) trusty; urgency=low
+
+  [ Alexandre Abreu ]
+  * Remove old webapp related code since now we dont use browser tab
+    matching anymore. (LP: #1289498)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 10 Mar 2014 22:29:08 +0000
+
 bamf (0.5.1+14.04.20140214.1-0ubuntu1) trusty; urgency=low
 
   [ Michel Alexandre Salim ]
