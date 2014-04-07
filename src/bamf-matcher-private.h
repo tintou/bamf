@@ -25,13 +25,9 @@
 #include "bamf-application.h"
 #include "bamf-window.h"
 #include "bamf-legacy-window.h"
-#include "bamf-unity-webapps-observer.h"
 
 struct _BamfMatcherPrivate
 {
-#ifdef HAVE_WEBAPPS
-  BamfUnityWebappsObserver *webapps_observer;
-#endif
   GArray          * bad_prefixes;
   GArray          * good_prefixes;
   GHashTable      * desktop_id_table;
