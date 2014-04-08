@@ -1,3 +1,16 @@
+bamf (0.5.1+14.04.20140408-0ubuntu1) trusty; urgency=low
+
+  [ CI bot ]
+  * Resync trunk
+
+  [ Alexandre Abreu ]
+  * Rip out vestigial webapps code (LP: #1280337) (LP: #1280337)
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 08 Apr 2014 16:43:41 +0000
+
 bamf (0.5.1+14.04.20140310-0ubuntu1) trusty; urgency=low
 
   [ Alexandre Abreu ]
