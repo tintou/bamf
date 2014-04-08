@@ -1483,6 +1483,41 @@ is_libreoffice_window (BamfLegacyWindow * window)
 }
 
 static gboolean
+is_web_app_window (BamfLegacyWindow *window)
+{
+  const char *window_class = bamf_legacy_window_get_class_name (window);
+  const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
+
+  // Chrome/Chromium uses url wm_class strings to represent its web apps.
+  // These apps will still have the same parent pid and hints as the main chrome
+  // window, so we skip the hint check.
+  // We can tell a window is a chrome web app window if its instance name is
+  // not google-chrome but its window class is Google-chrome
+  // We can tell a window is chromium web app window if its instance name is
+  // not chromium-browser but its window class is Chromium Browser
+
+  gboolean valid_app = FALSE;
+
+  if (instance_name && window_class)
+    {
+      if (g_strcmp0 (window_class, "Google-chrome") == 0 &&
+          g_strcmp0 (instance_name, "google-chrome") != 0 &&
+          !g_str_has_prefix (instance_name, "Google-chrome"))
+        {
+          valid_app = TRUE;
+        }
+      else if (g_strcmp0 (window_class, "Chromium-browser") == 0 &&
+               g_strcmp0 (instance_name, "chromium-browser") != 0 &&
+               !g_str_has_prefix (instance_name, "Chromium-browser"))
+        {
+          valid_app = TRUE;
+        }
+    }
+
+  return valid_app;
+}
+
+static gboolean
 is_javaws_window (BamfLegacyWindow *window)
 {
   const char *window_class = bamf_legacy_window_get_class_name (window);
@@ -1502,7 +1537,7 @@ bamf_matcher_window_skips_hint_set (BamfMatcher *self, BamfLegacyWindow *window)
   gboolean skip_hint_set;
   g_return_val_if_fail (BAMF_IS_MATCHER (self), TRUE);
 
-  skip_hint_set = is_libreoffice_window (window) || is_javaws_window (window);
+  skip_hint_set = is_libreoffice_window (window) || is_web_app_window (window) || is_javaws_window (window);
 
   return skip_hint_set;
 }
@@ -1609,8 +1644,15 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
   if (!filter_by_wmclass)
     {
-      target_class = class_name;
-      filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
+      if (is_web_app_window (window))
+        {
+          filter_by_wmclass = TRUE;
+        }
+      else
+        {
+          target_class = class_name;
+          filter_by_wmclass = bamf_matcher_has_instance_class_desktop_file (self, target_class);
+        }
     }
 
   if (desktop_file)
