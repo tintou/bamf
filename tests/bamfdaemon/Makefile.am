@@ -30,12 +30,6 @@ bamf_test_extra_headers = \
 	$(top_srcdir)/src/bamf-xutils.h \
 	$(NULL)
 
-bamf_test_webapps_sources = \
-	$(top_srcdir)/src/bamf-unity-webapps-tab.c \
-	$(top_srcdir)/src/bamf-unity-webapps-observer.c \
-	$(top_srcdir)/src/bamf-unity-webapps-application.c \
-	$(NULL)
-
 test_bamf_SOURCES = \
 	$(bamf_test_extra_sources) \
 	$(bamf_test_extra_headers) \
@@ -44,12 +38,6 @@ test_bamf_SOURCES = \
 	test-application.c \
 	test-window.c \
 	test-matcher.c
-
-if HAVE_WEBAPPS
-test_bamf_SOURCES += \
-	$(bamf_test_webapps_sources) \
-	$(NULL)
-endif
 
 test_bamf_CFLAGS = \
 	-I$(top_srcdir)/src \
@@ -62,7 +50,6 @@ test_bamf_CFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(GTK_CFLAGS) \
 	$(GTOP_CFLAGS) \
-	$(LIBUNITY_WEBAPPS_CFLAGS) \
 	$(MAINTAINER_CFLAGS) \
 	$(WNCK_CFLAGS) \
 	$(X_CFLAGS) \
@@ -73,7 +60,6 @@ test_bamf_LDADD = \
 	$(GLIB_LIBS) \
 	$(GTK_LIBS) \
 	$(GTOP_LIBS) \
-	$(LIBUNITY_WEBAPPS_LIBS) \
 	$(WNCK_LIBS) \
 	$(X_LIBS) \
 	$(NULL)

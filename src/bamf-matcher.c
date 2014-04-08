@@ -27,10 +27,6 @@
 #include "bamf-window.h"
 #include "bamf-legacy-screen.h"
 
-#ifdef HAVE_WEBAPPS
-#include "bamf-unity-webapps-application.h"
-#include "bamf-unity-webapps-tab.h"
-#endif
 #include <strings.h>
 
 #define BAMF_INDEX_NAME "bamf-2.index"
@@ -1492,7 +1488,7 @@ is_web_app_window (BamfLegacyWindow *window)
   const char *window_class = bamf_legacy_window_get_class_name (window);
   const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
 
-  // Chrome/Chromium uses url wm_class strings to represent its web apps.
+  // Chrome/Chromium uses url wm_class strings to represent its web apps (--app mode).
   // These apps will still have the same parent pid and hints as the main chrome
   // window, so we skip the hint check.
   // We can tell a window is a chrome web app window if its instance name is
@@ -2940,103 +2936,6 @@ on_dbus_handle_window_stack_for_monitor (BamfDBusMatcher *interface,
   return TRUE;
 }
 
-#ifdef HAVE_WEBAPPS
-static gboolean
-bamf_matcher_has_tab_with_parent_xid (BamfMatcher *matcher, guint64 xid)
-{
-  GList *l;
-  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), FALSE);
-
-  for (l = matcher->priv->views; l; l = l->next)
-    {
-      if (!BAMF_IS_TAB (l->data))
-        continue;
-
-      if (xid == bamf_tab_get_xid (BAMF_TAB (l->data)))
-        return TRUE;
-    }
-
-  return FALSE;
-}
-
-static void
-on_webapp_child_added (BamfView *application,
-                       BamfView *child,
-                       gpointer user_data)
-{
-  BamfMatcher *self;
-  BamfLegacyWindow *legacy_window;
-  BamfUnityWebappsTab *webapp_tab;
-
-  g_return_if_fail (BAMF_IS_MATCHER (user_data));
-  g_return_if_fail (BAMF_IS_UNITY_WEBAPPS_TAB (child));
-
-  self = BAMF_MATCHER (user_data);
-  webapp_tab = BAMF_UNITY_WEBAPPS_TAB (child);
-  legacy_window = bamf_unity_webapps_tab_get_legacy_window_for (webapp_tab);
-
-  if (legacy_window && is_web_app_window (legacy_window))
-    {
-      /* If we have a chromeless window, we remove the window from the
-       * application children list, so that it won't be duplicated in launcher */
-
-      guint tab_xid = bamf_tab_get_xid (BAMF_TAB (webapp_tab));
-
-      if (!bamf_matcher_has_tab_with_parent_xid (self, tab_xid))
-        {
-          BamfApplication *old_application = bamf_matcher_get_application_by_xid (self, tab_xid);
-
-          if (BAMF_IS_APPLICATION (old_application))
-            {
-              BamfWindow *bamf_window = bamf_application_get_window (old_application, tab_xid);
-
-              if (BAMF_IS_VIEW (bamf_window))
-                bamf_view_remove_child (BAMF_VIEW (old_application), BAMF_VIEW (bamf_window));
-            }
-        }
-    }
-
-  bamf_matcher_register_view_stealing_ref (self, child);
-}
-
-static void on_webapp_child_removed (BamfView *application,
-                                     BamfView *child,
-                                     gpointer user_data)
-{
-  BamfLegacyWindow *legacy_window;
-  BamfUnityWebappsTab *webapp_tab;
-
-  g_return_if_fail (BAMF_IS_UNITY_WEBAPPS_TAB (child));
-
-  webapp_tab = BAMF_UNITY_WEBAPPS_TAB (child);
-  legacy_window = bamf_unity_webapps_tab_get_legacy_window_for (webapp_tab);
-
-  if (is_web_app_window (legacy_window))
-    {
-      /* If we have a chromeless window, we re-match it again as soon as the
-       * webapp handler is gone, so that we don't lose its control */
-      bamf_legacy_window_reopen (legacy_window);
-    }
-}
-
-static void
-on_webapp_appeared (BamfUnityWebappsObserver *observer,
-                    BamfApplication *application,
-                    gpointer user_data)
-{
-  BamfMatcher *self;
-
-  self = (BamfMatcher *)user_data;
-
-  bamf_matcher_register_view_stealing_ref (self, (BamfView *)application);
-
-  g_signal_connect (application, "child-added-internal", G_CALLBACK (on_webapp_child_added), self);
-  g_signal_connect (application, "child-removed-internal", G_CALLBACK (on_webapp_child_removed), self);
-
-  bamf_unity_webapps_application_add_existing_interests (BAMF_UNITY_WEBAPPS_APPLICATION (application));
-}
-#endif
-
 static void
 bamf_matcher_init (BamfMatcher * self)
 {
@@ -3117,13 +3016,6 @@ bamf_matcher_init (BamfMatcher * self)
 
   g_signal_connect (self, "handle-window-stack-for-monitor",
                     G_CALLBACK (on_dbus_handle_window_stack_for_monitor), self);
-
-#ifdef HAVE_WEBAPPS
-  priv->webapps_observer = bamf_unity_webapps_observer_new ();
-
-  g_signal_connect (priv->webapps_observer, "application-appeared",
-                    G_CALLBACK (on_webapp_appeared), self);
-#endif
 }
 
 static void
@@ -3136,14 +3028,6 @@ bamf_matcher_dispose (GObject *object)
     {
       bamf_matcher_unregister_view (self, priv->views->data);
     }
-
-#ifdef HAVE_WEBAPPS
-  if (priv->webapps_observer)
-    {
-      g_object_unref (G_OBJECT (priv->webapps_observer));
-      priv->webapps_observer = NULL;
-    }
-#endif
 
   G_OBJECT_CLASS (bamf_matcher_parent_class)->dispose (object);
 }

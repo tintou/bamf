@@ -91,22 +91,6 @@ fi
 GTK_DOC_CHECK(1.0)
 
 ###########################
-# libunity_webapps
-###########################
-AC_ARG_ENABLE([webapps],
-              AS_HELP_STRING([--enable-webapps],
-                             [Enable libunity-webapps support]),
-              [enable_webapps=$enableval],
-              [enable_webapps=yes])
-if test "x$enable_webapps" = "xyes"; then
-  PKG_CHECK_MODULES(LIBUNITY_WEBAPPS, libunity_webapps-0.2)
-  AC_DEFINE_UNQUOTED(HAVE_WEBAPPS, , [Use libunity-webapps])
-fi
-AM_CONDITIONAL([HAVE_WEBAPPS], [test "x$enable_webapps" = "xyes"])
-AC_SUBST(LIBUNITY_WEBAPPS_CFLAGS)
-AC_SUBST(LIBUNITY_WEBAPPS_LIBS)
-
-###########################
 # gtester2xunit checks    #
 ###########################
 
@@ -184,7 +168,6 @@ ${PACKAGE}-${VERSION}
   Build Environment
     Install Prefix:     ${prefix}
     Introspection:      ${enable_introspection}
-    Unity Webapps:      ${enable_webapps}
     Headless tests:     ${enable_headless_tests}
     Coverage Reporting: ${use_gcov}
 
