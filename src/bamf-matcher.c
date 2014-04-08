@@ -1488,7 +1488,7 @@ is_web_app_window (BamfLegacyWindow *window)
   const char *window_class = bamf_legacy_window_get_class_name (window);
   const char *instance_name = bamf_legacy_window_get_class_instance_name (window);
 
-  // Chrome/Chromium uses url wm_class strings to represent its web apps.
+  // Chrome/Chromium uses url wm_class strings to represent its web apps (--app mode).
   // These apps will still have the same parent pid and hints as the main chrome
   // window, so we skip the hint check.
   // We can tell a window is a chrome web app window if its instance name is
@@ -1646,6 +1646,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
     {
       if (is_web_app_window (window))
         {
+          // This ensures that a new application is created even for unknown webapps
           filter_by_wmclass = TRUE;
         }
       else
