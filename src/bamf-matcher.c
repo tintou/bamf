@@ -55,7 +55,7 @@ static guint matcher_signals[LAST_SIGNAL] = { 0 };
 const gchar* EXEC_BAD_PREFIXES[] =
 {
   "^gksu(do)?$", "^sudo$", "^su-to-root$", "^amdxdg-su$", "^java(ws)?$", "^cli$",
-  "^mono$", "^ruby$", "^padsp$", "^aoss$", "^python(\\d.\\d)?$", "^(ba)?sh$",
+  "^mono$", "^ruby$", "^padsp$", "^aoss$", "^python(\\d(\\.\\d)?)?$", "^(ba)?sh$",
   "^perl$", "^env$", "^xdg-open$", "^qmlscene$", "^qmlviewer$",
   "^unity-webapps-runner$", "^webapp-container$",
   /* javaws strings: */ "^net\\.sourceforge\\.jnlp\\.runtime\\.Boot$", "^rt\\.jar$",
