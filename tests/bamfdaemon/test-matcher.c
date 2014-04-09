@@ -1040,6 +1040,10 @@ test_trim_exec_string (void)
   g_assert_cmpstr (trimmed, ==, "bad-prefix-script");
   g_free (trimmed);
 
+  trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/python3 /usr/bin/gnome-language-selector");
+  g_assert_cmpstr (trimmed, ==, "gnome-language-selector");
+  g_free (trimmed);
+
   trimmed = bamf_matcher_get_trimmed_exec (matcher, "/usr/bin/python3.1");
   g_assert_cmpstr (trimmed, ==, "python3.1");
   g_free (trimmed);
