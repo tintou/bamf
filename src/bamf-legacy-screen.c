@@ -468,7 +468,8 @@ GdkFilterReturn filter_compiz_messages(GdkXEvent *gdkxevent, GdkEvent *event, gp
             {
               window = bamf_legacy_screen_get_window_by_xid (self, xevent->xany.window);
 
-              if (BAMF_IS_LEGACY_WINDOW (window))
+              if (BAMF_IS_LEGACY_WINDOW (window) &&
+                  bamf_legacy_window_get_window_type(window) != BAMF_WINDOW_DESKTOP)
                 {
                   Time time = xevent->xclient.data.l[1];
                   int button = xevent->xclient.data.l[2];
