@@ -1,3 +1,14 @@
+bamf (0.5.1+14.10.20140925-0ubuntu1) utopic; urgency=low
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+  [ Andrea Azzarone ]
+  * BamfLegacyScreen: Do not show the actions menu for desktop type
+    window. (LP: #1342609)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 25 Sep 2014 14:56:56 +0000
+
 bamf (0.5.1+14.04.20140409-0ubuntu3) utopic; urgency=medium
 
   * Actually do a no change rebuild against new libgtop
