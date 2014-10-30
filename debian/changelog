@@ -1,3 +1,9 @@
+bamf (0.5.1+14.10.20140925-0ubuntu2) vivid; urgency=medium
+
+  * Install typelib files into MA libdir
+
+ -- Iain Lane <iain@orangesquash.org.uk>  Tue, 28 Oct 2014 11:12:55 +0000
+
 bamf (0.5.1+14.10.20140925-0ubuntu1) utopic; urgency=low
 
   [ Ubuntu daily release ]
