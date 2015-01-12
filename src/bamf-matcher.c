@@ -1658,9 +1658,12 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
         }
     }
 
-  if (app_id && g_hash_table_contains (priv->desktop_id_table, app_id))
+  if (app_id)
     {
-      desktop_files = g_list_prepend (desktop_files, app_id);
+      if (g_hash_table_contains (priv->desktop_id_table, app_id))
+        desktop_files = g_list_prepend (desktop_files, app_id);
+      else
+        g_free (app_id);
     }
 
   if (desktop_file)
