@@ -1,3 +1,14 @@
+bamf (0.5.1+15.04.20150128-0ubuntu1) vivid; urgency=low
+
+  [ Andrea Azzarone ]
+  * Replace gtk_icon_theme_has_icon with gtk_icon_theme_lookup_icon.
+    (LP: #1407192)
+
+  [ Lars Uebernickel ]
+  * Matcher: honor the _GTK_APPLICATION_ID xprop
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 28 Jan 2015 19:25:54 +0000
+
 bamf (0.5.1+14.10.20140925-0ubuntu2) vivid; urgency=medium
 
   * Install typelib files into MA libdir
