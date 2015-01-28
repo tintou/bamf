@@ -182,6 +182,7 @@ static gboolean
 icon_name_is_valid (const char *name)
 {
   GtkIconTheme *icon_theme;
+  GtkIconInfo *icon_info;
 
   if (!name || name[0] == '\0')
     return FALSE;
@@ -189,8 +190,17 @@ icon_name_is_valid (const char *name)
   if (g_file_test (name, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR))
     return TRUE;
 
+  // Please note that since gtk 3.14 gtk_icon_theme_has_icon stopped working.
   icon_theme = gtk_icon_theme_get_default ();
-  return gtk_icon_theme_has_icon (icon_theme, name);
+  icon_info = gtk_icon_theme_lookup_icon (icon_theme, name, -1, 0);
+
+  if (icon_info != NULL)
+    {
+      g_object_unref (icon_info);
+      return TRUE;
+    }
+
+  return FALSE;
 }
 
 static gboolean
