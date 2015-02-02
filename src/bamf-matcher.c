@@ -1630,7 +1630,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
   priv = self->priv;
   window = bamf_window_get_window (bamf_window);
-  desktop_file = bamf_legacy_window_get_hint (window, _NET_WM_DESKTOP_FILE);
+  desktop_file = bamf_legacy_window_get_hint (window, _BAMF_DESKTOP_FILE);
   class_name = bamf_legacy_window_get_class_name (window);
   instance_name = bamf_legacy_window_get_class_instance_name (window);
 
@@ -2022,7 +2022,7 @@ ensure_window_hint_set (BamfMatcher *self,
       return;
     }
 
-  desktop_file_hint = bamf_legacy_window_get_hint (window, _NET_WM_DESKTOP_FILE);
+  desktop_file_hint = bamf_legacy_window_get_hint (window, _BAMF_DESKTOP_FILE);
 
   if (desktop_file_hint)
     {
@@ -2058,7 +2058,7 @@ ensure_window_hint_set (BamfMatcher *self,
   g_list_free (pids);
 
   if (desktop_file_hint)
-    bamf_legacy_window_set_hint (window, _NET_WM_DESKTOP_FILE, desktop_file_hint);
+    bamf_legacy_window_set_hint (window, _BAMF_DESKTOP_FILE, desktop_file_hint);
 }
 
 static void
@@ -2185,7 +2185,7 @@ on_gnome_control_center_window_role_changed (BamfLegacyWindow *window, BamfMatch
   char *old_hint;
   const char *new_hint;
 
-  old_hint = bamf_legacy_window_get_hint (window, _NET_WM_DESKTOP_FILE);
+  old_hint = bamf_legacy_window_get_hint (window, _BAMF_DESKTOP_FILE);
   new_hint = get_gnome_control_center_window_hint (self, window);
 
   if (new_hint && g_strcmp0 (new_hint, old_hint) != 0)
@@ -2220,12 +2220,12 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
     }
   else if (g_strcmp0 (bamf_legacy_window_get_class_name (window), "Gnome-control-center") == 0)
     {
-      char *old_hint = bamf_legacy_window_get_hint (window, _NET_WM_DESKTOP_FILE);
+      char *old_hint = bamf_legacy_window_get_hint (window, _BAMF_DESKTOP_FILE);
       const char *new_hint = get_gnome_control_center_window_hint (self, window);
 
       if (new_hint && g_strcmp0 (old_hint, new_hint) != 0)
         {
-          bamf_legacy_window_set_hint (window, _NET_WM_DESKTOP_FILE, new_hint);
+          bamf_legacy_window_set_hint (window, _BAMF_DESKTOP_FILE, new_hint);
         }
 
       g_signal_connect (window, "role-changed", (GCallback) on_gnome_control_center_window_role_changed, self);

@@ -586,7 +586,7 @@ test_match_gnome_control_center_panels (void)
   bamf_legacy_window_test_set_role (test_win, NULL);
   _bamf_legacy_screen_open_test_window (screen, test_win);
 
-  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _BAMF_DESKTOP_FILE);
   g_assert_cmpstr (hint, ==, DATA_DIR"/gnome-control-center.desktop");
   g_free (hint);
   app = bamf_matcher_get_application_by_desktop_file (matcher, DATA_DIR"/gnome-control-center.desktop");
@@ -599,7 +599,7 @@ test_match_gnome_control_center_panels (void)
   g_assert (app);
   window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
   test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
-  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _BAMF_DESKTOP_FILE);
   g_assert_cmpstr (hint, ==, DATA_DIR"/gnome-display-panel.desktop");
   g_free (hint);
 
@@ -610,7 +610,7 @@ test_match_gnome_control_center_panels (void)
   g_assert (app);
   window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
   test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
-  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _BAMF_DESKTOP_FILE);
   g_assert_cmpstr (hint, ==, DATA_DIR"/gnome-mouse-panel.desktop");
   g_free (hint);
 
@@ -621,7 +621,7 @@ test_match_gnome_control_center_panels (void)
   g_assert (app);
   window = BAMF_WINDOW (bamf_view_get_children (BAMF_VIEW (app))->data);
   test_win = BAMF_LEGACY_WINDOW_TEST (bamf_window_get_window (window));
-  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _BAMF_DESKTOP_FILE);
   g_assert_cmpstr (hint, ==, DATA_DIR"/gnome-control-center.desktop");
   g_free (hint);
 
@@ -731,7 +731,7 @@ test_match_javaws_windows_hint_ignored (void)
 
   bamf_matcher_register_desktop_file_for_pid (matcher, DATA_DIR"/icedtea-netx-javaws.desktop", pid);
 
-  char *hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _NET_WM_DESKTOP_FILE);
+  char *hint = bamf_legacy_window_get_hint (BAMF_LEGACY_WINDOW (test_win), _BAMF_DESKTOP_FILE);
   g_assert (hint == NULL);
 
   app = bamf_matcher_get_application_by_xid (matcher, xid);
