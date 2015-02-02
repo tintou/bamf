@@ -1,3 +1,16 @@
+bamf (0.5.1+15.04.20150202-0ubuntu1) vivid; urgency=medium
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfMatcher: rename set our atom to _BAMF_DESKTOP_FILE
+
+  [ Marco Trevisan ]
+  * Matcher: use desktop file path when matching on _GTK_APPLICATION_ID
+
+  [ Lars Uebernickel ]
+  * Matcher: use desktop file path when matching on _GTK_APPLICATION_ID
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 02 Feb 2015 10:25:02 +0000
+
 bamf (0.5.1+15.04.20150128-0ubuntu1) vivid; urgency=low
 
   [ Andrea Azzarone ]
