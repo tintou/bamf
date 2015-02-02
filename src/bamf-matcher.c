@@ -1617,7 +1617,7 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
   BamfMatcherPrivate *priv;
   BamfLegacyWindow *window;
   GList *desktop_files = NULL, *l;
-  gchar *app_id;
+  char *app_id;
   char *desktop_file = NULL;
   const char *desktop_class = NULL;
   const char *class_name = NULL;
@@ -1630,7 +1630,6 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
   priv = self->priv;
   window = bamf_window_get_window (bamf_window);
-  app_id = bamf_legacy_window_get_hint (window, _GTK_APPLICATION_ID);
   desktop_file = bamf_legacy_window_get_hint (window, _NET_WM_DESKTOP_FILE);
   class_name = bamf_legacy_window_get_class_name (window);
   instance_name = bamf_legacy_window_get_class_instance_name (window);
@@ -1658,14 +1657,6 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
         }
     }
 
-  if (app_id)
-    {
-      if (g_hash_table_contains (priv->desktop_id_table, app_id))
-        desktop_files = g_list_prepend (desktop_files, app_id);
-      else
-        g_free (app_id);
-    }
-
   if (desktop_file)
     {
       desktop_class = bamf_matcher_get_desktop_file_class (self, desktop_file);
@@ -1687,6 +1678,26 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
       if (desktop_file)
         {
           desktop_files = g_list_prepend (desktop_files, desktop_file);
+        }
+      else
+        {
+          app_id = bamf_legacy_window_get_hint (window, _GTK_APPLICATION_ID);
+
+          if (app_id)
+            {
+              for (l = g_hash_table_lookup (priv->desktop_id_table, app_id); l; l = l->next)
+                {
+                  desktop_file = l->data;
+                  desktop_class = bamf_matcher_get_desktop_file_class (self, desktop_file);
+
+                  if ((!filter_by_wmclass && !desktop_class) || g_strcmp0 (desktop_class, target_class) == 0)
+                    {
+                      desktop_files = g_list_prepend (desktop_files, g_strdup (desktop_file));
+                    }
+                }
+
+              g_free (app_id);
+            }
         }
     }
 
