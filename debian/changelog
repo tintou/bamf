@@ -1,18 +1,135 @@
-bamf (0.2.104-1) unstable; urgency=low
+bamf (0.2.118-1) unstable; urgency=low
+
+  * Backport latest release to debian
+  * debian/control:
+    - bump Standards-Version to latest
+    - remove build-dep only used for unit tests
+    - replace the gtk2 variant of the wnck introspection gir package with 
+      gtk3 one
+    - ensure the gtk2/gtk3 version doesn't have the same description
+  * debian/*.symbols:
+    - adding some PRIVATE symbols to make lintian happy. We saw that bamf
+      is exporting by error some of its private symbols. This will be fixed
+      in next released (and so the symbols will be removed from the .symbols
+      files)
+  * debian/rules:
+    - add hardening flags (thanks Andrea)
+  * debian/sources/format:
+    - added to specify we use format 1.0
+
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 01 Jun 2012 11:51:11 +0200
+
+bamf (0.2.118-0ubuntu1) quantal; urgency=low
 
   [ Didier Roche ]
-  * Initial upload to Debian. Package grabbed from Ubuntu,
-    we'll keep this package in sync within the two
-    distributions.
+  * New upstream release. (0.2.116)
+    - multiple instances or double icons of application detected on bamfdaemon
+      respawn (LP: #928912)
+    - unity confused with chrome/chromium web apps (LP: #692462)
+    - BamfView's dispose() method doesn't invoke the superclass' dispose()
+      (LP: #986888)
   * debian/control:
-    - removed gir's package for now, still not building 
-      correctly.
+    - remove Multi-Arch: same for the -dbg package
+      (Closes: #669980, #658057)
 
-  [ Andrea Veri ]
+  [ Alan Pope ]
+  * New upstream release.
+    - Unity crashed in bamf_application_on_window_removed (LP: #1000577)
+    - Locked smuxi launcher icon does not indicate smuxi running status
+      (LP: #999820)
+    - No launcher icon or Alt+Tab entry for Gimp windows (LP: #995916)
+    - the RunningApplicationsChanged signal is no longer emitted when an 
+      application is closed since r460 (LP: #989551)
+
+ -- Alan Pope <popey@ubuntu.com>  Wed, 23 May 2012 09:10:08 +0100
+
+bamf (0.2.114-0ubuntu1) precise-proposed; urgency=low
+
+  * New upstream release.
+    - invalid valgrind read errors (LP: #929468)
+
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 23 Mar 2012 14:16:41 +0100
+
+bamf (0.2.112-0ubuntu1) precise; urgency=low
+
+  * New upstream release.
+    - bamf matcher messes up refcounting on views (LP: #942070)
+    - Chromium is running, but not showing in launcher or alt-tab. 
+      (LP: #918474)
+    - libbamf leaks memory on view dispose (LP: #942148)
+    - Coverity PW.PARAMETER_HIDDEN - CID 10449 (LP: #937398)
+    - Coverity UNINIT - CID 10451 (LP: #937402)
+  * debian/libbamf0.symbols, debian/libbamf3-0.symbols:
+    - update symbols for new API
+
+ -- Didier Roche <didrocks@ubuntu.com>  Mon, 12 Mar 2012 11:47:33 +0100
+
+bamf (0.2.110-0ubuntu1) precise; urgency=low
+
+  * New upstream release.
+    - BAMF does not pass make check (LP: #897148)
+    - BAMF requires a headless testing target (LP: #897150)
+    - Clicking Nautilus launcher icon fails to open a Nautilus file explorer
+      window when  copying a file and all other Nautilus windows are closed /
+      bamf should skip the taskbar (LP: #784804)
+  * debian/libbamf0.symbols,
+    debian/libbamf3-0.symbols:
+    - updated symbols
+
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 17 Feb 2012 13:36:25 +0100
+
+bamf (0.2.108-0ubuntu2) precise; urgency=low
+
+  * remove -Werror for now as there is just new glib deprecation making it
+    FTBFS.
+  * debian/source/
+    - remove, doesn't play well with merge-upstream workflow
+
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 03 Feb 2012 14:04:28 +0100
+
+bamf (0.2.108-0ubuntu1) precise; urgency=low
+
+  * New upstream release.
+    - BAMF does not pass make check (LP: #897148)
+    - BAMF requires a headless testing target (LP: #897150)
+    - Clicking Nautilus launcher icon fails to open a Nautilus file explorer
+      window when  copying a file and all other Nautilus windows are closed /
+      bamf should skip the taskbar (LP: #784804)
+  * debian/libbamf0.symbols, debian/libbamf3-0.symbols:
+    - updated symbols
+
+ -- Didier Roche <didrocks@ubuntu.com>  Fri, 03 Feb 2012 11:36:48 +0100
+
+bamf (0.2.106-0ubuntu1) precise; urgency=low
+
+  * New upstream release.
+    - Unity acts not as a dock for LibreOffice but as a launcher (LP: #741995)
+    - Libreoffice Calc icon does not appear when opened via Writer
+      (LP: #861355)
+    - Bamf Ignores some local .desktop files with OnlyShowIn flag
+      (LP: #863290)
+    - Libreoffice and unity integration broken. (LP: #842566)
+  * debian/control, debian/rules:
+    - enable headless tests build
   * debian/control:
-    - changed Maintainer accordingly.
-    - added myself into uploaders.
+    - bump libglib2.0-dev to 2.28
 
+ -- Didier Roche <didrocks@ubuntu.com>  Thu, 12 Jan 2012 17:01:43 +0100
+
+bamf (0.2.104-1) unstable; urgency=low
+
+   [ Didier Roche ]
+   * Initial upload to Debian. Package grabbed from Ubuntu,
+     we'll keep this package in sync within the two
+     distributions.
+   * debian/control:
+     - removed gir's package for now, still not building
+       correctly.
+ 
+   [ Andrea Veri ]
+   * debian/control:
+     - changed Maintainer accordingly.
+     - added myself into uploaders.
  -- Didier Roche <didrocks@ubuntu.com>  Mon, 21 Nov 2011 10:56:21 +0100
 
 bamf (0.2.104-0ubuntu1) oneiric; urgency=low
