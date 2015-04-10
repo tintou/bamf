@@ -1,8 +1,10 @@
 Source: bamf
 Section: libs
 Priority: optional
-Maintainer: Didier Roche <didrocks@ubuntu.com>
-Uploaders: Andrea Veri <and@debian.org>
+Maintainer: MATE Packaging Team <pkg-mate-team@lists.alioth.debian.org>
+Uploaders: Mike Gabriel <sunweaver@debian.org>,
+           Didier Roche <didrocks@ubuntu.com>,
+           Andrea Veri <and@debian.org>,
 Build-Depends: dbus-x11,
                debhelper (>= 9),
                dh-autoreconf,
