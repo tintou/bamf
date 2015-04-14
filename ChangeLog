@@ -1,3 +1,105 @@
+2015-04-15  Marco Trevisan (Treviño)  <mail@3v1n0.net>
+
+	Releasing BAMF-0.5.1
+
+2015-02-02  Marco Trevisan (Treviño)  <mail@3v1n0.net>
+
+	BamfMatcher: rename set our atom to _BAMF_DESKTOP_FILE
+	
+	It has never been standard 
+	Approved by: Lars Uebernickel
+
+2015-02-02  Lars Uebernickel  <lars.uebernickel@canonical.com>
+
+	Matcher: use desktop file path when matching on _GTK_APPLICATION_ID
+	
+	Previously, bamf_application_get_application_desktop_file() would return the bare id in those cases. 
+	Approved by: Marco Trevisan (Treviño)
+
+2015-01-28  Andrea Azzarone  <azzaronea@gmail.com>
+
+	Replace gtk_icon_theme_has_icon with gtk_icon_theme_lookup_icon. Fixes: #1407192
+	Approved by: Marco Trevisan (Treviño)
+
+2015-01-28  Lars Uebernickel  <lars.uebernickel@canonical.com>
+
+	Matcher: honor the _GTK_APPLICATION_ID xprop
+	
+	And give it priority over _NET_WM_DESKTOP_FILE if the application has a matching desktop file installed. Fixes: #1407711
+	Approved by: Marco Trevisan (Treviño)
+
+2015-01-28  Iain Lane  <iain@orangesquash.org.uk>
+
+	Install typelib files into MA libdir
+
+2014-09-25  Andrea Azzarone  <azzaronea@gmail.com>
+
+	BamfLegacyScreen: Do not show the actions menu for desktop type window. Fixes: 1342609
+	Approved by: Marco Trevisan (Treviño)
+
+2014-09-25  Stephen M. Webb  <stephen.webb@canonical.com>
+
+	sync'd packaging with downstream Ubuntu
+
+2014-04-09  Iain Lane  <iain@orangesquash.org.uk>
+
+	BamfMatcher: fix prefix regex for pythonX support
+	
+	Fix preifx regex (used for converting /usr/bin/python[stuff] foo into foo) to work with pythonX as well as python and pythonX.Y 
+
+2014-04-08  Alexandre Abreu  <alexandre.abreu@canonical.com>
+
+	Rip out vestigial webapps code (LP: #1280337) Fixes: 1280337
+
+2014-03-10  Alexandre Abreu  <alexandre.abreu@canonical.com>
+
+	Remove old webapp related code since now we dont use browser tab matching anymore. Fixes: 1289498
+
+2014-02-14  Michel Alexandre Salim  <salimma@fedoraproject.org>
+
+	[Merge] Fix return value of try_create_local_desktop_data. Fixes: https://bugs.launchpad.net/bugs/1280110.
+	
+	Approved by PS Jenkins bot, Michel Alexandre Salim, Stephen M. Webb.
+
+2014-02-14  Marco Trevisan (Treviño)  <mail@3v1n0.net>
+
+	BamfLegacyScreen: When in Unity monitor for compiz ClientMessage's to show action menu
+	
+	If we get a _COMPIZ_TOOLKIT_ACTION client message with the internal value
+	_COMPIZ_TOOLKIT_ACTION_WINDOW_MENU, then we are requested by compiz
+	to show the window action menu, and thus let's ask the proper BamfLegacyWindow
+	to do that, thanks to libwnck. Fixes: https://bugs.launchpad.net/bugs/1280042.
+	
+	Approved by Brandon Schaefer, PS Jenkins bot.
+
+2014-01-10  Ken VanDine  <ken.vandine@canonical.com>
+
+	Sync changes uploaded to the archive back to trunk
+	.
+	
+	Approved by PS Jenkins bot, Robert Bruce Park.
+
+2013-10-29  Marco Trevisan (Treviño)  <mail@3v1n0.net>
+
+	BamfXutils: trap the X errors when doing async X calls. Fixes: https://bugs.launchpad.net/bugs/1193714.
+	
+	Approved by PS Jenkins bot, Christopher Townsend.
+
+2013-10-10  Marco Trevisan (Treviño)  <mail@3v1n0.net>
+
+	BamfView: reload the view children everytime it changes dbus path
+	
+	Without doing it we could have children-less views in case we have just
+	re-matched a view with a different dbus path (this happens in general
+	for desktop-less applications), because the proxy won't be fast enough
+	to catch the signal to update the inner children list. Fixes: https://bugs.launchpad.net/bugs/1238064.
+	
+	Approved by Christopher Townsend, PS Jenkins bot.
+
+2013-08-30  Marco Trevisan (Treviño)  <mail@3v1n0.net>
+
+	Releasing Bamf-0.5.0
+
 2013-08-21  Marco Trevisan (Treviño)  <mail@3v1n0.net>
 
 	BamfLegacyScreen: use bigger icons size by default
