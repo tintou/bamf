@@ -298,26 +298,27 @@ bamf_application_get_xids (BamfApplication *application)
 GList *
 bamf_application_get_windows (BamfApplication *application)
 {
-  GList *children, *l;
-  GList *windows = NULL;
+  GList *children, *l, *next;
   BamfView *view;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
 
   children = bamf_view_get_children (BAMF_VIEW (application));
+  l = children;
 
-  for (l = children; l; l = l->next)
+  while (l != NULL)
     {
       view = l->data;
+      next = l->next;
 
-      if (BAMF_IS_WINDOW (view))
+      if (!BAMF_IS_WINDOW (view))
         {
-          windows = g_list_prepend (windows, view);
+          children = g_list_delete_link (children, l);
         }
+      l = next;
     }
 
-  g_list_free (children);
-  return windows;
+  return children;
 }
 
 /**
