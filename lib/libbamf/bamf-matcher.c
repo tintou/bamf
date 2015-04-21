@@ -404,11 +404,18 @@ bamf_matcher_get_application_for_xid (BamfMatcher  *matcher, guint32 xid)
 {
   BamfMatcherPrivate *priv;
   BamfView *view;
+  BamfFactory *factory;
   char *app = NULL;
   GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
   priv = matcher->priv;
+  factory = _bamf_factory_get_default ();
+
+  view = (BamfView*) _bamf_factory_app_for_xid (factory, xid);
+
+  if (BAMF_IS_APPLICATION (view))
+    return BAMF_APPLICATION (view);
 
   if (!_bamf_dbus_matcher_call_application_for_xid_sync (priv->proxy, xid, &app, priv->cancellable, &error))
     {
@@ -426,7 +433,6 @@ bamf_matcher_get_application_for_xid (BamfMatcher  *matcher, guint32 xid)
   if (!app)
     return NULL;
 
-  BamfFactory *factory = _bamf_factory_get_default ();
   view = _bamf_factory_view_for_path_type (factory, app, BAMF_FACTORY_APPLICATION);
   g_free (app);
 
