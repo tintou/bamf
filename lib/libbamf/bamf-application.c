@@ -251,6 +251,7 @@ bamf_application_get_xids (BamfApplication *application)
   GVariantIter *iter;
   GVariant *xids_variant;
   GArray *xids;
+  GList *children, *l;
   guint32 xid;
   GError *error = NULL;
 
@@ -259,6 +260,24 @@ bamf_application_get_xids (BamfApplication *application)
 
   if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return NULL;
+
+  children = bamf_view_steal_children (BAMF_VIEW (application));
+
+  if (children)
+    {
+      xids = g_array_new (FALSE, TRUE, sizeof (guint32));
+
+      for (l = children; l; l = l->next)
+        {
+          if (!BAMF_IS_WINDOW (l->data))
+            continue;
+
+          xid = bamf_window_get_xid (BAMF_WINDOW (l->data));
+          g_array_append_val (xids, xid);
+        }
+
+      return xids;
+    }
 
   if (!_bamf_dbus_item_application_call_xids_sync (priv->proxy, &xids_variant,
                                                    CANCELLABLE (application), &error))
