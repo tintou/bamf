@@ -446,11 +446,17 @@ gboolean
 bamf_matcher_application_is_running (BamfMatcher *matcher, const gchar *app)
 {
   BamfMatcherPrivate *priv;
+  BamfApplication *view;
   gboolean running = FALSE;
   GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), FALSE);
   priv = matcher->priv;
+
+  view = _bamf_factory_app_for_file (_bamf_factory_get_default (), app, FALSE);
+
+  if (BAMF_IS_APPLICATION (view))
+    return bamf_view_is_running (BAMF_VIEW (view));
 
   if (!_bamf_dbus_matcher_call_application_is_running_sync (priv->proxy,
                                                             app ? app : "",
