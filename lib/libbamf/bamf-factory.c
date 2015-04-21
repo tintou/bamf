@@ -220,6 +220,31 @@ _bamf_factory_app_for_file (BamfFactory * factory,
   return result;
 }
 
+BamfApplication *
+_bamf_factory_app_for_xid (BamfFactory * factory,
+                           guint32 xid)
+{
+  BamfApplication *result = NULL, *app;
+  GList *l, *local_children;
+
+  for (l = factory->priv->allocated_views; l; l = l->next)
+    {
+      if (!BAMF_IS_APPLICATION (l->data))
+        continue;
+
+      app = BAMF_APPLICATION (l->data);
+      local_children = _bamf_application_get_cached_xids (app);
+
+      if (g_list_find (local_children, GUINT_TO_POINTER (xid)))
+        {
+          result = app;
+          break;
+        }
+    }
+
+  return result;
+}
+
 static
 BamfFactoryViewType compute_factory_type_by_str (const char *type)
 {
