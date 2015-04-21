@@ -176,6 +176,29 @@ bamf_view_steal_children (BamfView *view)
  * bamf_view_is_closed:
  * @view: a #BamfView
  *
+ * Returns: %TRUE whether the #BamfView @view has the specified @child.
+ */
+gboolean
+bamf_view_has_child (BamfView *view, BamfView *child)
+{
+  GList *l;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
+  g_return_val_if_fail (BAMF_IS_VIEW (child), FALSE);
+
+  for (l = bamf_view_steal_children (view); l; l = l->next)
+    {
+      if (l->data == child)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+/**
+ * bamf_view_is_closed:
+ * @view: a #BamfView
+ *
  * Determines if the view is closed or not.
  */
 gboolean
