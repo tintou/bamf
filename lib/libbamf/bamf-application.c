@@ -341,6 +341,36 @@ bamf_application_get_windows (BamfApplication *application)
 }
 
 /**
+ * bamf_application_contains_xid:
+ * @application: a #BamfApplication
+ * @xid: an X11 Window ID
+ *
+ * Used to discover whether the application contains a Window with given @xid.
+ *
+ * Since: 0.5.2
+ * Returns: Whether the application is parent of the @xid.
+ */
+gboolean
+bamf_application_contains_xid (BamfApplication *application,
+                               guint32 xid)
+{
+  GList *l;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+
+  for (l = bamf_view_steal_children (BAMF_VIEW (application)); l; l = l->next)
+    {
+      if (BAMF_IS_WINDOW (l->data))
+        {
+          if (bamf_window_get_xid (BAMF_WINDOW (l->data)) == xid)
+            return TRUE;
+        }
+    }
+
+  return FALSE;
+}
+
+/**
  * bamf_application_get_show_menu_stubs:
  * @application: a #BamfApplication
  *

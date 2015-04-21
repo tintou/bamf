@@ -94,6 +94,9 @@ BamfView        * bamf_application_get_focusable_child  (BamfApplication *applic
 
 gboolean          bamf_application_get_show_menu_stubs  (BamfApplication *application);
 
+gboolean          bamf_application_contains_xid         (BamfApplication *application,
+                                                         guint32 xid);
+
 
 /* Deprecated symbols */
 G_GNUC_DEPRECATED
