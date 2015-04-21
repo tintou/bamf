@@ -30,6 +30,7 @@
 
 #include <glib-object.h>
 #include <libbamf/bamf-view.h>
+#include <libbamf/bamf-window.h>
 #include <libbamf/bamf-application.h>
 
 G_BEGIN_DECLS
@@ -88,6 +89,9 @@ BamfView        * _bamf_factory_view_for_path_type   (BamfFactory * factory,
 BamfView        * _bamf_factory_view_for_path_type_str (BamfFactory * factory,
                                                         const char * path,
                                                         const char * type);
+
+BamfWindow      * _bamf_factory_window_for_xid       (BamfFactory * factory,
+                                                      guint32 xid);
 
 BamfApplication * _bamf_factory_app_for_file         (BamfFactory * factory,
                                                       const char * path,

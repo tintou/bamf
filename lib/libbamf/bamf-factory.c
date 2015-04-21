@@ -185,6 +185,33 @@ bamf_factory_register_view (BamfFactory *self, BamfView *view, const char *path)
                           G_CALLBACK (on_view_closed), self);
 }
 
+BamfWindow *
+_bamf_factory_window_for_xid (BamfFactory * factory,
+                              guint32 xid)
+{
+  BamfWindow *result = NULL, *win;
+  GList *l;
+
+  for (l = factory->priv->allocated_views; l; l = l->next)
+    {
+      if (!BAMF_IS_WINDOW (l->data))
+        continue;
+
+      if (bamf_view_is_closed (l->data))
+        continue;
+
+      win = BAMF_WINDOW (l->data);
+
+      if (bamf_window_get_xid (win) == xid)
+        {
+          result = win;
+          break;
+        }
+    }
+
+  return result;
+}
+
 BamfApplication *
 _bamf_factory_app_for_file (BamfFactory * factory,
                             const char * path,
