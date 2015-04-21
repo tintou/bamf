@@ -115,7 +115,7 @@ bamf_view_get_children (BamfView *view)
  * Note: Makes sever dbus calls the first time this is called on a view.
  * Dbus messaging is reduced afterwards.
  * Since: 0.5.2
- * Returns: (element-type Bamf.View) (transfer full): Returns a list of #BamfView which
+ * Returns: (element-type Bamf.View) (transfer none): Returns a list of #BamfView which
  *           is owned by the #BamfView and should not freed or modified after usage.
  */
 GList *
@@ -173,7 +173,7 @@ bamf_view_steal_children (BamfView *view)
 }
 
 /**
- * bamf_view_is_closed:
+ * bamf_view_has_child:
  * @view: a #BamfView
  *
  * Returns: %TRUE whether the #BamfView @view has the specified @child.
