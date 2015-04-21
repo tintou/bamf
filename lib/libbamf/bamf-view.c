@@ -105,11 +105,16 @@ static void bamf_view_unset_proxy (BamfView *self);
 GList *
 bamf_view_get_children (BamfView *view)
 {
-  return g_list_copy (bamf_view_steal_children (view));
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+
+  if (BAMF_VIEW_GET_CLASS (view)->get_children)
+    return BAMF_VIEW_GET_CLASS (view)->get_children (view);
+
+  return g_list_copy (bamf_view_peek_children (view));
 }
 
 /**
- * bamf_view_steal_children:
+ * bamf_view_peek_children:
  * @view: a #BamfView
  *
  * Note: Makes sever dbus calls the first time this is called on a view.
@@ -119,7 +124,7 @@ bamf_view_get_children (BamfView *view)
  *           is owned by the #BamfView and should not freed or modified after usage.
  */
 GList *
-bamf_view_steal_children (BamfView *view)
+bamf_view_peek_children (BamfView *view)
 {
   char ** children;
   int i, len;
@@ -129,9 +134,6 @@ bamf_view_steal_children (BamfView *view)
   BamfView *child;
 
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
-
-  if (BAMF_VIEW_GET_CLASS (view)->get_children)
-    return BAMF_VIEW_GET_CLASS (view)->get_children (view);
 
   if (!_bamf_view_remote_ready (view))
     return NULL;
@@ -186,7 +188,7 @@ bamf_view_has_child (BamfView *view, BamfView *child)
   g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
   g_return_val_if_fail (BAMF_IS_VIEW (child), FALSE);
 
-  for (l = bamf_view_steal_children (view); l; l = l->next)
+  for (l = bamf_view_peek_children (view); l; l = l->next)
     {
       if (l->data == child)
         return TRUE;
