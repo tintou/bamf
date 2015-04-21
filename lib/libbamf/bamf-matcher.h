@@ -89,6 +89,9 @@ BamfApplication * bamf_matcher_get_active_application   (BamfMatcher *matcher);
 
 BamfWindow      * bamf_matcher_get_active_window        (BamfMatcher *matcher);
 
+BamfWindow      * bamf_matcher_get_window_for_xid       (BamfMatcher *matcher,
+                                                         guint32      xid);
+
 BamfApplication * bamf_matcher_get_application_for_xid  (BamfMatcher *matcher,
                                                          guint32      xid);
 BamfApplication * bamf_matcher_get_application_for_window  (BamfMatcher *matcher,

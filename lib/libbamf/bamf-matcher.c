@@ -431,6 +431,22 @@ bamf_matcher_get_active_window (BamfMatcher *matcher)
 }
 
 /**
+ * bamf_matcher_get_window_for_xid:
+ * @matcher: a #BamfMatcher
+ * @xid: The X11 Window ID to search for
+ *
+ * Used to fetch the #BamfWindow that wraps the given @window.
+ *
+ * Returns: (transfer none): The #BamfWindow representing the xid passed, or NULL if none exists.
+ */
+BamfWindow *
+bamf_matcher_get_window_for_xid (BamfMatcher *matcher, guint32 xid)
+{
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+  return _bamf_factory_window_for_xid (_bamf_factory_get_default (), xid);
+}
+
+/**
  * bamf_matcher_get_application_for_window:
  * @matcher: a #BamfMatcher
  * @window: The window to look for
@@ -442,7 +458,7 @@ bamf_matcher_get_active_window (BamfMatcher *matcher)
 BamfApplication *
 bamf_matcher_get_application_for_window (BamfMatcher *matcher, BamfWindow *window)
 {
-  g_return_val_if_fail(BAMF_IS_WINDOW(window), NULL);
+  g_return_val_if_fail (BAMF_IS_WINDOW (window), NULL);
   return bamf_matcher_get_application_for_xid (matcher, bamf_window_get_xid(window));
 }
 
