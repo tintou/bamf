@@ -54,6 +54,7 @@ struct _BamfFactoryPrivate
 static BamfFactory *static_factory = NULL;
 
 static void on_view_weak_unref (BamfFactory *self, BamfView *view_was_here);
+static void on_view_closed (BamfView *view, BamfFactory *self);
 
 static void
 bamf_factory_dispose (GObject *object)
@@ -66,6 +67,7 @@ bamf_factory_dispose (GObject *object)
       for (l = self->priv->allocated_views, next = NULL; l; l = next)
         {
           g_object_weak_unref (G_OBJECT (l->data), (GWeakNotify) on_view_weak_unref, self);
+          g_signal_handlers_disconnect_by_func (l->data, on_view_closed, self);
           next = l->next;
           g_list_free1 (l);
         }
@@ -230,6 +232,9 @@ _bamf_factory_app_for_xid (BamfFactory * factory,
   for (l = factory->priv->allocated_views; l; l = l->next)
     {
       if (!BAMF_IS_APPLICATION (l->data))
+        continue;
+
+      if (bamf_view_is_closed (l->data))
         continue;
 
       app = BAMF_APPLICATION (l->data);
