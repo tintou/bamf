@@ -105,6 +105,22 @@ static void bamf_view_unset_proxy (BamfView *self);
 GList *
 bamf_view_get_children (BamfView *view)
 {
+  return g_list_copy (bamf_view_steal_children (view));
+}
+
+/**
+ * bamf_view_steal_children:
+ * @view: a #BamfView
+ *
+ * Note: Makes sever dbus calls the first time this is called on a view.
+ * Dbus messaging is reduced afterwards.
+ * Since: 0.5.2
+ * Returns: (element-type Bamf.View) (transfer full): Returns a list of #BamfView which
+ *           is owned by the #BamfView and should not freed or modified after usage.
+ */
+GList *
+bamf_view_steal_children (BamfView *view)
+{
   char ** children;
   int i, len;
   GList *results = NULL;
@@ -123,7 +139,7 @@ bamf_view_get_children (BamfView *view)
   priv = view->priv;
 
   if (priv->cached_children || !priv->reload_children)
-    return g_list_copy (priv->cached_children);
+    return priv->cached_children;
 
   if (!_bamf_dbus_item_view_call_children_sync (priv->proxy, &children, CANCELLABLE (view), &error))
     {
@@ -153,7 +169,7 @@ bamf_view_get_children (BamfView *view)
   priv->reload_children = FALSE;
   priv->cached_children = results;
 
-  return g_list_copy (priv->cached_children);
+  return priv->cached_children;
 }
 
 /**
