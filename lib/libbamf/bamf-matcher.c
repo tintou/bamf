@@ -226,8 +226,10 @@ bamf_matcher_on_active_application_changed (BamfDBusMatcher *proxy,
   old_view = _bamf_factory_view_for_path_type (factory, old_path, BAMF_FACTORY_APPLICATION);
   new_view = _bamf_factory_view_for_path_type (factory, new_path, BAMF_FACTORY_APPLICATION);
 
-  track_ptr (BAMF_TYPE_APPLICATION, new_view, (gpointer *) &matcher->priv->active_application);
-  g_signal_emit (matcher, matcher_signals[ACTIVE_APPLICATION_CHANGED], 0, old_view, new_view);
+  if (track_ptr (BAMF_TYPE_APPLICATION, new_view, (gpointer *) &matcher->priv->active_application))
+    {
+      g_signal_emit (matcher, matcher_signals[ACTIVE_APPLICATION_CHANGED], 0, old_view, new_view);
+    }
 }
 
 static void
@@ -238,10 +240,14 @@ bamf_matcher_on_active_window_changed (BamfDBusMatcher *proxy,
 {
   BamfView *old_view;
   BamfView *new_view;
+  BamfApplication *old_app;
+  BamfApplication *new_app;
   BamfFactory *factory;
   BamfMatcherPrivate *priv;
 
   priv = matcher->priv;
+  old_app = priv->active_application;
+  new_app = old_app;
   factory = _bamf_factory_get_default ();
 
   old_view = _bamf_factory_view_for_path_type (factory, old_path, BAMF_FACTORY_WINDOW);
@@ -249,7 +255,16 @@ bamf_matcher_on_active_window_changed (BamfDBusMatcher *proxy,
 
   track_ptr (BAMF_TYPE_WINDOW, new_view, (gpointer *) &priv->active_window);
 
+  if (BAMF_IS_WINDOW (new_view))
+    new_app = _bamf_factory_app_for_xid (factory, bamf_window_get_xid (BAMF_WINDOW (new_view)));
+
+  track_ptr (BAMF_TYPE_APPLICATION, (BamfView *) new_app, (gpointer *) &priv->active_application);
   g_signal_emit (matcher, matcher_signals[ACTIVE_WINDOW_CHANGED], 0, old_view, new_view);
+
+  if (new_app != old_app)
+    {
+      g_signal_emit (matcher, matcher_signals[ACTIVE_APPLICATION_CHANGED], 0, old_app, new_app);
+    }
 }
 
 static void
