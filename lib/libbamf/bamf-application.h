@@ -30,6 +30,7 @@
 
 #include <glib-object.h>
 #include <libbamf/bamf-view.h>
+#include <libbamf/bamf-window.h>
 
 G_BEGIN_DECLS
 
@@ -94,7 +95,7 @@ BamfView        * bamf_application_get_focusable_child  (BamfApplication *applic
 
 gboolean          bamf_application_get_show_menu_stubs  (BamfApplication *application);
 
-gboolean          bamf_application_contains_xid         (BamfApplication *application,
+BamfWindow      * bamf_application_get_window_for_xid   (BamfApplication *application,
                                                          guint32 xid);
 
 

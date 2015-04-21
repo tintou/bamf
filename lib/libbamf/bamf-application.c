@@ -345,16 +345,17 @@ bamf_application_get_windows (BamfApplication *application)
  * @application: a #BamfApplication
  * @xid: an X11 Window ID
  *
- * Used to discover whether the application contains a Window with given @xid.
+ * Used to fetch the application contains a Window with given @xid.
  *
  * Since: 0.5.2
- * Returns: Whether the application is parent of the @xid.
+ * Returns (transfer none): a #BamfWindow for the passed @xid or %NULL if not found.
  */
-gboolean
-bamf_application_contains_xid (BamfApplication *application,
-                               guint32 xid)
+BamfWindow *
+bamf_application_get_window_for_xid (BamfApplication *application,
+                                     guint32 xid)
 {
   GList *l;
+  BamfWindow *window;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
 
@@ -362,12 +363,14 @@ bamf_application_contains_xid (BamfApplication *application,
     {
       if (BAMF_IS_WINDOW (l->data))
         {
-          if (bamf_window_get_xid (BAMF_WINDOW (l->data)) == xid)
-            return TRUE;
+          window = BAMF_WINDOW (l->data);
+
+          if (bamf_window_get_xid (window) == xid)
+            return window;
         }
     }
 
-  return FALSE;
+  return NULL;
 }
 
 /**
