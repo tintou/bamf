@@ -481,6 +481,7 @@ bamf_view_on_child_removed (BamfDBusItemView *proxy, char *path, BamfView *self)
 {
   BamfView *view;
   BamfViewPrivate *priv;
+  gboolean was_cached = FALSE;
 
   view = _bamf_factory_view_for_path (_bamf_factory_get_default (), path);
   priv = self->priv;
@@ -499,11 +500,14 @@ bamf_view_on_child_removed (BamfDBusItemView *proxy, char *path, BamfView *self)
       if (l)
         {
           priv->cached_children = g_list_delete_link (priv->cached_children, l);
-          g_object_unref (view);
+          was_cached = TRUE;
         }
     }
 
   g_signal_emit (G_OBJECT (self), view_signals[CHILD_REMOVED], 0, view);
+
+  if (was_cached)
+    g_object_unref (view);
 }
 
 static void
