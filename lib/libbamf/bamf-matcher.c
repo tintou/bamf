@@ -457,8 +457,22 @@ bamf_matcher_get_active_window (BamfMatcher *matcher)
 BamfWindow *
 bamf_matcher_get_window_for_xid (BamfMatcher *matcher, guint32 xid)
 {
+  BamfWindow *window;
+  BamfApplication *app;
+
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
-  return _bamf_factory_window_for_xid (_bamf_factory_get_default (), xid);
+
+  window = _bamf_factory_window_for_xid (_bamf_factory_get_default (), xid);
+
+  if (BAMF_IS_WINDOW (window))
+    return window;
+
+  app = bamf_matcher_get_application_for_xid (matcher, xid);
+
+  if (BAMF_IS_APPLICATION (app))
+    window = bamf_application_get_window_for_xid (app, xid);
+
+  return BAMF_IS_WINDOW (window) ? window : NULL;
 }
 
 /**
