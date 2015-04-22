@@ -1,1 +1,1 @@
-usr/lib/*/girepository-1.0/Bamf-*.typelib
+usr/lib/{*,}/girepository-1.0/Bamf-*.typelib
