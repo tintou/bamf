@@ -1,3 +1,9 @@
+bamf (0.5.2~bzr0) vivid; urgency=medium
+
+  * Bump version and SONAME
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 22 Apr 2015 15:13:36 +0200
+
 bamf (0.5.1+15.04.20150202-0ubuntu1) vivid; urgency=medium
 
   [ Marco Trevisan (Treviño) ]
