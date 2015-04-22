@@ -430,13 +430,11 @@ _bamf_view_remote_ready (BamfView *self)
 }
 
 /**
- * bamf_view_get_view_type:
+ * bamf_view_get_view_type: (virtual view_type)
  * @view: a #BamfView
  *
  * The view type of a window is a short string used to represent all views of the same class. These
  * descriptions should not be used to do casting as they are not considered stable.
- *
- * Virtual: view_type
  */
 const gchar *
 bamf_view_get_view_type (BamfView *self)
