@@ -341,14 +341,14 @@ bamf_application_get_windows (BamfApplication *application)
 }
 
 /**
- * bamf_application_contains_xid:
+ * bamf_application_get_window_for_xid:
  * @application: a #BamfApplication
  * @xid: an X11 Window ID
  *
  * Used to fetch the application contains a Window with given @xid.
  *
  * Since: 0.5.2
- * Returns (transfer none): a #BamfWindow for the passed @xid or %NULL if not found.
+ * Returns: (transfer none): a #BamfWindow for the passed @xid or %NULL if not found.
  */
 BamfWindow *
 bamf_application_get_window_for_xid (BamfApplication *application,
