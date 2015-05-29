@@ -1,4 +1,4 @@
-bamf (0.5.2~bzr0) vivid; urgency=medium
+bamf (0.5.2~bzr0) UNRELEASED; urgency=medium
 
   * Bump version and SONAME
 
