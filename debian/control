@@ -10,11 +10,11 @@ Build-Depends: dbus-x11,
                dh-autoreconf,
                gobject-introspection (>= 0.6.5-3),
                gtk-doc-tools,
-               libglib2.0-dev (>= 2.32.0),
-               libgtop2-dev,
-               libgtk-3-dev (>= 3.0.0),
-               libwnck-3-dev (>= 3.4.7),
                libgirepository1.0-dev,
+               libglib2.0-dev (>= 2.32.0),
+               libgtk-3-dev (>= 3.0.0),
+               libgtop2-dev,
+               libwnck-3-dev (>= 3.4.7),
                python-libxslt1,
                valac,
                xvfb,
@@ -25,9 +25,9 @@ Vcs-Git: git://anonscm.debian.org/pkg-mate/bamf.git
 
 Package: bamfdaemon
 Architecture: any
-Depends: ${shlibs:Depends},
+Depends: libbamf3-2 (= ${binary:Version}),
          ${misc:Depends},
-         libbamf3-2 (= ${binary:Version}),
+         ${shlibs:Depends},
 Multi-Arch: foreign
 Description: Window matching library - daemon
  bamf matches application windows to desktop files
@@ -38,10 +38,10 @@ Description: Window matching library - daemon
 
 Package: libbamf3-2
 Architecture: any
-Depends: ${shlibs:Depends},
-         ${misc:Depends},
-Breaks: unity (<< 3.2.12)
-Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+Breaks: unity (<< 3.2.12),
+Pre-Depends: ${misc:Pre-Depends},
 Multi-Arch: same
 Description: Window matching library - shared library
  bamf matches application windows to desktop files
@@ -51,11 +51,11 @@ Description: Window matching library - shared library
 Package: libbamf3-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends},
-         gir1.2-bamf-3 (= ${binary:Version}),
+Depends: gir1.2-bamf-3 (= ${binary:Version}),
          libbamf3-2 (= ${binary:Version}),
          libglib2.0-dev (>= 2.30.0),
-Suggests: libbamf-doc
+         ${misc:Depends},
+Suggests: libbamf-doc,
 Description: Window matching library - development files
  bamf matches application windows to desktop files
  .
@@ -64,8 +64,8 @@ Description: Window matching library - development files
 Package: libbamf-doc
 Section: doc
 Architecture: all
-Depends: ${misc:Depends}
-Suggests: devhelp
+Depends: ${misc:Depends},
+Suggests: devhelp,
 Description: Window matching library - documentation
  bamf matches application windows to desktop files
  .
@@ -79,9 +79,9 @@ Package: bamf-dbg
 Section: debug
 Architecture: any
 Priority: extra
-Depends: ${shlibs:Depends},
+Depends: libbamf3-2 (= ${binary:Version}),
          ${misc:Depends},
-         libbamf3-2 (= ${binary:Version}),
+         ${shlibs:Depends},
 Description: Window matching library - debugging symbols
  bamf matches application windows to desktop files
  .
@@ -101,4 +101,3 @@ Description: GObject introspection data for the Bamf library
  .
  It can be used by packages using the GIRepository format to generate
  dynamic bindings.
-
