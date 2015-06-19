@@ -20,9 +20,8 @@ Build-Depends: dbus-x11,
                xvfb,
 Standards-Version: 3.9.6
 Homepage: https://launchpad.net/bamf
-# If you aren't a member of ~unity-team but need to upload packaging changes,
-# just go ahead.  ~unity-team will notice and sync up the code again.
-Vcs-Bzr: https://code.launchpad.net/~unity-team/bamf/trunk
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-mate/bamf.git;a=summary
+Vcs-Git: git://anonscm.debian.org/pkg-mate/bamf.git
 
 Package: bamfdaemon
 Architecture: any
