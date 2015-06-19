@@ -34,7 +34,7 @@ override_dh_strip:
 	dh_strip --dbg-package=bamf-dbg
 
 override_dh_girepository:
-	dh_girepository -pgir1.2-bamf-0.2
+	dh_girepository -pgir1.2-bamf-3
 
 get-orig-source: $(PKG)_$(VER)$(DTYPE).orig.tar.xz $(info I: $(PKG)_$(VER)$(DTYPE))
 	@
