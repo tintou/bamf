@@ -1,6 +1,19 @@
-bamf (0.5.0-1) UNRELEASED; urgency=medium
+bamf (0.5.1-1) UNRELEASED; urgency=medium
 
-  * New upstream release to Debian experimental.
+  * New upstream release.
+  * debian/control:
+    + Debian's MATE Packaging Team becomes new maintiner of bamf.
+      (Closes: #779565).
+    + Set Vcs-*: fields to pkg-mate namespace on Alioth.
+    + Bump Standards: to 3.9.6. No changes needed.
+  * debian/source/format:
+    + Switch to format 3.0 (quilt).
+  * debian/rules:
+    + Add get-orig-source rule.
+  * debian/*.install:
+    + Don't prepend debian/tmp/ in *.install files.
+  * debian/bamfdaemon.post*:
+    + Tabify indentation.
 
  -- Mike Gabriel <sunweaver@debian.org>  Fri, 10 Apr 2015 13:23:57 +0200
 
