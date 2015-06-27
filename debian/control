@@ -93,6 +93,7 @@ Description: Window matching library - debugging symbols
 Package: gir1.2-bamf-3
 Section: introspection
 Architecture: any
+Multi-Arch: same
 Depends: ${gir:Depends},
          ${misc:Depends},
 Description: GObject introspection data for the Bamf library
