@@ -1,3 +1,20 @@
+bamf (0.5.2~bzr0+15.10.20150627.1-0ubuntu1) wily; urgency=medium
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Iain Lane ]
+  * Bump gobject-introspection build-dep to the version which installed
+    typelib files in the multiarch libdir
+
+  [ Marco Trevisan (Treviño) ]
+  * configure.ac: development version bump to 0.5.2
+
+  [ Stephen M. Webb ]
+  * fixed Ubuntu packaging for multi-arch (LP: #1415052)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Sat, 27 Jun 2015 04:40:30 +0000
+
 bamf (0.5.1+15.04.20150202-0ubuntu1) vivid; urgency=medium
 
   [ Marco Trevisan (Treviño) ]
