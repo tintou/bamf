@@ -10,14 +10,14 @@ UVER  = $(shell dpkg-parsechangelog -l$(PKD)/changelog | perl -ne 'print $$1 if 
 DTYPE =
 VER  ?= $(subst $(DTYPE),,$(UVER))
 
-%:
-	dh $@ --with autoreconf,gir
+DHFLAGS = --parallel
 
-override_dh_autoreconf:
-	NOCONFIGURE=1 dh_autoreconf ./autogen.sh
+%:
+	dh $@ $(DHFLAGS) --with gir
 
 override_dh_auto_configure:
-	dh_auto_configure -- --enable-introspection=yes \
+	NOCONFIGURE=1 ./autogen.sh
+	dh_auto_configure $(DHFLAGS) -- --enable-introspection=yes \
 	                     --enable-gtk-doc \
 	                     --enable-headless-tests \
 	                     --disable-silent-rules
