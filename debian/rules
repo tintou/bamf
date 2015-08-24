@@ -31,7 +31,8 @@ override_dh_install:
 	dh_install --fail-missing
 
 override_dh_strip:
-	dh_strip --dbg-package=bamf-dbg
+	dh_strip --package=bamfdaemon --dbg-package=bamfdaemon-dbg
+	dh_strip --package=libbamf3-2 --dbg-package=libbamf3-dbg
 
 override_dh_girepository:
 	dh_girepository -pgir1.2-bamf-3
