@@ -5,6 +5,10 @@ BAMF_INDEX_NAME="bamf-2.index"
 
 if [ "$1" = "configure" ] || [ "$1" = "triggered" ]; then
 	if [ -d /usr/share/applications ]; then
+		# remove deprecated index files
+		if [ -f /usr/share/applications/bamf.index ]; then
+			rm -f /usr/share/applications/bamf.index
+		fi
 		# rebuild index
 		I=/usr/share/applications/$BAMF_INDEX_NAME
 		echo "Rebuilding $I..."
