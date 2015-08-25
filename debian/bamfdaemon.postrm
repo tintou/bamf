@@ -2,7 +2,8 @@
 set -e
 
 if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
-	rm -f /usr/share/applications/bamf.index
+	rm -f /usr/share/applications/bamf-2.index
+	rmdir --ignore-fail-on-non-empty /usr/share/applications
 fi
 
 #DEBHELPER#
