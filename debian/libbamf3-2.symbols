@@ -1,4 +1,4 @@
-libbamf3.so.3 libbamf3-3 #MINVER#
+libbamf3.so.2 libbamf3-2 #MINVER#
  bamf_application_get_application_menu@Base 0.3.0
  bamf_application_get_application_type@Base 0.2.20
  bamf_application_get_desktop_file@Base 0.2.20

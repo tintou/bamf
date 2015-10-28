@@ -1,6 +1,6 @@
 bamf (0.5.2~bzr0) UNRELEASED; urgency=medium
 
-  * Bump version and SONAME
+  * Bump version to 0.5.2
 
  -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 22 Apr 2015 15:13:36 +0200
 

@@ -27,7 +27,7 @@ Package: bamfdaemon
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         libbamf3-3 (= ${binary:Version}),
+         libbamf3-2 (= ${binary:Version}),
 Multi-Arch: foreign
 Description: Window matching library - daemon
  bamf matches application windows to desktop files
@@ -36,7 +36,7 @@ Description: Window matching library - daemon
  module that facilitates the matching of applications started
  through GDesktopAppInfo
 
-Package: libbamf3-3
+Package: libbamf3-2
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
@@ -53,7 +53,7 @@ Section: libdevel
 Architecture: any
 Depends: ${misc:Depends},
          gir1.2-bamf-3 (= ${binary:Version}),
-         libbamf3-3 (= ${binary:Version}),
+         libbamf3-2 (= ${binary:Version}),
          libglib2.0-dev (>= 2.30.0),
 Suggests: libbamf-doc
 Description: Window matching library - development files
@@ -81,7 +81,7 @@ Architecture: any
 Priority: extra
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         libbamf3-3 (= ${binary:Version}),
+         libbamf3-2 (= ${binary:Version}),
 Description: Window matching library - debugging symbols
  bamf matches application windows to desktop files
  .
