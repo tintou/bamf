@@ -68,7 +68,7 @@ const gchar* EXEC_BAD_SUFIXES = "(\\.bin|\\.py|\\.pl|\\.qml)$";
 // Prefixes that must be considered starting point of exec strings
 const gchar* EXEC_GOOD_PREFIXES[] =
 {
-  "^gnome-control-center$", "^libreoffice$", "^ooffice$", "^wine$", "^steam$",
+  "^unity-control-center$", "^libreoffice$", "^ooffice$", "^wine$", "^steam$",
   "^sol$"
 };
 
@@ -2151,7 +2151,7 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
 }
 
 static char *
-get_gnome_control_center_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
+get_unity_control_center_window_hint (BamfMatcher * self, BamfLegacyWindow * window)
 {
   const gchar *role;
   GList *list;
@@ -2163,21 +2163,21 @@ get_gnome_control_center_window_hint (BamfMatcher * self, BamfLegacyWindow * win
 
   if (role)
     {
-      gchar *exec = g_strconcat ("gnome-control-center ", role, NULL);
+      gchar *exec = g_strconcat ("unity-control-center ", role, NULL);
       list = g_hash_table_lookup (self->priv->desktop_file_table, exec);
       g_free (exec);
     }
 
   if (!role || !list)
     {
-      list = g_hash_table_lookup (self->priv->desktop_id_table, "gnome-control-center");
+      list = g_hash_table_lookup (self->priv->desktop_id_table, "unity-control-center");
     }
 
   return (list ? (char *) list->data : NULL);
 }
 
 static void
-on_gnome_control_center_window_role_changed (BamfLegacyWindow *window, BamfMatcher* self)
+on_unity_control_center_window_role_changed (BamfLegacyWindow *window, BamfMatcher* self)
 {
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (window));
@@ -2186,7 +2186,7 @@ on_gnome_control_center_window_role_changed (BamfLegacyWindow *window, BamfMatch
   const char *new_hint;
 
   old_hint = bamf_legacy_window_get_hint (window, _BAMF_DESKTOP_FILE);
-  new_hint = get_gnome_control_center_window_hint (self, window);
+  new_hint = get_unity_control_center_window_hint (self, window);
 
   if (new_hint && g_strcmp0 (new_hint, old_hint) != 0)
     {
@@ -2218,17 +2218,17 @@ handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, Bamf
           return;
         }
     }
-  else if (g_strcmp0 (bamf_legacy_window_get_class_name (window), "Gnome-control-center") == 0)
+  else if (g_strcmp0 (bamf_legacy_window_get_class_name (window), "Unity-control-center") == 0)
     {
       char *old_hint = bamf_legacy_window_get_hint (window, _BAMF_DESKTOP_FILE);
-      const char *new_hint = get_gnome_control_center_window_hint (self, window);
+      const char *new_hint = get_unity_control_center_window_hint (self, window);
 
       if (new_hint && g_strcmp0 (old_hint, new_hint) != 0)
         {
           bamf_legacy_window_set_hint (window, _BAMF_DESKTOP_FILE, new_hint);
         }
 
-      g_signal_connect (window, "role-changed", (GCallback) on_gnome_control_center_window_role_changed, self);
+      g_signal_connect (window, "role-changed", (GCallback) on_unity_control_center_window_role_changed, self);
       g_free (old_hint);
     }
 
