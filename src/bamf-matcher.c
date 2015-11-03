@@ -2190,18 +2190,7 @@ on_unity_control_center_window_role_changed (BamfLegacyWindow *window, BamfMatch
 
   if (new_hint && g_strcmp0 (new_hint, old_hint) != 0)
     {
-      Window xid = bamf_legacy_window_get_xid (window);
-      BamfApplication *app = bamf_matcher_get_application_by_xid (self, xid);
-
-      if (BAMF_IS_APPLICATION (app))
-        {
-          bamf_legacy_window_set_hint (window, _BAMF_DESKTOP_FILE, new_hint);
-          bamf_application_set_desktop_file (app, new_hint);
-        }
-      else
-        {
-          bamf_legacy_window_reopen (window);
-        }
+      bamf_legacy_window_reopen (window);
     }
 
   g_free (old_hint);
