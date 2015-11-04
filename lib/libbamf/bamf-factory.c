@@ -54,6 +54,7 @@ struct _BamfFactoryPrivate
 static BamfFactory *static_factory = NULL;
 
 static void on_view_weak_unref (BamfFactory *self, BamfView *view_was_here);
+static void on_view_closed (BamfView *view, BamfFactory *self);
 
 static void
 bamf_factory_dispose (GObject *object)
@@ -66,6 +67,7 @@ bamf_factory_dispose (GObject *object)
       for (l = self->priv->allocated_views, next = NULL; l; l = next)
         {
           g_object_weak_unref (G_OBJECT (l->data), (GWeakNotify) on_view_weak_unref, self);
+          g_signal_handlers_disconnect_by_func (l->data, on_view_closed, self);
           next = l->next;
           g_list_free1 (l);
         }
@@ -183,6 +185,33 @@ bamf_factory_register_view (BamfFactory *self, BamfView *view, const char *path)
                           G_CALLBACK (on_view_closed), self);
 }
 
+BamfWindow *
+_bamf_factory_window_for_xid (BamfFactory * factory,
+                              guint32 xid)
+{
+  BamfWindow *result = NULL, *win;
+  GList *l;
+
+  for (l = factory->priv->allocated_views; l; l = l->next)
+    {
+      if (!BAMF_IS_WINDOW (l->data))
+        continue;
+
+      if (bamf_view_is_closed (l->data))
+        continue;
+
+      win = BAMF_WINDOW (l->data);
+
+      if (bamf_window_get_xid (win) == xid)
+        {
+          result = win;
+          break;
+        }
+    }
+
+  return result;
+}
+
 BamfApplication *
 _bamf_factory_app_for_file (BamfFactory * factory,
                             const char * path,
@@ -214,6 +243,34 @@ _bamf_factory_app_for_file (BamfFactory * factory,
       if (BAMF_IS_APPLICATION (result))
         {
           bamf_factory_track_view (factory, BAMF_VIEW (result));
+        }
+    }
+
+  return result;
+}
+
+BamfApplication *
+_bamf_factory_app_for_xid (BamfFactory * factory,
+                           guint32 xid)
+{
+  BamfApplication *result = NULL, *app;
+  GList *l, *local_children;
+
+  for (l = factory->priv->allocated_views; l; l = l->next)
+    {
+      if (!BAMF_IS_APPLICATION (l->data))
+        continue;
+
+      if (bamf_view_is_closed (l->data))
+        continue;
+
+      app = BAMF_APPLICATION (l->data);
+      local_children = _bamf_application_get_cached_xids (app);
+
+      if (g_list_find (local_children, GUINT_TO_POINTER (xid)))
+        {
+          result = app;
+          break;
         }
     }
 

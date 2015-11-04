@@ -63,6 +63,9 @@ struct _BamfMatcherPrivate
 {
   BamfDBusMatcher *proxy;
   GCancellable    *cancellable;
+
+  BamfWindow      *active_window;
+  BamfApplication *active_application;
 };
 
 static BamfMatcher * default_matcher = NULL;
@@ -129,6 +132,47 @@ bamf_matcher_class_init (BamfMatcherClass *klass)
 }
 
 
+static gboolean
+track_ptr (GType wanted_type,
+           BamfView *active,
+           gpointer *cache_pointer)
+{
+  if (G_TYPE_CHECK_INSTANCE_TYPE (active, wanted_type))
+    {
+      if (*cache_pointer == active)
+        return FALSE;
+
+      *cache_pointer = active;
+      g_object_add_weak_pointer (G_OBJECT (active), cache_pointer);
+      return TRUE;
+    }
+  else if (G_TYPE_CHECK_INSTANCE_TYPE (*cache_pointer, wanted_type))
+    {
+      g_object_remove_weak_pointer (G_OBJECT (*cache_pointer), cache_pointer);
+      *cache_pointer = NULL;
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static void
+bamf_matcher_on_name_owner_changed (BamfDBusMatcher *proxy,
+                                    GParamSpec *param,
+                                    BamfMatcher *matcher)
+{
+  /* This is called when the bamfdaemon is killed / started */
+  gchar *name_owner = g_dbus_proxy_get_name_owner (G_DBUS_PROXY (proxy));
+
+  if (!name_owner)
+    {
+      track_ptr (BAMF_TYPE_APPLICATION, NULL, (gpointer *) &matcher->priv->active_application);
+      track_ptr (BAMF_TYPE_WINDOW, NULL, (gpointer *) &matcher->priv->active_window);
+    }
+
+  g_free (name_owner);
+}
+
 static void
 bamf_matcher_on_view_opened (BamfDBusMatcher *proxy,
                              const char *path,
@@ -175,12 +219,17 @@ bamf_matcher_on_active_application_changed (BamfDBusMatcher *proxy,
 {
   BamfView *old_view;
   BamfView *new_view;
+  BamfFactory *factory;
 
-  BamfFactory *factory = _bamf_factory_get_default ();
+  factory = _bamf_factory_get_default ();
+
   old_view = _bamf_factory_view_for_path_type (factory, old_path, BAMF_FACTORY_APPLICATION);
   new_view = _bamf_factory_view_for_path_type (factory, new_path, BAMF_FACTORY_APPLICATION);
 
-  g_signal_emit (matcher, matcher_signals[ACTIVE_APPLICATION_CHANGED], 0, old_view, new_view);
+  if (track_ptr (BAMF_TYPE_APPLICATION, new_view, (gpointer *) &matcher->priv->active_application))
+    {
+      g_signal_emit (matcher, matcher_signals[ACTIVE_APPLICATION_CHANGED], 0, old_view, new_view);
+    }
 }
 
 static void
@@ -191,12 +240,31 @@ bamf_matcher_on_active_window_changed (BamfDBusMatcher *proxy,
 {
   BamfView *old_view;
   BamfView *new_view;
+  BamfApplication *old_app;
+  BamfApplication *new_app;
+  BamfFactory *factory;
+  BamfMatcherPrivate *priv;
 
-  BamfFactory *factory = _bamf_factory_get_default ();
+  priv = matcher->priv;
+  old_app = priv->active_application;
+  new_app = old_app;
+  factory = _bamf_factory_get_default ();
+
   old_view = _bamf_factory_view_for_path_type (factory, old_path, BAMF_FACTORY_WINDOW);
   new_view = _bamf_factory_view_for_path_type (factory, new_path, BAMF_FACTORY_WINDOW);
 
+  track_ptr (BAMF_TYPE_WINDOW, new_view, (gpointer *) &priv->active_window);
+
+  if (BAMF_IS_WINDOW (new_view))
+    new_app = _bamf_factory_app_for_xid (factory, bamf_window_get_xid (BAMF_WINDOW (new_view)));
+
+  track_ptr (BAMF_TYPE_APPLICATION, (BamfView *) new_app, (gpointer *) &priv->active_application);
   g_signal_emit (matcher, matcher_signals[ACTIVE_WINDOW_CHANGED], 0, old_view, new_view);
+
+  if (new_app != old_app)
+    {
+      g_signal_emit (matcher, matcher_signals[ACTIVE_APPLICATION_CHANGED], 0, old_app, new_app);
+    }
 }
 
 static void
@@ -221,11 +289,14 @@ bamf_matcher_init (BamfMatcher *self)
 
   if (error)
     {
-      g_error ("Unable to get %s matcher: %s", BAMF_DBUS_SERVICE_NAME, error ? error->message : "");
+      g_warning ("Unable to get %s matcher: %s", BAMF_DBUS_SERVICE_NAME, error ? error->message : "");
       g_error_free (error);
     }
 
   g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (priv->proxy), BAMF_DBUS_DEFAULT_TIMEOUT);
+
+  g_signal_connect (priv->proxy, "notify::g-name-owner",
+                    G_CALLBACK (bamf_matcher_on_name_owner_changed), self);
 
   g_signal_connect (priv->proxy, "view-opened",
                     G_CALLBACK (bamf_matcher_on_view_opened), self);
@@ -303,30 +374,30 @@ bamf_matcher_get_active_application (BamfMatcher *matcher)
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
   priv = matcher->priv;
 
+  if (BAMF_IS_APPLICATION (priv->active_application))
+    {
+      if (!bamf_view_is_closed (BAMF_VIEW (priv->active_application)))
+        return priv->active_application;
+    }
+
   if (!_bamf_dbus_matcher_call_active_application_sync (priv->proxy, &app, priv->cancellable, &error))
     {
       g_warning ("Failed to get active application: %s", error ? error->message : "");
       g_error_free (error);
+      track_ptr (BAMF_TYPE_APPLICATION, NULL, (gpointer *) &priv->active_application);
       return NULL;
     }
-
-  if (app && app[0] == '\0')
-    {
-      g_free (app);
-      return NULL;
-    }
-
-  if (!app)
-    return NULL;
 
   BamfFactory *factory = _bamf_factory_get_default ();
   view = _bamf_factory_view_for_path_type (factory, app, BAMF_FACTORY_APPLICATION);
   g_free (app);
 
   if (!BAMF_IS_APPLICATION (view))
-    return NULL;
+    view = NULL;
 
-  return BAMF_APPLICATION (view);
+  track_ptr (BAMF_TYPE_APPLICATION, view, (gpointer *) &priv->active_application);
+
+  return priv->active_application;
 }
 
 /**
@@ -348,30 +419,60 @@ bamf_matcher_get_active_window (BamfMatcher *matcher)
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
   priv = matcher->priv;
 
+  if (BAMF_IS_APPLICATION (priv->active_window))
+    {
+      if (!bamf_view_is_closed (BAMF_VIEW (priv->active_window)))
+        return priv->active_window;
+    }
+
   if (!_bamf_dbus_matcher_call_active_window_sync (priv->proxy, &win, priv->cancellable, &error))
     {
       g_warning ("Failed to get active window: %s", error ? error->message : "");
       g_error_free (error);
+      track_ptr (BAMF_TYPE_WINDOW, NULL, (gpointer *) &priv->active_window);
       return NULL;
     }
-
-  if (win && win[0] == '\0')
-    {
-      g_free (win);
-      return NULL;
-    }
-
-  if (!win)
-    return NULL;
 
   BamfFactory *factory = _bamf_factory_get_default ();
   view = _bamf_factory_view_for_path_type (factory, win, BAMF_FACTORY_WINDOW);
   g_free (win);
 
   if (!BAMF_IS_WINDOW (view))
-    return NULL;
+    view = NULL;
 
-  return BAMF_WINDOW (view);
+  track_ptr (BAMF_TYPE_WINDOW, view, (gpointer *) &priv->active_window);
+
+  return priv->active_window;
+}
+
+/**
+ * bamf_matcher_get_window_for_xid:
+ * @matcher: a #BamfMatcher
+ * @xid: The X11 Window ID to search for
+ *
+ * Used to fetch the #BamfWindow that wraps the given @window.
+ *
+ * Returns: (transfer none): The #BamfWindow representing the xid passed, or NULL if none exists.
+ */
+BamfWindow *
+bamf_matcher_get_window_for_xid (BamfMatcher *matcher, guint32 xid)
+{
+  BamfWindow *window;
+  BamfApplication *app;
+
+  g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
+
+  window = _bamf_factory_window_for_xid (_bamf_factory_get_default (), xid);
+
+  if (BAMF_IS_WINDOW (window))
+    return window;
+
+  app = bamf_matcher_get_application_for_xid (matcher, xid);
+
+  if (BAMF_IS_APPLICATION (app))
+    window = bamf_application_get_window_for_xid (app, xid);
+
+  return BAMF_IS_WINDOW (window) ? window : NULL;
 }
 
 /**
@@ -386,7 +487,7 @@ bamf_matcher_get_active_window (BamfMatcher *matcher)
 BamfApplication *
 bamf_matcher_get_application_for_window (BamfMatcher *matcher, BamfWindow *window)
 {
-  g_return_val_if_fail(BAMF_IS_WINDOW(window), NULL);
+  g_return_val_if_fail (BAMF_IS_WINDOW (window), NULL);
   return bamf_matcher_get_application_for_xid (matcher, bamf_window_get_xid(window));
 }
 
@@ -404,11 +505,18 @@ bamf_matcher_get_application_for_xid (BamfMatcher  *matcher, guint32 xid)
 {
   BamfMatcherPrivate *priv;
   BamfView *view;
+  BamfFactory *factory;
   char *app = NULL;
   GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), NULL);
   priv = matcher->priv;
+  factory = _bamf_factory_get_default ();
+
+  view = (BamfView*) _bamf_factory_app_for_xid (factory, xid);
+
+  if (BAMF_IS_APPLICATION (view))
+    return BAMF_APPLICATION (view);
 
   if (!_bamf_dbus_matcher_call_application_for_xid_sync (priv->proxy, xid, &app, priv->cancellable, &error))
     {
@@ -417,16 +525,6 @@ bamf_matcher_get_application_for_xid (BamfMatcher  *matcher, guint32 xid)
       return NULL;
     }
 
-  if (app && app[0] == '\0')
-    {
-      g_free (app);
-      return NULL;
-    }
-
-  if (!app)
-    return NULL;
-
-  BamfFactory *factory = _bamf_factory_get_default ();
   view = _bamf_factory_view_for_path_type (factory, app, BAMF_FACTORY_APPLICATION);
   g_free (app);
 
@@ -440,11 +538,17 @@ gboolean
 bamf_matcher_application_is_running (BamfMatcher *matcher, const gchar *app)
 {
   BamfMatcherPrivate *priv;
+  BamfApplication *view;
   gboolean running = FALSE;
   GError *error = NULL;
 
   g_return_val_if_fail (BAMF_IS_MATCHER (matcher), FALSE);
   priv = matcher->priv;
+
+  view = _bamf_factory_app_for_file (_bamf_factory_get_default (), app, FALSE);
+
+  if (BAMF_IS_APPLICATION (view))
+    return bamf_view_is_running (BAMF_VIEW (view));
 
   if (!_bamf_dbus_matcher_call_application_is_running_sync (priv->proxy,
                                                             app ? app : "",

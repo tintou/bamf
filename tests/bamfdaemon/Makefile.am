@@ -1,3 +1,5 @@
+TESTDIR=$(shell realpath $(abs_top_srcdir)/tests)
+
 noinst_PROGRAMS = \
 	test-bamf
 
@@ -44,7 +46,7 @@ test_bamf_CFLAGS = \
 	-I$(top_srcdir)/lib \
 	-I$(top_builddir)/lib \
 	-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
-	-DTESTDIR=\""$(abs_top_srcdir)/tests"\" \
+	-DTESTDIR=\""$(TESTDIR)"\" \
 	$(COVERAGE_CFLAGS) \
 	$(GCC_FLAGS) \
 	$(GLIB_CFLAGS) \

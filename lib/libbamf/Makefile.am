@@ -57,7 +57,7 @@ libbamf_la_CFLAGS = \
 libbamf_la_LDFLAGS = \
 	-shared \
 	-export-symbols-regex "^bamf_" \
-	-version-info 2:0:0 \
+	-version-info $(LIBBAMF_SONAME) \
 	$(COVERAGE_LDFLAGS) \
 	$(NULL)
 

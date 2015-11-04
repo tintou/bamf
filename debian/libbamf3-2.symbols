@@ -7,6 +7,7 @@ libbamf3.so.2 libbamf3-2 #MINVER#
  bamf_application_get_supported_mime_types@Base 0.3.0
  bamf_application_get_type@Base 0.2.20
  bamf_application_get_windows@Base 0.2.20
+ bamf_application_get_window_for_xid@Base 0.5.2~bzr0
  bamf_application_get_xids@Base 0.2.20
  bamf_application_new@Base 0.2.20
  bamf_application_new_favorite@Base 0.2.60
@@ -27,6 +28,7 @@ libbamf3.so.2 libbamf3-2 #MINVER#
  bamf_matcher_get_running_applications@Base 0.2.20
  bamf_matcher_get_tabs@Base 0.2.20
  bamf_matcher_get_type@Base 0.2.20
+ bamf_matcher_get_window_for_xid@Base 0.5.2~bzr0
  bamf_matcher_get_window_stack_for_monitor@Base 0.2.108
  bamf_matcher_get_windows@Base 0.2.46
  bamf_matcher_get_xids_for_application@Base 0.2.20
@@ -47,12 +49,14 @@ libbamf3.so.2 libbamf3-2 #MINVER#
  bamf_view_get_type@Base 0.2.20
  bamf_view_get_view_type@Base 0.2.20
  bamf_view_is_active@Base 0.2.20
+ bamf_view_has_child@Base 0.5.2~bzr0
  bamf_view_is_closed@Base 0.2.54
  bamf_view_is_running@Base 0.2.20
  bamf_view_is_sticky@Base 0.2.60
  bamf_view_is_urgent@Base 0.2.20
  bamf_view_is_user_visible@Base 0.4.0
  bamf_view_set_sticky@Base 0.2.60
+ bamf_view_peek_children@Base 0.5.2~bzr0
  bamf_view_user_visible@Base 0.2.20
  bamf_window_get_monitor@Base 0.2.108
  bamf_window_get_pid@Base 0.2.112

@@ -121,6 +121,10 @@ GType      bamf_view_get_type             (void) G_GNUC_CONST;
 
 GList    * bamf_view_get_children  (BamfView *view);
 
+GList    * bamf_view_peek_children (BamfView *view);
+
+gboolean   bamf_view_has_child     (BamfView *view, BamfView *child);
+
 gboolean   bamf_view_is_closed     (BamfView *view);
 
 gboolean   bamf_view_is_active     (BamfView *view);

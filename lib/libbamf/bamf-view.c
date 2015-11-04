@@ -105,6 +105,27 @@ static void bamf_view_unset_proxy (BamfView *self);
 GList *
 bamf_view_get_children (BamfView *view)
 {
+  g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
+
+  if (BAMF_VIEW_GET_CLASS (view)->get_children)
+    return BAMF_VIEW_GET_CLASS (view)->get_children (view);
+
+  return g_list_copy (bamf_view_peek_children (view));
+}
+
+/**
+ * bamf_view_peek_children:
+ * @view: a #BamfView
+ *
+ * Note: Makes sever dbus calls the first time this is called on a view.
+ * Dbus messaging is reduced afterwards.
+ * Since: 0.5.2
+ * Returns: (element-type Bamf.View) (transfer none): Returns a list of #BamfView which
+ *           is owned by the #BamfView and should not freed or modified after usage.
+ */
+GList *
+bamf_view_peek_children (BamfView *view)
+{
   char ** children;
   int i, len;
   GList *results = NULL;
@@ -114,16 +135,13 @@ bamf_view_get_children (BamfView *view)
 
   g_return_val_if_fail (BAMF_IS_VIEW (view), NULL);
 
-  if (BAMF_VIEW_GET_CLASS (view)->get_children)
-    return BAMF_VIEW_GET_CLASS (view)->get_children (view);
-
   if (!_bamf_view_remote_ready (view))
     return NULL;
 
   priv = view->priv;
 
   if (priv->cached_children || !priv->reload_children)
-    return g_list_copy (priv->cached_children);
+    return priv->cached_children;
 
   if (!_bamf_dbus_item_view_call_children_sync (priv->proxy, &children, CANCELLABLE (view), &error))
     {
@@ -153,7 +171,30 @@ bamf_view_get_children (BamfView *view)
   priv->reload_children = FALSE;
   priv->cached_children = results;
 
-  return g_list_copy (priv->cached_children);
+  return priv->cached_children;
+}
+
+/**
+ * bamf_view_has_child:
+ * @view: a #BamfView
+ *
+ * Returns: %TRUE whether the #BamfView @view has the specified @child.
+ */
+gboolean
+bamf_view_has_child (BamfView *view, BamfView *child)
+{
+  GList *l;
+
+  g_return_val_if_fail (BAMF_IS_VIEW (view), FALSE);
+  g_return_val_if_fail (BAMF_IS_VIEW (child), FALSE);
+
+  for (l = bamf_view_peek_children (view); l; l = l->next)
+    {
+      if (l->data == child)
+        return TRUE;
+    }
+
+  return FALSE;
 }
 
 /**
@@ -389,13 +430,11 @@ _bamf_view_remote_ready (BamfView *self)
 }
 
 /**
- * bamf_view_get_view_type:
+ * bamf_view_get_view_type: (virtual view_type)
  * @view: a #BamfView
  *
  * The view type of a window is a short string used to represent all views of the same class. These
  * descriptions should not be used to do casting as they are not considered stable.
- *
- * Virtual: view_type
  */
 const gchar *
 bamf_view_get_view_type (BamfView *self)
@@ -481,6 +520,7 @@ bamf_view_on_child_removed (BamfDBusItemView *proxy, char *path, BamfView *self)
 {
   BamfView *view;
   BamfViewPrivate *priv;
+  gboolean was_cached = FALSE;
 
   view = _bamf_factory_view_for_path (_bamf_factory_get_default (), path);
   priv = self->priv;
@@ -499,11 +539,14 @@ bamf_view_on_child_removed (BamfDBusItemView *proxy, char *path, BamfView *self)
       if (l)
         {
           priv->cached_children = g_list_delete_link (priv->cached_children, l);
-          g_object_unref (view);
+          was_cached = TRUE;
         }
     }
 
   g_signal_emit (G_OBJECT (self), view_signals[CHILD_REMOVED], 0, view);
+
+  if (was_cached)
+    g_object_unref (view);
 }
 
 static void

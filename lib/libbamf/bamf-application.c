@@ -251,6 +251,7 @@ bamf_application_get_xids (BamfApplication *application)
   GVariantIter *iter;
   GVariant *xids_variant;
   GArray *xids;
+  GList *children, *l;
   guint32 xid;
   GError *error = NULL;
 
@@ -259,6 +260,24 @@ bamf_application_get_xids (BamfApplication *application)
 
   if (!_bamf_view_remote_ready (BAMF_VIEW (application)))
     return NULL;
+
+  children = bamf_view_peek_children (BAMF_VIEW (application));
+
+  if (children)
+    {
+      xids = g_array_new (FALSE, TRUE, sizeof (guint32));
+
+      for (l = children; l; l = l->next)
+        {
+          if (!BAMF_IS_WINDOW (l->data))
+            continue;
+
+          xid = bamf_window_get_xid (BAMF_WINDOW (l->data));
+          g_array_append_val (xids, xid);
+        }
+
+      return xids;
+    }
 
   if (!_bamf_dbus_item_application_call_xids_sync (priv->proxy, &xids_variant,
                                                    CANCELLABLE (application), &error))
@@ -298,26 +317,60 @@ bamf_application_get_xids (BamfApplication *application)
 GList *
 bamf_application_get_windows (BamfApplication *application)
 {
-  GList *children, *l;
-  GList *windows = NULL;
+  GList *children, *l, *next;
   BamfView *view;
 
   g_return_val_if_fail (BAMF_IS_APPLICATION (application), NULL);
 
   children = bamf_view_get_children (BAMF_VIEW (application));
+  l = children;
 
-  for (l = children; l; l = l->next)
+  while (l != NULL)
     {
       view = l->data;
+      next = l->next;
 
-      if (BAMF_IS_WINDOW (view))
+      if (!BAMF_IS_WINDOW (view))
         {
-          windows = g_list_prepend (windows, view);
+          children = g_list_delete_link (children, l);
+        }
+      l = next;
+    }
+
+  return children;
+}
+
+/**
+ * bamf_application_get_window_for_xid:
+ * @application: a #BamfApplication
+ * @xid: an X11 Window ID
+ *
+ * Used to fetch the application contains a Window with given @xid.
+ *
+ * Since: 0.5.2
+ * Returns: (transfer none): a #BamfWindow for the passed @xid or %NULL if not found.
+ */
+BamfWindow *
+bamf_application_get_window_for_xid (BamfApplication *application,
+                                     guint32 xid)
+{
+  GList *l;
+  BamfWindow *window;
+
+  g_return_val_if_fail (BAMF_IS_APPLICATION (application), FALSE);
+
+  for (l = bamf_view_peek_children (BAMF_VIEW (application)); l; l = l->next)
+    {
+      if (BAMF_IS_WINDOW (l->data))
+        {
+          window = BAMF_WINDOW (l->data);
+
+          if (bamf_window_get_xid (window) == xid)
+            return window;
         }
     }
 
-  g_list_free (children);
-  return windows;
+  return NULL;
 }
 
 /**
@@ -572,7 +625,7 @@ bamf_application_set_path (BamfView *view, const char *path)
                     G_CALLBACK (bamf_application_on_supported_mime_types_changed), view);
 
   GList *children, *l;
-  children = bamf_view_get_children (view);
+  children = bamf_view_peek_children (view);
 
   if (priv->cached_xids)
     {
@@ -588,8 +641,6 @@ bamf_application_set_path (BamfView *view, const char *path)
       guint32 xid = bamf_window_get_xid (BAMF_WINDOW (l->data));
       priv->cached_xids = g_list_prepend (priv->cached_xids, GUINT_TO_POINTER (xid));
     }
-
-  g_list_free (children);
 }
 
 static void
