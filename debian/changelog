@@ -1,3 +1,19 @@
+bamf (0.5.2~bzr0+16.04.20151104-0ubuntu1) xenial; urgency=medium
+
+  [ CI Train Bot ]
+  * debian/libbamf3-2.symbols: update to released version.
+  * New rebuild forced.
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfMatcher: update special g-c-c code to unity-control-center (LP:
+    #1511481)
+  * debian/libbamf3-2.symbols: use 0replaceme trick to get proper
+    symbols
+  * libBAMF: cache active{window,application} and be smarter in reusing
+    known resources
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Wed, 04 Nov 2015 16:24:11 +0000
+
 bamf (0.5.2~bzr0+15.10.20150627.1-0ubuntu1) wily; urgency=medium
 
   [ CI Train Bot ]
