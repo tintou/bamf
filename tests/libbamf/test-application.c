@@ -59,7 +59,7 @@ static void
 test_favorite_valid_desktop_file_system (void)
 {
   BamfApplication *application;
-  const gchar *desktop_file = DATA_DIR"/gnome-control-center.desktop";
+  const gchar *desktop_file = DATA_DIR"/unity-control-center.desktop";
   application = bamf_application_new_favorite (desktop_file);
 
   g_assert_cmpstr (bamf_application_get_desktop_file (application), ==, desktop_file);
