@@ -1,0 +1,8 @@
+description "BAMF Application Matcher Framework"
+author "Marco Trevisan <marco.trevisan@canonical.com>"
+
+start on starting unity7
+stop on stopped unity7
+
+respawn
+exec @PKGLIBEXECDIR@/bamfdaemon
