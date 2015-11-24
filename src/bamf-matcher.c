@@ -2362,7 +2362,7 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (desktop_file);
 
-  if (is_autostart_desktop_file (desktop_file))
+  if (is_no_display_desktop (self, desktop_file) || is_autostart_desktop_file (desktop_file))
     return;
 
   key = GUINT_TO_POINTER (pid);
