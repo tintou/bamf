@@ -264,6 +264,42 @@ test_register_desktop_for_pid_autostart (void)
 }
 
 static void
+test_register_desktop_for_pid_display (void)
+{
+  BamfMatcher *matcher = bamf_matcher_get_default ();
+  BamfMatcherPrivate *priv = matcher->priv;
+  guint pid = g_random_int ();
+  const gchar *desktop = DATA_DIR"/test-bamf-app-display.desktop";
+
+  cleanup_matcher_tables (matcher);
+  bamf_matcher_load_desktop_file (matcher, desktop);
+  bamf_matcher_register_desktop_file_for_pid (matcher, desktop, pid);
+
+  desktop = g_hash_table_lookup (priv->registered_pids, GUINT_TO_POINTER (pid));
+  g_assert_cmpstr (desktop, ==, DATA_DIR"/test-bamf-app-display.desktop");
+
+  g_object_unref (matcher);
+}
+
+static void
+test_register_desktop_for_pid_nodisplay (void)
+{
+  BamfMatcher *matcher = bamf_matcher_get_default ();
+  BamfMatcherPrivate *priv = matcher->priv;
+  guint pid = g_random_int ();
+  const gchar *desktop = DATA_DIR"/test-bamf-app-no-display.desktop";
+
+  cleanup_matcher_tables (matcher);
+  bamf_matcher_load_desktop_file (matcher, desktop);
+  bamf_matcher_register_desktop_file_for_pid (matcher, desktop, pid);
+
+  desktop = g_hash_table_lookup (priv->registered_pids, GUINT_TO_POINTER (pid));
+  g_assert_cmpstr (desktop, ==, NULL);
+
+  g_object_unref (matcher);
+}
+
+static void
 test_open_windows (void)
 {
   BamfMatcher *matcher;
@@ -1265,4 +1301,6 @@ test_matcher_create_suite (GDBusConnection *connection)
   g_test_add_func (DOMAIN"/RegisterDesktopForPid", test_register_desktop_for_pid);
   g_test_add_func (DOMAIN"/RegisterDesktopForPid/BigNumber", test_register_desktop_for_pid_big_number);
   g_test_add_func (DOMAIN"/RegisterDesktopForPid/Autostart", test_register_desktop_for_pid_autostart);
+  g_test_add_func (DOMAIN"/RegisterDesktopForPid/Display", test_register_desktop_for_pid_display);
+  g_test_add_func (DOMAIN"/RegisterDesktopForPid/NoDisplay", test_register_desktop_for_pid_nodisplay);
 }
