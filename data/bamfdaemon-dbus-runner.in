@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ -n "$UPSTART_SESSION" ]; then
+  /sbin/initctl start bamfdaemon
+else
+  @PKGLIBEXECDIR@/bamfdaemon
+fi
