@@ -1,3 +1,13 @@
+bamf (0.5.2~bzr0+16.04.20151210-0ubuntu1) xenial; urgency=medium
+
+  [ CI Train Bot ]
+  * debian/changelog: update to released version.
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfDaemon: add upstart session support
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Thu, 10 Dec 2015 15:48:25 +0000
+
 bamf (0.5.2~bzr0+16.04.20151104-0ubuntu1) xenial; urgency=medium
 
   [ CI Train Bot ]
@@ -7,7 +17,7 @@ bamf (0.5.2~bzr0+16.04.20151104-0ubuntu1) xenial; urgency=medium
   [ Marco Trevisan (Treviño) ]
   * BamfMatcher: update special g-c-c code to unity-control-center (LP:
     #1511481)
-  * debian/libbamf3-2.symbols: use 0replaceme trick to get proper
+  * debian/libbamf3-2.symbols: use 0.5.2~bzr0+16.04.20151210 trick to get proper
     symbols
   * libBAMF: cache active{window,application} and be smarter in reusing
     known resources
