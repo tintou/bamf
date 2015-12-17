@@ -1,3 +1,10 @@
+bamf (0.5.2~bzr0+16.04.20151217-0ubuntu1) xenial; urgency=medium
+
+  * BamfMatcher: don't assign no-display desktop files to windows by
+    default when launched (LP: #1519376)
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Thu, 17 Dec 2015 18:01:39 +0000
+
 bamf (0.5.2~bzr0+16.04.20151210-0ubuntu1) xenial; urgency=medium
 
   [ CI Train Bot ]
