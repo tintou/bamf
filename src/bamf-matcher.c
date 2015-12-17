@@ -2357,28 +2357,49 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
 {
   gpointer key;
   BamfLegacyScreen *screen;
-  GList *windows, *l;
+  GList *windows, *pids, *l, *ll;
+  gboolean matching_window_found;
 
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (desktop_file);
 
-  if (is_autostart_desktop_file (desktop_file))
+  if (is_no_display_desktop (self, desktop_file) || is_autostart_desktop_file (desktop_file))
     return;
 
   key = GUINT_TO_POINTER (pid);
   g_hash_table_insert (self->priv->registered_pids, key, g_strdup (desktop_file));
 
-  /* fixme, this is a bit heavy */
-
   screen = bamf_legacy_screen_get_default ();
-
   g_return_if_fail (BAMF_IS_LEGACY_SCREEN (screen));
 
   windows = bamf_legacy_screen_get_windows (screen);
+  matching_window_found = FALSE;
 
   for (l = windows; l; l = l->next)
     {
-      ensure_window_hint_set (self, l->data);
+      BamfLegacyWindow *window = l->data;
+
+      if (!BAMF_IS_LEGACY_WINDOW (window))
+        continue;
+
+      pids = pid_parent_tree (self, bamf_legacy_window_get_pid (window));
+
+      for (ll = pids; ll; ll = ll->next)
+        {
+          if (pid == GPOINTER_TO_UINT (ll->data))
+            {
+              matching_window_found = TRUE;
+              break;
+            }
+        }
+
+      g_list_free (pids);
+
+      if (matching_window_found)
+        {
+          ensure_window_hint_set (self, window);
+          break;
+        }
     }
 }
 
