@@ -244,7 +244,7 @@ compare_windows_by_stack_order (gconstpointer a, gconstpointer b, gpointer data)
 }
 
 static void
-hanle_sn_monitor_event (SnMonitorEvent *event,
+handle_sn_monitor_event (SnMonitorEvent *event,
                         void           *data)
 {
   BamfLegacyScreen *self = data;
@@ -569,7 +569,7 @@ bamf_legacy_screen_get_default ()
 
   self->priv->sn_monitor_context = sn_monitor_context_new (self->priv->sn_display,
                                                            DefaultScreen (dpy),
-                                                           hanle_sn_monitor_event,
+                                                           handle_sn_monitor_event,
                                                            self, NULL);
 
   g_signal_connect (G_OBJECT (self->priv->legacy_screen), "window-opened",

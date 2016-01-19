@@ -51,6 +51,7 @@ G_BEGIN_DECLS
 
 #define BAMF_VIEW_SIGNAL_ACTIVE_CHANGED       "active-changed"
 #define BAMF_VIEW_SIGNAL_RUNNING_CHANGED      "running-changed"
+#define BAMF_VIEW_SIGNAL_STARTING_CHANGED     "starting-changed"
 #define BAMF_VIEW_SIGNAL_URGENT_CHANGED       "urgent-changed"
 #define BAMF_VIEW_SIGNAL_USER_VISIBLE_CHANGED "user-visible-changed"
 #define BAMF_VIEW_SIGNAL_NAME_CHANGED         "name-changed"
@@ -89,6 +90,7 @@ struct _BamfViewClass
 
   GList            * (*get_children)        (BamfView *view);
   gboolean           (*is_active)           (BamfView *view);
+  gboolean           (*is_starting)         (BamfView *view);
   gboolean           (*is_running)          (BamfView *view);
   gboolean           (*is_urgent)           (BamfView *view);
   gboolean           (*is_user_visible)     (BamfView *view);
@@ -104,6 +106,7 @@ struct _BamfViewClass
   void (*closed)                      (BamfView *view);
   void (*child_added)                 (BamfView *view, BamfView *child);
   void (*child_removed)               (BamfView *view, BamfView *child);
+  void (*starting_changed)            (BamfView *view, gboolean starting);
   void (*running_changed)             (BamfView *view, gboolean running);
   void (*urgent_changed)              (BamfView *view, gboolean urgent);
   void (*user_visible_changed)        (BamfView *view, gboolean user_visible);
@@ -128,6 +131,8 @@ gboolean   bamf_view_has_child     (BamfView *view, BamfView *child);
 gboolean   bamf_view_is_closed     (BamfView *view);
 
 gboolean   bamf_view_is_active     (BamfView *view);
+
+gboolean   bamf_view_is_starting   (BamfView *view);
 
 gboolean   bamf_view_is_running    (BamfView *view);
 

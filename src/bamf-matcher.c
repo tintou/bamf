@@ -2148,6 +2148,7 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
     }
 
   bamf_view_add_child (BAMF_VIEW (bamf_app), BAMF_VIEW (bamf_win));
+  bamf_view_set_starting (BAMF_VIEW (bamf_app), FALSE);
 }
 
 static char *
@@ -2194,6 +2195,30 @@ on_unity_control_center_window_role_changed (BamfLegacyWindow *window, BamfMatch
     }
 
   g_free (old_hint);
+}
+
+static void
+handle_window_opening (BamfLegacyScreen *screen, const gchar *desktop_id, BamfMatcher *self)
+{
+  BamfApplication *app;
+
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+  g_return_if_fail (desktop_id != NULL);
+
+  app = bamf_matcher_get_application_by_desktop_file (self, desktop_id);
+
+  if (!BAMF_IS_APPLICATION (app))
+    {
+
+      app = bamf_application_new_from_desktop_file (desktop_id);
+
+      if (!bamf_matcher_is_view_registered (self, BAMF_VIEW (app)))
+        {
+          bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (app));
+        }
+    }
+
+  bamf_view_set_starting (BAMF_VIEW (app), TRUE);
 }
 
 static void
@@ -3011,6 +3036,9 @@ bamf_matcher_init (BamfMatcher * self)
                              &(priv->desktop_class_table));
 
   screen = bamf_legacy_screen_get_default ();
+  g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENING,
+                    (GCallback) handle_window_opening, self);
+
   g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENED,
                     (GCallback) handle_window_opened, self);
 
