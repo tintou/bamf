@@ -63,6 +63,11 @@ PKG_CHECK_MODULES(WNCK, libwnck-3.0 >= 3.4.7)
 PKG_CHECK_MODULES(GTOP, libgtop-2.0)
 
 #
+# libsn
+#
+PKG_CHECK_MODULES(SN, libstartup-notification-1.0)
+
+#
 # x11
 #
 PKG_CHECK_MODULES(X, x11)
