@@ -253,8 +253,8 @@ handle_sn_monitor_event (SnMonitorEvent *event,
     {
     case SN_MONITOR_EVENT_INITIATED:
       {
-        SnStartupSequence *sequence = sn_monitor_event_get_startup_sequence(event);
-        g_signal_emit (self, legacy_screen_signals[WINDOW_OPENING], 0, sn_startup_sequence_get_application_id(sequence));
+        SnStartupSequence *sequence = sn_monitor_event_get_startup_sequence (event);
+        g_signal_emit (self, legacy_screen_signals[WINDOW_OPENING], 0, sn_startup_sequence_get_application_id (sequence));
       }
       break;
     case SN_MONITOR_EVENT_COMPLETED:
