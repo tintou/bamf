@@ -2219,6 +2219,7 @@ handle_window_opening (BamfLegacyScreen *screen, const gchar *desktop_id, BamfMa
     }
 
   bamf_view_set_starting (BAMF_VIEW (app), TRUE);
+  bamf_view_set_user_visible (BAMF_VIEW (app), TRUE);
 }
 
 static void
