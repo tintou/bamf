@@ -116,8 +116,6 @@ struct _BamfViewClass
 
   /*< private >*/
   void (*_view_padding1) (void);
-  void (*_view_padding2) (void);
-  void (*_view_padding3) (void);
 };
 
 GType      bamf_view_get_type             (void) G_GNUC_CONST;
