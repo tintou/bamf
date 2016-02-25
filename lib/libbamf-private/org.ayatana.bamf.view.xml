@@ -21,10 +21,6 @@
       <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="urgent" type="b" direction="out"/>
     </method>
-    <method name="IsStarting">
-      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
-      <arg name="starting" type="b" direction="out"/>
-    </method>
     <method name="IsRunning">
       <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="running" type="b" direction="out"/>
@@ -51,10 +47,6 @@
     <signal name="UrgentChanged">
       <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="is_urgent" type="b"/>
-    </signal>
-    <signal name="StartingChanged">
-      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
-      <arg name="is_starting" type="b"/>
     </signal>
     <signal name="RunningChanged">
       <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
