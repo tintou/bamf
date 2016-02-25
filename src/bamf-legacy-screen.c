@@ -22,6 +22,10 @@
 #include <gdk/gdkx.h>
 #include <gio/gio.h>
 
+#define SN_API_NOT_YET_FROZEN
+#include <libsn/sn.h>
+#undef SN_API_NOT_YET_FROZEN
+
 G_DEFINE_TYPE (BamfLegacyScreen, bamf_legacy_screen, G_TYPE_OBJECT);
 #define BAMF_LEGACY_SCREEN_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_LEGACY_SCREEN, BamfLegacyScreenPrivate))
@@ -30,6 +34,7 @@ static BamfLegacyScreen *static_screen = NULL;
 
 enum
 {
+  WINDOW_OPENING,
   WINDOW_OPENED,
   WINDOW_CLOSED,
   STACKING_CHANGED,
@@ -45,6 +50,10 @@ static Atom _COMPIZ_TOOLKIT_ACTION_WINDOW_MENU = 0;
 struct _BamfLegacyScreenPrivate
 {
   WnckScreen * legacy_screen;
+
+  SnDisplay * sn_display;
+  SnMonitorContext * sn_monitor_context;
+
   GList *windows;
   GFile *file;
   GDataInputStream *stream;
@@ -235,6 +244,27 @@ compare_windows_by_stack_order (gconstpointer a, gconstpointer b, gpointer data)
 }
 
 static void
+handle_sn_monitor_event (SnMonitorEvent *event,
+                        void           *data)
+{
+  BamfLegacyScreen *self = data;
+
+  switch (sn_monitor_event_get_type (event))
+    {
+    case SN_MONITOR_EVENT_INITIATED:
+      {
+        SnStartupSequence *sequence = sn_monitor_event_get_startup_sequence (event);
+        g_signal_emit (self, legacy_screen_signals[WINDOW_OPENING], 0, sn_startup_sequence_get_application_id (sequence));
+      }
+      break;
+    case SN_MONITOR_EVENT_COMPLETED:
+    case SN_MONITOR_EVENT_CHANGED:
+    case SN_MONITOR_EVENT_CANCELED:
+      break;
+    }
+}
+
+static void
 handle_window_opened (WnckScreen *screen, WnckWindow *window, BamfLegacyScreen *legacy)
 {
   BamfLegacyWindow *legacy_window;
@@ -385,6 +415,18 @@ bamf_legacy_screen_finalize (GObject *object)
 {
   BamfLegacyScreen *self = BAMF_LEGACY_SCREEN (object);
 
+  if (self->priv->sn_display)
+    {
+      sn_display_unref (self->priv->sn_display);
+      self->priv->sn_display = NULL;
+    }
+
+  if (self->priv->sn_monitor_context)
+    {
+      sn_monitor_context_unref (self->priv->sn_monitor_context);
+      self->priv->sn_monitor_context = NULL;
+    }
+
   if (self->priv->windows)
     g_list_free_full (self->priv->windows, g_object_unref);
 
@@ -414,6 +456,15 @@ bamf_legacy_screen_class_init (BamfLegacyScreenClass * klass)
   object_class->finalize = bamf_legacy_screen_finalize;
 
   g_type_class_add_private (klass, sizeof (BamfLegacyScreenPrivate));
+
+  legacy_screen_signals [WINDOW_OPENING] =
+    g_signal_new (BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENING,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfLegacyScreenClass, window_opening),
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  G_TYPE_STRING);
 
   legacy_screen_signals [WINDOW_OPENED] =
     g_signal_new (BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENED,
@@ -460,6 +511,11 @@ GdkFilterReturn filter_compiz_messages(GdkXEvent *gdkxevent, GdkEvent *event, gp
 
   if (xevent->type == ClientMessage)
     {
+      if (sn_display_process_event(self->priv->sn_display, xevent))
+        {
+          return GDK_FILTER_REMOVE;
+        }
+
       if (xevent->xclient.message_type == _COMPIZ_TOOLKIT_ACTION)
         {
           Atom msg = xevent->xclient.data.l[0];
@@ -491,6 +547,7 @@ BamfLegacyScreen *
 bamf_legacy_screen_get_default ()
 {
   BamfLegacyScreen *self;
+  Display *dpy;
 
   if (static_screen)
     return static_screen;
@@ -506,6 +563,15 @@ bamf_legacy_screen_get_default ()
 
   self->priv->legacy_screen = wnck_screen_get_default ();
 
+  dpy = gdk_x11_get_default_xdisplay ();
+
+  self->priv->sn_display = sn_display_new (dpy, NULL, NULL);
+
+  self->priv->sn_monitor_context = sn_monitor_context_new (self->priv->sn_display,
+                                                           DefaultScreen (dpy),
+                                                           handle_sn_monitor_event,
+                                                           self, NULL);
+
   g_signal_connect (G_OBJECT (self->priv->legacy_screen), "window-opened",
                     (GCallback) handle_window_opened, self);
 
@@ -517,7 +583,6 @@ bamf_legacy_screen_get_default ()
 
   if (g_strcmp0 (g_getenv ("XDG_CURRENT_DESKTOP"), "Unity") == 0)
     {
-      Display *dpy = gdk_x11_get_default_xdisplay ();
       _COMPIZ_TOOLKIT_ACTION = XInternAtom (dpy, "_COMPIZ_TOOLKIT_ACTION", False);
       _COMPIZ_TOOLKIT_ACTION_WINDOW_MENU = XInternAtom (dpy, "_COMPIZ_TOOLKIT_ACTION_WINDOW_MENU", False);
       gdk_window_add_filter (NULL, filter_compiz_messages, self);

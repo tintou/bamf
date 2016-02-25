@@ -47,6 +47,7 @@ struct _BamfViewClass
 
   /*< random stuff >*/
   gboolean (* urgent_changed)       (BamfView *view, gboolean urgent);
+  gboolean (* starting_changed)     (BamfView *view, gboolean starting);
   gboolean (* running_changed)      (BamfView *view, gboolean running);
   gboolean (* active_changed)       (BamfView *view, gboolean active);
   gboolean (* user_visible_changed) (BamfView *view, gboolean visible);
@@ -88,6 +89,9 @@ void          bamf_view_remove_child       (BamfView *view, BamfView *child);
 
 gboolean      bamf_view_is_active          (BamfView *view);
 void          bamf_view_set_active         (BamfView *view, gboolean active);
+
+gboolean      bamf_view_is_starting        (BamfView *view);
+void          bamf_view_set_starting       (BamfView *view, gboolean starting);
 
 gboolean      bamf_view_is_running         (BamfView *view);
 void          bamf_view_set_running        (BamfView *view, gboolean running);

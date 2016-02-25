@@ -47,6 +47,7 @@ bamfdaemon_LDADD = \
 	$(X_LIBS) \
 	$(GLIB_LIBS) \
 	$(GTK_LIBS) \
+	$(SN_LIBS) \
 	$(WNCK_LIBS) \
 	$(GTOP_LIBS) \
 	$(NULL)
@@ -60,6 +61,7 @@ bamfdaemon_CFLAGS = \
 	-I$(top_builddir)/lib \
 	$(GLIB_CFLAGS) \
 	$(GTK_CFLAGS) \
+	$(SN_CFLAGS) \
 	$(WNCK_CFLAGS) \
 	$(GTOP_CFLAGS) \
 	$(COVERAGE_CFLAGS) \

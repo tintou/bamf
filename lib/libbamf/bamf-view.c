@@ -55,6 +55,7 @@ enum
   CHILD_ADDED,
   CHILD_REMOVED,
   CHILD_MOVED,
+  STARTING_CHANGED,
   RUNNING_CHANGED,
   URGENT_CHANGED,
   VISIBLE_CHANGED,
@@ -68,6 +69,7 @@ enum
   PROP_0,
 
   PROP_PATH,
+  PROP_STARTING,
   PROP_RUNNING,
   PROP_ACTIVE,
   PROP_USER_VISIBLE,
@@ -267,6 +269,26 @@ gboolean
 bamf_view_user_visible (BamfView *self)
 {
   return bamf_view_is_user_visible (self);
+}
+
+/**
+ * bamf_view_is_starting:
+ * @view: a #BamfView
+ *
+ * Determines if the view is currently starting. Useful for the startup animation.
+ */
+gboolean
+bamf_view_is_starting (BamfView *self)
+{
+  g_return_val_if_fail (BAMF_IS_VIEW (self), FALSE);
+
+  if (BAMF_VIEW_GET_CLASS (self)->is_starting)
+    return BAMF_VIEW_GET_CLASS (self)->is_starting (self);
+
+  if (!_bamf_view_remote_ready (self))
+    return FALSE;
+
+  return _bamf_dbus_item_view_get_starting (self->priv->proxy);
 }
 
 /**
@@ -609,6 +631,15 @@ bamf_view_on_icon_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfView 
 }
 
 static void
+bamf_view_on_starting_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfView *self)
+{
+  gboolean starting = _bamf_dbus_item_view_get_starting (proxy);
+  g_signal_emit (G_OBJECT (self), view_signals[STARTING_CHANGED], 0, starting);
+  g_object_notify_by_pspec (G_OBJECT (self), properties[PROP_STARTING]);
+}
+
+
+static void
 bamf_view_on_running_changed (BamfDBusItemView *proxy, GParamSpec *param, BamfView *self)
 {
   gboolean running = _bamf_dbus_item_view_get_running (proxy);
@@ -697,6 +728,10 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
 
       case PROP_ACTIVE:
         g_value_set_boolean (value, bamf_view_is_active (self));
+        break;
+
+      case PROP_STARTING:
+        g_value_set_boolean (value, bamf_view_is_starting (self));
         break;
 
       case PROP_RUNNING:
@@ -798,6 +833,7 @@ _bamf_view_reset_flags (BamfView *view)
   /* Notifying proxy properties makes the view to emit proper signals */
   g_object_notify (G_OBJECT (view->priv->proxy), "user-visible");
   g_object_notify (G_OBJECT (view->priv->proxy), "active");
+  g_object_notify (G_OBJECT (view->priv->proxy), "starting");
   g_object_notify (G_OBJECT (view->priv->proxy), "running");
   g_object_notify (G_OBJECT (view->priv->proxy), "urgent");
   g_object_notify (G_OBJECT (view->priv->proxy), "name");
@@ -847,6 +883,9 @@ _bamf_view_set_path (BamfView *view, const char *path)
   g_signal_connect (priv->proxy, "notify::active",
                     G_CALLBACK (bamf_view_on_active_changed), view);
 
+  g_signal_connect (priv->proxy, "notify::starting",
+                    G_CALLBACK (bamf_view_on_starting_changed), view);
+
   g_signal_connect (priv->proxy, "notify::running",
                     G_CALLBACK (bamf_view_on_running_changed), view);
 
@@ -894,6 +933,9 @@ bamf_view_class_init (BamfViewClass *klass)
 
   properties[PROP_URGENT] = g_param_spec_boolean ("urgent", "urgent", "urgent", FALSE, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_URGENT, properties[PROP_URGENT]);
+
+  properties[PROP_STARTING] = g_param_spec_boolean ("starting", "starting", "starting", FALSE, G_PARAM_READABLE);
+  g_object_class_install_property (obj_class, PROP_STARTING, properties[PROP_STARTING]);
 
   properties[PROP_RUNNING] = g_param_spec_boolean ("running", "running", "running", FALSE, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_RUNNING, properties[PROP_RUNNING]);
@@ -946,6 +988,15 @@ bamf_view_class_init (BamfViewClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   BAMF_TYPE_VIEW);
+
+  view_signals [STARTING_CHANGED] =
+    g_signal_new (BAMF_VIEW_SIGNAL_STARTING_CHANGED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfViewClass, starting_changed),
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  G_TYPE_BOOLEAN);
 
   view_signals [RUNNING_CHANGED] =
     g_signal_new (BAMF_VIEW_SIGNAL_RUNNING_CHANGED,

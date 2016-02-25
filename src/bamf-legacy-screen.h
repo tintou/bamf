@@ -32,6 +32,7 @@
 #define BAMF_IS_LEGACY_SCREEN_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), BAMF_TYPE_LEGACY_SCREEN))
 #define BAMF_LEGACY_SCREEN_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_LEGACY_SCREEN, BamfLegacyScreenClass))
 
+#define BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENING        "window-opening"
 #define BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENED         "window-opened"
 #define BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_CLOSED         "window-closed"
 #define BAMF_LEGACY_SCREEN_SIGNAL_STACKING_CHANGED      "stacking-changed"
@@ -48,6 +49,7 @@ struct _BamfLegacyScreenClass
   GList    (*get_windows)      (BamfLegacyScreen *legacy_screen);
 
   /*< signals >*/
+  void     (*window_opening)         (BamfLegacyScreen *legacy_screen, const gchar *desktop_file);
   void     (*window_opened)          (BamfLegacyScreen *legacy_screen, BamfLegacyWindow *legacy_window);
   void     (*window_closed)          (BamfLegacyScreen *legacy_screen, BamfLegacyWindow *legacy_window);
   void     (*stacking_changed)       (BamfLegacyScreen *legacy_screen);

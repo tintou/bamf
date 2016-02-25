@@ -21,6 +21,10 @@
       <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="urgent" type="b" direction="out"/>
     </method>
+    <method name="IsStarting">
+      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
+      <arg name="starting" type="b" direction="out"/>
+    </method>
     <method name="IsRunning">
       <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="running" type="b" direction="out"/>
@@ -48,6 +52,10 @@
       <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="is_urgent" type="b"/>
     </signal>
+    <signal name="StartingChanged">
+      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
+      <arg name="is_starting" type="b"/>
+    </signal>
     <signal name="RunningChanged">
       <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="is_running" type="b"/>
@@ -68,6 +76,7 @@
     <property name="Icon" type="s" access="read"/>
     <property name="UserVisible" type="b" access="read"/>
     <property name="Running" type="b" access="read"/>
+    <property name="Starting" type="b" access="read"/>
     <property name="Urgent" type="b" access="read"/>
     <property name="Active" type="b" access="read"/>
   </interface>

@@ -35,6 +35,7 @@ enum
   PROP_NAME,
   PROP_ICON,
   PROP_ACTIVE,
+  PROP_STARTING,
   PROP_RUNNING,
   PROP_URGENT,
   PROP_USER_VISIBLE,
@@ -57,6 +58,7 @@ typedef struct _BamfViewPropCache
   /* FIXME: temporary cache these properties until we don't export the view
    * to the bus, we need this until the skeleton won't be smart enough to emit
    * signals as soon as the object is exported */
+  gboolean starting;
   gboolean running;
   gboolean user_visible;
   gboolean urgent;
@@ -143,6 +145,22 @@ bamf_view_user_visible_changed (BamfView *view, gboolean user_visible)
   if (emit)
     g_signal_emit_by_name (view, "user-visible-changed", user_visible);
 }
+
+static void
+bamf_view_starting_changed (BamfView *view, gboolean starting)
+{
+  g_return_if_fail (BAMF_IS_VIEW (view));
+
+  gboolean emit = TRUE;
+  if (BAMF_VIEW_GET_CLASS (view)->starting_changed)
+    {
+      emit = !BAMF_VIEW_GET_CLASS (view)->starting_changed (view, starting);
+    }
+
+  if (emit)
+    g_signal_emit_by_name (view, "starting-changed", starting);
+}
+
 
 static void
 bamf_view_running_changed (BamfView *view, gboolean running)
@@ -421,6 +439,19 @@ bamf_view_set_urgent (BamfView *view,
 }
 
 gboolean
+bamf_view_is_starting (BamfView *view)
+{
+ BAMF_VIEW_GET_PROPERTY (view, starting, FALSE);
+}
+
+void
+bamf_view_set_starting (BamfView *view,
+                        gboolean starting)
+{
+  BAMF_VIEW_SET_BOOL_PROPERTY (view, starting);
+}
+
+gboolean
 bamf_view_is_running (BamfView *view)
 {
  BAMF_VIEW_GET_PROPERTY (view, running, FALSE);
@@ -516,6 +547,7 @@ bamf_view_cached_properties_notify (BamfView *view)
   bamf_view_set_name (view, cache->name);
   bamf_view_set_icon (view, cache->icon);
   bamf_view_set_active (view, cache->active);
+  bamf_view_set_starting (view, cache->starting);
   bamf_view_set_running (view, cache->running);
   bamf_view_set_user_visible (view, cache->user_visible);
   bamf_view_set_urgent (view, cache->urgent);
@@ -600,6 +632,13 @@ on_view_active_changed (BamfView *view, gboolean active, gpointer _not_used)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
   g_signal_emit_by_name (view->priv->dbus_iface, "active-changed", active);
+}
+
+static void
+on_view_starting_changed (BamfView *view, gboolean starting, gpointer _not_used)
+{
+  g_return_if_fail (BAMF_IS_VIEW (view));
+  g_signal_emit_by_name (view->priv->dbus_iface, "starting-changed", starting);
 }
 
 static void
@@ -711,6 +750,18 @@ on_dbus_handle_is_urgent (BamfDBusItemView *interface,
   gboolean is_urgent = bamf_view_is_urgent (view);
   g_dbus_method_invocation_return_value (invocation,
                                          g_variant_new ("(b)", is_urgent));
+
+  return TRUE;
+}
+
+static gboolean
+on_dbus_handle_is_starting (BamfDBusItemView *interface,
+                            GDBusMethodInvocation *invocation,
+                            BamfView *view)
+{
+  gboolean is_starting = bamf_view_is_starting (view);
+  g_dbus_method_invocation_return_value (invocation,
+                                         g_variant_new ("(b)", is_starting));
 
   return TRUE;
 }
@@ -829,6 +880,9 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
       case PROP_USER_VISIBLE:
         g_value_set_boolean (value, bamf_view_is_user_visible (view));
         break;
+      case PROP_STARTING:
+        g_value_set_boolean (value, bamf_view_is_starting (view));
+        break;
       case PROP_RUNNING:
         g_value_set_boolean (value, bamf_view_is_running (view));
         break;
@@ -859,6 +913,7 @@ bamf_view_init (BamfView * self)
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
   g_signal_connect (self, "active-changed", G_CALLBACK (on_view_active_changed), NULL);
+  g_signal_connect (self, "starting-changed", G_CALLBACK (on_view_starting_changed), NULL);
   g_signal_connect (self, "running-changed", G_CALLBACK (on_view_running_changed), NULL);
   g_signal_connect (self, "urgent-changed", G_CALLBACK (on_view_urgent_changed), NULL);
   g_signal_connect (self, "user-visible-changed", G_CALLBACK (on_view_user_visible_changed), NULL);
@@ -882,6 +937,9 @@ bamf_view_init (BamfView * self)
 
   g_signal_connect (self->priv->dbus_iface, "handle-is-urgent",
                     G_CALLBACK (on_dbus_handle_is_urgent), self);
+
+  g_signal_connect (self->priv->dbus_iface, "handle-is-starting",
+                    G_CALLBACK (on_dbus_handle_is_starting), self);
 
   g_signal_connect (self->priv->dbus_iface, "handle-is-running",
                     G_CALLBACK (on_dbus_handle_is_running), self);
@@ -923,6 +981,7 @@ bamf_view_class_init (BamfViewClass * klass)
   g_object_class_override_property (object_class, PROP_ICON, "icon");
   g_object_class_override_property (object_class, PROP_ACTIVE, "active");
   g_object_class_override_property (object_class, PROP_URGENT, "urgent");
+  g_object_class_override_property (object_class, PROP_STARTING, "starting");
   g_object_class_override_property (object_class, PROP_RUNNING, "running");
   g_object_class_override_property (object_class, PROP_USER_VISIBLE, "user-visible");
 
