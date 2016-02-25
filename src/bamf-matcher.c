@@ -2209,7 +2209,6 @@ handle_window_opening (BamfLegacyScreen *screen, const gchar *desktop_id, BamfMa
 
   if (!BAMF_IS_APPLICATION (app))
     {
-
       app = bamf_application_new_from_desktop_file (desktop_id);
 
       if (!bamf_matcher_is_view_registered (self, BAMF_VIEW (app)))
