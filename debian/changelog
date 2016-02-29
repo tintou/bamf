@@ -1,4 +1,4 @@
-bamf (0.5.2~bzr0+16.04.20160229-0ubuntu1) xenial; urgency=medium
+bamf (0.5.3~bzr0+16.04.20160229-0ubuntu1) xenial; urgency=medium
 
   * Use startup notifications to set a "starting" property.
 
