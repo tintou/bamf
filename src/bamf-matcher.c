@@ -2222,6 +2222,23 @@ handle_window_opening (BamfLegacyScreen *screen, const gchar *desktop_id, BamfMa
 }
 
 static void
+handle_window_opening_canceled (BamfLegacyScreen *screen, const gchar *desktop_id, BamfMatcher *self)
+{
+  BamfApplication *app;
+
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+  g_return_if_fail (desktop_id != NULL);
+
+  app = bamf_matcher_get_application_by_desktop_file (self, desktop_id);
+
+  if (BAMF_IS_APPLICATION (app))
+    {
+      bamf_view_set_starting (BAMF_VIEW (app), FALSE);
+      bamf_view_set_user_visible (BAMF_VIEW (app), bamf_view_is_running(BAMF_VIEW (app)));
+    }
+}
+
+static void
 handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, BamfMatcher *self)
 {
   g_return_if_fail (BAMF_IS_MATCHER (self));
@@ -3038,6 +3055,9 @@ bamf_matcher_init (BamfMatcher * self)
   screen = bamf_legacy_screen_get_default ();
   g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENING,
                     (GCallback) handle_window_opening, self);
+
+  g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENING_CANCELED,
+                    (GCallback) handle_window_opening_canceled, self);
 
   g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENED,
                     (GCallback) handle_window_opened, self);

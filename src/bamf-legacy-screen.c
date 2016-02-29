@@ -35,6 +35,7 @@ static BamfLegacyScreen *static_screen = NULL;
 enum
 {
   WINDOW_OPENING,
+  WINDOW_OPENING_CANCELED,
   WINDOW_OPENED,
   WINDOW_CLOSED,
   STACKING_CHANGED,
@@ -42,6 +43,8 @@ enum
 
   LAST_SIGNAL,
 };
+
+#define STARTUP_NOTIFY_TIMEOUT 15
 
 static guint legacy_screen_signals[LAST_SIGNAL] = { 0 };
 static Atom _COMPIZ_TOOLKIT_ACTION = 0;
@@ -57,6 +60,13 @@ struct _BamfLegacyScreenPrivate
   GList *windows;
   GFile *file;
   GDataInputStream *stream;
+  GHashTable *startup_timeout_handlers;
+};
+
+struct StartupTimeoutData
+{
+  BamfLegacyScreen *self;
+  gchar *app_id;
 };
 
 static void
@@ -243,6 +253,25 @@ compare_windows_by_stack_order (gconstpointer a, gconstpointer b, gpointer data)
   return 0;
 }
 
+static gboolean
+startup_timeout_cb (gpointer user_data)
+{
+  struct StartupTimeoutData *data = user_data;
+  g_signal_emit (data->self, legacy_screen_signals[WINDOW_OPENING_CANCELED], 0, data->app_id);
+  return FALSE;
+}
+
+static void
+free_startup_timeout_data (gpointer user_data)
+{
+  struct StartupTimeoutData *data = user_data;
+
+  if (data->app_id)
+    g_free(data->app_id);
+
+  g_free(data);
+}
+
 static void
 handle_sn_monitor_event (SnMonitorEvent *event,
                         void           *data)
@@ -254,12 +283,29 @@ handle_sn_monitor_event (SnMonitorEvent *event,
     case SN_MONITOR_EVENT_INITIATED:
       {
         SnStartupSequence *sequence = sn_monitor_event_get_startup_sequence (event);
-        g_signal_emit (self, legacy_screen_signals[WINDOW_OPENING], 0, sn_startup_sequence_get_application_id (sequence));
+        const gchar *app_id = sn_startup_sequence_get_application_id (sequence);
+        struct StartupTimeoutData *data = NULL;
+
+        g_signal_emit (self, legacy_screen_signals[WINDOW_OPENING], 0, app_id);
+
+        data = g_malloc(sizeof(struct StartupTimeoutData));
+        data->self = self;
+        data->app_id = g_strdup(app_id);
+
+        guint timeout_handler = g_timeout_add_seconds_full(G_PRIORITY_DEFAULT, STARTUP_NOTIFY_TIMEOUT, startup_timeout_cb, data, free_startup_timeout_data);
+        g_hash_table_replace (self->priv->startup_timeout_handlers, g_strdup(app_id), GINT_TO_POINTER(timeout_handler));
       }
       break;
     case SN_MONITOR_EVENT_COMPLETED:
-    case SN_MONITOR_EVENT_CHANGED:
+      {
+        SnStartupSequence *sequence = sn_monitor_event_get_startup_sequence (event);
+        const gchar *app_id = sn_startup_sequence_get_application_id (sequence);
+
+        g_hash_table_remove (self->priv->startup_timeout_handlers, app_id);
+        break;
+      }
     case SN_MONITOR_EVENT_CANCELED:
+    case SN_MONITOR_EVENT_CHANGED:
       break;
     }
 }
@@ -436,6 +482,9 @@ bamf_legacy_screen_finalize (GObject *object)
   if (self->priv->stream)
     g_object_unref (self->priv->stream);
 
+  if (self->priv->startup_timeout_handlers)
+    g_hash_table_destroy (self->priv->startup_timeout_handlers);
+
   wnck_shutdown ();
   static_screen = NULL;
 
@@ -443,9 +492,16 @@ bamf_legacy_screen_finalize (GObject *object)
 }
 
 static void
+source_remove_wrapper (gpointer value)
+{
+  g_source_remove (GPOINTER_TO_INT (value));
+}
+
+static void
 bamf_legacy_screen_init (BamfLegacyScreen * self)
 {
   self->priv = BAMF_LEGACY_SCREEN_GET_PRIVATE (self);
+  self->priv->startup_timeout_handlers = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, source_remove_wrapper);
 }
 
 static void
@@ -462,6 +518,15 @@ bamf_legacy_screen_class_init (BamfLegacyScreenClass * klass)
                   G_OBJECT_CLASS_TYPE (klass),
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyScreenClass, window_opening),
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  G_TYPE_STRING);
+
+  legacy_screen_signals [WINDOW_OPENING_CANCELED] =
+    g_signal_new (BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENING_CANCELED,
+                  G_OBJECT_CLASS_TYPE (klass),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (BamfLegacyScreenClass, window_opening_canceled),
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   G_TYPE_STRING);
