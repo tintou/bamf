@@ -635,13 +635,6 @@ on_view_active_changed (BamfView *view, gboolean active, gpointer _not_used)
 }
 
 static void
-on_view_starting_changed (BamfView *view, gboolean starting, gpointer _not_used)
-{
-  g_return_if_fail (BAMF_IS_VIEW (view));
-  g_signal_emit_by_name (view->priv->dbus_iface, "starting-changed", starting);
-}
-
-static void
 on_view_running_changed (BamfView *view, gboolean running, gpointer _not_used)
 {
   g_return_if_fail (BAMF_IS_VIEW (view));
@@ -750,18 +743,6 @@ on_dbus_handle_is_urgent (BamfDBusItemView *interface,
   gboolean is_urgent = bamf_view_is_urgent (view);
   g_dbus_method_invocation_return_value (invocation,
                                          g_variant_new ("(b)", is_urgent));
-
-  return TRUE;
-}
-
-static gboolean
-on_dbus_handle_is_starting (BamfDBusItemView *interface,
-                            GDBusMethodInvocation *invocation,
-                            BamfView *view)
-{
-  gboolean is_starting = bamf_view_is_starting (view);
-  g_dbus_method_invocation_return_value (invocation,
-                                         g_variant_new ("(b)", is_starting));
 
   return TRUE;
 }
@@ -913,7 +894,6 @@ bamf_view_init (BamfView * self)
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
   g_signal_connect (self, "active-changed", G_CALLBACK (on_view_active_changed), NULL);
-  g_signal_connect (self, "starting-changed", G_CALLBACK (on_view_starting_changed), NULL);
   g_signal_connect (self, "running-changed", G_CALLBACK (on_view_running_changed), NULL);
   g_signal_connect (self, "urgent-changed", G_CALLBACK (on_view_urgent_changed), NULL);
   g_signal_connect (self, "user-visible-changed", G_CALLBACK (on_view_user_visible_changed), NULL);
@@ -937,9 +917,6 @@ bamf_view_init (BamfView * self)
 
   g_signal_connect (self->priv->dbus_iface, "handle-is-urgent",
                     G_CALLBACK (on_dbus_handle_is_urgent), self);
-
-  g_signal_connect (self->priv->dbus_iface, "handle-is-starting",
-                    G_CALLBACK (on_dbus_handle_is_starting), self);
 
   g_signal_connect (self->priv->dbus_iface, "handle-is-running",
                     G_CALLBACK (on_dbus_handle_is_running), self);
