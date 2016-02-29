@@ -52,6 +52,7 @@ libbamf3.so.2 libbamf3-2 #MINVER#
  bamf_view_has_child@Base 0.5.2~bzr0+16.04.20151104
  bamf_view_is_closed@Base 0.2.54
  bamf_view_is_running@Base 0.2.20
+ bamf_view_is_starting@Base 0replaceme
  bamf_view_is_sticky@Base 0.2.60
  bamf_view_is_urgent@Base 0.2.20
  bamf_view_is_user_visible@Base 0.4.0
