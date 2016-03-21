@@ -543,7 +543,7 @@ GdkFilterReturn filter_compiz_messages(GdkXEvent *gdkxevent, GdkEvent *event, gp
 
   if (xevent->type == ClientMessage)
     {
-      if (sn_display_process_event(self->priv->sn_display, xevent))
+      if (sn_display_process_event (self->priv->sn_display, xevent))
         {
           return GDK_FILTER_REMOVE;
         }
