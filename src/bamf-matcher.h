@@ -74,6 +74,10 @@ void          bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
                                                           const char *application,
                                                           guint64 pid);
 
+void          bamf_matcher_set_starting_desktop_file     (BamfMatcher * self,
+                                                          const char *desktop_file,
+                                                          gboolean starting);
+
 const char  * bamf_matcher_get_desktop_file_class        (BamfMatcher * self,
                                                           const char * desktop_file);
 
