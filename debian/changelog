@@ -1,6 +1,6 @@
 bamf (0.5.3~bzr0+16.04.20160229-0ubuntu1) xenial; urgency=medium
 
-  * Use startup notifications to set a "starting" property.
+  * Use startup notifications to set a "starting" property (LP: #676457)
 
  -- Andrea <andrea.azzarone@canonical.com>  Mon, 29 Feb 2016 16:02:03 +0100
 
