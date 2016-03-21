@@ -53,6 +53,7 @@ test_bamf_CFLAGS = \
 	$(GTK_CFLAGS) \
 	$(GTOP_CFLAGS) \
 	$(MAINTAINER_CFLAGS) \
+	$(SN_CFLAGS) \
 	$(WNCK_CFLAGS) \
 	$(X_CFLAGS) \
 	$(NULL)
@@ -62,6 +63,7 @@ test_bamf_LDADD = \
 	$(GLIB_LIBS) \
 	$(GTK_LIBS) \
 	$(GTOP_LIBS) \
+	$(SN_LIBS) \
 	$(WNCK_LIBS) \
 	$(X_LIBS) \
 	$(NULL)

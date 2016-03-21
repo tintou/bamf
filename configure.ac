@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(bamf, 0.5.2, dx-team@canonical.com)
+AC_INIT(bamf, 0.5.3, dx-team@canonical.com)
 AC_PREREQ(2.69)
 AC_SUBST(LIBBAMF_VER, 3)
 AC_SUBST(LIBBAMF_SONAME, 2:0:0)
@@ -61,6 +61,11 @@ PKG_CHECK_MODULES(WNCK, libwnck-3.0 >= 3.4.7)
 # libgtop
 #
 PKG_CHECK_MODULES(GTOP, libgtop-2.0)
+
+#
+# libsn
+#
+PKG_CHECK_MODULES(SN, libstartup-notification-1.0)
 
 #
 # x11

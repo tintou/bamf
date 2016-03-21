@@ -68,6 +68,7 @@
     <property name="Icon" type="s" access="read"/>
     <property name="UserVisible" type="b" access="read"/>
     <property name="Running" type="b" access="read"/>
+    <property name="Starting" type="b" access="read"/>
     <property name="Urgent" type="b" access="read"/>
     <property name="Active" type="b" access="read"/>
   </interface>

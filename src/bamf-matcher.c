@@ -2197,6 +2197,18 @@ on_unity_control_center_window_role_changed (BamfLegacyWindow *window, BamfMatch
 }
 
 static void
+handle_window_opening (BamfLegacyScreen *screen, const gchar *desktop_id, BamfMatcher *self)
+{
+  bamf_matcher_set_starting_desktop_file (self, desktop_id, TRUE);
+}
+
+static void
+handle_window_opening_finished (BamfLegacyScreen *screen, const gchar *desktop_id, BamfMatcher *self)
+{
+  bamf_matcher_set_starting_desktop_file (self, desktop_id, FALSE);
+}
+
+static void
 handle_window_opened (BamfLegacyScreen * screen, BamfLegacyWindow * window, BamfMatcher *self)
 {
   g_return_if_fail (BAMF_IS_MATCHER (self));
@@ -2400,6 +2412,37 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
           ensure_window_hint_set (self, window);
           break;
         }
+    }
+}
+
+void
+bamf_matcher_set_starting_desktop_file (BamfMatcher *self,
+                                        const char *desktop_file,
+                                        gboolean starting)
+{
+  BamfApplication *app;
+
+  g_return_if_fail (BAMF_IS_MATCHER (self));
+  g_return_if_fail (desktop_file != NULL);
+
+  if (is_no_display_desktop (self, desktop_file) || is_autostart_desktop_file (desktop_file))
+    return;
+
+  app = bamf_matcher_get_application_by_desktop_file (self, desktop_file);
+
+  if (!BAMF_IS_APPLICATION (app) && starting)
+    {
+      app = bamf_application_new_from_desktop_file (desktop_file);
+
+      if (!bamf_matcher_is_view_registered (self, BAMF_VIEW (app)))
+        {
+          bamf_matcher_register_view_stealing_ref (self, BAMF_VIEW (app));
+        }
+    }
+
+  if (BAMF_IS_APPLICATION (app))
+    {
+      bamf_view_set_starting (BAMF_VIEW (app), starting);
     }
 }
 
@@ -3011,11 +3054,20 @@ bamf_matcher_init (BamfMatcher * self)
                              &(priv->desktop_class_table));
 
   screen = bamf_legacy_screen_get_default ();
+  g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENING,
+                    G_CALLBACK (handle_window_opening), self);
+
+  g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENING_COMPLETED,
+                    G_CALLBACK (handle_window_opening_finished), self);
+
+  g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENING_CANCELED,
+                    G_CALLBACK (handle_window_opening_finished), self);
+
   g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENED,
-                    (GCallback) handle_window_opened, self);
+                    G_CALLBACK (handle_window_opened), self);
 
   g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_STACKING_CHANGED,
-                    (GCallback) handle_stacking_changed, self);
+                    G_CALLBACK (handle_stacking_changed), self);
 
   XSetErrorHandler (x_error_handler);
 

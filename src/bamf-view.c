@@ -28,6 +28,8 @@ G_DEFINE_TYPE_WITH_CODE (BamfView, bamf_view, BAMF_DBUS_ITEM_TYPE_OBJECT_SKELETO
                          G_IMPLEMENT_INTERFACE (BAMF_DBUS_ITEM_TYPE_VIEW,
                                                 bamf_view_dbus_view_iface_init));
 
+#define STARTING_MAX_WAIT 15
+
 enum
 {
   PROP_0,
@@ -35,6 +37,7 @@ enum
   PROP_NAME,
   PROP_ICON,
   PROP_ACTIVE,
+  PROP_STARTING,
   PROP_RUNNING,
   PROP_URGENT,
   PROP_USER_VISIBLE,
@@ -57,6 +60,7 @@ typedef struct _BamfViewPropCache
   /* FIXME: temporary cache these properties until we don't export the view
    * to the bus, we need this until the skeleton won't be smart enough to emit
    * signals as soon as the object is exported */
+  gboolean starting;
   gboolean running;
   gboolean user_visible;
   gboolean urgent;
@@ -74,6 +78,7 @@ struct _BamfViewPrivate
   GList * children;
   GList * parents;
   gboolean closed;
+  guint starting_timeout;
 
   /* FIXME: remove this as soon as we move to properties on library as well */
   guint active_changed_idle;
@@ -144,6 +149,41 @@ bamf_view_user_visible_changed (BamfView *view, gboolean user_visible)
     g_signal_emit_by_name (view, "user-visible-changed", user_visible);
 }
 
+static gboolean
+on_starting_timeout (gpointer data)
+{
+  BamfView *view = data;
+
+  bamf_view_set_starting (view, FALSE);
+  view->priv->starting_timeout = 0;
+
+  return FALSE;
+}
+
+static void
+bamf_view_starting_changed (BamfView *view, gboolean starting)
+{
+  BamfViewPrivate *priv;
+
+  g_return_if_fail (BAMF_IS_VIEW (view));
+
+  priv = view->priv;
+
+  if (BAMF_VIEW_GET_CLASS (view)->starting_changed)
+    {
+      BAMF_VIEW_GET_CLASS (view)->starting_changed (view, starting);
+    }
+
+  if (priv->starting_timeout)
+    {
+      g_source_remove (priv->starting_timeout);
+      priv->starting_timeout = 0;
+    }
+
+  if (starting)
+    priv->starting_timeout = g_timeout_add_seconds (STARTING_MAX_WAIT, on_starting_timeout, view);
+}
+
 static void
 bamf_view_running_changed (BamfView *view, gboolean running)
 {
@@ -157,6 +197,9 @@ bamf_view_running_changed (BamfView *view, gboolean running)
 
   if (emit)
     g_signal_emit_by_name (view, "running-changed", running);
+
+  if (running)
+    bamf_view_set_starting (view, FALSE);
 }
 
 static void
@@ -421,6 +464,19 @@ bamf_view_set_urgent (BamfView *view,
 }
 
 gboolean
+bamf_view_is_starting (BamfView *view)
+{
+ BAMF_VIEW_GET_PROPERTY (view, starting, FALSE);
+}
+
+void
+bamf_view_set_starting (BamfView *view,
+                        gboolean starting)
+{
+  BAMF_VIEW_SET_BOOL_PROPERTY (view, starting);
+}
+
+gboolean
 bamf_view_is_running (BamfView *view)
 {
  BAMF_VIEW_GET_PROPERTY (view, running, FALSE);
@@ -516,6 +572,7 @@ bamf_view_cached_properties_notify (BamfView *view)
   bamf_view_set_name (view, cache->name);
   bamf_view_set_icon (view, cache->icon);
   bamf_view_set_active (view, cache->active);
+  bamf_view_set_starting (view, cache->starting);
   bamf_view_set_running (view, cache->running);
   bamf_view_set_user_visible (view, cache->user_visible);
   bamf_view_set_urgent (view, cache->urgent);
@@ -785,6 +842,12 @@ bamf_view_dispose (GObject *object)
       priv->parents = NULL;
     }
 
+  if (priv->starting_timeout)
+    {
+      g_source_remove (priv->starting_timeout);
+      priv->starting_timeout = 0;
+    }
+
   if (priv->active_changed_idle)
     {
       g_source_remove (priv->active_changed_idle);
@@ -828,6 +891,9 @@ bamf_view_get_property (GObject *object, guint property_id, GValue *value, GPara
         break;
       case PROP_USER_VISIBLE:
         g_value_set_boolean (value, bamf_view_is_user_visible (view));
+        break;
+      case PROP_STARTING:
+        g_value_set_boolean (value, bamf_view_is_starting (view));
         break;
       case PROP_RUNNING:
         g_value_set_boolean (value, bamf_view_is_running (view));
@@ -923,6 +989,7 @@ bamf_view_class_init (BamfViewClass * klass)
   g_object_class_override_property (object_class, PROP_ICON, "icon");
   g_object_class_override_property (object_class, PROP_ACTIVE, "active");
   g_object_class_override_property (object_class, PROP_URGENT, "urgent");
+  g_object_class_override_property (object_class, PROP_STARTING, "starting");
   g_object_class_override_property (object_class, PROP_RUNNING, "running");
   g_object_class_override_property (object_class, PROP_USER_VISIBLE, "user-visible");
 
