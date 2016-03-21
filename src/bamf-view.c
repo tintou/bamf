@@ -28,6 +28,8 @@ G_DEFINE_TYPE_WITH_CODE (BamfView, bamf_view, BAMF_DBUS_ITEM_TYPE_OBJECT_SKELETO
                          G_IMPLEMENT_INTERFACE (BAMF_DBUS_ITEM_TYPE_VIEW,
                                                 bamf_view_dbus_view_iface_init));
 
+#define STARTING_MAX_WAIT 15
+
 enum
 {
   PROP_0,
@@ -76,6 +78,7 @@ struct _BamfViewPrivate
   GList * children;
   GList * parents;
   gboolean closed;
+  guint starting_timeout;
 
   /* FIXME: remove this as soon as we move to properties on library as well */
   guint active_changed_idle;
@@ -146,21 +149,40 @@ bamf_view_user_visible_changed (BamfView *view, gboolean user_visible)
     g_signal_emit_by_name (view, "user-visible-changed", user_visible);
 }
 
+static gboolean
+on_starting_timeout (gpointer data)
+{
+  BamfView *view = data;
+
+  bamf_view_set_starting (view, FALSE);
+  view->priv->starting_timeout = 0;
+
+  return FALSE;
+}
+
 static void
 bamf_view_starting_changed (BamfView *view, gboolean starting)
 {
+  BamfViewPrivate *priv;
+
   g_return_if_fail (BAMF_IS_VIEW (view));
 
-  gboolean emit = TRUE;
+  priv = view->priv;
+
   if (BAMF_VIEW_GET_CLASS (view)->starting_changed)
     {
-      emit = !BAMF_VIEW_GET_CLASS (view)->starting_changed (view, starting);
+      BAMF_VIEW_GET_CLASS (view)->starting_changed (view, starting);
     }
 
-  if (emit)
-    g_signal_emit_by_name (view, "starting-changed", starting);
-}
+  if (priv->starting_timeout)
+    {
+      g_source_remove (priv->starting_timeout);
+      priv->starting_timeout = 0;
+    }
 
+  if (starting)
+    priv->starting_timeout = g_timeout_add_seconds (STARTING_MAX_WAIT, on_starting_timeout, view);
+}
 
 static void
 bamf_view_running_changed (BamfView *view, gboolean running)
@@ -175,6 +197,9 @@ bamf_view_running_changed (BamfView *view, gboolean running)
 
   if (emit)
     g_signal_emit_by_name (view, "running-changed", running);
+
+  if (running)
+    bamf_view_set_starting (view, FALSE);
 }
 
 static void
@@ -815,6 +840,12 @@ bamf_view_dispose (GObject *object)
     {
       g_list_free (priv->parents);
       priv->parents = NULL;
+    }
+
+  if (priv->starting_timeout)
+    {
+      g_source_remove (priv->starting_timeout);
+      priv->starting_timeout = 0;
     }
 
   if (priv->active_changed_idle)

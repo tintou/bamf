@@ -46,14 +46,16 @@ bamf_control_on_launched_callback (GDBusConnection *connection,
                                    GVariant *parameters,
                                    gpointer user_data)
 {
+  BamfMatcher *matcher;
   const gchar *desktop_file;
   gint64 pid;
 
+  matcher = bamf_matcher_get_default ();
   g_variant_get_child (parameters, 0, "^&ay", &desktop_file);
   g_variant_get_child (parameters, 2, "x", &pid);
 
-  bamf_matcher_register_desktop_file_for_pid (bamf_matcher_get_default (),
-                                              desktop_file, pid);
+  bamf_matcher_set_starting_desktop_file (matcher, desktop_file, TRUE);
+  bamf_matcher_register_desktop_file_for_pid (matcher, desktop_file, pid);
 }
 
 static void
