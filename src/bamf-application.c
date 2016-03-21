@@ -1149,6 +1149,24 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
     }
 }
 
+static gboolean
+bamf_application_starting_changed (BamfView *view, gboolean starting)
+{
+  if (starting)
+    {
+      bamf_view_set_user_visible (view, TRUE);
+    }
+  else
+    {
+      bamf_application_ensure_flags (BAMF_APPLICATION (view));
+
+      if (!bamf_view_is_running (view))
+        bamf_view_close (view);
+    }
+
+  return TRUE;
+}
+
 static void
 matcher_favorites_changed (BamfMatcher *matcher, BamfApplication *self)
 {
@@ -1448,6 +1466,7 @@ bamf_application_class_init (BamfApplicationClass * klass)
   view_class->view_type = bamf_application_get_view_type;
   view_class->child_added = bamf_application_child_added;
   view_class->child_removed = bamf_application_child_removed;
+  view_class->starting_changed = bamf_application_starting_changed;
   view_class->stable_bus_name = bamf_application_get_stable_bus_name;
 
   klass->get_supported_mime_types = bamf_application_default_get_supported_mime_types;
