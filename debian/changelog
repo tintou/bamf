@@ -1,3 +1,11 @@
+bamf (0.5.3~bzr0+16.04.20160321-0ubuntu1) xenial; urgency=medium
+
+  [ CI Train Bot ]
+  * debian/libbamf3-2.symbols: update to released version.
+  * No-change rebuild.
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Mon, 21 Mar 2016 15:35:41 +0000
+
 bamf (0.5.3~bzr0+16.04.20160229-0ubuntu1) xenial; urgency=medium
 
   * Use startup notifications to set a "starting" property (LP: #676457)
