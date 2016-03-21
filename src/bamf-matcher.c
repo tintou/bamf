@@ -2148,7 +2148,6 @@ handle_raw_window (BamfMatcher *self, BamfLegacyWindow *window)
     }
 
   bamf_view_add_child (BAMF_VIEW (bamf_app), BAMF_VIEW (bamf_win));
-  bamf_view_set_starting (BAMF_VIEW (bamf_app), FALSE);
 }
 
 static char *
@@ -2218,11 +2217,10 @@ handle_window_opening (BamfLegacyScreen *screen, const gchar *desktop_id, BamfMa
     }
 
   bamf_view_set_starting (BAMF_VIEW (app), TRUE);
-  bamf_view_set_user_visible (BAMF_VIEW (app), TRUE);
 }
 
 static void
-handle_window_opening_canceled (BamfLegacyScreen *screen, const gchar *desktop_id, BamfMatcher *self)
+handle_window_opening_finished (BamfLegacyScreen *screen, const gchar *desktop_id, BamfMatcher *self)
 {
   BamfApplication *app;
 
@@ -2232,10 +2230,7 @@ handle_window_opening_canceled (BamfLegacyScreen *screen, const gchar *desktop_i
   app = bamf_matcher_get_application_by_desktop_file (self, desktop_id);
 
   if (BAMF_IS_APPLICATION (app))
-    {
-      bamf_view_set_starting (BAMF_VIEW (app), FALSE);
-      bamf_view_set_user_visible (BAMF_VIEW (app), bamf_view_is_running(BAMF_VIEW (app)));
-    }
+    bamf_view_set_starting (BAMF_VIEW (app), FALSE);
 }
 
 static void
@@ -3054,16 +3049,19 @@ bamf_matcher_init (BamfMatcher * self)
 
   screen = bamf_legacy_screen_get_default ();
   g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENING,
-                    (GCallback) handle_window_opening, self);
+                    G_CALLBACK (handle_window_opening), self);
+
+  g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENING_COMPLETED,
+                    G_CALLBACK (handle_window_opening_finished), self);
 
   g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENING_CANCELED,
-                    (GCallback) handle_window_opening_canceled, self);
+                    G_CALLBACK (handle_window_opening_finished), self);
 
   g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENED,
-                    (GCallback) handle_window_opened, self);
+                    G_CALLBACK (handle_window_opened), self);
 
   g_signal_connect (G_OBJECT (screen), BAMF_LEGACY_SCREEN_SIGNAL_STACKING_CHANGED,
-                    (GCallback) handle_stacking_changed, self);
+                    G_CALLBACK (handle_stacking_changed), self);
 
   XSetErrorHandler (x_error_handler);
 
