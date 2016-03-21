@@ -59,8 +59,8 @@ void          bamf_control_register_application_for_pid (BamfControl *control,
 void          bamf_control_insert_desktop_file          (BamfControl *control,
                                                          const char *path);
 
-void          bamf_control_create_local_desktop_file 	(BamfControl *control,
-                                                       const char *desktop_file);
+void          bamf_control_create_local_desktop_file    (BamfControl *control,
+                                                         const char *desktop_file);
 
 void          bamf_control_quit                         (BamfControl *control);
 
