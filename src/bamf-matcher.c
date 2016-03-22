@@ -148,7 +148,7 @@ bamf_matcher_get_application_by_desktop_file (BamfMatcher *self, const char *des
 
   g_return_val_if_fail (BAMF_IS_MATCHER (self), NULL);
 
-  if (!desktop_file)
+  if (!desktop_file || desktop_file[0] == '\0')
     return NULL;
 
   for (l = self->priv->views; l; l = l->next)
@@ -2362,6 +2362,34 @@ is_autostart_desktop_file (const gchar *desktop_file)
   return autostart;
 }
 
+gboolean
+is_valid_desktop_file (const gchar *desktop_file)
+{
+  if (!desktop_file || desktop_file[0] == '\0')
+    return FALSE;
+
+  if (!g_file_test (desktop_file, G_FILE_TEST_EXISTS))
+    return FALSE;
+
+  return TRUE;
+}
+
+gboolean
+is_visible_desktop_file (BamfMatcher *self,
+                         const gchar *desktop_file)
+{
+  if (!is_valid_desktop_file (desktop_file))
+    return FALSE;
+
+  if (is_no_display_desktop (self, desktop_file))
+    return FALSE;
+
+  if (is_autostart_desktop_file (desktop_file))
+    return FALSE;
+
+  return TRUE;
+}
+
 void
 bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
                                             const gchar * desktop_file,
@@ -2375,7 +2403,7 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (desktop_file);
 
-  if (is_no_display_desktop (self, desktop_file) || is_autostart_desktop_file (desktop_file))
+  if (!is_visible_desktop_file (self, desktop_file))
     return;
 
   key = GUINT_TO_POINTER (pid);
@@ -2425,7 +2453,7 @@ bamf_matcher_set_starting_desktop_file (BamfMatcher *self,
   g_return_if_fail (BAMF_IS_MATCHER (self));
   g_return_if_fail (desktop_file != NULL);
 
-  if (is_no_display_desktop (self, desktop_file) || is_autostart_desktop_file (desktop_file))
+  if (!is_visible_desktop_file (self, desktop_file))
     return;
 
   app = bamf_matcher_get_application_by_desktop_file (self, desktop_file);
