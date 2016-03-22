@@ -1,3 +1,14 @@
+bamf (0.5.3~bzr0+16.04.20160322.1-0ubuntu1) xenial; urgency=medium
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfMatcher: avoid to register apps with invalid (empty or not
+    existing) destkop files (LP: #1560490)
+
+  [ Rico Tzschichholz ]
+  * BamfView: Fix ABI break caused by r625 (LP: #1560486)
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Tue, 22 Mar 2016 15:35:03 +0000
+
 bamf (0.5.3~bzr0+16.04.20160321-0ubuntu1) xenial; urgency=medium
 
   [ CI Train Bot ]
