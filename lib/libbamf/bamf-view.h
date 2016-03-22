@@ -90,7 +90,6 @@ struct _BamfViewClass
 
   GList            * (*get_children)        (BamfView *view);
   gboolean           (*is_active)           (BamfView *view);
-  gboolean           (*is_starting)         (BamfView *view);
   gboolean           (*is_running)          (BamfView *view);
   gboolean           (*is_urgent)           (BamfView *view);
   gboolean           (*is_user_visible)     (BamfView *view);
@@ -106,13 +105,15 @@ struct _BamfViewClass
   void (*closed)                      (BamfView *view);
   void (*child_added)                 (BamfView *view, BamfView *child);
   void (*child_removed)               (BamfView *view, BamfView *child);
-  void (*starting_changed)            (BamfView *view, gboolean starting);
   void (*running_changed)             (BamfView *view, gboolean running);
   void (*urgent_changed)              (BamfView *view, gboolean urgent);
   void (*user_visible_changed)        (BamfView *view, gboolean user_visible);
   void (*name_changed)                (BamfView *view, gchar* old_name, gchar* new_name);
   void (*icon_changed)                (BamfView *view, gchar* icon);
   void (*child_moved)                 (BamfView *view, BamfView *child);
+
+  gboolean (*is_starting)             (BamfView *view);
+  void     (*starting_changed)        (BamfView *view, gboolean starting);
 
   /*< private >*/
   void (*_view_padding1) (void);
