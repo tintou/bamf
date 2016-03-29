@@ -46,8 +46,6 @@ enum
 enum
 {
   CLOSED_INTERNAL,
-  CHILD_ADDED_INTERNAL,
-  CHILD_REMOVED_INTERNAL,
   EXPORTED,
 
   LAST_SIGNAL,
@@ -362,8 +360,6 @@ bamf_view_add_child (BamfView *view,
   if (BAMF_VIEW_GET_CLASS (view)->child_added)
     BAMF_VIEW_GET_CLASS (view)->child_added (view, child);
 
-  g_signal_emit (view, view_signals[CHILD_ADDED_INTERNAL], 0, child);
-
   added = bamf_view_get_path (child);
   g_signal_emit_by_name (view, "child-added", added);
 }
@@ -381,8 +377,6 @@ bamf_view_remove_child (BamfView *view, BamfView *child)
   /* Make sure our parent child lists are ok, pay attention to whose list you add parents to */
   view->priv->children = g_list_remove (view->priv->children, child);
   child->priv->parents = g_list_remove (child->priv->parents, view);
-
-  g_signal_emit (view, view_signals[CHILD_REMOVED_INTERNAL], 0, child);
 
   removed = bamf_view_get_path (child);
   g_signal_emit_by_name (view, "child-removed", removed);
@@ -1000,22 +994,6 @@ bamf_view_class_init (BamfViewClass * klass)
                   G_STRUCT_OFFSET (BamfViewClass, closed_internal),
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
-
-  view_signals [CHILD_ADDED_INTERNAL] =
-    g_signal_new ("child-added-internal",
-                  G_OBJECT_CLASS_TYPE (klass),
-                  G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (BamfViewClass, child_added_internal),
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 1, BAMF_TYPE_VIEW);
-
-  view_signals [CHILD_REMOVED_INTERNAL] =
-    g_signal_new ("child-removed-internal",
-                  G_OBJECT_CLASS_TYPE (klass),
-                  G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (BamfViewClass, child_removed_internal),
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 1, BAMF_TYPE_VIEW);
 
   view_signals [EXPORTED] =
     g_signal_new ("exported",

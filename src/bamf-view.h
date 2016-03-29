@@ -57,8 +57,6 @@ struct _BamfViewClass
 
   /*< signals >*/
   void (* closed_internal)          (BamfView *view);
-  void (* child_added_internal)     (BamfView *view, BamfView *child);
-  void (* child_removed_internal)   (BamfView *view, BamfView *child);
   void (* exported)                 (BamfView *view);
 };
 
