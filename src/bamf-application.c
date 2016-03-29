@@ -1152,29 +1152,17 @@ matcher_favorites_changed (BamfMatcher *matcher, BamfApplication *self)
 }
 
 static void
-on_window_added (BamfApplication *self, const gchar *win_path, gpointer _not_used)
-{
-  g_return_if_fail (BAMF_IS_APPLICATION (self));
-  g_signal_emit_by_name (self->priv->dbus_iface, "window-added", win_path);
-}
-
-static void
-on_window_removed (BamfApplication *self, const gchar *win_path, gpointer _not_used)
-{
-  g_return_if_fail (BAMF_IS_APPLICATION (self));
-  g_signal_emit_by_name (self->priv->dbus_iface, "window-removed", win_path);
-}
-
-static void
 on_child_added (BamfApplication *self, const gchar *child_path, gpointer _not_used)
 {
-  g_signal_emit_by_name (self, "window-added", child_path);
+  g_return_if_fail (BAMF_IS_APPLICATION (self));
+  g_signal_emit_by_name (self->priv->dbus_iface, "window-added", child_path);
 }
 
 static void
 on_child_removed (BamfApplication *self, const gchar *child_path, gpointer _not_used)
 {
-  g_signal_emit_by_name (self, "window-removed", child_path);
+  g_return_if_fail (BAMF_IS_APPLICATION (self));
+  g_signal_emit_by_name (self->priv->dbus_iface, "window-removed", child_path);
 }
 
 static void
@@ -1395,12 +1383,9 @@ bamf_application_init (BamfApplication * self)
 
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
-  g_signal_connect (self, "window-added", G_CALLBACK (on_window_added), NULL);
-  g_signal_connect (self, "window-removed", G_CALLBACK (on_window_removed), NULL);
-  g_signal_connect (self, "desktop-file-updated", G_CALLBACK (on_desktop_file_updated), NULL);
-
   g_signal_connect (self, "child-added", G_CALLBACK (on_child_added), NULL);
   g_signal_connect (self, "child-removed", G_CALLBACK (on_child_removed), NULL);
+  g_signal_connect (self, "desktop-file-updated", G_CALLBACK (on_desktop_file_updated), NULL);
 
   /* Registering signal callbacks to reply to dbus method calls */
   g_signal_connect (priv->dbus_iface, "handle-show-stubs",
