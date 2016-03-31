@@ -963,13 +963,6 @@ bamf_application_get_main_child (BamfApplication *self)
 }
 
 static void
-view_exported (BamfView *view, BamfApplication *self)
-{
-  g_signal_emit_by_name (self, "window-added", bamf_view_get_path (view));
-  g_signal_handlers_disconnect_by_func (view, view_exported, self);
-}
-
-static void
 bamf_application_child_added (BamfView *view, BamfView *child)
 {
   BamfApplication *application;
@@ -977,22 +970,6 @@ bamf_application_child_added (BamfView *view, BamfView *child)
   gboolean reset_emblems = FALSE;
 
   application = BAMF_APPLICATION (view);
-
-  if (BAMF_IS_WINDOW (child))
-    {
-      window = BAMF_WINDOW (child);
-
-      if (bamf_view_is_on_bus (child))
-        {
-          g_signal_emit_by_name (BAMF_APPLICATION (view), "window-added",
-                                 bamf_view_get_path (child));
-        }
-      else
-        {
-          g_signal_connect (G_OBJECT (child), "exported",
-                            (GCallback) view_exported, view);
-        }
-    }
 
   g_signal_connect (G_OBJECT (child), "active-changed",
                     (GCallback) view_active_changed, view);
@@ -1104,15 +1081,6 @@ bamf_application_child_removed (BamfView *view, BamfView *child)
   BamfApplication *self = BAMF_APPLICATION (view);
   GList *children, *l;
 
-  if (BAMF_IS_WINDOW (child))
-    {
-      if (bamf_view_is_on_bus (child))
-        g_signal_emit_by_name (BAMF_APPLICATION (view), "window-removed",
-                               bamf_view_get_path (child));
-    }
-
-  g_signal_handlers_disconnect_by_data (G_OBJECT (child), view);
-
   bamf_application_ensure_flags (self);
 
   children = bamf_view_get_children (view);
@@ -1184,17 +1152,17 @@ matcher_favorites_changed (BamfMatcher *matcher, BamfApplication *self)
 }
 
 static void
-on_window_added (BamfApplication *self, const gchar *win_path, gpointer _not_used)
+on_child_added (BamfApplication *self, const gchar *child_path, gpointer _not_used)
 {
   g_return_if_fail (BAMF_IS_APPLICATION (self));
-  g_signal_emit_by_name (self->priv->dbus_iface, "window-added", win_path);
+  g_signal_emit_by_name (self->priv->dbus_iface, "window-added", child_path);
 }
 
 static void
-on_window_removed (BamfApplication *self, const gchar *win_path, gpointer _not_used)
+on_child_removed (BamfApplication *self, const gchar *child_path, gpointer _not_used)
 {
   g_return_if_fail (BAMF_IS_APPLICATION (self));
-  g_signal_emit_by_name (self->priv->dbus_iface, "window-removed", win_path);
+  g_signal_emit_by_name (self->priv->dbus_iface, "window-removed", child_path);
 }
 
 static void
@@ -1415,8 +1383,8 @@ bamf_application_init (BamfApplication * self)
 
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
-  g_signal_connect (self, "window-added", G_CALLBACK (on_window_added), NULL);
-  g_signal_connect (self, "window-removed", G_CALLBACK (on_window_removed), NULL);
+  g_signal_connect (self, "child-added", G_CALLBACK (on_child_added), NULL);
+  g_signal_connect (self, "child-removed", G_CALLBACK (on_child_removed), NULL);
   g_signal_connect (self, "desktop-file-updated", G_CALLBACK (on_desktop_file_updated), NULL);
 
   /* Registering signal callbacks to reply to dbus method calls */

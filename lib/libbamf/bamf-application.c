@@ -471,16 +471,8 @@ bamf_application_on_desktop_file_updated (BamfDBusItemApplication *proxy, const 
 }
 
 static void
-bamf_application_on_window_added (BamfDBusItemApplication *proxy, const char *path, BamfApplication *self)
+bamf_application_on_child_added (BamfApplication *self, BamfView *view)
 {
-  BamfView *view;
-  BamfFactory *factory;
-
-  g_return_if_fail (BAMF_IS_APPLICATION (self));
-
-  factory = _bamf_factory_get_default ();
-  view = _bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_WINDOW);
-
   if (BAMF_IS_WINDOW (view))
     {
       guint32 xid = bamf_window_get_xid (BAMF_WINDOW (view));
@@ -495,16 +487,8 @@ bamf_application_on_window_added (BamfDBusItemApplication *proxy, const char *pa
 }
 
 static void
-bamf_application_on_window_removed (BamfDBusItemApplication *proxy, const char *path, BamfApplication *self)
+bamf_application_on_child_removed (BamfApplication *self, BamfView *view)
 {
-  BamfView *view;
-  BamfFactory *factory;
-
-  g_return_if_fail (BAMF_IS_APPLICATION (self));
-
-  factory = _bamf_factory_get_default ();
-  view = _bamf_factory_view_for_path_type (factory, path, BAMF_FACTORY_WINDOW);
-
   if (BAMF_IS_WINDOW (view))
     {
       guint32 xid = bamf_window_get_xid (BAMF_WINDOW (view));
@@ -614,12 +598,6 @@ bamf_application_set_path (BamfView *view, const char *path)
 
   g_signal_connect (priv->proxy, "desktop-file-updated",
                     G_CALLBACK (bamf_application_on_desktop_file_updated), view);
-
-  g_signal_connect (priv->proxy, "window-added",
-                    G_CALLBACK (bamf_application_on_window_added), view);
-
-  g_signal_connect (priv->proxy, "window-removed",
-                    G_CALLBACK (bamf_application_on_window_removed), view);
 
   g_signal_connect (priv->proxy, "supported-mime-types-changed",
                     G_CALLBACK (bamf_application_on_supported_mime_types_changed), view);
@@ -760,7 +738,6 @@ bamf_application_class_init (BamfApplicationClass *klass)
                   BAMF_TYPE_WINDOW);
 }
 
-
 static void
 bamf_application_init (BamfApplication *self)
 {
@@ -768,6 +745,9 @@ bamf_application_init (BamfApplication *self)
 
   priv = self->priv = BAMF_APPLICATION_GET_PRIVATE (self);
   priv->show_stubs = -1;
+
+  g_signal_connect (self, "child-added", G_CALLBACK (bamf_application_on_child_added), NULL);
+  g_signal_connect (self, "child-removed", G_CALLBACK (bamf_application_on_child_removed), NULL);
 }
 
 BamfApplication *

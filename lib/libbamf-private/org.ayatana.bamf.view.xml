@@ -98,9 +98,11 @@
       <arg name="path" type="s" direction="out"/>
     </method>
     <signal name="WindowRemoved">
+      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="path" type="s"/>
     </signal>
     <signal name="WindowAdded">
+      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
       <arg name="path" type="s"/>
     </signal>
     <signal name="SupportedMimeTypesChanged">
