@@ -45,6 +45,7 @@ bamfdaemon_SOURCES = \
 bamfdaemon_LDADD = \
 	$(LIBBAMF_PRIVATE_LIB) \
 	$(X_LIBS) \
+	$(DBUSMENU_LIBS) \
 	$(GLIB_LIBS) \
 	$(GTK_LIBS) \
 	$(SN_LIBS) \
@@ -59,6 +60,7 @@ bamfdaemon_CFLAGS = \
 	-I$(srcdir) \
 	-I$(top_srcdir)/lib \
 	-I$(top_builddir)/lib \
+	$(DBUSMENU_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GTK_CFLAGS) \
 	$(SN_CFLAGS) \

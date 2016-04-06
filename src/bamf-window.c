@@ -21,6 +21,11 @@
 #include "bamf-window.h"
 #include "bamf-legacy-screen.h"
 
+#include <glib.h>
+#include <glib/gi18n.h>
+#include <libdbusmenu-glib/dbusmenu-glib.h>
+#include <libdbusmenu-gtk/parser.h>
+
 #define BAMF_WINDOW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_WINDOW, BamfWindowPrivate))
 
@@ -45,6 +50,9 @@ struct _BamfWindowPrivate
   BamfWindowMaximizationType maximized;
   gint monitor;
   time_t opened;
+
+  DbusmenuServer *dbusmenu_server;
+  GtkWidget *action_menu;
 };
 
 BamfLegacyWindow *
@@ -263,6 +271,32 @@ active_window_changed (BamfLegacyScreen *screen, BamfWindow *window)
   bamf_window_ensure_flags (window);
 }
 
+static void
+on_view_exported (BamfView *view)
+{
+  BamfWindow *self = BAMF_WINDOW (view);
+  const char *view_path;
+
+  if (self->priv->dbusmenu_server)
+    return;
+
+  view_path = bamf_view_get_path (view);
+  self->priv->dbusmenu_server = dbusmenu_server_new (view_path);
+
+  self->priv->action_menu = gtk_menu_new ();
+  g_object_ref_sink (self->priv->action_menu);
+
+  GtkWidget *menuitem = gtk_menu_item_new_with_label (_("Window"));
+  gtk_widget_show (menuitem);
+
+  GtkWidget *wnck_menu = wnck_action_menu_new (wnck_window_get (bamf_window_get_xid (self)));
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM(menuitem), wnck_menu);
+  gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->action_menu), menuitem);
+
+  dbusmenu_server_set_root (self->priv->dbusmenu_server, dbusmenu_gtk_parse_menu_structure (self->priv->action_menu));
+  bamf_legacy_window_set_hint (self->priv->legacy_window, "_WNCK_ACTION_MENU_OBJECT_PATH", view_path);
+}
+
 static gboolean
 on_dbus_handle_get_pid (BamfDBusItemWindow *interface,
                         GDBusMethodInvocation *invocation,
@@ -452,6 +486,18 @@ bamf_window_dispose (GObject *object)
       self->priv->legacy_window = NULL;
     }
 
+  if (self->priv->dbusmenu_server)
+    {
+      g_object_unref (self->priv->dbusmenu_server);
+      self->priv->dbusmenu_server = NULL;
+    }
+
+  if (self->priv->action_menu)
+    {
+      g_object_unref (self->priv->action_menu);
+      self->priv->action_menu = NULL;
+    }
+
   G_OBJECT_CLASS (bamf_window_parent_class)->dispose (object);
 }
 
@@ -473,6 +519,10 @@ bamf_window_init (BamfWindow * self)
 
   /* Initializing the dbus interface */
   self->priv->dbus_iface = _bamf_dbus_item_window_skeleton_new ();
+
+  self->priv->dbusmenu_server = NULL;
+  self->priv->action_menu = NULL;
+  g_signal_connect (self, "exported", G_CALLBACK (on_view_exported), NULL);
 
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */

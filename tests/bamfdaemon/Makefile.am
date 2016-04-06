@@ -48,6 +48,7 @@ test_bamf_CFLAGS = \
 	-DWNCK_I_KNOW_THIS_IS_UNSTABLE \
 	-DTESTDIR=\""$(TESTDIR)"\" \
 	$(COVERAGE_CFLAGS) \
+	$(DBUSMENU_CFLAGS) \
 	$(GCC_FLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GTK_CFLAGS) \
@@ -60,6 +61,7 @@ test_bamf_CFLAGS = \
 
 test_bamf_LDADD = \
 	$(top_builddir)/lib/libbamf-private/libbamf-private.la \
+	$(DBUSMENU_LIBS) \
 	$(GLIB_LIBS) \
 	$(GTK_LIBS) \
 	$(GTOP_LIBS) \

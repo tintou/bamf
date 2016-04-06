@@ -72,6 +72,11 @@ PKG_CHECK_MODULES(SN, libstartup-notification-1.0)
 #
 PKG_CHECK_MODULES(X, x11)
 
+#
+# DbusMenu
+#
+PKG_CHECK_MODULES(DBUSMENU, [dbusmenu-glib-0.4, dbusmenu-gtk3-0.4])
+
 ###########################
 # GObject Introspection
 ###########################
