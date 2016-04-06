@@ -45,7 +45,6 @@ bamfdaemon_SOURCES = \
 bamfdaemon_LDADD = \
 	$(LIBBAMF_PRIVATE_LIB) \
 	$(X_LIBS) \
-	$(DBUSMENU_LIBS) \
 	$(GLIB_LIBS) \
 	$(GTK_LIBS) \
 	$(SN_LIBS) \
@@ -60,7 +59,6 @@ bamfdaemon_CFLAGS = \
 	-I$(srcdir) \
 	-I$(top_srcdir)/lib \
 	-I$(top_builddir)/lib \
-	$(DBUSMENU_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GTK_CFLAGS) \
 	$(SN_CFLAGS) \
@@ -68,6 +66,12 @@ bamfdaemon_CFLAGS = \
 	$(GTOP_CFLAGS) \
 	$(COVERAGE_CFLAGS) \
 	$(NULL)
+
+if EXPORT_ACTIONS_MENU
+bamfdaemon_LDADD += $(DBUSMENU_LIBS)
+bamfdaemon_CFLAGS += $(DBUSMENU_CFLAGS)
+bamfdaemon_CFLAGS += -DEXPORT_ACTIONS_MENU
+endif
 
 bamfdaemon_LDFLAGS = \
 	-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \

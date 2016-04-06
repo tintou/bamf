@@ -21,10 +21,12 @@
 #include "bamf-window.h"
 #include "bamf-legacy-screen.h"
 
+#ifdef EXPORT_ACTIONS_MENU
 #include <glib.h>
 #include <glib/gi18n.h>
 #include <libdbusmenu-glib/dbusmenu-glib.h>
 #include <libdbusmenu-gtk/parser.h>
+#endif
 
 #define BAMF_WINDOW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_WINDOW, BamfWindowPrivate))
@@ -51,8 +53,10 @@ struct _BamfWindowPrivate
   gint monitor;
   time_t opened;
 
+#ifdef EXPORT_ACTIONS_MENU
   DbusmenuServer *dbusmenu_server;
   GtkWidget *action_menu;
+#endif
 };
 
 BamfLegacyWindow *
@@ -271,6 +275,7 @@ active_window_changed (BamfLegacyScreen *screen, BamfWindow *window)
   bamf_window_ensure_flags (window);
 }
 
+#ifdef EXPORT_ACTIONS_MENU
 static void
 on_view_exported (BamfView *view)
 {
@@ -296,6 +301,7 @@ on_view_exported (BamfView *view)
   dbusmenu_server_set_root (self->priv->dbusmenu_server, dbusmenu_gtk_parse_menu_structure (self->priv->action_menu));
   bamf_legacy_window_set_hint (self->priv->legacy_window, "_WNCK_ACTION_MENU_OBJECT_PATH", view_path);
 }
+#endif
 
 static gboolean
 on_dbus_handle_get_pid (BamfDBusItemWindow *interface,
@@ -486,6 +492,7 @@ bamf_window_dispose (GObject *object)
       self->priv->legacy_window = NULL;
     }
 
+#ifdef EXPORT_ACTIONS_MENU
   if (self->priv->dbusmenu_server)
     {
       g_object_unref (self->priv->dbusmenu_server);
@@ -497,6 +504,7 @@ bamf_window_dispose (GObject *object)
       g_object_unref (self->priv->action_menu);
       self->priv->action_menu = NULL;
     }
+#endif
 
   G_OBJECT_CLASS (bamf_window_parent_class)->dispose (object);
 }
@@ -520,9 +528,11 @@ bamf_window_init (BamfWindow * self)
   /* Initializing the dbus interface */
   self->priv->dbus_iface = _bamf_dbus_item_window_skeleton_new ();
 
+#ifdef EXPORT_ACTIONS_MENU
   self->priv->dbusmenu_server = NULL;
   self->priv->action_menu = NULL;
   g_signal_connect (self, "exported", G_CALLBACK (on_view_exported), NULL);
+#endif
 
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
