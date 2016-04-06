@@ -1,3 +1,11 @@
+bamf (0.5.3~bzr0+16.04.20160331-0ubuntu1) xenial; urgency=medium
+
+  [ Marco Trevisan (Treviño), Rico Tzschichholz ]
+  * BamfApplication: bind window-{added,removed} signals to child-
+    {added,removed} ones
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Thu, 31 Mar 2016 22:53:39 +0000
+
 bamf (0.5.3~bzr0+16.04.20160322.1-0ubuntu1) xenial; urgency=medium
 
   [ Marco Trevisan (Treviño) ]
