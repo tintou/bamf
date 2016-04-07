@@ -76,8 +76,8 @@ PKG_CHECK_MODULES(X, x11)
 # DbusMenu
 #
 AC_ARG_ENABLE([export-actions-menu],
-              AS_HELP_STRING([--enable-export-actions-menu=@<:@no/yes@:>@],[export window actions menus (requires dbusmenu) @<:@default=yes@:>@]),,
-              [enable_export_actions_menu=yes])
+              AS_HELP_STRING([--enable-export-actions-menu=@<:@no/yes@:>@],[export window actions menus (requires dbusmenu) @<:@default=no@:>@]),,
+              [enable_export_actions_menu=no])
 
 AM_CONDITIONAL([EXPORT_ACTIONS_MENU],[test "x$enable_export_actions_menu" != "xno"])
 
