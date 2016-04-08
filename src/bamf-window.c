@@ -280,10 +280,14 @@ static void
 on_view_exported (BamfView *view)
 {
   BamfWindow *self = BAMF_WINDOW (view);
+  WnckWindow *wnck_window;
   const char *view_path;
 
   if (self->priv->dbusmenu_server)
     return;
+
+  wnck_window = wnck_window_get (bamf_window_get_xid (self));
+  g_return_if_fail (WNCK_IS_WINDOW (wnck_window));
 
   view_path = bamf_view_get_path (view);
   self->priv->dbusmenu_server = dbusmenu_server_new (view_path);
@@ -294,7 +298,7 @@ on_view_exported (BamfView *view)
   GtkWidget *menuitem = gtk_menu_item_new_with_label (_("Window"));
   gtk_widget_show (menuitem);
 
-  GtkWidget *wnck_menu = wnck_action_menu_new (wnck_window_get (bamf_window_get_xid (self)));
+  GtkWidget *wnck_menu = wnck_action_menu_new (wnck_window);
   gtk_menu_item_set_submenu (GTK_MENU_ITEM(menuitem), wnck_menu);
   gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->action_menu), menuitem);
 
