@@ -287,7 +287,9 @@ on_view_exported (BamfView *view)
     return;
 
   wnck_window = wnck_window_get (bamf_window_get_xid (self));
-  g_return_if_fail (WNCK_IS_WINDOW (wnck_window));
+
+  if (!WNCK_IS_WINDOW (wnck_window))
+    return;
 
   view_path = bamf_view_get_path (view);
   self->priv->dbusmenu_server = dbusmenu_server_new (view_path);
