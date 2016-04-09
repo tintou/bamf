@@ -56,6 +56,7 @@ struct _BamfWindowPrivate
 #ifdef EXPORT_ACTIONS_MENU
   DbusmenuServer *dbusmenu_server;
   GtkWidget *action_menu;
+  gboolean was_active;
 #endif
 };
 
@@ -177,6 +178,10 @@ bamf_window_ensure_flags (BamfWindow *self)
 {
   g_return_if_fail (BAMF_IS_WINDOW (self));
 
+#ifdef EXPORT_ACTIONS_MENU
+  self->priv->was_active = bamf_view_is_active (BAMF_VIEW (self));
+#endif
+
   bamf_view_set_active       (BAMF_VIEW (self), bamf_legacy_window_is_active (self->priv->legacy_window));
   bamf_view_set_urgent       (BAMF_VIEW (self), bamf_legacy_window_needs_attention (self->priv->legacy_window));
   bamf_view_set_user_visible (BAMF_VIEW (self), !bamf_legacy_window_is_skip_tasklist (self->priv->legacy_window));
@@ -189,6 +194,15 @@ bamf_window_ensure_flags (BamfWindow *self)
     self->priv->maximized = maximized;
     g_signal_emit_by_name (self, "maximized-changed", old_state, maximized);
   }
+
+#ifdef EXPORT_ACTIONS_MENU
+  if (self->priv->dbusmenu_server && !self->priv->was_active &&
+      !bamf_view_is_active (BAMF_VIEW (self)))
+    {
+      g_clear_object (&self->priv->dbusmenu_server);
+      g_clear_object (&self->priv->action_menu);
+    }
+#endif
 }
 
 static void
@@ -276,8 +290,8 @@ active_window_changed (BamfLegacyScreen *screen, BamfWindow *window)
 }
 
 #ifdef EXPORT_ACTIONS_MENU
-static void
-on_view_exported (BamfView *view)
+static gboolean
+bamf_window_active_changed (BamfView *view, gboolean active)
 {
   BamfWindow *self = BAMF_WINDOW (view);
   BamfWindowPrivate *priv = self->priv;
@@ -285,8 +299,15 @@ on_view_exported (BamfView *view)
   BamfWindowType win_type;
   const char *view_path;
 
+  if (!active && !priv->was_active)
+    {
+      g_clear_object (&priv->dbusmenu_server);
+      g_clear_object (&priv->action_menu);
+      return FALSE;
+    }
+
   if (priv->dbusmenu_server)
-    return;
+    return FALSE;
 
   win_type = bamf_window_get_window_type (self);
 
@@ -295,13 +316,13 @@ on_view_exported (BamfView *view)
       win_type == BAMF_WINDOW_MENU ||
       win_type == BAMF_WINDOW_SPLASHSCREEN)
   {
-    return;
+    return FALSE;
   }
 
   window_menu = bamf_legacy_window_get_action_menu (priv->legacy_window);
 
   if (!GTK_IS_WIDGET (window_menu))
-    return;
+    return FALSE;
 
   view_path = bamf_view_get_path (view);
   priv->dbusmenu_server = dbusmenu_server_new (view_path);
@@ -317,6 +338,8 @@ on_view_exported (BamfView *view)
 
   dbusmenu_server_set_root (priv->dbusmenu_server,
                             dbusmenu_gtk_parse_menu_structure (priv->action_menu));
+
+  return FALSE;
 }
 #endif
 
@@ -536,10 +559,6 @@ bamf_window_init (BamfWindow * self)
   /* Initializing the dbus interface */
   self->priv->dbus_iface = _bamf_dbus_item_window_skeleton_new ();
 
-#ifdef EXPORT_ACTIONS_MENU
-  g_signal_connect (self, "exported", G_CALLBACK (on_view_exported), NULL);
-#endif
-
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
   g_signal_connect (self, "maximized-changed", G_CALLBACK (on_maximized_changed), NULL);
@@ -594,6 +613,9 @@ bamf_window_class_init (BamfWindowClass * klass)
   object_class->constructed   = bamf_window_constructed;
   view_class->view_type       = bamf_window_get_view_type;
   view_class->stable_bus_name = bamf_window_get_stable_bus_name;
+#ifdef EXPORT_ACTIONS_MENU
+  view_class->active_changed  = bamf_window_active_changed;
+#endif
 
   pspec = g_param_spec_object ("legacy-window", "legacy-window", "legacy-window",
                                BAMF_TYPE_LEGACY_WINDOW,
