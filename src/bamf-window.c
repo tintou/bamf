@@ -36,7 +36,7 @@ G_DEFINE_TYPE_WITH_CODE (BamfWindow, bamf_window, BAMF_TYPE_VIEW,
                          G_IMPLEMENT_INTERFACE (BAMF_DBUS_ITEM_TYPE_WINDOW,
                                                 bamf_window_dbus_iface_init));
 
-static GList *bamf_windows;
+static GList *bamf_windows = NULL;
 
 enum
 {
