@@ -52,6 +52,7 @@ static guint legacy_window_signals[LAST_SIGNAL] = { 0 };
 struct _BamfLegacyWindowPrivate
 {
   WnckWindow * legacy_window;
+  GtkWidget  * action_menu;
   GFile      * mini_icon;
   gchar      * exec_string;
   gchar      * working_dir;
@@ -557,9 +558,15 @@ void bamf_legacy_window_show_action_menu (BamfLegacyWindow *self, guint32 time,
 
   g_return_if_fail (WNCK_IS_WINDOW (self->priv->legacy_window));
 
+  if (self->priv->action_menu)
+    return;
+
   GtkWidget *menu = wnck_action_menu_new (self->priv->legacy_window);
-  g_signal_connect (G_OBJECT (menu), "unmap", G_CALLBACK (g_object_unref), NULL);
   g_object_ref_sink (menu);
+
+  self->priv->action_menu = menu;
+  g_signal_connect_swapped (G_OBJECT (menu), "unmap",
+                            G_CALLBACK (g_clear_object), &self->priv->action_menu);
 
   gtk_menu_set_screen (GTK_MENU (menu), gdk_screen_get_default ());
   gtk_widget_show (menu);
