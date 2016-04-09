@@ -548,9 +548,35 @@ top_window_action_menu (GtkMenu *menu, gint *x, gint *y, gboolean *push, gpointe
   *push = TRUE;
 }
 
+GtkWidget *
+bamf_legacy_window_get_action_menu (BamfLegacyWindow *self)
+{
+  BamfLegacyWindowPrivate *priv;
+
+  g_return_val_if_fail (BAMF_IS_LEGACY_WINDOW (self), NULL);
+
+  if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_action_menu)
+    return BAMF_LEGACY_WINDOW_GET_CLASS (self)->get_action_menu (self);
+
+  priv = self->priv;
+  g_return_val_if_fail (WNCK_IS_WINDOW (priv->legacy_window), NULL);
+
+  if (!priv->action_menu)
+    {
+      priv->action_menu = wnck_action_menu_new (priv->legacy_window);
+      g_object_add_weak_pointer (G_OBJECT (priv->action_menu),
+                                 (gpointer *) &priv->action_menu);
+    }
+
+  return priv->action_menu;
+}
+
 void bamf_legacy_window_show_action_menu (BamfLegacyWindow *self, guint32 time,
                                           guint button, gint x, gint y)
 {
+  BamfLegacyWindowPrivate *priv;
+  GtkWidget *menu;
+
   g_return_if_fail (BAMF_IS_LEGACY_WINDOW (self));
 
   if (BAMF_LEGACY_WINDOW_GET_CLASS (self)->show_action_menu)
@@ -558,15 +584,16 @@ void bamf_legacy_window_show_action_menu (BamfLegacyWindow *self, guint32 time,
 
   g_return_if_fail (WNCK_IS_WINDOW (self->priv->legacy_window));
 
-  if (self->priv->action_menu)
+  priv = self->priv;
+
+  if (priv->action_menu && gtk_widget_is_visible (GTK_WIDGET (priv->action_menu)))
     return;
 
-  GtkWidget *menu = wnck_action_menu_new (self->priv->legacy_window);
-  g_object_ref_sink (menu);
+  menu = bamf_legacy_window_get_action_menu (self);
 
-  self->priv->action_menu = menu;
-  g_signal_connect_swapped (G_OBJECT (menu), "unmap",
-                            G_CALLBACK (g_clear_object), &self->priv->action_menu);
+  g_object_ref_sink (menu);
+  g_signal_handlers_disconnect_by_func (menu, g_object_unref, self);
+  g_signal_connect (G_OBJECT (menu), "unmap", G_CALLBACK (g_object_unref), self);
 
   gtk_menu_set_screen (GTK_MENU (menu), gdk_screen_get_default ());
   gtk_widget_show (menu);
@@ -655,6 +682,13 @@ bamf_legacy_window_dispose (GObject *object)
         }
 
       self->priv->legacy_window = NULL;
+    }
+
+  if (self->priv->action_menu)
+    {
+      g_signal_handlers_disconnect_by_data (self->priv->action_menu, self);
+      g_object_remove_weak_pointer (G_OBJECT (self->priv->action_menu),
+                                    (gpointer*) &self->priv->action_menu);
     }
 
   G_OBJECT_CLASS (bamf_legacy_window_parent_class)->dispose (object);
