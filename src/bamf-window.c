@@ -51,7 +51,6 @@ struct _BamfWindowPrivate
   BamfLegacyWindow *legacy_window;
   BamfWindowMaximizationType maximized;
   gint monitor;
-  time_t opened;
 
 #ifdef EXPORT_ACTIONS_MENU
   DbusmenuServer *dbusmenu_server;
@@ -139,14 +138,6 @@ bamf_window_get_xid (BamfWindow *window)
     return BAMF_WINDOW_GET_CLASS (window)->get_xid (window);
 
   return (guint32) bamf_legacy_window_get_xid (window->priv->legacy_window);
-}
-
-time_t
-bamf_window_opened (BamfWindow *self)
-{
-  g_return_val_if_fail (BAMF_IS_WINDOW (self), 0);
-
-  return self->priv->opened;
 }
 
 static void
@@ -470,8 +461,6 @@ bamf_window_constructed (GObject *object)
 
   self = BAMF_WINDOW (object);
   bamf_windows = g_list_prepend (bamf_windows, self);
-
-  self->priv->opened = time (NULL);
 
   bamf_view_set_name (BAMF_VIEW (self), bamf_legacy_window_get_name (window));
 
