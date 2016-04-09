@@ -280,32 +280,43 @@ static void
 on_view_exported (BamfView *view)
 {
   BamfWindow *self = BAMF_WINDOW (view);
-  WnckWindow *wnck_window;
+  BamfWindowPrivate *priv = self->priv;
+  GtkWidget *window_menu;
+  BamfWindowType win_type;
   const char *view_path;
 
-  if (self->priv->dbusmenu_server)
+  if (priv->dbusmenu_server)
     return;
 
-  wnck_window = wnck_window_get (bamf_window_get_xid (self));
+  win_type = bamf_window_get_window_type (self);
 
-  if (!WNCK_IS_WINDOW (wnck_window))
+  if (win_type == BAMF_WINDOW_DOCK ||
+      win_type == BAMF_WINDOW_TOOLBAR ||
+      win_type == BAMF_WINDOW_MENU ||
+      win_type == BAMF_WINDOW_SPLASHSCREEN)
+  {
+    return;
+  }
+
+  window_menu = bamf_legacy_window_get_action_menu (priv->legacy_window);
+
+  if (!GTK_IS_WIDGET (window_menu))
     return;
 
   view_path = bamf_view_get_path (view);
-  self->priv->dbusmenu_server = dbusmenu_server_new (view_path);
+  priv->dbusmenu_server = dbusmenu_server_new (view_path);
 
-  self->priv->action_menu = gtk_menu_new ();
-  g_object_ref_sink (self->priv->action_menu);
+  priv->action_menu = gtk_menu_new ();
+  g_object_ref_sink (priv->action_menu);
 
   GtkWidget *menuitem = gtk_menu_item_new_with_label (_("Window"));
   gtk_widget_show (menuitem);
 
-  GtkWidget *wnck_menu = wnck_action_menu_new (wnck_window);
-  gtk_menu_item_set_submenu (GTK_MENU_ITEM(menuitem), wnck_menu);
-  gtk_menu_shell_append (GTK_MENU_SHELL (self->priv->action_menu), menuitem);
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), window_menu);
+  gtk_menu_shell_append (GTK_MENU_SHELL (priv->action_menu), menuitem);
 
-  dbusmenu_server_set_root (self->priv->dbusmenu_server, dbusmenu_gtk_parse_menu_structure (self->priv->action_menu));
-  bamf_legacy_window_set_hint (self->priv->legacy_window, "_WNCK_ACTION_MENU_OBJECT_PATH", view_path);
+  dbusmenu_server_set_root (priv->dbusmenu_server,
+                            dbusmenu_gtk_parse_menu_structure (priv->action_menu));
 }
 #endif
 
@@ -499,17 +510,8 @@ bamf_window_dispose (GObject *object)
     }
 
 #ifdef EXPORT_ACTIONS_MENU
-  if (self->priv->dbusmenu_server)
-    {
-      g_object_unref (self->priv->dbusmenu_server);
-      self->priv->dbusmenu_server = NULL;
-    }
-
-  if (self->priv->action_menu)
-    {
-      g_object_unref (self->priv->action_menu);
-      self->priv->action_menu = NULL;
-    }
+    g_clear_object (&self->priv->dbusmenu_server);
+    g_clear_object (&self->priv->action_menu);
 #endif
 
   G_OBJECT_CLASS (bamf_window_parent_class)->dispose (object);
@@ -535,8 +537,6 @@ bamf_window_init (BamfWindow * self)
   self->priv->dbus_iface = _bamf_dbus_item_window_skeleton_new ();
 
 #ifdef EXPORT_ACTIONS_MENU
-  self->priv->dbusmenu_server = NULL;
-  self->priv->action_menu = NULL;
   g_signal_connect (self, "exported", G_CALLBACK (on_view_exported), NULL);
 #endif
 
