@@ -321,7 +321,7 @@ bamf_window_active_changed (BamfView *view, gboolean active)
   priv->action_menu = gtk_menu_new ();
   g_object_ref_sink (priv->action_menu);
 
-  GtkWidget *menuitem = gtk_menu_item_new_with_label (_("Window"));
+  GtkWidget *menuitem = gtk_menu_item_new_with_label (_("Window actions"));
   gtk_widget_show (menuitem);
 
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), window_menu);
