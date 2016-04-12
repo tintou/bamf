@@ -436,6 +436,12 @@ bamf_legacy_window_test_save_mini_icon (BamfLegacyWindow *window)
   return g_strdup (BAMF_LEGACY_WINDOW_TEST (window)->icon);
 }
 
+GtkWidget *
+bamf_legacy_window_test_get_action_menu (BamfLegacyWindow *window)
+{
+  return NULL;
+}
+
 void
 bamf_legacy_window_test_show_action_menu (BamfLegacyWindow *window, guint32 time, guint button, gint x, gint y)
 {}
@@ -492,6 +498,7 @@ bamf_legacy_window_test_class_init (BamfLegacyWindowTestClass *klass)
   win_class->is_closed        = bamf_legacy_window_test_is_closed;
   win_class->get_hint         = bamf_legacy_window_test_get_hint;
   win_class->set_hint         = bamf_legacy_window_test_set_hint;
+  win_class->get_action_menu  = bamf_legacy_window_test_get_action_menu;
   win_class->show_action_menu = bamf_legacy_window_test_show_action_menu;
   win_class->reopen           = bamf_legacy_window_test_reopen;
 }
