@@ -57,7 +57,7 @@ gdk_error_trap_pop_and_print (Display *dpy)
       XGetErrorText (dpy, error_code, tmp, sizeof (tmp) - 1);
       tmp[sizeof (tmp) - 1] = '\0';
 
-      g_warning("Got an X error: %s\n", tmp);
+      g_warning ("Got an X error: %s\n", tmp);
 
       return TRUE;
     }
@@ -103,17 +103,25 @@ bamf_xutils_get_string_window_hint_and_type (Window xid, const char *atom_name,
                                    &type, &format, &numItems,
                                    &bytesAfter, &buffer);
 
+  gboolean x_error = gdk_error_trap_pop_and_print (XDisplay);
+
   if (close_display)
     XCloseDisplay (XDisplay);
 
-  if (result == Success && numItems > 0 && !gdk_error_trap_pop_and_print (XDisplay))
+  if (x_error)
+    {
+      XFree (buffer);
+      return;
+    }
+
+  if (result == Success && numItems > 0)
     {
       if (return_type)
         *return_type = type;
 
       if (return_hint && buffer && buffer[0] != '\0')
         {
-          if (type == XA_STRING || type == gdk_x11_get_xatom_by_name("UTF8_STRING"))
+          if (type == XA_STRING || type == gdk_x11_get_xatom_by_name ("UTF8_STRING"))
             *return_hint = g_strdup ((char*) buffer);
         }
 
@@ -155,7 +163,7 @@ bamf_xutils_set_string_window_hint (Window xid, const char *atom_name, const cha
     {
       type = XA_STRING;
     }
-  else if (type != XA_STRING && type != gdk_x11_get_xatom_by_name("UTF8_STRING"))
+  else if (type != XA_STRING && type != gdk_x11_get_xatom_by_name ("UTF8_STRING"))
     {
       g_error ("Impossible to set the atom %s on Window %lu", atom_name, xid);
 
@@ -170,6 +178,31 @@ bamf_xutils_set_string_window_hint (Window xid, const char *atom_name, const cha
   XChangeProperty (XDisplay, xid, gdk_x11_get_xatom_by_name (atom_name),
                    type, 8, PropModeReplace, (unsigned char *) value, strlen (value));
 
+  gdk_error_trap_pop_and_print (XDisplay);
+
+  if (close_display)
+    XCloseDisplay (XDisplay);
+}
+
+void
+bamf_xutils_unset_window_hint (Window xid, const char *atom_name)
+{
+  Display *XDisplay;
+  gboolean close_display = FALSE;
+
+  g_return_if_fail (xid != 0);
+  g_return_if_fail (atom_name);
+
+  XDisplay = get_xdisplay (&close_display);
+
+  if (!XDisplay)
+  {
+    g_warning ("%s: Unable to get a valid XDisplay", G_STRFUNC);
+    return;
+  }
+
+  gdk_error_trap_push ();
+  XDeleteProperty (XDisplay, xid, gdk_x11_get_xatom_by_name (atom_name));
   gdk_error_trap_pop_and_print (XDisplay);
 
   if (close_display)
@@ -196,7 +229,7 @@ bamf_xutils_get_window_class_hints (Window xid, char **class_instance_name, char
 
   gdk_error_trap_push ();
 
-  XGetClassHint(xdisplay, xid, &class_hint);
+  XGetClassHint (xdisplay, xid, &class_hint);
 
   if (!gdk_error_trap_pop_and_print (xdisplay))
     {
