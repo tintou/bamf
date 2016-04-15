@@ -1,3 +1,13 @@
+bamf (0.5.3~bzr0+16.04.20160415-0ubuntu1) xenial; urgency=medium
+
+  [ Andrea Azzarone ]
+  * BamfWindow: Export window actions menu using dbusmenu (LP: #1570812)
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfApplication: correctly set a main child when handling windows
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Fri, 15 Apr 2016 11:57:31 +0000
+
 bamf (0.5.3~bzr0+16.04.20160331-0ubuntu1) xenial; urgency=medium
 
   [ Marco Trevisan (Treviño), Rico Tzschichholz ]
