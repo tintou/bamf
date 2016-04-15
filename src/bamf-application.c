@@ -978,7 +978,11 @@ bamf_application_child_added (BamfView *view, BamfView *child)
   g_signal_connect (G_OBJECT (child), "user-visible-changed",
                     (GCallback) view_visible_changed, view);
 
-  if (BAMF_IS_TAB (child))
+  if (BAMF_IS_WINDOW (child))
+    {
+      window = BAMF_WINDOW (child);
+    }
+  else if (BAMF_IS_TAB (child))
     {
       g_signal_connect (G_OBJECT (child), "notify::xid",
                         (GCallback) view_xid_changed, view);
