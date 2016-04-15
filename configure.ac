@@ -72,6 +72,19 @@ PKG_CHECK_MODULES(SN, libstartup-notification-1.0)
 #
 PKG_CHECK_MODULES(X, x11)
 
+#
+# DbusMenu
+#
+AC_ARG_ENABLE([export-actions-menu],
+              AS_HELP_STRING([--enable-export-actions-menu=@<:@no/yes@:>@],[export window actions menus (requires dbusmenu) @<:@default=no@:>@]),,
+              [enable_export_actions_menu=no])
+
+AM_CONDITIONAL([EXPORT_ACTIONS_MENU],[test "x$enable_export_actions_menu" != "xno"])
+
+if test "x$enable_export_actions_menu" = "xyes"; then
+  PKG_CHECK_MODULES(DBUSMENU, [dbusmenu-glib-0.4, dbusmenu-gtk3-0.4])
+fi
+
 ###########################
 # GObject Introspection
 ###########################
@@ -172,9 +185,10 @@ cat <<EOF
 ${PACKAGE}-${VERSION}
 
   Build Environment
-    Install Prefix:     ${prefix}
-    Introspection:      ${enable_introspection}
-    Headless tests:     ${enable_headless_tests}
-    Coverage Reporting: ${use_gcov}
+    Install Prefix:       ${prefix}
+    Introspection:        ${enable_introspection}
+    Headless tests:       ${enable_headless_tests}
+    Coverage Reporting:   ${use_gcov}
+    Export actions menus: ${enable_export_actions_menu} 
 
 EOF

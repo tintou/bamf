@@ -21,6 +21,13 @@
 #include "bamf-window.h"
 #include "bamf-legacy-screen.h"
 
+#ifdef EXPORT_ACTIONS_MENU
+#include <glib.h>
+#include <glib/gi18n.h>
+#include <libdbusmenu-glib/dbusmenu-glib.h>
+#include <libdbusmenu-gtk/parser.h>
+#endif
+
 #define BAMF_WINDOW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_WINDOW, BamfWindowPrivate))
 
@@ -29,7 +36,7 @@ G_DEFINE_TYPE_WITH_CODE (BamfWindow, bamf_window, BAMF_TYPE_VIEW,
                          G_IMPLEMENT_INTERFACE (BAMF_DBUS_ITEM_TYPE_WINDOW,
                                                 bamf_window_dbus_iface_init));
 
-static GList *bamf_windows;
+static GList *bamf_windows = NULL;
 
 enum
 {
@@ -44,7 +51,12 @@ struct _BamfWindowPrivate
   BamfLegacyWindow *legacy_window;
   BamfWindowMaximizationType maximized;
   gint monitor;
-  time_t opened;
+
+#ifdef EXPORT_ACTIONS_MENU
+  DbusmenuServer *dbusmenu_server;
+  GtkWidget *action_menu;
+  gboolean was_active;
+#endif
 };
 
 BamfLegacyWindow *
@@ -129,14 +141,6 @@ bamf_window_get_xid (BamfWindow *window)
   return (guint32) bamf_legacy_window_get_xid (window->priv->legacy_window);
 }
 
-time_t
-bamf_window_opened (BamfWindow *self)
-{
-  g_return_val_if_fail (BAMF_IS_WINDOW (self), 0);
-
-  return self->priv->opened;
-}
-
 static void
 handle_window_closed (BamfLegacyWindow * window, gpointer data)
 {
@@ -165,6 +169,10 @@ bamf_window_ensure_flags (BamfWindow *self)
 {
   g_return_if_fail (BAMF_IS_WINDOW (self));
 
+#ifdef EXPORT_ACTIONS_MENU
+  self->priv->was_active = bamf_view_is_active (BAMF_VIEW (self));
+#endif
+
   bamf_view_set_active       (BAMF_VIEW (self), bamf_legacy_window_is_active (self->priv->legacy_window));
   bamf_view_set_urgent       (BAMF_VIEW (self), bamf_legacy_window_needs_attention (self->priv->legacy_window));
   bamf_view_set_user_visible (BAMF_VIEW (self), !bamf_legacy_window_is_skip_tasklist (self->priv->legacy_window));
@@ -177,6 +185,15 @@ bamf_window_ensure_flags (BamfWindow *self)
     self->priv->maximized = maximized;
     g_signal_emit_by_name (self, "maximized-changed", old_state, maximized);
   }
+
+#ifdef EXPORT_ACTIONS_MENU
+  if (self->priv->dbusmenu_server && !self->priv->was_active &&
+      !bamf_view_is_active (BAMF_VIEW (self)))
+    {
+      g_clear_object (&self->priv->dbusmenu_server);
+      g_clear_object (&self->priv->action_menu);
+    }
+#endif
 }
 
 static void
@@ -262,6 +279,60 @@ active_window_changed (BamfLegacyScreen *screen, BamfWindow *window)
 {
   bamf_window_ensure_flags (window);
 }
+
+#ifdef EXPORT_ACTIONS_MENU
+static gboolean
+bamf_window_active_changed (BamfView *view, gboolean active)
+{
+  BamfWindow *self = BAMF_WINDOW (view);
+  BamfWindowPrivate *priv = self->priv;
+  GtkWidget *window_menu;
+  BamfWindowType win_type;
+  const char *view_path;
+
+  if (!active && !priv->was_active)
+    {
+      g_clear_object (&priv->dbusmenu_server);
+      g_clear_object (&priv->action_menu);
+      return FALSE;
+    }
+
+  if (priv->dbusmenu_server)
+    return FALSE;
+
+  win_type = bamf_window_get_window_type (self);
+
+  if (win_type == BAMF_WINDOW_DOCK ||
+      win_type == BAMF_WINDOW_TOOLBAR ||
+      win_type == BAMF_WINDOW_MENU ||
+      win_type == BAMF_WINDOW_SPLASHSCREEN)
+  {
+    return FALSE;
+  }
+
+  window_menu = bamf_legacy_window_get_action_menu (priv->legacy_window);
+
+  if (!GTK_IS_WIDGET (window_menu))
+    return FALSE;
+
+  view_path = bamf_view_get_path (view);
+  priv->dbusmenu_server = dbusmenu_server_new (view_path);
+
+  priv->action_menu = gtk_menu_new ();
+  g_object_ref_sink (priv->action_menu);
+
+  GtkWidget *menuitem = gtk_menu_item_new_with_label (_("Window actions"));
+  gtk_widget_show (menuitem);
+
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), window_menu);
+  gtk_menu_shell_append (GTK_MENU_SHELL (priv->action_menu), menuitem);
+
+  dbusmenu_server_set_root (priv->dbusmenu_server,
+                            dbusmenu_gtk_parse_menu_structure (priv->action_menu));
+
+  return FALSE;
+}
+#endif
 
 static gboolean
 on_dbus_handle_get_pid (BamfDBusItemWindow *interface,
@@ -414,8 +485,6 @@ bamf_window_constructed (GObject *object)
   self = BAMF_WINDOW (object);
   bamf_windows = g_list_prepend (bamf_windows, self);
 
-  self->priv->opened = time (NULL);
-
   bamf_view_set_name (BAMF_VIEW (self), bamf_legacy_window_get_name (window));
 
   g_signal_connect (G_OBJECT (window), "name-changed",
@@ -451,6 +520,11 @@ bamf_window_dispose (GObject *object)
       g_object_unref (self->priv->legacy_window);
       self->priv->legacy_window = NULL;
     }
+
+#ifdef EXPORT_ACTIONS_MENU
+    g_clear_object (&self->priv->dbusmenu_server);
+    g_clear_object (&self->priv->action_menu);
+#endif
 
   G_OBJECT_CLASS (bamf_window_parent_class)->dispose (object);
 }
@@ -528,6 +602,9 @@ bamf_window_class_init (BamfWindowClass * klass)
   object_class->constructed   = bamf_window_constructed;
   view_class->view_type       = bamf_window_get_view_type;
   view_class->stable_bus_name = bamf_window_get_stable_bus_name;
+#ifdef EXPORT_ACTIONS_MENU
+  view_class->active_changed  = bamf_window_active_changed;
+#endif
 
   pspec = g_param_spec_object ("legacy-window", "legacy-window", "legacy-window",
                                BAMF_TYPE_LEGACY_WINDOW,

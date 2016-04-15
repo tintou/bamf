@@ -99,6 +99,7 @@ struct _BamfLegacyWindowClass
                                            gint *x, gint *y, gint *w, gint *h);
   void         (*set_hint)                (BamfLegacyWindow *legacy_window,
                                            const gchar *name, const gchar *value);
+  GtkWidget  * (*get_action_menu)         (BamfLegacyWindow *legacy_window);
   void         (*show_action_menu)        (BamfLegacyWindow *legacy_window,
                                            guint32 time, guint button, gint x, gint y);
   void         (*reopen)                  (BamfLegacyWindow *legacy_window);
@@ -170,6 +171,8 @@ void               bamf_legacy_window_set_hint             (BamfLegacyWindow *se
                                                             const char *value);
 
 gint               bamf_legacy_window_get_stacking_position (BamfLegacyWindow *self);
+
+GtkWidget        * bamf_legacy_window_get_action_menu      (BamfLegacyWindow *self);
 
 void               bamf_legacy_window_show_action_menu     (BamfLegacyWindow *self,
                                                             guint32 time, guint button,

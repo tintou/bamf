@@ -67,6 +67,12 @@ bamfdaemon_CFLAGS = \
 	$(COVERAGE_CFLAGS) \
 	$(NULL)
 
+if EXPORT_ACTIONS_MENU
+bamfdaemon_LDADD += $(DBUSMENU_LIBS)
+bamfdaemon_CFLAGS += $(DBUSMENU_CFLAGS)
+bamfdaemon_CFLAGS += -DEXPORT_ACTIONS_MENU
+endif
+
 bamfdaemon_LDFLAGS = \
 	-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
 	$(COVERAGE_LDFLAGS) \

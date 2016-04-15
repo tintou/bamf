@@ -68,6 +68,13 @@ test_bamf_LDADD = \
 	$(X_LIBS) \
 	$(NULL)
 
+if EXPORT_ACTIONS_MENU
+test_bamf_LDADD += $(DBUSMENU_LIBS)
+test_bamf_CFLAGS += $(DBUSMENU_CFLAGS)
+test_bamf_CFLAGS += -DEXPORT_ACTIONS_MENU
+endif
+
+
 test_bamf_LDFLAGS = \
 	-Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions \
 	$(COVERAGE_LDFLAGS) \
