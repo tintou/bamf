@@ -1,3 +1,10 @@
+bamf (0.5.3~bzr0+16.04.20160523-0ubuntu1) xenial; urgency=medium
+
+  * bamfdaemon-dbus-runner: don't try to start again if already running
+    (LP: #1581896, #1532226)
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Mon, 23 May 2016 18:05:13 +0000
+
 bamf (0.5.3~bzr0+16.04.20160415-0ubuntu1) xenial; urgency=medium
 
   [ Andrea Azzarone ]
