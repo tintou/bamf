@@ -1,7 +1,11 @@
 #!/bin/bash
 
 if [ -n "$UPSTART_SESSION" ]; then
-  /sbin/initctl start bamfdaemon
+  if ! (initctl status bamfdaemon | grep -q start); then
+    /sbin/initctl start bamfdaemon
+  else
+    echo "bamfdaemon job is already running..."
+  fi
 else
   @PKGLIBEXECDIR@/bamfdaemon
 fi
