@@ -565,6 +565,9 @@ get_env_overridden_desktop_file (guint pid)
   gsize file_len;
   gint i;
 
+  if (pid < 2)
+    return NULL;
+
   environ = NULL;
   result = NULL;
   environ_file = g_strdup_printf ("/proc/%u/environ", pid);

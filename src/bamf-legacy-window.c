@@ -194,7 +194,7 @@ bamf_legacy_window_get_process_name (BamfLegacyWindow *self)
 
   pid = bamf_legacy_window_get_pid (self);
 
-  if (pid <= 0)
+  if (pid < 2)
     return NULL;
 
   stat_path = g_strdup_printf ("/proc/%i/status", pid);
