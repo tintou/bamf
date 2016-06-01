@@ -30,6 +30,8 @@
 #include <strings.h>
 
 #define BAMF_INDEX_NAME "bamf-2.index"
+#define EXEC_DESKTOP_FILE_OVERRIDE "--desktop_file_hint"
+#define ENV_DESKTOP_FILE_OVERRIDE "BAMF_DESKTOP_FILE_HINT"
 
 G_DEFINE_TYPE (BamfMatcher, bamf_matcher, BAMF_DBUS_TYPE_MATCHER_SKELETON);
 #define BAMF_MATCHER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
@@ -78,8 +80,6 @@ const gchar * CLASS_BAD_VALUES[] =
   "sun-awt-X11-XFramePeer", "net-sourceforge-jnlp-runtime-Boot",
   "com-sun-javaws-Main", "VCLSalFrame"
 };
-
-const gchar * EXEC_DESKTOP_FILE_OVERRIDE = "--desktop_file_hint";
 
 static void
 on_view_active_changed (BamfView *view, gboolean active, BamfMatcher *matcher)
@@ -552,6 +552,46 @@ get_exec_overridden_desktop_file (const char *exec_string)
     }
 
   g_strfreev (parts);
+
+  return result;
+}
+
+char *
+get_env_overridden_desktop_file (guint pid)
+{
+  gchar *environ_file;
+  gchar *environ;
+  gchar *result;
+  gsize file_len;
+  gint i;
+
+  environ = NULL;
+  result = NULL;
+  environ_file = g_strdup_printf ("/proc/%u/environ", pid);
+
+  if (g_file_get_contents (environ_file, &environ, &file_len, NULL))
+    {
+      for (i = 0; i < file_len && environ && environ[i] != '\0'; i += strlen (environ + i) + 1)
+        {
+          const gchar *var = environ + i;
+
+          if (g_str_has_prefix (var, ENV_DESKTOP_FILE_OVERRIDE"="))
+            {
+              const gchar *file_path;
+              file_path = var + sizeof (ENV_DESKTOP_FILE_OVERRIDE);
+
+              if (g_str_has_suffix (file_path, ".desktop") &&
+                  g_file_test (file_path, G_FILE_TEST_EXISTS|G_FILE_TEST_IS_REGULAR))
+                {
+                  result = g_strdup (file_path);
+                  break;
+                }
+            }
+        }
+    }
+
+  g_free (environ);
+  g_free (environ_file);
 
   return result;
 }
@@ -1673,7 +1713,13 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
 
   if (!desktop_files)
     {
-      desktop_file = get_env_overridden_desktop_file (bamf_legacy_window_get_pid (window));
+      gint pid = bamf_legacy_window_get_pid (window);
+      desktop_file = get_env_overridden_desktop_file (pid);
+
+      if (desktop_file)
+        {
+          desktop_files = g_list_prepend (desktop_files, desktop_file);
+        }
 
       const char *exec_string = bamf_legacy_window_get_exec_string (window);
       desktop_file = get_exec_overridden_desktop_file (exec_string);
@@ -1682,7 +1728,8 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
         {
           desktop_files = g_list_prepend (desktop_files, desktop_file);
         }
-      else
+
+      if (!desktop_files)
         {
           app_id = bamf_legacy_window_get_hint (window, _GTK_APPLICATION_ID);
 
