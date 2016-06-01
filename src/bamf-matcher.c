@@ -1670,8 +1670,11 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
           g_free (desktop_file);
         }
     }
-  else
+
+  if (!desktop_files)
     {
+      desktop_file = get_env_overridden_desktop_file (bamf_legacy_window_get_pid (window));
+
       const char *exec_string = bamf_legacy_window_get_exec_string (window);
       desktop_file = get_exec_overridden_desktop_file (exec_string);
 
