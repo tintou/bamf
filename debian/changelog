@@ -1,3 +1,10 @@
+bamf (0.5.3~bzr0+16.04.20160523-0ubuntu2) UNRELEASED; urgency=medium
+
+  * BamfMatcher: allow overriding desktop with the environment var
+    BAMF_DESKTOP_FILE_HINT
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Wed, 29 Jun 2016 17:57:07 +0200
+
 bamf (0.5.3~bzr0+16.04.20160523-0ubuntu1) xenial; urgency=medium
 
   * bamfdaemon-dbus-runner: don't try to start again if already running
