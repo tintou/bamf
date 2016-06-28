@@ -54,7 +54,7 @@ bamf_control_on_launched_callback (GDBusConnection *connection,
   g_variant_get_child (parameters, 0, "^&ay", &desktop_file);
   g_variant_get_child (parameters, 2, "x", &pid);
 
-  bamf_matcher_set_starting_desktop_file (matcher, desktop_file, TRUE);
+  bamf_matcher_set_starting_desktop_file (matcher, desktop_file, NULL, TRUE);
   bamf_matcher_register_desktop_file_for_pid (matcher, desktop_file, pid);
 }
 
