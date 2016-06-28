@@ -25,6 +25,10 @@
 #include <glib-object.h>
 #include <libbamf-private/bamf-private.h>
 
+#define SN_API_NOT_YET_FROZEN
+#include <libsn/sn.h>
+#undef SN_API_NOT_YET_FROZEN
+
 #define BAMF_TYPE_VIEW                  (bamf_view_get_type ())
 #define BAMF_VIEW(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), BAMF_TYPE_VIEW, BamfView))
 #define BAMF_IS_VIEW(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BAMF_TYPE_VIEW))
@@ -89,7 +93,7 @@ gboolean      bamf_view_is_active          (BamfView *view);
 void          bamf_view_set_active         (BamfView *view, gboolean active);
 
 gboolean      bamf_view_is_starting        (BamfView *view);
-void          bamf_view_set_starting       (BamfView *view, gboolean starting);
+void          bamf_view_set_starting       (BamfView *view, SnStartupSequence *startup_sequence, gboolean starting);
 
 gboolean      bamf_view_is_running         (BamfView *view);
 void          bamf_view_set_running        (BamfView *view, gboolean running);

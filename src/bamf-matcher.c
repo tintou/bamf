@@ -2250,15 +2250,15 @@ on_unity_control_center_window_role_changed (BamfLegacyWindow *window, BamfMatch
 }
 
 static void
-handle_window_opening (BamfLegacyScreen *screen, const gchar *desktop_id, BamfMatcher *self)
+handle_window_opening (BamfLegacyScreen *screen, const gchar *desktop_id, SnStartupSequence *startup_sequence, BamfMatcher *self)
 {
-  bamf_matcher_set_starting_desktop_file (self, desktop_id, TRUE);
+  bamf_matcher_set_starting_desktop_file (self, desktop_id, startup_sequence, TRUE);
 }
 
 static void
 handle_window_opening_finished (BamfLegacyScreen *screen, const gchar *desktop_id, BamfMatcher *self)
 {
-  bamf_matcher_set_starting_desktop_file (self, desktop_id, FALSE);
+  bamf_matcher_set_starting_desktop_file (self, desktop_id, NULL, FALSE);
 }
 
 static void
@@ -2499,6 +2499,7 @@ bamf_matcher_register_desktop_file_for_pid (BamfMatcher * self,
 void
 bamf_matcher_set_starting_desktop_file (BamfMatcher *self,
                                         const char *desktop_file,
+                                        SnStartupSequence *startup_sequence,
                                         gboolean starting)
 {
   BamfApplication *app;
@@ -2523,7 +2524,7 @@ bamf_matcher_set_starting_desktop_file (BamfMatcher *self,
 
   if (BAMF_IS_APPLICATION (app))
     {
-      bamf_view_set_starting (BAMF_VIEW (app), starting);
+      bamf_view_set_starting (BAMF_VIEW (app), startup_sequence, starting);
     }
 }
 
