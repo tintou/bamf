@@ -1,2 +1,2 @@
-interest /usr/share/applications
-interest gmenucache
+interest-noawait /usr/share/applications
+interest-noawait gmenucache
