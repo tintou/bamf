@@ -1,3 +1,18 @@
+bamf (0.5.3~bzr0+16.04.20160523-0ubuntu2) UNRELEASED; urgency=medium
+
+  [ Marco Trevisan (Treviño) ]
+  * BamfMatcher: allow overriding desktop with the environment var
+    BAMF_DESKTOP_FILE_HINT
+
+  [ Andrea Azzarone ]
+  * Daemon: manually set to complete the startup notification on view
+    state change (LP: #1582430)
+
+  [ Marco Trevisan (Treviño) ]
+  * debian/bamfdaemon.triggers: use interest-noawait (LP: #1589097)
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Wed, 29 Jun 2016 17:57:07 +0200
+
 bamf (0.5.3~bzr0+16.04.20160523-0ubuntu1) xenial; urgency=medium
 
   * bamfdaemon-dbus-runner: don't try to start again if already running

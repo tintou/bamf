@@ -258,7 +258,7 @@ handle_sn_monitor_event (SnMonitorEvent *event,
       {
         SnStartupSequence *sequence = sn_monitor_event_get_startup_sequence (event);
         const gchar *app_id = sn_startup_sequence_get_application_id (sequence);
-        g_signal_emit (self, legacy_screen_signals[WINDOW_OPENING], 0, app_id);
+        g_signal_emit (self, legacy_screen_signals[WINDOW_OPENING], 0, app_id, sequence);
       }
       break;
     case SN_MONITOR_EVENT_COMPLETED:
@@ -477,8 +477,8 @@ bamf_legacy_screen_class_init (BamfLegacyScreenClass * klass)
                   G_SIGNAL_RUN_FIRST,
                   G_STRUCT_OFFSET (BamfLegacyScreenClass, window_opening),
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 1,
-                  G_TYPE_STRING);
+                  G_TYPE_NONE, 2,
+                  G_TYPE_STRING, G_TYPE_POINTER);
 
   legacy_screen_signals [WINDOW_OPENING_COMPLETED] =
     g_signal_new (BAMF_LEGACY_SCREEN_SIGNAL_WINDOW_OPENING_COMPLETED,

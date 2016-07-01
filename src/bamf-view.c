@@ -78,6 +78,8 @@ struct _BamfViewPrivate
   gboolean closed;
   guint starting_timeout;
 
+  SnStartupSequence *startup_sequence;
+
   /* FIXME: remove this as soon as we move to properties on library as well */
   guint active_changed_idle;
 };
@@ -115,6 +117,9 @@ bamf_view_active_changed (BamfView *view, gboolean active)
       guint idle = g_idle_add_full (G_PRIORITY_DEFAULT, on_active_changed_idle, view, NULL);
       view->priv->active_changed_idle = idle;
     }
+
+  if (active)
+    bamf_view_set_starting (view, NULL, FALSE);
 }
 
 static void
@@ -152,7 +157,7 @@ on_starting_timeout (gpointer data)
 {
   BamfView *view = data;
 
-  bamf_view_set_starting (view, FALSE);
+  bamf_view_set_starting (view, NULL, FALSE);
   view->priv->starting_timeout = 0;
 
   return FALSE;
@@ -197,7 +202,7 @@ bamf_view_running_changed (BamfView *view, gboolean running)
     g_signal_emit_by_name (view, "running-changed", running);
 
   if (running)
-    bamf_view_set_starting (view, FALSE);
+    bamf_view_set_starting (view, NULL, FALSE);
 }
 
 static void
@@ -213,6 +218,9 @@ bamf_view_urgent_changed (BamfView *view, gboolean urgent)
 
   if (emit)
     g_signal_emit_by_name (view, "urgent-changed", urgent);
+
+  if (urgent)
+    bamf_view_set_starting (view, NULL, FALSE);
 }
 
 void
@@ -480,8 +488,33 @@ bamf_view_is_starting (BamfView *view)
 
 void
 bamf_view_set_starting (BamfView *view,
+                        SnStartupSequence *startup_sequence,
                         gboolean starting)
 {
+  if (!bamf_view_is_starting (view) && starting)
+    {
+      if (view->priv->startup_sequence)
+      {
+        sn_startup_sequence_unref (view->priv->startup_sequence);
+        view->priv->startup_sequence = NULL;
+      }
+
+      if (startup_sequence)
+        {
+          view->priv->startup_sequence = startup_sequence;
+          sn_startup_sequence_ref (view->priv->startup_sequence);
+        }
+    }
+  else if (!starting)
+    {
+      if (view->priv->startup_sequence)
+        {
+          sn_startup_sequence_complete (view->priv->startup_sequence);
+          sn_startup_sequence_unref (view->priv->startup_sequence);
+          view->priv->startup_sequence = NULL;
+        }
+    }
+
   BAMF_VIEW_SET_BOOL_PROPERTY (view, starting);
 }
 
@@ -581,7 +614,7 @@ bamf_view_cached_properties_notify (BamfView *view)
   bamf_view_set_name (view, cache->name);
   bamf_view_set_icon (view, cache->icon);
   bamf_view_set_active (view, cache->active);
-  bamf_view_set_starting (view, cache->starting);
+  bamf_view_set_starting (view, NULL, cache->starting);
   bamf_view_set_running (view, cache->running);
   bamf_view_set_user_visible (view, cache->user_visible);
   bamf_view_set_urgent (view, cache->urgent);
@@ -863,6 +896,12 @@ bamf_view_dispose (GObject *object)
       priv->active_changed_idle = 0;
     }
 
+  if (priv->startup_sequence)
+    {
+      sn_startup_sequence_unref (priv->startup_sequence);
+      priv->startup_sequence = NULL;
+    }
+
   bamf_view_cached_properties_clear (view);
   g_dbus_object_skeleton_flush (G_DBUS_OBJECT_SKELETON (view));
 
@@ -930,6 +969,8 @@ bamf_view_init (BamfView * self)
   /* Initializing the dbus interface */
   self->priv->dbus_iface = _bamf_dbus_item_view_skeleton_new ();
   self->priv->props = g_new0 (BamfViewPropCache, 1);
+
+  self->priv->startup_sequence = NULL;
 
   /* We need to connect to the object own signals to redirect them to the dbus
    * interface                                                                */
