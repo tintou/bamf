@@ -1,4 +1,4 @@
-bamf (0.5.3~bzr0+16.04.20160523-0ubuntu2) UNRELEASED; urgency=medium
+bamf (0.5.3~bzr0+16.04.20160701-0ubuntu1) xenial; urgency=medium
 
   [ Marco Trevisan (Treviño) ]
   * BamfMatcher: allow overriding desktop with the environment var
@@ -11,7 +11,7 @@ bamf (0.5.3~bzr0+16.04.20160523-0ubuntu2) UNRELEASED; urgency=medium
   [ Marco Trevisan (Treviño) ]
   * debian/bamfdaemon.triggers: use interest-noawait (LP: #1589097)
 
- -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Wed, 29 Jun 2016 17:57:07 +0200
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Fri, 01 Jul 2016 10:44:07 +0000
 
 bamf (0.5.3~bzr0+16.04.20160523-0ubuntu1) xenial; urgency=medium
 
