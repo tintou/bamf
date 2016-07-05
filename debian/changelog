@@ -1,3 +1,9 @@
+bamf (0.5.3~bzr0+16.10.20160705-0ubuntu1) yakkety; urgency=medium
+
+  * debian/bamfdaemon.triggers: use interest-noawait (LP: #1589097)
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Tue, 05 Jul 2016 01:10:52 +0000
+
 bamf (0.5.3~bzr0+16.10.20160628-0ubuntu1) yakkety; urgency=medium
 
   [ Andrea Azzarone ]
