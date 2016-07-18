@@ -24,6 +24,9 @@ override_dh_auto_install:
 
 override_dh_install:
 	dh_install --fail-missing
+	# disable upstart session job when using systemd session service
+	mkdir -p debian/bamfdaemon/usr/share/upstart/systemd-session/upstart
+	echo manual > debian/bamfdaemon/usr/share/upstart/systemd-session/upstart/bamfdaemon.override
 
 override_dh_strip:
 	dh_strip --dbg-package=bamf-dbg

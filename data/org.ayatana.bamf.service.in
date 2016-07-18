@@ -1,3 +1,4 @@
 [D-BUS Service]
 Name=org.ayatana.bamf
 Exec=@PKGLIBEXECDIR@/bamfdaemon-dbus-runner
+SystemdService=bamfdaemon.service
