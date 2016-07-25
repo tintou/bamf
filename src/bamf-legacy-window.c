@@ -543,8 +543,15 @@ static void
 top_window_action_menu (GtkMenu *menu, gint *x, gint *y, gboolean *push, gpointer data)
 {
   BamfLegacyWindow *self = data;
-  gint w, h;
+  gint w, h, scale;
+
+  scale = gdk_screen_get_monitor_scale_factor (gdk_screen_get_default (), 0);
+  scale = !scale ? 1: scale;
+
   wnck_window_get_client_window_geometry (self->priv->legacy_window, x, y, &w, &h);
+  *x /= scale;
+  *y /= scale;
+
   *push = TRUE;
 }
 
