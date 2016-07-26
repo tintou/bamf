@@ -1,3 +1,14 @@
+bamf (0.5.3~bzr0+16.10.20160726.1-0ubuntu1) yakkety; urgency=medium
+
+  [ Andrea Azzarone ]
+  * Unscale x/y coordinates returned by top_window_action_menu. (LP:
+    #1606234)
+
+  [ Martin Pitt ]
+  * Add support for starting bamf through user systemd units
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Tue, 26 Jul 2016 09:08:41 +0000
+
 bamf (0.5.3~bzr0+16.10.20160705-0ubuntu1) yakkety; urgency=medium
 
   * debian/bamfdaemon.triggers: use interest-noawait (LP: #1589097)
