@@ -1,0 +1,9 @@
+[Unit]
+Description=BAMF Application Matcher Framework
+PartOf=graphical-session.target
+
+[Service]
+Type=dbus
+BusName=org.ayatana.bamf
+ExecStart=@PKGLIBEXECDIR@/bamfdaemon
+Restart=on-failure

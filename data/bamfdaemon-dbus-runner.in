@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -n "$UPSTART_SESSION" ]; then
+if [ -n "$UPSTART_SESSION" ] && ! systemctl --user --quiet is-active graphical-session.target; then
   if ! (initctl status bamfdaemon | grep -q start); then
     /sbin/initctl start bamfdaemon
   else
