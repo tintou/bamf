@@ -24,8 +24,10 @@ bamfdaemon-dbus-runner: bamfdaemon-dbus-runner.in
 
 EXTRA_DIST = org.ayatana.bamf.service.in \
              bamfdaemon.conf.in \
+             bamfdaemon.service.in \
              bamfdaemon-dbus-runner.in
 
 CLEANFILES = org.ayatana.bamf.service \
              bamfdaemon.conf \
+             bamfdaemon.service \
              bamfdaemon-dbus-runner
