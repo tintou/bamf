@@ -1,3 +1,9 @@
+bamf (0.5.3-0ubuntu1) UNRELEASED; urgency=medium
+
+  * Releasing upstream BAMF 0.5.3
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Thu, 25 Aug 2016 17:12:55 +0200
+
 bamf (0.5.3~bzr0+16.10.20160726.1-0ubuntu1) yakkety; urgency=medium
 
   [ Andrea Azzarone ]
