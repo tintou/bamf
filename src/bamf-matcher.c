@@ -942,7 +942,7 @@ load_index_file_to_table (BamfMatcher * self,
   GDataInputStream *input;
   char *line;
   char *directory;
-  const gchar * const *current_desktops = NULL;
+  gchar **current_desktops = NULL;
   const gchar *xdg_current_desktop;
   gsize length;
 
@@ -963,7 +963,7 @@ load_index_file_to_table (BamfMatcher * self,
   xdg_current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
 
   if (xdg_current_desktop)
-    current_desktops = (const gchar * const *) g_strsplit (xdg_current_desktop, ":", 0);
+    current_desktops = g_strsplit (xdg_current_desktop, ":", 0);
 
   directory = g_path_get_dirname (index_file);
   input = g_data_input_stream_new (G_INPUT_STREAM (stream));
@@ -990,7 +990,7 @@ load_index_file_to_table (BamfMatcher * self,
 
           for (i = 0; sub_parts[i]; ++i)
             {
-              if (g_strv_contains (current_desktops, sub_parts[i]) == 0)
+              if (g_strv_contains ((const gchar * const *) current_desktops, sub_parts[i]) == 0)
                 {
                   found_current = TRUE;
                   break;
@@ -1041,6 +1041,7 @@ load_index_file_to_table (BamfMatcher * self,
   g_object_unref (input);
   g_object_unref (stream);
   g_object_unref (file);
+  g_strfreev (current_desktops);
   g_free (directory);
 }
 

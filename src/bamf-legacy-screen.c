@@ -580,7 +580,7 @@ bamf_legacy_screen_get_default ()
 {
   BamfLegacyScreen *self;
   Display *dpy;
-  const gchar * const *current_desktops = NULL;
+  gchar **current_desktops = NULL;
   const gchar *xdg_current_desktop;
 
   if (static_screen)
@@ -618,14 +618,16 @@ bamf_legacy_screen_get_default ()
   xdg_current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
 
   if (xdg_current_desktop)
-    current_desktops = (const gchar * const *) g_strsplit (xdg_current_desktop, ":", 0);
+    current_desktops = g_strsplit (xdg_current_desktop, ":", 0);
 
-  if (current_desktops && g_strv_contains (current_desktops, "Unity"))
+  if (current_desktops && g_strv_contains ((const gchar * const *) current_desktops, "Unity"))
     {
       _COMPIZ_TOOLKIT_ACTION = XInternAtom (dpy, "_COMPIZ_TOOLKIT_ACTION", False);
       _COMPIZ_TOOLKIT_ACTION_WINDOW_MENU = XInternAtom (dpy, "_COMPIZ_TOOLKIT_ACTION_WINDOW_MENU", False);
       gdk_window_add_filter (NULL, filter_compiz_messages, self);
     }
+
+  g_strfreev (current_desktops);
 
   return static_screen;
 }
