@@ -673,13 +673,15 @@ bamf_application_create_local_desktop_file (BamfApplication *self)
 
   if (curdesktop)
     {
-      const gchar* show_in_list[] = { curdesktop, NULL };
+      gchar** show_in_list = g_strsplit (curdesktop, ":", 0);
       g_key_file_set_string_list (key_file, G_KEY_FILE_DESKTOP_GROUP,
                                   G_KEY_FILE_DESKTOP_KEY_ONLY_SHOW_IN,
-                                  show_in_list, 1);
+                                  (const gchar * const *) show_in_list, 1);
+      g_strfreev (show_in_list);
     }
 
-  gchar *generator = g_strdup_printf ("X-%sGenerated", curdesktop ? curdesktop : "BAMF");
+  gchar *generator = g_strdup_printf ("X-%sGenerated", curdesktop && !g_strstr_len(curdesktop, -1, ":") ?
+                                                                      curdesktop : "BAMF");
   g_key_file_set_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP, generator, TRUE);
   g_free (generator);
 

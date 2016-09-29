@@ -827,7 +827,6 @@ load_desktop_file_to_table (BamfMatcher * self,
 {
   GDesktopAppInfo *desktop_file;
   gboolean no_display;
-  const char *current_desktop;
   char *exec;
   char *path;
   GString *desktop_id; /* is ok... really */
@@ -841,9 +840,7 @@ load_desktop_file_to_table (BamfMatcher * self,
       return;
     }
 
-  current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
-
-  if (current_desktop && !g_desktop_app_info_get_show_in (desktop_file, current_desktop))
+  if (!g_desktop_app_info_get_show_in (desktop_file, NULL))
     {
       g_object_unref (desktop_file);
       return;
@@ -945,7 +942,8 @@ load_index_file_to_table (BamfMatcher * self,
   GDataInputStream *input;
   char *line;
   char *directory;
-  const char *current_desktop;
+  const gchar * const *current_desktops = NULL;
+  const gchar *xdg_current_desktop;
   gsize length;
 
   file = g_file_new_for_path (index_file);
@@ -961,12 +959,14 @@ load_index_file_to_table (BamfMatcher * self,
     }
 
   length = 0;
-  current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
+
+  xdg_current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
+
+  if (xdg_current_desktop)
+    current_desktops = (const gchar * const *) g_strsplit (xdg_current_desktop, ":", 0);
+
   directory = g_path_get_dirname (index_file);
   input = g_data_input_stream_new (G_INPUT_STREAM (stream));
-
-  if (current_desktop && current_desktop[0] == '\0')
-    current_desktop = NULL;
 
   while ((line = g_data_input_stream_read_line (input, &length, NULL, NULL)))
     {
@@ -982,7 +982,7 @@ load_index_file_to_table (BamfMatcher * self,
 
       show_in = parts[3];
 
-      if (current_desktop && show_in && show_in[0] != '\0')
+      if (current_desktops && show_in && show_in[0] != '\0')
         {
           gchar **sub_parts = g_strsplit (show_in, ";", -1);
           gboolean found_current = FALSE;
@@ -990,7 +990,7 @@ load_index_file_to_table (BamfMatcher * self,
 
           for (i = 0; sub_parts[i]; ++i)
             {
-              if (g_ascii_strcasecmp (sub_parts[i], current_desktop) == 0)
+              if (g_strv_contains (current_desktops, sub_parts[i]) == 0)
                 {
                   found_current = TRUE;
                   break;
