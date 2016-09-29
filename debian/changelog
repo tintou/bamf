@@ -1,8 +1,13 @@
-bamf (0.5.3-0ubuntu1) UNRELEASED; urgency=medium
+bamf (0.5.3+16.10.20160929-0ubuntu1) yakkety; urgency=medium
 
+  [ Marco Trevisan (Treviño) ]
   * Releasing upstream BAMF 0.5.3
 
- -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Thu, 25 Aug 2016 17:12:55 +0200
+  [ Iain Lane ]
+  * Adjust for XDG_CURRENT_DESKTOP containing multiple colon-separated
+    values
+
+ -- iain@orangesquash.org.uk <iain@orangesquash.org.uk>  Thu, 29 Sep 2016 16:12:35 +0000
 
 bamf (0.5.3~bzr0+16.10.20160726.1-0ubuntu1) yakkety; urgency=medium
 
