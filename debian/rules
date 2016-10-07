@@ -4,7 +4,7 @@
 export DEB_LDFLAGS_MAINT_APPEND = -Wl,-z,defs -Wl,--as-needed
 export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
 
-PKD   = $(abspath $(dir $(MAKEFILE_LIST)))
+PKD   = $(word 1,$(abspath $(dir $(MAKEFILE_LIST))))
 PKG   = $(word 2,$(shell dpkg-parsechangelog -l$(PKD)/changelog | grep ^Source))
 UVER  = $(shell dpkg-parsechangelog -l$(PKD)/changelog | perl -ne 'print $$1 if m{^Version:\s+(?:\d+:)?(\d.*)(?:\-\d+.*)};')
 DTYPE =
