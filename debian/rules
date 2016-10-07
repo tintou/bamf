@@ -42,5 +42,5 @@ get-orig-source: $(PKG)_$(VER)$(DTYPE).orig.tar.xz $(info I: $(PKG)_$(VER)$(DTYP
 
 $(PKG)_$(VER)$(DTYPE).orig.tar.xz:
 	@echo "# Downloading..."
-	uscan --noconf --verbose --rename --destdir=$(CURDIR) --check-dirname-level=0 --force-download --download-version $(VER) $(PKD)
+	uscan --noconf --verbose --rename --destdir=../ --check-dirname-level=0 --force-download --download-version $(VER) $(PKD)
 
