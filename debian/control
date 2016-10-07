@@ -19,8 +19,8 @@ Build-Depends: dbus-x11,
                xvfb,
 Standards-Version: 3.9.6
 Homepage: https://launchpad.net/bamf
-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-mate/bamf.git;a=summary
-Vcs-Git: git://anonscm.debian.org/pkg-mate/bamf.git
+Vcs-Browser: https://anonscm.debian.org/git/pkg-mate/bamf.git
+Vcs-Git: https://anonscm.debian.org/git/pkg-mate/bamf.git
 
 Package: bamfdaemon
 Architecture: any
