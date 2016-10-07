@@ -1,0 +1,141 @@
+Description: Adjust for XDG_CURRENT_DESKTOP containing multiple colon-separated values
+Author: Iain Lane <iain.lane@canonical.com>
+Origin: http://bazaar.launchpad.net/~unity-team/bamf/trunk/revision/649
+
+=== modified file 'src/bamf-application.c'
+--- src/bamf-application.c	2016-04-08 21:54:32 +0000
++++ src/bamf-application.c	2016-09-29 14:54:26 +0000
+@@ -673,13 +673,15 @@
+ 
+   if (curdesktop)
+     {
+-      const gchar* show_in_list[] = { curdesktop, NULL };
++      gchar** show_in_list = g_strsplit (curdesktop, ":", 0);
+       g_key_file_set_string_list (key_file, G_KEY_FILE_DESKTOP_GROUP,
+                                   G_KEY_FILE_DESKTOP_KEY_ONLY_SHOW_IN,
+-                                  show_in_list, 1);
++                                  (const gchar * const *) show_in_list, 1);
++      g_strfreev (show_in_list);
+     }
+ 
+-  gchar *generator = g_strdup_printf ("X-%sGenerated", curdesktop ? curdesktop : "BAMF");
++  gchar *generator = g_strdup_printf ("X-%sGenerated", curdesktop && !g_strstr_len(curdesktop, -1, ":") ?
++                                                                      curdesktop : "BAMF");
+   g_key_file_set_boolean (key_file, G_KEY_FILE_DESKTOP_GROUP, generator, TRUE);
+   g_free (generator);
+ 
+
+=== modified file 'src/bamf-legacy-screen.c'
+--- src/bamf-legacy-screen.c	2016-06-13 22:27:18 +0000
++++ src/bamf-legacy-screen.c	2016-09-29 15:36:55 +0000
+@@ -580,6 +580,8 @@
+ {
+   BamfLegacyScreen *self;
+   Display *dpy;
++  gchar **current_desktops = NULL;
++  const gchar *xdg_current_desktop;
+ 
+   if (static_screen)
+     return static_screen;
+@@ -613,13 +615,20 @@
+   g_signal_connect (G_OBJECT (self->priv->legacy_screen), "active-window-changed",
+                     (GCallback) handle_active_window_changed, self);
+ 
+-  if (g_strcmp0 (g_getenv ("XDG_CURRENT_DESKTOP"), "Unity") == 0)
++  xdg_current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
++
++  if (xdg_current_desktop)
++    current_desktops = g_strsplit (xdg_current_desktop, ":", 0);
++
++  if (current_desktops && g_strv_contains ((const gchar * const *) current_desktops, "Unity"))
+     {
+       _COMPIZ_TOOLKIT_ACTION = XInternAtom (dpy, "_COMPIZ_TOOLKIT_ACTION", False);
+       _COMPIZ_TOOLKIT_ACTION_WINDOW_MENU = XInternAtom (dpy, "_COMPIZ_TOOLKIT_ACTION_WINDOW_MENU", False);
+       gdk_window_add_filter (NULL, filter_compiz_messages, self);
+     }
+ 
++  g_strfreev (current_desktops);
++
+   return static_screen;
+ }
+ 
+
+=== modified file 'src/bamf-matcher.c'
+--- src/bamf-matcher.c	2016-06-13 22:27:18 +0000
++++ src/bamf-matcher.c	2016-09-29 15:36:55 +0000
+@@ -827,7 +827,6 @@
+ {
+   GDesktopAppInfo *desktop_file;
+   gboolean no_display;
+-  const char *current_desktop;
+   char *exec;
+   char *path;
+   GString *desktop_id; /* is ok... really */
+@@ -841,9 +840,7 @@
+       return;
+     }
+ 
+-  current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
+-
+-  if (current_desktop && !g_desktop_app_info_get_show_in (desktop_file, current_desktop))
++  if (!g_desktop_app_info_get_show_in (desktop_file, NULL))
+     {
+       g_object_unref (desktop_file);
+       return;
+@@ -945,7 +942,8 @@
+   GDataInputStream *input;
+   char *line;
+   char *directory;
+-  const char *current_desktop;
++  gchar **current_desktops = NULL;
++  const gchar *xdg_current_desktop;
+   gsize length;
+ 
+   file = g_file_new_for_path (index_file);
+@@ -961,13 +959,15 @@
+     }
+ 
+   length = 0;
+-  current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
++
++  xdg_current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
++
++  if (xdg_current_desktop)
++    current_desktops = g_strsplit (xdg_current_desktop, ":", 0);
++
+   directory = g_path_get_dirname (index_file);
+   input = g_data_input_stream_new (G_INPUT_STREAM (stream));
+ 
+-  if (current_desktop && current_desktop[0] == '\0')
+-    current_desktop = NULL;
+-
+   while ((line = g_data_input_stream_read_line (input, &length, NULL, NULL)))
+     {
+       char *exec;
+@@ -982,7 +982,7 @@
+ 
+       show_in = parts[3];
+ 
+-      if (current_desktop && show_in && show_in[0] != '\0')
++      if (current_desktops && show_in && show_in[0] != '\0')
+         {
+           gchar **sub_parts = g_strsplit (show_in, ";", -1);
+           gboolean found_current = FALSE;
+@@ -990,7 +990,7 @@
+ 
+           for (i = 0; sub_parts[i]; ++i)
+             {
+-              if (g_ascii_strcasecmp (sub_parts[i], current_desktop) == 0)
++              if (g_strv_contains ((const gchar * const *) current_desktops, sub_parts[i]) == 0)
+                 {
+                   found_current = TRUE;
+                   break;
+@@ -1041,6 +1041,7 @@
+   g_object_unref (input);
+   g_object_unref (stream);
+   g_object_unref (file);
++  g_strfreev (current_desktops);
+   g_free (directory);
+ }
+ 
+
