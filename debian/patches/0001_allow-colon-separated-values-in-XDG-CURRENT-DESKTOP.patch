@@ -3,8 +3,8 @@ Author: Iain Lane <iain.lane@canonical.com>
 Origin: http://bazaar.launchpad.net/~unity-team/bamf/trunk/revision/649
 
 === modified file 'src/bamf-application.c'
---- src/bamf-application.c	2016-04-08 21:54:32 +0000
-+++ src/bamf-application.c	2016-09-29 14:54:26 +0000
+--- a/src/bamf-application.c	2016-04-08 21:54:32 +0000
++++ b/src/bamf-application.c	2016-09-29 14:54:26 +0000
 @@ -673,13 +673,15 @@
  
    if (curdesktop)
@@ -26,8 +26,8 @@ Origin: http://bazaar.launchpad.net/~unity-team/bamf/trunk/revision/649
  
 
 === modified file 'src/bamf-legacy-screen.c'
---- src/bamf-legacy-screen.c	2016-06-13 22:27:18 +0000
-+++ src/bamf-legacy-screen.c	2016-09-29 15:36:55 +0000
+--- a/src/bamf-legacy-screen.c	2016-06-13 22:27:18 +0000
++++ b/src/bamf-legacy-screen.c	2016-09-29 15:36:55 +0000
 @@ -580,6 +580,8 @@
  {
    BamfLegacyScreen *self;
@@ -61,8 +61,8 @@ Origin: http://bazaar.launchpad.net/~unity-team/bamf/trunk/revision/649
  
 
 === modified file 'src/bamf-matcher.c'
---- src/bamf-matcher.c	2016-06-13 22:27:18 +0000
-+++ src/bamf-matcher.c	2016-09-29 15:36:55 +0000
+--- a/src/bamf-matcher.c	2016-06-13 22:27:18 +0000
++++ b/src/bamf-matcher.c	2016-09-29 15:36:55 +0000
 @@ -827,7 +827,6 @@
  {
    GDesktopAppInfo *desktop_file;
