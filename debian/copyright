@@ -87,35 +87,9 @@ Files: lib/libbamf/bamf-application-private.h
 Copyright: 2012, Marco Trevisan (Treviño)
 License: GPL-2+
 
-Files: AUTHORS
- COPYING
- COPYING.LGPL
- ChangeLog
- INSTALL
- Makefile.am
- Makefile.am.coverage
- Makefile.in
- NEWS
- README
- TODO
- aclocal.m4
- build.rules.mk
- compile
- config.guess
- config.h.in
- config.sub
- configure
- configure.ac
- data/Makefile.am
- data/Makefile.in
- data/org.ayatana.bamf.service.in
- depcomp
- doc/Makefile.am
- doc/Makefile.in
+Files: doc/Makefile.am
  doc/reference/Makefile.am
- doc/reference/Makefile.in
  doc/reference/libbamf/Makefile.am
- doc/reference/libbamf/Makefile.in
  doc/reference/libbamf/html/BamfApplication.html
  doc/reference/libbamf/html/BamfControl.html
  doc/reference/libbamf/html/BamfFactory.html
@@ -128,7 +102,6 @@ Files: AUTHORS
  doc/reference/libbamf/html/ch01.html
  doc/reference/libbamf/html/home.png
  doc/reference/libbamf/html/index.html
- doc/reference/libbamf/html/index.sgml
  doc/reference/libbamf/html/left-insensitive.png
  doc/reference/libbamf/html/left.png
  doc/reference/libbamf/html/libbamf.devhelp2
@@ -142,53 +115,50 @@ Files: AUTHORS
  doc/reference/libbamf/libbamf-overrides.txt
  doc/reference/libbamf/libbamf-sections.txt
  doc/reference/libbamf/libbamf.types
- doc/reference/libbamf/tmpl/bamf-application.sgml
- doc/reference/libbamf/tmpl/bamf-control.sgml
- doc/reference/libbamf/tmpl/bamf-factory.sgml
- doc/reference/libbamf/tmpl/bamf-matcher.sgml
- doc/reference/libbamf/tmpl/bamf-tab.sgml
- doc/reference/libbamf/tmpl/bamf-view-private.sgml
- doc/reference/libbamf/tmpl/bamf-view.sgml
- doc/reference/libbamf/tmpl/bamf-window.sgml
- doc/reference/libbamf/tmpl/libbamf-unused.sgml
- gtk-doc.make
- install-sh
  lib/libbamf-private/Makefile.am
  lib/libbamf-private/Makefile.am.notparallel
- lib/libbamf-private/Makefile.in
  lib/libbamf-private/org.ayatana.bamf.view.xml
  lib/libbamf-private/org.ayatana.bamf.xml
  lib/libbamf/Makefile.am
- lib/libbamf/Makefile.in
  lib/libbamf/libbamf3.pc.in
- ltmain.sh
- m4/gcov.m4
- m4/gtk-doc.m4
- m4/libtool.m4
- m4/ltoptions.m4
- m4/ltsugar.m4
- m4/ltversion.m4
- m4/lt~obsolete.m4
- missing
+ tests/libbamf/Makefile.am
+Copyright: 2009-2016, Canonical Ltd.
+License: LGPL-2.1 or LGPL-3
+Comment:
+ Assuming same license as found in libbamf code files.
+ Assuming Canonical Ltd. as copyright holder for all those files.
+
+Files: AUTHORS
+ ChangeLog
+ INSTALL
+ Makefile.am
+ Makefile.am.coverage
+ NEWS
+ README
+ TODO
+ build.rules.mk
+ configure.ac
+ data/Makefile.am
+ data/org.ayatana.bamf.service.in
+ data/bamfdaemon-dbus-runner.in
+ data/bamfdaemon.conf.in
+ data/bamfdaemon.service.in
  src/Makefile.am
- src/Makefile.in
  tests/Makefile.am
  tests/Makefile.am.gtests
- tests/Makefile.in
  tests/bamfdaemon/Makefile.am
- tests/bamfdaemon/Makefile.in
  tests/data/bamf-qml-app.desktop
  tests/data/bin/gedit
- tests/data/bin/gnome-control-center
+ tests/data/bin/unity-control-center
  tests/data/bin/libreoffice
  tests/data/bin/mime-test-text-editor
  tests/data/bin/qmlscene
  tests/data/bin/test-bamf-app
  tests/data/bin/unity-webapps-runner
  tests/data/full-name.desktop
- tests/data/gnome-control-center.desktop
- tests/data/gnome-display-panel.desktop
- tests/data/gnome-mouse-panel.desktop
+ tests/data/unity-control-center.desktop
+ tests/data/unity-display-panel.desktop
+ tests/data/unity-mouse-panel.desktop
  tests/data/icedtea-netx-javaws.desktop
  tests/data/icon.desktop
  tests/data/icons/python.png
@@ -210,16 +180,32 @@ Files: AUTHORS
  tests/data/test-bamf-app-no-display.desktop
  tests/data/test-bamf-app.desktop
  tests/data/ubuntu-web-app.desktop
- tests/libbamf/Makefile.am
- tests/libbamf/Makefile.in
-Copyright: FIXME
-License: FIXME
+Copyright: 2009-2016, Canonical Ltd.
+License: GPL-3
+Comment:
+ Assuming same license as found in bamfdaemon code files.
+ Assuming Canonical Ltd. as copyright holder for all those files.
       
 Files: debian/*
 Copyright: 2015, Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
      2015, Rico Tzschichholz <ricotz@ubuntu.com>
      2010, Canonical Ltd.
-License: GPL-3 or LGPL-2.1 or LGPL-3
+License: GPL-2+ or GPL-3 or LGPL-2.1 or LGPL-3
+
+License: GPL-2+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License along
+ with this program; if not, write to the Free Software Foundation, Inc.,
+ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 License: GPL-3
  This software is free software; you can redistribute it and/or modify it
