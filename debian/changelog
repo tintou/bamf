@@ -65,8 +65,6 @@ bamf (0.5.3-1~exp1) experimental; urgency=medium
   * Apply "wrap-and-sort -ta".
   * debian/rules:
     + Fix gir-package reference.
-  * Apply "wrap-and-sort -ta"
-  * debian/rules: Fix gir-package reference
 
  -- Mike Gabriel <sunweaver@debian.org>  Fri, 07 Oct 2016 13:57:13 +0200
 
