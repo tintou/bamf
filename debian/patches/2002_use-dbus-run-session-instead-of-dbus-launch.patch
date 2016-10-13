@@ -1,0 +1,37 @@
+Description: Stop using dbus-launch during unit tests (use dbus-run-session instead).
+Author: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+
+--- a/configure.ac
++++ b/configure.ac
+@@ -132,10 +132,10 @@
+ 
+ if test "x$enable_headless_tests" = "xyes"; then
+   AC_PATH_PROG([XVFB],[Xvfb])
+-  AC_PATH_PROG([DBUS_LAUNCH],[dbus-launch])
++  AC_PATH_PROG([DBUS_RUN_SESSION],[dbus-run-session])
+ 
+-  if test -z "$XVFB" -o -z "$DBUS_LAUNCH"; then
+-    AC_MSG_ERROR([Xvfb and dbus-launch are needed for headless-tests])
++  if test -z "$XVFB" -o -z "$DBUS_RUN_SESSION"; then
++    AC_MSG_ERROR([Xvfb and dbus-run-session are needed for headless-tests])
+   fi
+ fi
+ 
+--- a/tests/Makefile.am.gtests
++++ b/tests/Makefile.am.gtests
+@@ -21,14 +21,7 @@
+ 	export XDG_CURRENT_DESKTOP="Unity"; \
+ 	source $(XVFB_RUN); \
+ 	\
+-	$(DBUS_LAUNCH) > $(LOG_PATH)/sessionbus.sh; \
+-	source $(LOG_PATH)/sessionbus.sh; \
+-	\
+-	make $(AM_MAKEFLAGS) -k test;
+-	\
+-	source $(LOG_PATH)/sessionbus.sh; \
+-	rm $(LOG_PATH)/sessionbus.sh; \
+-	kill $$DBUS_SESSION_BUS_PID;
++	$(DBUS_RUN_SESSION) -- make $(AM_MAKEFLAGS) -k test;
+ 
+ check-local: test-headless
+ 
