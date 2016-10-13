@@ -3,7 +3,7 @@ Section: libs
 Priority: optional
 Maintainer: Didier Roche <didrocks@ubuntu.com>
 Uploaders: Andrea Veri <and@debian.org>
-Build-Depends: dbus-x11,
+Build-Depends: dbus (>= 1.8),
                debhelper (>= 9),
                dh-autoreconf,
                gnome-common,
