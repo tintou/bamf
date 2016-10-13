@@ -1,0 +1,33 @@
+Description: Use mate-common instead of gnome-common when building bamf for Debian.
+Author: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+
+--- a/autogen.sh
++++ b/autogen.sh
+@@ -16,10 +16,10 @@
+     exit 1
+ }
+ 
+-which gnome-autogen.sh || {
+-    echo "You need to install the gnome-common module and make"
+-    echo "sure the gnome-autogen.sh script is in your \$PATH."
++which mate-autogen || {
++    echo "You need to install the mate-common module and make"
++    echo "sure the mate-autogen script is in your \$PATH."
+     exit 1
+ }
+ 
+-USE_GNOME2_MACROS=1 . gnome-autogen.sh
++USE_MATE2_MACROS=1 . mate-autogen
+--- a/configure.ac
++++ b/configure.ac
+@@ -14,8 +14,8 @@
+ 
+ AC_CONFIG_MACRO_DIR([m4])
+ 
+-GNOME_COMMON_INIT
+-GNOME_COMPILE_WARNINGS(maximum)
++MATE_COMMON_INIT
++MATE_COMPILE_WARNINGS(maximum)
+ 
+ AM_MAINTAINER_MODE
+ AM_DISABLE_STATIC
