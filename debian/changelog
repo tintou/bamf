@@ -1,3 +1,16 @@
+bamf (0.5.3-1~exp2) experimental; urgency=medium
+
+  * debian/control:
+    + Add to B-D: mate-common.
+    + Drop B-D on dbus-x11, rather versioned build-depend on dbus (>= 1.8).
+  * debian/patches:
+    + Add 2001_build-using-mate-common.patch. Build using mate-common instead
+      of gnome-common. (Closes: #829799).
+    + Add 2002_use-dbus-run-session-instead-of-dbus-launch.patch. Use
+      dbus-run-session in favour of dbus-launch in unit tests. (Closes: 836081).
+
+ -- Mike Gabriel <sunweaver@debian.org>  Thu, 13 Oct 2016 11:46:36 +0200
+
 bamf (0.5.3-1~exp1) experimental; urgency=medium
 
   [ Mike Gabriel ]
@@ -52,8 +65,6 @@ bamf (0.5.3-1~exp1) experimental; urgency=medium
   * Apply "wrap-and-sort -ta".
   * debian/rules:
     + Fix gir-package reference.
-  * Apply "wrap-and-sort -ta"
-  * debian/rules: Fix gir-package reference
 
  -- Mike Gabriel <sunweaver@debian.org>  Fri, 07 Oct 2016 13:57:13 +0200
 
