@@ -1,3 +1,12 @@
+bamf (0.5.3-1) unstable; urgency=medium
+
+  * Re-upload to unstable.
+  * debian/patches:
+    + Add 2003_allow-gtk3-deprecated-symbols.patch. Tolerate deprecation
+      warnings from GTK3. Prevent FTBFS against GTK 3.22.
+
+ -- Mike Gabriel <sunweaver@debian.org>  Wed, 30 Nov 2016 10:14:29 +0100
+
 bamf (0.5.3-1~exp2) experimental; urgency=medium
 
   * debian/control:
