@@ -1,3 +1,4 @@
 0001_allow-colon-separated-values-in-XDG-CURRENT-DESKTOP.patch
 2001_build-using-mate-common.patch
 2002_use-dbus-run-session-instead-of-dbus-launch.patch
+2003_allow-gtk3-deprecated-symbols.patch
