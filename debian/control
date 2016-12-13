@@ -3,6 +3,7 @@ Section: libs
 Priority: optional
 Maintainer: MATE Packaging Team <pkg-mate-team@lists.alioth.debian.org>
 Uploaders: Mike Gabriel <sunweaver@debian.org>,
+           Didier Roche <didrocks@ubuntu.com>,
            Andrea Veri <and@debian.org>,
 Build-Depends: dbus (>= 1.8),
                debhelper (>= 9),
