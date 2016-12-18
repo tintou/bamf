@@ -1,3 +1,14 @@
+bamf (0.5.3-2) unstable; urgency=medium
+
+  * debian/control:
+    + Re-add to Uploaders: field: Didier Roche. Erroneously removed in a previous upload.
+    + Remove Andrea Veri from Uploaders: on self-request. (Closes: #827976).
+  * debian/{bamfdaemon.dirs,bamfdaemon.postrm}:
+    + Add /usr/share/applications/ as dpkg-managed directory.
+    + Don't mess with /usr/share/applications manually. (Closes: #683757).
+
+ -- Mike Gabriel <sunweaver@debian.org>  Tue, 13 Dec 2016 10:29:55 +0100
+
 bamf (0.5.3-1) unstable; urgency=medium
 
   * Re-upload to unstable.
