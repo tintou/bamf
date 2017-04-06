@@ -1,3 +1,13 @@
+bamf (0.5.3+17.04.20170406-0ubuntu1) zesty; urgency=medium
+
+  [ Łukasz 'sil2100' Zemczak ]
+  * Add the gnome-common build-dependency to satisfy the gnome-
+    autogen.sh requirement. (LP: #1680104)
+  * As agreed with upstream, do not error out on deprecated
+    declarations. (LP: #1680104)
+
+ -- Łukasz Zemczak <lukasz.zemczak@canonical.com>  Thu, 06 Apr 2017 13:10:47 +0000
+
 bamf (0.5.3+16.10.20160929-0ubuntu1) yakkety; urgency=medium
 
   [ Marco Trevisan (Treviño) ]
