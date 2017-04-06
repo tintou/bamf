@@ -6,6 +6,7 @@ Uploaders: Andrea Veri <and@debian.org>
 Build-Depends: dbus-x11,
                debhelper (>= 9),
                dh-autoreconf,
+               gnome-common,
                gobject-introspection (>= 1.41.4-1~),
                gtk-doc-tools,
                hicolor-icon-theme,
