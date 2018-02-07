@@ -259,11 +259,15 @@ get_snap_desktop_id (guint pid)
                             &security_label_contents,
                             &security_label_contents_size,
                             NULL))
-    return NULL;
+    {
+      g_free (security_label_filename);
+      return NULL;
+    }
 
   if (!g_str_has_prefix (security_label_contents, SNAP_SECURITY_LABEL_PREFIX))
     {
       g_free (security_label_filename);
+      g_free (security_label_contents);
       return NULL;
     }
 
@@ -306,7 +310,10 @@ get_flatpak_desktop_id (guint pid)
   info_filename = g_strdup_printf ("/proc/%u/root/.flatpak-info", pid);
 
   if (!g_key_file_load_from_file (key_file, info_filename, G_KEY_FILE_NONE, NULL))
-    return NULL;
+    {
+      g_free (info_filename);
+      return NULL;
+    }
 
   app_id = g_key_file_get_string (key_file, "Application", "name", NULL);
 
