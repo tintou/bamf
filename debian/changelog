@@ -1,3 +1,10 @@
+bamf (0.5.3+18.04.20180207.2-0ubuntu1) bionic; urgency=medium
+
+  * bamf-window: read snap and flatpak IDs and use it to guess desktop-
+    id (LP: #1747802)
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Wed, 07 Feb 2018 14:10:54 +0000
+
 bamf (0.5.3+17.10.20170810-0ubuntu1) artful; urgency=medium
 
   * No-change rebuild against latest libgtop2
