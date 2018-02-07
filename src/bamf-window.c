@@ -28,6 +28,9 @@
 #include <libdbusmenu-gtk/parser.h>
 #endif
 
+#define _GTK_APPLICATION_ID "_GTK_APPLICATION_ID"
+#define SNAP_SECURITY_LABEL_PREFIX "snap."
+
 #define BAMF_WINDOW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE(obj, \
 BAMF_TYPE_WINDOW, BamfWindowPrivate))
 
@@ -234,6 +237,14 @@ bamf_window_get_string_hint (BamfWindow *self, const char* prop)
 {
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
   return bamf_legacy_window_get_hint (self->priv->legacy_window, prop);
+}
+
+char *
+bamf_window_get_application_id (BamfWindow *self)
+{
+  g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
+
+  return bamf_window_get_string_hint (self, _GTK_APPLICATION_ID);
 }
 
 BamfWindowMaximizationType

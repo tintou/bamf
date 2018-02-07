@@ -73,6 +73,8 @@ gint               bamf_window_get_stack_position (BamfWindow *window);
 
 char             * bamf_window_get_string_hint (BamfWindow *self, const char* prop);
 
+char             * bamf_window_get_application_id (BamfWindow *self);
+
 BamfWindowMaximizationType bamf_window_maximized (BamfWindow *self);
 
 gint               bamf_window_get_monitor (BamfWindow *self);

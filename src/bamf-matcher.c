@@ -556,7 +556,7 @@ get_exec_overridden_desktop_file (const char *exec_string)
   return result;
 }
 
-char *
+static char *
 get_env_overridden_desktop_file (guint pid)
 {
   gchar *environ_file;
@@ -1733,9 +1733,10 @@ bamf_matcher_possible_applications_for_window (BamfMatcher *self,
           desktop_files = g_list_prepend (desktop_files, desktop_file);
         }
 
+
       if (!desktop_files)
         {
-          app_id = bamf_legacy_window_get_hint (window, _GTK_APPLICATION_ID);
+          app_id = bamf_window_get_application_id (bamf_window);
 
           if (app_id)
             {
