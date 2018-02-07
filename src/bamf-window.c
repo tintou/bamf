@@ -293,14 +293,44 @@ get_snap_desktop_id (guint pid)
   return sandboxed_app_id;
 }
 
+static char *
+get_flatpak_desktop_id (guint pid)
+{
+  GKeyFile *key_file = NULL;
+  char *info_filename = NULL;
+  char *app_id = NULL;
+
+  g_return_val_if_fail (pid != 0, NULL);
+
+  key_file = g_key_file_new ();
+  info_filename = g_strdup_printf ("/proc/%u/root/.flatpak-info", pid);
+
+  if (!g_key_file_load_from_file (key_file, info_filename, G_KEY_FILE_NONE, NULL))
+    return NULL;
+
+  app_id = g_key_file_get_string (key_file, "Application", "name", NULL);
+
+  g_key_file_free (key_file);
+  g_free (info_filename);
+
+  return app_id;
+}
+
 char *
 bamf_window_get_application_id (BamfWindow *self)
 {
+  guint pid;
   char *app_id;
 
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
 
-  app_id = get_snap_desktop_id (bamf_window_get_pid (self));
+  pid = bamf_window_get_pid (self);
+  app_id = get_snap_desktop_id (pid);
+
+  if (app_id)
+    return app_id;
+
+  app_id = get_flatpak_desktop_id (pid);
 
   if (app_id)
     return app_id;
