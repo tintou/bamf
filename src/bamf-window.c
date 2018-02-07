@@ -325,15 +325,19 @@ bamf_window_get_application_id (BamfWindow *self)
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
 
   pid = bamf_window_get_pid (self);
-  app_id = get_snap_desktop_id (pid);
 
-  if (app_id)
-    return app_id;
+  if (pid > 0)
+    {
+      app_id = get_snap_desktop_id (pid);
 
-  app_id = get_flatpak_desktop_id (pid);
+      if (app_id)
+        return app_id;
 
-  if (app_id)
-    return app_id;
+      app_id = get_flatpak_desktop_id (pid);
+
+      if (app_id)
+        return app_id;
+    }
 
   app_id = bamf_window_get_string_hint (self, _GTK_APPLICATION_ID);
 
