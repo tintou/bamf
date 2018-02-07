@@ -21,8 +21,10 @@
 #include "bamf-window.h"
 #include "bamf-legacy-screen.h"
 
-#ifdef EXPORT_ACTIONS_MENU
 #include <glib.h>
+#include <string.h>
+
+#ifdef EXPORT_ACTIONS_MENU
 #include <glib/gi18n.h>
 #include <libdbusmenu-glib/dbusmenu-glib.h>
 #include <libdbusmenu-gtk/parser.h>
@@ -239,12 +241,73 @@ bamf_window_get_string_hint (BamfWindow *self, const char* prop)
   return bamf_legacy_window_get_hint (self->priv->legacy_window, prop);
 }
 
+static char *
+get_snap_desktop_id (guint pid)
+{
+  char *security_label_filename = NULL;
+  char *security_label_contents = NULL;
+  gsize i, security_label_contents_size = 0;
+  char *contents_start;
+  char *contents_end;
+  char *sandboxed_app_id;
+
+  g_return_val_if_fail (pid != 0, NULL);
+
+  security_label_filename = g_strdup_printf ("/proc/%u/attr/current", pid);
+
+  if (!g_file_get_contents (security_label_filename,
+                            &security_label_contents,
+                            &security_label_contents_size,
+                            NULL))
+    return NULL;
+
+  if (!g_str_has_prefix (security_label_contents, SNAP_SECURITY_LABEL_PREFIX))
+    {
+      g_free (security_label_filename);
+      return NULL;
+    }
+
+  /* We need to translate the security profile into the desktop-id.
+   * The profile is in the form of 'snap.name-space.binary-name (current)'
+   * while the desktop id will be name-space_binary-name.
+   */
+  security_label_contents_size -= sizeof (SNAP_SECURITY_LABEL_PREFIX) - 1;
+  contents_start = security_label_contents + sizeof (SNAP_SECURITY_LABEL_PREFIX) - 1;
+  contents_end = strchr (contents_start, ' ');
+
+  if (contents_end)
+    security_label_contents_size = contents_end - contents_start;
+
+  for (i = 0; i < security_label_contents_size; ++i)
+    {
+      if (contents_start[i] == '.')
+        contents_start[i] = '_';
+    }
+
+  sandboxed_app_id = g_malloc0 (security_label_contents_size + 1);
+  memcpy (sandboxed_app_id, contents_start, security_label_contents_size);
+
+  g_free (security_label_filename);
+  g_free (security_label_contents);
+
+  return sandboxed_app_id;
+}
+
 char *
 bamf_window_get_application_id (BamfWindow *self)
 {
+  char *app_id;
+
   g_return_val_if_fail (BAMF_IS_WINDOW (self), NULL);
 
-  return bamf_window_get_string_hint (self, _GTK_APPLICATION_ID);
+  app_id = get_snap_desktop_id (bamf_window_get_pid (self));
+
+  if (app_id)
+    return app_id;
+
+  app_id = bamf_window_get_string_hint (self, _GTK_APPLICATION_ID);
+
+  return app_id;
 }
 
 BamfWindowMaximizationType
