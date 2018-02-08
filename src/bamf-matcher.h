@@ -46,7 +46,6 @@
 #define BAMF_MATCHER_GET_CLASS(obj)             (G_TYPE_INSTANCE_GET_CLASS ((obj), BAMF_TYPE_MATCHER, BamfMatcherClass))
 
 #define _BAMF_DESKTOP_FILE "_BAMF_DESKTOP_FILE"
-#define _GTK_APPLICATION_ID "_GTK_APPLICATION_ID"
 
 typedef struct _BamfMatcher BamfMatcher;
 typedef struct _BamfMatcherClass BamfMatcherClass;
