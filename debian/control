@@ -19,8 +19,8 @@ Build-Depends: dbus (>= 1.8),
                xvfb,
 Standards-Version: 3.9.8
 Homepage: https://launchpad.net/bamf
-Vcs-Browser: https://anonscm.debian.org/git/pkg-mate/bamf.git
-Vcs-Git: https://anonscm.debian.org/git/pkg-mate/bamf.git
+Vcs-Browser: https://salsa.debian.org/debian-mate-team/bamf
+Vcs-Git: https://salsa.debian.org/debian-mate-team/bamf.git
 
 Package: bamfdaemon
 Architecture: any
