@@ -1,6 +1,7 @@
 Source: bamf
 Section: libs
 Priority: optional
+Maintainer: Debian+Ubuntu MATE Packaging Team <debian-mate@lists.debian.org>
 Uploaders: Mike Gabriel <sunweaver@debian.org>,
            Didier Roche <didrocks@ubuntu.com>,
 Build-Depends: dbus (>= 1.8),
