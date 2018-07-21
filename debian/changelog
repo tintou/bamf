@@ -1,3 +1,20 @@
+bamf (0.5.3-3) unstable; urgency=medium
+
+  * debian/copyright:
+    + Use secure URI for copyright format.
+  * debian/control:
+    + Update Vcs-*: fields. Package has been migrated to salsa.debian.org.
+    + Switch Maintainer: from Alioth's pkg-mate-team to debian-mate at
+      lists.debian.org.
+    + Bump Standards-Version: to 4.1.5. No changes needed.
+  * debian/{control,compat}: Bump DH compat level to version 11.
+  * debian/patches:
+    + Add 1001_autotools-pkg-config-macro-not-cross-compilation-safe.patch.
+      Fix FTCBFS (lintian tag autotools-pkg-config-macro-not-cross-compilation-
+      safe).
+
+ -- Mike Gabriel <sunweaver@debian.org>  Sat, 21 Jul 2018 23:08:26 +0200
+
 bamf (0.5.3-2) unstable; urgency=medium
 
   * debian/control:
