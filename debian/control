@@ -5,7 +5,7 @@ Maintainer: Debian+Ubuntu MATE Packaging Team <debian-mate@lists.debian.org>
 Uploaders: Mike Gabriel <sunweaver@debian.org>,
            Didier Roche <didrocks@ubuntu.com>,
 Build-Depends: dbus (>= 1.8),
-               debhelper (>= 9),
+               debhelper (>= 11),
                gobject-introspection (>= 0.6.5-3),
                gtk-doc-tools,
                libgirepository1.0-dev,
