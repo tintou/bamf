@@ -2,3 +2,4 @@
 2001_build-using-mate-common.patch
 2002_use-dbus-run-session-instead-of-dbus-launch.patch
 2003_allow-gtk3-deprecated-symbols.patch
+1001_autotools-pkg-config-macro-not-cross-compilation-safe.patch
