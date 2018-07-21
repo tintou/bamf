@@ -94,7 +94,7 @@ bamf (0.2.118-1) unstable; urgency=low
   * debian/control:
     - bump Standards-Version to latest
     - remove build-dep only used for unit tests
-    - replace the gtk2 variant of the wnck introspection gir package with 
+    - replace the gtk2 variant of the wnck introspection gir package with
       gtk3 one
     - ensure the gtk2/gtk3 version doesn't have the same description
   * debian/*.symbols:
@@ -128,7 +128,7 @@ bamf (0.2.118-0ubuntu1) quantal; urgency=low
     - Locked smuxi launcher icon does not indicate smuxi running status
       (LP: #999820)
     - No launcher icon or Alt+Tab entry for Gimp windows (LP: #995916)
-    - the RunningApplicationsChanged signal is no longer emitted when an 
+    - the RunningApplicationsChanged signal is no longer emitted when an
       application is closed since r460 (LP: #989551)
 
  -- Alan Pope <popey@ubuntu.com>  Wed, 23 May 2012 09:10:08 +0100
@@ -144,7 +144,7 @@ bamf (0.2.112-0ubuntu1) precise; urgency=low
 
   * New upstream release.
     - bamf matcher messes up refcounting on views (LP: #942070)
-    - Chromium is running, but not showing in launcher or alt-tab. 
+    - Chromium is running, but not showing in launcher or alt-tab.
       (LP: #918474)
     - libbamf leaks memory on view dispose (LP: #942148)
     - Coverity PW.PARAMETER_HIDDEN - CID 10449 (LP: #937398)
@@ -215,7 +215,7 @@ bamf (0.2.104-1) unstable; urgency=low
    * debian/control:
      - removed gir's package for now, still not building
        correctly.
- 
+
    [ Andrea Veri ]
    * debian/control:
      - changed Maintainer accordingly.
@@ -515,10 +515,10 @@ bamf (0.2.46-0ubuntu1) maverick; urgency=low
 bamf (0.2.44-0ubuntu1) maverick; urgency=low
 
   * New upstream release:
-    - Fix potential NULL deref when XDG_DATA_DIRS is not set 
+    - Fix potential NULL deref when XDG_DATA_DIRS is not set
       (lp: #602519)
-  * debian/control: 
-    - updated for the new vala versioning 
+  * debian/control:
+    - updated for the new vala versioning
   * debian/libbamf0.symbols:
     - new version update
 
@@ -557,7 +557,7 @@ bamf (0.2.36-0ubuntu1) maverick; urgency=low
 
   * New upstream release.
   * debian/libbamf0.symbols:
-    - update to latest 
+    - update to latest
 
  -- Didier Roche <didrocks@ubuntu.com>  Fri, 16 Jul 2010 14:44:16 +0200
 
@@ -607,7 +607,7 @@ bamf (0.2.26-0ubuntu1) maverick; urgency=low
   * debian/control, debian/libbamf-doc.install:
     - add libbamf-doc package
   * debian/libbamf0.symbols:
-    - updated 
+    - updated
   * debian/control, debian/rules:
     - build the doc by default
   * debian/libbamf-dev.install:
