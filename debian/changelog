@@ -1,5 +1,6 @@
-bamf (0.5.3+18.04.20180207.2-0ubuntu2) UNRELEASED; urgency=medium
+bamf (0.5.4) UNRELEASED; urgency=medium
 
+  * New upstream release: 0.5.4
   * debian/control:
     - update default vcs to git
     - Drop B-D on dbus-x11, rather versioned build-depend on dbus (>= 1.8)
