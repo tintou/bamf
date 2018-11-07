@@ -19,7 +19,7 @@ Build-Depends: dbus (>= 1.8),
                python-libxslt1,
                valac,
                xvfb,
-Standards-Version: 3.9.3
+Standards-Version: 4.1.5
 Homepage: https://launchpad.net/bamf
 # If you aren't a member of ~unity-team but need to upload packaging changes,
 # just go ahead.  ~unity-team will notice and sync up the code again.
