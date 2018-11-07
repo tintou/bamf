@@ -21,14 +21,7 @@ test-headless:
 	export XDG_CURRENT_DESKTOP="Unity"; \
 	source $(XVFB_RUN); \
 	\
-	$(DBUS_LAUNCH) > $(LOG_PATH)/sessionbus.sh; \
-	source $(LOG_PATH)/sessionbus.sh; \
-	\
-	make $(AM_MAKEFLAGS) -k test;
-	\
-	source $(LOG_PATH)/sessionbus.sh; \
-	rm $(LOG_PATH)/sessionbus.sh; \
-	kill $$DBUS_SESSION_BUS_PID;
+	$(DBUS_RUN_SESSION) -- make $(AM_MAKEFLAGS) -k test;
 
 check-local: test-headless
 

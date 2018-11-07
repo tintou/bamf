@@ -132,10 +132,10 @@ AM_CONDITIONAL([ENABLE_HEADLESS_TESTS],[test "x$enable_headless_tests" != "xno"]
 
 if test "x$enable_headless_tests" = "xyes"; then
   AC_PATH_PROG([XVFB],[Xvfb])
-  AC_PATH_PROG([DBUS_LAUNCH],[dbus-launch])
+  AC_PATH_PROG([DBUS_RUN_SESSION],[dbus-run-session])
 
-  if test -z "$XVFB" -o -z "$DBUS_LAUNCH"; then
-    AC_MSG_ERROR([Xvfb and dbus-launch are needed for headless-tests])
+  if test -z "$XVFB" -o -z "$DBUS_RUN_SESSION"; then
+    AC_MSG_ERROR([Xvfb and dbus-run-session are needed for headless-tests])
   fi
 fi
 
