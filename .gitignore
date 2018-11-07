@@ -1,3 +1,4 @@
+*.o
 *.la
 *.lo
 *.gcda
@@ -6,6 +7,7 @@
 *results*.xml
 .deps
 .libs
+bamf-*.tar.*
 Makefile
 Makefile.in
 aclocal.m4
@@ -28,7 +30,9 @@ missing
 stamp-h1
 data/Makefile
 data/Makefile.in
-data/org.wncksync.Matcher.service
+data/bamfdaemon-dbus-runner
+data/bamfdaemon.conf
+data/bamfdaemon.service
 examples/Makefile
 examples/Makefile.in
 examples/alt-tabber
