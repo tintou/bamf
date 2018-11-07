@@ -23,8 +23,8 @@ AM_PROG_LIBTOOL
 AC_ISC_POSIX
 AC_SUBST(ACLOCAL_AMFLAFS, "$ACLOCAL_FLAGS -I m4")
 
-AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
-if test "x$PKG_CONFIG" = "xno"; then AC_MSG_ERROR([You need to install pkg-config]); fi
+PKG_PROG_PKG_CONFIG
+if test "x$PKG_CONFIG" = "x"; then AC_MSG_ERROR([You need to install pkg-config]); fi
 
 # Checks for programs.
 AC_PROG_CC
