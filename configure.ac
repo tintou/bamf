@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(bamf, 0.5.4, dx-team@canonical.com)
+AC_INIT(bamf, 0.5.5, dx-team@canonical.com)
 AC_PREREQ(2.69)
 AC_SUBST(LIBBAMF_VER, 3)
 AC_SUBST(LIBBAMF_SONAME, 2:0:0)
