@@ -1,3 +1,13 @@
+bamf (0.5.3+18.04.20180207.2-0ubuntu2) focal; urgency=medium
+
+  * Cherry-pick from Debian, to fix FTBFS without python-lxml:
+    - Update B-D python-libxslt1 -> python3-lxml. (Closes: #942913)
+    - Add 1004_py2to3_gtester2xunit.patch. Use python3 for gtester2xunit.py.
+      Port libxml2/libxslt module usage to lxml module usage.
+  * Remove -Werror, bamf is hitting glib deprecations.
+
+ -- Stefano Rivera <stefanor@ubuntu.com>  Tue, 14 Apr 2020 09:24:15 -0700
+
 bamf (0.5.3+18.04.20180207.2-0ubuntu1) bionic; urgency=medium
 
   * bamf-window: read snap and flatpak IDs and use it to guess desktop-

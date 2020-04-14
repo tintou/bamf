@@ -113,11 +113,11 @@ GTK_DOC_CHECK(1.0)
 # gtester2xunit checks    #
 ###########################
 
-AC_PATH_PROG([PYTHON],[python])
+AC_PATH_PROG([PYTHON],[python3])
 AC_MSG_CHECKING(for gtester2xunit dependencies)
-if !($PYTHON -c "import libxslt, libxml2" 2> /dev/null); then
+if !($PYTHON -c "from lxml import etree" 2> /dev/null); then
   AC_MSG_RESULT([no])
-  AC_MSG_ERROR([You need to install python-libxslt1 and python-libxml2]);
+  AC_MSG_ERROR([You need to install python3-lxml]);
 fi
 AC_MSG_RESULT([yes])
 
@@ -155,7 +155,7 @@ AC_SUBST(COVERAGE_LDFLAGS)
 AM_PATH_GTK_3_0
 
 dnl CFLAGS
-CFLAGS="$CFLAGS -Wall -Werror -Wno-error=deprecated-declarations -Wempty-body -Wformat-security -Winit-self -Warray-bounds -Wimplicit-function-declaration -lm"
+CFLAGS="$CFLAGS -Wall -Wno-error=deprecated-declarations -Wempty-body -Wformat-security -Winit-self -Warray-bounds -Wimplicit-function-declaration -lm"
 
 AC_SUBST(BAMFDAEMON_CFLAGS)
 AC_SUBST(BAMFDAEMON_LIBS)

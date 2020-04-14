@@ -1,0 +1,49 @@
+Description: Run gtester2xunit.py with Python3, port libxml2/libxslt to lxml module..
+Author: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+Origin: https://salsa.debian.org/debian-mate-team/bamf/-/commit/4c420fa6a035680cd071684c85b3a542bdd6e205
+
+--- a/tests/gtester2xunit.py
++++ b/tests/gtester2xunit.py
+@@ -1,18 +1,17 @@
+-#! /usr/bin/python
++#! /usr/bin/python3
+ from argparse import ArgumentParser
+-import libxslt
+-import libxml2
++from lxml import etree
+ import sys
+ import os
+ 
+ XSL_TRANSFORM='/usr/share/gtester2xunit/gtester.xsl'
+ 
+ def transform_file(input_filename, output_filename, xsl_file):
+-    gtester = libxml2.parseFile(xsl_file)
+-    style = libxslt.parseStylesheetDoc(gtester)
+-    doc = libxml2.parseFile(input_filename)
+-    result = style.applyStylesheet(doc, None)
+-    result.saveFormatFile(filename=output_filename, format=True)
++    gtester = etree.parse(xsl_file)
++    transform = etree.XSLT(gtester)
++    doc = etree.parse(input_filename)
++    result = transform(doc)
++    result.write(output_filename)
+ 
+ 
+ def get_output_filename(input_filename):
+--- a/configure.ac
++++ b/configure.ac
+@@ -109,11 +109,11 @@
+ # gtester2xunit checks    #
+ ###########################
+ 
+-AC_PATH_PROG([PYTHON],[python])
++AC_PATH_PROG([PYTHON],[python3])
+ AC_MSG_CHECKING(for gtester2xunit dependencies)
+-if !($PYTHON -c "import libxslt, libxml2" 2> /dev/null); then
++if !($PYTHON -c "from lxml import etree" 2> /dev/null); then
+   AC_MSG_RESULT([no])
+-  AC_MSG_ERROR([You need to install python-libxslt1 and python-libxml2]);
++  AC_MSG_ERROR([You need to install python3-lxml]);
+ fi
+ AC_MSG_RESULT([yes])
+ 
