@@ -92,8 +92,8 @@ on_active_changed_idle (gpointer data)
   BamfView *self = BAMF_VIEW (data);
   gboolean active = bamf_view_is_active (self);
 
-  g_signal_emit_by_name (self, "active-changed", active);
   self->priv->active_changed_idle = 0;
+  g_signal_emit_by_name (self, "active-changed", active);
 
   return FALSE;
 }
@@ -157,8 +157,8 @@ on_starting_timeout (gpointer data)
 {
   BamfView *view = data;
 
-  bamf_view_set_starting (view, NULL, FALSE);
   view->priv->starting_timeout = 0;
+  bamf_view_set_starting (view, NULL, FALSE);
 
   return FALSE;
 }
