@@ -1,4 +1,4 @@
-bamf (0.5.5) UNRELEASED; urgency=medium
+bamf (0.5.5) hirsute; urgency=medium
 
   [ Marco Trevisan (Treviño) ]
   * New upstream release: 0.5.5
@@ -20,7 +20,7 @@ bamf (0.5.5) UNRELEASED; urgency=medium
   [ Didier Roche ]
   * _add-compile-warning-flags
 
- -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Tue, 19 Jan 2021 19:30:49 +0100
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Tue, 19 Jan 2021 19:43:54 +0100
 
 bamf (0.5.3+18.04.20180207.2-0ubuntu2) focal; urgency=medium
 
