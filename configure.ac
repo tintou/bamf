@@ -109,11 +109,11 @@ GTK_DOC_CHECK(1.0)
 # gtester2xunit checks    #
 ###########################
 
-AC_PATH_PROG([PYTHON],[python])
+AC_PATH_PROG([PYTHON],[python3])
 AC_MSG_CHECKING(for gtester2xunit dependencies)
-if !($PYTHON -c "import libxslt, libxml2" 2> /dev/null); then
+if !($PYTHON -c "from lxml import etree" 2> /dev/null); then
   AC_MSG_RESULT([no])
-  AC_MSG_ERROR([You need to install python-libxslt1 and python-libxml2]);
+  AC_MSG_ERROR([You need to install python3-lxml]);
 fi
 AC_MSG_RESULT([yes])
 

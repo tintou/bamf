@@ -1,18 +1,17 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 from argparse import ArgumentParser
-import libxslt
-import libxml2
+from lxml import etree
 import sys
 import os
 
 XSL_TRANSFORM='/usr/share/gtester2xunit/gtester.xsl'
 
 def transform_file(input_filename, output_filename, xsl_file):
-    gtester = libxml2.parseFile(xsl_file)
-    style = libxslt.parseStylesheetDoc(gtester)
-    doc = libxml2.parseFile(input_filename)
-    result = style.applyStylesheet(doc, None)
-    result.saveFormatFile(filename=output_filename, format=True)
+    gtester = etree.parse(xsl_file)
+    transform = etree.XSLT(gtester)
+    doc = etree.parse(input_filename)
+    result = transform(doc)
+    result.write(output_filename)
 
 
 def get_output_filename(input_filename):
