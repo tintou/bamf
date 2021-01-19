@@ -158,7 +158,7 @@ bamf_tab_class_init (BamfTabClass *klass)
                               NULL, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_LOCATION, pspec);
 
-  pspec = g_param_spec_string("desktop-id", "Desktop Name", "The Desktop ID assosciated with the application hosted in the remote Tab",
+  pspec = g_param_spec_string("desktop-id", "Desktop Name", "The Desktop ID associated with the application hosted in the remote Tab",
                               NULL, G_PARAM_READABLE);
   g_object_class_install_property (obj_class, PROP_DESKTOP_ID, pspec);
 
